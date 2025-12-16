@@ -36,7 +36,7 @@ Requires firms to maintain records of all agent activities and communications.
 - Weekly executive reporting
 
 ### Framework Coverage
-Framework provides 100% control coverage (43/43 controls). Implementation and validation required for compliance.
+Framework provides 100% control coverage (43/48 controls). Implementation and validation required for compliance.
 
 ---
 
@@ -91,7 +91,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (6/43 controls). Implementation required.
+Framework provides supervision procedure guidance (6/48 controls). Implementation required.
 
 ---
 
@@ -136,7 +136,7 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 The framework treats agents as models requiring comprehensive governance per SR 11-7 principles.
 
 ### Framework Coverage
-Framework addresses Notice 25-07 topics (6/43 controls). Implementation and validation required.
+Framework addresses Notice 25-07 topics (6/48 controls). Implementation and validation required.
 
 ---
 
@@ -190,7 +190,7 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 - Weekly compliance verification
 
 ### Framework Coverage
-Framework provides 88% control coverage (38/43 controls). Remaining gaps require supplemental controls. Implementation required.
+Framework provides 88% control coverage (38/48 controls). Remaining gaps require supplemental controls. Implementation required.
 
 ---
 
@@ -237,7 +237,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (4/43 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (4/48 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -291,7 +291,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 81% control coverage (35/43 controls). SOX-specific testing required. Implementation required.
+Framework provides 81% control coverage (35/48 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -346,7 +346,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 93% control coverage (40/43 controls). Implementation validation required.
+Framework provides 93% control coverage (40/48 controls). Implementation validation required.
 
 ---
 
@@ -412,7 +412,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 58% control coverage (25/43 controls). OCC-specific model validation required for full compliance.
+Framework provides 58% control coverage (25/48 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -457,7 +457,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/43 controls applicable). ECOA-specific testing and validation required.
+Framework provides bias testing controls (2/48 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -503,7 +503,7 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 - Regular audit of fairness outcomes
 
 ### Framework Coverage
-Framework addresses consumer protection topics (3/43 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (3/48 controls). CFPB-specific implementation required.
 
 ---
 
@@ -511,17 +511,17 @@ Framework addresses consumer protection topics (3/43 controls). CFPB-specific im
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 43/43 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 6/43 | 14% | Partial - supervision focus |
-| FINRA Notice 25-07 | 6/43 | 14% | Partial - model risk focus |
-| SEC 17a-3/4 | 38/43 | 88% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 4/43 | 9% | Limited - fairness focus |
-| SOX 302/404 | 35/43 | 81% | Substantial coverage |
-| GLBA 501-505 | 40/43 | 93% | Substantial coverage |
-| OCC 2011-12 | 25/43 | 58% | Partial - model risk focus |
-| Fed SR 11-7 | 25/43 | 58% | Partial - model risk focus |
-| Fed ECOA | 2/43 | 5% | Minimal - bias testing only |
-| CFPB | 3/43 | 7% | Minimal - consumer focus |
+| FINRA 4511 | 48/48 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 6/48 | 14% | Partial - supervision focus |
+| FINRA Notice 25-07 | 6/48 | 14% | Partial - model risk focus |
+| SEC 17a-3/4 | 43/48 | 88% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 4/48 | 9% | Limited - fairness focus |
+| SOX 302/404 | 40/48 | 81% | Substantial coverage |
+| GLBA 501-505 | 45/48 | 93% | Substantial coverage |
+| OCC 2011-12 | 30/48 | 58% | Partial - model risk focus |
+| Fed SR 11-7 | 30/48 | 58% | Partial - model risk focus |
+| Fed ECOA | 2/48 | 5% | Minimal - bias testing only |
+| CFPB | 3/48 | 7% | Minimal - consumer focus |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](/DISCLAIMER.md).
 

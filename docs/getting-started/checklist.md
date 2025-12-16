@@ -61,6 +61,29 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ## Phase 2: Foundation Implementation (Weeks 3-4)
 
+### Week 3: Environment Governance
+
+- [ ] **Environment Routing (Control 2.15)** ⭐ NEW
+  - [ ] Navigate to PPAC → Manage → Environment groups
+  - [ ] Enable default environment routing
+  - [ ] Configure routing rules for security groups
+  - [ ] Enable developer environment auto-provisioning
+  - [ ] Test maker routing with new app creation
+  - [ ] Document routing configuration
+
+- [ ] **Environment Groups (Control 2.2)**
+  - [ ] Create environment groups for Zone 1, Zone 2, Zone 3
+  - [ ] Apply connector policies per zone
+  - [ ] Configure sharing limits per zone
+  - [ ] Enable AI model rules if applicable
+  - [ ] Document group-to-zone mapping
+
+- [ ] **Managed Environments (Control 2.1)**
+  - [ ] Enable Managed Environment for Zone 2+ environments
+  - [ ] Configure governance policies
+  - [ ] Test policy enforcement
+  - [ ] Document Managed Environment settings
+
 ### Week 3: Security Baseline
 
 - [ ] **Authentication & Access (Pillar 1)**
@@ -184,10 +207,19 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
     - [ ] Test with sample agent
 
   - [ ] **Control 1.6: DSPM for AI**
-    - [ ] If available: Enable DSPM for AI
-    - [ ] Configure AI data governance policies
-    - [ ] Set up alerts for sensitive data access
+    - [ ] Navigate to purview.microsoft.com → DSPM for AI
+    - [ ] Complete Get Started setup steps
+    - [ ] Review recommendations and enable policies
+    - [ ] Configure activity monitoring
+    - [ ] Run oversharing assessments for agent knowledge sources
     - [ ] Document DSPM setup
+
+  - [ ] **Control 1.19: eDiscovery for Agent Interactions** ⭐ NEW
+    - [ ] Assign eDiscovery administrator role
+    - [ ] Document agent content locations (Teams, SharePoint)
+    - [ ] Create case templates for regulatory inquiries
+    - [ ] Test search for agent content
+    - [ ] Document legal hold procedures
 
 - [ ] **Compliance Reporting (Pillar 3)**
   - [ ] **Control 3.3: Compliance & Regulatory Reporting**
@@ -204,6 +236,28 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
     - [ ] Document incident investigation procedures
     - [ ] Create RCA template
     - [ ] Define escalation procedures
+
+- [ ] **PPAC Reporting** ⭐ NEW
+  - [ ] **Control 3.7: PPAC Security Posture Assessment**
+    - [ ] Access PPAC → Security → Overview
+    - [ ] Review security score (Low/Medium/High)
+    - [ ] Document baseline security posture
+    - [ ] Create plan to address recommendations
+    - [ ] Schedule weekly security score reviews
+
+  - [ ] **Control 3.8: Copilot Command Center**
+    - [ ] Access PPAC → Copilot hub
+    - [ ] Review agent counts and usage metrics
+    - [ ] Monitor capacity/consumption status
+    - [ ] Configure governance controls
+    - [ ] Schedule weekly metrics review
+
+  - [ ] **Control 3.9: Microsoft Sentinel Integration** (Zone 3)
+    - [ ] Assess Sentinel integration requirements
+    - [ ] Configure Sentinel workspace (if applicable)
+    - [ ] Enable Power Platform data connector
+    - [ ] Create analytics rules for agent threats
+    - [ ] Document SOC integration procedures
 
 ---
 
@@ -323,7 +377,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ## Success Criteria
 
-- [ ] All 43 controls implemented at appropriate maturity levels
+- [ ] All 48 controls implemented at appropriate maturity levels
 - [ ] Agent inventory complete and maintained
 - [ ] Compliance dashboard active and monitored
 - [ ] Training completed for all users
@@ -337,17 +391,19 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ## Quick Reference: Controls by Pillar
 
-**Pillar 1 (Security): 18 Controls**
-1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18
+**Pillar 1 (Security): 19 Controls**
+1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19 ⭐
 
-**Pillar 2 (Management): 14 Controls**
-2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10, 2.11, 2.12, 2.13, 2.14
+**Pillar 2 (Management): 15 Controls**
+2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15 ⭐
 
-**Pillar 3 (Reporting): 6 Controls**
-3.1, 3.2, 3.3, 3.4, 3.5, 3.6
+**Pillar 3 (Reporting): 9 Controls**
+3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7 ⭐, 3.8 ⭐, 3.9 ⭐
 
 **Pillar 4 (SharePoint): 5 Controls**
 4.1, 4.2, 4.3, 4.4, 4.5
+
+⭐ = New controls
 
 ---
 

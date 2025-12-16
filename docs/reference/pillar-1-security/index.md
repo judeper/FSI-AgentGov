@@ -21,3 +21,4 @@ Protect data and systems from unauthorized access, misuse, and exploitation.
 - [1.16 Information Rights Management (IRM) for Documents](1.16-information-rights-management-irm-for-documents.md)
 - [1.17 Endpoint Data Loss Prevention (Endpoint DLP)](1.17-endpoint-data-loss-prevention-endpoint-dlp.md)
 - [1.18 Application-Level Authorization and RBAC](1.18-application-level-authorization-and-role-based-access-control-rbac.md)
+- [1.19 eDiscovery for Agent Interactions](1.19-ediscovery-for-agent-interactions.md)

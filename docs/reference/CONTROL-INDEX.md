@@ -1,17 +1,12 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (43 Controls)
+## Complete Control Reference (48 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
 ---
 
-## Pillar 1: Security Controls (18 Controls)
-
-| Control ID | Control Name |
-|-----------|--------------|
-
-## Pillar 1: Security Controls (18 Controls)
+## Pillar 1: Security Controls (19 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -33,8 +28,9 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.16 | [Information Rights Management (IRM) for Documents](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) |
 | 1.17 | [Endpoint Data Loss Prevention (Endpoint DLP)](pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) |
 | 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) |
+| 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
 
-## Pillar 2: Management Controls (14 Controls)
+## Pillar 2: Management Controls (15 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -52,8 +48,9 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.12 | [Supervision and Oversight (FINRA Rule 3110)](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | 2.13 | [Documentation and Record Keeping](pillar-2-management/2.13-documentation-and-record-keeping.md) |
 | 2.14 | [Training and Awareness Program](pillar-2-management/2.14-training-and-awareness-program.md) |
+| 2.15 | [Environment Routing and Auto-Provisioning](pillar-2-management/2.15-environment-routing.md) |
 
-## Pillar 3: Agent Reporting (6 Controls)
+## Pillar 3: Agent Reporting (9 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -63,6 +60,9 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.4 | [Incident Reporting and Root Cause Analysis](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
 | 3.5 | [Cost Allocation and Budget Tracking](pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) |
 | 3.6 | [Orphaned Agent Detection and Remediation](pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
+| 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) |
+| 3.8 | [Copilot Command Center](pillar-3-reporting/3.8-copilot-command-center.md) |
+| 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
 ## Pillar 4: SharePoint Advanced Management (5 Controls)
 
@@ -98,15 +98,16 @@ Each control is documented with three governance levels:
 
 ## Pillar Descriptions
 
-### Pillar 1: Security Controls (18 Controls)
+### Pillar 1: Security Controls (19 Controls)
 Focus: Protect data and systems from unauthorized access, misuse, and exploitation.
 - Authentication and Authorization
 - Data Loss Prevention
 - Audit Logging
 - Encryption
 - Threat Detection
+- eDiscovery
 
-### Pillar 2: Management Controls (14 Controls)
+### Pillar 2: Management Controls (15 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management
@@ -116,7 +117,7 @@ Focus: Govern the agent lifecycle, access control, change management, and model 
 - Vendor Management
 - Training & Supervision
 
-### Pillar 3: Agent Reporting (6 Controls)
+### Pillar 3: Agent Reporting (9 Controls)
 Focus: Visibility and monitoring of agent activities, performance, and compliance.
 - Agent Inventory
 - Usage Analytics
@@ -124,6 +125,9 @@ Focus: Visibility and monitoring of agent activities, performance, and complianc
 - Incident Management
 - Cost Tracking
 - Orphaned Agent Detection
+- PPAC Security Posture
+- Copilot Command Center
+- Sentinel Integration
 
 ### Pillar 4: SharePoint Advanced Management (5 Controls)
 Focus: Govern SharePoint content accessed by agents with specific access, retention, and security controls.

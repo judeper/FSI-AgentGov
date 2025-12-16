@@ -51,10 +51,13 @@ nav:
   - Home: index.md
   - Getting Started:
     - Overview: getting-started/overview.md
-    - Zones Guide: getting-started/zones.md
-    - Directory Structure: getting-started/structure.md
     - Quick Start: getting-started/quick-start.md
+    - Zones Guide: getting-started/zones.md
+    - Lifecycle Governance: getting-started/lifecycle.md
     - Implementation Checklist: getting-started/checklist.md
+    - Directory Structure: getting-started/structure.md
+  - Downloads:
+    - Administrator Templates: downloads/index.md
   - Security Controls (Pillar 1):
     - Overview: reference/pillar-1-security/index.md
     - 1.1 Restrict Agent Publishing By Authorization: reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
@@ -75,6 +78,7 @@ nav:
     - 1.16 Information Rights Management Irm For Documents: reference/pillar-1-security/1.16-information-rights-management-irm-for-documents.md
     - 1.17 Endpoint Data Loss Prevention Endpoint Dlp: reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md
     - 1.18 Application Level Authorization And Role Based Access Control Rbac: reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md
+    - 1.19 eDiscovery For Agent Interactions: reference/pillar-1-security/1.19-ediscovery-for-agent-interactions.md
   - Management Controls (Pillar 2):
     - Overview: reference/pillar-2-management/index.md
     - 2.1 Managed Environments: reference/pillar-2-management/2.1-managed-environments.md
@@ -91,6 +95,7 @@ nav:
     - 2.12 Supervision And Oversight Finra Rule 3110: reference/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
     - 2.13 Documentation And Record Keeping: reference/pillar-2-management/2.13-documentation-and-record-keeping.md
     - 2.14 Training And Awareness Program: reference/pillar-2-management/2.14-training-and-awareness-program.md
+    - 2.15 Environment Routing And Auto Provisioning: reference/pillar-2-management/2.15-environment-routing.md
   - Reporting Controls (Pillar 3):
     - Overview: reference/pillar-3-reporting/index.md
     - 3.1 Agent Inventory And Metadata Management: reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
@@ -99,6 +104,9 @@ nav:
     - 3.4 Incident Reporting And Root Cause Analysis: reference/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md
     - 3.5 Cost Allocation And Budget Tracking: reference/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md
     - 3.6 Orphaned Agent Detection And Remediation: reference/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md
+    - 3.7 PPAC Security Posture Assessment: reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md
+    - 3.8 Copilot Command Center: reference/pillar-3-reporting/3.8-copilot-command-center.md
+    - 3.9 Microsoft Sentinel Integration: reference/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
   - SharePoint Controls (Pillar 4):
     - Overview: reference/pillar-4-sharepoint/index.md
     - 4.1 Sharepoint Information Access Governance Iag Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md

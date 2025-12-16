@@ -20,3 +20,7 @@ site/
 check_excel.py
 __pycache__/
 *.pyc
+
+# Internal working documents (keep locally, exclude from release)
+docs/analysis/
+templates/

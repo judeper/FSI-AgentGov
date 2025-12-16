@@ -60,12 +60,79 @@ graph TB
 
 ---
 
+## 🔺 Governance Fundamentals
+
+Effective agent governance operates through three interconnected layers that work together to ensure secure, compliant AI deployment.
+
+```mermaid
+graph TB
+    subgraph Triangle["Governance Triangle"]
+        direction TB
+        Policy["🛡️ Policy<br/>Technical Controls & Guardrails"]
+        Process["⚙️ Process<br/>Operational Workflows"]
+        People["👥 People<br/>Roles & Responsibilities"]
+    end
+
+    Policy --> Process
+    Process --> People
+    People --> Policy
+
+    style Policy fill:#42A5F5,color:#fff
+    style Process fill:#66BB6A,color:#fff
+    style People fill:#FFA726,color:#fff
+```
+
+### Policy Layer (Technical Controls)
+
+The policy layer establishes automated guardrails that enforce governance without manual intervention:
+
+| Component | Purpose | Implementation |
+|-----------|---------|----------------|
+| **Environment Groups** | Consistent policy across environments | [Environment groups](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups) |
+| **Group Rules** | Connector, sharing, channel controls | [Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) |
+| **DLP Policies** | Data boundary enforcement | [Data policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention) |
+| **Environment Routing** | Automatic maker placement | [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing) |
+
+### Process Layer (Operational Workflows)
+
+The process layer defines how governance decisions are made and executed:
+
+- **Agent Lifecycle Management** - Creation, testing, deployment, monitoring, retirement
+- **Approval Workflows** - Zone-appropriate authorization paths
+- **Change Control** - Controlled promotion between environments
+- **Incident Response** - Detection, investigation, remediation procedures
+- **Compliance Reviews** - Scheduled verification of control effectiveness
+
+See [Governance and security best practices](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/sec-gov-intro) for detailed process guidance.
+
+### People Layer (Organizational Structure)
+
+The people layer assigns accountability and ensures human oversight:
+
+| Role | Governance Function | Zone Focus |
+|------|---------------------|------------|
+| **AI Governance Lead** | Framework ownership, policy decisions | All zones |
+| **Power Platform Admin** | Technical implementation, environment management | Zones 2-3 |
+| **Compliance Officer** | Regulatory alignment, audit coordination | Zones 2-3 |
+| **Business Owner** | Agent sponsorship, use case validation | Per agent |
+| **Security Team** | Threat monitoring, incident response | Zone 3 |
+
+### How the Layers Interact
+
+1. **Policy enables Process** - Technical controls automate workflow enforcement
+2. **Process guides People** - Defined procedures clarify responsibilities
+3. **People inform Policy** - Human judgment shapes control configuration
+
+> **FSI Note:** In regulated environments, all three layers must be documented and auditable. Examiners expect evidence of policy configuration, process execution, and role assignment.
+
+---
+
 ## 📁 What's Included
 
-### Control Files (43 Total)
-- **Pillar 1:** 18 Security Controls (1.1-1.18)
-- **Pillar 2:** 14 Management Controls (2.1-2.14)
-- **Pillar 3:** 6 Reporting Controls (3.1-3.6)
+### Control Files (48 Total)
+- **Pillar 1:** 19 Security Controls (1.1-1.19)
+- **Pillar 2:** 15 Management Controls (2.1-2.15)
+- **Pillar 3:** 9 Reporting Controls (3.1-3.9)
 - **Pillar 4:** 5 SharePoint Controls (4.1-4.5)
 
 Each control includes:

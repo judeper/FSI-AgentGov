@@ -342,6 +342,161 @@ flowchart TD
 
 ---
 
+## Zone Selection: Detailed Criteria
+
+### Risk-Based Classification
+
+When determining the appropriate zone for an agent, evaluate these risk factors:
+
+```mermaid
+flowchart TD
+    A[📋 New Agent Request] --> B{Data Classification?}
+
+    B -->|Public/Personal Only| C{User Scope?}
+    B -->|Internal Business Data| D{External Access?}
+    B -->|Customer PII/Financial| E[🔴 Zone 3<br/>Enterprise Managed]
+
+    C -->|Individual| F[🟢 Zone 1<br/>Personal Productivity]
+    C -->|Team/Department| G{Regulatory Impact?}
+
+    D -->|No| H[🟡 Zone 2<br/>Team Collaboration]
+    D -->|Yes| E
+
+    G -->|Minimal| H
+    G -->|Moderate-High| E
+
+    style F fill:#66BB6A,color:#fff
+    style H fill:#FFA726,color:#fff
+    style E fill:#EF5350,color:#fff
+```
+
+### Zone Selection Scorecard
+
+Use this scorecard to determine the appropriate zone. Score each factor and total:
+
+| Factor | Zone 1 (0 pts) | Zone 2 (1 pt) | Zone 3 (2 pts) |
+|--------|----------------|---------------|----------------|
+| **Data Sensitivity** | Personal/public | Internal business | Customer/regulated |
+| **User Count** | 1 user | 2-50 users | 50+ users |
+| **Business Impact** | Inconvenience | Workflow disruption | Financial/legal |
+| **External Access** | None | Internal only | Customer-facing |
+| **Regulatory Scope** | None | FINRA 3110 | Full compliance |
+| **Data Sources** | M365 Graph | Internal SharePoint | CRM/Financial systems |
+
+**Scoring:**
+- **0-2 points:** Zone 1 - Personal Productivity
+- **3-6 points:** Zone 2 - Team Collaboration
+- **7+ points:** Zone 3 - Enterprise Managed
+
+### Automatic Zone Triggers
+
+Certain characteristics **automatically** require a specific zone:
+
+| Trigger | Required Zone | Rationale |
+|---------|---------------|-----------|
+| Customer PII accessed | Zone 3 | GLBA, Reg S-P compliance |
+| Financial transaction data | Zone 3 | SOX, SEC requirements |
+| Credit/lending decisions | Zone 3 | ECOA, fair lending |
+| External customer access | Zone 3 | Full supervision required |
+| Cross-department sharing | Zone 2+ | Governance oversight |
+| Production deployment | Zone 2+ | Change control required |
+
+---
+
+## Zone-Specific Sharing Controls
+
+Agent sharing and publishing are enforced through individual rules in [Environment groups](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups). Configure these rules in PPAC under **Manage → Environment groups → [Group] → Rules**.
+
+### Available Sharing & Channel Rules
+
+Based on current PPAC capabilities (29 rules available):
+
+| Rule Name | Description | Zone Relevance |
+|-----------|-------------|----------------|
+| **Sharing agents with Editor permissions** | Controls who can co-author agents | All zones |
+| **Sharing agents with Viewer permissions** | Controls who can view/run agents | All zones |
+| **Channel access for published agents** (preview) | Controls which channels agents can publish to | Zones 2-3 |
+| **Authentication for agents** (preview) | Controls agent authentication requirements | Zones 2-3 |
+| **Maker welcome content** | Onboarding guidance for new makers | All zones |
+
+### AI Model Governance Rules
+
+| Rule Name | Description | Zone Relevance |
+|-----------|-------------|----------------|
+| **Enable External Models** (preview) | Allow AI models hosted outside Microsoft | Zone 3 only |
+| **Preview and experimental AI models** | Allow pre-release AI capabilities | Zones 1-2 |
+| **Generative AI setting** | Enable/disable generative AI features | All zones |
+| **AI prompts** | Enable AI prompts feature | All zones |
+
+### Sharing Rule Configuration
+
+The sharing rules in PPAC are simple enable/disable toggles:
+
+#### Sharing agents with Editor permissions
+
+**Setting:** Checkbox - "Let people grant Editor permissions when agents are shared"
+
+| Option | Effect |
+|--------|--------|
+| ☑️ Enabled | Owners/editors can grant edit access to individuals |
+| ☐ Disabled | No one can share edit permissions |
+
+**Constraints:**
+- Editor permissions can only be shared with **individuals** (not security groups)
+- Only people with Editor or Owner permissions can share
+- Sharing limits **do not apply** when agent authentication is set to "No authentication"
+
+See [Share and manage agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots) for detailed sharing guidance.
+
+### Zone Sharing Recommendations
+
+| Zone | Editor Sharing | Viewer Sharing | Authentication |
+|------|----------------|----------------|----------------|
+| **Zone 1** | ☐ Disabled | ☐ Disabled | Required (prevents bypass) |
+| **Zone 2** | ☑️ Enabled | ☑️ Enabled | Required (Entra ID) |
+| **Zone 3** | ☐ Disabled* | ☑️ Enabled | Required (Entra ID) |
+
+*Zone 3 editor sharing disabled to enforce change control - edits go through ALM pipeline.
+
+> ⚠️ **FSI Note:** Always enable authentication for agents in Zones 2-3. Sharing limits are bypassed when authentication is disabled, creating a governance gap.
+
+---
+
+## Channel Access for Published Agents
+
+Control which channels agents can publish to. Configure in PPAC under **Manage → Environment groups → [Group] → Rules → Channel access for published agents**.
+
+> ⚠️ **Note:** If more restrictive data policies exist, those will override these channel settings.
+
+### Available Channels
+
+| Channel | Description | Risk Level |
+|---------|-------------|------------|
+| **Teams + Microsoft 365 Copilot** | Internal Microsoft channels | Low |
+| **SharePoint** | SharePoint site integration | Low |
+| **Dynamics 365 for Customer Service** | CRM integration | Medium |
+| **Direct Line channels** | Secure connections to websites and apps | Medium-High |
+| **Facebook** | Social media channel | High |
+| **WhatsApp** | External messaging | High |
+
+### Zone-Based Channel Recommendations
+
+| Channel | Zone 1 | Zone 2 | Zone 3 |
+|---------|--------|--------|--------|
+| Teams + Microsoft 365 Copilot | ☑️ | ☑️ | ☑️ |
+| SharePoint | ☐ | ☑️ | ☑️ |
+| Dynamics 365 for Customer Service | ☐ | ☐ | ☑️ |
+| Direct Line channels | ☐ | ☐ | ☑️* |
+| Facebook | ☐ | ☐ | ☐** |
+| WhatsApp | ☐ | ☐ | ☐** |
+
+*Zone 3 only with security review and approval
+**External social/messaging channels typically blocked in FSI for compliance
+
+> 🏦 **FSI Compliance Note:** External channels (Facebook, WhatsApp) require FINRA-compliant archiving and supervision. Most FSI organizations disable these channels unless specific compliance controls are in place per [FINRA Rule 3110](https://www.finra.org/rules-guidance/rulebooks/finra-rules/3110) and [FINRA Regulatory Notice 17-18](https://www.finra.org/rules-guidance/notices/17-18).
+
+---
+
 ## Implementation Guidance by Zone
 
 ### Zone 1 Setup (1-2 days)

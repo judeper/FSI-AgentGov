@@ -36,17 +36,17 @@ Full framework: 8-week phased approach (see Implementation-Checklist.md)
 
 ## Framework Questions
 
-### Q: Why are there 43 controls?
+### Q: Why are there 48 controls?
 
 A: The framework covers:
-- **Pillar 1:** 18 security controls
-- **Pillar 2:** 14 management/lifecycle controls
-- **Pillar 3:** 6 reporting/monitoring controls
+- **Pillar 1:** 19 security controls
+- **Pillar 2:** 15 management/lifecycle controls
+- **Pillar 3:** 9 reporting/monitoring controls
 - **Pillar 4:** 5 SharePoint-specific controls
 
-Total = 43 controls covering all governance areas.
+Total = 48 controls covering all governance areas.
 
-### Q: Do I need to implement all 43 controls?
+### Q: Do I need to implement all 48 controls?
 
 A: No. Implement based on:
 1. **Your zone:** Zone 1 needs fewer, Zone 3 needs all
@@ -73,6 +73,111 @@ A: Yes! The framework is a starting point. You can:
 - Customize for your regulations
 
 Maintain version control and document changes.
+
+---
+
+## Environment Governance
+
+### Q: How do I prevent users from creating agents in the default environment?
+
+A: Enable **environment routing** in Power Platform Admin Center:
+1. Navigate to PPAC → Manage → Environment groups
+2. Enable **Default environment routing**
+3. Configure routing rules to direct makers to appropriate environments
+4. Optionally enable **Developer environment auto-provisioning**
+
+This prevents shadow AI by automatically routing makers to governed environments. See [Control 2.15: Environment Routing](pillar-2-management/2.15-environment-routing.md).
+
+### Q: Where can I see all agents across my tenant?
+
+A: Use the **PPAC Inventory experience** (Preview):
+1. Power Platform Admin Center → Resources → Agents
+2. View tenant-wide agent list with metadata
+3. Filter by environment, owner, or status
+4. Note: Data refreshes every 24 hours; 500 agent display limit
+
+Also check M365 Admin Center → Settings → Integrated Apps for published agents.
+
+See [Control 3.1: Agent Inventory](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+
+### Q: How do I promote an agent from Zone 2 to Zone 3?
+
+A: Follow the **zone promotion process**:
+1. Complete all Zone 3 governance requirements
+2. Submit formal promotion request to Governance Committee
+3. Undergo security and compliance review
+4. Configure production environment with Managed Environment enabled
+5. Use ALM pipelines to deploy from test to production
+6. Document promotion and retain evidence
+
+See [Lifecycle Governance Guide](../getting-started/lifecycle.md) and [Control 2.3: Change Management](pillar-2-management/2.3-change-management-and-release-planning.md).
+
+### Q: What are Environment Groups and how do they help governance?
+
+A: **Environment Groups** allow you to:
+- Group environments by zone (Zone 1, Zone 2, Zone 3)
+- Apply consistent governance rules across all environments in a group
+- Enforce connector policies, sharing limits, and AI model restrictions
+- Prevent configuration drift with centralized rule management
+
+Navigate to PPAC → Manage → Environment groups to configure. See [Control 2.2: Environment Groups](pillar-2-management/2.2-environment-groups-and-tier-classification.md).
+
+### Q: What is the Copilot Command Center?
+
+A: The **Copilot Command Center** (Copilot Hub) provides:
+- Centralized dashboard for agent governance
+- Usage and adoption metrics
+- ROI tracking and business value insights
+- Capacity/consumption monitoring
+- Quick access to governance controls
+
+Access via PPAC → Copilot. See [Control 3.8: Copilot Command Center](pillar-3-reporting/3.8-copilot-command-center.md).
+
+### Q: How do I monitor AI data security risks?
+
+A: Use **Microsoft Purview DSPM for AI**:
+1. Navigate to purview.microsoft.com → DSPM for AI
+2. Review recommendations for AI security
+3. Enable activity monitoring for AI interactions
+4. Configure DLP policies targeting AI applications
+5. Run oversharing assessments for agent knowledge sources
+
+See [Control 1.6: DSPM for AI](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
+
+### Q: What are the 48 controls?
+
+A: The framework includes 48 controls across four pillars:
+- **Pillar 1 - Security:** 19 controls (1.1-1.19) covering DLP, encryption, audit logging, eDiscovery
+- **Pillar 2 - Management:** 15 controls (2.1-2.15) covering lifecycle, change control, environment routing
+- **Pillar 3 - Reporting:** 9 controls (3.1-3.9) covering inventory, monitoring, incidents, Sentinel
+- **Pillar 4 - SharePoint:** 5 controls (4.1-4.5) covering SharePoint-specific governance
+
+See [Control Index](./CONTROL-INDEX.md) for the complete list.
+
+### Q: How do I monitor my Power Platform security posture?
+
+A: Use the **PPAC Security Posture Assessment**:
+1. Navigate to Power Platform Admin Center → Security → Overview
+2. Review your security score (Low/Medium/High)
+3. View security recommendations
+4. Click recommendations to see remediation steps
+5. Track improvements over time
+
+This provides a centralized view of tenant security configuration. See [Control 3.7: PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md).
+
+### Q: How do I integrate with Microsoft Sentinel for agent monitoring?
+
+A: For Zone 3 agents requiring SOC integration:
+1. Configure Microsoft Sentinel workspace in Azure
+2. Enable Power Platform data connector in Sentinel
+3. Create analytics rules for agent-related security events:
+   - Unusual agent data access patterns
+   - Connector policy violations
+   - Environment configuration changes
+4. Configure incident response playbooks
+5. Integrate with your SOC procedures
+
+This enables real-time threat detection and automated response for production agents. See [Control 3.9: Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 
 ---
 

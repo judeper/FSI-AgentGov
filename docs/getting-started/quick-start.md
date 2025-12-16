@@ -4,6 +4,40 @@ Get up and running with the FSI Agent Governance Framework in 30 minutes.
 
 ---
 
+## Getting Started: 3-Phase Approach
+
+The framework recommends a structured 3-phase adoption approach:
+
+### Phase I: Form a Governance Team (Week 1-2)
+
+| Activity | Owner | Output |
+|----------|-------|--------|
+| Identify stakeholders | Executive Sponsor | Stakeholder list |
+| Assign roles per RACI | AI Governance Lead | Role assignments |
+| Establish communication channels | Project Lead | Teams channel/meetings |
+| Create initial policies | Compliance Officer | Draft governance policy |
+
+### Phase II: Train Employees (Week 2-4)
+
+| Training | Audience | Duration |
+|----------|----------|----------|
+| Zone overview and classification | All makers | 1 hour |
+| PPAC administration | Platform admins | 2 hours |
+| Compliance monitoring | Compliance team | 2 hours |
+| Security controls | Security team | 2 hours |
+
+### Phase III: Deploy and Engage (Week 4+)
+
+| Activity | Priority | Control Reference |
+|----------|----------|-------------------|
+| Enable environment routing | Critical | [2.15](../reference/pillar-2-management/2.15-environment-routing.md) |
+| Configure environment groups | Critical | [2.2](../reference/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
+| Deploy security controls | High | Pillar 1 controls |
+| Set up monitoring | High | [3.7](../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../reference/pillar-3-reporting/3.8-copilot-command-center.md) |
+| Iterate based on feedback | Ongoing | All controls |
+
+---
+
 ## 🚀 For New Users (10 minutes)
 
 ### Step 1: Understand the Framework Structure (3 min)
@@ -11,9 +45,9 @@ Get up and running with the FSI Agent Governance Framework in 30 minutes.
 The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
-1. Security (18 controls) - Protect data
-2. Management (14 controls) - Govern lifecycle
-3. Reporting (6 controls) - Monitor activities
+1. Security (19 controls) - Protect data
+2. Management (15 controls) - Govern lifecycle
+3. Reporting (9 controls) - Monitor activities
 4. SharePoint (5 controls) - Govern SharePoint
 
 **3 Zones (risk levels):**
@@ -148,7 +182,7 @@ Result: You know your regulatory landscape.
 10. Production deployment
 
 **Controls Required (comprehensive):**
-- All 43 controls apply
+- All 48 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 
@@ -180,7 +214,7 @@ Result: You know your regulatory landscape.
 ## 🔑 Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (43 total)
+- **Control:** Governance requirement (48 total)
 - **Pillar:** Control category (Security, Management, Reporting, SharePoint)
 - **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
 - **MFA:** Multi-Factor Authentication (login security)

@@ -17,3 +17,4 @@ Ensure operational excellence, risk management, and reliable agent lifecycle man
 - [2.12 Supervision and Oversight (FINRA Rule 3110)](2.12-supervision-and-oversight-finra-rule-3110.md)
 - [2.13 Documentation and Record Keeping](2.13-documentation-and-record-keeping.md)
 - [2.14 Training and Awareness Program](2.14-training-and-awareness-program.md)
+- [2.15 Environment Routing and Auto-Provisioning](2.15-environment-routing.md)

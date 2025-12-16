@@ -70,6 +70,60 @@ Define who is Responsible, Accountable, Consulted, and Informed for each governa
 
 ---
 
+## Additional Controls RACI Assignments
+
+The following RACI assignments apply to additional controls:
+
+### Control 1.19: eDiscovery for Agent Interactions
+
+| Activity | AI Lead | Compliance | CISO | Legal | PP Admin |
+|----------|---------|-----------|------|-------|----------|
+| Define eDiscovery procedures | C | R/A | C | C | I |
+| Configure legal holds | I | R | C | A | I |
+| Search agent content | I | R | C | C | I |
+| Export for regulators | I | R | C | A | I |
+| Quarterly testing | C | R/A | I | C | I |
+
+### Control 2.15: Environment Routing & Auto-Provisioning
+
+| Activity | AI Lead | Compliance | CISO | PP Admin | Business |
+|----------|---------|-----------|------|----------|----------|
+| Define routing strategy | R/A | C | C | C | I |
+| Configure default routing | C | I | I | R/A | I |
+| Map security groups | C | I | C | R/A | I |
+| Enable developer environments | C | I | I | R/A | I |
+| Monitor routing effectiveness | R | I | I | A | I |
+
+### Control 3.7: PPAC Security Posture Assessment
+
+| Activity | AI Lead | Compliance | CISO | PP Admin | Internal Audit |
+|----------|---------|-----------|------|----------|----------------|
+| Review security score | C | C | R/A | C | I |
+| Address recommendations | C | C | R | A | I |
+| Track improvements | R | I | A | C | C |
+| Executive reporting | R | A | C | I | I |
+
+### Control 3.8: Copilot Command Center
+
+| Activity | AI Lead | Compliance | CISO | PP Admin | Business |
+|----------|---------|-----------|------|----------|----------|
+| Access and configure dashboard | R/A | I | I | C | C |
+| Monitor usage metrics | R | I | I | C | C |
+| Track capacity/consumption | C | I | I | R/A | I |
+| Report to executives | R/A | C | I | I | I |
+
+### Control 3.9: Microsoft Sentinel Integration
+
+| Activity | AI Lead | Compliance | CISO | PP Admin | SOC |
+|----------|---------|-----------|------|----------|-----|
+| Define monitoring requirements | C | C | R/A | C | C |
+| Configure Sentinel workspace | I | I | C | C | R/A |
+| Create analytics rules | C | I | R | C | A |
+| Monitor and respond | I | I | C | I | R/A |
+| Threat hunting | I | I | C | I | R/A |
+
+---
+
 ## Core Governance Roles
 
 ### 1. Chief Information Security Officer (CISO)

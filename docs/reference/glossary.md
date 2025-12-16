@@ -18,6 +18,15 @@ List of approved connectors, actions, or data sources that agents can use. Oppos
 **Allowlist**
 See ALIM.
 
+**Agent AI Model Rules**
+[Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) that control which AI models agents can use within an environment group. Configured in Power Platform Admin Center under Manage → Environment groups → Rules.
+
+**Agent Publishing**
+The process of exposing agents through channels such as Microsoft Teams, websites, or third-party messaging platforms. Distinct from agent sharing. See [Publish and deploy agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels).
+
+**Agent Sharing**
+Controls who can access and co-author agents. Sharing grants edit or view permissions to other users, while publishing makes agents accessible to end users. See [Share and manage agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots).
+
 ---
 
 ## B
@@ -53,6 +62,9 @@ Microsoft Entra policy that enforces authentication requirements (like MFA) base
 **Connector**
 Integration between an agent and external systems (SharePoint, Teams, Excel, etc.).
 
+**Copilot Command Center**
+Unified dashboard in Power Platform Admin Center that consolidates governance, analytics, and business value metrics for Copilot usage across the organization. Access via PPAC → Copilot. See [Copilot hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
+
 ---
 
 ## D
@@ -66,6 +78,9 @@ Microsoft tool that monitors how AI agents interact with sensitive data.
 **Disaster Recovery (DR)**
 Plan to restore systems after a disaster.
 
+**Developer Environment**
+Personal sandbox environment for makers to build and test agents with limited governance requirements. Users can have up to 3 free developer environments. See [Create developer environment](https://learn.microsoft.com/en-us/power-platform/developer/create-developer-environment).
+
 ---
 
 ## E
@@ -77,7 +92,10 @@ Federal law prohibiting discrimination in lending based on protected characteris
 Container where Power Platform solutions and agents are hosted. Each organization can have multiple environments.
 
 **Environment Group**
-Collection of environments with shared governance policies.
+Collection of Power Platform environments with shared governance policies and rules. Environment groups enable consistent policy application across multiple environments, preventing configuration drift. Configured in PPAC under Manage → Environment groups. See [Environment groups](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups).
+
+**Environment Routing**
+Automatic placement of makers into appropriate Power Platform environments based on organizational rules such as security group membership. Prevents shadow AI creation in the default environment. See [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing).
 
 ---
 
@@ -104,6 +122,9 @@ Systems and procedures to ensure agents are used safely, securely, and in compli
 
 **Governance Committee**
 Decision-making body for Zone 3 agent approvals and oversight.
+
+**Group Rules**
+Policies applied consistently across environment groups to enforce governance and prevent drift. Rule types include: Sharing agents with Editor/Viewer permissions, Channel access for published agents, Authentication for agents, Generative AI settings, and Maker welcome content. Configured in PPAC under Manage → Environment groups → Rules. See [Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules).
 
 ---
 
@@ -157,6 +178,12 @@ System that makes predictions or decisions based on data. AI agents using ML alg
 **Model Risk**
 Risk that a model may produce inaccurate or biased outputs.
 
+**M365 Certification**
+Microsoft validation that an application meets security and compliance requirements. Higher trust level than Publisher Attested. Visible in M365 Admin Center under Settings → Integrated Apps.
+
+**Maker Routing**
+See Environment Routing.
+
 ---
 
 ## O
@@ -176,6 +203,18 @@ Administrative portal for Power Platform governance and configuration.
 
 **Purview**
 Microsoft platform for data governance, compliance, and information protection.
+
+**PPAC Inventory**
+Tenant-wide visibility of all apps, flows, and Copilot agents within Power Platform Admin Center. Provides cross-environment snapshot for governance. Access via PPAC → Resources → Agents. See [View agent inventory](https://learn.microsoft.com/en-us/power-platform/admin/tenant-wide-agent-inventory).
+
+**PPAC Monitoring**
+Health and performance insights for Copilot Studio agents in Power Platform Admin Center, including session success rates and degradation trends. Access via PPAC → Monitor → Copilot Studio. See [Monitor Copilot Studio](https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio).
+
+**PPAC Security**
+Centralized security posture management in Power Platform Admin Center providing security scores, recommendations, and misconfiguration detection. Access via PPAC → Security. See [Security overview](https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview).
+
+**Publisher Attested**
+Self-attestation by application publishers regarding their security practices. Lower trust level than M365 Certification. Visible in M365 Admin Center under Settings → Integrated Apps.
 
 ---
 
@@ -227,6 +266,9 @@ Federal law requiring internal controls and financial reporting for public compa
 
 **Supervised Learning**
 Type of machine learning using labeled training data.
+
+**Shadow AI**
+Unauthorized agent creation outside governed environments, typically in the default Power Platform environment. Environment routing prevents shadow AI by directing makers to governed environments. See [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing).
 
 ---
 
