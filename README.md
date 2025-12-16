@@ -6,9 +6,11 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.0 Beta (December 2025)  
-**Target Audience:** Financial Services Organizations (FSI)  
-**Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve  
+**Version:** 1.0 Beta (December 2025)
+**Target Audience:** Financial Services Organizations (FSI)
+**Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve
+
+> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
 
 ---
 
@@ -92,18 +94,20 @@ Each control includes:
 
 ---
 
-## 📊 Regulatory Coverage
+## Regulatory Coverage
 
-The framework maps controls to compliance requirements:
+The framework maps controls to regulatory requirements:
 
-| Regulation | Coverage | Key Controls | Readiness |
-|-----------|----------|-------------|-----------|
-| **FINRA 4511** | 100% (43/43) | 1.7, 1.9, 2.9, 2.12 | ✅ READY |
-| **SEC 17a-3/4** | 88% (38/43) | 1.7, 1.9, 1.13 | ✅ READY |
-| **SOX 302/404** | 81% (35/43) | 2.5, 2.10, 2.12 | ✅ READY |
-| **GLBA 501(b)** | 93% (40/43) | 1.11, 1.15, 1.18 | ✅ READY |
-| **OCC 2011-12** | 58% (25/43) | 2.6, 2.11 | ✅ READY |
-| **Fed SR 11-7** | 58% (25/43) | 2.6, 2.11 | ✅ READY |
+| Regulation | Coverage | Key Controls | Notes |
+|-----------|----------|--------------|-------|
+| **FINRA 4511** | 100% (43/43) | 1.7, 1.9, 2.9, 2.12 | Full coverage |
+| **SEC 17a-3/4** | 88% (38/43) | 1.7, 1.9, 1.13 | Recordkeeping focus |
+| **SOX 302/404** | 81% (35/43) | 2.5, 2.10, 2.12 | Internal controls |
+| **GLBA 501(b)** | 93% (40/43) | 1.11, 1.15, 1.18 | Safeguards focus |
+| **OCC 2011-12** | 58% (25/43) | 2.6, 2.11 | Model risk focus |
+| **Fed SR 11-7** | 58% (25/43) | 2.6, 2.11 | Model risk focus |
+
+> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](DISCLAIMER.md).
 
 ---
 

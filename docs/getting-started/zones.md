@@ -164,15 +164,15 @@ The framework uses three governance zones to balance innovation with compliance.
 - Runtime Protection: Mandatory
 - DSPM for AI: Recommended
 
-### Regulatory Status
-**Zone 3 is subject to COMPREHENSIVE regulatory oversight:**
+### Regulatory Considerations
+**Zone 3 agents handling regulated data may be subject to comprehensive oversight depending on firm type and use case:**
 
-- FINRA comprehensive examination
-- SEC Division of Examinations review
-- OCC/Federal Reserve model risk review (if applicable)
-- CFPB oversight (if consumer-facing)
-- Annual SOX controls testing
-- Regular audit by internal audit
+- FINRA examination (broker-dealers)
+- SEC Division of Examinations review (registered entities)
+- OCC/Federal Reserve model risk review (national banks, FSAs)
+- CFPB oversight (consumer financial services)
+- SOX controls testing (public companies)
+- Internal audit review (all organizations)
 
 ### Compliance Requirements
 **MANDATORY Controls:**

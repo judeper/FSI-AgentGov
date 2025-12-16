@@ -35,8 +35,8 @@ Requires firms to maintain records of all agent activities and communications.
 - Immediate incident escalation
 - Weekly executive reporting
 
-### Readiness Status
-✅ **READY** - 100% coverage (43/43 controls applicable)
+### Framework Coverage
+Framework provides 100% control coverage (43/43 controls). Implementation and validation required for compliance.
 
 ---
 
@@ -90,8 +90,8 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Mandatory incident escalation
 - Monthly compliance certification
 
-### Readiness Status
-✅ **READY** - Clear supervision procedures in place
+### Framework Coverage
+Framework provides supervision procedure guidance (6/43 controls). Implementation required.
 
 ---
 
@@ -135,8 +135,8 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 
 The framework treats agents as models requiring comprehensive governance per SR 11-7 principles.
 
-### Readiness Status
-✅ **READY** - Notice 25-07 topics covered by controls
+### Framework Coverage
+Framework addresses Notice 25-07 topics (6/43 controls). Implementation and validation required.
 
 ---
 
@@ -189,8 +189,8 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 - Real-time audit trail
 - Weekly compliance verification
 
-### Readiness Status
-✅ **READY** - 88% coverage (38/43 controls) for SEC Rule 17a-3/4
+### Framework Coverage
+Framework provides 88% control coverage (38/43 controls). Remaining gaps require supplemental controls. Implementation required.
 
 ---
 
@@ -236,8 +236,8 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Escalation procedures documented
 - Customer disclosure completed
 
-### Readiness Status
-✅ **READY** - SEC AI disclosure guidance incorporated
+### Framework Coverage
+Framework incorporates SEC AI disclosure guidance (4/43 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -290,8 +290,8 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Monthly compliance certification
 - Executive sign-off on effectiveness
 
-### Readiness Status
-✅ **READY** - 81% coverage (35/43 controls) for SOX 302/404
+### Framework Coverage
+Framework provides 81% control coverage (35/43 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -345,8 +345,8 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Customer-managed keys (recommended)
 - Quarterly training + annual assessment
 
-### Readiness Status
-✅ **READY** - 93% coverage (40/43 controls) for GLBA 501-505
+### Framework Coverage
+Framework provides 93% control coverage (40/43 controls). Implementation validation required.
 
 ---
 
@@ -411,8 +411,8 @@ Applies to national banks and federal savings associations. Requires governance 
 - Apply for Zone 3 high-risk agents
 - Recommended even if not OCC-regulated
 
-### Readiness Status
-✅ **READY** - 58% coverage (25/43 controls), aligned with SR 11-7 principles
+### Framework Coverage
+Framework provides 58% control coverage (25/43 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -456,8 +456,8 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Remediation if issues detected
 - Annual third-party validation
 
-### Readiness Status
-✅ **READY** - Fair lending aligned with bias testing controls
+### Framework Coverage
+Framework provides bias testing controls (2/43 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -502,26 +502,28 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 - Human escalation available
 - Regular audit of fairness outcomes
 
-### Readiness Status
-✅ **READY** - Consumer protection aligned with bias testing controls
+### Framework Coverage
+Framework addresses consumer protection topics (3/43 controls). CFPB-specific implementation required.
 
 ---
 
 ## Control Coverage Summary by Regulation
 
-| Regulation | Total Controls | Applicable | Coverage | Status |
-|-----------|---|---|---|---|
-| FINRA 4511 | 43 | 43 | 100% | ✅ READY |
-| FINRA 3110 | 43 | 6 | 14% | ✅ READY |
-| FINRA Notice 25-07 | 43 | 6 | 14% | ✅ READY |
-| SEC 17a-3/4 | 43 | 38 | 88% | ✅ READY |
-| SEC Rule 10b-5 / Reg BI | 43 | 4 | 9% | ✅ READY |
-| SOX 302/404 | 43 | 35 | 81% | ✅ READY |
-| GLBA 501-505 | 43 | 40 | 93% | ✅ READY |
-| OCC 2011-12 | 43 | 25 | 58% | ✅ READY |
-| Fed SR 11-7 | 43 | 25 | 58% | ✅ READY |
-| Fed ECOA | 43 | 2 | 5% | ✅ READY |
-| CFPB | 43 | 3 | 7% | ✅ READY |
+| Regulation | Applicable Controls | Coverage | Implementation Status |
+|-----------|---------------------|----------|----------------------|
+| FINRA 4511 | 43/43 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 6/43 | 14% | Partial - supervision focus |
+| FINRA Notice 25-07 | 6/43 | 14% | Partial - model risk focus |
+| SEC 17a-3/4 | 38/43 | 88% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 4/43 | 9% | Limited - fairness focus |
+| SOX 302/404 | 35/43 | 81% | Substantial coverage |
+| GLBA 501-505 | 40/43 | 93% | Substantial coverage |
+| OCC 2011-12 | 25/43 | 58% | Partial - model risk focus |
+| Fed SR 11-7 | 25/43 | 58% | Partial - model risk focus |
+| Fed ECOA | 2/43 | 5% | Minimal - bias testing only |
+| CFPB | 3/43 | 7% | Minimal - consumer focus |
+
+> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](/DISCLAIMER.md).
 
 ---
 

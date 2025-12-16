@@ -6,6 +6,7 @@ copyright: "*FSI Agent Governance Framework Beta - December 2025*"
 
 extra:
   generator: false
+  footer: "This framework does not constitute legal advice. See Disclaimer."
 
 theme:
   name: material

@@ -32,9 +32,34 @@ Thank you for your interest in contributing to the FSI Agent Governance Framewor
 - Reference control IDs where applicable
 
 ### Control Files
-- Follow existing control file structure
-- Include all required sections (Overview, Levels, Verification)
-- Map to relevant regulations
+
+Control files in `docs/reference/pillar-*/` must follow the standard structure:
+
+**Required Sections:**
+1. **Overview** - Control ID, name, regulatory reference, setup time
+2. **Governance Levels** - Baseline (Level 1), Recommended (Level 2-3), Regulated (Level 4)
+3. **Verification & Testing** - Step-by-step verification procedures with expected results
+4. **Implementation Guidance** - 5-step process (Assess, Implement, Verify, Document, Review)
+5. **Regulatory Context** - Primary regulations and applicability statement
+6. **Related Controls** - Cross-references to other controls
+7. **Support & Questions** - Contact information
+
+**Language Guidelines:**
+- Avoid overclaims like "ensures compliance" or "guarantees"
+- Use "supports compliance with" instead of "ensures compliance with"
+- Use "required for" or "helps meet" instead of "guarantees"
+- Include implementation caveats where appropriate
+
+**Regulatory Mapping:**
+- Reference specific regulation sections (e.g., "SEC 17a-3/4" not just "SEC")
+- Map to FINRA, SEC, SOX, GLBA, OCC, or Fed SR 11-7 as applicable
+- Update `docs/reference/regulatory-mappings.md` if adding new mappings
+
+**Testing:**
+```bash
+mkdocs build --strict  # Validates links and structure
+mkdocs serve           # Preview locally at http://localhost:8000
+```
 
 ## Questions?
 
