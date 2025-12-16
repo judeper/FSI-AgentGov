@@ -1,7 +1,7 @@
 site_name: FSI Agent Governance Framework
 site_description: "Governance framework for Microsoft Copilot Studio in Financial Services"
 site_author: "FSI Agent Governance Team"
-site_url: "" # will be populated by gh-pages
+site_url: "https://judeper.github.io/FSI-AgentGov/"
 copyright: "*FSI Agent Governance Framework Beta - December 2025*"
 
 extra:
@@ -38,7 +38,11 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - attr_list

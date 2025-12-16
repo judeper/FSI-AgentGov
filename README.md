@@ -35,6 +35,23 @@ This framework provides complete guidance for deploying, governing, and managing
 | **Zone 2: Team** | Medium | Departmental agents | Internal data | Manager approval |
 | **Zone 3: Enterprise** | High | Production/customer-facing | Regulated data | Governance committee |
 
+```mermaid
+graph LR
+    subgraph "Zone 1: Personal"
+        Z1[Individual Use<br/>Self-Service<br/>Low Risk]
+    end
+    subgraph "Zone 2: Team"
+        Z2[Departmental<br/>Manager Approval<br/>Medium Risk]
+    end
+    subgraph "Zone 3: Enterprise"
+        Z3[Production<br/>Committee Approval<br/>High Risk]
+    end
+    Z1 -->|Promote| Z2
+    Z2 -->|Promote| Z3
+    Z3 -.->|Demote| Z2
+    Z2 -.->|Demote| Z1
+```
+
 ---
 
 ## 📁 What's Included

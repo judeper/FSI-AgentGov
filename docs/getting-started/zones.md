@@ -229,12 +229,16 @@ The framework uses three governance zones to balance innovation with compliance.
 
 Agents typically progress through zones as they mature:
 
-```
-Zone 1: Personal Development
-    ↓ (Proven value, team validation)
-Zone 2: Team Collaboration
-    ↓ (Org-wide need, full testing, legal review)
-Zone 3: Enterprise Production
+```mermaid
+graph TB
+    Z1[Zone 1: Personal<br/>Development & Learning]
+    Z2[Zone 2: Team<br/>Collaboration]
+    Z3[Zone 3: Enterprise<br/>Production]
+
+    Z1 -->|"Proven value +<br/>Manager approval"| Z2
+    Z2 -->|"Full testing +<br/>Committee approval"| Z3
+    Z3 -.->|"Policy violation"| Z2
+    Z2 -.->|"Compliance failure"| Z1
 ```
 
 ### Promotion Criteria
@@ -298,6 +302,27 @@ Demotion typically requires:
 ---
 
 ## Zone Decision Matrix
+
+Use this decision tree to determine the appropriate zone for your agent:
+
+```mermaid
+flowchart TD
+    Start([New Agent]) --> Q1{Customer-facing<br/>or regulated data?}
+    Q1 -->|Yes| Z3[Zone 3: Enterprise]
+    Q1 -->|No| Q2{Shared across<br/>team/department?}
+    Q2 -->|Yes| Q3{Accesses internal<br/>business data?}
+    Q2 -->|No| Z1[Zone 1: Personal]
+    Q3 -->|Yes| Z2[Zone 2: Team]
+    Q3 -->|No| Z1
+
+    Z1 --> A1[Self-Service<br/>30-day audit]
+    Z2 --> A2[Manager Approval<br/>1-year audit]
+    Z3 --> A3[Committee Approval<br/>10-year audit]
+
+    style Z1 fill:#90EE90
+    style Z2 fill:#FFD700
+    style Z3 fill:#FF6B6B
+```
 
 ### Questions to Determine Zone
 

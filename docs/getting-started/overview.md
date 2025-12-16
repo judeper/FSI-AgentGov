@@ -27,6 +27,29 @@ This framework provides complete guidance for deploying, governing, and managing
 
 **Total: 43 Comprehensive Controls**
 
+```mermaid
+graph TB
+    subgraph P4["Pillar 4: SharePoint (5)"]
+        SP[Access · Retention · External]
+    end
+    subgraph P3["Pillar 3: Reporting (6)"]
+        RP[Inventory · Usage · Incidents]
+    end
+    subgraph P2["Pillar 2: Management (14)"]
+        MG[Lifecycle · Testing · Model Risk]
+    end
+    subgraph P1["Pillar 1: Security (18)"]
+        SC[DLP · Audit · Encryption · MFA]
+    end
+
+    P1 --> P2 --> P3 --> P4
+
+    style P1 fill:#4169E1,color:#fff
+    style P2 fill:#32CD32,color:#fff
+    style P3 fill:#FF8C00,color:#fff
+    style P4 fill:#9370DB,color:#fff
+```
+
 ### Three Governance Zones
 
 | Zone | Level | Risk | Data Access | Approval |
@@ -117,6 +140,21 @@ Each control is documented with 4 maturity levels:
 - **Level 1:** Baseline (minimal compliance)
 - **Level 2-3:** Recommended (best practices)
 - **Level 4:** Regulated/High-Risk (comprehensive)
+
+```mermaid
+graph LR
+    L0[Level 0<br/>Not Implemented]
+    L1[Level 1<br/>Baseline]
+    L23[Level 2-3<br/>Recommended]
+    L4[Level 4<br/>Regulated]
+
+    L0 --> L1 --> L23 --> L4
+
+    style L0 fill:#DC143C,color:#fff
+    style L1 fill:#FFD700,color:#000
+    style L23 fill:#4169E1,color:#fff
+    style L4 fill:#228B22,color:#fff
+```
 
 ### Control Implementation Approach
 
