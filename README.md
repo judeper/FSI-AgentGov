@@ -50,6 +50,10 @@ graph LR
     Z2 -->|Promote| Z3
     Z3 -.->|Demote| Z2
     Z2 -.->|Demote| Z1
+
+    style Z1 fill:#66BB6A,color:#fff
+    style Z2 fill:#FFA726,color:#fff
+    style Z3 fill:#EF5350,color:#fff
 ```
 
 ---

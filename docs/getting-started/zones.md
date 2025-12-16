@@ -239,6 +239,10 @@ graph TB
     Z2 -->|"Full testing +<br/>Committee approval"| Z3
     Z3 -.->|"Policy violation"| Z2
     Z2 -.->|"Compliance failure"| Z1
+
+    style Z1 fill:#66BB6A,color:#fff
+    style Z2 fill:#FFA726,color:#fff
+    style Z3 fill:#EF5350,color:#fff
 ```
 
 ### Promotion Criteria
@@ -319,9 +323,9 @@ flowchart TD
     Z2 --> A2[Manager Approval<br/>1-year audit]
     Z3 --> A3[Committee Approval<br/>10-year audit]
 
-    style Z1 fill:#90EE90
-    style Z2 fill:#FFD700
-    style Z3 fill:#FF6B6B
+    style Z1 fill:#66BB6A,color:#fff
+    style Z2 fill:#FFA726,color:#fff
+    style Z3 fill:#EF5350,color:#fff
 ```
 
 ### Questions to Determine Zone

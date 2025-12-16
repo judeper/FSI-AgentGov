@@ -44,10 +44,10 @@ graph TB
 
     P1 --> P2 --> P3 --> P4
 
-    style P1 fill:#4169E1,color:#fff
-    style P2 fill:#32CD32,color:#fff
-    style P3 fill:#FF8C00,color:#fff
-    style P4 fill:#9370DB,color:#fff
+    style P1 fill:#42A5F5,color:#fff
+    style P2 fill:#66BB6A,color:#fff
+    style P3 fill:#FFA726,color:#fff
+    style P4 fill:#AB47BC,color:#fff
 ```
 
 ### Three Governance Zones
@@ -150,10 +150,10 @@ graph LR
 
     L0 --> L1 --> L23 --> L4
 
-    style L0 fill:#DC143C,color:#fff
-    style L1 fill:#FFD700,color:#000
-    style L23 fill:#4169E1,color:#fff
-    style L4 fill:#228B22,color:#fff
+    style L0 fill:#EF5350,color:#fff
+    style L1 fill:#FFA726,color:#fff
+    style L23 fill:#42A5F5,color:#fff
+    style L4 fill:#66BB6A,color:#fff
 ```
 
 ### Control Implementation Approach
