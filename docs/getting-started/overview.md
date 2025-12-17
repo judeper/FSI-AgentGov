@@ -157,7 +157,7 @@ The people layer assigns accountability and ensures human oversight:
 | **Power Platform Admin** | Technical implementation, environment management | Zones 2-3 |
 | **Compliance Officer** | Regulatory alignment, audit coordination | Zones 2-3 |
 | **Business Owner** | Agent sponsorship, use case validation | Per agent |
-| **Security Team** | Threat monitoring, incident response | Zone 3 |
+| **Security / CISO** | Threat monitoring, incident response | Zone 3 |
 
 ### How the Layers Interact
 

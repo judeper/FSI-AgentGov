@@ -2,6 +2,21 @@
 
 Protect data and systems from unauthorized access, misuse, and exploitation.
 
+## Overview
+
+Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 19 controls address core risks including data leakage, unauthorized access, insufficient audit trails, and inadequate encryption—all critical concerns for regulated financial services environments.
+
+**Primary Regulatory Alignment:** FINRA 4511 (recordkeeping), SEC 17a-3/4 (records retention), GLBA 501(b) (safeguards), SOX 302/404 (internal controls)
+
+**Control Categories:**
+
+| Category | Controls | Focus |
+|----------|----------|-------|
+| Access Management | 1.1-1.4 | Agent publishing, connectors, permissions |
+| Data Protection | 1.5-1.9 | DLP, sensitivity labels, retention, encryption |
+| Monitoring & Detection | 1.10-1.14 | Compliance monitoring, insider risk, threat detection |
+| Advanced Security | 1.15-1.19 | IRM, endpoint DLP, RBAC, eDiscovery |
+
 ## Controls
 - [1.1 Restrict Agent Publishing by Authorization](1.1-restrict-agent-publishing-by-authorization.md)
 - [1.2 Agent Registry and Integrated Apps Management](1.2-agent-registry-and-integrated-apps-management.md)

@@ -2,6 +2,23 @@
 
 Ensure operational excellence, risk management, and reliable agent lifecycle management.
 
+## Overview
+
+Pillar 2 governs the operational processes required to manage AI agents throughout their lifecycle—from initial development through testing, deployment, monitoring, and eventual retirement. These 15 controls establish the governance framework for change management, model risk, vendor oversight, and ongoing supervision required by financial regulators.
+
+**Primary Regulatory Alignment:** OCC 2011-12 / Fed SR 11-7 (model risk), FINRA Rule 3110 (supervision), FINRA 25-07 (AI fairness), SOX 302/404 (internal controls)
+
+**Control Categories:**
+
+| Category | Controls | Focus |
+|----------|----------|-------|
+| Environment Governance | 2.1-2.2, 2.15 | Managed environments, groups, routing |
+| Lifecycle Management | 2.3-2.5, 2.10 | Change control, BCDR, testing, patching |
+| Risk Management | 2.6-2.8 | Model risk, vendor risk, segregation of duties |
+| Oversight & Compliance | 2.9, 2.11-2.14 | Performance monitoring, bias testing, supervision, training |
+
+> **Note:** Controls 2.6 and 2.11 address model risk management guidance (OCC 2011-12 / SR 11-7) but cover qualitative controls only. Organizations using AI agents for credit decisions or trading should supplement with comprehensive quantitative model validation programs.
+
 ## Controls
 - [2.1 Managed Environments](2.1-managed-environments.md)
 - [2.2 Environment Groups and Tier Classification](2.2-environment-groups-and-tier-classification.md)

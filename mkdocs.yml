@@ -61,21 +61,21 @@ nav:
     - 1.1 Restrict Agent Publishing By Authorization: reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
     - 1.2 Agent Registry And Integrated Apps Management: reference/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md
     - 1.3 SharePoint Content Governance And Permissions: reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md
-    - 1.4 Advanced Connector Policies Acp: reference/pillar-1-security/1.4-advanced-connector-policies-acp.md
-    - 1.5 Data Loss Prevention Dlp And Sensitivity Labels: reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md
-    - 1.6 Microsoft Purview Dspm For Ai: reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md
+    - 1.4 Advanced Connector Policies (ACP): reference/pillar-1-security/1.4-advanced-connector-policies-acp.md
+    - 1.5 Data Loss Prevention (DLP) and Sensitivity Labels: reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md
+    - 1.6 Microsoft Purview DSPM for AI: reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md
     - 1.7 Comprehensive Audit Logging And Compliance: reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md
     - 1.8 Runtime Protection And External Threat Detection: reference/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md
     - 1.9 Data Retention And Deletion Policies: reference/pillar-1-security/1.9-data-retention-and-deletion-policies.md
     - 1.10 Communication Compliance Monitoring: reference/pillar-1-security/1.10-communication-compliance-monitoring.md
-    - 1.11 Conditional Access And Phishing Resistant Mfa: reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md
+    - 1.11 Conditional Access and Phishing-Resistant MFA: reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md
     - 1.12 Insider Risk Detection And Response: reference/pillar-1-security/1.12-insider-risk-detection-and-response.md
-    - 1.13 Sensitive Information Types Sits And Pattern Recognition: reference/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md
+    - 1.13 Sensitive Information Types (SITs) and Pattern Recognition: reference/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md
     - 1.14 Data Minimization And Agent Scope Control: reference/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md
     - 1.15 Encryption Data In Transit And At Rest: reference/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md
-    - 1.16 Information Rights Management Irm For Documents: reference/pillar-1-security/1.16-information-rights-management-irm-for-documents.md
-    - 1.17 Endpoint Data Loss Prevention Endpoint Dlp: reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md
-    - 1.18 Application Level Authorization And Role Based Access Control Rbac: reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md
+    - 1.16 Information Rights Management (IRM) for Documents: reference/pillar-1-security/1.16-information-rights-management-irm-for-documents.md
+    - 1.17 Endpoint Data Loss Prevention (Endpoint DLP): reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md
+    - 1.18 Application-Level Authorization and RBAC: reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md
     - 1.19 eDiscovery For Agent Interactions: reference/pillar-1-security/1.19-ediscovery-for-agent-interactions.md
   - Management Controls (Pillar 2):
     - Overview: reference/pillar-2-management/index.md
@@ -84,13 +84,13 @@ nav:
     - 2.3 Change Management And Release Planning: reference/pillar-2-management/2.3-change-management-and-release-planning.md
     - 2.4 Business Continuity And Disaster Recovery: reference/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md
     - 2.5 Testing Validation And Quality Assurance: reference/pillar-2-management/2.5-testing-validation-and-quality-assurance.md
-    - 2.6 Model Risk Management Alignment With Occ 2011 12 Sr 11 7: reference/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md
+    - 2.6 Model Risk Management (OCC 2011-12 / SR 11-7): reference/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md
     - 2.7 Vendor And Third Party Risk Management: reference/pillar-2-management/2.7-vendor-and-third-party-risk-management.md
     - 2.8 Access Control And Segregation Of Duties: reference/pillar-2-management/2.8-access-control-and-segregation-of-duties.md
     - 2.9 Agent Performance Monitoring And Optimization: reference/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md
     - 2.10 Patch Management And System Updates: reference/pillar-2-management/2.10-patch-management-and-system-updates.md
-    - 2.11 Bias Testing And Fairness Assessment Finra Notice 25 07 Sr 11 7 Alignment: reference/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md
-    - 2.12 Supervision And Oversight Finra Rule 3110: reference/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
+    - 2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7): reference/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md
+    - 2.12 Supervision and Oversight (FINRA Rule 3110): reference/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
     - 2.13 Documentation And Record Keeping: reference/pillar-2-management/2.13-documentation-and-record-keeping.md
     - 2.14 Training And Awareness Program: reference/pillar-2-management/2.14-training-and-awareness-program.md
     - 2.15 Environment Routing And Auto Provisioning: reference/pillar-2-management/2.15-environment-routing.md
@@ -107,7 +107,7 @@ nav:
     - 3.9 Microsoft Sentinel Integration: reference/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
   - SharePoint Controls (Pillar 4):
     - Overview: reference/pillar-4-sharepoint/index.md
-    - 4.1 SharePoint Information Access Governance Iag Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
+    - 4.1 SharePoint IAG and Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
     - 4.2 Site Access Reviews And Certification: reference/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md
     - 4.3 Site And Document Retention Management: reference/pillar-4-sharepoint/4.3-site-and-document-retention-management.md
     - 4.4 Guest And External User Access Controls: reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md
