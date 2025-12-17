@@ -56,13 +56,11 @@ nav:
     - Lifecycle Governance: getting-started/lifecycle.md
     - Implementation Checklist: getting-started/checklist.md
     - Directory Structure: getting-started/structure.md
-  - Downloads:
-    - Administrator Templates: downloads/index.md
   - Security Controls (Pillar 1):
     - Overview: reference/pillar-1-security/index.md
     - 1.1 Restrict Agent Publishing By Authorization: reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
     - 1.2 Agent Registry And Integrated Apps Management: reference/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md
-    - 1.3 Sharepoint Content Governance And Permissions: reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md
+    - 1.3 SharePoint Content Governance And Permissions: reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md
     - 1.4 Advanced Connector Policies Acp: reference/pillar-1-security/1.4-advanced-connector-policies-acp.md
     - 1.5 Data Loss Prevention Dlp And Sensitivity Labels: reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md
     - 1.6 Microsoft Purview Dspm For Ai: reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md
@@ -109,14 +107,16 @@ nav:
     - 3.9 Microsoft Sentinel Integration: reference/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
   - SharePoint Controls (Pillar 4):
     - Overview: reference/pillar-4-sharepoint/index.md
-    - 4.1 Sharepoint Information Access Governance Iag Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
+    - 4.1 SharePoint Information Access Governance Iag Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
     - 4.2 Site Access Reviews And Certification: reference/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md
     - 4.3 Site And Document Retention Management: reference/pillar-4-sharepoint/4.3-site-and-document-retention-management.md
     - 4.4 Guest And External User Access Controls: reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md
-    - 4.5 Sharepoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
+    - 4.5 SharePoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
   - Reference:
     - Control Index: reference/CONTROL-INDEX.md
     - Glossary: reference/glossary.md
     - RACI Matrix: reference/raci-matrix.md
     - Regulatory Mappings: reference/regulatory-mappings.md
     - FAQ: reference/faq.md
+  - Downloads:
+    - Administrator Templates: downloads/index.md

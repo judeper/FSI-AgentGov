@@ -470,6 +470,71 @@ A: Remediation process:
 
 ---
 
+## Exceptions & Risk Acceptance
+
+### Q: What if we cannot implement a required control?
+
+A: Document an exception with risk acceptance:
+
+1. **Document the gap:** Identify the control and what cannot be implemented
+2. **Explain the reason:** Technical limitation, business constraint, or cost prohibition
+3. **Assess the risk:** What is the potential impact of non-implementation?
+4. **Identify compensating controls:** What alternative measures reduce the risk?
+5. **Obtain approval:** Get sign-off from appropriate authority (see below)
+6. **Set review date:** Schedule periodic re-evaluation
+
+### Q: Who must approve a control exception?
+
+A: Approval authority depends on the zone and control criticality:
+
+| Zone | Non-Critical Controls | Critical Controls |
+|------|----------------------|-------------------|
+| Zone 1 | Manager | AI Governance Lead |
+| Zone 2 | AI Governance Lead | Governance Committee |
+| Zone 3 | Governance Committee | Governance Committee + Executive Sponsor |
+
+Critical controls include: DLP (1.5), Audit Logging (1.7), MFA (1.11), Access Control (2.8).
+
+### Q: What are compensating controls?
+
+A: Alternative measures that reduce risk when the primary control cannot be implemented:
+
+| Primary Control Gap | Possible Compensating Controls |
+|--------------------|-------------------------------|
+| Automated DLP not available | Manual review process, restricted data access |
+| Environment routing not enabled | Weekly audit of default environment, cleanup procedures |
+| Sentinel integration not licensed | Enhanced manual log review, third-party SIEM |
+| Managed Environments not licensed | More frequent manual audits, stricter approval process |
+
+Document compensating controls with evidence of their effectiveness.
+
+### Q: How long can an exception remain open?
+
+A: Exception durations:
+
+- **Temporary exceptions:** Maximum 90 days, then re-evaluate
+- **Long-term exceptions:** Maximum 12 months, requires annual renewal
+- **Permanent exceptions:** Rare, requires Governance Committee approval and annual attestation
+
+All exceptions should include a remediation target date when feasible.
+
+### Q: How do we document exceptions for auditors?
+
+A: Maintain an **Exception Register** with:
+
+1. **Control ID and name**
+2. **Exception description** (what is not implemented)
+3. **Business justification**
+4. **Risk assessment** (likelihood × impact)
+5. **Compensating controls** (with evidence)
+6. **Approval record** (who approved, when)
+7. **Review schedule** (next review date)
+8. **Remediation plan** (if applicable)
+
+Auditors expect documented risk acceptance decisions, not undocumented gaps.
+
+---
+
 ## Troubleshooting
 
 ### Q: Our DLP policy isn't working.

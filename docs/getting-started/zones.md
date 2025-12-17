@@ -4,6 +4,20 @@
 
 The framework uses three governance zones to balance innovation with compliance. Agents progress from development (Zone 1) through team collaboration (Zone 2) to enterprise production (Zone 3).
 
+### Quick Comparison
+
+| Attribute | Zone 1: Personal | Zone 2: Team | Zone 3: Enterprise |
+|-----------|-----------------|--------------|-------------------|
+| **Risk Level** | Low | Medium | High |
+| **Scope** | Individual | Department | Organization-wide |
+| **Data Access** | M365 Graph only | Internal data | Regulated/sensitive |
+| **Approval** | Self-service | Manager | Governance Committee |
+| **Audit Retention** | 30 days | 1 year | 10 years |
+| **Managed Environment** | Not required | Recommended | Mandatory |
+| **MFA** | Standard | Enforced | Phishing-resistant |
+| **Regulatory Scrutiny** | None | Moderate | Full compliance |
+| **Setup Time** | 1-2 days | 1-2 weeks | 3-6 weeks |
+
 ---
 
 ## Zone 1: Personal Productivity

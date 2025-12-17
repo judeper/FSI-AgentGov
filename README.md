@@ -20,12 +20,12 @@ This framework provides complete guidance for deploying, governing, and managing
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. Security** | 18 | Protect data and systems | DLP, Audit, Encryption, MFA |
-| **2. Management** | 14 | Govern lifecycle and risk | Change Control, Testing, Model Risk |
-| **3. Reporting** | 6 | Monitor and track | Inventory, Usage, Incidents, Costs |
+| **1. Security** | 19 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery |
+| **2. Management** | 15 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Environment Routing |
+| **3. Reporting** | 9 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel |
 | **4. SharePoint Mgmt** | 5 | SharePoint-specific controls | Access, Retention, External Sharing |
 
-**Total: 43 Comprehensive Controls**
+**Total: 48 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -60,10 +60,10 @@ graph LR
 
 ## 📁 What's Included
 
-### Control Files (43 Total)
-- **Pillar 1:** 18 Security Controls (1.1-1.18)
-- **Pillar 2:** 14 Management Controls (2.1-2.14)
-- **Pillar 3:** 6 Reporting Controls (3.1-3.6)
+### Control Files (48 Total)
+- **Pillar 1:** 19 Security Controls (1.1-1.19)
+- **Pillar 2:** 15 Management Controls (2.1-2.15)
+- **Pillar 3:** 9 Reporting Controls (3.1-3.9)
 - **Pillar 4:** 5 SharePoint Controls (4.1-4.5)
 
 Each control includes:
@@ -90,7 +90,7 @@ Each control includes:
   - RACI Matrix, Compliance Matrix, Zones Definition
   - Implementation Checklist, Runbooks, Exam Prep
   - Glossary, Key Contacts, Admin Paths
-- **FSI_Agent_Governance_Complete_v1.0_Beta.docx** - Detailed written guidance (43 sections)
+- **FSI_Agent_Governance_Complete_v1.0_Beta.docx** - Detailed written guidance (48 sections)
 
 ---
 
@@ -121,14 +121,16 @@ The framework maps controls to regulatory requirements:
 
 | Regulation | Coverage | Key Controls | Notes |
 |-----------|----------|--------------|-------|
-| **FINRA 4511** | 100% (43/43) | 1.7, 1.9, 2.9, 2.12 | Full coverage |
-| **SEC 17a-3/4** | 88% (38/43) | 1.7, 1.9, 1.13 | Recordkeeping focus |
-| **SOX 302/404** | 81% (35/43) | 2.5, 2.10, 2.12 | Internal controls |
-| **GLBA 501(b)** | 93% (40/43) | 1.11, 1.15, 1.18 | Safeguards focus |
-| **OCC 2011-12** | 58% (25/43) | 2.6, 2.11 | Model risk focus |
-| **Fed SR 11-7** | 58% (25/43) | 2.6, 2.11 | Model risk focus |
+| **FINRA 4511** | 100% (48/48) | 1.7, 1.9, 1.19, 2.9, 2.12, 3.9 | Full coverage |
+| **SEC 17a-3/4** | 88% (42/48) | 1.7, 1.9, 1.13, 1.19 | Recordkeeping focus |
+| **SOX 302/404** | 81% (39/48) | 2.5, 2.10, 2.12, 2.15 | Internal controls |
+| **GLBA 501(b)** | 94% (45/48) | 1.11, 1.15, 1.18, 3.7 | Safeguards focus |
+| **OCC 2011-12** | 56% (27/48) | 2.6, 2.11 | Model risk focus* |
+| **Fed SR 11-7** | 56% (27/48) | 2.6, 2.11 | Model risk focus* |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](DISCLAIMER.md).
+>
+> *OCC 2011-12 and Fed SR 11-7 model risk guidance requires comprehensive model validation beyond this framework's scope. Organizations should supplement with dedicated model risk management programs for quantitative validation.
 
 ---
 

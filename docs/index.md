@@ -2,19 +2,20 @@
 
 **Version:** 1.0 Beta (December 2025)
 
-> ⚠️ **Disclaimer:** This framework is provided for informational purposes only and does not constitute legal advice. See the DISCLAIMER.md file in the repository root for full details.
+Welcome to the FSI Agent Governance Framework documentation. This framework provides comprehensive guidance for deploying, governing, and managing Microsoft 365 AI agents (Copilot Studio, Agent Builder) in regulated financial services environments.
+
+Use **Getting Started** to familiarize yourself with the framework structure and governance zones, then refer to **Controls by Pillar** for detailed implementation guidance and **Reference** materials as needed.
+
+> **Disclaimer:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [DISCLAIMER.md](https://github.com/judeper/FSI-AgentGov/blob/main/DISCLAIMER.md) for full details.
 
 ---
 
 ## Getting Started
-- [Overview](getting-started/overview.md)
-- [Zones Guide](getting-started/zones.md)
-- [Quick Start (30 min)](getting-started/quick-start.md)
-
-## How-To Guides
-- [Zone 1 Setup (Personal)](getting-started/zones.md#zone-1-setup-1-2-days)
-- [Zone 2 Setup (Team)](getting-started/zones.md#zone-2-setup-1-2-weeks)
-- [Zone 3 Setup (Enterprise)](getting-started/zones.md#zone-3-setup-3-6-weeks)
+- [Overview](getting-started/overview.md) - Framework structure, pillars, and zones
+- [Quick Start](getting-started/quick-start.md) - Get up and running in 30 minutes
+- [Zones Guide](getting-started/zones.md) - Understand the three governance zones
+- [Lifecycle Governance](getting-started/lifecycle.md) - Agent lifecycle management
+- [Implementation Checklist](getting-started/checklist.md) - Step-by-step deployment guide
 
 ## Reference
 - [Glossary](reference/glossary.md)
@@ -24,10 +25,13 @@
 - [Control Index](reference/CONTROL-INDEX.md)
 
 ## Controls by Pillar
-- [Pillar 1: Security](reference/pillar-1-security/index.md)
-- [Pillar 2: Management](reference/pillar-2-management/index.md)
-- [Pillar 3: Reporting](reference/pillar-3-reporting/index.md)
-- [Pillar 4: SharePoint](reference/pillar-4-sharepoint/index.md)
+- [Pillar 1: Security](reference/pillar-1-security/index.md) - 19 controls for data protection
+- [Pillar 2: Management](reference/pillar-2-management/index.md) - 15 controls for lifecycle governance
+- [Pillar 3: Reporting](reference/pillar-3-reporting/index.md) - 9 controls for monitoring and analytics
+- [Pillar 4: SharePoint](reference/pillar-4-sharepoint/index.md) - 5 controls for SharePoint governance
+
+## Downloads
+- [Administrator Templates](downloads/index.md) - Excel workbook and Word policy templates
 
 ---
 
