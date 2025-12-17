@@ -8,7 +8,9 @@ This framework provides complete guidance for deploying, governing, and managing
 
 **Version:** 1.0 Beta (December 2025)
 **Target Audience:** Financial Services Organizations (FSI)
-**Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve
+**Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
+
+> **Scope:** This framework is designed for **US financial institutions** using **Microsoft 365 AI agents** (Copilot Studio, Agent Builder). Non-US regulations (EU AI Act, GDPR, DORA) and non-M365 AI platforms are out of scope.
 
 > **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
 
@@ -122,11 +124,11 @@ The framework maps controls to regulatory requirements:
 | Regulation | Coverage | Key Controls | Notes |
 |-----------|----------|--------------|-------|
 | **FINRA 4511** | 100% (48/48) | 1.7, 1.9, 1.19, 2.9, 2.12, 3.9 | Full coverage |
-| **SEC 17a-3/4** | 88% (42/48) | 1.7, 1.9, 1.13, 1.19 | Recordkeeping focus |
-| **SOX 302/404** | 81% (39/48) | 2.5, 2.10, 2.12, 2.15 | Internal controls |
-| **GLBA 501(b)** | 94% (45/48) | 1.11, 1.15, 1.18, 3.7 | Safeguards focus |
-| **OCC 2011-12** | 56% (27/48) | 2.6, 2.11 | Model risk focus* |
-| **Fed SR 11-7** | 56% (27/48) | 2.6, 2.11 | Model risk focus* |
+| **SEC 17a-3/4** | 88% (43/48) | 1.7, 1.9, 1.13, 1.19 | Recordkeeping focus |
+| **SOX 302/404** | 81% (40/48) | 2.5, 2.10, 2.12, 2.15 | Internal controls |
+| **GLBA 501(b)** | 93% (45/48) | 1.11, 1.15, 1.18, 3.7 | Safeguards focus |
+| **OCC 2011-12** | 58% (30/48) | 2.6, 2.11 | Model risk focus* |
+| **Fed SR 11-7** | 58% (30/48) | 2.6, 2.11 | Model risk focus* |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](DISCLAIMER.md).
 >

@@ -11,6 +11,8 @@ Define who is Responsible, Accountable, Consulted, and Informed for each governa
 - **C (Consulted):** Provides input and expertise
 - **I (Informed):** Kept updated on status
 
+> **Note for Smaller Institutions:** Roles may be combined based on organizational size and structure. For example, a Compliance Officer may also serve as AI Governance Lead, or the CISO function may be assigned to an IT Director. The RACI assignments remain the same; the individual simply holds multiple roles. Ensure adequate segregation of duties for critical controls.
+
 ---
 
 ## Agent Governance Activities

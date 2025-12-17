@@ -27,11 +27,14 @@ This framework provides governance guidance for:
 
 ### What This Framework Does NOT Cover
 
-- Non-Microsoft AI platforms (OpenAI direct, AWS Bedrock, Google Vertex AI, etc.)
+- **Non-US regulations** (EU AI Act, GDPR, DORA, MiFID II are out of scope)
+- **Non-Microsoft AI platforms** (OpenAI direct, AWS Bedrock, Google Vertex AI, etc.)
 - Custom ML model development, training, or validation
 - Quantitative model risk management (requires dedicated MRM programs)
-- Data privacy regulations beyond GLBA (e.g., GDPR, CCPA require separate analysis)
+- State privacy laws (CCPA/CPRA require separate analysis; see [Regulatory Mappings](../reference/regulatory-mappings.md#state-level-regulations-for-awareness))
 - Third-party AI integrations outside Microsoft 365 ecosystem
+
+> **Note:** This framework is designed for **US financial institutions** only. Institutions subject to non-US regulations should supplement this framework with jurisdiction-specific guidance.
 
 ### Key Assumptions
 

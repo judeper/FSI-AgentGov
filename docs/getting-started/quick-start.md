@@ -74,14 +74,18 @@ Ask these questions:
 ### Step 3: Find Applicable Regulations (2 min)
 
 Check which regulations apply to your organization:
-- ✅ FINRA? (brokerage firms)
+- ✅ FINRA? (broker-dealers)
 - ✅ SEC? (investment advisers, public companies)
 - ✅ SOX? (public companies)
-- ✅ GLBA? (financial institutions)
+- ✅ GLBA? (all financial institutions)
 - ✅ OCC? (national banks)
-- ✅ Federal Reserve? (bank holding companies)
+- ✅ Federal Reserve? (bank holding companies, state member banks)
+- ✅ FDIC? (state non-member banks, savings associations)
+- ✅ NCUA? (credit unions)
+- ✅ State insurance regulator? (insurers)
+- ✅ NYDFS Part 500? (NY-licensed institutions)
 
-Result: You know your regulatory landscape.
+Result: You've identified your primary US regulators. Consult your Compliance Officer to confirm.
 
 ---
 

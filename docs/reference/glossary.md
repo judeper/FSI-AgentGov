@@ -7,7 +7,7 @@ Key terms and definitions used in the FSI Agent Governance Framework.
 ## A
 
 **Agent**
-A Microsoft 365 AI service that performs tasks based on user prompts. Includes Copilot Studio agents, Agent Builder agents, and SharePoint agents.
+A Microsoft 365 AI service that performs tasks based on user prompts. Includes Copilot Studio agents, Agent Builder agents, and SharePoint agents. *Note: This framework governs only Microsoft 365 agents; other AI platforms are out of scope.*
 
 **ALM (Application Lifecycle Management)**
 Process for managing agent development from creation through testing to production deployment.
@@ -107,6 +107,9 @@ Self-regulatory organization for securities brokers and dealers.
 **Fair Lending**
 Practice of lending without discrimination based on protected characteristics (race, color, religion, national origin, sex, marital status, age, disability, receipt of public assistance).
 
+**FDIC (Federal Deposit Insurance Corporation)**
+Federal regulator for state non-member banks, state savings associations, and insured depository institutions. FDIC-supervised institutions follow interagency guidance including SR 11-7 for model risk and FFIEC IT examination standards.
+
 **FIDO2**
 Phishing-resistant authentication method using hardware keys.
 
@@ -183,6 +186,16 @@ Microsoft validation that an application meets security and compliance requireme
 
 **Maker Routing**
 See Environment Routing.
+
+---
+
+## N
+
+**NCUA (National Credit Union Administration)**
+Federal regulator for federally insured credit unions. NCUA Part 748 establishes security program requirements. Credit unions follow similar technology risk management principles as banking regulators.
+
+**NYDFS (New York Department of Financial Services)**
+State regulator for financial institutions licensed in New York. NYDFS Part 500 (23 NYCRR 500) establishes cybersecurity requirements for covered entities including banks, insurers, and money transmitters with New York operations.
 
 ---
 
@@ -287,6 +300,9 @@ Encryption protocol for data in transit.
 **UAT (User Acceptance Testing)**
 Testing by actual end-users to confirm system meets requirements.
 
+**UDAAP (Unfair, Deceptive, or Abusive Acts or Practices)**
+CFPB authority prohibiting financial institutions from engaging in unfair, deceptive, or abusive practices. Consumer-facing AI agents must avoid UDAAP violations by ensuring accurate outputs, proper disclosures, and fair treatment.
+
 **Unsupervised Learning**
 Type of machine learning without labeled training data.
 
@@ -328,13 +344,19 @@ Risk classification for agents:
 | FINRA 4512 | Continuing Education | Training requirements |
 | SEC 17a-3/4 | Recordkeeping | Requires 6-year record retention |
 | SEC 10b-5 | Anti-Fraud Rule | Prohibits deceptive trading practices |
-| Reg BI | Beneficial Ownership | Requires best interest for customers |
+| Reg BI | Best Interest | Requires best interest for retail customers |
 | Reg S-P | Privacy Rule | Customer information protection |
 | SOX 302/404 | Internal Controls | Management responsibility for controls |
 | GLBA 501-505 | Safeguards | Data protection requirements |
 | OCC 2011-12 | Model Risk Guidance | Governance for models |
 | SR 11-7 | Model Risk Management | Federal Reserve guidance for models |
 | ECOA | Fair Lending | Prohibits lending discrimination |
+| FDIC | Federal Deposit Insurance Corporation | Regulates state non-member banks |
+| NCUA | National Credit Union Administration | Regulates federal credit unions |
+| NCUA Part 748 | Security Program | Credit union information security |
+| NYDFS Part 500 | Cybersecurity Regulation | NY state cybersecurity requirements |
+| UDAAP | Unfair/Deceptive/Abusive Acts | CFPB consumer protection authority |
+| NAIC Model Law | Insurance Data Security | State insurance data security baseline |
 
 ---
 

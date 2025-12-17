@@ -461,10 +461,10 @@ Framework provides bias testing controls (2/48 controls applicable). ECOA-specif
 
 ---
 
-## CFPB Guidance - Algorithmic Accountability
+## CFPB Guidance - Algorithmic Accountability and UDAAP
 
 ### Overview
-Applies to consumer financial service providers. Focuses on algorithmic accountability, bias, and consumer protection.
+Applies to consumer financial service providers. Focuses on algorithmic accountability, bias, consumer protection, and avoidance of unfair, deceptive, or abusive acts or practices (UDAAP).
 
 ### Applicable Controls
 
@@ -474,6 +474,25 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 | 1.6 | DSPM for AI | Consumer data protection |
 | 1.8 | Runtime Protection | Anomaly detection |
 | 2.12 | Supervision | Algorithmic governance |
+
+### UDAAP Considerations for AI Agents
+
+Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Practices (UDAAP):
+
+1. **Unfair Acts or Practices**
+   - Agent outputs must not cause substantial injury to consumers
+   - Injury must not be reasonably avoidable by consumers
+   - Injury must not be outweighed by benefits
+
+2. **Deceptive Acts or Practices**
+   - Agent communications must not mislead consumers
+   - Material information must be disclosed
+   - AI-generated content must be accurate
+
+3. **Abusive Acts or Practices**
+   - Agent must not take unreasonable advantage of consumer lack of understanding
+   - Must not exploit consumer inability to protect their interests
+   - Must not interfere with consumer ability to understand terms
 
 ### Consumer Protection Focus
 
@@ -501,9 +520,214 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 - Disclosure to consumers about AI use
 - Human escalation available
 - Regular audit of fairness outcomes
+- UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
 Framework addresses consumer protection topics (3/48 controls). CFPB-specific implementation required.
+
+---
+
+## FDIC-Supervised Institutions
+
+### Overview
+Applies to state non-member banks, state savings associations, and insured depository institutions supervised by the Federal Deposit Insurance Corporation.
+
+### Regulatory Alignment
+
+FDIC-supervised institutions follow the same interagency guidance as OCC and Federal Reserve institutions:
+
+| Guidance | FDIC Applicability | Framework Alignment |
+|----------|-------------------|---------------------|
+| Interagency Model Risk Guidance (SR 11-7) | Adopted by FDIC | Control 2.6, 2.11 |
+| Interagency Third-Party Guidance (2023) | Joint OCC/Fed/FDIC | Control 2.7 |
+| FFIEC IT Examination Handbook | Primary reference | Pillars 1-4 |
+| GLBA Safeguards Rule | Required | Pillar 1 Security |
+
+### Applicable Controls
+
+All framework controls apply to FDIC-supervised institutions. Key controls include:
+
+| Control | Requirement | FDIC Relevance |
+|---------|-------------|----------------|
+| 1.7 | Audit Logging | FFIEC IT Handbook - Audit and Monitoring |
+| 1.11 | Conditional Access/MFA | FFIEC Authentication Guidance |
+| 1.15 | Encryption | FFIEC Information Security |
+| 2.6 | Model Risk Management | Interagency SR 11-7 guidance |
+| 2.7 | Third-Party Risk | Interagency Third-Party Guidance (2023) |
+| 2.12 | Supervision | Examination expectations |
+
+### FFIEC IT Examination Alignment
+
+The framework aligns with FFIEC IT Examination Handbook domains:
+
+| FFIEC Domain | Framework Pillar | Key Controls |
+|--------------|-----------------|--------------|
+| Information Security | Pillar 1 | 1.5, 1.11, 1.15, 1.18 |
+| Audit | Pillar 1, 3 | 1.7, 3.1, 3.3 |
+| Business Continuity | Pillar 2 | 2.4 |
+| Operations | Pillar 2 | 2.1, 2.3, 2.10 |
+| Outsourcing Technology | Pillar 2 | 2.7 |
+
+### Governance Framework Alignment
+
+**FDIC-Supervised Institutions:**
+- Apply the same zone-based governance as OCC/Fed institutions
+- Follow interagency model risk guidance (SR 11-7) for AI agents
+- Reference FFIEC IT Examination Handbook for examination preparation
+- Maintain evidence for examination readiness
+
+### Framework Coverage
+Framework provides equivalent coverage to OCC/Fed institutions. All 48 controls applicable.
+
+---
+
+## NCUA-Supervised Credit Unions
+
+### Overview
+Applies to federally insured credit unions supervised by the National Credit Union Administration.
+
+### Regulatory Alignment
+
+NCUA follows similar principles to banking regulators for technology risk management:
+
+| Regulation | Description | Framework Alignment |
+|------------|-------------|---------------------|
+| NCUA Part 748 | Security Program Requirements | Pillar 1 Security Controls |
+| NCUA Cybersecurity Guidance | Risk assessment and controls | Pillars 1-3 |
+| FFIEC IT Examination Handbook | Shared examination standards | All Pillars |
+
+### Applicable Controls
+
+| Control | Requirement | NCUA Relevance |
+|---------|-------------|----------------|
+| 1.5 | DLP and Sensitivity Labels | Member data protection |
+| 1.7 | Audit Logging | Examination documentation |
+| 1.11 | Conditional Access/MFA | Authentication controls |
+| 1.15 | Encryption | Member information security |
+| 2.3 | Change Management | Control environment |
+| 2.7 | Third-Party Risk | Vendor oversight |
+| 2.12 | Supervision | Board and management oversight |
+
+### NCUA Part 748 Alignment
+
+Part 748 requires credit unions to maintain a security program. Framework controls support:
+
+1. **Administrative Controls** (Part 748.1)
+   - Governance roles (RACI Matrix)
+   - Training requirements (Control 2.14)
+   - Incident response (Control 3.4)
+
+2. **Technical Controls** (Part 748.1)
+   - Access controls (Control 1.18)
+   - Encryption (Control 1.15)
+   - Audit trails (Control 1.7)
+
+3. **Response Programs** (Part 748.1)
+   - Incident detection and response (Control 3.4)
+   - Member notification procedures
+
+### Governance Framework Alignment
+
+**Credit Union Implementation:**
+- Credit unions may adapt the framework based on asset size and complexity
+- Smaller credit unions may combine roles (see RACI Matrix guidance)
+- Zone classification remains applicable
+- Compliance Officer oversight for Zone 2+ agents
+
+### Framework Coverage
+Framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
+
+---
+
+## State-Level Regulations (For Awareness)
+
+### Overview
+State-level regulations may apply depending on where the institution is chartered, operates, or serves customers. The following are provided for awareness; institutions should consult legal counsel for applicability.
+
+### NYDFS Part 500 (23 NYCRR 500)
+
+**Applicability:** Entities licensed by NYDFS (banks, insurers, money transmitters) with New York operations.
+
+The framework's controls align with NYDFS Part 500 cybersecurity requirements:
+
+| Part 500 Section | Requirement | Framework Control(s) |
+|------------------|-------------|---------------------|
+| §500.02 | Cybersecurity Program | Pillar 1 (Security), Pillar 2 (Management) |
+| §500.03 | Cybersecurity Policy | Governance documentation |
+| §500.05 | Penetration Testing | 2.5 Testing and Validation |
+| §500.06 | Audit Trail | 1.7 Comprehensive Audit Logging |
+| §500.07 | Access Privileges | 1.18 RBAC, 2.8 Segregation of Duties |
+| §500.08 | Application Security | 2.5 Testing, 1.8 Runtime Protection |
+| §500.10 | Cybersecurity Personnel | RACI Matrix role definitions |
+| §500.11 | Third-Party Risk | 2.7 Vendor and Third-Party Risk |
+| §500.12 | MFA | 1.11 Conditional Access and MFA |
+| §500.14 | Training | 2.14 Training and Awareness |
+| §500.15 | Encryption | 1.15 Encryption |
+| §500.16 | Incident Response | 3.4 Incident Reporting |
+| §500.17 | Notices to Superintendent | 3.4 Incident Reporting (escalation) |
+
+**Note:** NYDFS Part 500 underwent significant amendments effective November 2023. Institutions should verify current requirements with legal counsel.
+
+### CCPA/CPRA (California)
+
+**Applicability:** Institutions with California customers may be subject to CCPA/CPRA for certain data processing activities.
+
+**GLBA Preemption:** Financial institutions subject to GLBA may have limited CCPA/CPRA obligations for GLBA-covered data. However:
+- Non-GLBA data may still be subject to CCPA/CPRA
+- Employee data may be subject to CPRA
+- Consult legal counsel for your specific situation
+
+The framework's data governance controls (1.5, 1.6, 1.9, 1.14) support privacy compliance but do not specifically address CCPA/CPRA requirements.
+
+### Other State Regulations
+
+Additional state-level requirements may apply:
+- **State Insurance Regulators** - See Insurance Regulators section
+- **State Banking Regulators** - State-chartered institutions should consult their state regulator
+- **State Privacy Laws** - Other states have enacted privacy laws (Virginia, Colorado, Connecticut, etc.)
+
+---
+
+## Insurance Regulators (For Awareness)
+
+### Overview
+Insurance companies are primarily regulated at the state level. The NAIC (National Association of Insurance Commissioners) develops model laws that states may adopt.
+
+### NAIC Insurance Data Security Model Law
+
+Many states have adopted versions of the NAIC Insurance Data Security Model Law, which requires:
+
+| Requirement | Model Law Section | Framework Alignment |
+|-------------|-------------------|---------------------|
+| Information Security Program | Section 4 | Pillar 1, Pillar 2 |
+| Risk Assessment | Section 4(C) | Zone classification, risk assessment |
+| Security Controls | Section 4(D) | Pillar 1 Security Controls |
+| Third-Party Oversight | Section 4(F) | Control 2.7 |
+| Incident Response | Section 5 | Control 3.4 |
+| Investigation and Notification | Section 6 | Control 3.4 |
+
+### Framework Applicability to Insurers
+
+The framework controls are generally applicable to insurance companies:
+
+| Framework Area | Insurance Relevance |
+|----------------|---------------------|
+| **Pillar 1 (Security)** | Information security program requirements |
+| **Pillar 2 (Management)** | Governance and oversight requirements |
+| **Pillar 3 (Reporting)** | Incident response and reporting |
+| **Pillar 4 (SharePoint)** | Document and data governance |
+
+### Governance Framework Alignment
+
+**Insurance Company Implementation:**
+- Apply zone-based classification to AI agents
+- Follow state insurance regulator requirements
+- Reference NAIC model laws as baseline
+- Consult state insurance department for specific requirements
+- Annual certification may be required in some states
+
+### Recommendation
+Insurers should consult their primary state insurance regulator and legal counsel to confirm specific requirements. The framework provides a solid foundation but may require state-specific adaptations.
 
 ---
 
@@ -521,7 +745,11 @@ Framework addresses consumer protection topics (3/48 controls). CFPB-specific im
 | OCC 2011-12 | 30/48 | 58% | Partial - model risk focus |
 | Fed SR 11-7 | 30/48 | 58% | Partial - model risk focus |
 | Fed ECOA | 2/48 | 5% | Minimal - bias testing only |
-| CFPB | 3/48 | 7% | Minimal - consumer focus |
+| CFPB / UDAAP | 4/48 | 8% | Consumer protection focus |
+| FDIC (Interagency) | 48/48 | 100% | Equivalent to OCC/Fed coverage |
+| NCUA Part 748 | 45/48 | 93% | Security program alignment |
+| NYDFS Part 500 | 40/48 | 83% | State-level awareness |
+| NAIC Model Law | 35/48 | 73% | Insurance awareness |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](/DISCLAIMER.md).
 
