@@ -117,6 +117,78 @@ Each control includes:
 
 ---
 
+## 🔧 Setup & Verification Workflow
+
+Each control in this framework now includes comprehensive setup/configuration guidance. Use this workflow for implementing controls:
+
+### Control Documentation Structure
+
+Every control file (1.1-4.5) follows this enhanced structure:
+
+| Section | Purpose |
+|---------|---------|
+| **Overview** | Control ID, name, regulatory references, setup time |
+| **Prerequisites** | Required licenses, admin roles, dependencies |
+| **Governance Levels** | Baseline, Recommended, and Regulated configurations |
+| **Setup & Configuration** | Step-by-step portal navigation and PowerShell scripts |
+| **Financial Sector Considerations** | Regulatory alignment, zone-specific guidance, FSI examples |
+| **Verification & Testing** | Steps to confirm configuration is active |
+| **Troubleshooting** | Common issues and resolutions |
+| **Additional Resources** | Microsoft Learn links and admin portal URLs |
+
+### Implementation Steps
+
+```mermaid
+graph LR
+    A[1. Check Prerequisites] --> B[2. Follow Setup Steps]
+    B --> C[3. Configure per Zone]
+    C --> D[4. Verify Configuration]
+    D --> E[5. Document Evidence]
+    E --> F[6. Schedule Review]
+```
+
+1. **Check Prerequisites**: Verify licenses, admin roles, and dependencies (other controls that must be configured first)
+2. **Follow Setup Steps**: Use portal-based or PowerShell configuration methods
+3. **Configure per Zone**: Apply settings appropriate for Zone 1, 2, or 3
+4. **Verify Configuration**: Execute verification steps to confirm active controls
+5. **Document Evidence**: Capture screenshots, export logs, record in compliance system
+6. **Schedule Review**: Set quarterly review cadence for control effectiveness
+
+### Quick Reference Resources
+
+| Resource | Description | Location |
+|----------|-------------|----------|
+| **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
+| **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
+| **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
+| **License Requirements** | License mapping for all 43 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
+| **Implementation Plan** | Phased approach for completing controls | [implementation-plan.md](docs/implementation-plan.md) |
+
+### Priority Controls (Start Here)
+
+These foundation controls should be implemented first as other controls depend on them:
+
+| Priority | Control | Why First |
+|----------|---------|-----------|
+| 1 | [2.1 - Managed Environments](docs/reference/pillar-2-management/2.1-managed-environments.md) | Required for 15+ other controls |
+| 2 | [1.7 - Audit Logging](docs/reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Compliance evidence for all controls |
+| 3 | [1.11 - Conditional Access & MFA](docs/reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Security baseline |
+| 4 | [1.5 - DLP & Sensitivity Labels](docs/reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Data protection foundation |
+| 5 | [1.4 - Advanced Connector Policies](docs/reference/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Connector governance for agents |
+
+### Admin Portal Quick Access
+
+| Portal | URL | Primary Use |
+|--------|-----|-------------|
+| Power Platform Admin Center | [admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com) | Environments, DLP, connectors |
+| Microsoft Purview Portal | [compliance.microsoft.com](https://compliance.microsoft.com) | Audit, DLP, retention |
+| Microsoft Entra Admin Center | [entra.microsoft.com](https://entra.microsoft.com) | Conditional access, MFA, roles |
+| SharePoint Admin Center | [admin.microsoft.com/sharepoint](https://admin.microsoft.com/sharepoint) | SharePoint governance |
+| Copilot Studio | [copilotstudio.microsoft.com](https://copilotstudio.microsoft.com) | Agent development |
+
+---
+
 ## Regulatory Coverage
 
 The framework maps controls to regulatory requirements:
