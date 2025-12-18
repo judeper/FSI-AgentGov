@@ -12,6 +12,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Block internal artifacts under docs/
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          forbidden=$(find docs/reference -maxdepth 1 -type f \( -name '*.pdf' -o -name '*.txt' -o -name '*.json' \) -print || true)
+          if [[ -n "${forbidden}" ]]; then
+            echo "ERROR: Forbidden maintainer-only artifacts found under docs/reference (must be local-only):"
+            echo "${forbidden}"
+            exit 1
+          fi
+
+          for path in docs/HANDOFF.md docs/implementation-plan.md docs/getting-started/structure.md; do
+            if [[ -f "${path}" ]]; then
+              echo "ERROR: Maintainer-only doc must not exist under docs/: ${path}"
+              exit 1
+            fi
+          done
       
       - name: Configure Git Credentials
         run: |

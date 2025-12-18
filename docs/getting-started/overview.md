@@ -10,7 +10,7 @@ This framework provides complete guidance for deploying, governing, and managing
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve
 
-> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [DISCLAIMER.md](/DISCLAIMER.md) for full details.
+> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](../disclaimer.md) for full details.
 
 ---
 
@@ -187,20 +187,20 @@ Each control includes:
 - Implementation guidance
 
 ### Documentation Files
-- **README.md** - This file (overview)
-- **Zones-Overview.md** - Detailed governance zones
-- **Regulatory-Mappings.md** - Regulation-to-control mapping
-- **Quick-Start-Guide.md** - How to use the framework
-- **Glossary.md** - Key terms and definitions
-- **RACI-Matrix.md** - Roles and responsibilities
-- **Implementation-Checklist.md** - Implementation roadmap
-- **FAQ.md** - Frequently asked questions
+- **Overview** - This page (framework introduction)
+- **Quick Start** - How to start using the framework
+- **Zones Guide** - Zone 1/2/3 classification and requirements
+- **Lifecycle Governance** - Governance lifecycle and review cadence
+- **Implementation Checklist** - Practical rollout checklist
+- **Glossary** - Key terms and definitions
+- **RACI Matrix** - Roles and responsibilities
+- **Regulatory Mappings** - Regulation-to-control mapping
+- **FAQ** - Frequently asked questions
 
 ### Supporting Files
 - **CONTROL-INDEX.md** - Master index of all controls
-- **controls_structure.json** - Control data structure
-- **FSI_Agent_Governance_Framework_Beta.xlsx** - Excel workbook with templates
-- **FSI_Agent_Governance_Complete_Beta.docx** - Detailed written guidance
+- **Administrator Excel Templates** - Role-specific checklists and dashboards (see [Downloads](../downloads/index.md))
+- **Microsoft Learn URLs** - Master list of official documentation links used in this framework
 
 ---
 
@@ -227,20 +227,11 @@ Each control includes:
 
 ## Regulatory Coverage
 
-The framework maps controls to regulatory requirements:
+Regulatory mappings and coverage are maintained in a single canonical table.
 
-| Regulation | Coverage | Key Controls | Notes |
-|-----------|----------|--------------|-------|
-| **FINRA 4511** | 100% (48/48) | 1.7, 1.9, 1.19, 2.9, 2.12, 3.9 | Full coverage |
-| **SEC 17a-3/4** | 88% (42/48) | 1.7, 1.9, 1.13, 1.19 | Recordkeeping focus |
-| **SOX 302/404** | 81% (39/48) | 2.5, 2.10, 2.12, 2.15 | Internal controls |
-| **GLBA 501(b)** | 94% (45/48) | 1.11, 1.15, 1.18, 3.7 | Safeguards focus |
-| **OCC 2011-12** | 56% (27/48) | 2.6, 2.11 | Model risk focus* |
-| **Fed SR 11-7** | 56% (27/48) | 2.6, 2.11 | Model risk focus* |
+- See [Regulatory Mappings](../reference/regulatory-mappings.md)
 
-> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation.
->
-> *OCC 2011-12 and Fed SR 11-7 model risk guidance requires comprehensive model validation beyond this framework's scope. Organizations should supplement with dedicated model risk management programs.
+> **Note:** Coverage indicates which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation.
 
 ---
 

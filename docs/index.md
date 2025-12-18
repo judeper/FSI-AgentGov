@@ -6,7 +6,9 @@ Welcome to the FSI Agent Governance Framework documentation. This framework prov
 
 Use **Getting Started** to familiarize yourself with the framework structure and governance zones, then refer to **Controls by Pillar** for detailed implementation guidance and **Reference** materials as needed.
 
-> **Disclaimer:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [DISCLAIMER.md](https://github.com/judeper/FSI-AgentGov/blob/main/DISCLAIMER.md) for full details.
+> **Disclaimer:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [Disclaimer](disclaimer.md) for full details.
+
+To stay current: **Star** the repository, use **Watch → Releases** for low-noise updates, and **share with your compliance team** as part of your review.
 
 ---
 
@@ -31,7 +33,7 @@ Use **Getting Started** to familiarize yourself with the framework structure and
 - [Pillar 4: SharePoint](reference/pillar-4-sharepoint/index.md) - 5 controls for SharePoint governance
 
 ## Downloads
-- [Administrator Templates](downloads/index.md) - Excel workbook and Word policy templates
+- [Administrator Templates](downloads/index.md) - Role-specific Excel checklists and dashboards
 
 ---
 

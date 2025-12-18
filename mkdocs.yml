@@ -1,5 +1,5 @@
 site_name: FSI Agent Governance Framework
-site_description: "Governance framework for Microsoft Copilot Studio in Financial Services"
+site_description: "Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services"
 site_author: "FSI Agent Governance Team"
 site_url: "https://judeper.github.io/FSI-AgentGov/"
 copyright: "*FSI Agent Governance Framework Beta - December 2025*"
@@ -35,6 +35,12 @@ theme:
 plugins:
   - search
 
+# Exclude files that are intentionally not in navigation
+exclude_docs: |
+  images/
+  scripts/
+  templates/
+
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -49,13 +55,13 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Disclaimer: disclaimer.md
   - Getting Started:
     - Overview: getting-started/overview.md
     - Quick Start: getting-started/quick-start.md
     - Zones Guide: getting-started/zones.md
     - Lifecycle Governance: getting-started/lifecycle.md
     - Implementation Checklist: getting-started/checklist.md
-    - Directory Structure: getting-started/structure.md
   - Security Controls (Pillar 1):
     - Overview: reference/pillar-1-security/index.md
     - 1.1 Restrict Agent Publishing By Authorization: reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
@@ -114,9 +120,14 @@ nav:
     - 4.5 SharePoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
   - Reference:
     - Control Index: reference/CONTROL-INDEX.md
+    - Administrator Role Catalog: reference/role-catalog.md
     - Glossary: reference/glossary.md
     - RACI Matrix: reference/raci-matrix.md
     - Regulatory Mappings: reference/regulatory-mappings.md
+    - License Requirements: reference/license-requirements.md
+    - Portal Paths: reference/portal-paths-quick-reference.md
+    - Microsoft Learn URLs: reference/microsoft-learn-urls.md
+    - FSI Examples: reference/fsi-configuration-examples.md
     - FAQ: reference/faq.md
   - Downloads:
     - Administrator Templates: downloads/index.md

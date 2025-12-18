@@ -1,5 +1,10 @@
 # FSI Agent Governance Framework v1.0 Beta
 
+[![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
+[![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub Repo stars](https://img.shields.io/github/stars/judeper/FSI-AgentGov?style=social)](https://github.com/judeper/FSI-AgentGov/stargazers)
+
 Comprehensive governance framework for Microsoft 365 AI agents in financial services organizations.
 
 ## 📋 Overview
@@ -10,9 +15,11 @@ This framework provides complete guidance for deploying, governing, and managing
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
+To stay current: **Star** this repository, use **Watch → Releases** for low-noise update notifications, and **share with your compliance team** as part of your review.
+
 > **Scope:** This framework is designed for **US financial institutions** using **Microsoft 365 AI agents** (Copilot Studio, Agent Builder). Non-US regulations (EU AI Act, GDPR, DORA) and non-M365 AI platforms are out of scope.
 
-> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
+> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](docs/disclaimer.md) for full details.
 
 ---
 
@@ -86,13 +93,7 @@ Each control includes:
 
 ### Supporting Files
 - **CONTROL-INDEX.md** - [Master index of all controls](docs/reference/CONTROL-INDEX.md)
-- **FSI_Agent_Governance_Framework_v1.0_Beta.xlsx** - Excel workbook (22 sheets):
-  - Dashboard, Executive Summary, Quick Reference
-  - Security Controls, Management Controls, Agent Reporting
-  - RACI Matrix, Compliance Matrix, Zones Definition
-  - Implementation Checklist, Runbooks, Exam Prep
-  - Glossary, Key Contacts, Admin Paths
-- **FSI_Agent_Governance_Complete_v1.0_Beta.docx** - Detailed written guidance (48 sections)
+- **Administrator Excel Templates** - Role-specific checklists and dashboards (see [Downloads](docs/downloads/index.md))
 
 ---
 
@@ -119,7 +120,11 @@ Each control includes:
 
 ## 🔧 Setup & Verification Workflow
 
-Each control in this framework now includes comprehensive setup/configuration guidance. Use this workflow for implementing controls:
+Each control in this framework follows a consistent documentation structure.
+
+This repo is actively being expanded to include **how-to configure** guidance (step-by-step portal paths, optional automation, and evidence-grade verification).
+
+Use this workflow for implementing controls:
 
 ### Control Documentation Structure
 
@@ -154,6 +159,15 @@ graph LR
 5. **Document Evidence**: Capture screenshots, export logs, record in compliance system
 6. **Schedule Review**: Set quarterly review cadence for control effectiveness
 
+### Maintainers: Validate Locally
+
+Run these from the repo root (`FSI-AgentGov/`):
+
+- `python scripts\verify_controls.py`
+- `python scripts\verify_templates.py`
+- `python scripts\audit_controls_zone_hygiene.py`
+- `mkdocs build --strict`
+
 ### Quick Reference Resources
 
 | Resource | Description | Location |
@@ -161,9 +175,8 @@ graph LR
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 43 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for all 48 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
-| **Implementation Plan** | Phased approach for completing controls | [implementation-plan.md](docs/implementation-plan.md) |
 
 ### Priority Controls (Start Here)
 
@@ -191,20 +204,11 @@ These foundation controls should be implemented first as other controls depend o
 
 ## Regulatory Coverage
 
-The framework maps controls to regulatory requirements:
+Regulatory mappings and coverage are maintained in a single canonical table:
 
-| Regulation | Coverage | Key Controls | Notes |
-|-----------|----------|--------------|-------|
-| **FINRA 4511** | 100% (48/48) | 1.7, 1.9, 1.19, 2.9, 2.12, 3.9 | Full coverage |
-| **SEC 17a-3/4** | 88% (43/48) | 1.7, 1.9, 1.13, 1.19 | Recordkeeping focus |
-| **SOX 302/404** | 81% (40/48) | 2.5, 2.10, 2.12, 2.15 | Internal controls |
-| **GLBA 501(b)** | 93% (45/48) | 1.11, 1.15, 1.18, 3.7 | Safeguards focus |
-| **OCC 2011-12** | 58% (30/48) | 2.6, 2.11 | Model risk focus* |
-| **Fed SR 11-7** | 58% (30/48) | 2.6, 2.11 | Model risk focus* |
+- See [Regulatory Mappings](docs/reference/regulatory-mappings.md)
 
-> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](DISCLAIMER.md).
->
-> *OCC 2011-12 and Fed SR 11-7 model risk guidance requires comprehensive model validation beyond this framework's scope. Organizations should supplement with dedicated model risk management programs for quantitative validation.
+> **Note:** Coverage indicates which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](docs/disclaimer.md).
 
 ---
 
@@ -307,9 +311,7 @@ This framework is provided for use by financial services organizations. Modify a
 
 ## ⚠️ Legal Disclaimer
 
-> **This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice.**
-
-Organizations using this framework should consult with their legal counsel and compliance teams to validate applicability and ensure compliance with all applicable regulations. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
+See [Disclaimer](docs/disclaimer.md).
 
 ---
 

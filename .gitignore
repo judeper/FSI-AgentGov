@@ -24,3 +24,6 @@ __pycache__/
 # Internal working documents (keep locally, exclude from release)
 docs/analysis/
 templates/
+
+# Maintainer-only local artifacts (NEVER commit)
+maintainers-local/

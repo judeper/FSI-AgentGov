@@ -12,7 +12,6 @@ A clear description of the bug.
 ## Location
 - [ ] Documentation (specify file path)
 - [ ] Excel Template (specify sheet)
-- [ ] Word Template (specify section)
 - [ ] Control File (specify Control ID)
 
 **File/Section:** 

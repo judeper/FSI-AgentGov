@@ -36,7 +36,7 @@ Requires firms to maintain records of all agent activities and communications.
 - Weekly executive reporting
 
 ### Framework Coverage
-Framework provides 100% control coverage (43/48 controls). Implementation and validation required for compliance.
+The framework provides mapped coverage via the applicable controls listed above. Implementation and validation are required for compliance.
 
 ---
 
@@ -190,7 +190,7 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 - Weekly compliance verification
 
 ### Framework Coverage
-Framework provides 88% control coverage (38/48 controls). Remaining gaps require supplemental controls. Implementation required.
+The framework provides mapped coverage via the applicable controls listed above. Some requirements may require additional organization-specific controls and procedures. Implementation required.
 
 ---
 
@@ -291,7 +291,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 81% control coverage (35/48 controls). SOX-specific testing required. Implementation required.
+Framework provides 81% control coverage (40/48 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -346,7 +346,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 93% control coverage (40/48 controls). Implementation validation required.
+Framework provides 93% control coverage (45/48 controls). Implementation validation required.
 
 ---
 
@@ -412,7 +412,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 58% control coverage (25/48 controls). OCC-specific model validation required for full compliance.
+Framework provides 58% control coverage (30/48 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -523,7 +523,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (3/48 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (4/48 controls). CFPB-specific implementation required.
 
 ---
 
@@ -746,12 +746,12 @@ Insurers should consult their primary state insurance regulator and legal counse
 | Fed SR 11-7 | 30/48 | 58% | Partial - model risk focus |
 | Fed ECOA | 2/48 | 5% | Minimal - bias testing only |
 | CFPB / UDAAP | 4/48 | 8% | Consumer protection focus |
-| FDIC (Interagency) | 48/48 | 100% | Equivalent to OCC/Fed coverage |
+| FDIC (Interagency) | 48/48 | 100% | Full applicability; align to interagency guidance |
 | NCUA Part 748 | 45/48 | 93% | Security program alignment |
 | NYDFS Part 500 | 40/48 | 83% | State-level awareness |
 | NAIC Model Law | 35/48 | 73% | Insurance awareness |
 
-> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [DISCLAIMER.md](/DISCLAIMER.md).
+> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
 ---
 

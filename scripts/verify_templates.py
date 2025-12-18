@@ -1,75 +1,149 @@
-import openpyxl
-from docx import Document
+from pathlib import Path
 import os
+import sys
 
-# Paths
-XLSX_PATH = "templates/FSI_Agent_Governance_Framework_v1.0_Beta.xlsx"
-DOCX_PATH = "templates/FSI_Agent_Governance_Complete_v1.0_Beta.docx"
+try:
+    import openpyxl
+    HAS_OPENPYXL = True
+except ImportError:
+    HAS_OPENPYXL = False
+    print("Note: openpyxl not installed - Excel validation will be limited")
 
-def verify_xlsx():
+# Paths - look in docs/downloads for the actual template files
+DOWNLOADS_DIR = Path("docs/downloads")
+TEMPLATES_DIR = Path("docs/templates")
+
+# Expected Excel checklists
+EXPECTED_CHECKLISTS = [
+    "compliance-officer-checklist.xlsx",
+    "entra-administrator-checklist.xlsx",
+    "governance-maturity-dashboard.xlsx",
+    "power-platform-administrator-checklist.xlsx",
+    "purview-administrator-checklist.xlsx",
+    "sharepoint-administrator-checklist.xlsx"
+]
+
+def verify_checklists():
     print("=" * 60)
-    print("EXCEL TEMPLATE VERIFICATION")
+    print("EXCEL CHECKLIST VERIFICATION")
     print("=" * 60)
     
-    if not os.path.exists(XLSX_PATH):
-        print(f"ERROR: {XLSX_PATH} not found")
-        return
+    if not DOWNLOADS_DIR.exists():
+        print(f"ERROR: {DOWNLOADS_DIR} not found")
+        return False
     
-    wb = openpyxl.load_workbook(XLSX_PATH, read_only=True)
-    sheets = wb.sheetnames
+    all_found = True
+    for checklist in EXPECTED_CHECKLISTS:
+        file_path = DOWNLOADS_DIR / checklist
+        if file_path.exists():
+            print(f"✅ Found: {checklist}")
+            if HAS_OPENPYXL:
+                try:
+                    wb = openpyxl.load_workbook(file_path, read_only=True)
+                    print(f"   Sheets: {', '.join(wb.sheetnames)}")
+                    wb.close()
+                except Exception as e:
+                    print(f"   ⚠️ Could not read: {e}")
+        else:
+            print(f"❌ Missing: {checklist}")
+            all_found = False
     
-    print(f"\nFile: {XLSX_PATH}")
-    print(f"Total Sheets: {len(sheets)}")
-    print("\nSheet Names:")
-    for i, name in enumerate(sheets, 1):
-        print(f"  {i}. {name}")
+    return all_found
+
+def verify_markdown_template():
+    print("\n" + "=" * 60)
+    print("MARKDOWN TEMPLATE VERIFICATION")
+    print("=" * 60)
     
-    # Expected sheets based on spec
-    expected = [
-        "Dashboard",
-        "Security", "Management", "Reporting", "SharePoint",  # 4 assessment
-        "Control Summary",
-        "Maturity Levels", "Regulatory Mappings", "Admin Portals", 
-        "Zone Classification", "RACI"  # Reference
+    template_path = TEMPLATES_DIR / "control-setup-template.md"
+    
+    if not template_path.exists():
+        print(f"ERROR: {template_path} not found")
+        return False
+    
+    content = template_path.read_text(encoding='utf-8')
+    
+    # Check for required sections (canonical 12-section template)
+    required_sections = [
+        "## Overview",
+        "## Prerequisites",
+        "## Governance Levels",
+        "## Setup & Configuration",
+        "## Financial Sector Considerations",
+        "### Zone-Specific Configuration",
+        "## Verification & Testing",
+        "## Troubleshooting & Validation",
+        "## Additional Resources",
+        "## Related Controls",
+        "## Support & Questions",
+    ]
+
+    required_snippets = [
+        "**Primary Owner Admin Role:**",
+        "**Updated:** Dec 2025",
+        "**Version:** v1.0 Beta (Dec 2025)",
+        "**UI Verification Status:**",
     ]
     
-    print("\n--- Spec Validation ---")
-    missing = [e for e in expected if not any(e.lower() in s.lower() for s in sheets)]
-    if missing:
-        print(f"MISSING SHEETS (approx match): {missing}")
-    else:
-        print("All expected sheet categories found (using fuzzy match)")
+    print(f"\nFile: {template_path}")
+    print(f"Size: {len(content)} bytes")
+    print("\nRequired Sections:")
     
-    wb.close()
+    all_found = True
+    for section in required_sections:
+        if section in content:
+            print(f"  ✅ {section}")
+        else:
+            print(f"  ❌ {section} - MISSING")
+            all_found = False
 
-def verify_docx():
+    print("\nRequired Template Fields:")
+    for snippet in required_snippets:
+        if snippet in content:
+            print(f"  ✅ {snippet}")
+        else:
+            print(f"  ❌ {snippet} - MISSING")
+            all_found = False
+    
+    return all_found
+
+def verify_downloads_index():
     print("\n" + "=" * 60)
-    print("WORD DOCUMENT VERIFICATION")
+    print("DOWNLOADS INDEX VERIFICATION")
     print("=" * 60)
     
-    if not os.path.exists(DOCX_PATH):
-        print(f"ERROR: {DOCX_PATH} not found")
-        return
+    index_path = DOWNLOADS_DIR / "index.md"
     
-    doc = Document(DOCX_PATH)
+    if not index_path.exists():
+        print(f"ERROR: {index_path} not found")
+        return False
     
-    print(f"\nFile: {DOCX_PATH}")
-    print(f"Total Paragraphs: {len(doc.paragraphs)}")
-    print(f"Total Tables: {len(doc.tables)}")
+    content = index_path.read_text(encoding='utf-8')
     
-    # Extract headings
-    headings = []
-    for para in doc.paragraphs:
-        if para.style and para.style.name and para.style.name.startswith('Heading'):
-            headings.append((para.style.name, para.text[:80]))
+    # Check that all checklists are referenced in the index
+    all_referenced = True
+    for checklist in EXPECTED_CHECKLISTS:
+        if checklist in content:
+            print(f"  ✅ Referenced: {checklist}")
+        else:
+            print(f"  ❌ Not referenced: {checklist}")
+            all_referenced = False
     
-    print(f"\nHeadings Found: {len(headings)}")
-    for style, text in headings[:15]:  # Show first 15
-        print(f"  [{style}] {text}")
-    
-    if len(headings) > 15:
-        print(f"  ... and {len(headings) - 15} more")
+    return all_referenced
 
 if __name__ == "__main__":
-    verify_xlsx()
-    verify_docx()
+    print("\nFSI Agent Governance - Template Verification\n")
+    
+    checklists_ok = verify_checklists()
+    template_ok = verify_markdown_template()
+    index_ok = verify_downloads_index()
+    
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    print(f"Excel Checklists: {'✅ PASS' if checklists_ok else '❌ FAIL'}")
+    print(f"Markdown Template: {'✅ PASS' if template_ok else '❌ FAIL'}")
+    print(f"Downloads Index: {'✅ PASS' if index_ok else '❌ FAIL'}")
+    
+    if not (checklists_ok and template_ok and index_ok):
+        sys.exit(1)

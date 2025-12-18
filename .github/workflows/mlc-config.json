@@ -1,0 +1,27 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://admin\\.powerplatform\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://admin\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://compliance\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://entra\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://copilotstudio\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://web\\.powerva\\.microsoft\\.com"
+    }
+  ],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [200, 206, 301, 302, 307, 308]
+}

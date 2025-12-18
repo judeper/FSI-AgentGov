@@ -6,12 +6,14 @@ Download role-specific checklists to track your implementation progress. Each Ex
 
 ## Role-Specific Checklists
 
+Role names below use the framework's canonical short naming. See the [Administrator Role Catalog](../reference/role-catalog.md) for definitions and accepted aliases.
+
 | Download | Target Role | Description |
 |----------|-------------|-------------|
-| [Entra ID Administrator Checklist](entra-administrator-checklist.xlsx) | Entra ID Admin | Identity controls: Conditional Access, Agent ID, Insider Risk |
-| [Power Platform Administrator Checklist](power-platform-administrator-checklist.xlsx) | PP Admin | PPAC controls: Environments, Groups, Routing, Copilot Hub |
-| [Purview Administrator Checklist](purview-administrator-checklist.xlsx) | Purview Admin | Purview controls: DLP, DSPM for AI, Audit, eDiscovery |
-| [SharePoint Administrator Checklist](sharepoint-administrator-checklist.xlsx) | SharePoint Admin | All Pillar 4 controls: IAG, Access Reviews, Retention |
+| [Entra Administrator Checklist](entra-administrator-checklist.xlsx) | Entra Global Admin | Identity controls: Conditional Access, roles, identity governance |
+| [Power Platform Administrator Checklist](power-platform-administrator-checklist.xlsx) | Power Platform Admin | PPAC controls: Environments, Groups, Routing, Copilot Hub |
+| [Purview Administrator Checklist](purview-administrator-checklist.xlsx) | Purview Compliance Admin | Purview controls: DLP, DSPM for AI, Audit, eDiscovery |
+| [SharePoint Administrator Checklist](sharepoint-administrator-checklist.xlsx) | SharePoint Admin | SharePoint governance controls: access, retention, external sharing |
 | [Compliance Officer Checklist](compliance-officer-checklist.xlsx) | Compliance Officer | Regulatory mappings and audit evidence tracking |
 | [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 48 controls with maturity scoring and dashboard |
 
@@ -45,9 +47,9 @@ Each Excel checklist includes:
 
 | If you are responsible for... | Download this checklist |
 |------------------------------|------------------------|
-| Microsoft Entra ID / Azure AD | Entra ID Administrator |
+| Microsoft Entra | Entra Administrator |
 | Power Platform Admin Center | Power Platform Administrator |
-| Microsoft Purview / Compliance | Purview Administrator |
+| Microsoft Purview | Purview Administrator |
 | SharePoint Online | SharePoint Administrator |
 | Regulatory compliance / Audits | Compliance Officer |
 | Overall governance program | Governance Maturity Dashboard |

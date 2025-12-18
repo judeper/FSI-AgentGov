@@ -3,9 +3,45 @@ import re
 from pathlib import Path
 
 DOCS_DIR = Path("docs")
-CONTROL_INDEX_PATH = DOCS_DIR / "reference/CONTROL-INDEX.md"
-REG_MAPPINGS_PATH = DOCS_DIR / "reference/regulatory-mappings.md"
+CONTROL_INDEX_PATH = DOCS_DIR / "reference" / "CONTROL-INDEX.md"
+REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
 PILLARS_DIR = DOCS_DIR / "reference"
+
+CANON_UPDATED = "**Updated:** Dec 2025"
+CANON_VERSION = "**Version:** v1.0 Beta (Dec 2025)"
+CANON_UI_STATUS_PREFIX = "**UI Verification Status:**"
+PRIMARY_OWNER_FIELD = "**Primary Owner Admin Role:**"
+
+REQUIRED_HEADINGS = [
+    "## Overview",
+    "## Prerequisites",
+    "## Governance Levels",
+    "## Setup & Configuration",
+    "## Financial Sector Considerations",
+    "## Verification & Testing",
+    "## Troubleshooting & Validation",
+    "## Additional Resources",
+    "## Related Controls",
+    "## Support & Questions",
+]
+
+REQUIRED_SUBHEADINGS = [
+    "### Zone-Specific Configuration",
+]
+
+_LEGACY_MARKER_PATTERNS = [
+    re.compile(r"\*\*Last Updated:\*\*", re.IGNORECASE),
+    re.compile(r"\bLast Updated:\b", re.IGNORECASE),
+    re.compile(r"\*\*Version:\*\*\s*2\.0\b", re.IGNORECASE),
+    re.compile(r"\bVersion:\s*2\.0\b", re.IGNORECASE),
+]
+
+_REQUIRED_METADATA_FIELDS = [
+    "**Control ID:**",
+    "**Control Name:**",
+    "**Regulatory Reference:**",
+    "**Setup Time:**",
+]
 
 def parse_control_index():
     """Extracts control IDs and titles from the Control Index."""
@@ -36,9 +72,56 @@ def get_pillar_files():
             continue
         p_dir = p_dir[0]
         for f in p_dir.glob("*.md"):
-            if f.name == "index.md": continue
-            files.append(str(f.relative_to(DOCS_DIR)))
-    return sorted(files)
+            if f.name == "index.md": 
+                continue
+            # Store both the file object and relative path with forward slashes
+            rel_path = str(f.relative_to(DOCS_DIR)).replace('\\', '/')
+            files.append((f.name, rel_path, p_dir.name))
+    return sorted(files, key=lambda x: x[1])
+
+
+def validate_control_file(path: Path):
+    """Validate control structure and required beta metadata."""
+    content = path.read_text(encoding="utf-8")
+    failures = []
+
+    # 0) Must look like a control page (title)
+    if not re.search(r"^#\s+Control\s+\d+\.\d+:\s+.+$", content, flags=re.MULTILINE):
+        failures.append("missing or malformed control title (expected '# Control X.Y: ...')")
+
+    # 1) Minimal structural headings (current baseline across repo)
+
+    for heading in REQUIRED_HEADINGS:
+        if heading not in content:
+            failures.append(f"missing heading: {heading}")
+
+    for heading in REQUIRED_SUBHEADINGS:
+        if heading not in content:
+            failures.append(f"missing subheading: {heading}")
+
+    # 2) Required Overview metadata block fields
+    for field in _REQUIRED_METADATA_FIELDS:
+        if field not in content:
+            failures.append(f"missing required metadata field: {field}")
+
+    if PRIMARY_OWNER_FIELD not in content:
+        failures.append("missing Primary Owner Admin Role field")
+
+    if CANON_UPDATED not in content:
+        failures.append("missing canonical Updated: Dec 2025 footer")
+
+    if CANON_VERSION not in content:
+        failures.append("missing canonical Version: v1.0 Beta (Dec 2025) footer")
+
+    if CANON_UI_STATUS_PREFIX not in content:
+        failures.append("missing UI Verification Status footer line")
+
+    # 3) Guardrail: legacy version/update markers should not remain
+    for pattern in _LEGACY_MARKER_PATTERNS:
+        if pattern.search(content):
+            failures.append(f"contains legacy marker matching: {pattern.pattern}")
+
+    return failures
 
 def verify_consistency():
     controls = parse_control_index()
@@ -48,12 +131,13 @@ def verify_consistency():
     print(f"Found {len(files)} content files in Pillars.")
     
     # 1. Check if files exist for controls
-    # Naive check: does the filename start with the control ID?
+    # Check if the filename starts with the control ID followed by a dash
     missing_files = []
     for cid in controls:
         found = False
-        for f in files:
-            if f.split('/')[-1].startswith(cid):
+        for filename, rel_path, pillar in files:
+            # Match control ID at start of filename (e.g., "1.1-" matches "1.1")
+            if filename.startswith(f"{cid}-"):
                 found = True
                 break
         if not found:
@@ -64,22 +148,40 @@ def verify_consistency():
     else:
         print("SUCCESS: All controls have corresponding files.")
 
+    # 3. Validate control content (structure + beta metadata)
+    print("\n--- CONTROL CONTENT VALIDATION ---\n")
+    hard_failures = 0
+    for filename, rel_path, pillar in files:
+        # rel_path already includes reference/... relative to docs
+        full_path = DOCS_DIR / rel_path
+        if not full_path.exists():
+            continue
+
+        failures = validate_control_file(full_path)
+        if failures:
+            hard_failures += 1
+            print(f"❌ {rel_path}")
+            for failure in failures:
+                print(f"   - {failure}")
+
+    if hard_failures == 0:
+        print("✅ All control files meet required beta structure + footer standards.")
+    else:
+        print(f"\nERROR: {hard_failures} control files failed required validation.")
+        raise SystemExit(1)
+
     # 2. Generate Nav Structure for mkdocs.yml
     print("\n--- SUGGESTED NAV STRUCTURE ---\n")
     current_pillar = ""
-    for f in files:
-        # derive pillar name from path
-        # reference/pillar-1-security/1.1-name.md
-        parts = f.split('/')
-        pillar = parts[1]
-        
+    for filename, rel_path, pillar in files:
         if pillar != current_pillar:
             print(f"  - {pillar}:")
             current_pillar = pillar
             
         # Format: - Name: path
-        name = parts[-1].replace('.md', '').replace('-', ' ').title()
-        print(f"    - {name}: {f}")
+        name = filename.replace('.md', '').replace('-', ' ').title()
+        # rel_path is already docs-relative (e.g., reference/pillar-1-security/1.1-...).
+        print(f"    - {name}: {rel_path}")
 
 if __name__ == "__main__":
     verify_consistency()

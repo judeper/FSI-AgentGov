@@ -1,6 +1,9 @@
 # Microsoft Learn Documentation URLs
 
-Master reference for all Microsoft Learn documentation links used in the FSI Agent Governance Framework.
+Customer-facing reference list of the Microsoft Learn links used throughout the FSI Agent Governance Framework.
+
+- **Organization:** by topic area (admin teams typically search by product)
+- **Last Verified:** last time this specific URL was checked for accuracy
 
 ---
 
@@ -66,7 +69,7 @@ Master reference for all Microsoft Learn documentation links used in the FSI Age
 | **External Sharing** | https://learn.microsoft.com/en-us/sharepoint/external-sharing-overview | Dec 2025 |
 | Guest Access | https://learn.microsoft.com/en-us/sharepoint/external-sharing-overview | Dec 2025 |
 | **Restricted Access Control** | https://learn.microsoft.com/en-us/sharepoint/restricted-access-control | Dec 2025 |
-| **Information Access Governance** | https://learn.microsoft.com/en-us/sharepoint/information-access-governance | Dec 2025 |
+| **Information Access Governance (Restricted Access Control)** | https://learn.microsoft.com/en-us/sharepoint/restricted-access-control | Dec 2025 |
 | **Retention for SharePoint** | https://learn.microsoft.com/en-us/microsoft-365/compliance/create-retention-policies#retaining-content-thats-in-sharepoint-sites | Dec 2025 |
 
 ---
@@ -76,14 +79,14 @@ Master reference for all Microsoft Learn documentation links used in the FSI Age
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Copilot Studio Overview** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio | Dec 2025 |
-| **Security and Governance** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-security-governance | Dec 2025 |
+| **Security and Governance** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance | Dec 2025 |
 | **Agent Publishing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels | Dec 2025 |
 | **Analytics** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview | Dec 2025 |
 | **Connectors** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-connectors | Dec 2025 |
 
 ---
 
-## Microsoft 365 Admin
+## Microsoft 365 Administration
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
@@ -104,7 +107,7 @@ Master reference for all Microsoft Learn documentation links used in the FSI Age
 
 ---
 
-## Admin Portal URLs
+## Admin Portals
 
 | Portal | URL | Purpose |
 |--------|-----|---------|

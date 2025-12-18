@@ -7,7 +7,7 @@ If you discover a security vulnerability in this framework or its templates, ple
 ### How to Report
 
 1. **Do NOT** open a public GitHub issue for security vulnerabilities
-2. Email the maintainers directly with:
+2. Use GitHub's private vulnerability reporting (Security tab → **Report a vulnerability**), or contact the maintainers directly with:
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact
@@ -23,7 +23,7 @@ If you discover a security vulnerability in this framework or its templates, ple
 
 This security policy covers:
 - Documentation content that could lead to insecure implementations
-- Template files (Excel, Word) containing sensitive formulas or macros
+- Template files (Excel) containing sensitive formulas or macros
 - Example configurations that could expose systems
 
 ## Best Practices

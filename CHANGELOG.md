@@ -16,21 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- **43 Governance Controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **48 Governance Controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **Markdown documentation** (single source of truth) with structured organization
   - Getting Started: 4 guides (overview, scope, quick-start, governance zones)
-  - Reference: 43 control files + RACI, regulatory mappings, glossary, FAQ
-- **Excel Assessment Template** (m365-ai-agent-governance-assessment-Beta.xlsx)
-  - Self-assessment across all controls with maturity levels (0-4)
-  - Dashboard with gap analysis and regulatory readiness scorecard
-  - Control summary and implementation progress tracking
-- **Word Policy Template** (m365-ai-agent-policy-template-Beta.docx)
-- **PowerPoint Strategy Deck** (m365-ai-agent-strategy-Beta.pptx)
+  - Reference: 48 control files + RACI, regulatory mappings, glossary, FAQ
+- **Role-based Excel templates** (6 downloads)
+  - Role-specific checklists (Entra, Power Platform, Purview, SharePoint, Compliance)
+  - Governance maturity dashboard for tracking all 48 controls
 - **Release Notes** (`CHANGELOG.md`)
-- **Excel Implementation Checklist** (m365-ai-agent-implementation-checklist-Beta.xlsx)
-  - 8-week phased implementation plan
-  - Task tracking, owner assignment, status columns
-  - Evidence documentation links
 - **Regulatory Mappings**
   - FINRA 4511/3110: 100% coverage (6-year retention)
   - SEC 17a-3/17a-4: 88% coverage (6-year retention)

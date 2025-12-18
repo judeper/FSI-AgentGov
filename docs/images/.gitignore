@@ -1,0 +1,13 @@
+# Screenshot Verification System
+# Only this .gitignore is committed - everything else is local
+
+# All image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+
+# Local instruction files
+README.md
+VERIFY.md

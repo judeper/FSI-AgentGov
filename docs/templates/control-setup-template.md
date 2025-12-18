@@ -12,7 +12,7 @@
 ## Prerequisites
 
 - **License Required:** [Specific Microsoft license] - [Learn more](https://learn.microsoft.com/en-us/...)
-- **Admin Role:** [Required role in Microsoft Entra ID]
+- **Primary Owner Admin Role:** [Use canonical role name from `reference/role-catalog.md`]
 - **Dependencies:** [List any controls that must be configured first]
 - **Additional Requirements:** [e.g., Managed Environments, specific features]
 
@@ -189,6 +189,6 @@ For implementation support or questions about this control, contact:
 
 ---
 
-**Last Updated:** [Date] (Portal UI verified)  
-**Version:** 1.0 Beta  
+**Updated:** Dec 2025  
+**Version:** v1.0 Beta (Dec 2025)  
 **UI Verification Status:** ✅ Current / ⚠️ Partially verified / ❌ Needs verification

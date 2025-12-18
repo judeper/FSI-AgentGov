@@ -1,0 +1,66 @@
+name: Link Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - '.github/workflows/link-check.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+  workflow_dispatch:
+  schedule:
+    # Run weekly on Sundays at 2:00 AM UTC to check for stale external links
+    - cron: '0 2 * * 0'
+
+jobs:
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          config-file: '.github/workflows/mlc-config.json'
+          folder-path: 'docs/'
+          file-extension: '.md'
+          check-modified-files-only: ${{ github.event_name == 'pull_request' && 'yes' || 'no' }}
+
+  control-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Block internal artifacts under docs/
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          forbidden=$(find docs/reference -maxdepth 1 -type f \( -name '*.pdf' -o -name '*.txt' -o -name '*.json' \) -print || true)
+          if [[ -n "${forbidden}" ]]; then
+            echo "ERROR: Forbidden maintainer-only artifacts found under docs/reference (must be local-only):"
+            echo "${forbidden}"
+            exit 1
+          fi
+
+          for path in docs/HANDOFF.md docs/implementation-plan.md docs/getting-started/structure.md; do
+            if [[ -f "${path}" ]]; then
+              echo "ERROR: Maintainer-only doc must not exist under docs/: ${path}"
+              exit 1
+            fi
+          done
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run control verification
+        run: python scripts/verify_controls.py
