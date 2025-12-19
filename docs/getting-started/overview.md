@@ -61,14 +61,14 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ## 🎯 Framework Structure
 
-### Four Governance Pillars
+### Four Governance Pillars {#four-governance-pillars}
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. Security** | 19 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery |
-| **2. Management** | 15 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Environment Routing |
-| **3. Reporting** | 9 | Monitor and track | Inventory, Usage, PPAC, Sentinel |
-| **4. SharePoint Mgmt** | 5 | SharePoint-specific controls | Access, Retention, External Sharing |
+| **1. [Security](../reference/pillar-1-security/index.md)** | 19 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery |
+| **2. [Management](../reference/pillar-2-management/index.md)** | 15 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Environment Routing |
+| **3. [Reporting](../reference/pillar-3-reporting/index.md)** | 9 | Monitor and track | Inventory, Usage, PPAC, Sentinel |
+| **4. [SharePoint Mgmt](../reference/pillar-4-sharepoint/index.md)** | 5 | SharePoint-specific controls | Access, Retention, External Sharing |
 
 **Total: 48 Comprehensive Controls**
 
@@ -95,13 +95,13 @@ graph TB
     style P4 fill:#AB47BC,color:#fff
 ```
 
-### Three Governance Zones
+### Three Governance Zones {#three-governance-zones}
 
 | Zone | Level | Risk | Data Access | Approval |
 |------|-------|------|-------------|----------|
-| **Zone 1: Personal** | Low | Individual development | M365 Graph only | Self-service |
-| **Zone 2: Team** | Medium | Departmental agents | Internal data | Manager approval |
-| **Zone 3: Enterprise** | High | Production/customer-facing | Regulated data | Governance committee |
+| **[Zone 1: Personal](zones.md#zone-1)** | Low | Individual development | M365 Graph only | Self-service |
+| **[Zone 2: Team](zones.md#zone-2)** | Medium | Departmental agents | Internal data | Manager approval |
+| **[Zone 3: Enterprise](zones.md#zone-3)** | High | Production/customer-facing | Regulated data | Governance committee |
 
 ---
 
@@ -207,19 +207,19 @@ Each control includes:
 ## 🚀 Quick Start
 
 ### For First-Time Users
-1. Read **Quick-Start-Guide.md** (10 minutes)
-2. Review **Zones-Overview.md** to classify your agents (15 minutes)
-3. Check **Regulatory-Mappings.md** for your relevant regulations (10 minutes)
+1. Read [Quick Start](quick-start.md) (10 minutes)
+2. Review [Zones Guide](zones.md) to classify your agents (15 minutes)
+3. Check [Regulatory Mappings](../reference/regulatory-mappings.md) for your relevant regulations (10 minutes)
 
 ### For Implementation
-1. Use **Implementation-Checklist.md** for step-by-step guidance
+1. Use the [Implementation Checklist](checklist.md) for step-by-step guidance
 2. Reference individual control files for detailed procedures
 3. Document evidence in your compliance system
 4. Schedule quarterly reviews
 
 ### For Governance
-1. Use **RACI-Matrix.md** to assign roles and responsibilities
-2. Establish governance committee per **Zones-Overview.md**
+1. Use the [RACI Matrix](../reference/raci-matrix.md) to assign roles and responsibilities
+2. Establish governance committee per the [Zones Guide](zones.md)
 3. Schedule recurring compliance reviews
 4. Track incidents and remediation
 
@@ -273,7 +273,7 @@ graph LR
 
 ## 📋 Governance Roles
 
-Key roles from **RACI-Matrix.md**:
+Key roles from the [RACI Matrix](../reference/raci-matrix.md):
 
 | Role | Responsibility |
 |------|-----------------|
@@ -294,19 +294,19 @@ Typical 8-week rollout:
 - **Phase 3 (Weeks 5-6):** Advanced Governance (8 tasks)
 - **Phase 4 (Weeks 7-8):** Finalization & Operationalization (9 tasks)
 
-See **Implementation-Checklist.md** for detailed tasks.
+See the [Implementation Checklist](checklist.md) for detailed tasks.
 
 ---
 
 ## ❓ Support & Questions
 
 ### For Different Questions:
-- **"How do I get started?"** → Read **Quick-Start-Guide.md**
-- **"What's my governance zone?"** → See **Zones-Overview.md**
-- **"Which controls apply to my regulation?"** → Check **Regulatory-Mappings.md**
-- **"Who does what?"** → Review **RACI-Matrix.md**
+- **"How do I get started?"** → Read [Quick Start](quick-start.md)
+- **"What's my governance zone?"** → See [Zones Guide](zones.md)
+- **"Which controls apply to my regulation?"** → Check [Regulatory Mappings](../reference/regulatory-mappings.md)
+- **"Who does what?"** → Review [RACI Matrix](../reference/raci-matrix.md)
 - **"What does this term mean?"** → Look up **Glossary.md**
-- **"How do I implement this?"** → Use **Implementation-Checklist.md**
+- **"How do I implement this?"** → Use the [Implementation Checklist](checklist.md)
 - **"Common questions?"** → See **FAQ.md**
 
 ### For Technical Implementation:
@@ -315,7 +315,7 @@ See **Implementation-Checklist.md** for detailed tasks.
 - Contact your Power Platform Admin for platform-specific setup
 
 ### For Regulatory Questions:
-- Review **Regulatory-Mappings.md** for regulation-to-control alignment
+- Review [Regulatory Mappings](../reference/regulatory-mappings.md) for regulation-to-control alignment
 - Contact your Compliance Officer for regulatory interpretation
 - Escalate to General Counsel for legal questions
 
@@ -342,7 +342,7 @@ This framework is provided for use by financial services organizations. Modify a
 
 ## 🎯 Next Steps
 
-1. **Review** the Quick-Start-Guide.md
+1. **Review** [Quick Start](quick-start.md)
 2. **Assess** your current state against the framework
 3. **Implement** using the step-by-step guidance
 4. **Document** evidence for audit compliance

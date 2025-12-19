@@ -1,5 +1,7 @@
 import os
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 DOCS_DIR = Path("docs")
@@ -169,6 +171,20 @@ def verify_consistency():
     else:
         print(f"\nERROR: {hard_failures} control files failed required validation.")
         raise SystemExit(1)
+
+    # 4) Validate that all docs fragment links (#anchors) resolve.
+    print("\n--- DOCS ANCHOR VALIDATION ---\n")
+    validator_path = Path(__file__).parent / "validate_docs_anchors.py"
+    if validator_path.exists():
+        result = subprocess.run(
+            [sys.executable, str(validator_path)],
+            cwd=Path(__file__).resolve().parents[1],
+            check=False,
+        )
+        if result.returncode != 0:
+            raise SystemExit(result.returncode)
+    else:
+        print(f"WARNING: Anchor validator not found at {validator_path} (skipping).")
 
     # 2. Generate Nav Structure for mkdocs.yml
     print("\n--- SUGGESTED NAV STRUCTURE ---\n")

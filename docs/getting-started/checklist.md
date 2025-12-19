@@ -21,7 +21,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 - [ ] **Regulatory Assessment (Day 4-5)**
   - [ ] Identify primary regulations (FINRA, SEC, SOX, GLBA, OCC, Fed)
-  - [ ] Review Regulatory-Mappings.md for your regulations
+  - [ ] Review [Regulatory Mappings](../reference/regulatory-mappings.md) for your regulations
   - [ ] Determine which controls apply
   - [ ] Check regulatory filing requirements
 
@@ -40,7 +40,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
   - [ ] Schedule governance meetings
 
 - [ ] **Classify Existing Agents (Day 1-3)**
-  - [ ] Use Zones-Overview.md decision matrix
+  - [ ] Use the [Zone Decision Matrix](zones.md#zone-decision-matrix)
   - [ ] Assign each agent to Zone 1, 2, or 3
   - [ ] Document classification rationale
   - [ ] Identify Zone 3 agents for priority handling
@@ -48,7 +48,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 - [ ] **Create Implementation Roadmap (Day 4-5)**
   - [ ] Map controls to implementation phases
   - [ ] Prioritize by regulatory requirement
-  - [ ] Assign ownership per RACI-Matrix.md
+  - [ ] Assign ownership per [RACI Matrix](../reference/raci-matrix.md)
   - [ ] Create timeline and milestones
 
 - [ ] **Project Kickoff (Day 5)**

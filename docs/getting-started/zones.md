@@ -1,10 +1,10 @@
 # Governance Zones: Complete Overview
 
-## Three-Zone Governance Model
+## Three-Zone Governance Model {#three-zone-governance-model}
 
 The framework uses three governance zones to balance innovation with compliance. Agents progress from development (Zone 1) through team collaboration (Zone 2) to enterprise production (Zone 3).
 
-### Quick Comparison
+### Quick Comparison {#quick-comparison}
 
 | Attribute | Zone 1: Personal | Zone 2: Team | Zone 3: Enterprise |
 |-----------|-----------------|--------------|-------------------|
@@ -20,7 +20,7 @@ The framework uses three governance zones to balance innovation with compliance.
 
 ---
 
-## Zone 1: Personal Productivity
+## Zone 1: Personal Productivity {#zone-1}
 
 ### Profile
 - **Risk Level:** Low
@@ -73,7 +73,7 @@ The framework uses three governance zones to balance innovation with compliance.
 
 ---
 
-## Zone 2: Team Collaboration
+## Zone 2: Team Collaboration {#zone-2}
 
 ### Profile
 - **Risk Level:** Medium
@@ -137,7 +137,7 @@ The framework uses three governance zones to balance innovation with compliance.
 
 ---
 
-## Zone 3: Enterprise Managed
+## Zone 3: Enterprise Managed {#zone-3}
 
 ### Profile
 - **Risk Level:** High
@@ -328,7 +328,7 @@ Demotion typically requires:
 
 ---
 
-## Zone Decision Matrix
+## Zone Decision Matrix {#zone-decision-matrix}
 
 Use this decision tree to determine the appropriate zone for your agent:
 

@@ -57,6 +57,8 @@
 
 [Screenshot needed: Description]
 
+<a id="configuration-matrix"></a>
+
 **Configuration Matrix by Governance Level:**
 
 | Setting | Baseline | Recommended | Regulated |

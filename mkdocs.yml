@@ -35,6 +35,17 @@ theme:
 plugins:
   - search
 
+# Site-wide link validation (MkDocs 1.6+). CI runs `mkdocs build --strict`, so any warnings here will fail the build.
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+
 # Exclude files that are intentionally not in navigation
 exclude_docs: |
   images/

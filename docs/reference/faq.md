@@ -10,13 +10,13 @@ Common questions and answers about the FSI Agent Governance Framework.
 
 A: Read in this order:
 1. README.md (5 min overview)
-2. Zones-Overview.md (understand your zone)
-3. Quick-Start-Guide.md (30 min hands-on)
-4. Regulatory-Mappings.md (if regulated)
+2. [Zones Guide](../getting-started/zones.md) (understand your zone)
+3. [Quick Start](../getting-started/quick-start.md) (30 min hands-on)
+4. [Regulatory Mappings](regulatory-mappings.md) (if regulated)
 
 ### Q: What if I don't know which zone my agent should be in?
 
-A: Use the Zone Decision Matrix in Zones-Overview.md:
+A: Use the [Zone Decision Matrix](../getting-started/zones.md#zone-decision-matrix):
 - Zone 1: Personal only, M365 data only
 - Zone 2: Team/dept, internal data only
 - Zone 3: Org-wide, customer data, regulated data
@@ -30,7 +30,7 @@ A: Depends on current state:
 - **Zone 2:** 1-2 weeks (moderate)
 - **Zone 3:** 3-6 weeks (comprehensive)
 
-Full framework: 8-week phased approach (see Implementation-Checklist.md)
+Full framework: 8-week phased approach (see the [Implementation Checklist](../getting-started/checklist.md))
 
 ---
 
@@ -240,7 +240,7 @@ A: Get feedback and revise:
 1. Address concerns raised
 2. Provide additional information
 3. Re-submit
-4. Escalate if needed per RACI-Matrix.md
+4. Escalate if needed per the [RACI Matrix](raci-matrix.md)
 
 ### Q: Who is the Governance Committee?
 
@@ -252,7 +252,7 @@ A: Typically:
 - Chief Risk Officer (if applicable)
 - Business owner (agent requester)
 
-See RACI-Matrix.md for detailed roles.
+See the [RACI Matrix](raci-matrix.md) for detailed roles.
 
 ---
 
@@ -273,7 +273,7 @@ Check with your Compliance Officer.
 ### Q: What if multiple regulations apply?
 
 A: Implement controls that satisfy all:
-1. Check Regulatory-Mappings.md for each regulation
+1. Check [Regulatory Mappings](regulatory-mappings.md) for each regulation
 2. Take strictest requirement
 3. Document compliance with each
 4. Implement control at highest level needed
@@ -282,7 +282,7 @@ Example: If both FINRA (1yr) and SEC (6yr) apply, implement 6-year retention.
 
 ### Q: Are there controls I don't need to implement?
 
-A: Possibly. Review Regulatory-Mappings.md:
+A: Possibly. Review [Regulatory Mappings](regulatory-mappings.md):
 1. Find your regulations
 2. See applicable controls
 3. Implement those controls
@@ -314,7 +314,7 @@ A: No. The 8-week phased approach recommended:
 - **Phase 3 (Weeks 5-6):** Advanced governance
 - **Phase 4 (Weeks 7-8):** Finalization
 
-See Implementation-Checklist.md for details.
+See the [Implementation Checklist](../getting-started/checklist.md) for details.
 
 ### Q: Can we start before full governance is ready?
 
@@ -346,7 +346,7 @@ A: Typically:
   - CISO or Security Admin (security)
   - Internal Audit (independent testing)
 
-See RACI-Matrix.md for detailed roles.
+See the [RACI Matrix](raci-matrix.md) for detailed roles.
 
 ---
 
@@ -437,7 +437,7 @@ A: Depends on regulation:
 - **GLBA:** 5-7 years
 - **OCC/SR 11-7:** Per model (typically 3+ years)
 
-See Regulatory-Mappings.md for your regulations.
+See [Regulatory Mappings](regulatory-mappings.md) for your regulations.
 
 ### Q: What evidence do auditors want to see?
 
