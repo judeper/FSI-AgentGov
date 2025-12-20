@@ -1,0 +1,4402 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.19-ediscovery-for-agent-interactions/">
+      
+      
+        <link rel="prev" href="../1.18-application-level-authorization-and-role-based-access-control-rbac/">
+      
+      
+        <link rel="next" href="../../pillar-2-management/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.19 eDiscovery For Agent Interactions - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-119-ediscovery-for-agent-interactions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.19 eDiscovery For Agent Interactions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1 - Baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-3-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2-3 - Recommended
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-regulatedhigh-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4 - Regulated/High-Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ediscovery-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eDiscovery Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-ediscovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing eDiscovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ediscovery-sub-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eDiscovery Sub-Pages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Solutions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cases-page-toolbar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cases Page Toolbar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Case
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-list-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case List Columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#searching-for-agent-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Searching for Agent Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Locations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-query-examples-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Query Examples for Agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legal-hold-for-agent-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legal Hold for Agent Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-hold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Hold
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hold-considerations-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hold Considerations for Agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-assisted-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI-Assisted Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summarize-this-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summarize This Case
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connect-to-security-compliance-center" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect to Security &amp; Compliance Center
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-ediscovery-case-for-agent-investigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create eDiscovery Case for Agent Investigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-search-for-agent-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Search for Agent Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-for-specific-agent-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search for Specific Agent Interactions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-legal-hold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apply Legal Hold
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-search-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export Search Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-ediscovery-activities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit eDiscovery Activities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-specific-ediscovery-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier-Specific eDiscovery Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-content-locations-for-fsi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Content Locations for FSI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-example-regulatory-examination-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Example: Regulatory Examination Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#licensing-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licensing Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examination-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examination Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-search-returns-no-results-for-known-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Search Returns No Results for Known Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-cannot-find-copilotagent-specific-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Cannot Find Copilot/Agent Specific Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-legal-hold-not-preserving-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Legal Hold Not Preserving Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-export-fails-or-incomplete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Export Fails or Incomplete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-cannot-access-ediscovery-or-create-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Cannot Access eDiscovery or Create Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-119-ediscovery-for-agent-interactions">Control 1.19: eDiscovery for Agent Interactions</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.19
+<strong>Control Name:</strong> eDiscovery for Agent Interactions
+<strong>Regulatory Reference:</strong> SEC 17a-4, FINRA 4511, SOX 802, GLBA 501(b)
+<strong>Setup Time:</strong> 4-8 hours (requires E5 or eDiscovery add-on licensing)</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Enable legal discovery and regulatory response capabilities for Microsoft 365 Copilot and Copilot Studio agent interactions. This control ensures that AI-generated content, agent conversations, and related data can be preserved, searched, and exported for litigation, regulatory examinations, and internal investigations.</p>
+<hr />
+<h3 id="description">Description</h3>
+<p>eDiscovery capabilities in Microsoft Purview enable legal hold, search, and export of Microsoft 365 Copilot conversations and agent interactions for litigation, regulatory inquiries, and internal investigations. Agent interactions stored in Microsoft 365 locations (Teams, SharePoint, OneDrive) are searchable through eDiscovery cases.</p>
+<p>See <a href="https://learn.microsoft.com/en-us/purview/ediscovery">eDiscovery solutions</a> for detailed capabilities.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Case management</strong></td>
+<td>Organize searches and exports</td>
+<td>Investigation structure</td>
+</tr>
+<tr>
+<td><strong>Content search</strong></td>
+<td>KeyQL queries across M365</td>
+<td>Find agent interactions</td>
+</tr>
+<tr>
+<td><strong>Legal hold</strong></td>
+<td>Preserve and secure content</td>
+<td>Litigation readiness</td>
+</tr>
+<tr>
+<td><strong>Export</strong></td>
+<td>Export results for review</td>
+<td>Regulatory response</td>
+</tr>
+<tr>
+<td><strong>Search statistics</strong></td>
+<td>Top data sources, sensitive info types</td>
+<td>Scope assessment</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Purview eDiscovery Roles
+<strong>Supporting Roles:</strong> None</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft 365 E3</td>
+<td>Basic eDiscovery</td>
+<td>Level 1-2</td>
+</tr>
+<tr>
+<td>Microsoft 365 E5</td>
+<td>Advanced eDiscovery</td>
+<td>Level 3-4</td>
+</tr>
+<tr>
+<td>Microsoft 365 E5 Compliance</td>
+<td>Standalone compliance</td>
+<td>Alternative to E5</td>
+</tr>
+<tr>
+<td>eDiscovery Add-on</td>
+<td>Advanced features for E3</td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+<th>Assignment Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eDiscovery Manager</td>
+<td>Create and manage cases</td>
+<td>Purview RBAC</td>
+</tr>
+<tr>
+<td>eDiscovery Administrator</td>
+<td>Full eDiscovery admin</td>
+<td>Purview RBAC</td>
+</tr>
+<tr>
+<td>Compliance Administrator</td>
+<td>Access compliance features</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Case Member</td>
+<td>Access specific cases</td>
+<td>Per-case assignment</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Description</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unified Audit Logging</td>
+<td>Required for activity search</td>
+<td>Check Purview → Audit</td>
+</tr>
+<tr>
+<td>Content Locations</td>
+<td>Teams, SharePoint, Exchange</td>
+<td>Verify agent data locations</td>
+</tr>
+<tr>
+<td>Retention Policies</td>
+<td>Ensure data isn't deleted</td>
+<td>Check retention settings</td>
+</tr>
+<tr>
+<td>Legal Team Access</td>
+<td>Legal/compliance portal access</td>
+<td>Verify permissions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] E5 or E5 Compliance licenses assigned</li>
+<li>[ ] eDiscovery roles assigned to legal/compliance team</li>
+<li>[ ] Agent data locations documented</li>
+<li>[ ] Retention policies prevent premature deletion</li>
+<li>[ ] Legal hold procedures documented</li>
+<li>[ ] Case naming conventions established</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="level-1-baseline">Level 1 - Baseline</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eDiscovery access</td>
+<td>Designated eDiscovery administrators</td>
+</tr>
+<tr>
+<td>Basic awareness</td>
+<td>Understand agent content locations</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>Document eDiscovery procedures</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Minimum requirements:</strong>
+- Assign eDiscovery administrator role
+- Document where agent content is stored
+- Establish basic search procedures</p>
+<h3 id="level-2-3-recommended">Level 2-3 - Recommended</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Case templates</td>
+<td>Predefined case structures for common scenarios</td>
+</tr>
+<tr>
+<td>Search procedures</td>
+<td>Documented search queries for agent content</td>
+</tr>
+<tr>
+<td>Hold policies</td>
+<td>Defined hold procedures for agent data</td>
+</tr>
+<tr>
+<td>Training</td>
+<td>eDiscovery team trained on agent content</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI recommendations:</strong>
+- Create case templates for regulatory inquiries
+- Document KeyQL queries for agent searches
+- Train legal/compliance on agent content locations
+- Integrate with litigation hold procedures</p>
+<h3 id="level-4-regulatedhigh-risk">Level 4 - Regulated/High-Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Proactive holds</td>
+<td>Standing holds for Tier 3 (enterprise-managed) agent content</td>
+</tr>
+<tr>
+<td>Comprehensive procedures</td>
+<td>Full eDiscovery runbook for agents</td>
+</tr>
+<tr>
+<td>Regular testing</td>
+<td>Quarterly eDiscovery drills</td>
+</tr>
+<tr>
+<td>Audit integration</td>
+<td>Combine with audit log searches</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI requirements:</strong>
+- Proactive legal holds for customer-facing agent interactions
+- Documented procedures for regulatory examination response
+- Quarterly testing of agent content searchability
+- Integration with information governance program</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="ediscovery-navigation">eDiscovery Navigation</h3>
+<h3 id="accessing-ediscovery">Accessing eDiscovery</h3>
+<ol>
+<li>Open <a href="https://purview.microsoft.com">Microsoft Purview</a></li>
+<li>Navigate to <strong>eDiscovery</strong> in left navigation</li>
+<li>Select the appropriate sub-page</li>
+</ol>
+<h3 id="ediscovery-sub-pages">eDiscovery Sub-Pages</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Purpose</th>
+<th>Key Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Overview</strong></td>
+<td>Dashboard and quick start</td>
+<td>Get started guides, learning resources</td>
+</tr>
+<tr>
+<td><strong>Cases</strong></td>
+<td>Case management</td>
+<td>Create, manage, track cases</td>
+</tr>
+<tr>
+<td><strong>Content Search</strong></td>
+<td>Direct content search</td>
+<td>Search without case context</td>
+</tr>
+<tr>
+<td><strong>Dashboards</strong></td>
+<td>Analytics and reporting</td>
+<td>Search statistics, trends</td>
+</tr>
+</tbody>
+</table>
+<h3 id="related-solutions">Related Solutions</h3>
+<p>Located in the left navigation under "Related solutions":</p>
+<table>
+<thead>
+<tr>
+<th>Solution</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Audit</strong></td>
+<td>Activity logging and search</td>
+</tr>
+<tr>
+<td><strong>Data Security Investigations (preview)</strong></td>
+<td>Security-focused investigations</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note:</strong> The eDiscovery interface displays a banner: "Welcome to the new eDiscovery experience. Learn about the latest updates and improvements" with a link to documentation.</p>
+</blockquote>
+<hr />
+<h3 id="case-management">Case Management</h3>
+<h3 id="cases-page-toolbar">Cases Page Toolbar</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Create case</strong></td>
+<td>Start a new eDiscovery case</td>
+</tr>
+<tr>
+<td><strong>Export list</strong></td>
+<td>Export case list to file</td>
+</tr>
+<tr>
+<td><strong>Refresh</strong></td>
+<td>Update case list</td>
+</tr>
+<tr>
+<td><strong>Filter by keyword</strong></td>
+<td>Search cases by name</td>
+</tr>
+<tr>
+<td><strong>Filter</strong></td>
+<td>Advanced filtering options</td>
+</tr>
+<tr>
+<td><strong>Group</strong></td>
+<td>Group cases by attribute</td>
+</tr>
+<tr>
+<td><strong>Customize columns</strong></td>
+<td>Configure visible columns</td>
+</tr>
+</tbody>
+</table>
+<h3 id="creating-a-case">Creating a Case</h3>
+<p>Cases organize searches, holds, and exports for specific matters:</p>
+<ol>
+<li>Navigate to <strong>eDiscovery → Cases</strong></li>
+<li>Click <strong>Create case</strong></li>
+<li>Enter case name and description</li>
+<li>Assign case members and permissions</li>
+<li>Save and open case</li>
+</ol>
+<h3 id="case-components">Case Components</h3>
+<table>
+<thead>
+<tr>
+<th>Tab</th>
+<th>Purpose</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Searches</strong></td>
+<td>Content search queries</td>
+<td>Create a search, export results</td>
+</tr>
+<tr>
+<td><strong>Hold policies</strong></td>
+<td>Legal hold configuration</td>
+<td>Preserve content</td>
+</tr>
+<tr>
+<td><strong>Review sets</strong></td>
+<td>Content review workspace</td>
+<td>Review and tag content</td>
+</tr>
+<tr>
+<td><strong>Exports</strong></td>
+<td>Export management</td>
+<td>Download search results</td>
+</tr>
+<tr>
+<td><strong>Data sources</strong></td>
+<td>Custodian and location management</td>
+<td>Add people, sites, groups</td>
+</tr>
+</tbody>
+</table>
+<h3 id="case-list-columns">Case List Columns</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Case name</td>
+<td>Unique identifier for the case</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Active, Closed</td>
+</tr>
+<tr>
+<td>Created</td>
+<td>Case creation date</td>
+</tr>
+<tr>
+<td>Last modified</td>
+<td>Most recent update</td>
+</tr>
+<tr>
+<td>Modified by</td>
+<td>User who made last change</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>System-assigned case number</td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Case summary</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="searching-for-agent-content">Searching for Agent Content</h3>
+<h3 id="search-locations">Search Locations</h3>
+<p>eDiscovery searches across M365 locations where agent interactions are stored:</p>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Agent Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Microsoft Teams</strong></td>
+<td>Copilot in Teams conversations</td>
+</tr>
+<tr>
+<td><strong>SharePoint</strong></td>
+<td>Agent knowledge sources, Copilot in SharePoint</td>
+</tr>
+<tr>
+<td><strong>OneDrive</strong></td>
+<td>User files referenced in agent interactions</td>
+</tr>
+<tr>
+<td><strong>Exchange</strong></td>
+<td>Email-based agent notifications</td>
+</tr>
+<tr>
+<td><strong>Groups</strong></td>
+<td>Group-based agent interactions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="creating-a-search">Creating a Search</h3>
+<ol>
+<li>Open a case or use Content Search</li>
+<li>Click <strong>Create a search</strong></li>
+<li>Define search query using KeyQL</li>
+<li>Select data sources (people, groups, locations)</li>
+<li>Run search and review results</li>
+<li>Export as needed</li>
+</ol>
+<h3 id="search-query-examples-for-agents">Search Query Examples for Agents</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Query Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All Copilot interactions</td>
+<td>Search Teams conversations with Copilot</td>
+</tr>
+<tr>
+<td>Specific agent interactions</td>
+<td>Search by agent name in metadata</td>
+</tr>
+<tr>
+<td>Sensitive data in AI</td>
+<td>Combine with sensitive info type filters</td>
+</tr>
+<tr>
+<td>Date range</td>
+<td>Use date filters for specific periods</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="legal-hold-for-agent-content">Legal Hold for Agent Content</h3>
+<h3 id="creating-a-hold">Creating a Hold</h3>
+<p>Preserve agent-related content for litigation or investigation:</p>
+<ol>
+<li>Open case → <strong>Hold policies</strong> tab</li>
+<li>Click <strong>Create a hold</strong></li>
+<li>Select custodians and locations</li>
+<li>Define hold conditions (optional)</li>
+<li>Apply hold</li>
+</ol>
+<h3 id="hold-considerations-for-agents">Hold Considerations for Agents</h3>
+<table>
+<thead>
+<tr>
+<th>Content Type</th>
+<th>Hold Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Copilot conversations</td>
+<td>Hold user mailboxes and Teams</td>
+</tr>
+<tr>
+<td>Agent knowledge sources</td>
+<td>Hold SharePoint sites</td>
+</tr>
+<tr>
+<td>Agent configurations</td>
+<td>Document separately (not in M365)</td>
+</tr>
+<tr>
+<td>Audit logs</td>
+<td>Preserved via audit retention</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="ai-assisted-features">AI-Assisted Features</h3>
+<h3 id="summarize-this-case">Summarize This Case</h3>
+<p>eDiscovery includes AI-assisted case summarization:</p>
+<ul>
+<li>Click <strong>Summarize this case</strong> button</li>
+<li>AI generates summary of case contents</li>
+<li>Helps understand scope and key findings</li>
+</ul>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="connect-to-security-compliance-center">Connect to Security &amp; Compliance Center</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Security &amp; Compliance PowerShell</span>
+<span class="nb">Connect-IPPSSession</span> <span class="n">-UserPrincipalName</span> <span class="n">admin</span><span class="nv">@contoso</span><span class="p">.</span><span class="n">com</span>
+
+<span class="c"># Verify connection</span>
+<span class="nb">Get-ComplianceCase</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+</code></pre></div>
+<h3 id="create-ediscovery-case-for-agent-investigation">Create eDiscovery Case for Agent Investigation</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Create a new eDiscovery case</span>
+<span class="nv">$caseParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-Investigation-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MM&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="n">Description</span> <span class="p">=</span> <span class="s2">&quot;Investigation of Copilot Studio agent interactions&quot;</span>
+<span class="p">}</span>
+
+<span class="nv">$case</span> <span class="p">=</span> <span class="nb">New-ComplianceCase</span> <span class="nv">@caseParams</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Created case: </span><span class="p">$(</span><span class="nv">$case</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">&quot;</span>
+
+<span class="c"># Add case members</span>
+<span class="nb">Add-ComplianceCaseMember</span> <span class="n">-Case</span> <span class="nv">$case</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Member</span> <span class="s2">&quot;legal@contoso.com&quot;</span>
+<span class="nb">Add-ComplianceCaseMember</span> <span class="n">-Case</span> <span class="nv">$case</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Member</span> <span class="s2">&quot;compliance@contoso.com&quot;</span>
+
+<span class="c"># List case members</span>
+<span class="nb">Get-ComplianceCaseMember</span> <span class="n">-Case</span> <span class="nv">$case</span><span class="p">.</span><span class="n">Name</span>
+</code></pre></div>
+<h3 id="create-search-for-agent-content">Create Search for Agent Content</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Create a compliance search for Copilot interactions</span>
+<span class="nv">$searchParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Agent-Content-Search-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="n">Case</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-Investigation-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MM&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="n">ExchangeLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+    <span class="n">SharePointLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+    <span class="n">ContentMatchQuery</span> <span class="p">=</span> <span class="s1">&#39;(subject:&quot;Copilot&quot; OR body:&quot;Agent&quot; OR body:&quot;AI assistant&quot;) AND (sent:&gt;=2024-01-01)&#39;</span>
+    <span class="n">Description</span> <span class="p">=</span> <span class="s2">&quot;Search for AI agent-related content&quot;</span>
+<span class="p">}</span>
+
+<span class="nb">New-ComplianceSearch</span> <span class="nv">@searchParams</span>
+
+<span class="c"># Start the search</span>
+<span class="nb">Start-ComplianceSearch</span> <span class="n">-Identity</span> <span class="s2">&quot;Agent-Content-Search-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+
+<span class="c"># Check search status</span>
+<span class="nb">Get-ComplianceSearch</span> <span class="n">-Identity</span> <span class="s2">&quot;Agent-Content-Search-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">Items</span><span class="p">,</span> <span class="n">Size</span>
+</code></pre></div>
+<h3 id="search-for-specific-agent-interactions">Search for Specific Agent Interactions</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># KeyQL queries for agent content</span>
+<span class="nv">$agentSearchQueries</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="s2">&quot;Copilot-Chats&quot;</span> <span class="p">=</span> <span class="s1">&#39;kind:microsoftteams AND (from:&quot;Microsoft Copilot&quot; OR participants:&quot;Copilot&quot;)&#39;</span>
+    <span class="s2">&quot;Agent-Knowledge&quot;</span> <span class="p">=</span> <span class="s1">&#39;path:&quot;https://contoso.sharepoint.com/sites/AgentKnowledge/*&quot;&#39;</span>
+    <span class="s2">&quot;Agent-Transcripts&quot;</span> <span class="p">=</span> <span class="s1">&#39;(filename:transcript OR filename:conversation) AND (body:&quot;agent&quot; OR body:&quot;copilot&quot;)&#39;</span>
+    <span class="s2">&quot;Sensitive-Agent-Data&quot;</span> <span class="p">=</span> <span class="s1">&#39;sensitivitylabel:&quot;Highly Confidential&quot; AND (body:&quot;agent&quot; OR body:&quot;copilot&quot;)&#39;</span>
+<span class="p">}</span>
+
+<span class="c"># Create searches for each query</span>
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$searchName</span> <span class="k">in</span> <span class="nv">$agentSearchQueries</span><span class="p">.</span><span class="n">Keys</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$query</span> <span class="p">=</span> <span class="nv">$agentSearchQueries</span><span class="p">[</span><span class="nv">$searchName</span><span class="p">]</span>
+
+    <span class="nb">New-ComplianceSearch</span> <span class="n">-Name</span> <span class="s2">&quot;FSI-$searchName&quot;</span> <span class="p">`</span>
+        <span class="n">-ExchangeLocation</span> <span class="s2">&quot;All&quot;</span> <span class="n">-SharePointLocation</span> <span class="s2">&quot;All&quot;</span> <span class="p">`</span>
+        <span class="n">-ContentMatchQuery</span> <span class="nv">$query</span>
+
+    <span class="nb">Start-ComplianceSearch</span> <span class="n">-Identity</span> <span class="s2">&quot;FSI-$searchName&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Started search: FSI-$searchName&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="apply-legal-hold">Apply Legal Hold</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Create a hold policy for agent-related content</span>
+<span class="nv">$holdParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-Legal-Hold&quot;</span>
+    <span class="n">Case</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-Investigation-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MM&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="n">ContentMatchQuery</span> <span class="p">=</span> <span class="s1">&#39;kind:microsoftteams AND (from:&quot;Copilot&quot; OR subject:&quot;Agent&quot;)&#39;</span>
+    <span class="n">SharePointLocation</span> <span class="p">=</span> <span class="p">@(</span>
+        <span class="s2">&quot;https://contoso.sharepoint.com/sites/AgentKnowledge&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://contoso.sharepoint.com/sites/CustomerData&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ExchangeLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+<span class="p">}</span>
+
+<span class="nb">New-CaseHoldPolicy</span> <span class="nv">@holdParams</span>
+
+<span class="c"># Create hold rule</span>
+<span class="nb">New-CaseHoldRule</span> <span class="n">-Policy</span> <span class="s2">&quot;FSI-Agent-Legal-Hold&quot;</span> <span class="n">-Name</span> <span class="s2">&quot;Agent-Content-Hold-Rule&quot;</span>
+
+<span class="c"># Verify hold is applied</span>
+<span class="nb">Get-CaseHoldPolicy</span> <span class="n">-Case</span> <span class="s2">&quot;FSI-Agent-Investigation-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MM&#39;</span><span class="p">)</span><span class="s2">&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">SharePointLocation</span>
+</code></pre></div>
+<h3 id="export-search-results">Export Search Results</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Export compliance search results</span>
+<span class="nv">$exportParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">SearchName</span> <span class="p">=</span> <span class="s2">&quot;Agent-Content-Search-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="n">ExportFormat</span> <span class="p">=</span> <span class="s2">&quot;IndividualMessage&quot;</span>  <span class="c"># or &quot;PST&quot; for Exchange content</span>
+    <span class="n">Scenario</span> <span class="p">=</span> <span class="s2">&quot;GeneralExport&quot;</span>
+    <span class="n">ExportLocation</span> <span class="p">=</span> <span class="s2">&quot;PremiumExchange&quot;</span>
+<span class="p">}</span>
+
+<span class="c"># Note: Export is typically done through the portal for large datasets</span>
+<span class="c"># PowerShell is useful for automation and smaller exports</span>
+
+<span class="nb">New-ComplianceSearchAction</span> <span class="n">-SearchName</span> <span class="nv">$exportParams</span><span class="p">.</span><span class="n">SearchName</span> <span class="n">-Export</span> <span class="n">-Format</span> <span class="nv">$exportParams</span><span class="p">.</span><span class="n">ExportFormat</span>
+
+<span class="c"># Check export status</span>
+<span class="nb">Get-ComplianceSearchAction</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SearchName</span> <span class="o">-eq</span> <span class="nv">$exportParams</span><span class="p">.</span><span class="n">SearchName</span> <span class="o">-and</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s2">&quot;Export&quot;</span> <span class="p">}</span>
+</code></pre></div>
+<h3 id="audit-ediscovery-activities">Audit eDiscovery Activities</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Search audit log for eDiscovery activities</span>
+<span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">30</span><span class="p">)</span>
+<span class="nv">$endDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+<span class="nv">$ediscoveryAudit</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-RecordType</span> <span class="n">ComplianceSearch</span> <span class="n">-ResultSize</span> <span class="n">500</span>
+
+<span class="nv">$ediscoveryAudit</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">CreationDate</span><span class="p">,</span> <span class="n">UserIds</span><span class="p">,</span> <span class="n">Operations</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+
+<span class="c"># Export eDiscovery audit trail</span>
+<span class="nv">$ediscoveryAudit</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+    <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">Date</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreationDate</span>
+        <span class="n">User</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">UserIds</span>
+        <span class="n">Operation</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Operations</span>
+        <span class="n">CaseName</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">Case</span>
+        <span class="n">SearchName</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">SearchName</span>
+    <span class="p">}</span>
+<span class="p">}</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;eDiscovery-Audit-Trail.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-mapping">Regulatory Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>eDiscovery Requirement</th>
+<th>Control Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SEC 17a-4</strong></td>
+<td>Preserve and produce AI communications</td>
+<td>Legal holds for agent content</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Searchable records of AI interactions</td>
+<td>Saved search templates</td>
+</tr>
+<tr>
+<td><strong>SOX 802</strong></td>
+<td>Document preservation for investigations</td>
+<td>Proactive holds for Tier 3 (enterprise-managed)</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Protect and produce customer data</td>
+<td>Data source identification</td>
+</tr>
+<tr>
+<td><strong>SEC Reg S-P</strong></td>
+<td>Privacy in discovery</td>
+<td>Redaction procedures</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tier-specific-ediscovery-configuration">Tier-Specific eDiscovery Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Hold Requirement</th>
+<th>Search Scope</th>
+<th>Export Controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1</td>
+<td>As needed</td>
+<td>Personal environments</td>
+<td>Standard export</td>
+</tr>
+<tr>
+<td>Tier 2</td>
+<td>Case-by-case</td>
+<td>Department environments</td>
+<td>Tracked export</td>
+</tr>
+<tr>
+<td>Tier 3</td>
+<td>Proactive/standing</td>
+<td>All production environments</td>
+<td>Controlled export with approval</td>
+</tr>
+</tbody>
+</table>
+<h3 id="agent-content-locations-for-fsi">Agent Content Locations for FSI</h3>
+<table>
+<thead>
+<tr>
+<th>Content Type</th>
+<th>Location</th>
+<th>Search Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Copilot chats</td>
+<td>Teams, Exchange</td>
+<td>kind:microsoftteams</td>
+</tr>
+<tr>
+<td>Agent transcripts</td>
+<td>SharePoint, Dataverse</td>
+<td>File path search</td>
+</tr>
+<tr>
+<td>Agent knowledge</td>
+<td>SharePoint sites</td>
+<td>Site-scoped search</td>
+</tr>
+<tr>
+<td>Audit logs</td>
+<td>Unified Audit Log</td>
+<td>Audit log search</td>
+</tr>
+<tr>
+<td>Configuration history</td>
+<td>Power Platform</td>
+<td>API export</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-example-regulatory-examination-response">FSI Example: Regulatory Examination Response</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">Scenario</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEC Examination Request for AI Trading Assistant</span>
+<span class="nt">Request</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Provide</span><span class="nv"> </span><span class="s">all</span><span class="nv"> </span><span class="s">communications</span><span class="nv"> </span><span class="s">involving</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">trading</span><span class="nv"> </span><span class="s">assistant</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">Q4</span><span class="nv"> </span><span class="s">2024&quot;</span>
+
+<span class="nt">eDiscovery Response Process</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">1. Case Creation</span><span class="p">:</span>
+<span class="w">     </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEC-Exam-2025-AI-Trading</span>
+<span class="w">     </span><span class="nt">Members</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legal, Compliance, IT Security</span>
+
+<span class="w">  </span><span class="nt">2. Content Identification</span><span class="p">:</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Copilot Studio agent</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Trading-Desk-Assistant&quot;</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Knowledge sources</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trading policies SharePoint site</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">User interactions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Teams channel &quot;Trading-AI&quot;</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Audit logs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Agent publish and config changes</span>
+
+<span class="w">  </span><span class="nt">3. Search Queries</span><span class="p">:</span>
+<span class="w">     </span><span class="nt">Query1</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;kind:microsoftteams</span><span class="nv"> </span><span class="s">AND</span><span class="nv"> </span><span class="s">(from:&quot;Trading-Desk-Assistant&quot;</span><span class="nv"> </span><span class="s">OR</span><span class="nv"> </span><span class="s">subject:&quot;Trading</span><span class="nv"> </span><span class="s">AI&quot;)&#39;</span>
+<span class="w">     </span><span class="nt">Query2</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;path:&quot;https://contoso.sharepoint.com/sites/TradingPolicies/*&quot;&#39;</span>
+<span class="w">     </span><span class="nt">Query3</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sent:&gt;=2024-10-01</span><span class="nv"> </span><span class="s">AND</span><span class="nv"> </span><span class="s">sent:&lt;=2024-12-31&#39;</span>
+
+<span class="w">  </span><span class="nt">4. Legal Hold</span><span class="p">:</span>
+<span class="w">     </span><span class="nt">Scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All identified locations</span>
+<span class="w">     </span><span class="nt">Duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Until SEC closes examination</span>
+
+<span class="w">  </span><span class="nt">5. Export</span><span class="p">:</span>
+<span class="w">     </span><span class="nt">Format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PST for Exchange, Native for SharePoint</span>
+<span class="w">     </span><span class="nt">Chain of custody</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Documented</span>
+
+<span class="w">  </span><span class="nt">6. Evidence Package</span><span class="p">:</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Search methodology document</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Export verification report</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Chain of custody log</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Certification statement</span>
+</code></pre></div>
+<hr />
+<h3 id="licensing-requirements">Licensing Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>License Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic eDiscovery</td>
+<td>Microsoft 365 E3</td>
+</tr>
+<tr>
+<td>Advanced eDiscovery</td>
+<td>Microsoft 365 E5 or eDiscovery add-on</td>
+</tr>
+<tr>
+<td>Review sets</td>
+<td>E5 or add-on</td>
+</tr>
+<tr>
+<td>AI summarization</td>
+<td>E5 or add-on</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="regulatory-context">Regulatory Context</h3>
+<p><strong>Primary Regulations:</strong> SEC 17a-4, FINRA 4511, SOX 802, GLBA 501(b)</p>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>eDiscovery Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEC 17a-4</td>
+<td>Preserve and produce AI-related communications</td>
+</tr>
+<tr>
+<td>FINRA 4511</td>
+<td>Maintain searchable records of AI interactions</td>
+</tr>
+<tr>
+<td>SOX 802</td>
+<td>Preserve documents related to audits/investigations</td>
+</tr>
+<tr>
+<td>GLBA 501(b)</td>
+<td>Protect and produce customer information</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examination-considerations">Examination Considerations</h3>
+<p>Regulators may request:
+- Agent interaction records for specific time periods
+- Evidence of legal hold procedures
+- Search methodology documentation
+- Export of specific agent conversations
+- Demonstration of eDiscovery capabilities</p>
+<hr />
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong>
+- Apply a baseline minimum of eDiscovery that impacts tenant-wide safety (where applicable), and document any exceptions for personal agents.
+- Avoid expanding scope beyond the user’s own data unless explicitly justified.
+- Rationale: reduces risk from personal use while keeping friction low; legal/compliance can tighten later.</p>
+<p><strong>Zone 2 (Team Collaboration):</strong>
+- Apply ensure agent interactions/content are discoverable and hold-capable for shared agents and shared data sources; require an identified owner and an approval trail.
+- Validate configuration in a pilot environment before broader rollout; retain case settings + sample holds/searches.
+- Rationale: shared agents increase blast radius; controls must be consistently applied and provable.</p>
+<p><strong>Zone 3 (Enterprise Managed):</strong>
+- Require the strictest configuration for eDiscovery and enforce it via policy where possible (not manual-only).
+- Treat changes as controlled (change ticket + documented testing); retain case settings + sample holds/searches.
+- Rationale: enterprise agents handle the most sensitive content and are the highest audit/regulatory risk.</p>
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Navigate to purview.microsoft.com → eDiscovery</td>
+<td>eDiscovery dashboard displayed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Create test case</td>
+<td>Case created successfully</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Create search for agent content</td>
+<td>Search returns results</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Apply test hold</td>
+<td>Hold applied to locations</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Export search results</td>
+<td>Export completes</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify audit logging</td>
+<td>eDiscovery actions logged</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-search-returns-no-results-for-known-content">Issue: Search Returns No Results for Known Content</h3>
+<p><strong>Symptoms:</strong> Content exists but eDiscovery search returns empty</p>
+<p><strong>Solutions:</strong>
+1. Verify content is in indexed locations (Exchange, SharePoint, Teams)
+2. Check search query syntax - use Keyword Query Language (KQL) correctly
+3. Confirm date ranges include the content dates
+4. Verify user has eDiscovery Manager role
+5. Check if content is on legal hold preventing indexing issues</p>
+<h3 id="issue-cannot-find-copilotagent-specific-content">Issue: Cannot Find Copilot/Agent Specific Content</h3>
+<p><strong>Symptoms:</strong> General search works but agent content not appearing</p>
+<p><strong>Solutions:</strong>
+1. Agent interactions may be in Teams chat - use kind:microsoftteams
+2. Check agent knowledge sources are in SharePoint (not Dataverse only)
+3. Verify audit logs are being searched (separate from content search)
+4. Agent transcripts may require specific file path searches
+5. Review with Power Platform Admin for data storage locations</p>
+<h3 id="issue-legal-hold-not-preserving-content">Issue: Legal Hold Not Preserving Content</h3>
+<p><strong>Symptoms:</strong> Content deleted despite active hold policy</p>
+<p><strong>Solutions:</strong>
+1. Verify hold policy is enabled and not in error state
+2. Check that locations are correctly specified in hold
+3. Confirm hold rule is created and active
+4. Review if user has litigation hold directly vs. policy-based
+5. Check for conflicts with retention policies</p>
+<h3 id="issue-export-fails-or-incomplete">Issue: Export Fails or Incomplete</h3>
+<p><strong>Symptoms:</strong> Export times out, fails, or missing expected content</p>
+<p><strong>Solutions:</strong>
+1. Break large exports into smaller date ranges
+2. Check export format compatibility with content types
+3. Verify sufficient storage for export container
+4. Use portal instead of PowerShell for large exports
+5. Check for network timeout issues</p>
+<h3 id="issue-cannot-access-ediscovery-or-create-cases">Issue: Cannot Access eDiscovery or Create Cases</h3>
+<p><strong>Symptoms:</strong> eDiscovery section not visible or permission denied</p>
+<p><strong>Solutions:</strong>
+1. Verify eDiscovery Manager role is assigned in Purview
+2. Check license includes eDiscovery (E3 for basic, E5 for advanced)
+3. Confirm role was assigned recently (may take up to 1 hour)
+4. Try accessing via compliance.microsoft.com instead of purview
+5. Contact Global Admin to verify role group membership</p>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/purview/ediscovery">Microsoft Purview eDiscovery Solutions</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/ediscovery-create-and-manage-cases">Create and Manage eDiscovery Cases</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/ediscovery-keyword-queries-and-search-conditions">Keyword Query Language (KQL) Reference</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/ediscovery-create-holds">Create eDiscovery Holds</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/ediscovery-export-search-results">Export eDiscovery Search Results</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/exchange/new-compliancecase">eDiscovery PowerShell Cmdlets</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<ul>
+<li><a href="../1.7-comprehensive-audit-logging-and-compliance/">Control 1.7: Audit Logging</a> - Activity records</li>
+<li><a href="../1.9-data-retention-and-deletion-policies/">Control 1.9: Data Retention</a> - Retention policies</li>
+<li><a href="../1.6-microsoft-purview-dspm-for-ai/">Control 1.6: DSPM for AI</a> - AI interaction visibility</li>
+<li><a href="../../pillar-2-management/2.13-documentation-and-record-keeping/">Control 2.13: Documentation</a> - Record keeping</li>
+</ul>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- <strong>Legal/Compliance Officer:</strong> Legal hold procedures and examination response
+- <strong>eDiscovery Administrator:</strong> Case management and search configuration
+- <strong>Microsoft Purview Administrator:</strong> Portal access and permissions
+- <strong>AI Governance Lead:</strong> Agent content scope and data locations</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

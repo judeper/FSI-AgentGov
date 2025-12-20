@@ -1,0 +1,3472 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../1.2-agent-registry-and-integrated-apps-management/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.1 Restrict Agent Publishing By Authorization - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-11-restrict-agent-publishing-by-authorization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.1 Restrict Agent Publishing By Authorization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#portal-based-configuration-primary-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Portal-Based Configuration (Primary Method)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#microsoft-365-integrated-surfaces-as-applicable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Microsoft 365 Integrated Surfaces (As Applicable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration-alternative-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration (Alternative Method)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-implementation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Implementation Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-pack-auditor-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence Pack (Auditor-Ready)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-confirm-configuration-is-active" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Confirm Configuration is Active
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-11-restrict-agent-publishing-by-authorization">Control 1.1: Restrict Agent Publishing by Authorization</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.1
+<strong>Control Name:</strong> Restrict Agent Publishing by Authorization
+<strong>Regulatory Reference:</strong> FINRA 4511, SEC Rule 17a-4, GLBA 501(b)
+<strong>Setup Time:</strong> 15-30 min</p>
+<p><strong>Scope (US-only):</strong> This control is written for US-only tenants and environments. Use United States tenant geo where applicable and deploy Power Platform environments in US regions. Do not use this control as-is for cross-border operations without a data residency and regulatory review.</p>
+<p><strong>In-scope surfaces (as applicable):</strong>
+- Copilot Studio authoring and publishing
+- Power Platform Admin Center (PPAC) environment access control and sharing limits
+- Microsoft 365 integrated surfaces/channels used to expose agents (for example, Microsoft Teams / Microsoft 365 publish targets available in your tenant)</p>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Power Platform Admin
+<strong>Supporting Roles:</strong> Dataverse System Admin, Entra Global Admin, Microsoft Purview Audit (or Compliance) Admin/Reader, Teams Admin (if publishing to Teams)</p>
+<ul>
+<li><strong>License Required:</strong> <a href="https://learn.microsoft.com/en-us/power-platform/admin/pricing-billing-skus">Power Platform Premium</a> (for Managed Environments)</li>
+<li><strong>Admin Role:</strong> Power Platform Administrator or Environment Administrator in Microsoft Entra ID</li>
+<li><strong>Dependencies:</strong></li>
+<li><a href="../../pillar-2-management/2.1-managed-environments/">Control 2.1: Managed Environments</a> - Recommended for governance features</li>
+<li><strong>Additional Requirements:</strong></li>
+<li>Security groups configured in Microsoft Entra ID for maker management</li>
+<li>Environment-level security roles configured</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Limit publishing to known makers via security groups; require documented approval for shared agents.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Central publishing workflow + agent registry; enforce environment DLP and connector restrictions.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Formal AI governance committee approval + legal review; change control and evidence retention.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="portal-based-configuration-primary-method">Portal-Based Configuration (Primary Method)</h3>
+<p><strong>Step 0 (Recommended): Establish Release Gates and Separation of Duties</strong></p>
+<p>Use environment separation to enforce authorization as a technical control (not just policy):</p>
+<ol>
+<li>Create at least <strong>DEV/UAT/PROD</strong> environments (all in US regions).</li>
+<li>Assign roles so that:</li>
+<li><strong>Makers</strong> can create/edit only in DEV (and optionally UAT).</li>
+<li><strong>Publishers/Release Managers</strong> (small group) can publish to production channels in PROD.</li>
+<li><strong>Compliance approvers</strong> cannot publish; they approve via workflow/tickets.</li>
+<li>Enforce “no direct publish to PROD” by ensuring unauthorized users do <strong>not</strong> have maker/admin rights in PROD.</li>
+</ol>
+<p>This release-gate model is what makes “restrict publishing by authorization” auditable: a user cannot publish unless they are in the designated publisher group and the change record exists.</p>
+<p><strong>Step 1: Create Security Groups for Authorized Makers</strong></p>
+<ol>
+<li>Sign in to the <strong>Microsoft Entra Admin Center</strong> (<a href="https://entra.microsoft.com">https://entra.microsoft.com</a>)</li>
+<li>Navigate to <strong>Identity</strong> &gt; <strong>Groups</strong> &gt; <strong>All groups</strong></li>
+<li>Select <strong>New group</strong></li>
+<li>Configure the group:</li>
+<li><strong>Group type</strong>: Security</li>
+<li><strong>Group name</strong>: <code>FSI-Agent-Makers-Team</code> or <code>FSI-Agent-Makers-Enterprise</code></li>
+<li><strong>Group description</strong>: <code>Authorized makers for team/enterprise agent development</code></li>
+<li><strong>Membership type</strong>: Assigned (for strict control) or Dynamic (for automation)</li>
+<li>Add authorized users as members</li>
+<li>Select <strong>Create</strong></li>
+</ol>
+<p>Create additional security groups to support segregation of duties and release gates:</p>
+<ul>
+<li><code>FSI-Agent-Publishers-Prod</code> (small, named individuals only)</li>
+<li><code>FSI-Agent-Approvers-Compliance</code> (approvers only; no maker rights required)</li>
+<li><code>FSI-Agent-Admins-Platform</code> (Power Platform/Dataverse admins)</li>
+</ul>
+<p>[Screenshot needed: Security group creation in Entra ID]</p>
+<p><strong>Step 2: Configure Environment Security Roles</strong></p>
+<ol>
+<li>Sign in to the <strong>Power Platform Admin Center</strong> (<a href="https://admin.powerplatform.microsoft.com">https://admin.powerplatform.microsoft.com</a>)</li>
+<li>Navigate to <strong>Manage</strong> &gt; <strong>Environments</strong></li>
+<li>Select the target environment</li>
+<li>Select <strong>Settings</strong> &gt; <strong>Users + permissions</strong> &gt; <strong>Security roles</strong></li>
+<li>Review and configure roles:</li>
+<li><strong>Environment Maker</strong>: Can create apps and flows (assign to authorized makers only)</li>
+<li><strong>Basic User</strong>: Can run apps but not create (for end users)</li>
+<li><strong>System Administrator</strong>: Full control (limit to admins only)</li>
+<li>Remove Environment Maker role from unauthorized users</li>
+</ol>
+<p>Recommended minimum assignments by environment:</p>
+<ul>
+<li><strong>DEV</strong>: <code>FSI-Agent-Makers-*</code> = Environment Maker; <code>FSI-Agent-Admins-Platform</code> = System Administrator</li>
+<li><strong>UAT</strong>: <code>FSI-Agent-Makers-*</code> = (optional) Environment Maker; <code>FSI-Agent-Admins-Platform</code> = System Administrator</li>
+<li><strong>PROD</strong>: <code>FSI-Agent-Publishers-Prod</code> = Environment Maker (or equivalent minimum required to publish); <code>FSI-Agent-Admins-Platform</code> = System Administrator; all other users = Basic User only</li>
+</ul>
+<p>If your organization requires stronger separation, restrict PROD so only <code>FSI-Agent-Publishers-Prod</code> can edit/publish agents and keep general “maker” rights out of PROD entirely.</p>
+<p>[Screenshot needed: Security roles assignment in Power Platform]</p>
+<p><strong>Step 3: Restrict Copilot Studio Access</strong></p>
+<ol>
+<li>In Power Platform Admin Center, select the environment</li>
+<li>Navigate to <strong>Settings</strong> &gt; <strong>Features</strong></li>
+<li>Configure the following:</li>
+<li><strong>Who can create and edit Copilots</strong>: Select <strong>Only specific security groups</strong></li>
+<li>Add the FSI-Agent-Makers security group(s)</li>
+<li>Select <strong>Save</strong></li>
+</ol>
+<p>Hardening notes:</p>
+<ul>
+<li>Apply this setting in <strong>each</strong> environment where Copilot Studio is enabled.</li>
+<li>In PROD, prefer restricting creation/editing to <code>FSI-Agent-Publishers-Prod</code> (or a dedicated production maker group) rather than broad maker groups.</li>
+</ul>
+<p>[Screenshot needed: Copilot Studio access restriction settings]</p>
+<p><strong>Step 4: Configure Maker Sharing Restrictions (Team/Enterprise)</strong></p>
+<ol>
+<li>In Power Platform Admin Center, navigate to <strong>Manage</strong> &gt; <strong>Environments</strong></li>
+<li>Select your environment &gt; <strong>...</strong> (ellipsis) &gt; <strong>Enable Managed Environments</strong> (if not already)</li>
+<li>Configure <strong>Limit sharing</strong>:</li>
+<li>For team collaboration: <strong>Exclude Sharing to Security Groups</strong></li>
+<li>For enterprise managed: <strong>Do not allow sharing</strong> (strictest)</li>
+<li>This prevents unauthorized distribution of agents</li>
+</ol>
+<p>If your tenant uses Microsoft 365/Teams publish targets, treat those as “distribution” and apply the same principle: only the production publisher group should be able to publish to broad channels.</p>
+<p><a id="configuration-matrix"></a></p>
+<p><strong>Configuration Matrix by Governance Level:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Baseline (Personal)</th>
+<th>Recommended (Team)</th>
+<th>Regulated (Enterprise)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Security groups</strong></td>
+<td>Optional</td>
+<td>Required</td>
+<td>Required + approval</td>
+</tr>
+<tr>
+<td><strong>Environment Maker role</strong></td>
+<td>Default access</td>
+<td>Restricted to group</td>
+<td>Restricted + logged</td>
+</tr>
+<tr>
+<td><strong>Copilot Studio access</strong></td>
+<td>All users</td>
+<td>Authorized groups</td>
+<td>Authorized + reviewed</td>
+</tr>
+<tr>
+<td><strong>Sharing restrictions</strong></td>
+<td>None</td>
+<td>Exclude sharing to groups</td>
+<td>No sharing allowed</td>
+</tr>
+<tr>
+<td><strong>Approval workflow</strong></td>
+<td>None</td>
+<td>Manager approval</td>
+<td>Governance committee</td>
+</tr>
+<tr>
+<td><strong>Publishing audit</strong></td>
+<td>Basic</td>
+<td>Enhanced</td>
+<td>Complete with retention</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Step 5: Implement Approval Workflow (Team/Enterprise)</strong></p>
+<p>For collaborative and enterprise-managed environments, implement a formal approval process:</p>
+<ol>
+<li><strong>Create Approval SharePoint List</strong>:</li>
+<li>Columns: Agent Name, Creator, Environment, Governance Tier, Approval Status, Approver, Date</li>
+<li>
+<p>Configure permissions for Compliance team review</p>
+</li>
+<li>
+<p><strong>Create Power Automate Approval Flow</strong> (optional automation):</p>
+</li>
+<li>Trigger: When agent is ready for production</li>
+<li>Action: Send approval to designated approvers</li>
+<li>
+<p>Outcome: Update registry and notify creator</p>
+</li>
+<li>
+<p><strong>Document Approval Requirements</strong>:</p>
+</li>
+<li>Team collaboration: Manager + Compliance acknowledgment</li>
+<li>Enterprise managed: Governance Committee + Legal review + Change Advisory Board</li>
+</ol>
+<p>Add explicit release gates (evidence-grade):</p>
+<ul>
+<li><strong>Gate A (Design &amp; Data Review)</strong>: agent purpose, data classification, connectors list, and intended publish targets documented</li>
+<li><strong>Gate B (Security Review)</strong>: DLP/connector policy confirmation and least-privilege review</li>
+<li><strong>Gate C (Testing/UAT)</strong>: functional testing evidence and user acceptance sign-off</li>
+<li><strong>Gate D (Production Publish Authorization)</strong>: approval record + change ticket ID required before publishing in PROD</li>
+</ul>
+<p>Ensure each gate produces an artifact that can be retained as evidence (see Evidence Pack section).</p>
+<h3 id="microsoft-365-integrated-surfaces-as-applicable">Microsoft 365 Integrated Surfaces (As Applicable)</h3>
+<p>If your organization exposes Copilot Studio agents through Microsoft 365 integrated surfaces (for example, Microsoft Teams or Microsoft 365 publish targets available in your tenant), enforce authorization using the same separation-of-duties model:</p>
+<ol>
+<li>Only allow publishing to broad channels from the <strong>PROD</strong> environment.</li>
+<li>Restrict PROD maker/publishing rights to <code>FSI-Agent-Publishers-Prod</code>.</li>
+<li>If Teams distribution is used, ensure only designated administrators can manage org-wide availability in the Teams admin surface (role assignment is the enforcement mechanism).</li>
+<li>Require a change ticket/approval record for any publish that makes an agent broadly discoverable.</li>
+</ol>
+<p>Evidence expectation: an auditor should be able to trace a publish event in audit logs back to an approved change record and to a user’s membership in <code>FSI-Agent-Publishers-Prod</code> at the time of publish.</p>
+<h3 id="powershell-configuration-alternative-method">PowerShell Configuration (Alternative Method)</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Prerequisites: Install Power Platform Admin modules</span>
+<span class="c"># Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser</span>
+
+<span class="c"># Connect to Power Platform</span>
+<span class="nb">Add-PowerAppsAccount</span>
+
+<span class="c"># Get the environment</span>
+<span class="nv">$EnvironmentName</span> <span class="p">=</span> <span class="s2">&quot;your-environment-id&quot;</span>
+
+<span class="c"># Get current environment permissions</span>
+<span class="nv">$envPermissions</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironmentRoleAssignment</span> <span class="n">-EnvironmentName</span> <span class="nv">$EnvironmentName</span>
+<span class="nv">$envPermissions</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">PrincipalDisplayName</span><span class="p">,</span> <span class="n">RoleType</span><span class="p">,</span> <span class="n">PrincipalType</span>
+
+<span class="c"># Remove Environment Maker role from &quot;All Users&quot; (if assigned)</span>
+<span class="nv">$allUsersPermission</span> <span class="p">=</span> <span class="nv">$envPermissions</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="nv">$_</span><span class="p">.</span><span class="n">PrincipalType</span> <span class="o">-eq</span> <span class="s2">&quot;Tenant&quot;</span> <span class="o">-and</span> <span class="nv">$_</span><span class="p">.</span><span class="n">RoleType</span> <span class="o">-eq</span> <span class="s2">&quot;EnvironmentMaker&quot;</span>
+<span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$allUsersPermission</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Remove-AdminPowerAppEnvironmentRoleAssignment</span> <span class="p">`</span>
+        <span class="n">-EnvironmentName</span> <span class="nv">$EnvironmentName</span> <span class="p">`</span>
+        <span class="n">-RoleId</span> <span class="nv">$allUsersPermission</span><span class="p">.</span><span class="n">RoleId</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Removed Environment Maker role from All Users&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="p">}</span>
+
+<span class="c"># Add Environment Maker role to authorized security group</span>
+<span class="nv">$SecurityGroupId</span> <span class="p">=</span> <span class="s2">&quot;your-security-group-id&quot;</span>  <span class="c"># Get from Entra ID</span>
+<span class="nb">Set-AdminPowerAppEnvironmentRoleAssignment</span> <span class="p">`</span>
+    <span class="n">-EnvironmentName</span> <span class="nv">$EnvironmentName</span> <span class="p">`</span>
+    <span class="n">-PrincipalType</span> <span class="nb">Group </span><span class="p">`</span>
+    <span class="n">-PrincipalObjectId</span> <span class="nv">$SecurityGroupId</span> <span class="p">`</span>
+    <span class="n">-RoleName</span> <span class="n">EnvironmentMaker</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Environment Maker role assigned to authorized security group&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Validation: Check final role assignments</span>
+<span class="nb">Get-AdminPowerAppEnvironmentRoleAssignment</span> <span class="n">-EnvironmentName</span> <span class="nv">$EnvironmentName</span> <span class="p">|</span>
+    <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">RoleType</span> <span class="o">-eq</span> <span class="s2">&quot;EnvironmentMaker&quot;</span> <span class="p">}</span> <span class="p">|</span>
+    <span class="nb">Format-Table</span> <span class="n">PrincipalDisplayName</span><span class="p">,</span> <span class="n">PrincipalType</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>How This Control Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Maintain records of authorized activities</td>
+<td>Only authorized makers can publish; all publishing logged</td>
+</tr>
+<tr>
+<td><strong>SEC Rule 17a-4</strong></td>
+<td>Record preservation</td>
+<td>Publishing events captured in audit log for examination</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Safeguards for customer data</td>
+<td>Restricts who can create agents that access customer data</td>
+</tr>
+<tr>
+<td><strong>SOX 302</strong></td>
+<td>Internal controls</td>
+<td>Publishing restrictions support segregation of duties</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong>
+- Any licensed user can create and publish personal agents
+- No approval workflow required
+- Agents cannot be shared broadly
+- Rationale: Low risk, no customer data</p>
+<p><strong>Zone 2 (Team Collaboration):</strong>
+- Security group membership required to create agents
+- Manager approval required before production use
+- Monthly access reviews recommended
+- Agents can be shared within department only
+- Rationale: Internal data access requires accountability</p>
+<p><strong>Zone 3 (Enterprise Managed):</strong>
+- Strict security group membership (vetted makers only)
+- Governance Committee approval required
+- Legal review for customer-facing agents
+- Quarterly access certification
+- All publishing subject to change control
+- Rationale: Customer-facing, regulatory examination risk</p>
+<h3 id="fsi-implementation-example">FSI Implementation Example</h3>
+<p><strong>Scenario:</strong> Broker-dealer implementing agent publishing controls for compliance agents</p>
+<p><strong>Security Group Structure:</strong>
+| Group Name | Members | Permissions |
+|------------|---------|-------------|
+| FSI-Agent-Makers-Dev | All developers | Personal productivity environments only |
+| FSI-Agent-Makers-Team | Senior developers + Business Analysts | Team collaboration environments |
+| FSI-Agent-Makers-Prod | Approved makers (5 people) | Enterprise-managed production environments |</p>
+<p><strong>Approval Workflow:</strong>
+1. Developer creates agent in Tier 1: no approval
+2. Developer requests promotion to Tier 2: Manager approval + Compliance check
+3. After UAT, requests promotion to Tier 3: Governance Committee + Legal + CAB
+4. Publishing event logged with approver chain</p>
+<p><strong>Documentation Requirements:</strong>
+- Agent purpose and business justification
+- Data sources and sensitivity classification
+- Connector usage and security review
+- Approval chain with dates
+- Training completion for creators</p>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<ol>
+<li><strong>Attempt to publish as non-authorized maker</strong>:</li>
+<li>Sign in as a user NOT in the authorized security group</li>
+<li>Navigate to Copilot Studio</li>
+<li>Verify access is blocked or limited</li>
+<li>
+<p><strong>EXPECTED:</strong> Cannot create or publish agents</p>
+</li>
+<li>
+<p><strong>Publish as authorized maker</strong>:</p>
+</li>
+<li>Sign in as a user IN the authorized security group</li>
+<li>Create a test agent in the appropriate environment</li>
+<li>Verify publishing succeeds</li>
+<li><strong>EXPECTED:</strong> Can create and publish agents</li>
+</ol>
+<p>2a. <strong>Attempt to publish to production as a non-publisher</strong> (release gate enforcement):
+   - Sign in as a user in <code>FSI-Agent-Makers-*</code> but NOT in <code>FSI-Agent-Publishers-Prod</code>
+   - Access the PROD environment (if they have Basic User access)
+   - Verify they cannot create/edit/publish agents in PROD
+   - <strong>EXPECTED:</strong> No ability to publish in PROD</p>
+<ol>
+<li><strong>Check audit log for publish events</strong>:</li>
+<li>Navigate to Microsoft Purview portal &gt; Audit</li>
+<li>Search for <code>Published bot</code> events</li>
+<li>Verify all publishing is logged with user identity</li>
+<li><strong>EXPECTED:</strong> All attempts logged with user, timestamp, agent details</li>
+</ol>
+<p>3a. <strong>Correlate publish events to approvals (evidence-grade)</strong>:
+   - For a production publish, locate the approval record/change ticket ID
+   - Verify the publisher is a member of <code>FSI-Agent-Publishers-Prod</code>
+   - Validate timestamps: approval must pre-date publish
+   - <strong>EXPECTED:</strong> Every production publish maps to an approval + authorized publisher</p>
+<ol>
+<li><strong>Test sharing restrictions</strong> (team/enterprise):</li>
+<li>Try to share an agent with "Everyone" or unauthorized group</li>
+<li><strong>EXPECTED:</strong> Sharing blocked per Managed Environment settings</li>
+</ol>
+<p>4a. <strong>If Teams/M365 distribution is used:</strong>
+   - Attempt to make an agent broadly available using a non-admin/non-publisher account
+   - <strong>EXPECTED:</strong> Unable to complete org-wide distribution; restricted by role membership and PROD access</p>
+<p><strong>EXPECTED:</strong> Only authorized makers can publish; all attempts logged</p>
+<hr />
+<h2 id="evidence-pack-auditor-ready">Evidence Pack (Auditor-Ready)</h2>
+<p>Collect and retain the following artifacts for US-only audits and examinations (FINRA/SEC/GLBA). Store evidence in a controlled repository with retention aligned to your recordkeeping policy.</p>
+<ul>
+<li><strong>Identity &amp; Authorization</strong></li>
+<li>Screenshot/export of <code>FSI-Agent-Makers-*</code> membership (with timestamp)</li>
+<li>Screenshot/export of <code>FSI-Agent-Publishers-Prod</code> membership (with timestamp)</li>
+<li>
+<p>Periodic access review attestations for the above groups (monthly/quarterly per your policy)</p>
+</li>
+<li>
+<p><strong>Environment Configuration (PPAC)</strong></p>
+</li>
+<li>Screenshots of environment <strong>Security roles</strong> showing who has Environment Maker/System Administrator in DEV/UAT/PROD</li>
+<li>Screenshot of Copilot Studio restriction: “Who can create and edit Copilots: Only specific security groups”</li>
+<li>Managed Environments “Limit sharing” configuration screenshot</li>
+<li>
+<p>Environment region confirmation showing US region (DEV/UAT/PROD)</p>
+</li>
+<li>
+<p><strong>Approvals &amp; Release Gates</strong></p>
+</li>
+<li>Approval record (SharePoint list entry or ticket) for each production publish</li>
+<li>
+<p>Required attachments: design/data review, connector/DLP confirmation, UAT sign-off, and release authorization</p>
+</li>
+<li>
+<p><strong>Audit Logs &amp; Correlation</strong></p>
+</li>
+<li>Microsoft Purview Audit search export showing publish events (publisher identity, timestamp, target)</li>
+<li>
+<p>Correlation table (spreadsheet or ticket fields) mapping: agent name/version → publish event → approval/ticket ID → approver(s)</p>
+</li>
+<li>
+<p><strong>Attestation Statement (recommended)</strong></p>
+</li>
+<li>A short statement signed by the control owner confirming that:<ul>
+<li>Production publishing is restricted to <code>FSI-Agent-Publishers-Prod</code></li>
+<li>All production publishes require documented approval</li>
+<li>Evidence is retained per policy in US-only repositories</li>
+</ul>
+</li>
+</ul>
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<h3 id="common-issues">Common Issues</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Cause</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"User can still create agents"</td>
+<td>Security group not applied</td>
+<td>Verify group membership; check environment security roles</td>
+</tr>
+<tr>
+<td>"Authorized user cannot access"</td>
+<td>Group sync delay</td>
+<td>Wait 15 minutes; have user sign out and back in</td>
+</tr>
+<tr>
+<td>"Publishing events not in audit"</td>
+<td>Audit not enabled or delay</td>
+<td>Verify audit is enabled; wait 24-48 hours for new events</td>
+</tr>
+<tr>
+<td>"Cannot restrict Copilot Studio"</td>
+<td>Feature not available</td>
+<td>Enable Managed Environments first (Control 2.1)</td>
+</tr>
+<tr>
+<td>"Sharing still works"</td>
+<td>Limit sharing not enabled</td>
+<td>Enable in Managed Environment settings</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-to-confirm-configuration-is-active">How to Confirm Configuration is Active</h3>
+<ol>
+<li><strong>Via Portal (Entra ID):</strong></li>
+<li>Navigate to <strong>Identity</strong> &gt; <strong>Groups</strong> &gt; Select FSI-Agent-Makers group</li>
+<li>Verify correct members are listed</li>
+<li>
+<p>Check no unauthorized users have access</p>
+</li>
+<li>
+<p><strong>Via Portal (Power Platform):</strong></p>
+</li>
+<li>Navigate to <strong>Manage</strong> &gt; <strong>Environments</strong> &gt; Select environment</li>
+<li>Go to <strong>Settings</strong> &gt; <strong>Users + permissions</strong> &gt; <strong>Security roles</strong></li>
+<li>
+<p>Verify Environment Maker role is assigned only to authorized groups</p>
+</li>
+<li>
+<p><strong>Via User Testing:</strong></p>
+</li>
+<li>Have an unauthorized user attempt to access Copilot Studio</li>
+<li>Verify they cannot create or publish agents</li>
+<li>Have an authorized user test full workflow</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/database-security">Microsoft Learn: Environment security</a></li>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/security-roles-privileges">Microsoft Learn: Security roles and privileges</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-security-governance">Microsoft Learn: Copilot Studio security and governance</a></li>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-sharing-limits">Microsoft Learn: Managed Environments - Limit sharing</a></li>
+<li><a href="https://admin.powerplatform.microsoft.com">Power Platform Admin Center</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../pillar-2-management/2.1-managed-environments/">2.1 - Managed Environments</a></td>
+<td>Enables sharing restrictions and governance features</td>
+</tr>
+<tr>
+<td><a href="../1.2-agent-registry-and-integrated-apps-management/">1.2 - Agent Registry</a></td>
+<td>Tracks all published agents</td>
+</tr>
+<tr>
+<td><a href="../1.7-comprehensive-audit-logging-and-compliance/">1.7 - Audit Logging</a></td>
+<td>Logs all publishing attempts</td>
+</tr>
+<tr>
+<td><a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/">1.18 - RBAC</a></td>
+<td>Broader access control strategy</td>
+</tr>
+<tr>
+<td><a href="../../pillar-2-management/2.3-change-management-and-release-planning/">2.3 - Change Management</a></td>
+<td>Approval workflow for promotions</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- <strong>AI Governance Lead</strong> (governance direction)
+- <strong>Compliance Officer</strong> (regulatory requirements)
+- <strong>Technical Implementation Team</strong> (platform setup)</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ✅ Current</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3438 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/getting-started/checklist/">
+      
+      
+        <link rel="prev" href="../lifecycle/">
+      
+      
+        <link rel="next" href="../../reference/pillar-1-security/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Implementation Checklist - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#implementation-checklist" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Implementation Checklist
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-assessment-planning-weeks-1-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Assessment &amp; Planning (Weeks 1-2)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Assessment &amp; Planning (Weeks 1-2)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-1-current-state-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 1: Current State Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-2-planning-governance-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 2: Planning &amp; Governance Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-foundation-implementation-weeks-3-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Foundation Implementation (Weeks 3-4)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: Foundation Implementation (Weeks 3-4)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-3-environment-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 3: Environment Governance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-3-security-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 3: Security Baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-4-governance-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 4: Governance Foundation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-advanced-governance-weeks-5-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Advanced Governance (Weeks 5-6)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3: Advanced Governance (Weeks 5-6)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-5-risk-management-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 5: Risk Management &amp; Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-6-advanced-security-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 6: Advanced Security &amp; Compliance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-4-finalization-operations-weeks-7-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Finalization &amp; Operations (Weeks 7-8)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 4: Finalization &amp; Operations (Weeks 7-8)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-7-completion-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 7: Completion &amp; Hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-8-training-documentation-operationalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 8: Training, Documentation &amp; Operationalization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ongoing-operations-after-week-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ongoing Operations (After Week 8)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference-controls-by-pillar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference: Controls by Pillar
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="implementation-checklist">Implementation Checklist</h1>
+<p>Step-by-step checklist for implementing the FSI Agent Governance Framework.</p>
+<hr />
+<h2 id="phase-1-assessment-planning-weeks-1-2">Phase 1: Assessment &amp; Planning (Weeks 1-2)</h2>
+<h3 id="week-1-current-state-analysis">Week 1: Current State Analysis</h3>
+<ul>
+<li>[ ] <strong>Conduct Framework Orientation (Day 1)</strong></li>
+<li>[ ] Review README.md overview</li>
+<li>[ ] Understand 4 pillars and 3 zones</li>
+<li>
+<p>[ ] Identify project lead and team</p>
+</li>
+<li>
+<p>[ ] <strong>Identify Existing Agents (Day 2-3)</strong></p>
+</li>
+<li>[ ] Export current agent inventory from M365 Admin Center</li>
+<li>[ ] List all agents with owner and description</li>
+<li>[ ] Identify data sources for each agent</li>
+<li>
+<p>[ ] Document current governance procedures (if any)</p>
+</li>
+<li>
+<p>[ ] <strong>Regulatory Assessment (Day 4-5)</strong></p>
+</li>
+<li>[ ] Identify primary regulations (FINRA, SEC, SOX, GLBA, OCC, Fed)</li>
+<li>[ ] Review <a href="../../reference/regulatory-mappings/">Regulatory Mappings</a> for your regulations</li>
+<li>[ ] Determine which controls apply</li>
+<li>
+<p>[ ] Check regulatory filing requirements</p>
+</li>
+<li>
+<p>[ ] <strong>Compliance Baseline (Day 5)</strong></p>
+</li>
+<li>[ ] Current DLP coverage</li>
+<li>[ ] Current audit retention policies</li>
+<li>[ ] Current MFA implementation</li>
+<li>[ ] Current change control procedures</li>
+</ul>
+<h3 id="week-2-planning-governance-setup">Week 2: Planning &amp; Governance Setup</h3>
+<ul>
+<li>[ ] <strong>Establish Governance Structure</strong></li>
+<li>[ ] Assign AI Governance Lead</li>
+<li>[ ] Assign Compliance Officer sponsor</li>
+<li>[ ] Define Governance Committee (Zone 3)</li>
+<li>
+<p>[ ] Schedule governance meetings</p>
+</li>
+<li>
+<p>[ ] <strong>Classify Existing Agents (Day 1-3)</strong></p>
+</li>
+<li>[ ] Use the <a href="../zones/#zone-decision-matrix">Zone Decision Matrix</a></li>
+<li>[ ] Assign each agent to Zone 1, 2, or 3</li>
+<li>[ ] Document classification rationale</li>
+<li>
+<p>[ ] Identify Zone 3 agents for priority handling</p>
+</li>
+<li>
+<p>[ ] <strong>Create Implementation Roadmap (Day 4-5)</strong></p>
+</li>
+<li>[ ] Map controls to implementation phases</li>
+<li>[ ] Prioritize by regulatory requirement</li>
+<li>[ ] Assign ownership per <a href="../../reference/raci-matrix/">RACI Matrix</a></li>
+<li>
+<p>[ ] Create timeline and milestones</p>
+</li>
+<li>
+<p>[ ] <strong>Project Kickoff (Day 5)</strong></p>
+</li>
+<li>[ ] Present framework to leadership</li>
+<li>[ ] Get executive sponsorship</li>
+<li>[ ] Assign project team</li>
+<li>[ ] Schedule regular steering committee meetings</li>
+</ul>
+<hr />
+<h2 id="phase-2-foundation-implementation-weeks-3-4">Phase 2: Foundation Implementation (Weeks 3-4)</h2>
+<h3 id="week-3-environment-governance">Week 3: Environment Governance</h3>
+<ul>
+<li>[ ] <strong>Environment Routing (Control 2.15)</strong> ⭐ NEW</li>
+<li>[ ] Navigate to PPAC → Manage → Environment groups</li>
+<li>[ ] Enable default environment routing</li>
+<li>[ ] Configure routing rules for security groups</li>
+<li>[ ] Enable developer environment auto-provisioning</li>
+<li>[ ] Test maker routing with new app creation</li>
+<li>
+<p>[ ] Document routing configuration</p>
+</li>
+<li>
+<p>[ ] <strong>Environment Groups (Control 2.2)</strong></p>
+</li>
+<li>[ ] Create environment groups for Zone 1, Zone 2, Zone 3</li>
+<li>[ ] Apply connector policies per zone</li>
+<li>[ ] Configure sharing limits per zone</li>
+<li>[ ] Enable AI model rules if applicable</li>
+<li>
+<p>[ ] Document group-to-zone mapping</p>
+</li>
+<li>
+<p>[ ] <strong>Managed Environments (Control 2.1)</strong></p>
+</li>
+<li>[ ] Enable Managed Environment for Zone 2+ environments</li>
+<li>[ ] Configure governance policies</li>
+<li>[ ] Test policy enforcement</li>
+<li>[ ] Document Managed Environment settings</li>
+</ul>
+<h3 id="week-3-security-baseline">Week 3: Security Baseline</h3>
+<ul>
+<li>[ ] <strong>Authentication &amp; Access (Pillar 1)</strong></li>
+<li>
+<p>[ ] <strong>Control 1.11: Conditional Access</strong></p>
+<ul>
+<li>[ ] Enable MFA for all agent creators/admins</li>
+<li>[ ] Require MFA from outside corporate network</li>
+<li>[ ] Test MFA enforcement</li>
+<li>[ ] Document MFA policy</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 1.18: RBAC</strong></p>
+<ul>
+<li>[ ] Define security roles (Creator, Editor, Admin, Viewer)</li>
+<li>[ ] Assign least-privilege access</li>
+<li>[ ] Document role definitions</li>
+<li>[ ] Test access controls</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Data Protection (Pillar 1)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 1.5: DLP and Sensitivity Labels</strong></p>
+<ul>
+<li>[ ] Review baseline sensitive data types (PII, financial, etc.)</li>
+<li>[ ] Create test DLP policy</li>
+<li>[ ] Test DLP with sample files</li>
+<li>[ ] Enable sensitivity labels for SharePoint</li>
+<li>[ ] Document DLP rules</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 1.15: Encryption</strong></p>
+<ul>
+<li>[ ] Verify default encryption (TLS 1.2+ in transit)</li>
+<li>[ ] Verify Microsoft 365 encryption at rest</li>
+<li>[ ] Document encryption standards</li>
+<li>[ ] For Zone 3: Plan for customer-managed keys</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Audit &amp; Monitoring (Pillar 1)</strong></p>
+</li>
+<li>[ ] <strong>Control 1.7: Audit Logging</strong><ul>
+<li>[ ] Access Purview Audit logs</li>
+<li>[ ] Configure audit retention policy</li>
+<li>[ ] Set retention period per regulation:</li>
+<li>[ ] Zone 2: 1 year</li>
+<li>[ ] Zone 3: 6+ years (see control for options)</li>
+<li>[ ] Test audit log search</li>
+<li>[ ] Document retention policy</li>
+</ul>
+</li>
+</ul>
+<h3 id="week-4-governance-foundation">Week 4: Governance Foundation</h3>
+<ul>
+<li>[ ] <strong>Registry &amp; Inventory (Pillar 3)</strong></li>
+<li>
+<p>[ ] <strong>Control 3.1: Agent Inventory</strong></p>
+<ul>
+<li>[ ] Create agent registry (spreadsheet or database)</li>
+<li>[ ] Fields: ID, Name, Owner, Zone, Data Sources, Status, Approval Date</li>
+<li>[ ] Import all existing agents</li>
+<li>[ ] Assign owners</li>
+<li>[ ] Document metadata for each agent</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Approval Workflow (Pillar 2)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 2.12: Supervision &amp; Oversight</strong></p>
+<ul>
+<li>[ ] Document approval procedures</li>
+<li>[ ] Define approval authority by zone:</li>
+<li>[ ] Zone 1: Self-service</li>
+<li>[ ] Zone 2: Manager approval</li>
+<li>[ ] Zone 3: Governance committee</li>
+<li>[ ] Create approval template/form</li>
+<li>[ ] Identify approvers</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Change Management (Pillar 2)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 2.3: Change Management</strong></p>
+<ul>
+<li>[ ] Define change control process</li>
+<li>[ ] Document change procedures</li>
+<li>[ ] Test change workflow</li>
+<li>[ ] Identify change approvers</li>
+<li>[ ] Create change log template</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Documentation (Pillar 2)</strong></p>
+</li>
+<li>[ ] <strong>Control 2.13: Documentation &amp; Record Keeping</strong><ul>
+<li>[ ] Establish document repository (SharePoint site)</li>
+<li>[ ] Create governance documentation index</li>
+<li>[ ] Store policies and procedures</li>
+<li>[ ] Ensure version control</li>
+<li>[ ] Document access controls</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="phase-3-advanced-governance-weeks-5-6">Phase 3: Advanced Governance (Weeks 5-6)</h2>
+<h3 id="week-5-risk-management-testing">Week 5: Risk Management &amp; Testing</h3>
+<ul>
+<li>[ ] <strong>Model Risk (Pillar 2)</strong></li>
+<li>
+<p>[ ] <strong>Control 2.6: Model Risk Management</strong></p>
+<ul>
+<li>[ ] For agents using AI/ML:</li>
+<li>[ ] Document model purpose and use case</li>
+<li>[ ] Identify model inputs and outputs</li>
+<li>[ ] Define performance baseline</li>
+<li>[ ] For Zone 3: Plan model validation</li>
+<li>[ ] If OCC/SR 11-7 applicable:</li>
+<li>[ ] Perform model risk assessment</li>
+<li>[ ] Plan annual validation</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Testing &amp; Validation (Pillar 2)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 2.5: Testing &amp; Validation</strong></p>
+<ul>
+<li>[ ] Define testing requirements per agent type</li>
+<li>[ ] Create test plans for critical agents</li>
+<li>[ ] Perform functionality testing</li>
+<li>[ ] For Zone 3: Perform security testing</li>
+<li>[ ] Document test results</li>
+<li>[ ] Archive test evidence</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Bias Testing (Pillar 2)</strong></p>
+</li>
+<li>[ ] <strong>Control 2.11: Bias Testing</strong><ul>
+<li>[ ] For credit/employment agents:</li>
+<li>[ ] Define fairness metrics</li>
+<li>[ ] Plan quarterly bias testing</li>
+<li>[ ] Document expected outcomes</li>
+<li>[ ] Establish remediation procedures</li>
+<li>[ ] For customer-facing agents:</li>
+<li>[ ] Plan fairness assessment</li>
+<li>[ ] Document results</li>
+</ul>
+</li>
+</ul>
+<h3 id="week-6-advanced-security-compliance">Week 6: Advanced Security &amp; Compliance</h3>
+<ul>
+<li>[ ] <strong>Advanced Data Protection (Pillar 1)</strong></li>
+<li>
+<p>[ ] <strong>Control 1.4: Advanced Connector Policies</strong></p>
+<ul>
+<li>[ ] Review high-risk connectors</li>
+<li>[ ] Create allowlist of approved connectors</li>
+<li>[ ] Block unauthorized connectors</li>
+<li>[ ] Document connector policy</li>
+<li>[ ] Test with sample agent</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 1.6: DSPM for AI</strong></p>
+<ul>
+<li>[ ] Navigate to purview.microsoft.com → DSPM for AI</li>
+<li>[ ] Complete Get Started setup steps</li>
+<li>[ ] Review recommendations and enable policies</li>
+<li>[ ] Configure activity monitoring</li>
+<li>[ ] Run oversharing assessments for agent knowledge sources</li>
+<li>[ ] Document DSPM setup</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 1.19: eDiscovery for Agent Interactions</strong> ⭐ NEW</p>
+<ul>
+<li>[ ] Assign eDiscovery administrator role</li>
+<li>[ ] Document agent content locations (Teams, SharePoint)</li>
+<li>[ ] Create case templates for regulatory inquiries</li>
+<li>[ ] Test search for agent content</li>
+<li>[ ] Document legal hold procedures</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Compliance Reporting (Pillar 3)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 3.3: Compliance &amp; Regulatory Reporting</strong></p>
+<ul>
+<li>[ ] Design compliance dashboard</li>
+<li>[ ] Define key compliance metrics</li>
+<li>[ ] Create monthly compliance report template</li>
+<li>[ ] For Zone 3: Create quarterly regulatory report</li>
+<li>[ ] Identify report recipients</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Incident Management (Pillar 3)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 3.4: Incident Reporting</strong></p>
+<ul>
+<li>[ ] Define incident categories</li>
+<li>[ ] Create incident tracking process</li>
+<li>[ ] Document incident investigation procedures</li>
+<li>[ ] Create RCA template</li>
+<li>[ ] Define escalation procedures</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>PPAC Reporting</strong> ⭐ NEW</p>
+</li>
+<li>
+<p>[ ] <strong>Control 3.7: PPAC Security Posture Assessment</strong></p>
+<ul>
+<li>[ ] Access PPAC → Security → Overview</li>
+<li>[ ] Review security score (Low/Medium/High)</li>
+<li>[ ] Document baseline security posture</li>
+<li>[ ] Create plan to address recommendations</li>
+<li>[ ] Schedule weekly security score reviews</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 3.8: Copilot Command Center</strong></p>
+<ul>
+<li>[ ] Access PPAC → Copilot hub</li>
+<li>[ ] Review agent counts and usage metrics</li>
+<li>[ ] Monitor capacity/consumption status</li>
+<li>[ ] Configure governance controls</li>
+<li>[ ] Schedule weekly metrics review</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 3.9: Microsoft Sentinel Integration</strong> (Zone 3)</p>
+<ul>
+<li>[ ] Assess Sentinel integration requirements</li>
+<li>[ ] Configure Sentinel workspace (if applicable)</li>
+<li>[ ] Enable Power Platform data connector</li>
+<li>[ ] Create analytics rules for agent threats</li>
+<li>[ ] Document SOC integration procedures</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="phase-4-finalization-operations-weeks-7-8">Phase 4: Finalization &amp; Operations (Weeks 7-8)</h2>
+<h3 id="week-7-completion-hardening">Week 7: Completion &amp; Hardening</h3>
+<ul>
+<li>[ ] <strong>Remaining Security Controls (Pillar 1)</strong></li>
+<li>
+<p>[ ] <strong>Control 1.1: Restrict Agent Publishing</strong></p>
+<ul>
+<li>[ ] Configure publishing security groups</li>
+<li>[ ] Require approval for shared agents</li>
+<li>[ ] Test publishing restrictions</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 1.3: SharePoint Governance</strong></p>
+<ul>
+<li>[ ] Restrict agent access to approved SharePoint sites</li>
+<li>[ ] Apply sensitivity labels</li>
+<li>[ ] Limit external sharing</li>
+<li>[ ] Document permissions</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 1.2: Integrated Apps Management</strong></p>
+<ul>
+<li>[ ] Review all integrated apps in M365 Admin Center</li>
+<li>[ ] Audit connector permissions</li>
+<li>[ ] Remove unnecessary integrations</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Monitoring &amp; Performance (Pillar 3)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Control 3.2: Usage Analytics</strong></p>
+<ul>
+<li>[ ] Enable analytics in Power Platform Admin Center</li>
+<li>[ ] Create usage dashboard</li>
+<li>[ ] Set baseline metrics</li>
+<li>[ ] Configure performance alerts</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Control 3.5: Cost Allocation</strong></p>
+<ul>
+<li>[ ] Review agent-related costs</li>
+<li>[ ] Create cost allocation model</li>
+<li>[ ] Assign costs to business units</li>
+<li>[ ] Create cost tracking dashboard</li>
+</ul>
+</li>
+</ul>
+<h3 id="week-8-training-documentation-operationalization">Week 8: Training, Documentation &amp; Operationalization</h3>
+<ul>
+<li>[ ] <strong>Training Program (Pillar 2)</strong></li>
+<li>
+<p>[ ] <strong>Control 2.14: Training &amp; Awareness</strong></p>
+<ul>
+<li>[ ] Create training curriculum:</li>
+<li>[ ] Zone 1 users: Basic governance overview</li>
+<li>[ ] Zone 2 users: Governance, approval, best practices</li>
+<li>[ ] Zone 3 operators: Complete framework</li>
+<li>[ ] Compliance team: Regulatory requirements</li>
+<li>[ ] Conduct training sessions</li>
+<li>[ ] Track training completion</li>
+<li>[ ] Obtain attestation of understanding</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Operationalization (All Pillars)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Establish Recurring Reviews</strong></p>
+<ul>
+<li>[ ] Schedule quarterly control assessments</li>
+<li>[ ] Schedule quarterly compliance reviews (Zone 2+)</li>
+<li>[ ] Schedule monthly monitoring (Zone 3)</li>
+<li>[ ] Schedule annual framework review</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Create Operating Procedures</strong></p>
+<ul>
+<li>[ ] Daily monitoring procedures</li>
+<li>[ ] Weekly compliance reviews</li>
+<li>[ ] Monthly reporting</li>
+<li>[ ] Quarterly assessments</li>
+<li>[ ] Annual updates</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Stakeholder Communication</strong></p>
+<ul>
+<li>[ ] Communicate framework rollout</li>
+<li>[ ] Share governance policies</li>
+<li>[ ] Provide quick reference guides</li>
+<li>[ ] Establish help/support channels</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Final Verification (All Controls)</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Go/No-Go Assessment</strong></p>
+<ul>
+<li>[ ] Verify all Phase 1-3 items complete</li>
+<li>[ ] Test critical controls</li>
+<li>[ ] Verify monitoring active</li>
+<li>[ ] Confirm training complete</li>
+<li>[ ] Obtain executive sign-off</li>
+</ul>
+</li>
+<li>
+<p>[ ] <strong>Launch</strong> 🚀</p>
+</li>
+<li>[ ] Communicate framework is live</li>
+<li>[ ] Activate monitoring and alerts</li>
+<li>[ ] Begin operational reviews</li>
+<li>[ ] Establish support procedures</li>
+</ul>
+<hr />
+<h2 id="ongoing-operations-after-week-8">Ongoing Operations (After Week 8)</h2>
+<ul>
+<li>[ ] <strong>Daily</strong></li>
+<li>[ ] Monitor alerts and incidents</li>
+<li>
+<p>[ ] Review security warnings</p>
+</li>
+<li>
+<p>[ ] <strong>Weekly</strong></p>
+</li>
+<li>[ ] Review compliance status</li>
+<li>[ ] Check for new agents</li>
+<li>
+<p>[ ] Monitor performance</p>
+</li>
+<li>
+<p>[ ] <strong>Monthly</strong></p>
+</li>
+<li>[ ] Compliance review meeting</li>
+<li>[ ] Dashboard reporting</li>
+<li>
+<p>[ ] Zone 3: Deep compliance review</p>
+</li>
+<li>
+<p>[ ] <strong>Quarterly</strong></p>
+</li>
+<li>[ ] Control effectiveness assessment</li>
+<li>[ ] Compliance maturity review</li>
+<li>[ ] Governance committee meeting (Zone 3)</li>
+<li>
+<p>[ ] Update controls as needed</p>
+</li>
+<li>
+<p>[ ] <strong>Annually</strong></p>
+</li>
+<li>[ ] Framework review and update</li>
+<li>[ ] Training refresher</li>
+<li>[ ] Model validation (Zone 3, if applicable)</li>
+<li>[ ] Audit and SOX testing</li>
+<li>[ ] Regulatory updates assessment</li>
+</ul>
+<hr />
+<h2 id="success-criteria">Success Criteria</h2>
+<ul>
+<li>[ ] All 48 controls implemented at appropriate maturity levels</li>
+<li>[ ] Agent inventory complete and maintained</li>
+<li>[ ] Compliance dashboard active and monitored</li>
+<li>[ ] Training completed for all users</li>
+<li>[ ] Incident management procedures operational</li>
+<li>[ ] Audit logging and retention in place</li>
+<li>[ ] Regulatory requirements met</li>
+<li>[ ] Governance team trained and operational</li>
+<li>[ ] Executive leadership informed and supportive</li>
+</ul>
+<hr />
+<h2 id="quick-reference-controls-by-pillar">Quick Reference: Controls by Pillar</h2>
+<p><strong>Pillar 1 (Security): 19 Controls</strong>
+1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19 ⭐</p>
+<p><strong>Pillar 2 (Management): 15 Controls</strong>
+2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15 ⭐</p>
+<p><strong>Pillar 3 (Reporting): 9 Controls</strong>
+3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7 ⭐, 3.8 ⭐, 3.9 ⭐</p>
+<p><strong>Pillar 4 (SharePoint): 5 Controls</strong>
+4.1, 4.2, 4.3, 4.4, 4.5</p>
+<p>⭐ = New controls</p>
+<hr />
+<p><em>FSI Agent Governance Framework Beta - December 2025</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

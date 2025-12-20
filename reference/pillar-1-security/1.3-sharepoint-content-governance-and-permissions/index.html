@@ -1,0 +1,3721 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/">
+      
+      
+        <link rel="prev" href="../1.2-agent-registry-and-integrated-apps-management/">
+      
+      
+        <link rel="next" href="../1.4-advanced-connector-policies-acp/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.3 SharePoint Content Governance And Permissions - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-13-sharepoint-content-governance-and-permissions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.3 SharePoint Content Governance And Permissions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-configure-tenant-level-sharing-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Configure Tenant-Level Sharing Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-site-level-settings-for-agent-knowledge-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Site-Level Settings for Agent Knowledge Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-apply-sensitivity-labels-to-sites-and-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Apply Sensitivity Labels to Sites and Libraries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Apply Sensitivity Labels to Sites and Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#apply-label-at-site-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apply Label at Site Level
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-label-at-library-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apply Label at Library Level
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-create-restricted-sites-for-sensitive-agent-knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Create Restricted Sites for Sensitive Agent Knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-configure-information-access-governance-iag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Configure Information Access Governance (IAG)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-configure-access-reviews-for-agent-knowledge-sites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Configure Access Reviews for Agent Knowledge Sites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-configure-powershell-site-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Configure PowerShell Site Governance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Zone-Specific Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zone-1-personal-productivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 1 (Personal Productivity)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-2-team-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 2 (Team Collaboration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-3-enterprise-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 3 (Enterprise Managed)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-configuration-example-wealth-management-firm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Configuration Example: Wealth Management Firm
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-agent-cannot-access-required-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Agent Cannot Access Required Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-agent-accessing-content-it-shouldnt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Agent Accessing Content It Shouldn't
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-sensitivity-labels-not-appearing-on-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Sensitivity Labels Not Appearing on Documents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-external-sharing-still-possible-despite-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: External Sharing Still Possible Despite Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-13-sharepoint-content-governance-and-permissions">Control 1.3: SharePoint Content Governance and Permissions</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.3
+<strong>Control Name:</strong> SharePoint Content Governance and Permissions
+<strong>Regulatory Reference:</strong> GLBA 501(b), 504(b), SEC Reg S-P, FINRA 4511
+<strong>Setup Time:</strong> 2-4 hours (initial configuration); ongoing management</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>SharePoint is often the primary knowledge source for Copilot Studio agents. Proper content governance ensures agents only access authorized data and prevents inadvertent exposure of sensitive customer information. This control is critical for:</p>
+<ul>
+<li><strong>GLBA 501(b)</strong>: Safeguarding customer NPI stored in SharePoint</li>
+<li><strong>SEC Reg S-P</strong>: Protecting customer records in document libraries</li>
+<li><strong>FINRA 4511</strong>: Maintaining books and records with appropriate access controls</li>
+<li><strong>Data Minimization</strong>: Ensuring agents access only necessary content</li>
+<li><strong>Oversharing Prevention</strong>: Stopping accidental exposure through AI responses</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> SharePoint Admin
+<strong>Supporting Roles:</strong> SharePoint Site Collection Admin</p>
+<h3 id="required-licenses">Required Licenses</h3>
+<ul>
+<li>SharePoint Online (included in Microsoft 365 E3/E5)</li>
+<li><strong>Microsoft 365 E5</strong> or <strong>SharePoint Advanced Management</strong> (for enhanced controls)</li>
+<li>Microsoft Purview (for sensitivity labels)</li>
+</ul>
+<h3 id="required-permissions">Required Permissions</h3>
+<ul>
+<li><strong>SharePoint Administrator</strong> (tenant-level settings)</li>
+<li><strong>Site Collection Administrator</strong> (site-level configuration)</li>
+<li><strong>Purview Compliance Administrator</strong> (sensitivity labels)</li>
+</ul>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li><strong>Control 1.5 (DLP &amp; Sensitivity Labels)</strong>: Labels must be created before applying to sites/libraries</li>
+<li><strong>Control 4.1 (IAG)</strong>: Information Access Governance for restricted content discovery</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Audit existing SharePoint sites with sensitive data</li>
+<li>[ ] Identify sites that will be agent knowledge sources</li>
+<li>[ ] Define sensitivity label taxonomy</li>
+<li>[ ] Create site templates for FSI governance</li>
+<li>[ ] Document external sharing requirements</li>
+<li>[ ] Plan access review schedule</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Least-privilege SharePoint permissions; restrict external sharing; label sensitive libraries.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Standardized site templates + sensitivity labels; periodic access reviews; restrict agent access to approved sites.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Admin-controlled permissions with legal review; immutable retention; continuous access monitoring.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-configure-tenant-level-sharing-settings">Step 1: Configure Tenant-Level Sharing Settings</h3>
+<p><strong>Portal Path:</strong> <a href="https://admin.microsoft.com/sharepoint">SharePoint Admin Center</a> → <strong>Policies</strong> → <strong>Sharing</strong></p>
+<ol>
+<li>Navigate to SharePoint Admin Center</li>
+<li>Go to <strong>Policies</strong> → <strong>Sharing</strong></li>
+<li>Configure organization-level settings:</li>
+</ol>
+<p><strong>FSI Recommended Settings:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Recommended Value</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>External sharing level</td>
+<td><strong>Only people in your organization</strong></td>
+<td>Prevent accidental customer data exposure</td>
+</tr>
+<tr>
+<td>File and folder links</td>
+<td><strong>Only people in your organization</strong></td>
+<td>No anonymous links</td>
+</tr>
+<tr>
+<td>Allow or block sharing with specific domains</td>
+<td>Block consumer domains (gmail.com, yahoo.com)</td>
+<td>Prevent consumer email sharing</td>
+</tr>
+<tr>
+<td>Guests must sign in using the same account</td>
+<td><strong>Enabled</strong></td>
+<td>Ensure accountability</td>
+</tr>
+<tr>
+<td>Allow guests to share items they don't own</td>
+<td><strong>Disabled</strong></td>
+<td>Prevent chain sharing</td>
+</tr>
+<tr>
+<td>Guest access expires automatically</td>
+<td><strong>30-90 days</strong></td>
+<td>Limit persistent guest access</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h3 id="step-2-configure-site-level-settings-for-agent-knowledge-sources">Step 2: Configure Site-Level Settings for Agent Knowledge Sources</h3>
+<p><strong>Portal Path:</strong> SharePoint Admin Center → <strong>Sites</strong> → <strong>Active sites</strong> → [Select site]</p>
+<p>For each SharePoint site that agents will use as a knowledge source:</p>
+<ol>
+<li>Select the site → Click <strong>Sharing</strong></li>
+<li>Set sharing level:</li>
+<li>Enterprise-managed agents: <strong>Only people in your organization</strong></li>
+<li>Team collaboration agents: <strong>New and existing guests</strong> (with approval)</li>
+<li>Personal productivity agents: Site owner discretion</li>
+<li>Click <strong>Permissions</strong> → <strong>Advanced permissions settings</strong></li>
+<li>Review and configure:</li>
+<li>Remove <strong>Everyone</strong> and <strong>Everyone except external users</strong> groups</li>
+<li>Add specific security groups with appropriate roles</li>
+<li>Document all permission grants</li>
+</ol>
+<p><strong>Configure Site Settings in SharePoint:</strong></p>
+<ol>
+<li>Navigate to the site directly</li>
+<li>Go to <strong>Site settings</strong> (gear icon → Site information → View all site settings)</li>
+<li>Under <strong>Site Administration</strong>:</li>
+<li><strong>Site permissions</strong>: Verify minimal permission grants</li>
+<li><strong>Site collection features</strong>: Enable required features</li>
+<li>Under <strong>Site Actions</strong>:</li>
+<li><strong>Manage site features</strong>: Enable auditing if available</li>
+</ol>
+<h3 id="step-3-apply-sensitivity-labels-to-sites-and-libraries">Step 3: Apply Sensitivity Labels to Sites and Libraries</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → <strong>Information protection</strong> → <strong>Labels</strong></p>
+<h4 id="apply-label-at-site-level">Apply Label at Site Level</h4>
+<ol>
+<li>In SharePoint Admin Center → <strong>Sites</strong> → <strong>Active sites</strong></li>
+<li>Select the site → <strong>Policies</strong> tab</li>
+<li>Under <strong>Sensitivity</strong>, click <strong>Edit</strong></li>
+<li>Select appropriate label:</li>
+<li><code>Confidential-FSI</code> for customer data</li>
+<li><code>Highly Confidential</code> for trading/material non-public information</li>
+<li><code>Internal</code> for general business content</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h4 id="apply-label-at-library-level">Apply Label at Library Level</h4>
+<ol>
+<li>Navigate to the document library in SharePoint</li>
+<li>Click <strong>Settings</strong> (gear) → <strong>Library settings</strong></li>
+<li>Under <strong>Permissions and Management</strong>:</li>
+<li>Click <strong>Apply sensitivity label to items in this list or library</strong></li>
+<li>Select the appropriate default label</li>
+<li>Choose whether to:</li>
+<li><strong>Apply label to existing items</strong>: Recommended for initial deployment</li>
+<li><strong>Apply label only to new items</strong>: For ongoing governance</li>
+</ol>
+<h3 id="step-4-create-restricted-sites-for-sensitive-agent-knowledge">Step 4: Create Restricted Sites for Sensitive Agent Knowledge</h3>
+<p><strong>Portal Path:</strong> SharePoint Admin Center → <strong>Sites</strong> → <strong>Create</strong></p>
+<p>Create dedicated sites for agent knowledge sources:</p>
+<ol>
+<li>Click <strong>Create</strong> → Choose <strong>Team site</strong> or <strong>Communication site</strong></li>
+<li>Configure site settings:</li>
+<li><strong>Site name</strong>: <code>Agent-Knowledge-[AgentName]</code> or <code>FSI-AgentData-[Zone]</code></li>
+<li><strong>Privacy settings</strong>: Private</li>
+<li><strong>Language</strong>: English</li>
+<li>After creation, configure:</li>
+<li>External sharing: <strong>Only people in your organization</strong></li>
+<li>Apply sensitivity label: Appropriate FSI label</li>
+<li>Site permissions: Only agent service accounts + content owners</li>
+</ol>
+<h3 id="step-5-configure-information-access-governance-iag">Step 5: Configure Information Access Governance (IAG)</h3>
+<p><strong>Portal Path:</strong> SharePoint Admin Center → <strong>Sites</strong> → <strong>Active sites</strong> → <strong>Restricted access control</strong></p>
+<p>For enterprise-managed agent knowledge sources:</p>
+<ol>
+<li>Select the site containing sensitive data</li>
+<li>Click <strong>Policies</strong> → <strong>Restricted access control</strong></li>
+<li>Enable <strong>Restrict access to this site</strong></li>
+<li>Add specific users or groups who can access</li>
+<li>This creates an additional layer beyond standard permissions</li>
+</ol>
+<p><strong>Configure Restricted Content Discoverability:</strong></p>
+<ol>
+<li>Navigate to SharePoint Admin Center → <strong>Content services</strong> → <strong>Information access governance</strong></li>
+<li>Create a new restricted content discoverability policy</li>
+<li>Define:</li>
+<li>Sites/content to restrict</li>
+<li>Users/groups who can discover restricted content</li>
+<li>Exceptions for agents that need access</li>
+</ol>
+<h3 id="step-6-configure-access-reviews-for-agent-knowledge-sites">Step 6: Configure Access Reviews for Agent Knowledge Sites</h3>
+<p><strong>Portal Path:</strong> Microsoft Entra → <strong>Identity Governance</strong> → <strong>Access Reviews</strong></p>
+<ol>
+<li>Navigate to Entra Admin Center → <strong>Identity Governance</strong> → <strong>Access Reviews</strong></li>
+<li>Click <strong>+ New access review</strong></li>
+<li>Configure:</li>
+<li><strong>Name</strong>: <code>Agent-Knowledge-Sites-Quarterly-Review</code></li>
+<li><strong>Scope</strong>: SharePoint site(s) used by agents</li>
+<li><strong>Reviewers</strong>: Site owners or designated governance team</li>
+<li><strong>Frequency</strong>: Quarterly (for enterprise-managed) or Semi-annually (team collaboration)</li>
+<li><strong>Duration</strong>: 14 days</li>
+<li>Under <strong>Upon completion settings</strong>:</li>
+<li>Auto-apply results: Consider for personal productivity / team collaboration</li>
+<li>If reviewers don't respond: Remove access (for enterprise-managed)</li>
+<li>Create the access review</li>
+</ol>
+<h3 id="step-7-configure-powershell-site-governance">Step 7: Configure PowerShell Site Governance</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># SharePoint Content Governance Configuration</span>
+<span class="c"># Requires: SharePoint Online Management Shell</span>
+
+<span class="c"># Install module if needed</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">Online</span><span class="p">.</span><span class="n">SharePoint</span><span class="p">.</span><span class="n">PowerShell</span> <span class="n">-Force</span>
+
+<span class="c"># Connect to SharePoint Online</span>
+<span class="nv">$AdminUrl</span> <span class="p">=</span> <span class="s2">&quot;https://contoso-admin.sharepoint.com&quot;</span>
+<span class="nb">Connect-SPOService</span> <span class="n">-Url</span> <span class="nv">$AdminUrl</span>
+
+<span class="c"># Get all sites and their sharing settings</span>
+<span class="nv">$Sites</span> <span class="p">=</span> <span class="nb">Get-SPOSite</span> <span class="n">-Limit</span> <span class="n">All</span>
+<span class="nv">$SiteReport</span> <span class="p">=</span> <span class="nv">$Sites</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Url</span><span class="p">,</span> <span class="n">Title</span><span class="p">,</span> <span class="n">Owner</span><span class="p">,</span> <span class="n">SharingCapability</span><span class="p">,</span>
+    <span class="n">ConditionalAccessPolicy</span><span class="p">,</span> <span class="n">SensitivityLabel</span><span class="p">,</span> <span class="n">LockState</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="s2">&quot;C:\Governance\SharePoint-Sites-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Configure a site for an enterprise-managed agent knowledge source</span>
+<span class="nv">$AgentKnowledgeSite</span> <span class="p">=</span> <span class="s2">&quot;https://contoso.sharepoint.com/sites/Agent-CustomerService&quot;</span>
+
+<span class="nb">Set-SPOSite</span> <span class="n">-Identity</span> <span class="nv">$AgentKnowledgeSite</span> <span class="p">`</span>
+    <span class="n">-SharingCapability</span> <span class="n">Disabled</span> <span class="p">`</span>
+    <span class="n">-DisableSharingForNonOwners</span> <span class="nv">$true</span> <span class="p">`</span>
+    <span class="n">-DefaultLinkPermission</span> <span class="n">View</span> <span class="p">`</span>
+    <span class="n">-ConditionalAccessPolicy</span> <span class="n">AllowLimitedAccess</span> <span class="p">`</span>
+    <span class="n">-LimitedAccessFileType</span> <span class="n">OfficeOnlineFilesOnly</span>
+
+<span class="c"># Apply sensitivity label to site (requires Graph API)</span>
+<span class="c"># Connect to Graph</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;Sites.ReadWrite.All&quot;</span><span class="p">,</span> <span class="s2">&quot;InformationProtectionPolicy.Read&quot;</span>
+
+<span class="c"># Get the site ID</span>
+<span class="nv">$Site</span> <span class="p">=</span> <span class="nb">Get-MgSite</span> <span class="n">-SiteId</span> <span class="s2">&quot;contoso.sharepoint.com:/sites/Agent-CustomerService&quot;</span>
+
+<span class="c"># Get available labels</span>
+<span class="nv">$Labels</span> <span class="p">=</span> <span class="nb">Get-MgInformationProtectionLabel</span>
+<span class="nv">$TargetLabel</span> <span class="p">=</span> <span class="nv">$Labels</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Name</span> <span class="o">-eq</span> <span class="s2">&quot;Confidential-FSI&quot;</span> <span class="p">}</span>
+
+<span class="c"># Apply label to site</span>
+<span class="c"># Note: Site sensitivity labels are set via site classification during creation</span>
+<span class="c"># or via the SharePoint Admin Center for existing sites</span>
+
+<span class="c"># Remove overly permissive groups from sites</span>
+<span class="nv">$AgentSites</span> <span class="p">=</span> <span class="p">@(</span>
+    <span class="s2">&quot;https://contoso.sharepoint.com/sites/Agent-CustomerService&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://contoso.sharepoint.com/sites/Agent-Trading&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://contoso.sharepoint.com/sites/Agent-Compliance&quot;</span>
+<span class="p">)</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$SiteUrl</span> <span class="k">in</span> <span class="nv">$AgentSites</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c"># Get site groups</span>
+    <span class="nv">$Site</span> <span class="p">=</span> <span class="nb">Get-SPOSite</span> <span class="n">-Identity</span> <span class="nv">$SiteUrl</span> <span class="n">-Detailed</span>
+
+    <span class="c"># Remove Everyone and Everyone except external users if present</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="nb">Remove-SPOUser</span> <span class="n">-Site</span> <span class="nv">$SiteUrl</span> <span class="n">-LoginName</span> <span class="s2">&quot;c:0(.s|true&quot;</span>  <span class="c"># Everyone</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;Removed &#39;Everyone&#39; from $SiteUrl&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;&#39;Everyone&#39; not found on $SiteUrl&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Gray</span>
+    <span class="p">}</span>
+
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="nb">Remove-SPOUser</span> <span class="n">-Site</span> <span class="nv">$SiteUrl</span> <span class="n">-LoginName</span> <span class="s2">&quot;c:0-.f|rolemanager|spo-grid-all-users/</span><span class="p">$(</span><span class="nv">$Site</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="s2">&quot;</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;Removed &#39;Everyone except external users&#39; from $SiteUrl&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;&#39;Everyone except external&#39; not found on $SiteUrl&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Gray</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Generate permission report for agent knowledge sites</span>
+<span class="nv">$PermissionReport</span> <span class="p">=</span> <span class="p">@()</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$SiteUrl</span> <span class="k">in</span> <span class="nv">$AgentSites</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$SiteUsers</span> <span class="p">=</span> <span class="nb">Get-SPOUser</span> <span class="n">-Site</span> <span class="nv">$SiteUrl</span> <span class="n">-Limit</span> <span class="n">All</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$User</span> <span class="k">in</span> <span class="nv">$SiteUsers</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$PermissionReport</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">Site</span> <span class="p">=</span> <span class="nv">$SiteUrl</span>
+            <span class="n">LoginName</span> <span class="p">=</span> <span class="nv">$User</span><span class="p">.</span><span class="n">LoginName</span>
+            <span class="n">DisplayName</span> <span class="p">=</span> <span class="nv">$User</span><span class="p">.</span><span class="n">DisplayName</span>
+            <span class="n">IsSiteAdmin</span> <span class="p">=</span> <span class="nv">$User</span><span class="p">.</span><span class="n">IsSiteAdmin</span>
+            <span class="n">Groups</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$User</span><span class="p">.</span><span class="n">Groups</span> <span class="n">-join</span> <span class="s2">&quot;; &quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$PermissionReport</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="s2">&quot;C:\Governance\AgentSites-Permissions-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Permission report exported&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Configure external sharing for each site</span>
+<span class="nb">Set-SPOSite</span> <span class="n">-Identity</span> <span class="s2">&quot;https://contoso.sharepoint.com/sites/Agent-CustomerService&quot;</span> <span class="p">`</span>
+    <span class="n">-SharingCapability</span> <span class="n">Disabled</span>
+
+<span class="nb">Set-SPOSite</span> <span class="n">-Identity</span> <span class="s2">&quot;https://contoso.sharepoint.com/sites/Agent-Trading&quot;</span> <span class="p">`</span>
+    <span class="n">-SharingCapability</span> <span class="n">Disabled</span>
+
+<span class="c"># Enable auditing at tenant level</span>
+<span class="nb">Set-SPOTenant</span> <span class="n">-DisabledWebPartIds</span> <span class="p">@()</span> <span class="c"># Ensure web parts not blocking audit</span>
+<span class="c"># Note: Unified audit log is enabled via Security &amp; Compliance Center</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>SharePoint Governance Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Restrict access to sites containing customer NPI; log access</td>
+</tr>
+<tr>
+<td><strong>SEC Reg S-P</strong></td>
+<td>Privacy safeguards for customer records in document libraries</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Maintain books and records with access controls; audit trail</td>
+</tr>
+<tr>
+<td><strong>SOX 302/404</strong></td>
+<td>Segregation of duties for financial document access</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<h4 id="zone-1-personal-productivity">Zone 1 (Personal Productivity)</h4>
+<div class="highlight"><pre><span></span><code>Site Sharing: Site owner discretion
+External Sharing: Organization-wide setting
+Sensitivity Labels: Recommended but not required
+Access Reviews: Annual
+Permissions: Standard SharePoint groups
+</code></pre></div>
+<h4 id="zone-2-team-collaboration">Zone 2 (Team Collaboration)</h4>
+<div class="highlight"><pre><span></span><code>Site Sharing: Existing guests only (with approval)
+External Sharing: Specific partner domains only
+Sensitivity Labels: Required - minimum &quot;Internal&quot;
+Access Reviews: Semi-annual
+Permissions: Named security groups only
+</code></pre></div>
+<h4 id="zone-3-enterprise-managed">Zone 3 (Enterprise Managed)</h4>
+<div class="highlight"><pre><span></span><code>Site Sharing: Organization only (no external)
+External Sharing: Disabled completely
+Sensitivity Labels: Required - &quot;Confidential-FSI&quot; or higher
+Access Reviews: Quarterly
+Permissions: Named individuals + service accounts only
+Additional: IAG/Restricted Content Discoverability enabled
+</code></pre></div>
+<h3 id="fsi-configuration-example-wealth-management-firm">FSI Configuration Example: Wealth Management Firm</h3>
+<p><strong>Scenario:</strong> A wealth management firm uses Copilot Studio agents to answer client questions using portfolio documentation stored in SharePoint.</p>
+<p><strong>SharePoint Structure:</strong></p>
+<div class="highlight"><pre><span></span><code>/sites/ClientPortfolios-WM/
+├── Client-Onboarding/          [Sensitivity: Highly Confidential]
+│   ├── KYC Documents/
+│   ├── Account Opening Forms/
+│   └── Risk Assessments/
+├── Investment-Research/        [Sensitivity: Confidential-FSI]
+│   ├── Analyst Reports/
+│   ├── Market Data/
+│   └── Model Portfolios/
+├── Agent-Knowledge-Base/       [Sensitivity: Confidential-FSI]
+│   ├── Product Information/
+│   ├── Fee Schedules/
+│   ├── FAQ Content/
+│   └── Approved Disclosures/
+└── Compliance-Archive/         [Sensitivity: Highly Confidential - Regulatory]
+    ├── Audit Reports/
+    ├── Regulatory Correspondence/
+    └── Examination Materials/
+</code></pre></div>
+<p><strong>Agent Configuration:</strong></p>
+<ol>
+<li><strong>Client Inquiry Agent</strong> (enterprise-managed):</li>
+<li>Access: <code>/Agent-Knowledge-Base/</code> only</li>
+<li>Permissions: Read-only via service account</li>
+<li>Sensitivity: Can only return Confidential or lower content</li>
+<li>
+<p>Excluded: Client-Onboarding (PII), Compliance-Archive</p>
+</li>
+<li>
+<p><strong>Internal Research Agent</strong> (team collaboration):</p>
+</li>
+<li>Access: <code>/Investment-Research/</code> + <code>/Agent-Knowledge-Base/</code></li>
+<li>Permissions: Read via analyst security group</li>
+<li>Sensitivity: Can access Confidential-FSI content</li>
+</ol>
+<p><strong>Governance Measures:</strong>
+- Weekly access review for Client Inquiry Agent service account
+- Audit log monitoring for unusual access patterns
+- Quarterly recertification of agent data source permissions
+- DLP policies prevent agent from exposing SSN, account numbers in responses</p>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Confirm Tenant Sharing Settings:</strong></li>
+<li>SharePoint Admin Center → Policies → Sharing</li>
+<li>
+<p><strong>EXPECTED:</strong> External sharing restricted per FSI requirements</p>
+</li>
+<li>
+<p><strong>Verify Site-Level Permissions:</strong></p>
+</li>
+<li>Navigate to agent knowledge source site</li>
+<li>Site settings → Site permissions</li>
+<li>
+<p><strong>EXPECTED:</strong> Only approved groups/users; no "Everyone" groups</p>
+</li>
+<li>
+<p><strong>Test Agent Access Boundaries:</strong></p>
+</li>
+<li>Ask agent to retrieve content from excluded site</li>
+<li>
+<p><strong>EXPECTED:</strong> Agent cannot access or returns "no information found"</p>
+</li>
+<li>
+<p><strong>Validate Sensitivity Labels:</strong></p>
+</li>
+<li>Check document library → Information panel</li>
+<li>
+<p><strong>EXPECTED:</strong> All documents have appropriate sensitivity labels</p>
+</li>
+<li>
+<p><strong>Confirm External Sharing Blocked:</strong></p>
+</li>
+<li>Attempt to share a document externally from an enterprise-managed site</li>
+<li>
+<p><strong>EXPECTED:</strong> Sharing blocked with appropriate message</p>
+</li>
+<li>
+<p><strong>Test Access Review Notification:</strong></p>
+</li>
+<li>Check that access review notifications are being sent</li>
+<li><strong>EXPECTED:</strong> Reviewers receive notification per schedule</li>
+</ol>
+<h3 id="verification-evidence">Verification Evidence</h3>
+<ul>
+<li>[ ] Screenshot: Tenant-level sharing settings</li>
+<li>[ ] Export: Site inventory with sharing settings (CSV)</li>
+<li>[ ] Screenshot: Agent knowledge site permissions</li>
+<li>[ ] Export: Permission audit for all agent data sources</li>
+<li>[ ] Screenshot: Sensitivity labels applied to libraries</li>
+<li>[ ] Documentation: Access review schedule and results</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-agent-cannot-access-required-content">Issue: Agent Cannot Access Required Content</h3>
+<p><strong>Symptoms:</strong> Agent returns "I don't have access to that information" for valid content</p>
+<p><strong>Solutions:</strong>
+1. Verify agent service account is in site members group
+2. Check sensitivity label on content matches agent's allowed labels
+3. Confirm IAG/restricted content discoverability isn't blocking
+4. Review Conditional Access policies that might block service account
+5. Check if site requires MFA and service account can satisfy</p>
+<h3 id="issue-agent-accessing-content-it-shouldnt">Issue: Agent Accessing Content It Shouldn't</h3>
+<p><strong>Symptoms:</strong> Agent returning sensitive information from excluded sites</p>
+<p><strong>Solutions:</strong>
+1. Review agent knowledge source configuration in Copilot Studio
+2. Verify site permissions don't include broad groups
+3. Check for inheritance from parent site
+4. Remove any "Everyone" or "All Users" permissions
+5. Verify sensitivity labels are correctly applied and enforced</p>
+<h3 id="issue-sensitivity-labels-not-appearing-on-documents">Issue: Sensitivity Labels Not Appearing on Documents</h3>
+<p><strong>Symptoms:</strong> Documents don't show expected sensitivity labels</p>
+<p><strong>Solutions:</strong>
+1. Verify labels are published to users in the site
+2. Check if auto-labeling policies are configured
+3. Confirm user has Information Protection client installed
+4. Review if default library label is configured
+5. For existing documents, may need to apply label retroactively</p>
+<h3 id="issue-external-sharing-still-possible-despite-settings">Issue: External Sharing Still Possible Despite Settings</h3>
+<p><strong>Symptoms:</strong> Users can share externally from restricted sites</p>
+<p><strong>Solutions:</strong>
+1. Check site-level override vs. tenant settings (site can't be more permissive)
+2. Verify setting saved correctly (refresh admin center)
+3. Check for PowerShell scripts that may be resetting values
+4. Confirm user isn't a site collection admin (different permissions)
+5. Review SharePoint feature flags for new sharing features</p>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/site-permissions">SharePoint Site Permissions</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/turn-external-sharing-on-or-off">SharePoint Sharing Settings</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/sensitivity-labels-teams-groups-sites">Sensitivity Labels for SharePoint Sites</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/information-access-governance">Information Access Governance</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/introduction-sharepoint-online-management-shell">SharePoint Admin PowerShell</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview">Access Reviews for SharePoint</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/">Control 1.5</a></td>
+<td>Sensitivity labels for content classification</td>
+</tr>
+<tr>
+<td><a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/">Control 4.1</a></td>
+<td>IAG for advanced content restrictions</td>
+</tr>
+<tr>
+<td><a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/">Control 4.2</a></td>
+<td>Access reviews for SharePoint sites</td>
+</tr>
+<tr>
+<td><a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/">Control 4.4</a></td>
+<td>Guest access management</td>
+</tr>
+<tr>
+<td><a href="../1.14-data-minimization-and-agent-scope-control/">Control 1.14</a></td>
+<td>Data minimization for agent scope</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- <strong>SharePoint Administrator:</strong> Site configuration and permissions
+- <strong>Information Protection Team:</strong> Sensitivity labels and DLP
+- <strong>Compliance Officer:</strong> Regulatory requirements and evidence
+- <strong>AI Governance Lead:</strong> Agent data source approval</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

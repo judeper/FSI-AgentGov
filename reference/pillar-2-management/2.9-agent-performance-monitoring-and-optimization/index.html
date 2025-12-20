@@ -1,0 +1,3921 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/">
+      
+      
+        <link rel="prev" href="../2.8-access-control-and-segregation-of-duties/">
+      
+      
+        <link rel="next" href="../2.10-patch-management-and-system-updates/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>2.9 Agent Performance Monitoring And Optimization - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-29-agent-performance-monitoring-and-optimization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2.9 Agent Performance Monitoring And Optimization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-define-performance-kpis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Define Performance KPIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-enable-power-platform-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Enable Power Platform Analytics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-copilot-studio-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure Copilot Studio Analytics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-create-custom-performance-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Create Custom Performance Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-configure-alerting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Configure Alerting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-implement-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Implement Anomaly Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-establish-performance-review-cadence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Establish Performance Review Cadence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-document-optimization-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Document Optimization Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-analytics-data-not-appearing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Analytics Data Not Appearing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-alerts-not-firing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Alerts Not Firing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-high-error-rate-with-no-clear-cause" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: High Error Rate With No Clear Cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-performance-dashboard-slow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Performance Dashboard Slow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-29-agent-performance-monitoring-and-optimization">Control 2.9: Agent Performance Monitoring and Optimization</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 2.9
+<strong>Control Name:</strong> Agent Performance Monitoring and Optimization
+<strong>Regulatory Reference:</strong> FINRA 4511, GLBA 501(b), SEC 17a-3/4, SOX 404
+<strong>Setup Time:</strong> 2-3 hours initial setup, ongoing monitoring</p>
+<h3 id="purpose">Purpose</h3>
+<p>This control establishes comprehensive performance monitoring and optimization for AI agents in financial institutions. Regulators require financial services organizations to demonstrate that automated systems perform reliably, meet service level objectives, and do not degrade over time. This control defines KPIs, monitoring infrastructure, alerting thresholds, and optimization processes to ensure agents meet performance standards required for customer-facing and business-critical operations.</p>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Power Platform Admin
+<strong>Supporting Roles:</strong> None</p>
+<h3 id="required-licenses">Required Licenses</h3>
+<ul>
+<li>Microsoft 365 E3/E5 (for Microsoft 365 admin analytics)</li>
+<li>Power Platform per-user or per-app licenses</li>
+<li>Copilot Studio standard/premium</li>
+<li>Azure Monitor (for custom dashboards)</li>
+</ul>
+<h3 id="required-permissions">Required Permissions</h3>
+<ul>
+<li><strong>Power Platform Administrator</strong> (analytics access)</li>
+<li><strong>Copilot Studio Environment Maker</strong> (agent analytics)</li>
+<li><strong>Azure Monitor Contributor</strong> (custom monitoring)</li>
+</ul>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li>Control 3.1 (Agent Inventory)</li>
+<li>Control 3.2 (Usage Analytics)</li>
+<li>Control 2.6 (Model Risk Management)</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Performance baselines defined</li>
+<li>[ ] SLA/SLO targets documented</li>
+<li>[ ] Alert recipients identified</li>
+<li>[ ] Escalation procedures established</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Monitor agent performance (latency, error rate, usage); document baseline metrics.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Real-time performance dashboard; alert on performance degradation; monthly optimization review.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Comprehensive performance monitoring with continuous anomaly detection; SLA compliance tracking.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-define-performance-kpis">Step 1: Define Performance KPIs</h3>
+<p>Establish key performance indicators for agent monitoring.</p>
+<p><strong>Core Performance Metrics:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Tier 1 Target</th>
+<th>Tier 2 Target</th>
+<th>Tier 3 Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Response Time</strong></td>
+<td>P50 latency for agent responses</td>
+<td>&lt; 5 sec</td>
+<td>&lt; 3 sec</td>
+<td>&lt; 2 sec</td>
+</tr>
+<tr>
+<td><strong>P95 Response Time</strong></td>
+<td>95th percentile latency</td>
+<td>&lt; 10 sec</td>
+<td>&lt; 7 sec</td>
+<td>&lt; 5 sec</td>
+</tr>
+<tr>
+<td><strong>Error Rate</strong></td>
+<td>% of failed interactions</td>
+<td>&lt; 5%</td>
+<td>&lt; 2%</td>
+<td>&lt; 1%</td>
+</tr>
+<tr>
+<td><strong>Availability</strong></td>
+<td>Uptime percentage</td>
+<td>99%</td>
+<td>99.5%</td>
+<td>99.9%</td>
+</tr>
+<tr>
+<td><strong>Resolution Rate</strong></td>
+<td>% resolved without escalation</td>
+<td>&gt; 60%</td>
+<td>&gt; 75%</td>
+<td>&gt; 85%</td>
+</tr>
+<tr>
+<td><strong>User Satisfaction</strong></td>
+<td>CSAT score (1-5)</td>
+<td>&gt; 3.5</td>
+<td>&gt; 4.0</td>
+<td>&gt; 4.2</td>
+</tr>
+<tr>
+<td><strong>Containment Rate</strong></td>
+<td>% handled without human</td>
+<td>&gt; 50%</td>
+<td>&gt; 65%</td>
+<td>&gt; 75%</td>
+</tr>
+<tr>
+<td><strong>Topic Match Rate</strong></td>
+<td>% correctly routed</td>
+<td>&gt; 70%</td>
+<td>&gt; 80%</td>
+<td>&gt; 90%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-2-enable-power-platform-analytics">Step 2: Enable Power Platform Analytics</h3>
+<p><strong>Power Platform Admin Center:</strong>
+1. Navigate to <strong>admin.powerplatform.microsoft.com</strong>
+2. Go to <strong>Analytics</strong> → <strong>Copilot Studio</strong>
+3. Verify analytics is enabled
+4. Review available reports:
+   - <strong>Sessions</strong>: Total interactions, session duration
+   - <strong>Topics</strong>: Most used, escalation rates
+   - <strong>Outcomes</strong>: Resolution rates, abandonment
+   - <strong>Customer satisfaction</strong>: Survey responses</p>
+<p><strong>Configure Data Export (for advanced analytics):</strong>
+1. Go to <strong>Settings</strong> → <strong>Data export</strong>
+2. Enable export to <strong>Azure Data Lake</strong> or <strong>Azure Synapse</strong>
+3. Configure export frequency: Near real-time</p>
+<h3 id="step-3-configure-copilot-studio-analytics">Step 3: Configure Copilot Studio Analytics</h3>
+<p><strong>Copilot Studio:</strong>
+1. Navigate to <strong>copilotstudio.microsoft.com</strong>
+2. Select your agent → <strong>Analytics</strong>
+3. Review built-in dashboards:
+   - <strong>Summary</strong>: Key metrics overview
+   - <strong>Customer satisfaction</strong>: Survey results
+   - <strong>Sessions</strong>: Detailed session analytics
+   - <strong>Topics</strong>: Topic performance</p>
+<p><strong>Enable Enhanced Analytics:</strong>
+1. Go to <strong>Settings</strong> → <strong>Generative AI</strong>
+2. Enable <strong>Conversation transcripts</strong> (with appropriate consent)
+3. Configure <strong>AI-generated analytics insights</strong></p>
+<h3 id="step-4-create-custom-performance-dashboard">Step 4: Create Custom Performance Dashboard</h3>
+<p>Build a Power BI dashboard for executive reporting.</p>
+<p><strong>Create Power BI Report:</strong>
+1. Navigate to <strong>app.powerbi.com</strong>
+2. Create new <strong>Report</strong> → Connect to Copilot Studio data
+3. Import data from Copilot Studio analytics API
+4. Create visualizations:</p>
+<p><strong>Dashboard Sections:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Visuals</th>
+<th>Refresh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Executive Summary</strong></td>
+<td>KPI cards (sessions, resolution rate, CSAT)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><strong>Trend Analysis</strong></td>
+<td>Line charts (7-day, 30-day, 90-day trends)</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><strong>Topic Performance</strong></td>
+<td>Bar chart by topic, heat map</td>
+<td>Daily</td>
+</tr>
+<tr>
+<td><strong>Error Analysis</strong></td>
+<td>Error breakdown, escalation funnel</td>
+<td>Real-time</td>
+</tr>
+<tr>
+<td><strong>SLA Compliance</strong></td>
+<td>Gauge charts vs. targets, trend</td>
+<td>Real-time</td>
+</tr>
+<tr>
+<td><strong>Agent Comparison</strong></td>
+<td>Table comparing all agents</td>
+<td>Weekly</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-5-configure-alerting">Step 5: Configure Alerting</h3>
+<p>Set up alerts for performance degradation.</p>
+<p><strong>Power Automate Alert Flow:</strong>
+1. Navigate to <strong>make.powerautomate.com</strong>
+2. Create <strong>Scheduled cloud flow</strong> (every 15 minutes)
+3. Implement performance checks:</p>
+<div class="highlight"><pre><span></span><code>// Flow Logic
+1. Query Copilot Studio analytics API for last 15 minutes
+2. Calculate current error rate, avg response time
+3. Compare against threshold:
+   - Error rate &gt; 5%: Send alert
+   - Response time &gt; 5 seconds: Send alert
+   - No sessions in 30 min (for 24/7 agent): Send alert
+4. If threshold exceeded:
+   - Send Teams message to #agent-operations channel
+   - Create incident in ServiceNow/Jira
+   - Log alert in SharePoint for tracking
+</code></pre></div>
+<p><strong>Azure Monitor Alerts (for advanced scenarios):</strong>
+1. Navigate to <strong>portal.azure.com</strong> → <strong>Monitor</strong>
+2. Go to <strong>Alerts</strong> → <strong>Create alert rule</strong>
+3. Configure:
+   - <strong>Scope</strong>: Copilot Studio/Power Platform
+   - <strong>Condition</strong>: Custom log query for error spikes
+   - <strong>Action group</strong>: Email, Teams, SMS to on-call team</p>
+<h3 id="step-6-implement-anomaly-detection">Step 6: Implement Anomaly Detection</h3>
+<p>Configure AI-powered anomaly detection for Tier 3 agents.</p>
+<p><strong>Azure Application Insights (if integrated):</strong>
+1. Navigate to <strong>portal.azure.com</strong> → <strong>Application Insights</strong>
+2. Go to <strong>Smart Detection</strong> → <strong>Settings</strong>
+3. Enable:
+   - <strong>Failure Anomalies</strong>: Auto-detect spike in failures
+   - <strong>Slow Response Detection</strong>: Detect latency degradation
+   - <strong>Memory Leak Detection</strong>: Identify resource issues</p>
+<p><strong>Custom Anomaly Detection with Power Automate:</strong>
+1. Maintain rolling 7-day average for key metrics
+2. Alert when current value deviates &gt; 2 standard deviations
+3. Correlate anomalies with deployments/changes</p>
+<h3 id="step-7-establish-performance-review-cadence">Step 7: Establish Performance Review Cadence</h3>
+<p>Document recurring performance review process.</p>
+<p><strong>Weekly Operational Review:</strong>
+- Participants: Platform team, Agent owners
+- Metrics reviewed: Error rate, response time, top escalations
+- Action: Immediate fixes for any red metrics
+- Duration: 30 minutes</p>
+<p><strong>Monthly Performance Review:</strong>
+- Participants: AI Governance Lead, Business owners, Platform team
+- Metrics reviewed: All KPIs, trend analysis, SLA compliance
+- Action: Optimization roadmap updates
+- Duration: 1 hour</p>
+<p><strong>Quarterly Business Review:</strong>
+- Participants: Executive sponsor, AI Governance Lead, Compliance
+- Metrics reviewed: Business outcomes, ROI, compliance metrics
+- Action: Strategic direction, budget, expansion plans
+- Duration: 2 hours</p>
+<h3 id="step-8-document-optimization-process">Step 8: Document Optimization Process</h3>
+<p>Create optimization runbook for performance issues.</p>
+<p><strong>Optimization Playbook:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Diagnostic Steps</th>
+<th>Resolution Options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>High Error Rate</strong></td>
+<td>1. Check error logs 2. Identify failing topics 3. Review recent changes</td>
+<td>Rollback recent changes, fix topic logic, update knowledge sources</td>
+</tr>
+<tr>
+<td><strong>Slow Response</strong></td>
+<td>1. Check API latency 2. Review topic complexity 3. Check connector performance</td>
+<td>Optimize topic flows, cache connector responses, reduce entity extractions</td>
+</tr>
+<tr>
+<td><strong>Low Resolution</strong></td>
+<td>1. Analyze escalation topics 2. Review conversation transcripts 3. Check knowledge gaps</td>
+<td>Add missing topics, improve knowledge sources, refine entity definitions</td>
+</tr>
+<tr>
+<td><strong>Poor CSAT</strong></td>
+<td>1. Review low-rated conversations 2. Identify pain points 3. Analyze sentiment</td>
+<td>Improve response quality, add escalation paths, enhance personalization</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Control 2.9: Agent Performance Monitoring and Optimization</span>
+<span class="c"># ============================================================</span>
+
+<span class="c"># Connect to required services</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;Analytics.Read.All&quot;</span>
+<span class="nb">Import-Module</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">PowerApps</span><span class="p">.</span><span class="n">Administration</span><span class="p">.</span><span class="n">PowerShell</span>
+
+<span class="c"># -------------------------------------------------------------</span>
+<span class="c"># Section 1: Retrieve Agent Performance Data</span>
+<span class="c"># -------------------------------------------------------------</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Retrieving agent performance data...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="c"># Get all Copilot Studio agents</span>
+<span class="nv">$Environments</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironment</span>
+
+<span class="nv">$AgentPerformance</span> <span class="p">=</span> <span class="p">@()</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$Env</span> <span class="k">in</span> <span class="nv">$Environments</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c"># Get chatbots (Copilot Studio agents)</span>
+    <span class="nv">$Chatbots</span> <span class="p">=</span> <span class="nb">Get-AdminPowerVirtualAgentsBots</span> <span class="n">-EnvironmentName</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">EnvironmentName</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$Bot</span> <span class="k">in</span> <span class="nv">$Chatbots</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c"># Note: Detailed analytics require Copilot Studio API or Dataverse queries</span>
+        <span class="c"># This provides basic inventory with metadata</span>
+
+        <span class="nv">$AgentPerformance</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">Environment</span> <span class="p">=</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">DisplayName</span>
+            <span class="n">AgentName</span> <span class="p">=</span> <span class="nv">$Bot</span><span class="p">.</span><span class="n">Name</span>
+            <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$Bot</span><span class="p">.</span><span class="n">BotId</span>
+            <span class="n">Created</span> <span class="p">=</span> <span class="nv">$Bot</span><span class="p">.</span><span class="n">CreatedDateTime</span>
+            <span class="n">Modified</span> <span class="p">=</span> <span class="nv">$Bot</span><span class="p">.</span><span class="n">LastModifiedDateTime</span>
+            <span class="n">Status</span> <span class="p">=</span> <span class="nv">$Bot</span><span class="p">.</span><span class="n">Status</span>
+            <span class="n">Version</span> <span class="p">=</span> <span class="nv">$Bot</span><span class="p">.</span><span class="n">Version</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Found </span><span class="p">$(</span><span class="nv">$AgentPerformance</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> agents across all environments&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="nv">$AgentPerformance</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">-AutoSize</span>
+
+<span class="c"># -------------------------------------------------------------</span>
+<span class="c"># Section 2: Configure Performance Thresholds</span>
+<span class="c"># -------------------------------------------------------------</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Configuring performance thresholds...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="nv">$PerformanceThresholds</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Zone1</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">ResponseTime_P50_Seconds</span> <span class="p">=</span> <span class="n">5</span>
+        <span class="n">ResponseTime_P95_Seconds</span> <span class="p">=</span> <span class="n">10</span>
+        <span class="n">ErrorRate_Percent</span> <span class="p">=</span> <span class="n">5</span>
+        <span class="n">Availability_Percent</span> <span class="p">=</span> <span class="n">99</span>
+        <span class="n">ResolutionRate_Percent</span> <span class="p">=</span> <span class="n">60</span>
+        <span class="n">CSAT_Min</span> <span class="p">=</span> <span class="n">3</span><span class="p">.</span><span class="n">5</span>
+    <span class="p">}</span>
+    <span class="n">Zone2</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">ResponseTime_P50_Seconds</span> <span class="p">=</span> <span class="n">3</span>
+        <span class="n">ResponseTime_P95_Seconds</span> <span class="p">=</span> <span class="n">7</span>
+        <span class="n">ErrorRate_Percent</span> <span class="p">=</span> <span class="n">2</span>
+        <span class="n">Availability_Percent</span> <span class="p">=</span> <span class="n">99</span><span class="p">.</span><span class="n">5</span>
+        <span class="n">ResolutionRate_Percent</span> <span class="p">=</span> <span class="n">75</span>
+        <span class="n">CSAT_Min</span> <span class="p">=</span> <span class="n">4</span><span class="p">.</span><span class="n">0</span>
+    <span class="p">}</span>
+    <span class="n">Zone3</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">ResponseTime_P50_Seconds</span> <span class="p">=</span> <span class="n">2</span>
+        <span class="n">ResponseTime_P95_Seconds</span> <span class="p">=</span> <span class="n">5</span>
+        <span class="n">ErrorRate_Percent</span> <span class="p">=</span> <span class="n">1</span>
+        <span class="n">Availability_Percent</span> <span class="p">=</span> <span class="n">99</span><span class="p">.</span><span class="n">9</span>
+        <span class="n">ResolutionRate_Percent</span> <span class="p">=</span> <span class="n">85</span>
+        <span class="n">CSAT_Min</span> <span class="p">=</span> <span class="n">4</span><span class="p">.</span><span class="n">2</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Export thresholds for reference</span>
+<span class="nv">$PerformanceThresholds</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="n">-Depth</span> <span class="n">3</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="s2">&quot;Performance_Thresholds.json&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Performance thresholds exported to Performance_Thresholds.json&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># -------------------------------------------------------------</span>
+<span class="c"># Section 3: Create Performance Monitoring Dataverse Table</span>
+<span class="c"># -------------------------------------------------------------</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Dataverse table schema for performance tracking...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="nv">$TableSchema</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+
+<span class="sh">CREATE DATAVERSE TABLE: fsi_agentperformancemetrics</span>
+
+<span class="sh">Columns:</span>
+<span class="sh">---------</span>
+<span class="sh">| Column Name             | Type        | Description                           |</span>
+<span class="sh">|-------------------------|-------------|---------------------------------------|</span>
+<span class="sh">| fsi_agentid             | Lookup      | Link to Agent Registry                |</span>
+<span class="sh">| fsi_measurementdate     | Date/Time   | Timestamp of measurement              |</span>
+<span class="sh">| fsi_totalsessions       | Whole Number| Total sessions in period              |</span>
+<span class="sh">| fsi_avgresponsetime     | Decimal     | Average response time (seconds)       |</span>
+<span class="sh">| fsi_p95responsetime     | Decimal     | P95 response time (seconds)           |</span>
+<span class="sh">| fsi_errorcount          | Whole Number| Number of errors                      |</span>
+<span class="sh">| fsi_errorrate           | Decimal     | Error rate percentage                 |</span>
+<span class="sh">| fsi_resolutionrate      | Decimal     | Resolution rate percentage            |</span>
+<span class="sh">| fsi_escalationcount     | Whole Number| Number of escalations                 |</span>
+<span class="sh">| fsi_csatscore           | Decimal     | Average CSAT (1-5)                    |</span>
+<span class="sh">| fsi_csatresponses       | Whole Number| Number of CSAT responses              |</span>
+<span class="sh">| fsi_containmentrate     | Decimal     | Containment rate percentage           |</span>
+<span class="sh">| fsi_zone                | Choice      | Tier 1/2/3                            |</span>
+<span class="sh">| fsi_slacompliant        | Yes/No      | Meets SLA targets                     |</span>
+<span class="sh">| fsi_periodtype          | Choice      | Hourly/Daily/Weekly/Monthly           |</span>
+
+<span class="sh">Create in: Power Apps Maker Portal -&gt; Tables -&gt; New table</span>
+
+<span class="sh">&quot;@</span>
+
+<span class="nb">Write-Host</span> <span class="nv">$TableSchema</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="c"># -------------------------------------------------------------</span>
+<span class="c"># Section 4: Generate Sample Alert Configuration</span>
+<span class="c"># -------------------------------------------------------------</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Generating alert configuration...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="nv">$AlertConfig</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Alerts</span> <span class="p">=</span> <span class="p">@(</span>
+        <span class="p">@{</span>
+            <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;High Error Rate Alert&quot;</span>
+            <span class="n">Condition</span> <span class="p">=</span> <span class="s2">&quot;ErrorRate &gt; Threshold&quot;</span>
+            <span class="n">TierThresholds</span> <span class="p">=</span> <span class="p">@{</span> <span class="n">Tier1</span> <span class="p">=</span> <span class="s2">&quot;5%&quot;</span><span class="p">;</span> <span class="n">Tier2</span> <span class="p">=</span> <span class="s2">&quot;2%&quot;</span><span class="p">;</span> <span class="n">Tier3</span> <span class="p">=</span> <span class="s2">&quot;1%&quot;</span> <span class="p">}</span>
+            <span class="n">Severity</span> <span class="p">=</span> <span class="s2">&quot;Critical&quot;</span>
+            <span class="n">Actions</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Teams notification&quot;</span><span class="p">,</span> <span class="s2">&quot;ServiceNow ticket&quot;</span><span class="p">,</span> <span class="s2">&quot;Page on-call&quot;</span><span class="p">)</span>
+            <span class="n">CheckInterval</span> <span class="p">=</span> <span class="s2">&quot;15 minutes&quot;</span>
+        <span class="p">},</span>
+        <span class="p">@{</span>
+            <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Slow Response Alert&quot;</span>
+            <span class="n">Condition</span> <span class="p">=</span> <span class="s2">&quot;P95ResponseTime &gt; Threshold&quot;</span>
+            <span class="n">TierThresholds</span> <span class="p">=</span> <span class="p">@{</span> <span class="n">Tier1</span> <span class="p">=</span> <span class="s2">&quot;10s&quot;</span><span class="p">;</span> <span class="n">Tier2</span> <span class="p">=</span> <span class="s2">&quot;7s&quot;</span><span class="p">;</span> <span class="n">Tier3</span> <span class="p">=</span> <span class="s2">&quot;5s&quot;</span> <span class="p">}</span>
+            <span class="n">Severity</span> <span class="p">=</span> <span class="s2">&quot;High&quot;</span>
+            <span class="n">Actions</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Teams notification&quot;</span><span class="p">,</span> <span class="s2">&quot;Log to SharePoint&quot;</span><span class="p">)</span>
+            <span class="n">CheckInterval</span> <span class="p">=</span> <span class="s2">&quot;15 minutes&quot;</span>
+        <span class="p">},</span>
+        <span class="p">@{</span>
+            <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Availability Alert&quot;</span>
+            <span class="n">Condition</span> <span class="p">=</span> <span class="s2">&quot;NoSessions in 30 minutes (for 24/7 agents)&quot;</span>
+            <span class="n">ZoneThresholds</span> <span class="p">=</span> <span class="p">@{</span> <span class="n">Zone3</span> <span class="p">=</span> <span class="s2">&quot;24/7 monitoring&quot;</span> <span class="p">}</span>
+            <span class="n">Severity</span> <span class="p">=</span> <span class="s2">&quot;Critical&quot;</span>
+            <span class="n">Actions</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Page on-call&quot;</span><span class="p">,</span> <span class="s2">&quot;Escalate to platform team&quot;</span><span class="p">)</span>
+            <span class="n">CheckInterval</span> <span class="p">=</span> <span class="s2">&quot;5 minutes&quot;</span>
+        <span class="p">},</span>
+        <span class="p">@{</span>
+            <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;CSAT Drop Alert&quot;</span>
+            <span class="n">Condition</span> <span class="p">=</span> <span class="s2">&quot;CSAT drops &gt; 0.5 from 7-day average&quot;</span>
+            <span class="n">ZoneThresholds</span> <span class="p">=</span> <span class="p">@{</span> <span class="n">All</span> <span class="p">=</span> <span class="s2">&quot;0.5 point drop&quot;</span> <span class="p">}</span>
+            <span class="n">Severity</span> <span class="p">=</span> <span class="s2">&quot;Medium&quot;</span>
+            <span class="n">Actions</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Email to agent owner&quot;</span><span class="p">,</span> <span class="s2">&quot;Add to review queue&quot;</span><span class="p">)</span>
+            <span class="n">CheckInterval</span> <span class="p">=</span> <span class="s2">&quot;Daily&quot;</span>
+        <span class="p">},</span>
+        <span class="p">@{</span>
+            <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Anomaly Detection Alert&quot;</span>
+            <span class="n">Condition</span> <span class="p">=</span> <span class="s2">&quot;Any metric &gt; 2 std dev from 7-day average&quot;</span>
+            <span class="n">ZoneThresholds</span> <span class="p">=</span> <span class="p">@{</span> <span class="n">Zone3</span> <span class="p">=</span> <span class="s2">&quot;Enabled&quot;</span> <span class="p">}</span>
+            <span class="n">Severity</span> <span class="p">=</span> <span class="s2">&quot;High&quot;</span>
+            <span class="n">Actions</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Teams notification&quot;</span><span class="p">,</span> <span class="s2">&quot;Auto-create investigation ticket&quot;</span><span class="p">)</span>
+            <span class="n">CheckInterval</span> <span class="p">=</span> <span class="s2">&quot;Hourly&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nv">$AlertConfig</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="n">-Depth</span> <span class="n">4</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="s2">&quot;Alert_Configuration.json&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Alert configuration exported to Alert_Configuration.json&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># -------------------------------------------------------------</span>
+<span class="c"># Section 5: Performance Review Report Template</span>
+<span class="c"># -------------------------------------------------------------</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Generating performance review report template...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="nv">$ReportTemplate</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">===============================================================================</span>
+<span class="sh">AGENT PERFORMANCE REVIEW REPORT</span>
+<span class="sh">Report Period: [PERIOD START] to [PERIOD END]</span>
+<span class="sh">Generated: </span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MM-dd HH:mm:ss&#39;</span><span class="p">)</span>
+<span class="sh">===============================================================================</span>
+
+<span class="sh">EXECUTIVE SUMMARY</span>
+<span class="sh">-----------------</span>
+<span class="sh">Total Active Agents: [COUNT]</span>
+<span class="sh">Total Sessions: [SESSION COUNT]</span>
+<span class="sh">Average Resolution Rate: [RATE]%</span>
+<span class="sh">Average CSAT: [SCORE]/5</span>
+
+<span class="sh">SLA COMPLIANCE</span>
+<span class="sh">--------------</span>
+<span class="sh">| Tier   | Agents | SLA Met | SLA Missed | Compliance % |</span>
+<span class="sh">|--------|--------|---------|------------|--------------|</span>
+<span class="sh">| Tier 1 | [X]    | [Y]     | [Z]        | [%]          |</span>
+<span class="sh">| Tier 2 | [X]    | [Y]     | [Z]        | [%]          |</span>
+<span class="sh">| Tier 3 | [X]    | [Y]     | [Z]        | [%]          |</span>
+
+<span class="sh">TOP PERFORMING AGENTS</span>
+<span class="sh">---------------------</span>
+<span class="sh">1. [Agent Name] - Resolution: [X]%, CSAT: [Y], Errors: [Z]%</span>
+<span class="sh">2. [Agent Name] - Resolution: [X]%, CSAT: [Y], Errors: [Z]%</span>
+<span class="sh">3. [Agent Name] - Resolution: [X]%, CSAT: [Y], Errors: [Z]%</span>
+
+<span class="sh">AGENTS REQUIRING ATTENTION</span>
+<span class="sh">--------------------------</span>
+<span class="sh">1. [Agent Name] - Issue: [Description] - Action: [Required action]</span>
+<span class="sh">2. [Agent Name] - Issue: [Description] - Action: [Required action]</span>
+
+<span class="sh">TREND ANALYSIS</span>
+<span class="sh">--------------</span>
+<span class="sh">- Session volume: [Trend direction and %]</span>
+<span class="sh">- Resolution rate: [Trend direction and %]</span>
+<span class="sh">- Error rate: [Trend direction and %]</span>
+<span class="sh">- CSAT: [Trend direction and points]</span>
+
+<span class="sh">KEY INCIDENTS THIS PERIOD</span>
+<span class="sh">-------------------------</span>
+<span class="sh">| Date       | Agent    | Issue          | Duration | Root Cause | Resolution |</span>
+<span class="sh">|------------|----------|----------------|----------|------------|------------|</span>
+<span class="sh">| [Date]     | [Agent]  | [Description]  | [Time]   | [Cause]    | [Action]   |</span>
+
+<span class="sh">OPTIMIZATION ACTIONS TAKEN</span>
+<span class="sh">--------------------------</span>
+<span class="sh">1. [Action description] - Impact: [Measured improvement]</span>
+<span class="sh">2. [Action description] - Impact: [Measured improvement]</span>
+
+<span class="sh">RECOMMENDATIONS</span>
+<span class="sh">---------------</span>
+<span class="sh">1. [Recommendation for improvement]</span>
+<span class="sh">2. [Recommendation for improvement]</span>
+<span class="sh">3. [Recommendation for improvement]</span>
+
+<span class="sh">NEXT REVIEW DATE: [DATE]</span>
+<span class="sh">===============================================================================</span>
+<span class="sh">&quot;@</span>
+
+<span class="nv">$ReportTemplate</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="s2">&quot;Performance_Review_Template.txt&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Report template exported to Performance_Review_Template.txt&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># -------------------------------------------------------------</span>
+<span class="c"># Section 6: Generate Compliance Summary</span>
+<span class="c"># -------------------------------------------------------------</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Generating performance monitoring compliance summary...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="nv">$ComplianceSummary</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">===============================================================================</span>
+<span class="sh">PERFORMANCE MONITORING COMPLIANCE STATUS</span>
+<span class="sh">Generated: </span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MM-dd HH:mm:ss&#39;</span><span class="p">)</span>
+<span class="sh">===============================================================================</span>
+
+<span class="sh">CONTROL 2.9 IMPLEMENTATION STATUS</span>
+<span class="sh">---------------------------------</span>
+<span class="sh">[?] KPI definitions documented</span>
+<span class="sh">[?] Power Platform analytics enabled</span>
+<span class="sh">[?] Custom dashboards created</span>
+<span class="sh">[?] Alerting configured</span>
+<span class="sh">[?] Anomaly detection enabled (Tier 3)</span>
+<span class="sh">[?] Weekly review cadence established</span>
+<span class="sh">[?] Monthly review cadence established</span>
+<span class="sh">[?] Optimization runbook documented</span>
+
+<span class="sh">REGULATORY ALIGNMENT</span>
+<span class="sh">--------------------</span>
+<span class="sh">✅ FINRA 4511: Performance records maintained</span>
+<span class="sh">✅ GLBA 501(b): Customer interaction quality monitored</span>
+<span class="sh">✅ SEC 17a-3/4: Agent operation records preserved</span>
+<span class="sh">✅ SOX 404: Control effectiveness monitored</span>
+
+<span class="sh">NEXT STEPS</span>
+<span class="sh">----------</span>
+<span class="sh">1. Complete all checklist items above</span>
+<span class="sh">2. Document baseline metrics for each agent</span>
+<span class="sh">3. Conduct first performance review</span>
+<span class="sh">4. Validate alert routing works correctly</span>
+
+<span class="sh">===============================================================================</span>
+<span class="sh">&quot;@</span>
+
+<span class="nb">Write-Host</span> <span class="nv">$ComplianceSummary</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Performance monitoring configuration complete&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Performance Requirement</th>
+<th>Control Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Records of automated system performance</td>
+<td>Performance metrics logged and retained</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Protect customer information in processing</td>
+<td>Monitor for data handling errors</td>
+</tr>
+<tr>
+<td><strong>SEC 17a-3/4</strong></td>
+<td>Maintain records of communications</td>
+<td>Conversation analytics retained</td>
+</tr>
+<tr>
+<td><strong>SOX 404</strong></td>
+<td>Monitor control effectiveness</td>
+<td>SLA compliance tracking</td>
+</tr>
+<tr>
+<td><strong>FFIEC CAT</strong></td>
+<td>System performance monitoring</td>
+<td>Real-time dashboards and alerting</td>
+</tr>
+<tr>
+<td><strong>OCC 2011-12</strong></td>
+<td>Ongoing model performance monitoring</td>
+<td>Drift detection, revalidation triggers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Monitoring Level</th>
+<th>Review Cadence</th>
+<th>Alerting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zone 1 - Personal</strong></td>
+<td>Basic analytics</td>
+<td>Monthly</td>
+<td>Error rate only</td>
+</tr>
+<tr>
+<td><strong>Zone 2 - Team</strong></td>
+<td>Standard dashboards</td>
+<td>Weekly</td>
+<td>Error rate, response time</td>
+</tr>
+<tr>
+<td><strong>Zone 3 - Enterprise</strong></td>
+<td>Full monitoring + anomaly detection</td>
+<td>Daily + real-time</td>
+<td>All metrics, 24/7 on-call</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-performance-considerations">FSI Performance Considerations</h3>
+<p><strong>Customer-Facing Agents:</strong>
+- Response time directly impacts customer experience
+- Escalation to human agent must be seamless
+- CSAT tracking essential for service quality</p>
+<p><strong>Regulatory Communication Agents:</strong>
+- Accuracy paramount (incorrect information = regulatory risk)
+- All interactions must be captured for compliance
+- Performance degradation may indicate data quality issues</p>
+<p><strong>Trading/Transaction Agents:</strong>
+- Near-zero latency requirements
+- Error rate tolerance near zero
+- Availability critical during market hours</p>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Analytics Enabled</strong></li>
+<li>Power Platform Admin Center → Analytics → Copilot Studio</li>
+<li>Verify data is flowing to reports</li>
+<li>
+<p>Confirm export to Data Lake (if configured)</p>
+</li>
+<li>
+<p><strong>Dashboard Functional</strong></p>
+</li>
+<li>Power BI → Open performance dashboard</li>
+<li>Verify data refresh is current</li>
+<li>
+<p>Test drill-down functionality</p>
+</li>
+<li>
+<p><strong>Alerting Active</strong></p>
+</li>
+<li>Trigger test alert (temporarily lower threshold)</li>
+<li>Verify notification received</li>
+<li>
+<p>Confirm incident ticket created</p>
+</li>
+<li>
+<p><strong>Review Process Active</strong></p>
+</li>
+<li>Check calendar for scheduled reviews</li>
+<li>Verify review documentation exists</li>
+<li>Confirm actions from reviews tracked</li>
+</ol>
+<h3 id="compliance-checklist">Compliance Checklist</h3>
+<ul>
+<li>[ ] Performance KPIs defined for each governance tier</li>
+<li>[ ] Power Platform analytics enabled</li>
+<li>[ ] Custom Power BI dashboard deployed</li>
+<li>[ ] Alert thresholds configured per governance tier</li>
+<li>[ ] Alert routing verified (Teams, email, SMS)</li>
+<li>[ ] Anomaly detection enabled (Tier 3)</li>
+<li>[ ] Weekly review meetings scheduled</li>
+<li>[ ] Monthly review process documented</li>
+<li>[ ] Performance data retained per policy</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-analytics-data-not-appearing">Issue: Analytics Data Not Appearing</h3>
+<p><strong>Symptoms:</strong> Empty dashboards, no data in reports
+<strong>Solution:</strong>
+1. Verify analytics is enabled in Power Platform Admin Center
+2. Check agent has recent sessions (test with sample interaction)
+3. Confirm data export is configured correctly
+4. Review data latency (can be up to 24 hours for some reports)</p>
+<h3 id="issue-alerts-not-firing">Issue: Alerts Not Firing</h3>
+<p><strong>Symptoms:</strong> Known issues not triggering alerts
+<strong>Solution:</strong>
+1. Verify Power Automate flow is turned on
+2. Check flow run history for errors
+3. Validate API connection to analytics
+4. Review alert threshold configuration
+5. Test with manually lowered thresholds</p>
+<h3 id="issue-high-error-rate-with-no-clear-cause">Issue: High Error Rate With No Clear Cause</h3>
+<p><strong>Symptoms:</strong> Elevated errors, no obvious pattern
+<strong>Solution:</strong>
+1. Review error messages in conversation transcripts
+2. Check for API/connector failures
+3. Validate knowledge sources are accessible
+4. Review recent deployments/changes
+5. Check for platform-level issues (Microsoft Service Health)</p>
+<h3 id="issue-performance-dashboard-slow">Issue: Performance Dashboard Slow</h3>
+<p><strong>Symptoms:</strong> Power BI dashboard takes long to load
+<strong>Solution:</strong>
+1. Optimize data model (reduce unnecessary columns)
+2. Implement incremental refresh
+3. Use aggregated tables for high-volume data
+4. Schedule refresh during off-peak hours
+5. Consider DirectQuery for real-time needs</p>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview">Copilot Studio analytics overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/analytics-copilot-studio">Power Platform analytics</a></li>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/self-service-analytics">Export analytics data to Azure</a></li>
+<li><a href="https://learn.microsoft.com/en-us/power-apps/maker/data-platform/data-platform-powerbi-connector">Create Power BI reports from Dataverse</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview">Azure Monitor alerts</a></li>
+</ul>
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/">3.1 - Agent Inventory</a></td>
+<td>Performance linked to inventory</td>
+</tr>
+<tr>
+<td><a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/">3.2 - Usage Analytics</a></td>
+<td>Usage metrics inform performance</td>
+</tr>
+<tr>
+<td><a href="../2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/">2.6 - Model Risk Management</a></td>
+<td>Performance monitoring part of MRM</td>
+</tr>
+<tr>
+<td><a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/">1.7 - Audit Logging</a></td>
+<td>Performance events logged</td>
+</tr>
+<tr>
+<td><a href="../2.4-business-continuity-and-disaster-recovery/">2.4 - BC/DR</a></td>
+<td>Performance during recovery</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- <strong>AI Governance Lead</strong> (governance direction)
+- <strong>Compliance Officer</strong> (regulatory requirements)
+- <strong>Technical Implementation Team</strong> (platform setup)</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

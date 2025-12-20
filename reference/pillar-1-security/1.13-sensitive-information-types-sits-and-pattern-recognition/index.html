@@ -1,0 +1,3995 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/">
+      
+      
+        <link rel="prev" href="../1.12-insider-risk-detection-and-response/">
+      
+      
+        <link rel="next" href="../1.14-data-minimization-and-agent-scope-control/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.13 Sensitive Information Types (SITs) and Pattern Recognition - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-113-sensitive-information-types-sits-and-pattern-recognition" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.13 Sensitive Information Types (SITs) and Pattern Recognition
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#us-only-scope-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        US-only scope note
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#purview-tenant-prerequisites-required-for-validation-and-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purview tenant prerequisites (required for validation and evidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-review-built-in-financial-sits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Review Built-in Financial SITs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Review Built-in Financial SITs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#essential-financial-sits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential Financial SITs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#investmenttrading-sits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Investment/Trading SITs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1a-confirm-you-can-access-sit-authoring-and-validation-screens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1A: Confirm you can access SIT authoring and validation screens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-create-custom-fsi-sits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create Custom FSI SITs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Create Custom FSI SITs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-design-checklist-use-for-every-custom-sit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern design checklist (use for every custom SIT)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-sit-1-internal-account-number" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom SIT 1: Internal Account Number
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-sit-2-finra-crd-number" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom SIT 2: FINRA CRD Number
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-sit-3-material-non-public-information-mnpi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom SIT 3: Material Non-Public Information (MNPI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-sit-4-trade-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom SIT 4: Trade Details
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-create-keyword-dictionaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Create Keyword Dictionaries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Create Keyword Dictionaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fsi-competitor-names-dictionary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Competitor Names Dictionary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-configure-exact-data-match-edm-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Configure Exact Data Match (EDM) Classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-test-sit-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Test SIT Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-tune-sit-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Tune SIT Accuracy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Zone-Specific Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zone-1-personal-productivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 1 (Personal Productivity)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-2-team-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 2 (Team Collaboration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-3-enterprise-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 3 (Enterprise Managed)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-sit-library-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI SIT Library Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-sit-not-detecting-expected-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: SIT Not Detecting Expected Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-too-many-false-positives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Too Many False Positives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-custom-sit-creation-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Custom SIT Creation Fails
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-edm-classifier-not-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: EDM Classifier Not Matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-113-sensitive-information-types-sits-and-pattern-recognition">Control 1.13: Sensitive Information Types (SITs) and Pattern Recognition</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.13
+<strong>Control Name:</strong> Sensitive Information Types (SITs) and Pattern Recognition
+<strong>Regulatory Reference:</strong> FINRA 4511, SEC Reg S-P, GLBA 501(b), SOX 404
+<strong>Setup Time:</strong> 2-4 hours (initial); ongoing refinement</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Sensitive Information Types (SITs) are the foundation of data classification and protection in Microsoft 365. For financial services, properly configured SITs enable automatic detection of:</p>
+<ul>
+<li><strong>Customer NPI</strong>: Social Security numbers, account numbers, tax IDs</li>
+<li><strong>Financial Data</strong>: Credit card numbers, bank accounts, trading symbols</li>
+<li><strong>Regulatory Identifiers</strong>: CRD numbers, CUSIP, ISIN, LEI</li>
+<li><strong>Regulatory/Market Identifiers</strong>: CRD numbers, CUSIP (and internal identifiers)</li>
+<li><strong>Proprietary Information</strong>: Trade secrets, material non-public information (MNPI)</li>
+</ul>
+<p>SITs power DLP policies (Control 1.5), sensitivity labels, DSPM for AI (Control 1.6), and retention policies, making them critical for comprehensive FSI data governance.</p>
+<h3 id="us-only-scope-note">US-only scope note</h3>
+<p>This control implementation guidance is <strong>U.S.-only</strong>:</p>
+<ul>
+<li>Use <strong>U.S. identifiers</strong> (e.g., SSN, ITIN, U.S. bank account/routing formats, CUSIP, FINRA CRD) and organization-specific internal identifiers.</li>
+<li>Avoid non-U.S. examples or patterns (for example, international bank identifiers). If your organization operates outside the U.S., create a separate addendum with jurisdiction-specific SITs and validation steps.</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Purview Info Protection Admin
+<strong>Supporting Roles:</strong> Purview Compliance Admin</p>
+<h3 id="required-licenses">Required Licenses</h3>
+<ul>
+<li>Microsoft 365 E5 <strong>OR</strong> Microsoft 365 E5 Compliance (full functionality)</li>
+<li>Microsoft 365 E3 (basic built-in SITs only)</li>
+<li>Microsoft Purview Information Protection</li>
+</ul>
+<h3 id="required-permissions">Required Permissions</h3>
+<ul>
+<li><strong>Compliance Administrator</strong> or <strong>Global Administrator</strong> (create/modify SITs)</li>
+<li><strong>Information Protection Admin</strong> (manage SITs)</li>
+<li><strong>Security Reader</strong> (view SITs and reports)</li>
+</ul>
+<h3 id="purview-tenant-prerequisites-required-for-validation-and-evidence">Purview tenant prerequisites (required for validation and evidence)</h3>
+<ol>
+<li><strong>Access the correct portal</strong></li>
+<li>Use the Microsoft Purview compliance portal: https://compliance.microsoft.com</li>
+<li>
+<p>Navigation (Dec 2025 UI): <strong>Solutions</strong> → <strong>Data classification</strong> → <strong>Classifiers</strong></p>
+</li>
+<li>
+<p><strong>Permissions to create SITs</strong></p>
+</li>
+<li>
+<p>Ensure the implementing admin is assigned a role group that includes <strong>Information Protection</strong> and <strong>Data Classification</strong> authoring permissions (commonly via <strong>Compliance Administrator</strong> or <strong>Information Protection Admin</strong>, depending on org policy).</p>
+</li>
+<li>
+<p><strong>Permissions to validate SITs (Content explorer / Activity explorer)</strong></p>
+</li>
+<li>Ensure the implementing admin (or designated tester) has permissions that allow:<ul>
+<li>Viewing classified content results in <strong>Content explorer</strong></li>
+<li>Viewing signal/events in <strong>Activity explorer</strong> (where applicable)</li>
+</ul>
+</li>
+<li>
+<p>If those explorers are visible but empty or blocked, it is almost always a <strong>role/permission assignment</strong> gap.</p>
+</li>
+<li>
+<p><strong>Data locations available for testing</strong></p>
+</li>
+<li>Confirm at least one Microsoft 365 location is in use and in-scope for scanning (SharePoint/OneDrive content is the most straightforward for SIT validation).</li>
+<li>
+<p>Confirm your test site/library is accessible to the test account and is not excluded by existing governance controls.</p>
+</li>
+<li>
+<p><strong>Operational readiness</strong></p>
+</li>
+<li>Identify a secure internal location for:<ul>
+<li>Custom SIT inventory exports</li>
+<li>SIT pattern documentation</li>
+<li>Evidence screenshots and test results</li>
+</ul>
+</li>
+</ol>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li><strong>Control 1.5 (DLP)</strong>: SITs are used in DLP policies</li>
+<li><strong>Control 1.6 (DSPM for AI)</strong>: SITs enable AI data exposure monitoring</li>
+<li><strong>Control 1.7 (Audit Logging)</strong>: SIT detection events logged</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Inventory of sensitive data types handled by organization</li>
+<li>[ ] Sample data patterns for custom SITs (sanitized)</li>
+<li>[ ] Approval for custom SIT definitions from Compliance/Legal</li>
+<li>[ ] Test environment for SIT validation</li>
+<li>[ ] Documentation of internal identifier formats</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Define and implement SITs for common financial data (SSN, account numbers, credit cards).</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Custom SITs for industry-specific sensitive data; regex patterns for internal identifiers.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Comprehensive SIT library with ML-based detection; continuous updates per threat landscape.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-review-built-in-financial-sits">Step 1: Review Built-in Financial SITs</h3>
+<p><strong>Portal Path:</strong> <a href="https://purview.microsoft.com">Microsoft Purview</a> → <strong>Data classification</strong> → <strong>Classifiers</strong> → <strong>Sensitive info types</strong></p>
+<p>Microsoft provides numerous built-in SITs for financial data. Review and enable these:</p>
+<h4 id="essential-financial-sits">Essential Financial SITs</h4>
+<table>
+<thead>
+<tr>
+<th>SIT Name</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>U.S. Social Security Number (SSN)</strong></td>
+<td>9-digit SSN with various formats</td>
+<td>Customer identification</td>
+</tr>
+<tr>
+<td><strong>U.S. Bank Account Number</strong></td>
+<td>Bank account detection</td>
+<td>Payment/transfer monitoring</td>
+</tr>
+<tr>
+<td><strong>Credit Card Number</strong></td>
+<td>Visa, MC, Amex, Discover patterns</td>
+<td>PCI-DSS compliance</td>
+</tr>
+<tr>
+<td><strong>ABA Routing Number</strong></td>
+<td>9-digit bank routing numbers</td>
+<td>Wire transfer protection</td>
+</tr>
+<tr>
+<td><strong>U.S. Individual Taxpayer ID (ITIN)</strong></td>
+<td>9-digit tax IDs starting with 9</td>
+<td>Tax document protection</td>
+</tr>
+<tr>
+<td><strong>U.S. Driver's License Number</strong></td>
+<td>State-specific DL patterns</td>
+<td>Identity verification</td>
+</tr>
+<tr>
+<td><strong>U.S. Passport Number</strong></td>
+<td>9-digit passport numbers</td>
+<td>KYC documents</td>
+</tr>
+</tbody>
+</table>
+<h4 id="investmenttrading-sits">Investment/Trading SITs</h4>
+<table>
+<thead>
+<tr>
+<th>SIT Name</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CUSIP</strong></td>
+<td>9-character security identifiers</td>
+<td>Trading/portfolio data</td>
+</tr>
+<tr>
+<td><strong>IP Address</strong></td>
+<td>IPv4 and IPv6 addresses</td>
+<td>System access monitoring</td>
+</tr>
+</tbody>
+</table>
+<p><strong>To view all built-in SITs:</strong>
+1. Navigate to Purview → Data classification → Sensitive info types
+2. Filter by category: <strong>Financial</strong>
+3. Review description and detection patterns</p>
+<h3 id="step-1a-confirm-you-can-access-sit-authoring-and-validation-screens">Step 1A: Confirm you can access SIT authoring and validation screens</h3>
+<ol>
+<li>Go to https://compliance.microsoft.com</li>
+<li>Navigate: <strong>Solutions</strong> → <strong>Data classification</strong> → <strong>Classifiers</strong> → <strong>Sensitive info types</strong></li>
+<li>Validate:</li>
+<li><strong>EXPECTED:</strong> You can open a built-in SIT and view its <strong>patterns</strong>, <strong>confidence</strong>, and <strong>supporting evidence</strong> configuration.</li>
+<li>Optional but recommended for implementers:</li>
+<li>Open <strong>Content explorer</strong> (same Solution area) to confirm you have viewing rights for later validation.</li>
+</ol>
+<h3 id="step-2-create-custom-fsi-sits">Step 2: Create Custom FSI SITs</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → <strong>Data classification</strong> → <strong>Classifiers</strong> → <strong>Sensitive info types</strong> → <strong>+ Create sensitive info type</strong></p>
+<h4 id="pattern-design-checklist-use-for-every-custom-sit">Pattern design checklist (use for every custom SIT)</h4>
+<p>Before creating a custom SIT pattern, define:</p>
+<ul>
+<li><strong>Canonical format</strong> (what the identifier truly looks like)</li>
+<li><strong>Allowed variations</strong> (spaces, hyphens, prefixes, “CRD#”, etc.)</li>
+<li><strong>Corroborating context</strong> (keywords near the identifier that reduce false positives)</li>
+<li><strong>Exclusions</strong> (test prefixes, known non-sensitive lookalikes)</li>
+<li><strong>Target confidence</strong> (start higher; relax only after measured false-negative review)</li>
+</ul>
+<h4 id="custom-sit-1-internal-account-number">Custom SIT 1: Internal Account Number</h4>
+<ol>
+<li>Click <strong>+ Create sensitive info type</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-Internal-Account-Number</code></li>
+<li><strong>Description:</strong> "Detects internal customer account numbers in format XXX-XXXXXX-XX"</li>
+<li>Click <strong>Next</strong> → <strong>Create pattern</strong></li>
+<li>Add primary element:</li>
+<li><strong>Type:</strong> Regular expression</li>
+<li><strong>Pattern:</strong> <code>\b[A-Z]{3}-\d{6}-[A-Z0-9]{2}\b</code></li>
+<li><strong>Confidence level:</strong> High (85)</li>
+<li>Add supporting element (optional):</li>
+<li><strong>Keywords:</strong> "account", "acct", "customer number"</li>
+<li><strong>Within:</strong> 300 characters</li>
+<li>Set <strong>Character proximity:</strong> 300 characters</li>
+<li>Click <strong>Create</strong></li>
+</ol>
+<h4 id="custom-sit-2-finra-crd-number">Custom SIT 2: FINRA CRD Number</h4>
+<ol>
+<li>Click <strong>+ Create sensitive info type</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-FINRA-CRD-Number</code></li>
+<li><strong>Description:</strong> "Detects FINRA Central Registration Depository numbers"</li>
+<li>Add pattern:</li>
+<li><strong>Type:</strong> Regular expression</li>
+<li><strong>Pattern:</strong> <code>\b(?:CRD\s*#?\s*)?([1-9]\d{4,7})\b</code></li>
+<li><strong>Confidence level:</strong> Medium (75)</li>
+<li>Add supporting keywords:</li>
+<li>"CRD", "registered representative", "broker", "advisor"</li>
+<li>Click <strong>Create</strong></li>
+</ol>
+<h4 id="custom-sit-3-material-non-public-information-mnpi">Custom SIT 3: Material Non-Public Information (MNPI)</h4>
+<ol>
+<li>Click <strong>+ Create sensitive info type</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-MNPI-Indicators</code></li>
+<li><strong>Description:</strong> "Detects potential material non-public information indicators"</li>
+<li>Add pattern using keywords:</li>
+<li><strong>Type:</strong> Keyword dictionary</li>
+<li><strong>Keywords:</strong><ul>
+<li>"earnings announcement", "merger", "acquisition target"</li>
+<li>"quarterly results", "guidance revision", "restructuring"</li>
+<li>"SEC filing", "insider", "material information"</li>
+<li>"trading restriction", "blackout period"</li>
+</ul>
+</li>
+<li><strong>Confidence level:</strong> Medium (65)</li>
+<li>Add proximity requirement with financial entity mentions</li>
+<li>Click <strong>Create</strong></li>
+</ol>
+<h4 id="custom-sit-4-trade-details">Custom SIT 4: Trade Details</h4>
+<ol>
+<li>Click <strong>+ Create sensitive info type</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-Trade-Details</code></li>
+<li><strong>Description:</strong> "Detects trading activity patterns"</li>
+<li>Add pattern:</li>
+<li><strong>Type:</strong> Regular expression</li>
+<li><strong>Pattern:</strong> <code>\b(BUY|SELL|HOLD)\s+\d+(?:,\d{3})*\s+(?:shares?|units?|contracts?)\s+(?:of\s+)?[A-Z]{1,5}\b</code></li>
+<li>Add supporting keywords:</li>
+<li>"execute", "trade", "order", "position", "fill"</li>
+<li>Click <strong>Create</strong></li>
+</ol>
+<h3 id="step-3-create-keyword-dictionaries">Step 3: Create Keyword Dictionaries</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → <strong>Data classification</strong> → <strong>Classifiers</strong> → <strong>EDM classifiers</strong> → <strong>Keyword dictionaries</strong></p>
+<p>Create keyword dictionaries for complex detection:</p>
+<h4 id="fsi-competitor-names-dictionary">FSI Competitor Names Dictionary</h4>
+<ol>
+<li>Click <strong>Create keyword dictionary</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-Competitor-Names</code></li>
+<li><strong>Description:</strong> "List of competitor companies for MNPI monitoring"</li>
+<li>Upload or enter keywords:
+   <div class="highlight"><pre><span></span><code>Goldman Sachs
+Morgan Stanley
+JP Morgan
+Citigroup
+Bank of America
+Wells Fargo
+[Add your specific competitors]
+</code></pre></div></li>
+<li>Click <strong>Create</strong></li>
+</ol>
+<h3 id="step-4-configure-exact-data-match-edm-classification">Step 4: Configure Exact Data Match (EDM) Classification</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → <strong>Data classification</strong> → <strong>Classifiers</strong> → <strong>EDM classifiers</strong></p>
+<p>EDM provides precise matching against your actual customer data (without storing PII in the cloud):</p>
+<ol>
+<li>Click <strong>+ Create EDM classifier</strong></li>
+<li>Define schema:</li>
+<li><strong>Name:</strong> <code>FSI-Customer-Data-EDM</code></li>
+<li><strong>Description:</strong> "Exact match for customer account data"</li>
+<li>Add columns:</li>
+<li><code>CustomerAccountNumber</code> (searchable)</li>
+<li><code>SSN</code> (searchable)</li>
+<li><code>CustomerName</code> (supporting)</li>
+<li><code>DateOfBirth</code> (supporting)</li>
+<li>Configure matching:</li>
+<li>Primary: CustomerAccountNumber</li>
+<li>Corroborative: SSN + CustomerName</li>
+<li>Upload hashed data source (see PowerShell section)</li>
+</ol>
+<h3 id="step-5-test-sit-detection">Step 5: Test SIT Detection</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → <strong>Data classification</strong> → <strong>Content explorer</strong></p>
+<ol>
+<li>Navigate to <strong>Content explorer</strong></li>
+<li>Filter by sensitive information type</li>
+<li>Review detected items</li>
+<li>Validate accuracy:</li>
+<li><strong>True positives:</strong> Correctly identified sensitive data</li>
+<li><strong>False positives:</strong> Non-sensitive data flagged</li>
+<li><strong>False negatives:</strong> Sensitive data missed</li>
+</ol>
+<p><strong>Create test documents:</strong>
+1. Create a Word/Excel file with test data:
+   <div class="highlight"><pre><span></span><code>Test Account: ABC-123456-XY
+Test SSN: 123-45-6789
+Test Credit Card: 4111-1111-1111-1111
+</code></pre></div>
+2. Upload to SharePoint
+3. Wait for classification (up to 24 hours)
+4. Verify SIT detection in Content Explorer</p>
+<h3 id="step-6-tune-sit-accuracy">Step 6: Tune SIT Accuracy</h3>
+<p>Based on testing results, adjust SITs:</p>
+<p><strong>Reduce False Positives:</strong>
+1. Edit the SIT → Patterns
+2. Add exclusions:
+   - <strong>Exclude patterns:</strong> Common false positive formats
+   - <strong>Add keywords:</strong> Require supporting context
+3. Increase confidence threshold</p>
+<p><strong>Reduce False Negatives:</strong>
+1. Edit the SIT → Patterns
+2. Add pattern variations
+3. Lower confidence threshold (carefully)
+4. Add alternative keyword groups</p>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Sensitive Information Types Configuration</span>
+<span class="c"># Requires: Exchange Online PowerShell (Security &amp; Compliance)</span>
+
+<span class="c"># Connect to Security &amp; Compliance PowerShell</span>
+<span class="nb">Connect-IPPSSession</span> <span class="n">-UserPrincipalName</span> <span class="n">admin</span><span class="nv">@contoso</span><span class="p">.</span><span class="n">com</span>
+
+<span class="c"># Get all sensitive information types</span>
+<span class="nv">$AllSITs</span> <span class="p">=</span> <span class="nb">Get-DlpSensitiveInformationType</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Total SITs available: </span><span class="p">$(</span><span class="nv">$AllSITs</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+
+<span class="c"># Filter for financial SITs</span>
+<span class="nv">$FinancialSITs</span> <span class="p">=</span> <span class="nv">$AllSITs</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+   <span class="nv">$_</span><span class="p">.</span><span class="n">Name</span> <span class="o">-match</span> <span class="s2">&quot;credit card|bank account|SSN|social security|ABA|tax&quot;</span>
+<span class="p">}</span>
+<span class="nv">$FinancialSITs</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Description</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+
+<span class="c"># Get details of a specific SIT</span>
+<span class="nb">Get-DlpSensitiveInformationType</span> <span class="n">-Identity</span> <span class="s2">&quot;U.S. Social Security Number (SSN)&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Description</span><span class="p">,</span> <span class="n">RulePackageId</span>
+
+<span class="c"># Create a new custom SIT for internal account numbers</span>
+<span class="nv">$RuleXML</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="sh">&lt;RulePackage xmlns=&quot;http://schemas.microsoft.com/office/2011/mce&quot;&gt;</span>
+<span class="sh">  &lt;RulePack id=&quot;</span><span class="p">$(</span><span class="nb">New-Guid</span><span class="p">)</span><span class="sh">&quot;&gt;</span>
+<span class="sh">    &lt;Version build=&quot;0&quot; major=&quot;1&quot; minor=&quot;0&quot; revision=&quot;0&quot;/&gt;</span>
+<span class="sh">    &lt;Publisher id=&quot;</span><span class="p">$(</span><span class="nb">New-Guid</span><span class="p">)</span><span class="sh">&quot;/&gt;</span>
+<span class="sh">    &lt;Details defaultLangCode=&quot;en&quot;&gt;</span>
+<span class="sh">      &lt;LocalizedDetails langcode=&quot;en&quot;&gt;</span>
+<span class="sh">        &lt;PublisherName&gt;Contoso Financial&lt;/PublisherName&gt;</span>
+<span class="sh">        &lt;Name&gt;FSI Custom Rule Pack&lt;/Name&gt;</span>
+<span class="sh">        &lt;Description&gt;Custom SITs for financial services&lt;/Description&gt;</span>
+<span class="sh">      &lt;/LocalizedDetails&gt;</span>
+<span class="sh">    &lt;/Details&gt;</span>
+<span class="sh">  &lt;/RulePack&gt;</span>
+<span class="sh">  &lt;Rules&gt;</span>
+<span class="sh">    &lt;Entity id=&quot;</span><span class="p">$(</span><span class="nb">New-Guid</span><span class="p">)</span><span class="sh">&quot; patternsProximity=&quot;300&quot; recommendedConfidence=&quot;75&quot;&gt;</span>
+<span class="sh">      &lt;Pattern confidenceLevel=&quot;85&quot;&gt;</span>
+<span class="sh">        &lt;IdMatch idRef=&quot;Regex_InternalAccountNumber&quot;/&gt;</span>
+<span class="sh">        &lt;Match idRef=&quot;Keyword_AccountContext&quot;/&gt;</span>
+<span class="sh">      &lt;/Pattern&gt;</span>
+<span class="sh">      &lt;Pattern confidenceLevel=&quot;75&quot;&gt;</span>
+<span class="sh">        &lt;IdMatch idRef=&quot;Regex_InternalAccountNumber&quot;/&gt;</span>
+<span class="sh">      &lt;/Pattern&gt;</span>
+<span class="sh">      &lt;LocalizedStrings&gt;</span>
+<span class="sh">        &lt;Resource idRef=&quot;</span><span class="p">$(</span><span class="nb">New-Guid</span><span class="p">)</span><span class="sh">&quot;&gt;</span>
+<span class="sh">          &lt;Name default=&quot;true&quot; langcode=&quot;en-us&quot;&gt;FSI Internal Account Number&lt;/Name&gt;</span>
+<span class="sh">          &lt;Description default=&quot;true&quot; langcode=&quot;en-us&quot;&gt;Detects internal customer account numbers&lt;/Description&gt;</span>
+<span class="sh">        &lt;/Resource&gt;</span>
+<span class="sh">      &lt;/LocalizedStrings&gt;</span>
+<span class="sh">    &lt;/Entity&gt;</span>
+<span class="sh">  &lt;/Rules&gt;</span>
+<span class="sh">  &lt;Regex id=&quot;Regex_InternalAccountNumber&quot;&gt;\b[A-Z]{3}-\d{6}-[A-Z0-9]{2}\b&lt;/Regex&gt;</span>
+<span class="sh">  &lt;Keyword id=&quot;Keyword_AccountContext&quot;&gt;</span>
+<span class="sh">    &lt;Group matchStyle=&quot;word&quot;&gt;</span>
+<span class="sh">      &lt;Term&gt;account&lt;/Term&gt;</span>
+<span class="sh">      &lt;Term&gt;customer number&lt;/Term&gt;</span>
+<span class="sh">      &lt;Term&gt;acct&lt;/Term&gt;</span>
+<span class="sh">      &lt;Term&gt;client id&lt;/Term&gt;</span>
+<span class="sh">    &lt;/Group&gt;</span>
+<span class="sh">  &lt;/Keyword&gt;</span>
+<span class="sh">&lt;/RulePackage&gt;</span>
+<span class="sh">&quot;@</span>
+
+<span class="c"># Save XML and upload</span>
+<span class="nv">$RuleXML</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="s2">&quot;C:\Governance\SITs\FSI-Custom-SIT.xml&quot;</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
+
+<span class="c"># Create the rule package</span>
+<span class="nb">New-DlpSensitiveInformationTypeRulePackage</span> <span class="n">-FileData</span> <span class="p">(</span><span class="no">[System.IO.File]</span><span class="p">::</span><span class="n">ReadAllBytes</span><span class="p">(</span><span class="s2">&quot;C:\Governance\SITs\FSI-Custom-SIT.xml&quot;</span><span class="p">))</span>
+
+<span class="c"># Get custom SITs</span>
+<span class="nb">Get-DlpSensitiveInformationType</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Publisher</span> <span class="o">-eq</span> <span class="s2">&quot;Contoso Financial&quot;</span> <span class="p">}</span>
+
+<span class="c"># Create keyword dictionary</span>
+<span class="nv">$Keywords</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">Goldman Sachs</span>
+<span class="sh">Morgan Stanley</span>
+<span class="sh">JP Morgan</span>
+<span class="sh">Citigroup</span>
+<span class="sh">Bank of America</span>
+<span class="sh">Wells Fargo</span>
+<span class="sh">&quot;@</span>
+
+<span class="nb">New-DlpKeywordDictionary</span> <span class="n">-Name</span> <span class="s2">&quot;FSI-Competitor-Names&quot;</span> <span class="p">`</span>
+    <span class="n">-Description</span> <span class="s2">&quot;Major financial institution names for competitive intelligence monitoring&quot;</span> <span class="p">`</span>
+    <span class="n">-FileData</span> <span class="p">(</span><span class="no">[System.Text.Encoding]</span><span class="p">::</span><span class="n">UTF8</span><span class="p">.</span><span class="n">GetBytes</span><span class="p">(</span><span class="nv">$Keywords</span><span class="p">))</span>
+
+<span class="c"># Get all keyword dictionaries</span>
+<span class="nb">Get-DlpKeywordDictionary</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Description</span>
+
+<span class="c"># Test SIT detection (requires a file to test against)</span>
+<span class="c"># Using Test-DataClassification cmdlet</span>
+<span class="nv">$TestContent</span> <span class="p">=</span> <span class="s2">&quot;Customer account ABC-123456-XY with SSN 123-45-6789&quot;</span>
+<span class="nv">$TestResult</span> <span class="p">=</span> <span class="nb">Test-DataClassification</span> <span class="n">-TextToClassify</span> <span class="nv">$TestContent</span>
+<span class="nv">$TestResult</span><span class="p">.</span><span class="n">SensitiveInformation</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">SensitiveInformationType</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Confidence</span>
+
+<span class="c"># Export all custom SITs for documentation</span>
+<span class="nv">$CustomSITs</span> <span class="p">=</span> <span class="nb">Get-DlpSensitiveInformationType</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Publisher</span> <span class="o">-ne</span> <span class="s2">&quot;Microsoft Corporation&quot;</span> <span class="p">}</span>
+<span class="nv">$CustomSITs</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Description</span><span class="p">,</span> <span class="n">Publisher</span><span class="p">,</span> <span class="n">RulePackageId</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="s2">&quot;C:\Governance\SITs\Custom-SIT-Inventory-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># EDM Classifier Setup (hash and upload data)</span>
+<span class="c"># Note: This requires the EDM Upload Agent installed locally</span>
+
+<span class="c"># Step 1: Create schema file</span>
+<span class="nv">$SchemaXML</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="sh">&lt;EdmSchema xmlns=&quot;http://schemas.microsoft.com/office/2018/edm&quot;&gt;</span>
+<span class="sh">  &lt;DataStore name=&quot;FSICustomerData&quot; description=&quot;Customer account data for exact matching&quot;&gt;</span>
+<span class="sh">    &lt;Field name=&quot;CustomerAccountNumber&quot; searchable=&quot;true&quot;/&gt;</span>
+<span class="sh">    &lt;Field name=&quot;SSN&quot; searchable=&quot;true&quot;/&gt;</span>
+<span class="sh">    &lt;Field name=&quot;CustomerName&quot; searchable=&quot;false&quot;/&gt;</span>
+<span class="sh">    &lt;Field name=&quot;DateOfBirth&quot; searchable=&quot;false&quot;/&gt;</span>
+<span class="sh">  &lt;/DataStore&gt;</span>
+<span class="sh">&lt;/EdmSchema&gt;</span>
+<span class="sh">&quot;@</span>
+<span class="nv">$SchemaXML</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="s2">&quot;C:\EDM\FSICustomerDataSchema.xml&quot;</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
+
+<span class="c"># Step 2: Upload schema (run from EDM Upload Agent directory)</span>
+<span class="c"># .\EdmUploadAgent.exe /UploadSchema /DataStoreName FSICustomerData /HashFile C:\EDM\FSICustomerDataSchema.xml</span>
+
+<span class="c"># Step 3: Hash the data file</span>
+<span class="c"># .\EdmUploadAgent.exe /CreateHash /DataFile C:\EDM\CustomerData.csv /HashFile C:\EDM\CustomerDataHash.csv /Salt &lt;your-salt&gt;</span>
+
+<span class="c"># Step 4: Upload hashed data</span>
+<span class="c"># .\EdmUploadAgent.exe /UploadHash /DataStoreName FSICustomerData /HashFile C:\EDM\CustomerDataHash.csv</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;SIT configuration complete&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>SIT Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Detect and protect customer NPI (SSN, account numbers)</td>
+</tr>
+<tr>
+<td><strong>SEC Reg S-P</strong></td>
+<td>Identify customer records for privacy protection</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Classify records containing customer information</td>
+</tr>
+<tr>
+<td><strong>PCI-DSS</strong></td>
+<td>Detect credit card numbers in scope systems</td>
+</tr>
+<tr>
+<td><strong>SOX 404</strong></td>
+<td>Identify and protect financial reporting data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<h4 id="zone-1-personal-productivity">Zone 1 (Personal Productivity)</h4>
+<div class="highlight"><pre><span></span><code>SITs Used: Basic built-in SITs
+Detection Mode: Alert only
+Confidence Threshold: High (85+)
+Action: Log for awareness
+</code></pre></div>
+<h4 id="zone-2-team-collaboration">Zone 2 (Team Collaboration)</h4>
+<div class="highlight"><pre><span></span><code>SITs Used: Built-in + basic custom
+Detection Mode: Alert + educate
+Confidence Threshold: Medium-High (75-85)
+Action: Notify user, log to compliance
+</code></pre></div>
+<h4 id="zone-3-enterprise-managed">Zone 3 (Enterprise Managed)</h4>
+<div class="highlight"><pre><span></span><code>SITs Used: Full library + EDM
+Detection Mode: Block on high confidence
+Confidence Threshold: Medium (65+)
+Action: Block, notify compliance, require justification
+</code></pre></div>
+<h3 id="fsi-sit-library-template">FSI SIT Library Template</h3>
+<p>Create these custom SITs for comprehensive FSI coverage:</p>
+<table>
+<thead>
+<tr>
+<th>SIT Name</th>
+<th>Pattern/Keywords</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FSI-Internal-Account-Number</code></td>
+<td>Company-specific format</td>
+<td>Internal account detection</td>
+</tr>
+<tr>
+<td><code>FSI-FINRA-CRD-Number</code></td>
+<td>CRD# patterns</td>
+<td>Registered rep identification</td>
+</tr>
+<tr>
+<td><code>FSI-CUSIP-Extended</code></td>
+<td>9-char + trading context</td>
+<td>Security identification</td>
+</tr>
+<tr>
+<td><code>FSI-MNPI-Indicators</code></td>
+<td>Earnings, merger, insider keywords</td>
+<td>Insider trading prevention</td>
+</tr>
+<tr>
+<td><code>FSI-Trade-Details</code></td>
+<td>Buy/Sell patterns + quantities</td>
+<td>Trading activity monitoring</td>
+</tr>
+<tr>
+<td><code>FSI-Wire-Transfer</code></td>
+<td>Wire instructions + amounts</td>
+<td>Payment monitoring</td>
+</tr>
+<tr>
+<td><code>FSI-Client-PII-Bundle</code></td>
+<td>SSN + Name + Account</td>
+<td>Customer data package</td>
+</tr>
+<tr>
+<td><code>FSI-Net-Worth</code></td>
+<td>Dollar amounts + wealth keywords</td>
+<td>Privacy for HNW clients</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Confirm Built-in SITs Available:</strong></li>
+<li>Navigate to Purview → Data classification → Sensitive info types</li>
+<li>Filter by "Financial"</li>
+<li>
+<p><strong>EXPECTED:</strong> Core financial SITs listed and active</p>
+</li>
+<li>
+<p><strong>Test SIT Detection:</strong></p>
+</li>
+<li>Upload test document with sample sensitive data</li>
+<li>Wait 24 hours for indexing</li>
+<li>Check Content Explorer for detection</li>
+<li>
+<p><strong>EXPECTED:</strong> Test data correctly identified</p>
+</li>
+<li>
+<p><strong>Verify Custom SITs:</strong></p>
+</li>
+<li>Navigate to Sensitive info types → Filter by Publisher (your org)</li>
+<li>
+<p><strong>EXPECTED:</strong> All custom SITs created and active</p>
+</li>
+<li>
+<p><strong>Test DLP Policy Integration:</strong></p>
+</li>
+<li>Create a test DLP policy using custom SIT</li>
+<li>Trigger policy with test content</li>
+<li>
+<p><strong>EXPECTED:</strong> Policy fires on SIT detection</p>
+</li>
+<li>
+<p><strong>Validate EDM Classifier:</strong></p>
+</li>
+<li>Check EDM classifier status (Active/Indexing)</li>
+<li>Test with exact data from source</li>
+<li><strong>EXPECTED:</strong> Exact match detected</li>
+</ol>
+<h3 id="verification-evidence">Verification Evidence</h3>
+<ul>
+<li>[ ] Screenshot: Built-in financial SITs list</li>
+<li>[ ] Export: Custom SIT definitions (XML)</li>
+<li>[ ] Documentation: SIT pattern definitions and rationale</li>
+<li>[ ] Screenshot: Content Explorer showing detections</li>
+<li>[ ] Test results: True/false positive rates</li>
+<li>[ ] Documentation: EDM schema and refresh schedule</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-sit-not-detecting-expected-content">Issue: SIT Not Detecting Expected Content</h3>
+<p><strong>Symptoms:</strong> Known sensitive data not being flagged</p>
+<p><strong>Solutions:</strong>
+1. Verify SIT is active (not in test mode)
+2. Check regex pattern matches actual data format
+3. Ensure content has been indexed (can take 24 hours)
+4. Review confidence threshold - may be too high
+5. Check if keywords are required but missing from content
+6. Test pattern at regex101.com or similar</p>
+<h3 id="issue-too-many-false-positives">Issue: Too Many False Positives</h3>
+<p><strong>Symptoms:</strong> Non-sensitive data triggering SIT alerts</p>
+<p><strong>Solutions:</strong>
+1. Add exclusion patterns (e.g., test data prefixes)
+2. Increase confidence level requirement
+3. Add required keywords for context
+4. Implement secondary elements for corroboration
+5. Use exact data match instead of regex for known values</p>
+<h3 id="issue-custom-sit-creation-fails">Issue: Custom SIT Creation Fails</h3>
+<p><strong>Symptoms:</strong> Error when uploading rule package XML</p>
+<p><strong>Solutions:</strong>
+1. Validate XML syntax
+2. Ensure all GUIDs are unique and valid format
+3. Check regex syntax in XML (escape special characters)
+4. Verify required XML namespace declarations
+5. Review error message for specific element issues</p>
+<h3 id="issue-edm-classifier-not-matching">Issue: EDM Classifier Not Matching</h3>
+<p><strong>Symptoms:</strong> EDM data uploaded but no matches occurring</p>
+<p><strong>Solutions:</strong>
+1. Verify hash upload completed successfully
+2. Check schema column names match data file headers
+3. Confirm searchable columns are marked correctly
+4. Allow 24-48 hours for initial indexing
+5. Verify data format matches expected pattern exactly</p>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/sensitive-information-type-learn-about">Sensitive Information Types Overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/create-a-custom-sensitive-information-type">Create Custom SITs</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/create-a-keyword-dictionary">Keyword Dictionaries</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/create-custom-sensitive-information-types-with-exact-data-match-based-classification">Exact Data Match</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/sensitive-information-type-entity-definitions">SIT Entity Definitions</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/create-a-custom-sensitive-information-type#test-a-sensitive-information-type">Test SITs</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/">Control 1.5</a></td>
+<td>SITs are used in DLP policy conditions</td>
+</tr>
+<tr>
+<td><a href="../1.6-microsoft-purview-dspm-for-ai/">Control 1.6</a></td>
+<td>SITs enable AI data exposure monitoring</td>
+</tr>
+<tr>
+<td><a href="../1.7-comprehensive-audit-logging-and-compliance/">Control 1.7</a></td>
+<td>SIT detection events are logged</td>
+</tr>
+<tr>
+<td><a href="../1.10-communication-compliance-monitoring/">Control 1.10</a></td>
+<td>SITs used in communication compliance policies</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- <strong>Information Protection Team:</strong> SIT creation and tuning
+- <strong>Compliance Officer:</strong> Regulatory requirements for data classification
+- <strong>Legal:</strong> Review of custom SIT definitions for MNPI/confidential
+- <strong>IT Security:</strong> Integration with DLP and monitoring</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

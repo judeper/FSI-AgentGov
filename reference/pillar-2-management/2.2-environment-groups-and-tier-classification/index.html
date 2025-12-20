@@ -1,0 +1,4501 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-2-management/2.2-environment-groups-and-tier-classification/">
+      
+      
+        <link rel="prev" href="../2.1-managed-environments/">
+      
+      
+        <link rel="next" href="../2.3-change-management-and-release-planning/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>2.2 Environment Groups And Tier Classification - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-22-environment-groups-and-tier-classification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2.2 Environment Groups And Tier Classification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-rules-29-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Rules (29 Total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sharing-collaboration-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharing &amp; Collaboration Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-publishing-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channel &amp; Publishing Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-security-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication &amp; Security Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-generative-features-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI &amp; Generative Features Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maker-experience-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maker Experience Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-deployment-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution &amp; Deployment Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-integration-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data &amp; Integration Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operations-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operations Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1 - Baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-3-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2-3 - Recommended
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-regulatedhigh-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4 - Regulated/High-Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-tier-to-group-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Tier-to-Group Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-environment-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create Environment Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-add-environments-to-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Add Environments to Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-configure-key-rules-by-governance-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Configure Key Rules by Governance Tier
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Configure Key Rules by Governance Tier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tier-1-personal-productivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 1 - Personal Productivity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-2-team-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 2 - Team Collaboration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-3-enterprise-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 3 - Enterprise Managed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-publish-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Publish Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connect-to-power-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect to Power Platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-environment-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get Environment Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-environment-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Environment Group
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-environments-to-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add Environments to Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-group-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get Group Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-environment-group-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export Environment Group Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-tier-environment-group-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Tier Environment Group Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-example-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Example Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evidence-pack-audit-artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence Pack (Audit Artifacts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-validation-evidence-friendly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Validation (Evidence-Friendly)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-with-managed-environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with Managed Environments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-22-environment-groups-and-tier-classification">Control 2.2: Environment Groups and Tier Classification</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 2.2
+<strong>Control Name:</strong> Environment Groups and Tier Classification
+<strong>Regulatory Reference:</strong> FINRA 4511, GLBA 501(b), SOX 302/404
+<strong>Setup Time:</strong> 30-60 min initial setup, ongoing rule configuration</p>
+<p><strong>Scope:</strong> United States (US-only)</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Environment Groups and Tier Classification provides a scalable governance mechanism that enables financial institutions to apply consistent policies across multiple Power Platform environments based on risk classification. This control is essential for FSI organizations because it supports consistent enforcement of regulatory-aligned requirements, reduces configuration drift between environments, and supports auditability by maintaining clear separation between development, testing, and production workloads. By aligning environment groups with a consistent governance model, organizations can implement tiered controls that match the sensitivity of data and criticality of business processes.</p>
+<hr />
+<h3 id="description">Description</h3>
+<p>Environment Groups enable consistent governance policy application across multiple Power Platform environments. By grouping environments and applying rules, administrators can enforce sharing limits, channel restrictions, authentication requirements, and AI model governance at scale.</p>
+<p>This control is designed to work with:
+- <strong>Control 2.1 (Managed Environments):</strong> ensures each environment can participate in standardized governance and telemetry.
+- <strong>Control 2.15 (Environment Routing):</strong> ensures makers are placed into the correct target environments that already inherit the correct environment group rules.</p>
+<p>See <a href="https://learn.microsoft.com/en-us/power-platform/admin/environment-groups">Environment groups</a> for detailed capabilities.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Group-based rules</strong></td>
+<td>Apply 29 governance rules across grouped environments</td>
+<td>Consistent policy enforcement</td>
+</tr>
+<tr>
+<td><strong>Governance alignment</strong></td>
+<td>Map environment groups to governance tiers (personal/team/enterprise)</td>
+<td>Risk-based governance</td>
+</tr>
+<tr>
+<td><strong>Centralized management</strong></td>
+<td>Single location for multi-environment governance</td>
+<td>Reduced administrative overhead</td>
+</tr>
+<tr>
+<td><strong>Rule inheritance</strong></td>
+<td>New environments inherit group rules automatically</td>
+<td>Prevents governance gaps</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="available-rules-29-total">Available Rules (29 Total)</h3>
+<p>Configure rules in PPAC under <strong>Manage → Environment groups → [Group] → Rules</strong>.</p>
+<h3 id="sharing-collaboration-rules">Sharing &amp; Collaboration Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sharing agents with Editor permissions</strong></td>
+<td>Control co-authoring of agents</td>
+<td>Personal productivity: Disabled; team/enterprise: Enabled</td>
+</tr>
+<tr>
+<td><strong>Sharing agents with Viewer permissions</strong></td>
+<td>Control agent distribution</td>
+<td>Personal productivity: Disabled; team/enterprise: Enabled</td>
+</tr>
+<tr>
+<td><strong>Sharing controls for canvas apps</strong></td>
+<td>Limit app sharing broadly</td>
+<td>Configure per governance tier</td>
+</tr>
+<tr>
+<td><strong>Sharing controls for solution-aware cloud flows</strong></td>
+<td>Limit flow sharing</td>
+<td>Configure per governance tier</td>
+</tr>
+</tbody>
+</table>
+<h3 id="channel-publishing-rules">Channel &amp; Publishing Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Channel access for published agents</strong> (preview)</td>
+<td>Control which channels agents can use</td>
+<td>Personal productivity: M365 only; team/enterprise: configure per policy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="authentication-security-rules">Authentication &amp; Security Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authentication for agents</strong> (preview)</td>
+<td>Require authentication for agents</td>
+<td>Team/enterprise: Required</td>
+</tr>
+<tr>
+<td><strong>Enable IP Cookie Binding</strong></td>
+<td>Prevent session hijacking</td>
+<td>Enterprise: Enable</td>
+</tr>
+<tr>
+<td><strong>IP Firewall setting</strong></td>
+<td>Restrict access by IP</td>
+<td>Enterprise: Configure</td>
+</tr>
+<tr>
+<td><strong>Content security policy</strong></td>
+<td>Manage content security for Power Apps</td>
+<td>Team/enterprise: Configure</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-generative-features-rules">AI &amp; Generative Features Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI prompts</strong></td>
+<td>Enable AI prompts feature</td>
+<td>Per organization policy</td>
+</tr>
+<tr>
+<td><strong>AI-generated descriptions</strong> (preview)</td>
+<td>Auto-generate app descriptions</td>
+<td>Per organization policy</td>
+</tr>
+<tr>
+<td><strong>AI-powered Copilot features</strong> (preview)</td>
+<td>Enable Copilot assistance for makers</td>
+<td>Per organization policy</td>
+</tr>
+<tr>
+<td><strong>Enable External Models</strong> (preview)</td>
+<td>Allow external AI models</td>
+<td>Enterprise only with explicit approval</td>
+</tr>
+<tr>
+<td><strong>Preview and experimental AI models</strong></td>
+<td>Allow pre-release AI</td>
+<td>Personal/team only</td>
+</tr>
+<tr>
+<td><strong>Generative AI setting</strong></td>
+<td>Master toggle for generative AI</td>
+<td>Per organization policy</td>
+</tr>
+<tr>
+<td><strong>Copilot GSA Settings</strong></td>
+<td>Copilot Government Settings</td>
+<td>Government tenants only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="maker-experience-rules">Maker Experience Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Maker welcome content</strong></td>
+<td>Onboarding guidance for makers</td>
+<td>All tiers: Configure</td>
+</tr>
+<tr>
+<td><strong>Control maker credential options</strong> (preview)</td>
+<td>Control credential storage</td>
+<td>Team/enterprise: Restrict</td>
+</tr>
+</tbody>
+</table>
+<h3 id="solution-deployment-rules">Solution &amp; Deployment Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Solution checker enforcement</strong></td>
+<td>Validate solutions on import</td>
+<td>Team: Warn; enterprise: Block</td>
+</tr>
+<tr>
+<td><strong>Default deployment pipeline</strong></td>
+<td>Link to deployment pipeline</td>
+<td>Team/enterprise: Configure</td>
+</tr>
+<tr>
+<td><strong>Unmanaged customizations</strong></td>
+<td>Block unmanaged changes</td>
+<td>Enterprise: Block</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-integration-rules">Data &amp; Integration Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Advanced connector policies</strong> (preview)</td>
+<td>Granular connector control</td>
+<td>Team/enterprise: Configure</td>
+</tr>
+<tr>
+<td><strong>Computer Use</strong> (preview)</td>
+<td>Allow computer use feature</td>
+<td>Evaluate carefully</td>
+</tr>
+<tr>
+<td><strong>Sharing Copilot Studio agent data with Viva Insights</strong></td>
+<td>Share agent analytics</td>
+<td>Per organization policy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="operations-rules">Operations Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Description</th>
+<th>Governance Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backup retention</strong></td>
+<td>Configure backup period</td>
+<td>Enterprise: Extended retention</td>
+</tr>
+<tr>
+<td><strong>Accessing transcripts from conversations</strong></td>
+<td>Control transcript access</td>
+<td>Team/enterprise: Configure</td>
+</tr>
+<tr>
+<td><strong>Usage insights</strong></td>
+<td>Enable usage analytics</td>
+<td>All tiers: Enable</td>
+</tr>
+<tr>
+<td><strong>Release channel</strong></td>
+<td>Control update cadence</td>
+<td>Per organization policy</td>
+</tr>
+<tr>
+<td><strong>Power Apps component framework for canvas apps</strong></td>
+<td>Enable PCF components</td>
+<td>Per organization policy</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Power Platform Admin
+<strong>Supporting Roles:</strong> Environment Admin</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Apps Premium</td>
+<td>Managed Environments capability</td>
+<td>Environment group participation</td>
+</tr>
+<tr>
+<td>Copilot Studio</td>
+<td>Agent governance rules</td>
+<td>Agent sharing and channel rules</td>
+</tr>
+<tr>
+<td>Power Automate Premium</td>
+<td>Solution-aware flows</td>
+<td>Flow sharing controls</td>
+</tr>
+<tr>
+<td>Microsoft 365 E5</td>
+<td>Advanced compliance features</td>
+<td>Audit and compliance integration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Scope</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Platform Admin</td>
+<td>Tenant</td>
+<td>Create and manage environment groups</td>
+</tr>
+<tr>
+<td>Environment Admin</td>
+<td>Environment</td>
+<td>Add environments to groups</td>
+</tr>
+<tr>
+<td>Global Administrator</td>
+<td>Tenant</td>
+<td>Initial service principal setup</td>
+</tr>
+<tr>
+<td>Dynamics 365 Admin</td>
+<td>Environment</td>
+<td>Dataverse-specific configurations</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Description</th>
+<th>Control Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Managed Environments</td>
+<td>Environments must be managed</td>
+<td><a href="../2.1-managed-environments/">Control 2.1</a></td>
+</tr>
+<tr>
+<td>Power Platform Admin Center</td>
+<td>PPAC access required</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Azure AD/Entra ID</td>
+<td>Identity integration</td>
+<td>Tenant configuration</td>
+</tr>
+<tr>
+<td>DLP Policies</td>
+<td>Complement group rules</td>
+<td><a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/">Control 1.5</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Confirm Power Platform Admin role assignment</li>
+<li>[ ] Document governance tier definitions and approval authority (Tier 1/2/3)</li>
+<li>[ ] Inventory existing environments and their classifications</li>
+<li>[ ] Confirm all target environments are <strong>Managed Environments</strong> (Control 2.1) before group assignment</li>
+<li>[ ] Confirm routing policy targets and exceptions (Control 2.15) align to the tier model (no “default to prod” behavior)</li>
+<li>[ ] Review current DLP policies for compatibility</li>
+<li>[ ] Obtain approval for rule configurations from compliance team</li>
+<li>[ ] Prepare maker communication plan for policy changes</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<blockquote>
+<p><strong>Important:</strong> This document uses two different concepts:
+- <strong>Governance tiers (Tier 1/2/3)</strong> are the risk-based classification used for environment groups and enforcement.
+- <strong>Governance levels (Level 1-4)</strong> describe implementation maturity (baseline → regulated/high-risk).</p>
+<p>For audit evidence, capture and retain both the <strong>tier assignment</strong> (which group) and the <strong>level of implementation</strong> (which rules and operational controls are enabled).</p>
+</blockquote>
+<h3 id="level-1-baseline">Level 1 - Baseline</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Environment groups created</td>
+<td>One group per governance tier minimum</td>
+</tr>
+<tr>
+<td>Lifecycle classification</td>
+<td>Development, Test, Production</td>
+</tr>
+<tr>
+<td>Basic rules</td>
+<td>Sharing rules configured</td>
+</tr>
+</tbody>
+</table>
+<h3 id="level-2-3-recommended">Level 2-3 - Recommended</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier-aligned groups</td>
+<td>Separate groups for personal, team, and enterprise tiers</td>
+</tr>
+<tr>
+<td>Comprehensive rules</td>
+<td>Sharing, channels, authentication configured</td>
+</tr>
+<tr>
+<td>Maker onboarding</td>
+<td>Welcome content with policy guidance</td>
+</tr>
+<tr>
+<td>Solution governance</td>
+<td>Solution checker at Warn level</td>
+</tr>
+</tbody>
+</table>
+<h3 id="level-4-regulatedhigh-risk">Level 4 - Regulated/High-Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Strict tier separation</td>
+<td>Dedicated groups per tier with no overlap</td>
+</tr>
+<tr>
+<td>All security rules</td>
+<td>Authentication, IP binding, firewall configured</td>
+</tr>
+<tr>
+<td>AI governance</td>
+<td>External models restricted, experimental disabled</td>
+</tr>
+<tr>
+<td>Full audit trail</td>
+<td>Transcripts, usage insights enabled</td>
+</tr>
+<tr>
+<td>Deployment controls</td>
+<td>Solution checker at Block, pipelines required</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="governance-tier-to-group-mapping">Governance Tier-to-Group Mapping</h3>
+<p><strong>Recommended structure for US FSI organizations (US-only):</strong></p>
+<p><strong>Tier definitions (evidence-grade):</strong>
+- <strong>Tier 1 (Personal Productivity):</strong> Individual experimentation and learning; non-sensitive data only; lowest blast radius.
+- <strong>Tier 2 (Team Collaboration):</strong> Shared team workloads and shared data sources; internal/confidential data; moderate blast radius.
+- <strong>Tier 3 (Enterprise Managed):</strong> Production and enterprise-managed workloads; may include regulated data; highest audit expectations.</p>
+<p>| Environment Group | Governance Tier | Tier | Environments | Key Rules |
+|-------------------|----------------|--------------|-----------|
+| <strong>Personal Development</strong> | Personal Productivity | Tier 1 | Developer environments | Sharing disabled, M365 channels only |
+| <strong>Team Collaboration</strong> | Team Collaboration | Tier 2 | Team/departmental environments | Sharing enabled, internal channels |
+| <strong>Enterprise Production</strong> | Enterprise Managed | Tier 3 | Production environments | Strict controls, all rules enforced |
+| <strong>Enterprise Non-Prod</strong> | Enterprise Managed | Tier 3 | UAT, staging | Same as production (pre-deployment testing) |</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<p><a id="configuration-steps"></a></p>
+<h3 id="step-1-create-environment-groups">Step 1: Create Environment Groups</h3>
+<ol>
+<li>Open <a href="https://admin.powerplatform.microsoft.com">Power Platform Admin Center</a></li>
+<li>Navigate to <strong>Manage → Environment groups</strong></li>
+<li>Click <strong>+ New group</strong></li>
+<li>Enter group name (e.g., "Team Collaboration")</li>
+<li>Add description with tier classification (Tier 1/2/3), business scope, and change authority</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p><strong>Evidence to capture (minimum):</strong>
+- Screenshot: group properties page showing name/description and timestamp (or browser print-to-PDF)
+- Export: environment group inventory (see <strong>Export Environment Group Configuration</strong>)</p>
+<h3 id="step-2-add-environments-to-groups">Step 2: Add Environments to Groups</h3>
+<ol>
+<li>Select the environment group</li>
+<li>Click <strong>Environments</strong> tab</li>
+<li>Click <strong>Add environments</strong></li>
+<li>Select environments to include</li>
+<li>Click <strong>Add</strong></li>
+</ol>
+<p><strong>Evidence to capture (minimum):</strong>
+- Screenshot: environments tab showing group membership list and counts
+- Export: environment-to-group mapping CSV (see <strong>Export Environment Group Configuration</strong>)</p>
+<p><strong>Dependency check:</strong> If an environment cannot be added, validate <strong>Managed Environments</strong> configuration first (Control 2.1).</p>
+<h3 id="step-3-configure-rules">Step 3: Configure Rules</h3>
+<ol>
+<li>Select the environment group</li>
+<li>Click <strong>Rules</strong> tab (shows 29 available rules)</li>
+<li>Click on a rule name to configure</li>
+<li>Set the appropriate value/toggle</li>
+<li>Click <strong>Save</strong> (or <strong>Publish rules</strong> for batch changes)</li>
+</ol>
+<p><strong>Evidence to capture (minimum):</strong>
+- Screenshot/PDF: Rules tab showing configured values for each tier group
+- Change record: ticket/approval referencing Tier 1/2/3 intent, approver, and effective date</p>
+<h3 id="step-4-configure-key-rules-by-governance-tier">Step 4: Configure Key Rules by Governance Tier</h3>
+<h4 id="tier-1-personal-productivity">Tier 1 - Personal Productivity</h4>
+<p><strong>Allowed data:</strong> non-sensitive only (no regulated customer data). Use synthetic/sample data when possible.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sharing agents with Editor permissions</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td>Sharing agents with Viewer permissions</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td>Channel access for published agents</td>
+<td>Teams + M365 Copilot only</td>
+</tr>
+<tr>
+<td>Enable External Models</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td>Preview and experimental AI models</td>
+<td>Enabled (for learning)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="tier-2-team-collaboration">Tier 2 - Team Collaboration</h4>
+<p><strong>Expected ownership:</strong> named group owner and an approval trail for rule changes.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sharing agents with Editor permissions</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td>Sharing agents with Viewer permissions</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td>Channel access for published agents</td>
+<td>Teams, SharePoint enabled</td>
+</tr>
+<tr>
+<td>Authentication for agents</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>Solution checker enforcement</td>
+<td>Warn</td>
+</tr>
+<tr>
+<td>Maker welcome content</td>
+<td>Team policy</td>
+</tr>
+</tbody>
+</table>
+<h4 id="tier-3-enterprise-managed">Tier 3 - Enterprise Managed</h4>
+<p><strong>Change control:</strong> treat rule changes as controlled changes (ticket + peer review + recorded testing results).</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sharing agents with Editor permissions</td>
+<td>Disabled (use ALM)</td>
+</tr>
+<tr>
+<td>Sharing agents with Viewer permissions</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td>Channel access for published agents</td>
+<td>All (with approval)</td>
+</tr>
+<tr>
+<td>Authentication for agents</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>Enable External Models</td>
+<td>Disabled (unless approved)</td>
+</tr>
+<tr>
+<td>Solution checker enforcement</td>
+<td>Block</td>
+</tr>
+<tr>
+<td>Unmanaged customizations</td>
+<td>Block</td>
+</tr>
+<tr>
+<td>Default deployment pipeline</td>
+<td>Configured</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-5-publish-rules">Step 5: Publish Rules</h3>
+<ol>
+<li>After configuring all rules, click <strong>Publish rules</strong></li>
+<li>Rules apply to all environments in the group</li>
+<li>Verify by checking individual environment settings</li>
+</ol>
+<p><strong>Tie to Control 2.15 (Environment Routing):</strong>
+- Ensure routing policies send makers to environments that are already members of the correct Tier 1/2/3 group.
+- If routing creates or provisions environments, include a post-provisioning step that assigns the new environment to the correct environment group before maker access is granted.</p>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="connect-to-power-platform">Connect to Power Platform</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Install the Power Platform Admin module if not present</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">PowerApps</span><span class="p">.</span><span class="n">Administration</span><span class="p">.</span><span class="n">PowerShell</span> <span class="n">-Force</span> <span class="n">-AllowClobber</span>
+
+<span class="c"># Import the module</span>
+<span class="nb">Import-Module</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">PowerApps</span><span class="p">.</span><span class="n">Administration</span><span class="p">.</span><span class="n">PowerShell</span>
+
+<span class="c"># Connect to Power Platform (interactive authentication)</span>
+<span class="nb">Add-PowerAppsAccount</span>
+
+<span class="c"># For service principal authentication (recommended for automation)</span>
+<span class="nv">$appId</span> <span class="p">=</span> <span class="s2">&quot;&lt;Application-Client-ID&gt;&quot;</span>
+<span class="nv">$secret</span> <span class="p">=</span> <span class="s2">&quot;&lt;Client-Secret&gt;&quot;</span>
+<span class="nv">$tenantId</span> <span class="p">=</span> <span class="s2">&quot;&lt;Tenant-ID&gt;&quot;</span>
+<span class="nb">Add-PowerAppsAccount</span> <span class="n">-ApplicationId</span> <span class="nv">$appId</span> <span class="n">-ClientSecret</span> <span class="nv">$secret</span> <span class="n">-TenantID</span> <span class="nv">$tenantId</span>
+</code></pre></div>
+<h3 id="get-environment-groups">Get Environment Groups</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># List all environment groups in the tenant</span>
+<span class="nb">Get-AdminPowerAppEnvironmentGroup</span>
+
+<span class="c"># Get a specific environment group by ID</span>
+<span class="nv">$groupId</span> <span class="p">=</span> <span class="s2">&quot;&lt;EnvironmentGroup-ID&gt;&quot;</span>
+<span class="nb">Get-AdminPowerAppEnvironmentGroup</span> <span class="n">-EnvironmentGroupId</span> <span class="nv">$groupId</span>
+
+<span class="c"># List environments in a specific group</span>
+<span class="nb">Get-AdminPowerAppEnvironment</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">EnvironmentGroupId</span> <span class="o">-eq</span> <span class="nv">$groupId</span> <span class="p">}</span>
+</code></pre></div>
+<h3 id="create-environment-group">Create Environment Group</h3>
+<blockquote>
+<p><strong>Note:</strong> Environment group creation is primarily performed through the Power Platform Admin Center portal. PowerShell support for group creation may be limited or require preview modules.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c"># Check for available cmdlets (verify module version supports this)</span>
+<span class="nb">Get-Command</span> <span class="n">-Module</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">PowerApps</span><span class="p">.</span><span class="n">Administration</span><span class="p">.</span><span class="n">PowerShell</span> <span class="n">-Name</span> <span class="s2">&quot;*EnvironmentGroup*&quot;</span>
+
+<span class="c"># Portal navigation for group creation:</span>
+<span class="c"># Power Platform Admin Center → Manage → Environment groups → + New group</span>
+</code></pre></div>
+<h3 id="add-environments-to-groups">Add Environments to Groups</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Add an environment to an environment group</span>
+<span class="nv">$environmentId</span> <span class="p">=</span> <span class="s2">&quot;&lt;Environment-ID&gt;&quot;</span>
+<span class="nv">$groupId</span> <span class="p">=</span> <span class="s2">&quot;&lt;EnvironmentGroup-ID&gt;&quot;</span>
+
+<span class="c"># Using Set-AdminPowerAppEnvironment to update group membership</span>
+<span class="nb">Set-AdminPowerAppEnvironment</span> <span class="n">-EnvironmentName</span> <span class="nv">$environmentId</span> <span class="n">-EnvironmentGroupId</span> <span class="nv">$groupId</span>
+
+<span class="c"># Verify the assignment</span>
+<span class="nv">$env</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironment</span> <span class="n">-EnvironmentName</span> <span class="nv">$environmentId</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Environment Group: </span><span class="p">$(</span><span class="nv">$env</span><span class="p">.</span><span class="n">EnvironmentGroupId</span><span class="p">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="get-group-rules">Get Group Rules</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Get environment group rules (requires appropriate API access)</span>
+<span class="c"># Note: Rule management is primarily done via PPAC portal</span>
+<span class="c"># Use the following to query environment settings that reflect group rules</span>
+
+<span class="nv">$environments</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironment</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">EnvironmentGroupId</span> <span class="o">-eq</span> <span class="nv">$groupId</span> <span class="p">}</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$env</span> <span class="k">in</span> <span class="nv">$environments</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Environment: </span><span class="p">$(</span><span class="nv">$env</span><span class="p">.</span><span class="n">DisplayName</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Managed: </span><span class="p">$(</span><span class="nv">$env</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="n">governanceConfiguration</span><span class="p">.</span><span class="n">protectionLevel</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Group ID: </span><span class="p">$(</span><span class="nv">$env</span><span class="p">.</span><span class="n">EnvironmentGroupId</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="export-environment-group-configuration">Export Environment Group Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Export environment group configuration for documentation</span>
+<span class="nv">$exportPath</span> <span class="p">=</span> <span class="s2">&quot;C:\Exports\EnvironmentGroups&quot;</span>
+<span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$exportPath</span> <span class="n">-Force</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+
+<span class="c"># Get all environment groups</span>
+<span class="nv">$groups</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironmentGroup</span>
+
+<span class="c"># Export group details</span>
+<span class="nv">$groupExport</span> <span class="p">=</span> <span class="nv">$groups</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s1">&#39;GroupId&#39;</span><span class="p">;</span> <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">EnvironmentGroupId</span> <span class="p">}</span>
+<span class="p">},</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s1">&#39;DisplayName&#39;</span><span class="p">;</span> <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">DisplayName</span> <span class="p">}</span>
+<span class="p">},</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s1">&#39;Description&#39;</span><span class="p">;</span> <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Description</span> <span class="p">}</span>
+<span class="p">},</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s1">&#39;CreatedTime&#39;</span><span class="p">;</span> <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreatedTime</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$groupExport</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$exportPath\EnvironmentGroups_</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Export environment-to-group mapping</span>
+<span class="nv">$environments</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironment</span>
+<span class="nv">$envMapping</span> <span class="p">=</span> <span class="nv">$environments</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">DisplayName</span><span class="p">,</span> <span class="n">EnvironmentName</span><span class="p">,</span> <span class="n">EnvironmentGroupId</span><span class="p">,</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s1">&#39;IsManaged&#39;</span><span class="p">;</span> <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="n">governanceConfiguration</span><span class="p">.</span><span class="n">protectionLevel</span> <span class="o">-eq</span> <span class="s1">&#39;Standard&#39;</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$envMapping</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$exportPath\EnvironmentGroupMapping_</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Exported </span><span class="p">$((</span><span class="nv">$groups</span> <span class="p">|</span> <span class="nb">Measure-Object</span><span class="p">).</span><span class="n">Count</span><span class="p">)</span><span class="s2"> groups and </span><span class="p">$((</span><span class="nv">$environments</span> <span class="p">|</span> <span class="nb">Measure-Object</span><span class="p">).</span><span class="n">Count</span><span class="p">)</span><span class="s2"> environments&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-context">Regulatory Context</h3>
+<p><strong>Primary Regulations:</strong> FINRA 4511, GLBA 501(b), SOX 302/404</p>
+<p><strong>US-only implementation notes:</strong>
+- Maintain evidence artifacts in accordance with US recordkeeping expectations (e.g., FINRA retention policies).
+- Ensure environment placement and routing align with your organization’s US data residency and supervisory requirements.</p>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Environment Group Support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FINRA 4511</td>
+<td>Consistent recordkeeping controls across environments</td>
+</tr>
+<tr>
+<td>GLBA 501(b)</td>
+<td>Uniform data protection via sharing/channel rules</td>
+</tr>
+<tr>
+<td>SOX 302/404</td>
+<td>Segregation of duties via tier classification</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="regulatory-mapping">Regulatory Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Section</th>
+<th>Requirement</th>
+<th>Environment Group Control</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FINRA 4511</td>
+<td>(a)(1)</td>
+<td>Books and records retention</td>
+<td>Enable transcript access rules, usage insights for audit trail</td>
+</tr>
+<tr>
+<td>FINRA 4511</td>
+<td>(b)</td>
+<td>Supervision of communications</td>
+<td>Channel access restrictions, sharing controls</td>
+</tr>
+<tr>
+<td>GLBA</td>
+<td>501(b)</td>
+<td>Safeguards for customer information</td>
+<td>Authentication requirements, IP binding, sharing restrictions</td>
+</tr>
+<tr>
+<td>SOX</td>
+<td>302</td>
+<td>Management certification</td>
+<td>Tier classification enforces segregation of duties</td>
+</tr>
+<tr>
+<td>SOX</td>
+<td>404</td>
+<td>Internal control assessment</td>
+<td>Solution checker enforcement, unmanaged customization blocking</td>
+</tr>
+<tr>
+<td>OCC</td>
+<td>2011-12</td>
+<td>Model risk management</td>
+<td>External AI model restrictions, experimental feature controls</td>
+</tr>
+</tbody>
+</table>
+<h3 id="governance-tier-environment-group-configuration">Governance Tier Environment Group Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Governance Tier</th>
+<th>Environment Group Name</th>
+<th>Tier</th>
+<th>Data Classification</th>
+<th>Key Restrictions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Personal Productivity</td>
+<td>FSI-Personal-Dev</td>
+<td>Development</td>
+<td>Non-sensitive only</td>
+<td>No external sharing, M365 channels only, external models disabled</td>
+</tr>
+<tr>
+<td>Personal Productivity</td>
+<td>FSI-Sandbox</td>
+<td>Development</td>
+<td>Synthetic data only</td>
+<td>Experimental AI enabled, no production connectors</td>
+</tr>
+<tr>
+<td>Team Collaboration</td>
+<td>FSI-Team-Collab</td>
+<td>Test/UAT</td>
+<td>Internal/Confidential</td>
+<td>Team sharing allowed, internal channels, solution checker warn</td>
+</tr>
+<tr>
+<td>Team Collaboration</td>
+<td>FSI-Departmental</td>
+<td>Departmental</td>
+<td>Business confidential</td>
+<td>Controlled sharing, authentication required</td>
+</tr>
+<tr>
+<td>Enterprise Managed</td>
+<td>FSI-Production</td>
+<td>Production</td>
+<td>All classifications</td>
+<td>Strict controls, ALM only, no unmanaged changes</td>
+</tr>
+<tr>
+<td>Enterprise Managed</td>
+<td>FSI-Regulatory</td>
+<td>Production</td>
+<td>Regulatory/PII</td>
+<td>Maximum restrictions, full audit, IP firewall enabled</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-example-configuration">FSI Example Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># FSI Environment Group Configuration Example</span>
+<span class="c1"># Organization: Contoso Financial Services</span>
+
+<span class="nt">environment_groups</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;FSI-Enterprise-Production&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Enterprise</span><span class="nv"> </span><span class="s">production</span><span class="nv"> </span><span class="s">environments</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">maximum</span><span class="nv"> </span><span class="s">governance&quot;</span>
+<span class="w">    </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Production&quot;</span>
+<span class="w">    </span><span class="nt">governance_tier</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Enterprise</span><span class="nv"> </span><span class="s">Managed&quot;</span>
+
+<span class="w">    </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Sharing Rules</span>
+<span class="w">      </span><span class="nt">sharing_agents_editor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disabled</span>
+<span class="w">      </span><span class="nt">sharing_agents_viewer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">sharing_canvas_apps</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;organization_only&quot;</span>
+<span class="w">      </span><span class="nt">sharing_solution_flows</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;organization_only&quot;</span>
+
+<span class="w">      </span><span class="c1"># Channel Rules</span>
+<span class="w">      </span><span class="nt">channel_access_agents</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;teams,m365copilot,sharepoint&quot;</span>
+
+<span class="w">      </span><span class="c1"># Security Rules</span>
+<span class="w">      </span><span class="nt">authentication_agents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span>
+<span class="w">      </span><span class="nt">ip_cookie_binding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">ip_firewall</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">content_security_policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">strict</span>
+
+<span class="w">      </span><span class="c1"># AI Governance</span>
+<span class="w">      </span><span class="nt">ai_prompts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">external_models</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disabled</span>
+<span class="w">      </span><span class="nt">preview_experimental_ai</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disabled</span>
+<span class="w">      </span><span class="nt">generative_ai</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+
+<span class="w">      </span><span class="c1"># Solution Governance</span>
+<span class="w">      </span><span class="nt">solution_checker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block_on_error</span>
+<span class="w">      </span><span class="nt">unmanaged_customizations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blocked</span>
+<span class="w">      </span><span class="nt">default_pipeline</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;FSI-Production-Pipeline&quot;</span>
+
+<span class="w">      </span><span class="c1"># Audit &amp; Compliance</span>
+<span class="w">      </span><span class="nt">transcript_access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">usage_insights</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">backup_retention</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;28_days&quot;</span>
+
+<span class="w">    </span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;prod-trading-001&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;prod-wealth-management&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;prod-customer-service&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;prod-compliance-reporting&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;FSI-Team-Collaboration&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Team</span><span class="nv"> </span><span class="s">collaboration</span><span class="nv"> </span><span class="s">environments</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">balanced</span><span class="nv"> </span><span class="s">governance&quot;</span>
+<span class="w">    </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Test&quot;</span>
+<span class="w">    </span><span class="nt">governance_tier</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Team</span><span class="nv"> </span><span class="s">Collaboration&quot;</span>
+
+<span class="w">    </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">sharing_agents_editor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">sharing_agents_viewer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enabled</span>
+<span class="w">      </span><span class="nt">authentication_agents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span>
+<span class="w">      </span><span class="nt">solution_checker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warn_on_error</span>
+<span class="w">      </span><span class="nt">external_models</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disabled</span>
+<span class="w">      </span><span class="nt">preview_experimental_ai</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disabled</span>
+</code></pre></div>
+<hr />
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong>
+- Apply a baseline minimum of environment groups and tier classification that impacts tenant-wide safety (where applicable), and document any exceptions for personal agents.
+- Avoid expanding scope beyond the user’s own data unless explicitly justified.
+- Rationale: reduces risk from personal use while keeping friction low; legal/compliance can tighten later.</p>
+<p><strong>Zone 2 (Team Collaboration):</strong>
+- Apply zone-aligned rules consistently across environments for shared agents and shared data sources; require an identified owner and an approval trail.
+- Validate configuration in a pilot environment before broader rollout; retain rule snapshots + group membership exports.
+- Rationale: shared agents increase blast radius; controls must be consistently applied and provable.</p>
+<p><strong>Zone 3 (Enterprise Managed):</strong>
+- Require the strictest configuration for environment groups and tier classification and enforce it via policy where possible (not manual-only).
+- Treat changes as controlled (change ticket + documented testing); retain rule snapshots + group membership exports.
+- Rationale: enterprise agents handle the most sensitive content and are the highest audit/regulatory risk.</p>
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="evidence-pack-audit-artifacts">Evidence Pack (Audit Artifacts)</h3>
+<p>Retain an evidence pack per review period (e.g., monthly/quarterly) that an auditor can replay without requiring interactive portal access.</p>
+<p><strong>Minimum evidence pack contents (recommended):</strong>
+- Environment group inventory export (CSV): group IDs, display names, descriptions, created time
+- Environment-to-group mapping export (CSV): environment name, display name, group ID, managed status
+- Rule configuration snapshots (PDF/screenshots) for each Tier 1/2/3 group, including “Published” status and publish timestamp
+- Control linkage notes: references showing the Managed Environments baseline (Control 2.1) and the routing policy intent and exception list (Control 2.15)
+- Change log: tickets/approvals for any rule changes during the period</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Navigate to Environment groups</td>
+<td>Groups listed with environment counts</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Check Rules tab</td>
+<td>Shows 29 rules with status</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify rule publication</td>
+<td>Status shows "Published" with date</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Test in one environment per tier</td>
+<td>Rules enforced (e.g., Tier 1 agent sharing blocked; Tier 3 unmanaged customizations blocked)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Add new environment to group</td>
+<td>Inherits group rules automatically</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Validate routing outcome (Control 2.15)</td>
+<td>A new maker is routed to a tier-appropriate environment that already inherits the correct group rules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="powershell-validation-evidence-friendly">PowerShell Validation (Evidence-Friendly)</h3>
+<p>Use these checks to validate and preserve evidence without relying on portal screenshots alone.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">$groupId</span> <span class="p">=</span> <span class="s2">&quot;&lt;EnvironmentGroup-ID&gt;&quot;</span>
+
+<span class="c"># List environments in the group and confirm managed state</span>
+<span class="nb">Get-AdminPowerAppEnvironment</span> <span class="p">|</span>
+  <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">EnvironmentGroupId</span> <span class="o">-eq</span> <span class="nv">$groupId</span> <span class="p">}</span> <span class="p">|</span>
+  <span class="nb">Select-Object</span> <span class="n">DisplayName</span><span class="p">,</span> <span class="n">EnvironmentName</span><span class="p">,</span> <span class="n">EnvironmentGroupId</span><span class="p">,</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;IsManaged&#39;</span><span class="p">;</span> <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="n">governanceConfiguration</span><span class="p">.</span><span class="n">protectionLevel</span> <span class="n">-in</span> <span class="p">@(</span><span class="s1">&#39;Standard&#39;</span><span class="p">,</span><span class="s1">&#39;Enhanced&#39;</span><span class="p">)</span> <span class="p">}}</span> <span class="p">|</span>
+  <span class="nb">Format-Table</span> <span class="n">-AutoSize</span>
+</code></pre></div>
+<hr />
+<h3 id="integration-with-managed-environments">Integration with Managed Environments</h3>
+<p>Environment Groups and Managed Environments provide layered governance:</p>
+<table>
+<thead>
+<tr>
+<th>Control Type</th>
+<th>Environment Groups</th>
+<th>Managed Environments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scope</td>
+<td>Multiple environments</td>
+<td>Single environment</td>
+</tr>
+<tr>
+<td>Sharing rules</td>
+<td>Agent-level controls</td>
+<td>Resource-level limits</td>
+</tr>
+<tr>
+<td>Channels</td>
+<td>Publishing restrictions</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Solution checker</td>
+<td>Via rule</td>
+<td>Direct configuration</td>
+</tr>
+<tr>
+<td>Usage insights</td>
+<td>Via rule</td>
+<td>Direct configuration</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Precedence:</strong> More restrictive setting wins when both are configured.</p>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Symptoms</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Rules not applying to environment</strong></td>
+<td>Environment settings don't match group rules</td>
+<td>Verify environment is added to the group; check that rules are published; confirm environment is managed</td>
+</tr>
+<tr>
+<td><strong>Cannot add environment to group</strong></td>
+<td>"Environment cannot be added" error</td>
+<td>Ensure environment is a Managed Environment first (Control 2.1); verify you have Environment Admin rights</td>
+</tr>
+<tr>
+<td><strong>Rule conflicts between group and environment</strong></td>
+<td>Inconsistent behavior</td>
+<td>More restrictive setting wins; review both environment-level and group-level settings; document which takes precedence</td>
+</tr>
+<tr>
+<td><strong>Environment group not visible</strong></td>
+<td>Group doesn't appear in PPAC</td>
+<td>Confirm Power Platform Admin role; check if group was deleted; verify tenant-level feature is enabled</td>
+</tr>
+<tr>
+<td><strong>Published rules taking time to apply</strong></td>
+<td>Settings not immediately effective</td>
+<td>Allow up to 15 minutes for rule propagation; check Power Platform Admin Center for sync status</td>
+</tr>
+<tr>
+<td><strong>External model rule not blocking</strong></td>
+<td>External AI models still accessible</td>
+<td>Verify rule is published; check if user has exemption; confirm environment is in the correct group</td>
+</tr>
+<tr>
+<td><strong>Maker routed to wrong environment</strong></td>
+<td>New makers land in an environment with incorrect tier rules</td>
+<td>Review routing policy targets and exceptions (Control 2.15); verify target environment is in the correct Tier 1/2/3 group; re-run validation checks and retain updated exports</td>
+</tr>
+<tr>
+<td><strong>Tier intent unclear during audit</strong></td>
+<td>Group names/descriptions do not prove Tier 1/2/3 purpose</td>
+<td>Update group descriptions to include tier, allowed data scope, and change authority; regenerate exports and capture updated rule snapshots</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Environment groups overview</td>
+<td><a href="https://learn.microsoft.com/power-platform/admin/environment-groups">https://learn.microsoft.com/power-platform/admin/environment-groups</a></td>
+</tr>
+<tr>
+<td>Create and manage environment groups</td>
+<td><a href="https://learn.microsoft.com/power-platform/admin/environment-groups-manage">https://learn.microsoft.com/power-platform/admin/environment-groups-manage</a></td>
+</tr>
+<tr>
+<td>Environment group rules</td>
+<td><a href="https://learn.microsoft.com/power-platform/admin/environment-groups-rules">https://learn.microsoft.com/power-platform/admin/environment-groups-rules</a></td>
+</tr>
+<tr>
+<td>Managed Environments overview</td>
+<td><a href="https://learn.microsoft.com/power-platform/admin/managed-environment-overview">https://learn.microsoft.com/power-platform/admin/managed-environment-overview</a></td>
+</tr>
+<tr>
+<td>Power Platform for administrators</td>
+<td><a href="https://learn.microsoft.com/power-platform/admin/">https://learn.microsoft.com/power-platform/admin/</a></td>
+</tr>
+<tr>
+<td>PowerShell for Power Platform admins</td>
+<td><a href="https://learn.microsoft.com/power-platform/admin/powershell-getting-started">https://learn.microsoft.com/power-platform/admin/powershell-getting-started</a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<ul>
+<li><a href="../2.1-managed-environments/">Control 2.1: Managed Environments</a> - Environment-level governance</li>
+<li><a href="../2.15-environment-routing/">Control 2.15: Environment Routing</a> - Automatic maker placement</li>
+<li><a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/">Control 1.4: Advanced Connector Policies</a> - Connector governance</li>
+</ul>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- AI Governance Lead (governance direction)
+- Compliance Officer (regulatory requirements)
+- Power Platform Admin (technical setup)</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
