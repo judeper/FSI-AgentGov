@@ -396,12 +396,12 @@ See Control 3.4: Incident Reporting for details.
 
 ### Q: What platforms does this framework support?
 
-A: All Microsoft 365 agents:
-- Copilot Studio
-- Agent Builder
+A: Microsoft 365 agents and related in-suite Copilot experiences, including:
+- Copilot Studio agents
+- Agent Builder agents
 - SharePoint agents
 - Teams agents
-- M365 Copilot agents
+- Microsoft 365 Copilot
 
 ### Q: Do we need specific licenses?
 

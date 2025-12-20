@@ -91,6 +91,15 @@ Screenshots for verifying portal instructions are stored locally (not pushed to 
 
 See `docs/images/VERIFY.md` for the full verification process.
 
+## Maintainers: Public Release Checklist
+
+When preparing a public/beta update, confirm these repo-level settings and docs are consistent:
+
+- **GitHub Pages**: Enabled and publishing via **GitHub Actions** (or correctly configured `gh-pages`), and the site is publicly accessible at the configured `site_url`.
+- **Repo “About” metadata**: Add a short description, relevant topics, and set the **Website** field to the docs URL.
+- **Offline deliverables scope**: Ensure user-facing docs consistently state **web docs + Excel templates only** (no Word/PDF bundle).
+- **CI health**: `publish_docs.yml` and `link-check.yml` are green on `main`.
+
 ## Questions?
 
 Open a [Discussion](https://github.com/judeper/FSI-AgentGov/discussions) or contact the maintainers.

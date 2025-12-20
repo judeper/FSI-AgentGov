@@ -20,9 +20,9 @@ This framework provides complete guidance for deploying, governing, and managing
 
 This framework provides governance guidance for:
 
-- **Microsoft 365 Copilot Studio** agents and custom copilots
-- **Microsoft 365 Agent Builder** solutions
-- **Power Platform** environments hosting AI agents
+- **Copilot Studio** agents
+- **Agent Builder** agents
+- **Power Platform** environments hosting agents
 - **SharePoint** as a knowledge source for agents
 
 ### What This Framework Does NOT Cover

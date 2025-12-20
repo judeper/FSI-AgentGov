@@ -7,7 +7,13 @@ Key terms and definitions used in the FSI Agent Governance Framework.
 ## A
 
 **Agent**
-A Microsoft 365 AI service that performs tasks based on user prompts. Includes Copilot Studio agents, Agent Builder agents, and SharePoint agents. *Note: This framework governs only Microsoft 365 agents; other AI platforms are out of scope.*
+In this framework, an **agent** means a **Microsoft 365 agent**: an AI capability in Microsoft 365 that performs tasks based on user prompts and configured tools/data. Examples include Copilot Studio agents, Agent Builder agents, SharePoint agents, and Teams agents. *Note: This framework governs only Microsoft 365 agents; other AI platforms are out of scope.*
+
+**Agent Builder**
+A Microsoft 365 capability for creating agents within Microsoft 365 experiences. Use this term when referring to Agent Builder specifically; otherwise use **agent**.
+
+**AI agent**
+Generic term for an AI-powered agent. In this framework, treat **AI agent** as synonymous with **agent** unless explicitly stated.
 
 **ALM (Application Lifecycle Management)**
 Process for managing agent development from creation through testing to production deployment.
@@ -61,6 +67,12 @@ Microsoft Entra policy that enforces authentication requirements (like MFA) base
 
 **Connector**
 Integration between an agent and external systems (SharePoint, Teams, Excel, etc.).
+
+**Copilot**
+Generic label used across multiple Microsoft products (e.g., Microsoft 365 Copilot, Copilot Studio, Security Copilot). In this framework, avoid using “Copilot” alone; prefer the full product name.
+
+**Copilot Studio**
+Microsoft platform for building, testing, and publishing agents. See [What is Copilot Studio?](https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio)
 
 **Copilot Command Center**
 Unified dashboard in Power Platform Admin Center that consolidates governance, analytics, and business value metrics for Copilot usage across the organization. Access via PPAC → Copilot. See [Copilot hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
@@ -174,6 +186,9 @@ Environment with governance policies enforced at the platform level.
 
 **MFA (Multi-Factor Authentication)**
 Login requirement combining something you know (password) with something you have (phone, security key).
+
+**Microsoft 365 Copilot**
+The built-in AI assistant in Microsoft 365 apps (e.g., Teams, Outlook, Word) that can use organizational data and policies. Distinct from **Copilot Studio**, which is for building agents. See [Microsoft 365 Copilot overview](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-overview)
 
 **Model**
 System that makes predictions or decisions based on data. AI agents using ML algorithms are treated as models.

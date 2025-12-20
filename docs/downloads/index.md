@@ -2,6 +2,8 @@
 
 Download role-specific checklists to track your implementation progress. Each Excel file contains the controls relevant to your role with status tracking columns.
 
+> **Offline deliverables:** This repository ships **web documentation + Excel templates only**. We do not publish a Word/PDF document bundle. (Organizations may export pages to PDF for internal audit packages as needed.)
+
 ---
 
 ## Role-Specific Checklists
