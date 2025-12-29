@@ -1,0 +1,4625 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/">
+      
+      
+        <link rel="prev" href="../1.4-advanced-connector-policies-acp/">
+      
+      
+        <link rel="next" href="../1.6-microsoft-purview-dspm-for-ai/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.5 Data Loss Prevention (DLP) and Sensitivity Labels - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-15-data-loss-prevention-dlp-and-sensitivity-labels" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#us-only-scope-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        US-only scope note
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-sensitive-information-types-control-113" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency: Sensitive Information Types (Control 1.13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dlp-for-ai-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DLP for AI Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-specific-dlp-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI-Specific DLP Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-ai-dlp-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring AI DLP Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-dlp-setup-steps-copilot-promptsresponses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI DLP setup steps (Copilot prompts/responses)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dspm-for-ai-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DSPM for AI Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-dlp-policies-in-dspm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Viewing DLP Policies in DSPM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-ai-dlp-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example AI DLP Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oversharing-assessments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Oversharing Assessments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-oversharing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is Oversharing?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dspm-oversharing-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DSPM Oversharing Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-oversharing-assessments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Oversharing Assessments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensitivity-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensitivity Labels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#label-based-protection-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label-Based Protection for Agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-label-taxonomy-us-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended label taxonomy (U.S.-only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-label-based-dlp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring Label-Based DLP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-knowledge-source-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Knowledge Source Labels
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1 - Baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-3-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2-3 - Recommended
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-regulatedhigh-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4 - Regulated/High-Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#governance-tier-dlp-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Tier DLP Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sit-foundation-dependency-control-113" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SIT foundation (Dependency: Control 1.13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-an-ai-scoped-dlp-policy-purview-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create an AI-scoped DLP policy (Purview UI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extend-to-endpoints-optional-avoid-overreach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extend to endpoints (optional; avoid overreach)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-templates-for-fsi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy Templates for FSI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customer-data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customer Data Protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#financial-data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Data Protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connect-to-security-compliance-center" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect to Security &amp; Compliance Center
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-ai-focused-dlp-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create AI-Focused DLP Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-sensitivity-label-based-dlp-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Sensitivity Label-Based DLP Rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-dlp-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit DLP Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitor-dlp-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitor DLP Alerts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-sensitivity-label-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get Sensitivity Label Statistics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-tier-dlp-configuration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Tier DLP Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-specific-sensitive-information-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI-Specific Sensitive Information Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-example-trading-desk-agent-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Example: Trading Desk Agent Protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examination-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examination Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-cases-copilotagent-us-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test cases (Copilot/agent; U.S.-only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-cases-endpoint-dlp-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test cases (Endpoint DLP; optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evidence-to-retain-audit-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence to retain (audit-ready)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-dlp-policy-not-detecting-sensitive-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: DLP Policy Not Detecting Sensitive Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-false-negatives-in-ai-promptsresponses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: False negatives in AI prompts/responses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-too-many-false-positive-dlp-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Too Many False Positive DLP Alerts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-sensitivity-labels-not-enforcing-in-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Sensitivity Labels Not Enforcing in AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-dspm-oversharing-assessment-shows-no-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: DSPM Oversharing Assessment Shows No Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-dlp-blocking-legitimate-agent-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: DLP Blocking Legitimate Agent Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-command-center/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Command Center
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-15-data-loss-prevention-dlp-and-sensitivity-labels">Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.5
+<strong>Control Name:</strong> Data Loss Prevention (DLP) and Sensitivity Labels
+<strong>Regulatory Reference:</strong> FINRA 4511, SEC Reg S-P, GLBA 501(b), SOX 404
+<strong>Setup Time:</strong> 2-4 hours</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Prevent sensitive financial data from unauthorized exposure through AI agents by implementing DLP policies that detect and block sensitive information in agent knowledge sources, user prompts, and agent responses. This control helps protect customer PII, financial data, and trading information when accessed or processed by Microsoft 365 Copilot and Copilot Studio agents.</p>
+<hr />
+<h3 id="description">Description</h3>
+<p>Data Loss Prevention policies protect sensitive information from unauthorized exposure through AI agents. When combined with sensitivity labels, DLP provides comprehensive data protection across Microsoft 365 Copilot, Copilot Studio agents, and other AI applications. Integration with DSPM for AI enables oversharing detection and AI-specific policy enforcement.</p>
+<h3 id="us-only-scope-note">US-only scope note</h3>
+<p>This control implementation guidance is <strong>U.S.-only</strong>:</p>
+<ul>
+<li>Use <strong>U.S. identifiers</strong> (e.g., SSN, ITIN, U.S. bank account/routing formats, CUSIP, FINRA CRD) and organization-specific internal identifiers.</li>
+<li>Avoid non-U.S. examples or patterns. If your organization operates outside the U.S., create a separate addendum with jurisdiction-specific DLP policies, SITs, and validation steps.</li>
+</ul>
+<h3 id="dependency-sensitive-information-types-control-113">Dependency: Sensitive Information Types (Control 1.13)</h3>
+<p>DLP effectiveness depends on <strong>Sensitive Information Types (SITs)</strong>. Implement and validate SITs per <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/">Control 1.13</a> before enforcing DLP in AI scenarios.</p>
+<p>See <a href="https://learn.microsoft.com/en-us/purview/dlp-policy-reference">DLP for M365 Copilot</a> for AI-specific DLP capabilities.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI-aware DLP policies</strong></td>
+<td>Policies targeting AI applications</td>
+<td>Prevent sensitive data in AI</td>
+</tr>
+<tr>
+<td><strong>Sensitivity label enforcement</strong></td>
+<td>Block/warn based on labels</td>
+<td>Classification-based protection</td>
+</tr>
+<tr>
+<td><strong>Oversharing assessment</strong></td>
+<td>Identify data exposure risks</td>
+<td>Risk identification</td>
+</tr>
+<tr>
+<td><strong>DSPM integration</strong></td>
+<td>Unified AI data protection</td>
+<td>Comprehensive visibility</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="dlp-for-ai-applications">DLP for AI Applications</h3>
+<h3 id="ai-specific-dlp-policies">AI-Specific DLP Policies</h3>
+<p>DLP policies can specifically target AI applications:</p>
+<table>
+<thead>
+<tr>
+<th>Policy Type</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Detect sensitive info added to AI sites</strong></td>
+<td>Monitor sensitive data in AI knowledge sources</td>
+<td>Prevent exposure via grounding data</td>
+</tr>
+<tr>
+<td><strong>Detect sensitive info shared in AI prompts</strong></td>
+<td>Monitor user prompts for sensitive content</td>
+<td>Prevent data leakage in queries</td>
+</tr>
+<tr>
+<td><strong>Block sensitive info in agent responses</strong></td>
+<td>Prevent agents from returning sensitive data</td>
+<td>Response filtering</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuring-ai-dlp-policies">Configuring AI DLP Policies</h3>
+<ol>
+<li>Open <a href="https://purview.microsoft.com">Microsoft Purview</a></li>
+<li>Navigate to <strong>Data loss prevention → Policies</strong></li>
+<li>Create or modify a policy (start in <strong>Test with notifications</strong> when possible)</li>
+<li>Select only the in-scope AI locations:<ul>
+<li><strong>Microsoft 365 Copilot</strong> (prompts and responses)</li>
+<li><strong>Copilot Studio</strong> (agent interactions)</li>
+<li>Optional: <strong>SharePoint/OneDrive/Teams/Exchange</strong> only if you intend to control those workloads as well</li>
+<li>Optional (endpoints): <strong>Devices</strong> if your tenant uses <strong>Purview Endpoint DLP</strong> and you want endpoint enforcement for AI-related exfiltration paths</li>
+</ul>
+</li>
+<li>Configure conditions using SITs (see <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/">Control 1.13</a>) and/or sensitivity labels</li>
+<li>Choose actions appropriate to the governance tier (Audit, Warn, Block)</li>
+<li>Save, publish, and allow time for propagation before declaring pass/fail test results</li>
+</ol>
+<h3 id="ai-dlp-setup-steps-copilot-promptsresponses">AI DLP setup steps (Copilot prompts/responses)</h3>
+<p>Use these steps to validate that AI-specific DLP is correctly targeted and producing audit-ready outputs before enforcement.</p>
+<ol>
+<li>Confirm prerequisites:<ul>
+<li>Required roles are assigned (see <strong>Prerequisites</strong>)</li>
+<li>Unified audit logging is enabled (see <strong>Dependencies</strong>)</li>
+<li>SITs are validated per Control 1.13</li>
+</ul>
+</li>
+<li>Create a dedicated policy for AI interactions first (avoid combining with broad workload DLP until stable).</li>
+<li>Ensure the policy scope includes only the intended AI locations:<ul>
+<li><strong>Microsoft 365 Copilot</strong> (prompts and responses)</li>
+<li><strong>Copilot Studio</strong> (agent interactions)</li>
+</ul>
+</li>
+<li>Start in <strong>Test with notifications</strong>:<ul>
+<li>Enable user notification where appropriate for the tier (Warn/Block)</li>
+<li>Enable incident reports for Tier 2-3 scenarios that require evidence</li>
+</ul>
+</li>
+<li>Execute the U.S.-only test cases in this document and confirm:<ul>
+<li>Expected Warn/Block behavior occurs</li>
+<li>Events appear in audit/incident reporting within expected propagation time</li>
+</ul>
+</li>
+<li>Only after the test suite passes, switch the policy to <strong>Enforce</strong> for Tier 3 use cases.</li>
+</ol>
+<p>See <a href="https://learn.microsoft.com/en-us/purview/dlp-create-deploy-policy">Create DLP policies</a> for detailed steps.</p>
+<hr />
+<h3 id="dspm-for-ai-integration">DSPM for AI Integration</h3>
+<p>DLP policies integrate with DSPM for AI for unified management:</p>
+<h3 id="viewing-dlp-policies-in-dspm">Viewing DLP Policies in DSPM</h3>
+<ol>
+<li>Navigate to <strong>DSPM for AI → Policies</strong></li>
+<li>Expand <strong>Data Loss Prevention</strong> section</li>
+<li>View AI-related DLP policies and status</li>
+</ol>
+<h3 id="example-ai-dlp-policies">Example AI DLP Policies</h3>
+<table>
+<thead>
+<tr>
+<th>Policy Name</th>
+<th>Solution</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSPM for AI: Detect sensitive info added to AI sites</td>
+<td>Data Loss Prevention</td>
+<td>Monitor knowledge sources</td>
+</tr>
+<tr>
+<td>DSPM for AI - Detect sensitive info shared in AI prompts in Edge</td>
+<td>DSPM for AI</td>
+<td>Browser-based protection</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="oversharing-assessments">Oversharing Assessments</h3>
+<h3 id="what-is-oversharing">What is Oversharing?</h3>
+<p>Oversharing occurs when sensitive data is accessible to more users than necessary, creating risk when AI agents access that data as grounding content.</p>
+<h3 id="dspm-oversharing-detection">DSPM Oversharing Detection</h3>
+<p>DSPM for AI provides oversharing assessments:</p>
+<ol>
+<li>Navigate to <strong>DSPM for AI → Data risk assessments</strong></li>
+<li>Review <strong>Assess and prevent oversharing</strong> section</li>
+<li>Follow three-step process:</li>
+<li><strong>Identify</strong>: Review weekly assessment results</li>
+<li><strong>Protect</strong>: Apply labels and retention policies</li>
+<li><strong>Monitor</strong>: Conduct access reviews</li>
+</ol>
+<h3 id="custom-oversharing-assessments">Custom Oversharing Assessments</h3>
+<p>Create targeted assessments for agent knowledge sources:</p>
+<ol>
+<li>Click <strong>+ Create custom assessment</strong></li>
+<li>Select data sources (SharePoint sites used by agents)</li>
+<li>Define user scope</li>
+<li>Review overshared items count</li>
+<li>Remediate excessive permissions</li>
+</ol>
+<hr />
+<h3 id="sensitivity-labels">Sensitivity Labels</h3>
+<h3 id="label-based-protection-for-agents">Label-Based Protection for Agents</h3>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Agent Access</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Public</strong></td>
+<td>Full access</td>
+<td>All governance tiers</td>
+</tr>
+<tr>
+<td><strong>Internal</strong></td>
+<td>Full access</td>
+<td>All governance tiers</td>
+</tr>
+<tr>
+<td><strong>Confidential</strong></td>
+<td>Restricted</td>
+<td>Team/enterprise agents only</td>
+</tr>
+<tr>
+<td><strong>Highly Confidential</strong></td>
+<td>Blocked</td>
+<td>Block from all agents</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommended-label-taxonomy-us-only">Recommended label taxonomy (U.S.-only)</h3>
+<p>Define a small, auditable taxonomy first; add optional sub-labels only when you can enforce and measure them.</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>What it means</th>
+<th>Typical content</th>
+<th>Default AI/DLP posture</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Public</strong></td>
+<td>Approved for public release</td>
+<td>Marketing content, public disclosures</td>
+<td>Allow; audit optional</td>
+</tr>
+<tr>
+<td><strong>Internal</strong></td>
+<td>Business-use only; low sensitivity</td>
+<td>Internal procedures, org charts</td>
+<td>Allow; audit recommended</td>
+</tr>
+<tr>
+<td><strong>Confidential</strong></td>
+<td>Customer NPI / regulated internal data</td>
+<td>Customer contact details, KYC docs, account metadata</td>
+<td>Warn or block depending on workflow; always log</td>
+</tr>
+<tr>
+<td><strong>Highly Confidential</strong></td>
+<td>High impact if exposed</td>
+<td>Full customer PII sets, trading strategies/MNPI, privileged security data</td>
+<td>Block by default; incident report</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Taxonomy rules (recommended):</strong></p>
+<ul>
+<li>Use consistent naming and avoid jurisdiction-mixing (this document is U.S.-only).</li>
+<li>Decide who can apply labels (manual vs auto-labeling) and document the decision.</li>
+<li>Publish labels to:<ul>
+<li>Users who create or handle the content</li>
+<li>Owners/operators of agents that can access labeled knowledge sources</li>
+<li>Compliance/SecOps roles who investigate DLP events</li>
+</ul>
+</li>
+</ul>
+<h3 id="configuring-label-based-dlp">Configuring Label-Based DLP</h3>
+<ol>
+<li>Create sensitivity labels in Purview</li>
+<li>Apply labels to content</li>
+<li>Create DLP policy with label conditions</li>
+<li>Configure actions:</li>
+<li><strong>Highly Confidential</strong>: Block agent access</li>
+<li><strong>Confidential</strong>: Warn user, log access</li>
+<li><strong>Internal/Public</strong>: Allow access</li>
+</ol>
+<h3 id="agent-knowledge-source-labels">Agent Knowledge Source Labels</h3>
+<p>For SharePoint sites used as agent knowledge sources:</p>
+<table>
+<thead>
+<tr>
+<th>Content Type</th>
+<th>Recommended Label</th>
+<th>DLP Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Customer PII</td>
+<td>Confidential</td>
+<td>Warn + Log</td>
+</tr>
+<tr>
+<td>Financial data</td>
+<td>Highly Confidential</td>
+<td>Block</td>
+</tr>
+<tr>
+<td>Internal docs</td>
+<td>Internal</td>
+<td>Allow</td>
+</tr>
+<tr>
+<td>Public content</td>
+<td>Public</td>
+<td>Allow</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Purview Compliance Admin
+<strong>Supporting Roles:</strong> Purview Info Protection Admin</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft 365 E5</td>
+<td>Full DLP and sensitivity labels</td>
+<td>All governance levels</td>
+</tr>
+<tr>
+<td>Microsoft 365 E5 Compliance</td>
+<td>Standalone compliance suite</td>
+<td>Alternative to E5</td>
+</tr>
+<tr>
+<td>Microsoft Purview Data Loss Prevention</td>
+<td>DLP capabilities</td>
+<td>Level 2+</td>
+</tr>
+<tr>
+<td>Microsoft Purview Information Protection</td>
+<td>Sensitivity labels</td>
+<td>All levels</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+<th>Assignment Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compliance Administrator</td>
+<td>Create and manage DLP policies</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Information Protection Admin</td>
+<td>Manage sensitivity labels</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Security Administrator</td>
+<td>View DLP reports and alerts</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Compliance Data Administrator</td>
+<td>Access compliance data</td>
+<td>Purview RBAC</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Description</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft Purview portal</td>
+<td>DLP management interface</td>
+<td>Access https://purview.microsoft.com</td>
+</tr>
+<tr>
+<td>Sensitive Information Types (SITs)</td>
+<td>SITs power DLP detection and tuning</td>
+<td>Implement <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/">Control 1.13</a></td>
+</tr>
+<tr>
+<td>Sensitivity labels</td>
+<td>Labels must be created and published</td>
+<td>Check Purview → Information protection</td>
+</tr>
+<tr>
+<td>Unified audit logging</td>
+<td>Required for DLP event logging</td>
+<td>Verify in Purview → Audit</td>
+</tr>
+<tr>
+<td>DSPM for AI</td>
+<td>Optional but recommended</td>
+<td>Check DSPM availability in tenant</td>
+</tr>
+<tr>
+<td>Purview Endpoint DLP (optional)</td>
+<td>Extends enforcement to Windows endpoints for exfiltration paths</td>
+<td>Verify <strong>Data loss prevention → Endpoint DLP settings</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] E5 or E5 Compliance licenses assigned to users</li>
+<li>[ ] Sensitivity label taxonomy defined for organization</li>
+<li>[ ] Labels published to target users and groups</li>
+<li>[ ] DLP administrator access verified</li>
+<li>[ ] Agent inventory completed (know what agents access which data)</li>
+<li>[ ] Control 1.13 SITs implemented and validated (built-in + any required custom SITs)</li>
+<li>[ ] Sensitive information types selected for this DLP policy scope (e.g., SSN, ABA routing, U.S. bank account)</li>
+<li>[ ] Decide whether Endpoint DLP is in-scope for AI-related exfiltration paths (optional)</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="level-1-baseline">Level 1 - Baseline</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic DLP</td>
+<td>Policies for common sensitive info types</td>
+</tr>
+<tr>
+<td>Labels defined</td>
+<td>Sensitivity label taxonomy created</td>
+</tr>
+<tr>
+<td>Agent awareness</td>
+<td>Identify what data agents can access</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Minimum requirements:</strong>
+- DLP policies for PII, financial data
+- Sensitivity labels published
+- Document agent data access patterns</p>
+<h3 id="level-2-3-recommended">Level 2-3 - Recommended</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-specific DLP</td>
+<td>Policies targeting AI applications</td>
+</tr>
+<tr>
+<td>Label enforcement</td>
+<td>DLP conditions based on labels</td>
+</tr>
+<tr>
+<td>Oversharing review</td>
+<td>Quarterly DSPM assessments</td>
+</tr>
+<tr>
+<td>DSPM integration</td>
+<td>DLP policies visible in DSPM</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI recommendations:</strong>
+- Enable "Detect sensitive info added to AI sites" policy
+- Configure label-based blocking for Highly Confidential
+- Quarterly oversharing assessments for agent knowledge sources
+- Weekly review of DLP alerts related to AI</p>
+<h3 id="level-4-regulatedhigh-risk">Level 4 - Regulated/High-Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comprehensive DLP</td>
+<td>All AI touchpoints covered</td>
+</tr>
+<tr>
+<td>Mandatory labels</td>
+<td>Auto-labeling for sensitive content</td>
+</tr>
+<tr>
+<td>Real-time blocking</td>
+<td>Block mode for enterprise-managed agents</td>
+</tr>
+<tr>
+<td>Continuous assessment</td>
+<td>Monthly custom oversharing assessments</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI requirements:</strong>
+- Block enterprise-managed agents from Highly Confidential content
+- Auto-labeling for customer data repositories
+- Real-time DLP alerts to SOC
+- Monthly oversharing assessments with remediation tracking
+- Integration with DSPM for unified reporting</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="governance-tier-dlp-configuration">Governance Tier DLP Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>DLP Mode</th>
+<th>Label Requirement</th>
+<th>Oversharing Review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1</td>
+<td>Audit only</td>
+<td>Optional</td>
+<td>Annual</td>
+</tr>
+<tr>
+<td>Tier 2</td>
+<td>Warn</td>
+<td>Recommended</td>
+<td>Quarterly</td>
+</tr>
+<tr>
+<td>Tier 3</td>
+<td>Block</td>
+<td><strong>Mandatory</strong></td>
+<td>Monthly</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="sit-foundation-dependency-control-113">SIT foundation (Dependency: Control 1.13)</h3>
+<p>Before enforcing DLP for AI interactions, confirm SIT readiness:</p>
+<ol>
+<li>Review the SIT inventory in Purview (<strong>Data classification → Classifiers → Sensitive info types</strong>).</li>
+<li>Validate key U.S.-only SITs with a small set of sanitized test data (see <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/">Control 1.13</a>).</li>
+<li>If you use custom SITs (e.g., internal account identifiers), validate and document:<ul>
+<li>Regex/pattern logic</li>
+<li>Supporting keywords</li>
+<li>False-positive exclusions</li>
+<li>The minimum count/confidence you will require in DLP rules</li>
+</ul>
+</li>
+</ol>
+<p>If SITs are not validated first, DLP “false negative” troubleshooting becomes guesswork.</p>
+<h3 id="create-an-ai-scoped-dlp-policy-purview-ui">Create an AI-scoped DLP policy (Purview UI)</h3>
+<p>Use the smallest policy surface area that meets the requirement.</p>
+<ol>
+<li>Purview → <strong>Data loss prevention → Policies</strong> → <strong>+ Create policy</strong></li>
+<li>Choose a template closest to your need (Financial/Privacy) or start from <strong>Custom</strong></li>
+<li>Name the policy with an auditable convention (example): <code>FSI-AI-DLP-Data-Protection</code></li>
+<li>Select locations:<ul>
+<li><strong>Microsoft 365 Copilot</strong></li>
+<li><strong>Copilot Studio</strong></li>
+<li>Optional: <strong>Devices</strong> (Endpoint DLP) if in scope</li>
+</ul>
+</li>
+<li>Add rules using:<ul>
+<li>SIT-based conditions (preferred for detection)</li>
+<li>Label-based conditions (preferred for enforcement posture)</li>
+</ul>
+</li>
+<li>Configure actions by tier (Audit/Warn/Block), enable user notifications if appropriate, and configure incident reports</li>
+<li>Run in <strong>Test with notifications</strong> first, execute the test cases in this document, then move to <strong>Enforce</strong> when results are acceptable</li>
+</ol>
+<h3 id="extend-to-endpoints-optional-avoid-overreach">Extend to endpoints (optional; avoid overreach)</h3>
+<p>If your risk model includes endpoint exfiltration (copy/paste, print, USB, browser uploads), use <strong>Purview Endpoint DLP</strong> targeted to:</p>
+<ul>
+<li>The specific devices/groups that use AI tools for work</li>
+<li>The specific sensitive content scope (SITs/labels)</li>
+</ul>
+<p>Avoid tenant-wide device blocking unless the organization has explicitly approved that operational impact.</p>
+<h3 id="policy-templates-for-fsi">Policy Templates for FSI</h3>
+<h3 id="customer-data-protection">Customer Data Protection</h3>
+<div class="highlight"><pre><span></span><code>Policy: Protect Customer PII in AI
+Locations: M365 Copilot, Copilot Studio
+Conditions:
+- Sensitive info types: SSN, Account Numbers, Credit Card
+- OR Sensitivity label: Confidential, Highly Confidential
+Actions:
+- Tier 1-2: Warn user, log event
+- Tier 3: Block access, notify compliance
+</code></pre></div>
+<h3 id="financial-data-protection">Financial Data Protection</h3>
+<div class="highlight"><pre><span></span><code>Policy: Block Financial Data in AI Responses
+Locations: Copilot Studio agents
+Conditions:
+- Sensitive info types: Financial statements, Trading data
+- Sensitivity label: Highly Confidential
+Actions:
+- Tier 2: Warn, log event, incident report (as configured)
+- Tier 3: Block, notify security team (incident report)
+</code></pre></div>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="connect-to-security-compliance-center">Connect to Security &amp; Compliance Center</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Install module if needed</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">ExchangeOnlineManagement</span> <span class="n">-Force</span>
+
+<span class="c"># Connect to Security &amp; Compliance Center</span>
+<span class="nb">Connect-IPPSSession</span> <span class="n">-UserPrincipalName</span> <span class="n">admin</span><span class="nv">@contoso</span><span class="p">.</span><span class="n">com</span>
+
+<span class="c"># Verify connection</span>
+<span class="nb">Get-DlpCompliancePolicy</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">Enabled</span>
+</code></pre></div>
+<h3 id="create-ai-focused-dlp-policy">Create AI-Focused DLP Policy</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Create DLP policy for AI applications</span>
+<span class="nv">$policyParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;FSI-AI-Data-Protection&quot;</span>
+    <span class="n">Comment</span> <span class="p">=</span> <span class="s2">&quot;Protect sensitive data in AI applications&quot;</span>
+    <span class="n">Mode</span> <span class="p">=</span> <span class="s2">&quot;Enable&quot;</span>  <span class="c"># Use &quot;TestWithNotifications&quot; for testing</span>
+    <span class="n">Priority</span> <span class="p">=</span> <span class="n">1</span>
+    <span class="n">ExchangeLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+    <span class="n">SharePointLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+    <span class="n">OneDriveLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+    <span class="n">TeamsLocation</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+<span class="p">}</span>
+
+<span class="nv">$policy</span> <span class="p">=</span> <span class="nb">New-DlpCompliancePolicy</span> <span class="nv">@policyParams</span>
+
+<span class="c"># Create rule for SSN protection</span>
+<span class="nv">$ruleParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Block SSN in AI Interactions&quot;</span>
+    <span class="n">Policy</span> <span class="p">=</span> <span class="s2">&quot;FSI-AI-Data-Protection&quot;</span>
+    <span class="n">ContentContainsSensitiveInformation</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;U.S. Social Security Number (SSN)&quot;</span>
+        <span class="n">minCount</span> <span class="p">=</span> <span class="n">1</span>
+    <span class="p">}</span>
+    <span class="n">BlockAccess</span> <span class="p">=</span> <span class="nv">$true</span>
+    <span class="n">NotifyUser</span> <span class="p">=</span> <span class="s2">&quot;SiteAdmin&quot;</span>
+    <span class="n">GenerateIncidentReport</span> <span class="p">=</span> <span class="s2">&quot;SiteAdmin&quot;</span>
+<span class="p">}</span>
+
+<span class="nb">New-DlpComplianceRule</span> <span class="nv">@ruleParams</span>
+</code></pre></div>
+<h3 id="create-sensitivity-label-based-dlp-rule">Create Sensitivity Label-Based DLP Rule</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Rule to block Highly Confidential content in AI</span>
+<span class="nv">$labelRuleParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Block Highly Confidential from AI&quot;</span>
+    <span class="n">Policy</span> <span class="p">=</span> <span class="s2">&quot;FSI-AI-Data-Protection&quot;</span>
+    <span class="n">ContentPropertyContainsWords</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="s2">&quot;Document.SensitivityLabel&quot;</span> <span class="p">=</span> <span class="s2">&quot;Highly Confidential&quot;</span>
+    <span class="p">}</span>
+    <span class="n">BlockAccess</span> <span class="p">=</span> <span class="nv">$true</span>
+    <span class="n">NotifyUser</span> <span class="p">=</span> <span class="s2">&quot;SiteAdmin,LastModifier&quot;</span>
+    <span class="n">NotifyEndpointUser</span> <span class="p">=</span> <span class="s2">&quot;NotifyUser&quot;</span>
+    <span class="n">GenerateIncidentReport</span> <span class="p">=</span> <span class="s2">&quot;SiteAdmin&quot;</span>
+    <span class="n">IncidentReportContent</span> <span class="p">=</span> <span class="s2">&quot;All&quot;</span>
+<span class="p">}</span>
+
+<span class="nb">New-DlpComplianceRule</span> <span class="nv">@labelRuleParams</span>
+</code></pre></div>
+<h3 id="audit-dlp-policies">Audit DLP Policies</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Get all DLP policies and their status</span>
+<span class="nb">Get-DlpCompliancePolicy</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">CreatedBy</span><span class="p">,</span> <span class="n">WhenCreated</span>
+
+<span class="c"># Get DLP rules for a specific policy</span>
+<span class="nb">Get-DlpComplianceRule</span> <span class="n">-Policy</span> <span class="s2">&quot;FSI-AI-Data-Protection&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Priority</span><span class="p">,</span> <span class="n">BlockAccess</span><span class="p">,</span> <span class="n">Disabled</span>
+
+<span class="c"># Get DLP policy details</span>
+<span class="nb">Get-DlpCompliancePolicy</span> <span class="n">-Identity</span> <span class="s2">&quot;FSI-AI-Data-Protection&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="p">*</span> <span class="p">|</span> <span class="nb">Format-List</span>
+
+<span class="c"># Export policy configuration for documentation</span>
+<span class="nb">Get-DlpCompliancePolicy</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">SharePointLocation</span><span class="p">,</span> <span class="n">TeamsLocation</span><span class="p">,</span> <span class="n">ExchangeLocation</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;DLP-Policies-Report.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+</code></pre></div>
+<h3 id="monitor-dlp-alerts">Monitor DLP Alerts</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Search audit log for DLP events</span>
+<span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">30</span><span class="p">)</span>
+<span class="nv">$endDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+<span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-RecordType</span> <span class="n">DLP</span> <span class="n">-ResultSize</span> <span class="n">5000</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">CreationDate</span><span class="p">,</span> <span class="n">UserIds</span><span class="p">,</span> <span class="n">Operations</span><span class="p">,</span> <span class="n">AuditData</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;DLP-Audit-Log.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Parse DLP events for AI-related incidents</span>
+<span class="nv">$dlpEvents</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-RecordType</span> <span class="n">DLP</span> <span class="n">-ResultSize</span> <span class="n">1000</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$event</span> <span class="k">in</span> <span class="nv">$dlpEvents</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$event</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$data</span><span class="p">.</span><span class="n">Workload</span> <span class="o">-match</span> <span class="s2">&quot;Copilot|Agent&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;AI DLP Event: </span><span class="p">$(</span><span class="nv">$data</span><span class="p">.</span><span class="n">Operation</span><span class="p">)</span><span class="s2"> - </span><span class="p">$(</span><span class="nv">$data</span><span class="p">.</span><span class="n">ObjectId</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="get-sensitivity-label-statistics">Get Sensitivity Label Statistics</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Microsoft Graph for label info</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;InformationProtectionPolicy.Read.All&quot;</span>
+
+<span class="c"># Get sensitivity labels</span>
+<span class="nb">Get-MgBetaInformationProtectionSensitivityPolicyLabel</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Id</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Description</span><span class="p">,</span> <span class="n">IsDefault</span> <span class="p">|</span>
+    <span class="nb">Format-Table</span>
+
+<span class="c"># Check label usage via compliance search</span>
+<span class="nv">$labelSearch</span> <span class="p">=</span> <span class="nb">New-ComplianceSearch</span> <span class="n">-Name</span> <span class="s2">&quot;Highly-Confidential-Content&quot;</span> <span class="p">`</span>
+    <span class="n">-ContentMatchQuery</span> <span class="s1">&#39;SensitivityLabelId:&lt;label-guid&gt;&#39;</span> <span class="p">`</span>
+    <span class="n">-ExchangeLocation</span> <span class="n">All</span> <span class="n">-SharePointLocation</span> <span class="n">All</span>
+
+<span class="nb">Start-ComplianceSearch</span> <span class="n">-Identity</span> <span class="s2">&quot;Highly-Confidential-Content&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-mapping">Regulatory Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>DLP Requirement</th>
+<th>Control Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Protect customer records</td>
+<td>Block customer PII in AI responses</td>
+</tr>
+<tr>
+<td><strong>SEC Reg S-P</strong></td>
+<td>Privacy protection</td>
+<td>Sensitivity labels on customer data</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Safeguard customer information</td>
+<td>DLP for financial account numbers</td>
+</tr>
+<tr>
+<td><strong>SOX 404</strong></td>
+<td>IT controls for data protection</td>
+<td>Audit logging of DLP events</td>
+</tr>
+<tr>
+<td><strong>FFIEC Guidelines</strong></td>
+<td>Data classification</td>
+<td>Label-based access control</td>
+</tr>
+</tbody>
+</table>
+<h3 id="governance-tier-dlp-configuration_1">Governance Tier DLP Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>DLP Mode</th>
+<th>SIT Blocking</th>
+<th>Label Enforcement</th>
+<th>Alert Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1</td>
+<td>Audit Only</td>
+<td>Log only</td>
+<td>Optional</td>
+<td>Weekly review</td>
+</tr>
+<tr>
+<td>Tier 2</td>
+<td>Warn</td>
+<td>User notification</td>
+<td>Recommended</td>
+<td>Daily review</td>
+</tr>
+<tr>
+<td>Tier 3</td>
+<td>Block</td>
+<td>Real-time blocking</td>
+<td><strong>Mandatory</strong></td>
+<td>Immediate escalation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-specific-sensitive-information-types">FSI-Specific Sensitive Information Types</h3>
+<table>
+<thead>
+<tr>
+<th>SIT</th>
+<th>FSI Use Case</th>
+<th>DLP Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U.S. SSN</td>
+<td>Customer identification</td>
+<td>Tier 3: Block; Tier 2: Warn + log</td>
+</tr>
+<tr>
+<td>ABA Routing Number</td>
+<td>Bank routing</td>
+<td>Tier 3: Block; Tier 2: Warn + log</td>
+</tr>
+<tr>
+<td>Credit Card Number</td>
+<td>Payment data (PCI)</td>
+<td>Tier 3: Block; Tier 2: Warn + log</td>
+</tr>
+<tr>
+<td>U.S. Bank Account Number</td>
+<td>Account data</td>
+<td>Tier 3: Block; Tier 2: Warn + log</td>
+</tr>
+<tr>
+<td>Custom: Internal Account Identifier</td>
+<td>Internal account format</td>
+<td>Tier 3: Block; Tier 2: Warn + log</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-example-trading-desk-agent-protection">FSI Example: Trading Desk Agent Protection</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">Agent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trading-Desk-Assistant (Enterprise Managed)</span>
+<span class="nt">Classification</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Critical - Trading Data Exposure Risk</span>
+<span class="nt">DLP Requirements</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Block all credit card numbers</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Block SSNs and account numbers</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Block content labeled &quot;Highly Confidential&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Warn on &quot;Confidential&quot; content access</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Real-time alerts to compliance team</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit all data access requests</span>
+
+<span class="nt">Policy Configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Block (Enforce)</span>
+<span class="w">  </span><span class="nt">Locations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">M365 Copilot, Copilot Studio</span>
+<span class="w">  </span><span class="nt">Conditions</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Any of</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSN, Credit Card, ABA, Account Number</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">OR</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Label = Highly Confidential</span>
+<span class="w">  </span><span class="nt">Actions</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Block access</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compliance@contoso.com</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create incident</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Log to audit</span>
+</code></pre></div>
+<hr />
+<h3 id="regulatory-context">Regulatory Context</h3>
+<p><strong>Primary Regulations:</strong> FINRA 4511, SEC Reg S-P, GLBA 501(b), SOX 404</p>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>DLP Support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FINRA 4511</td>
+<td>Protect customer records from AI exposure</td>
+</tr>
+<tr>
+<td>SEC Reg S-P</td>
+<td>Privacy protection in AI systems</td>
+</tr>
+<tr>
+<td>GLBA 501(b)</td>
+<td>Safeguard customer information</td>
+</tr>
+<tr>
+<td>SOX 404</td>
+<td>IT controls for data protection</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examination-considerations">Examination Considerations</h3>
+<p>Regulators may request:
+- DLP policy configuration documentation
+- Evidence of AI-specific protections
+- Oversharing assessment results
+- DLP violation reports and remediation
+- Sensitivity label deployment evidence</p>
+<hr />
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong>
+- Apply a baseline minimum of DLP policies and sensitivity labels that impacts tenant-wide safety (where applicable), and document any exceptions for personal agents.
+- Avoid expanding scope beyond the user’s own data unless explicitly justified.
+- Rationale: reduces risk from personal use while keeping friction low; legal/compliance can tighten later.</p>
+<p><strong>Zone 2 (Team Collaboration):</strong>
+- Apply DLP to AI locations (Copilot/M365, Copilot Studio) and label-conditioned rules for shared agents and shared data sources; require an identified owner and an approval trail.
+- Validate configuration in a pilot environment before broader rollout; retain policy export + test prompts/results.
+- Rationale: shared agents increase blast radius; controls must be consistently applied and provable.</p>
+<p><strong>Zone 3 (Enterprise Managed):</strong>
+- Require the strictest configuration for DLP policies and sensitivity labels and enforce it via policy where possible (not manual-only).
+- Treat changes as controlled (change ticket + documented testing); retain policy export + test prompts/results.
+- Rationale: enterprise agents handle the most sensitive content and are the highest audit/regulatory risk.</p>
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Navigate to Purview → DLP → Policies</td>
+<td>Policies listed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify AI locations selected</td>
+<td>Copilot/Copilot Studio included</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Confirm SIT readiness (Control 1.13)</td>
+<td>SITs exist and match sanitized test data</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Create sanitized test content + apply labels</td>
+<td>Files/messages prepared; labels applied</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Run AI test prompts and agent scenarios</td>
+<td>Blocked/warned/audited per tier</td>
+</tr>
+<tr>
+<td>6</td>
+<td>(Optional) Run Endpoint DLP tests</td>
+<td>Endpoint actions enforce as configured</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Check DSPM for AI → Policies</td>
+<td>AI-related DLP policies visible (if DSPM enabled)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Check audit logs / incident reports</td>
+<td>DLP events and reports captured</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-cases-copilotagent-us-only">Test cases (Copilot/agent; U.S.-only)</h3>
+<p>Use non-production, sanitized data. Do not use real customer data.</p>
+<table>
+<thead>
+<tr>
+<th>Test ID</th>
+<th>Scenario</th>
+<th>Input</th>
+<th>Expected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-01</td>
+<td>Prompt includes SSN</td>
+<td>Prompt text includes an SSN-formatted value</td>
+<td>Tier 2: user warning + log; Tier 3: block + incident report</td>
+</tr>
+<tr>
+<td>AI-02</td>
+<td>Prompt includes ABA routing</td>
+<td>Prompt includes a routing-formatted value</td>
+<td>Same as AI-01</td>
+</tr>
+<tr>
+<td>AI-03</td>
+<td>Retrieval from labeled content</td>
+<td>Agent grounds on a SharePoint file labeled <strong>Highly Confidential</strong></td>
+<td>Block (per label-based rule); event logged</td>
+</tr>
+<tr>
+<td>AI-04</td>
+<td>Retrieval from Confidential content</td>
+<td>Agent grounds on <strong>Confidential</strong> content</td>
+<td>Warn or allow-with-audit (per policy); event logged</td>
+</tr>
+<tr>
+<td>AI-05</td>
+<td>Attempted sensitive output</td>
+<td>Ask agent to summarize a document containing U.S. bank account numbers</td>
+<td>Output blocked/redacted as configured; event logged</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-cases-endpoint-dlp-optional">Test cases (Endpoint DLP; optional)</h3>
+<p>Run only if <strong>Devices/Endpoint DLP</strong> is in scope.</p>
+<table>
+<thead>
+<tr>
+<th>Test ID</th>
+<th>Scenario</th>
+<th>Action</th>
+<th>Expected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EP-01</td>
+<td>Copy/paste exfiltration</td>
+<td>Copy text containing SSN and paste into an AI prompt in a browser</td>
+<td>Block or warn per endpoint rule; event logged</td>
+</tr>
+<tr>
+<td>EP-02</td>
+<td>File exfiltration</td>
+<td>Attempt to upload a <strong>Highly Confidential</strong> labeled file to an AI web experience</td>
+<td>Block or warn per endpoint rule; event logged</td>
+</tr>
+<tr>
+<td>EP-03</td>
+<td>Removable media</td>
+<td>Copy a file containing U.S. bank account numbers to USB</td>
+<td>Block or warn per endpoint rule; event logged</td>
+</tr>
+</tbody>
+</table>
+<h3 id="evidence-to-retain-audit-ready">Evidence to retain (audit-ready)</h3>
+<ul>
+<li>[ ] DLP policy export (policy + rules) and a change record (ticket or approval)</li>
+<li>[ ] Screenshot evidence showing AI locations selected and rule conditions (SIT/label)</li>
+<li>[ ] SIT validation evidence (sanitized test data + outcomes) per Control 1.13</li>
+<li>[ ] Label taxonomy decision + label publication configuration (who the labels are published to)</li>
+<li>[ ] Test execution log: test ID, timestamp, account used, expected vs actual outcome</li>
+<li>[ ] Incident report samples (if enabled) and notification configuration</li>
+<li>[ ] Unified audit log evidence for representative DLP events (export/query output)</li>
+<li>[ ] DSPM for AI policy visibility and oversharing assessment outputs (if DSPM is enabled)</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-dlp-policy-not-detecting-sensitive-content">Issue: DLP Policy Not Detecting Sensitive Content</h3>
+<p><strong>Symptoms:</strong> Sensitive data flows through AI without triggering DLP alerts</p>
+<p><strong>Solutions:</strong>
+1. Verify policy is in "Enable" mode (not "Test" mode)
+2. Confirm policy locations include the intended AI locations (Microsoft 365 Copilot / Copilot Studio)
+3. Confirm SIT readiness and scope (see <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/">Control 1.13</a>):
+    - The SIT exists and is enabled
+    - The SIT pattern actually matches your test data
+    - Minimum count/confidence thresholds are not too strict
+4. Confirm you are testing a supported content path:
+    - For label-based rules, confirm the label is applied to the <strong>item</strong> (file/message), not only a container
+    - For endpoint tests, confirm <strong>Devices/Endpoint DLP</strong> is enabled and targeted to the test device
+5. Allow for propagation time before re-testing (often hours; in some cases longer)</p>
+<h3 id="issue-false-negatives-in-ai-promptsresponses">Issue: False negatives in AI prompts/responses</h3>
+<p><strong>Symptoms:</strong> Some prompts/responses containing sensitive patterns are not detected.</p>
+<p><strong>Solutions:</strong>
+1. Reduce reliance on a single pattern: add supporting keywords or additional SITs where appropriate
+2. Validate formatting variations (spaces/hyphens/prefixes) in SIT patterns per Control 1.13
+3. Review rule logic (AND/OR) and priority; ensure an allow rule is not bypassing detection
+4. Confirm the AI location is included (a rule scoped to a different workload will not trigger)</p>
+<h3 id="issue-too-many-false-positive-dlp-alerts">Issue: Too Many False Positive DLP Alerts</h3>
+<p><strong>Symptoms:</strong> Legitimate business content triggers DLP blocks</p>
+<p><strong>Solutions:</strong>
+1. Review SIT confidence levels and minimum count; increase thresholds where justified
+2. Add corroborating context (supporting keywords) to custom SITs and tighten regex patterns (Control 1.13)
+3. Add scoped exceptions only when you can justify and evidence them (specific locations, groups, or workflows)
+4. Prefer "Warn" + audit for ambiguous detections; reserve "Block" for high-confidence or labeled High impact content
+5. Re-run the test suite after tuning and retain evidence of the before/after results</p>
+<h3 id="issue-sensitivity-labels-not-enforcing-in-ai">Issue: Sensitivity Labels Not Enforcing in AI</h3>
+<p><strong>Symptoms:</strong> Content with "Highly Confidential" label still accessible to agents</p>
+<p><strong>Solutions:</strong>
+1. Verify DLP rule includes label-based conditions
+2. Check label is correctly applied to content (not just container)
+3. Confirm label policy is published to affected users
+4. Verify DSPM for AI integration is enabled
+5. Check if agent service account is in label scope</p>
+<h3 id="issue-dspm-oversharing-assessment-shows-no-results">Issue: DSPM Oversharing Assessment Shows No Results</h3>
+<p><strong>Symptoms:</strong> Assessment completes but shows zero overshared items</p>
+<p><strong>Solutions:</strong>
+1. Verify data sources are correctly specified
+2. Check that content has sensitivity labels applied
+3. Confirm assessment scope includes the correct sites
+4. Wait for assessment processing (can take 24-48 hours)
+5. Verify permissions to access assessment results</p>
+<h3 id="issue-dlp-blocking-legitimate-agent-operations">Issue: DLP Blocking Legitimate Agent Operations</h3>
+<p><strong>Symptoms:</strong> Agent cannot access required data due to DLP blocks</p>
+<p><strong>Solutions:</strong>
+1. Review incident details to understand what triggered block
+2. Create exception for agent service account if appropriate
+3. Adjust SIT minimum count thresholds
+4. Use contextual conditions to allow specific scenarios
+5. Consider separate policy for agent service accounts</p>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/purview/dlp-policy-reference">DLP for Microsoft 365 Copilot</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/dlp-create-deploy-policy">Create and Deploy DLP Policies</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/sensitivity-labels">Sensitivity Labels Overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/dlp-policy-reference">DLP Policy Reference</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/ai-microsoft-purview">DSPM for AI Overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy">DLP PowerShell Cmdlets</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<ul>
+<li><a href="../1.6-microsoft-purview-dspm-for-ai/">Control 1.6: DSPM for AI</a> - AI monitoring and assessment</li>
+<li><a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/">Control 1.13: Sensitive Information Types</a> - SIT configuration</li>
+<li><a href="../1.3-sharepoint-content-governance-and-permissions/">Control 1.3: SharePoint Content Governance</a> - Knowledge source protection</li>
+<li><a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/">Control 4.1: SharePoint IAG</a> - Content discovery</li>
+</ul>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:
+- <strong>Microsoft Purview Administrator:</strong> DLP policy configuration
+- <strong>Information Protection Team:</strong> Sensitivity label design
+- <strong>Compliance Officer:</strong> Regulatory requirements and evidence
+- <strong>AI Governance Lead:</strong> Agent data protection strategy</p>
+<hr />
+<p><strong>Updated:</strong> Dec 2025<br />
+<strong>Version:</strong> v1.0 Beta (Dec 2025)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework Beta - December 2025*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
