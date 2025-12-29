@@ -26,6 +26,15 @@
     },
     {
       "pattern": "^https://www\\.sec\\.gov/rules"
+    },
+    {
+      "pattern": "^https://admin\\.portal\\.com"
+    },
+    {
+      "pattern": "^https://learn\\.microsoft\\.com/en-us/\\.\\.\\."
+    },
+    {
+      "pattern": "^link$"
     }
   ],
   "timeout": "20s",
