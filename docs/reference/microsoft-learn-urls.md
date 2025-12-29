@@ -102,7 +102,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Power Platform Licensing** | https://learn.microsoft.com/en-us/power-platform/admin/pricing-billing-skus | Dec 2025 |
 | **Microsoft 365 Licensing** | https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-overview | Dec 2025 |
-| **Purview Licensing** | https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-licensing | Dec 2025 |
+| **Purview Licensing** | https://learn.microsoft.com/en-us/purview/purview-compliance-center | Dec 2025 |
 | **Copilot Studio Licensing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions | Dec 2025 |
 
 ---
