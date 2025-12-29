@@ -23,6 +23,9 @@
     },
     {
       "pattern": "^https://www\\.soxlaw\\.com"
+    },
+    {
+      "pattern": "^https://www\\.sec\\.gov/rules"
     }
   ],
   "timeout": "20s",
