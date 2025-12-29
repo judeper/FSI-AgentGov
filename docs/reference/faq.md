@@ -414,6 +414,23 @@ A: Depends on controls:
 
 Check with your Microsoft account team.
 
+### Q: What about Agent 365 and Entra Agent ID?
+
+A: Some controls reference Microsoft features that are currently in preview:
+
+| Feature | Status (Dec 2025) | Access |
+|---------|-------------------|--------|
+| **Agent 365** | Frontier Preview | Requires Frontier program enrollment |
+| **Entra Agent ID** | Public Preview | Available in Entra Admin Center |
+| **Advanced Connector Policies (ACP)** | Preview | Available in PPAC |
+| **Environment Groups** | Preview | Available in PPAC |
+
+**To access preview features:**
+1. **Frontier program:** Sign up at the Microsoft 365 Admin Center → Settings → Org settings → Frontier
+2. **Agent ID:** Navigate to Entra Admin Center → Enterprise applications → Filter by "Agent ID (Preview)"
+
+Controls that reference preview features include appropriate disclaimers. Check [Microsoft Learn](https://learn.microsoft.com/en-us/entra/agent-id/) for current availability.
+
 ### Q: Can we use other governance platforms?
 
 A: Yes. Framework is platform-agnostic. You can:
