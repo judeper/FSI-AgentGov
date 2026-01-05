@@ -103,6 +103,7 @@ See [Control 3.1: Agent Inventory](pillar-3-reporting/3.1-agent-inventory-and-me
 ### Q: How do I promote an agent from Zone 2 to Zone 3?
 
 A: Follow the **zone promotion process**:
+
 1. Complete all Zone 3 governance requirements
 2. Submit formal promotion request to Governance Committee
 3. Undergo security and compliance review
@@ -136,6 +137,7 @@ Access via PPAC → Copilot. See [Control 3.8: Copilot Command Center](pillar-3-
 ### Q: How do I monitor AI data security risks?
 
 A: Use **Microsoft Purview DSPM for AI**:
+
 1. Navigate to purview.microsoft.com → DSPM for AI
 2. Review recommendations for AI security
 3. Enable activity monitoring for AI interactions
@@ -157,6 +159,7 @@ See [Control Index](./CONTROL-INDEX.md) for the complete list.
 ### Q: How do I monitor my Power Platform security posture?
 
 A: Use the **PPAC Security Posture Assessment**:
+
 1. Navigate to Power Platform Admin Center → Security → Overview
 2. Review your security score (Low/Medium/High)
 3. View security recommendations
