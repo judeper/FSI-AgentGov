@@ -13,13 +13,13 @@ Requires firms to maintain records of all agent activities and communications.
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 1.7 | Comprehensive Audit Logging | 6-year retention + 1 year accessible |
-| 1.9 | Data Retention and Deletion | Retention policies per FINRA timeline |
-| 2.9 | Agent Performance Monitoring | Track all agent activity |
-| 2.12 | Supervision and Oversight | Compliance Officer oversight |
-| 3.1 | Agent Inventory | Central registry of all agents |
-| 3.3 | Compliance and Regulatory Reporting | Regular compliance reports |
-| 3.4 | Incident Reporting | Document all incidents |
+| [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention + 1 year accessible |
+| [1.9](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per FINRA timeline |
+| [2.9](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Agent Performance Monitoring | Track all agent activity |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Compliance Officer oversight |
+| [3.1](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Central registry of all agents |
+| [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance and Regulatory Reporting | Regular compliance reports |
+| [3.4](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Document all incidents |
 
 ### Governance Framework Alignment
 
@@ -49,12 +49,12 @@ Requires written policies and procedures for supervision of agents and AI techno
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 2.12 | Supervision and Oversight | Define supervisory procedures |
-| 2.3 | Change Management | Change control and approval |
-| 2.5 | Testing and Validation | QA before production |
-| 2.6 | Model Risk Management | SR 11-7 alignment |
-| 2.11 | Bias Testing | Fairness assessment |
-| 3.3 | Compliance Reporting | Supervision documentation |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Define supervisory procedures |
+| [2.3](pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
+| [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness assessment |
+| [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Supervision documentation |
 
 ### Key Requirements
 
@@ -104,12 +104,12 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 
 | Control | Topic | Mapping |
 |---------|-------|---------|
-| 2.6 | Model Risk Management | Formal framework per SR 11-7 |
-| 2.11 | Bias Testing | Quarterly fairness assessment |
-| 1.8 | Runtime Protection | Ongoing monitoring and alerting |
-| 1.6 | DSPM for AI | Data handling governance |
-| 2.12 | Supervision | Governance procedures |
-| 3.2 | Usage Analytics | Performance monitoring |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Quarterly fairness assessment |
+| [1.8](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Ongoing monitoring and alerting |
+| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data handling governance |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance procedures |
+| [3.2](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
 
 ### Key Topics
 
@@ -149,11 +149,11 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 1.7 | Comprehensive Audit Logging | 6-year + 3-year accessible retention |
-| 1.9 | Data Retention | Retention policies enforced |
-| 2.13 | Documentation and Record Keeping | All records documented |
-| 3.1 | Agent Inventory | Registry of agents as records |
-| 3.3 | Compliance Reporting | Evidence retention |
+| [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year + 3-year accessible retention |
+| [1.9](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
+| [2.13](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | All records documented |
+| [3.1](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Registry of agents as records |
+| [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Evidence retention |
 
 ### Record Categories
 
@@ -203,10 +203,10 @@ Requires fair dealing in transactions and investment advice, including disclosur
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 2.6 | Model Risk Management | Agent accuracy and reliability |
-| 2.11 | Bias Testing | Fair treatment across demographics |
-| 1.14 | Data Minimization | Use only necessary data |
-| 1.6 | DSPM for AI | Data governance and privacy |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Agent accuracy and reliability |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fair treatment across demographics |
+| [1.14](pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Use only necessary data |
+| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data governance and privacy |
 
 ### Key Requirements
 
@@ -250,12 +250,12 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 2.5 | Testing and Validation | Control testing documented |
-| 2.12 | Supervision | Control procedures documented |
-| 2.13 | Documentation | Evidence for control effectiveness |
-| 2.10 | Patch Management | Security control maintenance |
-| 3.3 | Compliance Reporting | Control effectiveness reports |
-| 2.8 | Access Control | Segregation of duties enforced |
+| [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Control testing documented |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Control procedures documented |
+| [2.13](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Evidence for control effectiveness |
+| [2.10](pillar-2-management/2.10-patch-management-and-system-updates.md) | Patch Management | Security control maintenance |
+| [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Control effectiveness reports |
+| [2.8](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control | Segregation of duties enforced |
 
 ### Management Assessment Requirements
 
@@ -304,12 +304,12 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 1.11 | Conditional Access and MFA | Strong authentication |
-| 1.15 | Encryption | Data protection in transit and at rest |
-| 1.5 | DLP and Sensitivity Labels | Data loss prevention |
-| 1.16 | Information Rights Management | Document-level protection |
-| 1.18 | RBAC | Access control |
-| 1.3 | SharePoint Governance | Permission management |
+| [1.11](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access and MFA | Strong authentication |
+| [1.15](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Data protection in transit and at rest |
+| [1.5](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Data loss prevention |
+| [1.16](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Information Rights Management | Document-level protection |
+| [1.18](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | RBAC | Access control |
+| [1.3](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | SharePoint Governance | Permission management |
 
 ### Key Safeguard Areas
 
@@ -359,11 +359,11 @@ Applies to national banks and federal savings associations. Requires governance 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 2.6 | Model Risk Management | Formal SR 11-7 framework |
-| 2.11 | Bias Testing | Fairness and discrimination testing |
-| 2.5 | Testing and Validation | Independent validation |
-| 3.2 | Performance Monitoring | Ongoing performance tracking |
-| 2.12 | Supervision | Governance committee oversight |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal SR 11-7 framework |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness and discrimination testing |
+| [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent validation |
+| [3.2](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Performance Monitoring | Ongoing performance tracking |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance committee oversight |
 
 ### Model Risk Framework (SR 11-7)
 
@@ -425,10 +425,10 @@ Applies to bank holding companies and entities with lending functions. Requires 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 2.11 | Bias Testing | ECOA discrimination testing |
-| 2.6 | Model Risk Management | Credit model governance |
-| 1.14 | Data Minimization | Fair treatment in data usage |
-| 2.12 | Supervision | Compliance oversight |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | ECOA discrimination testing |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Credit model governance |
+| [1.14](pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Fair treatment in data usage |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Compliance oversight |
 
 ### Fair Lending Requirements
 
@@ -470,10 +470,10 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| 2.11 | Bias Testing | Algorithmic bias assessment |
-| 1.6 | DSPM for AI | Consumer data protection |
-| 1.8 | Runtime Protection | Anomaly detection |
-| 2.12 | Supervision | Algorithmic governance |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Algorithmic bias assessment |
+| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Consumer data protection |
+| [1.8](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Anomaly detection |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Algorithmic governance |
 
 ### UDAAP Considerations for AI Agents
 
@@ -549,12 +549,12 @@ All framework controls apply to FDIC-supervised institutions. Key controls inclu
 
 | Control | Requirement | FDIC Relevance |
 |---------|-------------|----------------|
-| 1.7 | Audit Logging | FFIEC IT Handbook - Audit and Monitoring |
-| 1.11 | Conditional Access/MFA | FFIEC Authentication Guidance |
-| 1.15 | Encryption | FFIEC Information Security |
-| 2.6 | Model Risk Management | Interagency SR 11-7 guidance |
-| 2.7 | Third-Party Risk | Interagency Third-Party Guidance (2023) |
-| 2.12 | Supervision | Examination expectations |
+| [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit Logging | FFIEC IT Handbook - Audit and Monitoring |
+| [1.11](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access/MFA | FFIEC Authentication Guidance |
+| [1.15](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | FFIEC Information Security |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Interagency SR 11-7 guidance |
+| [2.7](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | Interagency Third-Party Guidance (2023) |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Examination expectations |
 
 ### FFIEC IT Examination Alignment
 
@@ -564,9 +564,9 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 |--------------|-----------------|--------------|
 | Information Security | Pillar 1 | 1.5, 1.11, 1.15, 1.18 |
 | Audit | Pillar 1, 3 | 1.7, 3.1, 3.3 |
-| Business Continuity | Pillar 2 | 2.4 |
+| Business Continuity | Pillar 2 | [2.4](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) |
 | Operations | Pillar 2 | 2.1, 2.3, 2.10 |
-| Outsourcing Technology | Pillar 2 | 2.7 |
+| Outsourcing Technology | Pillar 2 | [2.7](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) |
 
 ### Governance Framework Alignment
 
@@ -600,13 +600,13 @@ NCUA follows similar principles to banking regulators for technology risk manage
 
 | Control | Requirement | NCUA Relevance |
 |---------|-------------|----------------|
-| 1.5 | DLP and Sensitivity Labels | Member data protection |
-| 1.7 | Audit Logging | Examination documentation |
-| 1.11 | Conditional Access/MFA | Authentication controls |
-| 1.15 | Encryption | Member information security |
-| 2.3 | Change Management | Control environment |
-| 2.7 | Third-Party Risk | Vendor oversight |
-| 2.12 | Supervision | Board and management oversight |
+| [1.5](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Member data protection |
+| [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit Logging | Examination documentation |
+| [1.11](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access/MFA | Authentication controls |
+| [1.15](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Member information security |
+| [2.3](pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Control environment |
+| [2.7](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | Vendor oversight |
+| [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Board and management oversight |
 
 ### NCUA Part 748 Alignment
 
