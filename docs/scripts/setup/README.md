@@ -13,6 +13,7 @@ This folder is reserved for **setup / bootstrap examples** referenced by control
 
 ## Evidence note
 If you use a setup script in production, capture:
+
 - the exact command invocation
 - operator identity
 - timestamp

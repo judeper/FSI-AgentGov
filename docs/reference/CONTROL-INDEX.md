@@ -142,6 +142,7 @@ Focus: Govern SharePoint content accessed by agents with specific access, retent
 ## Regulatory Alignment
 
 The framework covers compliance requirements for:
+
 - **FINRA**: Rules 3110, 4511, 4512 + Regulatory Notice 25-07
 - **SEC**: Rules 17a-3/4, 10b-5, Reg BI, Reg S-P
 - **SOX**: Sections 302, 404 (internal controls and reporting)
@@ -164,6 +165,7 @@ Controls are documented for implementation in three governance zones:
 ## Questions & Support
 
 For questions about specific controls or implementation guidance:
+
 - Review the control file for detailed verification steps
 - Contact your AI Governance Lead
 - Escalate to Compliance Officer for regulatory questions

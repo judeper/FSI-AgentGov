@@ -7,6 +7,7 @@ Concrete implementation examples for financial services organizations deploying 
 ## Industry Scenarios
 
 This document provides specific configuration examples for:
+
 - **Retail Banks** - Consumer banking, deposits, lending
 - **Broker-Dealers** - Securities trading, investment advice
 - **Insurance Companies** - Policy management, claims processing
@@ -39,6 +40,7 @@ A regional retail bank deploys a customer service agent to handle account inquir
 | Microsoft Teams | Escalation to human advisors | Internal |
 
 **Blocked Connectors:**
+
 - All social media platforms (Twitter, Facebook, LinkedIn)
 - Public cloud storage (Dropbox, Box, Google Drive)
 - Consumer email services (Gmail, Yahoo Mail)
@@ -72,6 +74,7 @@ Exceptions: None for Zone 3
 #### Control 1.7: Audit Logging
 
 **Audit Configuration:**
+
 - Retention: 10 years (SEC 17a-4 compliance)
 - Export: Weekly to Azure Blob (WORM storage)
 - Real-time alerts: All agent interactions with customer data
@@ -138,6 +141,7 @@ An investment firm deploys a research assistant agent to help analysts search in
 | Limits | Agent recommendations require human review before action |
 
 **Testing Schedule:**
+
 - Pre-deployment: Full functionality and bias testing
 - Monthly: Performance monitoring and drift detection
 - Quarterly: Independent validation and accuracy assessment
@@ -174,6 +178,7 @@ Review: Compliance Committee quarterly
 | Documentation | All agent outputs retained per FINRA 4511 |
 
 **Supervision Workflow:**
+
 1. Agent generates draft recommendation
 2. Analyst reviews and edits
 3. Supervisor reviews before publication
@@ -225,6 +230,7 @@ A property & casualty insurer deploys an agent to assist claims adjusters with i
 | Insurance Score | Pattern + context | Medium |
 
 **SIT Policy Application:**
+
 - Apply DLP rules to all custom SITs
 - Block external sharing of documents containing policy/claim numbers
 - Require encryption for documents with medical information
@@ -242,6 +248,7 @@ A property & casualty insurer deploys an agent to assist claims adjusters with i
 | Medical Records | Read (with authorization) | Medical claims only |
 
 **Scope Enforcement:**
+
 - API-level restrictions on data access
 - No bulk data export capability
 - Session-based access tokens (30-minute expiry)
@@ -288,6 +295,7 @@ An asset management firm deploys an agent to help portfolio managers analyze fun
 | FSI-Production | Prod | Prod-PortfolioAnalytics | Strict DLP, ACP enforced |
 
 **Promotion Workflow:**
+
 1. Development in Dev tier (no approval needed)
 2. Testing in Test tier (Tech Lead approval)
 3. Production deployment (Change Advisory Board approval)
@@ -304,6 +312,7 @@ An asset management firm deploys an agent to help portfolio managers analyze fun
 | Emergency | CTO + CCO | Immediate | Post-implementation within 24h |
 
 **Documentation Requirements:**
+
 - Business justification
 - Technical design
 - Test results from UAT
@@ -322,6 +331,7 @@ An asset management firm deploys an agent to help portfolio managers analyze fun
 | Top Queries | Track for accuracy | Manual review |
 
 **Reporting Cadence:**
+
 - Daily: Automated dashboard refresh
 - Weekly: Usage summary to stakeholders
 - Monthly: Performance review with IT leadership
@@ -354,6 +364,7 @@ A credit union deploys a member services agent to answer questions about account
 | PII Redaction in Logs | Enabled | Minimize data exposure |
 
 **Threat Response:**
+
 - Detected threats: Block immediately
 - Alert: Security Operations within 5 minutes
 - Log: Full interaction context retained
@@ -389,6 +400,7 @@ Agent Access:
 | Audit Logs | 10 years | Immutable storage |
 
 **Retention Workflow:**
+
 1. Auto-apply retention labels based on content type
 2. Quarterly disposition review
 3. Legal hold process for litigation

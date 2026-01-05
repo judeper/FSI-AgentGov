@@ -344,6 +344,7 @@ Storage principle where data can be written once but not modified or deleted.
 
 **Zone (Governance Zone)**
 Risk classification for agents:
+
 - Zone 1: Personal (low risk)
 - Zone 2: Team (medium risk)
 - Zone 3: Enterprise (high risk)

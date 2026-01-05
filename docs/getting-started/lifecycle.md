@@ -427,6 +427,7 @@ Maintain documentation at each phase for regulatory examinations:
 ## Support & Questions
 
 For lifecycle governance questions, contact:
+
 - AI Governance Lead (governance direction)
 - Compliance Officer (regulatory requirements)
 - Power Platform Admin (technical setup)

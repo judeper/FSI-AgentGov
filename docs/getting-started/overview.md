@@ -189,6 +189,7 @@ The people layer assigns accountability and ensures human oversight:
 - **Pillar 4:** 5 SharePoint Controls (4.1-4.5)
 
 Each control includes:
+
 - Overview and regulatory reference
 - 3 governance levels (Baseline, Recommended, Regulated)
 - Verification and testing procedures

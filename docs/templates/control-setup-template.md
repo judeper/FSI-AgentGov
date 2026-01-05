@@ -99,14 +99,17 @@ Connect-[ServiceName]
 ### Zone-Specific Configuration
 
 **Zone 1 (Personal Productivity):**
+
 - [Configuration guidance or "Not required for Zone 1"]
 - Rationale: [Why this configuration for Zone 1]
 
 **Zone 2 (Team Collaboration):**
+
 - [Specific configuration settings]
 - Rationale: [Why this configuration for Zone 2]
 
 **Zone 3 (Enterprise Managed):**
+
 - [Strict configuration settings]
 - Rationale: [Why this configuration for Zone 3]
 
@@ -115,12 +118,14 @@ Connect-[ServiceName]
 **Scenario:** [Concrete example - e.g., "Regional bank deploying customer service agents"]
 
 **Configuration:**
+
 - Allow: [List of approved items]
 - Block: [List of restricted items]
 - Audit level: [Recommended setting]
 - Retention period: [Recommended period]
 
 **Documentation Requirements:**
+
 - [What to document for compliance]
 - [Evidence to collect]
 
@@ -185,6 +190,7 @@ Connect-[ServiceName]
 ## Support & Questions
 
 For implementation support or questions about this control, contact:
+
 - **AI Governance Lead** (governance direction)
 - **Compliance Officer** (regulatory requirements)
 - **Technical Implementation Team** (platform setup)

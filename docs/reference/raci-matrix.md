@@ -132,6 +132,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Information security program and risk management
 
 **Responsibilities:**
+
 - Oversee agent security requirements
 - Approve security testing procedures
 - Incident response and escalation
@@ -148,6 +149,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Regulatory compliance and governance effectiveness
 
 **Responsibilities:**
+
 - Define governance policies and procedures
 - Oversee compliance assessments
 - Regulatory relationship management
@@ -164,6 +166,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Agent governance framework and implementation
 
 **Responsibilities:**
+
 - Framework administration
 - Agent classification to zones
 - Governance committee chair (Zone 3)
@@ -180,6 +183,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Technical implementation and platform governance
 
 **Responsibilities:**
+
 - Environment setup and management
 - Connector policies and restrictions
 - DLP policy configuration and testing
@@ -196,6 +200,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Compliance monitoring and audit support
 
 **Responsibilities:**
+
 - Audit log management
 - Compliance reporting
 - Data retention policies
@@ -212,6 +217,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Identity and access security
 
 **Responsibilities:**
+
 - MFA and Conditional Access setup
 - User provisioning and deprovisioning
 - Threat investigation
@@ -227,6 +233,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** SharePoint governance for agents
 
 **Responsibilities:**
+
 - Site permissions and access control
 - RCD (Restricted Content Discovery) setup
 - Retention policies
@@ -242,6 +249,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Legal risk and regulatory obligations
 
 **Responsibilities:**
+
 - AI vendor agreements
 - Customer disclosure requirements
 - Regulatory filing/disclosure
@@ -257,6 +265,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Enterprise risk oversight
 
 **Responsibilities:**
+
 - Model risk governance (OCC SR 11-7)
 - Fair lending oversight
 - Third-party risk management
@@ -272,6 +281,7 @@ The following RACI assignments apply to additional controls:
 **Accountability:** Independent control testing and assessment
 
 **Responsibilities:**
+
 - Annual control testing
 - Governance procedure testing
 - Compliance monitoring
@@ -402,16 +412,19 @@ The following RACI assignments apply to additional controls:
 ## Escalation Procedures
 
 **Level 1 (Compliance Officer):**
+
 - Policy violations
 - Non-compliance findings
 - Performance issues
 
 **Level 2 (CISO/Compliance):**
+
 - Security incidents
 - Potential data breaches
 - Regulatory concerns
 
 **Level 3 (Board/CEO):**
+
 - Material security breaches
 - Regulatory violations
 - Customer impact incidents

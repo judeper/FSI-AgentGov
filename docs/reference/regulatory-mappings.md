@@ -24,12 +24,14 @@ Requires firms to maintain records of all agent activities and communications.
 ### Governance Framework Alignment
 
 **Zone 2 Requirements:**
+
 - Maintain 1-year audit logs
 - Document approval process
 - Monthly compliance reviews
 - Supervisory controls per Rule 3110
 
 **Zone 3 Requirements:**
+
 - Maintain 6-year + 1 year accessible audit logs
 - Comprehensive real-time monitoring
 - Immediate incident escalation
@@ -80,11 +82,13 @@ Requires written policies and procedures for supervision of agents and AI techno
 **Zone 1:** No supervision required
 
 **Zone 2:** 
+
 - Basic supervisory procedures
 - Quarterly compliance reviews
 - Annual testing
 
 **Zone 3:**
+
 - Comprehensive supervision
 - Real-time monitoring
 - Mandatory incident escalation
@@ -158,18 +162,21 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 ### Record Categories
 
 **Agent Communications:**
+
 - All user interactions with agents
 - All agent outputs and decisions
 - All approvals and rejections
 - Retention: 6 years + 3 years accessible
 
 **Transaction Records:**
+
 - If agent processes transactions
 - If agent provides investment advice
 - If agent executes trades
 - Retention: 6 years + 3 years accessible
 
 **Governance Records:**
+
 - Agent approvals
 - Change logs
 - Incident reports
@@ -179,11 +186,13 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 ### Governance Framework Alignment
 
 **Zone 2:**
+
 - 1-year retention minimum
 - Audit logs searchable
 - Weekly export recommended
 
 **Zone 3:**
+
 - 6-year + 3-year accessible
 - Immutable storage mandatory
 - Real-time audit trail
@@ -231,6 +240,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 ### Governance Framework Alignment
 
 **Zone 3 Customer-Facing Agents:**
+
 - Mandatory bias testing (quarterly)
 - Fair treatment confirmed
 - Escalation procedures documented
@@ -280,11 +290,13 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 ### Governance Framework Alignment
 
 **Zone 2 Agents:**
+
 - Annual control testing
 - Results documented
 - Basic compliance reporting
 
 **Zone 3 Agents:**
+
 - Annual control testing + quarterly assessments
 - Comprehensive documentation
 - Monthly compliance certification
@@ -333,12 +345,14 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 ### Governance Framework Alignment
 
 **Zone 2 Agents Accessing Customer Data:**
+
 - MFA required
 - Encryption in transit
 - DLP policies
 - Annual training
 
 **Zone 3 Agents:**
+
 - Phishing-resistant MFA
 - Encryption in transit and at rest
 - Strictest DLP
@@ -394,6 +408,7 @@ Applies to national banks and federal savings associations. Requires governance 
 ### Governance Framework Alignment
 
 **Agent Classification as Model:**
+
 - Agents using ML/statistical algorithms = Model
 - Requires SR 11-7 governance framework
 - Annual third-party validation recommended
@@ -402,11 +417,13 @@ Applies to national banks and federal savings associations. Requires governance 
 ### Applicability
 
 **OCC Regulated Entities (National Banks, FSAs):**
+
 - All Zone 3 agents using ML = Model
 - SR 11-7 framework required
 - Annual validation mandatory
 
 **Non-OCC Entities:**
+
 - SR 11-7 represents best practice
 - Apply for Zone 3 high-risk agents
 - Recommended even if not OCC-regulated
@@ -450,6 +467,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 ### Governance Framework Alignment
 
 **Credit/Lending Agents (Zone 3):**
+
 - Mandatory bias testing (quarterly)
 - ECOA protected classes tested
 - Results documented and retained
@@ -516,6 +534,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 ### Governance Framework Alignment
 
 **Consumer-Facing Agents (Zone 3):**
+
 - Mandatory bias testing (quarterly)
 - Disclosure to consumers about AI use
 - Human escalation available
@@ -571,6 +590,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 ### Governance Framework Alignment
 
 **FDIC-Supervised Institutions:**
+
 - Apply the same zone-based governance as OCC/Fed institutions
 - Follow interagency model risk guidance (SR 11-7) for AI agents
 - Reference FFIEC IT Examination Handbook for examination preparation
@@ -629,6 +649,7 @@ Part 748 requires credit unions to maintain a security program. Framework contro
 ### Governance Framework Alignment
 
 **Credit Union Implementation:**
+
 - Credit unions may adapt the framework based on asset size and complexity
 - Smaller credit unions may combine roles (see RACI Matrix guidance)
 - Zone classification remains applicable
@@ -673,6 +694,7 @@ The framework's controls align with NYDFS Part 500 cybersecurity requirements:
 **Applicability:** Institutions with California customers may be subject to CCPA/CPRA for certain data processing activities.
 
 **GLBA Preemption:** Financial institutions subject to GLBA may have limited CCPA/CPRA obligations for GLBA-covered data. However:
+
 - Non-GLBA data may still be subject to CCPA/CPRA
 - Employee data may be subject to CPRA
 - Consult legal counsel for your specific situation
@@ -682,6 +704,7 @@ The framework's data governance controls (1.5, 1.6, 1.9, 1.14) support privacy c
 ### Other State Regulations
 
 Additional state-level requirements may apply:
+
 - **State Insurance Regulators** - See Insurance Regulators section
 - **State Banking Regulators** - State-chartered institutions should consult their state regulator
 - **State Privacy Laws** - Other states have enacted privacy laws (Virginia, Colorado, Connecticut, etc.)
@@ -720,6 +743,7 @@ The framework controls are generally applicable to insurance companies:
 ### Governance Framework Alignment
 
 **Insurance Company Implementation:**
+
 - Apply zone-based classification to AI agents
 - Follow state insurance regulator requirements
 - Reference NAIC model laws as baseline
