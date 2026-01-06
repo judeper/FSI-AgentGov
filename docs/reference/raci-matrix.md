@@ -105,7 +105,7 @@ The following RACI assignments apply to additional controls:
 | Track improvements | R | I | A | C | C |
 | Executive reporting | R | A | C | I | I |
 
-### Control 3.8: Copilot Command Center
+### Control 3.8: Copilot Hub
 
 | Activity | AI Lead | Compliance | CISO | PP Admin | Business |
 |----------|---------|-----------|------|----------|----------|

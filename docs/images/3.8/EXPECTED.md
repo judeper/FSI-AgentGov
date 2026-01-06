@@ -1,4 +1,4 @@
-# Control 3.8: Copilot Command Center
+# Control 3.8: Copilot Hub
 
 ## Expected Screenshots
 

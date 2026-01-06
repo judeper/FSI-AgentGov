@@ -61,7 +61,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.5 | [Cost Allocation and Budget Tracking](pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) |
 | 3.6 | [Orphaned Agent Detection and Remediation](pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
 | 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) |
-| 3.8 | [Copilot Command Center](pillar-3-reporting/3.8-copilot-command-center.md) |
+| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
 | 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
 ## Pillar 4: SharePoint Advanced Management (5 Controls)
@@ -126,7 +126,7 @@ Focus: Visibility and monitoring of agent activities, performance, and complianc
 - Cost Tracking
 - Orphaned Agent Detection
 - PPAC Security Posture
-- Copilot Command Center
+- Copilot Hub
 - Sentinel Integration
 
 ### Pillar 4: SharePoint Advanced Management (5 Controls)

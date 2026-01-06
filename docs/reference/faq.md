@@ -133,9 +133,9 @@ A: **Environment Groups** allow you to:
 
 Navigate to PPAC → Manage → Environment groups to configure. See [Control 2.2: Environment Groups](pillar-2-management/2.2-environment-groups-and-tier-classification.md).
 
-### Q: What is the Copilot Command Center?
+### Q: What is the Copilot Hub?
 
-A: The **Copilot Command Center** (Copilot Hub) provides:
+A: The **Copilot Hub** (in Power Platform Admin Center) provides:
 
 - Centralized dashboard for agent governance
 - Usage and adoption metrics
@@ -143,7 +143,7 @@ A: The **Copilot Command Center** (Copilot Hub) provides:
 - Capacity/consumption monitoring
 - Quick access to governance controls
 
-Access via PPAC → Copilot. See [Control 3.8: Copilot Command Center](pillar-3-reporting/3.8-copilot-command-center.md).
+Access via PPAC → Copilot. See [Control 3.8: Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
 
 ### Q: How do I monitor AI data security risks?
 

@@ -120,7 +120,7 @@ nav:
     - 3.5 Cost Allocation And Budget Tracking: reference/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md
     - 3.6 Orphaned Agent Detection And Remediation: reference/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md
     - 3.7 PPAC Security Posture Assessment: reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md
-    - 3.8 Copilot Command Center: reference/pillar-3-reporting/3.8-copilot-command-center.md
+    - 3.8 Copilot Hub: reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md
     - 3.9 Microsoft Sentinel Integration: reference/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
   - SharePoint Controls (Pillar 4):
     - Overview: reference/pillar-4-sharepoint/index.md

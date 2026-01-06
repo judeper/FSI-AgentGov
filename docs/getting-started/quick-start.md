@@ -33,7 +33,7 @@ The framework recommends a structured 3-phase adoption approach:
 | Enable environment routing | Critical | [2.15](../reference/pillar-2-management/2.15-environment-routing.md) |
 | Configure environment groups | Critical | [2.2](../reference/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
 | Deploy security controls | High | Pillar 1 controls |
-| Set up monitoring | High | [3.7](../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../reference/pillar-3-reporting/3.8-copilot-command-center.md) |
+| Set up monitoring | High | [3.7](../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
 | Iterate based on feedback | Ongoing | All controls |
 
 ---
