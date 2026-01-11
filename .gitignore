@@ -24,7 +24,7 @@ __pycache__/
 # Internal working documents (keep locally, exclude from release)
 docs/analysis/
 docs/verification-report.md
-templates/
+/templates/
 
 # Maintainer-only local artifacts (NEVER commit)
 maintainers-local/
