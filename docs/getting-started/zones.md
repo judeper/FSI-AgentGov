@@ -18,6 +18,34 @@ The framework uses three governance zones to balance innovation with compliance.
 | **Regulatory Scrutiny** | None | Moderate | Full compliance |
 | **Setup Time** | 1-2 days | 1-2 weeks | 3-6 weeks |
 
+### Executive Summary Matrix {#executive-summary-matrix}
+
+This matrix provides a board-level summary of governance zone differences for executive reporting and oversight discussions.
+
+| Dimension | Zone 1: Personal | Zone 2: Team | Zone 3: Enterprise |
+|-----------|-----------------|--------------|-------------------|
+| **Purpose** | Learning, prototyping, personal productivity | Team collaboration, internal workflow automation | Production deployment, customer-facing services |
+| **Risk Level** | Low | Medium | High |
+| **Data Sensitivity** | Personal data only, M365 Graph | Internal business data | Regulated data (PII, financial, customer) |
+| **AI Capabilities** | Experimental AI allowed | Production-ready models only | Validated models only |
+| **ALM Requirements** | None (direct editing) | Basic version control recommended | Full CI/CD pipeline with gates |
+| **Testing Required** | Informal | Functional + security testing | Comprehensive (functional, security, bias, performance) |
+| **Approval Authority** | Self-service | Manager/Department Head | Governance Committee + Legal |
+| **Regulatory Exposure** | None | Moderate (FINRA 3110 supervision) | Full (SEC 17a-3/4, FINRA 4511, OCC 2011-12) |
+| **Audit Retention** | 30 days | 1 year | 10 years (immutable) |
+| **Incident Response SLA** | Best effort | 24 hours | 4 hours |
+| **Human Oversight** | Optional | Recommended | Mandatory |
+
+**Key Decision Factors for Executives:**
+
+| Question | Zone 1 Answer | Zone 2 Answer | Zone 3 Answer |
+|----------|---------------|---------------|---------------|
+| Can this agent make decisions affecting customers? | No | No | Yes, with oversight |
+| Can this agent access customer data? | No | No | Yes, with controls |
+| Would a failure create regulatory exposure? | No | Limited | Significant |
+| Would a failure create reputational risk? | No | Limited | Significant |
+| Is external audit evidence required? | No | Limited | Yes |
+
 ---
 
 ## Zone 1: Personal Productivity {#zone-1}
@@ -581,4 +609,4 @@ Each zone should have recurring compliance reviews:
 
 ---
 
-*FSI Agent Governance Framework Beta - December 2025*
+*FSI Agent Governance Framework v1.0 - January 2026*

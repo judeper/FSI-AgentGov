@@ -789,4 +789,4 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ---
 
-*FSI Agent Governance Framework Beta - December 2025*
+*FSI Agent Governance Framework v1.0 - January 2026*

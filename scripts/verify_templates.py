@@ -80,8 +80,8 @@ def verify_markdown_template():
 
     required_snippets = [
         "**Primary Owner Admin Role:**",
-        "**Updated:** Dec 2025",
-        "**Version:** v1.0 Beta (Dec 2025)",
+        "**Updated:** Jan 2026",
+        "**Version:** v1.0 (Jan 2026)",
         "**UI Verification Status:**",
     ]
     

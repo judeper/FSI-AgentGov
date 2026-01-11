@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework v1.0 Beta
+# FSI Agent Governance Framework v1.0
 
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.0 Beta (December 2025)
+**Version:** 1.0 (January 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -299,6 +299,7 @@ This framework is designed for continuous evolution:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.0 | Jan 2026 | Added evaluation gates, adversarial testing, multi-agent governance, RACI templates, governance review cadence | FSI Governance Team |
 | 1.0 Beta | Dec 2025 | Enhanced with AI data governance (DSPM), bias testing, runtime protection, FINRA Notice 25-07 alignment | FSI Governance Team |
 | 0.9 | Oct 2025 | Initial Internal Draft | FSI Governance Team |
 
@@ -326,5 +327,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.0 Beta - December 2025*  
+*FSI Agent Governance Framework v1.0 - January 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework Beta
+# FSI Agent Governance Framework
 
 Comprehensive governance framework for Microsoft 365 AI agents in financial services organizations.
 
@@ -6,7 +6,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.0 Beta (December 2025)
+**Version:** 1.0 (January 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve
 
@@ -360,5 +360,5 @@ This framework is provided for use by financial services organizations. Modify a
 
 ---
 
-*FSI Agent Governance Framework Beta - December 2025*  
+*FSI Agent Governance Framework v1.0 - January 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

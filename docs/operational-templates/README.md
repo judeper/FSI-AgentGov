@@ -1,6 +1,6 @@
 # Operational Templates & Specifications
 
-**Status:** Added January 2026 to support FSI-AgentGov v1.0 Beta framework implementation
+**Status:** Added January 2026 to support FSI-AgentGov v1.0 framework implementation
 
 This section provides practical, production-ready templates and technical specifications that operationalize the existing 48 controls across the four pillars.
 
@@ -159,7 +159,7 @@ All templates in this section follow FSI-AgentGov conventions:
 - **Language:** Supports compliance with [regulation] (never "ensures" or "guarantees")
 - **Audience:** M365 administrators in US financial services
 - **Scope:** US-only, Microsoft 365 Copilot agents
-- **Versioning:** Aligned with framework v1.0 Beta (December 2025)
+- **Versioning:** Aligned with framework v1.0 (January 2026)
 - **Regulatory:** FINRA, SEC, SOX, GLBA, OCC, Fed SR 11-7, Colorado SB24-205 *(optional)*
 
 ---
@@ -193,5 +193,5 @@ For questions about specific templates or specifications:
 
 ---
 
-*FSI Agent Governance Framework v1.0 Beta (December 2025)*
+*FSI Agent Governance Framework v1.0 - January 2026*
 *Operational Templates: January 2026*

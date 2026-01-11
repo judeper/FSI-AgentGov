@@ -200,5 +200,5 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 
 ---
 
-*Last Updated: December 2025*  
-*Note: Microsoft admin portal UI changes frequently. Paths verified as of December 2025.*
+*Last Updated: January 2026*
+*Note: Microsoft admin portal UI changes frequently. Paths verified as of January 2026.*

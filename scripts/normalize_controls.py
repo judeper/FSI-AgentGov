@@ -1,8 +1,8 @@
 """Normalize control document metadata across all 48 controls.
 
-This script enforces the beta requirements:
-- Footer must include the exact string: "v1.0 Beta (Dec 2025)"
-- Footer must include: "Updated: Dec 2025" (month-year)
+This script enforces the v1.0 requirements:
+- Footer must include the exact string: "v1.0 (Jan 2026)"
+- Footer must include: "Updated: Jan 2026" (month-year)
 
 It also removes legacy/conflicting metadata in control overviews/footers
 (e.g., "Version: 2.0", "Last Updated: January 2025") and collapses
@@ -31,8 +31,8 @@ PILLAR_DIRS = [
     DOCS_DIR / "reference" / "pillar-4-sharepoint",
 ]
 
-CANON_UPDATED = "Dec 2025"
-CANON_VERSION = "v1.0 Beta (Dec 2025)"
+CANON_UPDATED = "Jan 2026"
+CANON_VERSION = "v1.0 (Jan 2026)"
 
 
 @dataclass

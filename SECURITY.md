@@ -36,4 +36,4 @@ When implementing this framework:
 
 ---
 
-*FSI Agent Governance Framework v1.0 Beta*
+*FSI Agent Governance Framework v1.0 - January 2026*

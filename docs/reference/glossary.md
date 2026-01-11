@@ -376,4 +376,4 @@ Risk classification for agents:
 
 ---
 
-*FSI Agent Governance Framework Beta - December 2025*
+*FSI Agent Governance Framework v1.0 - January 2026*

@@ -75,4 +75,4 @@ These roles appear in some controls under **Support & Questions** or governance 
 
 ---
 
-*FSI Agent Governance Framework v1.0 Beta (Dec 2025)*
+*FSI Agent Governance Framework v1.0 - January 2026*

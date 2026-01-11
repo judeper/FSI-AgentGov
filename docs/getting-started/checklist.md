@@ -407,4 +407,4 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ---
 
-*FSI Agent Governance Framework Beta - December 2025*
+*FSI Agent Governance Framework v1.0 - January 2026*

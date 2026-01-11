@@ -2,7 +2,7 @@ site_name: FSI Agent Governance Framework
 site_description: "Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services"
 site_author: "FSI Agent Governance Team"
 site_url: "https://judeper.github.io/FSI-AgentGov/"
-copyright: "*FSI Agent Governance Framework Beta - December 2025*"
+copyright: "*FSI Agent Governance Framework v1.0 - January 2026*"
 
 extra:
   generator: false
@@ -73,6 +73,7 @@ nav:
     - Zones Guide: getting-started/zones.md
     - Lifecycle Governance: getting-started/lifecycle.md
     - Implementation Checklist: getting-started/checklist.md
+    - Governance Review Cadence: getting-started/governance-review-cadence.md
   - Security Controls (Pillar 1):
     - Overview: reference/pillar-1-security/index.md
     - 1.1 Restrict Agent Publishing By Authorization: reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
@@ -142,6 +143,7 @@ nav:
         - Escalation Matrix: operational-templates/templates/escalation-matrix.md
         - Per-Agent Data Policy: operational-templates/templates/per-agent-data-policy.md
         - Purview Audit Query Pack: operational-templates/templates/purview-audit-query-pack.md
+        - RACI Governance Template: operational-templates/templates/raci-governance-template.md
         - Supply Chain Risk Register: operational-templates/templates/supply-chain-risk-register-entry.md
       - Specifications:
         - Confidence & Routing: operational-templates/specs/confidence-and-routing.md

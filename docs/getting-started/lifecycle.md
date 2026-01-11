@@ -434,5 +434,5 @@ For lifecycle governance questions, contact:
 
 ---
 
-*Last Updated: December 2025*
-*Version: 1.0 Beta*
+*Last Updated: January 2026*
+*Version: 1.0 (Jan 2026)*

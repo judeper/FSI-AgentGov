@@ -9,8 +9,8 @@ CONTROL_INDEX_PATH = DOCS_DIR / "reference" / "CONTROL-INDEX.md"
 REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
 PILLARS_DIR = DOCS_DIR / "reference"
 
-CANON_UPDATED = "**Updated:** Dec 2025"
-CANON_VERSION = "**Version:** v1.0 Beta (Dec 2025)"
+CANON_UPDATED = "**Updated:** Jan 2026"
+CANON_VERSION = "**Version:** v1.0 (Jan 2026)"
 CANON_UI_STATUS_PREFIX = "**UI Verification Status:**"
 PRIMARY_OWNER_FIELD = "**Primary Owner Admin Role:**"
 
@@ -110,10 +110,10 @@ def validate_control_file(path: Path):
         failures.append("missing Primary Owner Admin Role field")
 
     if CANON_UPDATED not in content:
-        failures.append("missing canonical Updated: Dec 2025 footer")
+        failures.append("missing canonical Updated: Jan 2026 footer")
 
     if CANON_VERSION not in content:
-        failures.append("missing canonical Version: v1.0 Beta (Dec 2025) footer")
+        failures.append("missing canonical Version: v1.0 (Jan 2026) footer")
 
     if CANON_UI_STATUS_PREFIX not in content:
         failures.append("missing UI Verification Status footer line")
