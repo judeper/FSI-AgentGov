@@ -73,9 +73,10 @@ mkdocs serve           # Preview locally at http://localhost:8000
 
 ## AI Agent Context
 
-If you're using GitHub Copilot or other AI assistants with this repository:
+If you're using AI assistants with this repository:
 
-- **`.github/copilot-instructions.md`** - Repository-wide context for Copilot
+- **`.github/copilot-instructions.md`** - Repository-wide context for GitHub Copilot
+- **`.claude/claude.md`** - Context and workflows for Claude Code (interactive pair programming)
 - **`AGENTS.md`** - Instructions for autonomous agent tasks
 - **`docs/templates/README.md`** - Guide to using control templates
 

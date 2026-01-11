@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\")",
+      "Bash(git -C \"C:\\\\dev\\\\FSI-AgentGov\" rev-parse:*)",
+      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov remote:*)",
+      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov config:*)",
+      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov log --oneline --all --graph -10)",
+      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov rev-parse:*)",
+      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov bundle verify /c/dev/FSI-AgentGov/FSI-AgentGov-pre-rewrite-2025-12-18.bundle)",
+      "Bash(git bundle:*)",
+      "Bash(git rev-parse:*)"
+    ]
+  }
+}

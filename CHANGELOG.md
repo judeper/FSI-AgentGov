@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1] — January 2026
+
+### Operational Templates & Advanced Governance
+
+**Status:** Operational templates released to support 48-control baseline
+**Date:** January 10, 2026
+**Scope:** Enhancements to existing 48 controls; no breaking changes
+
+#### Added
+
+- **Operational Templates Section** - 14 new production-ready templates and specifications
+  - 9 implementation templates (matrices, schemas, registries)
+  - 5 technical specifications (dashboards, detection, routing)
+  - Optional Colorado AI Act readiness module (conditional for CO operations)
+- **Infrastructure & Documentation**
+  - `.claude/claude.md` - Claude Code agent instructions (mirrors GitHub Copilot guidance)
+  - Comprehensive validation report with regulatory and technical feasibility assessment
+  - Cross-reference links from existing controls (1.7, 2.7, 2.12, 3.8) to related templates
+
+#### Enhanced
+
+- **Control 1.7 (Audit Logging)** - Links to Decision Log Schema, Zone 1 Explainability, Evidence Pack Assembly
+- **Control 2.7 (Vendor Risk)** - Links to Supply Chain Risk Register Entry template
+- **Control 2.12 (Supervision & Oversight)** - Links to Escalation Matrix and Action Authorization Matrix
+- **Control 3.8 (Copilot Command Center)** - Links to Real-time Compliance Dashboard and Evidence Pack Assembly
+- **CONTRIBUTING.md** - Added reference to `.claude/claude.md` for Claude Code users
+
+#### Fixed
+
+- Repository folder structure - Eliminated nested duplication (was `FSI-AgentGov/FSI-AgentGov/`, now `FSI-AgentGov/`)
+
+#### Documentation
+
+- Regulatory citations verified: FINRA 2026 Report, SEC 2026 Exam Priorities, Colorado SB24-205
+- Technical feasibility assessed: Purview audit capabilities with documented workarounds
+- Alignment confirmed: All 10 gaps enhance existing 48 controls with zero conflicts
+
+---
+
 ## [Beta] — December 2025
 
 ### Initial Beta Release

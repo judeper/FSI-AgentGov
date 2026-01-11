@@ -47,10 +47,10 @@ validation:
     absolute_links: warn
 
 # Exclude files that are intentionally not in navigation
+# Note: 'templates/' matches docs/templates/ but NOT operational-templates/
 exclude_docs: |
   images/
   scripts/
-  templates/
 
 markdown_extensions:
   - admonition
@@ -131,6 +131,26 @@ nav:
     - 4.5 SharePoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
   - Reference:
     - Control Index: reference/CONTROL-INDEX.md
+    - Operational Templates:
+      - Overview: operational-templates/README.md
+      - Templates:
+        - Action Authorization Matrix: operational-templates/templates/action-authorization-matrix.md
+        - Agent Inventory Entry: operational-templates/templates/agent-inventory-entry.md
+        - Colorado AI Impact Assessment: operational-templates/templates/colorado-ai-impact-assessment.md
+        - Decision Log Schema: operational-templates/templates/decision-log-schema.md
+        - DSPM for AI Policy Pack: operational-templates/templates/dspm-for-ai-policy-pack.md
+        - Escalation Matrix: operational-templates/templates/escalation-matrix.md
+        - Per-Agent Data Policy: operational-templates/templates/per-agent-data-policy.md
+        - Purview Audit Query Pack: operational-templates/templates/purview-audit-query-pack.md
+        - Supply Chain Risk Register: operational-templates/templates/supply-chain-risk-register-entry.md
+      - Specifications:
+        - Confidence & Routing: operational-templates/specs/confidence-and-routing.md
+        - Evidence Pack Assembly: operational-templates/specs/evidence-pack-assembly.md
+        - Real-time Compliance Dashboard: operational-templates/specs/real-time-compliance-dashboard.md
+        - Scope Creep Detection: operational-templates/specs/scope-creep-detection.md
+        - Zone 1 Minimum Explainability: operational-templates/specs/zone1-min-explainability.md
+      - Modules:
+        - Colorado AI Act Readiness: operational-templates/modules/colorado-ai-act-readiness.md
     - Administrator Role Catalog: reference/role-catalog.md
     - Glossary: reference/glossary.md
     - RACI Matrix: reference/raci-matrix.md
