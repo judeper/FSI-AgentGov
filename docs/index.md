@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework Documentation
 
-**Version:** 1.0 Beta (December 2025)
+**Version:** 1.0 Beta (Jan 2026)
 
 Welcome to the FSI Agent Governance Framework documentation. This framework provides comprehensive guidance for deploying, governing, and managing Microsoft 365 AI agents (Copilot Studio, Agent Builder) in regulated financial services environments.
 
@@ -8,7 +8,7 @@ Use **Getting Started** to familiarize yourself with the framework structure and
 
 > **Disclaimer:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [Disclaimer](disclaimer.md) for full details.
 
-To stay current: **Star** the repository, use **Watch → Releases** for low-noise updates, and **share with your compliance team** as part of your review.
+To stay current: **[Star this repository](https://github.com/judeper/FSI-AgentGov)** on GitHub, use **Watch → Releases** for low-noise updates, and **share with your compliance team** as part of your review.
 
 ---
 
@@ -37,4 +37,4 @@ To stay current: **Star** the repository, use **Watch → Releases** for low-noi
 
 ---
 
-*FSI Agent Governance Framework v1.0 Beta - December 2025*
+*FSI Agent Governance Framework v1.0 Beta - January 2026*
