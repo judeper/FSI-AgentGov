@@ -251,23 +251,20 @@ Regulatory mappings and coverage are maintained in a single canonical table.
 
 ### Governance Maturity Levels
 
-Each control is documented with 4 maturity levels:
+Each control is documented with 3 governance levels:
 
-- **Level 0:** Not implemented
-- **Level 1:** Baseline (minimal compliance)
-- **Level 2-3:** Recommended (best practices)
-- **Level 4:** Regulated/High-Risk (comprehensive)
+- **Level 1 - Baseline:** Minimum required implementation for compliance
+- **Level 2-3 - Recommended:** Best practice implementation for Zone 2+ agents
+- **Level 4 - Regulated/High-Risk:** Comprehensive controls for Zone 3 and regulated environments
 
 ```mermaid
 graph LR
-    L0[Level 0<br/>Not Implemented]
     L1[Level 1<br/>Baseline]
     L23[Level 2-3<br/>Recommended]
     L4[Level 4<br/>Regulated]
 
-    L0 --> L1 --> L23 --> L4
+    L1 --> L23 --> L4
 
-    style L0 fill:#EF5350,color:#fff
     style L1 fill:#FFA726,color:#fff
     style L23 fill:#42A5F5,color:#fff
     style L4 fill:#66BB6A,color:#fff
@@ -280,6 +277,16 @@ graph LR
 3. **Verify** - Use verification procedures
 4. **Document** - Record evidence for audit
 5. **Review** - Schedule recurring reviews (quarterly)
+
+**How the 5-step approach maps to control documentation:**
+
+| Step | Control Template Section | Purpose |
+|------|--------------------------|---------|
+| **Assess** | Governance Levels | Determine target maturity level |
+| **Implement** | Setup & Configuration | Step-by-step implementation guidance |
+| **Verify** | Verification & Testing | Confirm control is working |
+| **Document** | Additional Resources, Related Controls | Reference materials for audit |
+| **Review** | [Governance Review Cadence](governance-review-cadence.md) | Quarterly/semi-annual/annual reviews |
 
 ---
 
