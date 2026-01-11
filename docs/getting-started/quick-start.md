@@ -33,7 +33,7 @@ The framework recommends a structured 3-phase adoption approach:
 | Enable environment routing | Critical | [2.15](../reference/pillar-2-management/2.15-environment-routing.md) |
 | Configure environment groups | Critical | [2.2](../reference/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
 | Deploy security controls | High | Pillar 1 controls |
-| Set up monitoring | High | [3.7](../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../reference/pillar-3-reporting/3.8-copilot-command-center.md) |
+| Set up monitoring | High | [3.7](../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
 | Iterate based on feedback | Ongoing | All controls |
 
 ---
@@ -45,12 +45,14 @@ The framework recommends a structured 3-phase adoption approach:
 The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
+
 1. Security (19 controls) - Protect data
 2. Management (15 controls) - Govern lifecycle
 3. Reporting (9 controls) - Monitor activities
 4. SharePoint (5 controls) - Govern SharePoint
 
 **3 Zones (risk levels):**
+
 1. Zone 1 - Personal development (low risk)
 2. Zone 2 - Team collaboration (medium risk)
 3. Zone 3 - Enterprise production (high risk)
@@ -74,6 +76,7 @@ Ask these questions:
 ### Step 3: Find Applicable Regulations (2 min)
 
 Check which regulations apply to your organization:
+
 - ✅ FINRA? (broker-dealers)
 - ✅ SEC? (investment advisers, public companies)
 - ✅ SOX? (public companies)
@@ -132,12 +135,14 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 **Time Required:** 1 day
 
 **Steps:**
+
 1. Create agent in personal environment
 2. Document agent purpose
 3. Keep basic audit logs (30 days)
 4. No approval needed
 
 **Controls Required:**
+
 - Basic documentation
 - Minimal governance
 
@@ -150,6 +155,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 **Time Required:** 1 week
 
 **Steps:**
+
 1. Get manager approval
 2. Classify agent to Zone 2
 3. Identify data sources
@@ -158,6 +164,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 6. Train team members
 
 **Controls Required (minimum):**
+
 - 1.2 Agent Registry
 - 1.5 DLP and Labels
 - 1.7 Audit Logging (1 year)
@@ -174,6 +181,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 **Time Required:** 3-6 weeks
 
 **Steps:**
+
 1. Establish governance committee
 2. Risk assessment and business case
 3. Security testing
@@ -186,10 +194,12 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 10. Production deployment
 
 **Controls Required (comprehensive):**
+
 - All 48 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 
+
 - FINRA comprehensive
 - SEC Rule 17a-3/4
 - SOX 302/404

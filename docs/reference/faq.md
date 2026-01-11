@@ -9,6 +9,7 @@ Common questions and answers about the FSI Agent Governance Framework.
 ### Q: Where do I start?
 
 A: Read in this order:
+
 1. README.md (5 min overview)
 2. [Zones Guide](../getting-started/zones.md) (understand your zone)
 3. [Quick Start](../getting-started/quick-start.md) (30 min hands-on)
@@ -17,6 +18,7 @@ A: Read in this order:
 ### Q: What if I don't know which zone my agent should be in?
 
 A: Use the [Zone Decision Matrix](../getting-started/zones.md#zone-decision-matrix):
+
 - Zone 1: Personal only, M365 data only
 - Zone 2: Team/dept, internal data only
 - Zone 3: Org-wide, customer data, regulated data
@@ -26,6 +28,7 @@ Ask your manager or compliance officer if unsure.
 ### Q: How long does implementation take?
 
 A: Depends on current state:
+
 - **Zone 1:** 1-2 days (minimal)
 - **Zone 2:** 1-2 weeks (moderate)
 - **Zone 3:** 3-6 weeks (comprehensive)
@@ -39,6 +42,7 @@ Full framework: 8-week phased approach (see the [Implementation Checklist](../ge
 ### Q: Why are there 48 controls?
 
 A: The framework covers:
+
 - **Pillar 1:** 19 security controls
 - **Pillar 2:** 15 management/lifecycle controls
 - **Pillar 3:** 9 reporting/monitoring controls
@@ -49,6 +53,7 @@ Total = 48 controls covering all governance areas.
 ### Q: Do I need to implement all 48 controls?
 
 A: No. Implement based on:
+
 1. **Your zone:** Zone 1 needs fewer, Zone 3 needs all
 2. **Your regulations:** Implement applicable controls
 3. **Your risk tolerance:** Higher risk = more controls
@@ -58,6 +63,7 @@ Start with baseline for your zone, add recommended/regulated as you mature.
 ### Q: What's a "governance level"?
 
 A: Each control has 3 levels:
+
 - **Baseline (Level 1):** Minimum implementation
 - **Recommended (Level 2-3):** Best practices
 - **Regulated/High-Risk (Level 4):** Comprehensive
@@ -67,6 +73,7 @@ Implement baseline for Zone 1, baseline+recommended for Zone 2, all levels for Z
 ### Q: Can I modify the framework?
 
 A: Yes! The framework is a starting point. You can:
+
 - Add controls specific to your organization
 - Combine controls if makes sense
 - Adjust governance levels based on risk
@@ -81,6 +88,7 @@ Maintain version control and document changes.
 ### Q: How do I prevent users from creating agents in the default environment?
 
 A: Enable **environment routing** in Power Platform Admin Center:
+
 1. Navigate to PPAC → Manage → Environment groups
 2. Enable **Default environment routing**
 3. Configure routing rules to direct makers to appropriate environments
@@ -91,6 +99,7 @@ This prevents shadow AI by automatically routing makers to governed environments
 ### Q: Where can I see all agents across my tenant?
 
 A: Use the **PPAC Inventory experience** (Preview):
+
 1. Power Platform Admin Center → Resources → Agents
 2. View tenant-wide agent list with metadata
 3. Filter by environment, owner, or status
@@ -103,6 +112,7 @@ See [Control 3.1: Agent Inventory](pillar-3-reporting/3.1-agent-inventory-and-me
 ### Q: How do I promote an agent from Zone 2 to Zone 3?
 
 A: Follow the **zone promotion process**:
+
 1. Complete all Zone 3 governance requirements
 2. Submit formal promotion request to Governance Committee
 3. Undergo security and compliance review
@@ -115,6 +125,7 @@ See [Lifecycle Governance Guide](../getting-started/lifecycle.md) and [Control 2
 ### Q: What are Environment Groups and how do they help governance?
 
 A: **Environment Groups** allow you to:
+
 - Group environments by zone (Zone 1, Zone 2, Zone 3)
 - Apply consistent governance rules across all environments in a group
 - Enforce connector policies, sharing limits, and AI model restrictions
@@ -122,20 +133,22 @@ A: **Environment Groups** allow you to:
 
 Navigate to PPAC → Manage → Environment groups to configure. See [Control 2.2: Environment Groups](pillar-2-management/2.2-environment-groups-and-tier-classification.md).
 
-### Q: What is the Copilot Command Center?
+### Q: What is the Copilot Hub?
 
-A: The **Copilot Command Center** (Copilot Hub) provides:
+A: The **Copilot Hub** (in Power Platform Admin Center) provides:
+
 - Centralized dashboard for agent governance
 - Usage and adoption metrics
 - ROI tracking and business value insights
 - Capacity/consumption monitoring
 - Quick access to governance controls
 
-Access via PPAC → Copilot. See [Control 3.8: Copilot Command Center](pillar-3-reporting/3.8-copilot-command-center.md).
+Access via PPAC → Copilot. See [Control 3.8: Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
 
 ### Q: How do I monitor AI data security risks?
 
 A: Use **Microsoft Purview DSPM for AI**:
+
 1. Navigate to purview.microsoft.com → DSPM for AI
 2. Review recommendations for AI security
 3. Enable activity monitoring for AI interactions
@@ -147,6 +160,7 @@ See [Control 1.6: DSPM for AI](pillar-1-security/1.6-microsoft-purview-dspm-for-
 ### Q: What are the 48 controls?
 
 A: The framework includes 48 controls across four pillars:
+
 - **Pillar 1 - Security:** 19 controls (1.1-1.19) covering DLP, encryption, audit logging, eDiscovery
 - **Pillar 2 - Management:** 15 controls (2.1-2.15) covering lifecycle, change control, environment routing
 - **Pillar 3 - Reporting:** 9 controls (3.1-3.9) covering inventory, monitoring, incidents, Sentinel
@@ -157,6 +171,7 @@ See [Control Index](./CONTROL-INDEX.md) for the complete list.
 ### Q: How do I monitor my Power Platform security posture?
 
 A: Use the **PPAC Security Posture Assessment**:
+
 1. Navigate to Power Platform Admin Center → Security → Overview
 2. Review your security score (Low/Medium/High)
 3. View security recommendations
@@ -168,6 +183,7 @@ This provides a centralized view of tenant security configuration. See [Control 
 ### Q: How do I integrate with Microsoft Sentinel for agent monitoring?
 
 A: For Zone 3 agents requiring SOC integration:
+
 1. Configure Microsoft Sentinel workspace in Azure
 2. Enable Power Platform data connector in Sentinel
 3. Create analytics rules for agent-related security events:
@@ -186,11 +202,13 @@ This enables real-time threat detection and automated response for production ag
 ### Q: Can an agent be in multiple zones?
 
 A: No. Each agent is in one zone. It may progress through zones:
+
 - Zone 1 (personal) → Zone 2 (team) → Zone 3 (production)
 
 ### Q: What if an agent starts in Zone 1 but needs Zone 2 features?
 
 A: Promote it through formal process:
+
 1. Request promotion to next zone
 2. Get appropriate approvals
 3. Implement required controls for new zone
@@ -200,6 +218,7 @@ A: Promote it through formal process:
 ### Q: Can I move an agent from Zone 3 to Zone 2?
 
 A: Yes, through demotion if:
+
 - Agent is no longer production-critical
 - Compliance requirements reduced
 - Risk profile decreased
@@ -209,6 +228,7 @@ Requires governance committee approval and documentation.
 ### Q: What defines "customer-facing"?
 
 A: If the agent is used by:
+
 - Customers
 - Clients
 - External parties
@@ -237,6 +257,7 @@ A:
 ### Q: What if my approval is denied?
 
 A: Get feedback and revise:
+
 1. Address concerns raised
 2. Provide additional information
 3. Re-submit
@@ -245,6 +266,7 @@ A: Get feedback and revise:
 ### Q: Who is the Governance Committee?
 
 A: Typically:
+
 - AI Governance Lead (Chair)
 - Compliance Officer
 - CISO
@@ -273,6 +295,7 @@ Check with your Compliance Officer.
 ### Q: What if multiple regulations apply?
 
 A: Implement controls that satisfy all:
+
 1. Check [Regulatory Mappings](regulatory-mappings.md) for each regulation
 2. Take strictest requirement
 3. Document compliance with each
@@ -283,6 +306,7 @@ Example: If both FINRA (1yr) and SEC (6yr) apply, implement 6-year retention.
 ### Q: Are there controls I don't need to implement?
 
 A: Possibly. Review [Regulatory Mappings](regulatory-mappings.md):
+
 1. Find your regulations
 2. See applicable controls
 3. Implement those controls
@@ -291,12 +315,14 @@ A: Possibly. Review [Regulatory Mappings](regulatory-mappings.md):
 ### Q: We're not regulated. Do we still need governance?
 
 A: Yes, best practices recommend:
+
 - Basic security (MFA, DLP, audit)
 - Change management
 - Testing before production
 - Incident response
 
 Even without regulations, governance protects:
+
 - Data
 - Operations
 - Reputation
@@ -309,6 +335,7 @@ Even without regulations, governance protects:
 ### Q: Should we do all phases at once?
 
 A: No. The 8-week phased approach recommended:
+
 - **Phase 1 (Weeks 1-2):** Assessment
 - **Phase 2 (Weeks 3-4):** Security baseline
 - **Phase 3 (Weeks 5-6):** Advanced governance
@@ -319,6 +346,7 @@ See the [Implementation Checklist](../getting-started/checklist.md) for details.
 ### Q: Can we start before full governance is ready?
 
 A: Yes, by zone:
+
 - **Zone 1:** Deploy immediately (no approval needed)
 - **Zone 2:** Can deploy after basic approval workflow
 - **Zone 3:** Must have full governance before production
@@ -328,6 +356,7 @@ Recommend completing Phase 1-2 before Zone 3 deployment.
 ### Q: What if we can't implement all controls by deadline?
 
 A: Prioritize:
+
 1. Security controls (Pillar 1) - highest priority
 2. Regulatory requirements - next priority
 3. Management controls (Pillar 2)
@@ -338,6 +367,7 @@ Implement basic version for urgent items, mature over time.
 ### Q: Who leads implementation?
 
 A: Typically:
+
 - **Project Lead:** AI Governance Lead
 - **Executive Sponsor:** Compliance Officer or CISO
 - **Implementation Team:** 
@@ -370,6 +400,7 @@ Both are needed.
 ### Q: How do we measure compliance?
 
 A: Use maturity scorecard:
+
 - Level 0 (0%): Not implemented
 - Level 1 (25%): Baseline implemented
 - Level 2 (50%): Developing toward recommended
@@ -381,6 +412,7 @@ Track progress over time.
 ### Q: What if we find a compliance gap?
 
 A: Follow incident management:
+
 1. Document the gap
 2. Assess severity and impact
 3. Create remediation plan
@@ -397,6 +429,7 @@ See Control 3.4: Incident Reporting for details.
 ### Q: What platforms does this framework support?
 
 A: Microsoft 365 agents and related in-suite Copilot experiences, including:
+
 - Copilot Studio agents
 - Agent Builder agents
 - SharePoint agents
@@ -406,6 +439,7 @@ A: Microsoft 365 agents and related in-suite Copilot experiences, including:
 ### Q: Do we need specific licenses?
 
 A: Depends on controls:
+
 - **Basic governance:** Standard M365 licenses
 - **Advanced governance:** Premium licenses recommended for:
   - Purview Audit Premium (longer retention)
@@ -414,9 +448,28 @@ A: Depends on controls:
 
 Check with your Microsoft account team.
 
+### Q: What about Agent 365 and Entra Agent ID?
+
+A: Some controls reference Microsoft features that are currently in preview:
+
+| Feature | Status (Dec 2025) | Access |
+|---------|-------------------|--------|
+| **Agent 365** | Frontier Preview | Requires Frontier program enrollment |
+| **Entra Agent ID** | Public Preview | Available in Entra Admin Center |
+| **Advanced Connector Policies (ACP)** | Preview | Available in PPAC |
+| **Environment Groups** | Preview | Available in PPAC |
+
+**To access preview features:**
+
+1. **Frontier program:** Sign up at the Microsoft 365 Admin Center → Settings → Org settings → Frontier
+2. **Agent ID:** Navigate to Entra Admin Center → Enterprise applications → Filter by "Agent ID (Preview)"
+
+Controls that reference preview features include appropriate disclaimers. Check [Microsoft Learn](https://learn.microsoft.com/en-us/entra/agent-id/) for current availability.
+
 ### Q: Can we use other governance platforms?
 
 A: Yes. Framework is platform-agnostic. You can:
+
 - Use ServiceNow for change management
 - Use Jira for incident tracking
 - Use custom compliance tools
@@ -431,6 +484,7 @@ Important: Ensure integration and audit trail.
 ### Q: How long do we keep records?
 
 A: Depends on regulation:
+
 - **FINRA 4511:** 6 years + 1 year accessible
 - **SEC 17a-3/4:** 6 years + 3 years accessible
 - **SOX 404:** 7 years minimum
@@ -442,6 +496,7 @@ See [Regulatory Mappings](regulatory-mappings.md) for your regulations.
 ### Q: What evidence do auditors want to see?
 
 A: For each control:
+
 1. **Policy documentation** (what should happen)
 2. **Configuration proof** (technical setup screenshots)
 3. **Activity logs** (evidence it's working)
@@ -451,6 +506,7 @@ A: For each control:
 ### Q: How do we prepare for an audit?
 
 A: Complete preparation process:
+
 1. **Inventory all agents** (Control 3.1)
 2. **Document policies and procedures** (Control 2.13)
 3. **Compile audit evidence** (activity logs, approvals, tests)
@@ -461,6 +517,7 @@ A: Complete preparation process:
 ### Q: What if auditors find a violation?
 
 A: Remediation process:
+
 1. **Root cause analysis:** Why did it happen?
 2. **Corrective action:** Fix the issue
 3. **Preventive action:** Stop recurrence
@@ -540,6 +597,7 @@ Auditors expect documented risk acceptance decisions, not undocumented gaps.
 ### Q: Our DLP policy isn't working.
 
 A: Check:
+
 1. Is the policy enabled?
 2. Is it scoped to the right locations?
 3. Is the rule correctly configured?
@@ -551,6 +609,7 @@ See Control 1.5 for troubleshooting steps.
 ### Q: We're seeing too many false positives on DLP.
 
 A: Tune your DLP:
+
 1. Review rule sensitivity
 2. Add exceptions for legitimate uses
 3. Adjust thresholds
@@ -560,6 +619,7 @@ A: Tune your DLP:
 ### Q: Audit logs seem incomplete.
 
 A: Verify:
+
 1. Is audit logging enabled?
 2. Is retention policy set?
 3. Are all locations being logged?
@@ -569,6 +629,7 @@ A: Verify:
 ### Q: We missed a control deadline.
 
 A: Reassess:
+
 1. What's the current state?
 2. What's required by your zone/regulation?
 3. Can you implement a baseline version quickly?
@@ -590,6 +651,7 @@ A: Not starting with **clear policies.**
 ### Q: How do we get buy-in?
 
 A: Key stakeholders:
+
 - **Business:** Show governance enables innovation (Zone 1 is fast)
 - **Compliance:** Show you're meeting requirements
 - **IT:** Show you're supporting their platform
@@ -598,6 +660,7 @@ A: Key stakeholders:
 ### Q: How do we scale governance?
 
 A: As agents grow:
+
 1. **Automate where possible** (DLP, audit)
 2. **Delegate approvals** (managers for Zone 2)
 3. **Create templates** (agent request forms)
@@ -611,6 +674,7 @@ A: As agents grow:
 ### Q: Where do I find details on a specific control?
 
 A: Reference the control file:
+
 - Example: "1.5-data-loss-prevention-dlp-and-sensitivity-labels.md"
 - Each control has implementation guidance and verification steps
 

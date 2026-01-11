@@ -182,7 +182,9 @@ For Zone 2-3 promotions, use Power Platform pipelines:
 3. **Deploy solution** with agent through pipeline
 4. **Validate deployment** in target environment
 
-> **Important:** Target environments in pipelines must be enabled as Managed Environments. Configure this in PPAC → Deployment → Settings.
+!!! warning
+    Target environments in pipelines must be enabled as Managed Environments. Configure this in
+    PPAC → Deployment → Settings.
 
 **Admin monitoring:** Use PPAC → Deployment → Overview to track pending approvals and failed deployments.
 
@@ -425,6 +427,7 @@ Maintain documentation at each phase for regulatory examinations:
 ## Support & Questions
 
 For lifecycle governance questions, contact:
+
 - AI Governance Lead (governance direction)
 - Compliance Officer (regulatory requirements)
 - Power Platform Admin (technical setup)

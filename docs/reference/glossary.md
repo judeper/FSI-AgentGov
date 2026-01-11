@@ -74,8 +74,8 @@ Generic label used across multiple Microsoft products (e.g., Microsoft 365 Copil
 **Copilot Studio**
 Microsoft platform for building, testing, and publishing agents. See [What is Copilot Studio?](https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio)
 
-**Copilot Command Center**
-Unified dashboard in Power Platform Admin Center that consolidates governance, analytics, and business value metrics for Copilot usage across the organization. Access via PPAC → Copilot. See [Copilot hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
+**Copilot Hub**
+Unified dashboard in Power Platform Admin Center that consolidates governance, analytics, and business value metrics for Copilot usage across the organization. Access via PPAC → Copilot. Microsoft officially uses "Copilot area/hub" terminology. See [Copilot hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
 
 ---
 
@@ -344,6 +344,7 @@ Storage principle where data can be written once but not modified or deleted.
 
 **Zone (Governance Zone)**
 Risk classification for agents:
+
 - Zone 1: Personal (low risk)
 - Zone 2: Team (medium risk)
 - Zone 3: Enterprise (high risk)

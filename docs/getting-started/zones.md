@@ -193,6 +193,7 @@ The framework uses three governance zones to balance innovation with compliance.
 | **NY-licensed entities** | NYDFS | Part 500 cybersecurity requirements |
 
 Additional oversight may include:
+
 - CFPB examination (consumer financial services)
 - SOX controls testing (public companies)
 - Internal audit review (all organizations)
@@ -271,6 +272,7 @@ graph TB
 ### Promotion Criteria
 
 **Zone 1 → Zone 2:**
+
 - Proof of concept validated
 - Manager approval obtained
 - Data source identified and approved
@@ -278,6 +280,7 @@ graph TB
 - Incident response procedures documented
 
 **Zone 2 → Zone 3:**
+
 - Production readiness testing completed
 - Security assessment passed
 - Model risk validation completed
@@ -294,6 +297,7 @@ If an agent violates governance requirements:
 - **Suspension:** Critical security issues (any zone)
 
 Demotion typically requires:
+
 - Root cause analysis
 - Remediation plan
 - Re-approval before re-promotion
@@ -407,6 +411,7 @@ Use this scorecard to determine the appropriate zone. Score each factor and tota
 | **Data Sources** | M365 Graph | Internal SharePoint | CRM/Financial systems |
 
 **Scoring:**
+
 - **0-2 points:** Zone 1 - Personal Productivity
 - **3-6 points:** Zone 2 - Team Collaboration
 - **7+ points:** Zone 3 - Enterprise Managed
@@ -465,6 +470,7 @@ The sharing rules in PPAC are simple enable/disable toggles:
 | ☐ Disabled | No one can share edit permissions |
 
 **Constraints:**
+
 - Editor permissions can only be shared with **individuals** (not security groups)
 - Only people with Editor or Owner permissions can share
 - Sharing limits **do not apply** when agent authentication is set to "No authentication"

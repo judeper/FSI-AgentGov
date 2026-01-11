@@ -10,7 +10,9 @@ This framework provides complete guidance for deploying, governing, and managing
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve
 
-> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](../disclaimer.md) for full details.
+!!! warning
+    This framework is provided for informational purposes only and does not constitute legal,
+    regulatory, or compliance advice. See [Disclaimer](../disclaimer.md) for full details.
 
 ---
 
@@ -34,7 +36,9 @@ This framework provides governance guidance for:
 - State privacy laws (CCPA/CPRA require separate analysis; see [Regulatory Mappings](../reference/regulatory-mappings.md#state-level-regulations-for-awareness))
 - Third-party AI integrations outside Microsoft 365 ecosystem
 
-> **Note:** This framework is designed for **US financial institutions** only. Institutions subject to non-US regulations should supplement this framework with jurisdiction-specific guidance.
+!!! note
+    This framework is designed for **US financial institutions** only. Institutions subject to
+    non-US regulations should supplement this framework with jurisdiction-specific guidance.
 
 ### Key Assumptions
 
@@ -55,7 +59,9 @@ This framework is designed to **complement, not replace** existing enterprise go
 - Coordinate with records retention and eDiscovery requirements
 - Map to your organization's internal audit program
 
-> **Note:** Organizations should validate all controls against their specific regulatory obligations and existing policy frameworks.
+!!! note
+    Organizations should validate all controls against their specific regulatory obligations and
+    existing policy frameworks.
 
 ---
 
@@ -168,7 +174,9 @@ The people layer assigns accountability and ensures human oversight:
 2. **Process guides People** - Defined procedures clarify responsibilities
 3. **People inform Policy** - Human judgment shapes control configuration
 
-> **FSI Note:** In regulated environments, all three layers must be documented and auditable. Examiners expect evidence of policy configuration, process execution, and role assignment.
+!!! tip "FSI Note"
+    In regulated environments, all three layers must be documented and auditable. Examiners expect
+    evidence of policy configuration, process execution, and role assignment.
 
 ---
 
@@ -181,6 +189,7 @@ The people layer assigns accountability and ensures human oversight:
 - **Pillar 4:** 5 SharePoint Controls (4.1-4.5)
 
 Each control includes:
+
 - Overview and regulatory reference
 - 3 governance levels (Baseline, Recommended, Regulated)
 - Verification and testing procedures
@@ -231,7 +240,10 @@ Regulatory mappings and coverage are maintained in a single canonical table.
 
 - See [Regulatory Mappings](../reference/regulatory-mappings.md)
 
-> **Note:** Coverage indicates which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation.
+!!! note
+    Coverage indicates which framework controls address aspects of each regulation. Actual
+    compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel
+    for regulatory interpretation.
 
 ---
 
@@ -331,8 +343,6 @@ This framework is designed for continuous evolution:
 - **Feedback Loop:** Gather input from governance team
 
 ---
-
-
 
 ## 📝 License
 

@@ -7,6 +7,9 @@
       "pattern": "^https://admin\\.microsoft\\.com"
     },
     {
+      "pattern": "^https://admin\\.sharepoint\\.com"
+    },
+    {
       "pattern": "^https://compliance\\.microsoft\\.com"
     },
     {
@@ -17,6 +20,21 @@
     },
     {
       "pattern": "^https://web\\.powerva\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://www\\.soxlaw\\.com"
+    },
+    {
+      "pattern": "^https://www\\.sec\\.gov/rules"
+    },
+    {
+      "pattern": "^https://admin\\.portal\\.com"
+    },
+    {
+      "pattern": "^https://learn\\.microsoft\\.com/en-us/\\.\\.\\."
+    },
+    {
+      "pattern": "^link$"
     }
   ],
   "timeout": "20s",

@@ -149,7 +149,7 @@ To verify current license assignments:
 
 - [Power Platform Licensing Guide](https://learn.microsoft.com/en-us/power-platform/admin/pricing-billing-skus)
 - [Microsoft 365 Licensing Guidance](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance)
-- [Microsoft Purview Licensing](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-licensing)
+- [Microsoft Purview Licensing](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description)
 - [SharePoint Advanced Management](https://learn.microsoft.com/en-us/sharepoint/advanced-management)
 - [Copilot Studio Licensing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions)
 

@@ -73,7 +73,7 @@ Each Excel checklist includes:
 - 2.2 Environment Groups and Tier Classification
 - 2.15 Environment Routing and Auto-Provisioning
 - 3.7 PPAC Security Posture Assessment
-- 3.8 Copilot Command Center
+- 3.8 Copilot Hub
 
 ### Purview Administrator
 - 1.5 Data Loss Prevention (DLP) and Sensitivity Labels

@@ -17,7 +17,10 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 | Risk Management | 2.6-2.8 | Model risk, vendor risk, segregation of duties |
 | Oversight & Compliance | 2.9, 2.11-2.14 | Performance monitoring, bias testing, supervision, training |
 
-> **Note:** Controls 2.6 and 2.11 address model risk management guidance (OCC 2011-12 / SR 11-7) but cover qualitative controls only. Organizations using AI agents for credit decisions or trading should supplement with comprehensive quantitative model validation programs.
+!!! note
+    Controls 2.6 and 2.11 address model risk management guidance (OCC 2011-12 / SR 11-7) but cover
+    qualitative controls only. Organizations using AI agents for credit decisions or trading should
+    supplement with comprehensive quantitative model validation programs.
 
 ## Controls
 - [2.1 Managed Environments](2.1-managed-environments.md)

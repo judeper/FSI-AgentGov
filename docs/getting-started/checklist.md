@@ -245,7 +245,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
     - [ ] Create plan to address recommendations
     - [ ] Schedule weekly security score reviews
 
-  - [ ] **Control 3.8: Copilot Command Center**
+  - [ ] **Control 3.8: Copilot Hub**
     - [ ] Access PPAC → Copilot hub
     - [ ] Review agent counts and usage metrics
     - [ ] Monitor capacity/consumption status
