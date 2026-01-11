@@ -8,9 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.1] — January 2026
 
-### Operational Templates & Advanced Governance
+### Operational Templates & Comprehensive Framework Validation
 
-**Status:** Operational templates released to support 48-control baseline
+**Status:** Operational templates released + comprehensive validation against Microsoft Learn documentation
 **Date:** January 10, 2026
 **Scope:** Enhancements to existing 48 controls; no breaking changes
 
@@ -24,24 +24,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `.claude/claude.md` - Claude Code agent instructions (mirrors GitHub Copilot guidance)
   - Comprehensive validation report with regulatory and technical feasibility assessment
   - Cross-reference links from existing controls (1.7, 2.7, 2.12, 3.8) to related templates
+- **Review & Validation Materials**
+  - `review/validation-findings.md` - Comprehensive review against Microsoft Learn (697 lines)
+  - `review/validation-review-response.md` - Validation results (12 findings validated, 4 rejected as outdated)
+  - `review/Copilot Studio Governance Review.docx` - External review documentation
 
 #### Enhanced
 
-- **Control 1.7 (Audit Logging)** - Links to Decision Log Schema, Zone 1 Explainability, Evidence Pack Assembly
-- **Control 2.7 (Vendor Risk)** - Links to Supply Chain Risk Register Entry template
-- **Control 2.12 (Supervision & Oversight)** - Links to Escalation Matrix and Action Authorization Matrix
-- **Control 3.8 (Copilot Command Center)** - Links to Real-time Compliance Dashboard and Evidence Pack Assembly
-- **CONTRIBUTING.md** - Added reference to `.claude/claude.md` for Claude Code users
+- **73 control and documentation files** updated based on Microsoft Learn validation (Jan 2026)
+  - **Control 1.1** - Added agent creation limitation warning and sterile containment strategy
+  - **Control 1.5** - Added 6 Copilot Studio channel connectors documentation; noted DLP enforcement now enabled by default
+  - **Control 1.7** - Added automatic security scan pre-publish feature; links to Decision Log Schema, Zone 1 Explainability, Evidence Pack Assembly
+  - **Control 2.1** - Expanded Managed Environment features to full 23-capability list
+  - **Control 2.2** - Updated environment group rules count to 21 with source citations
+  - **Control 2.7** - Links to Supply Chain Risk Register Entry template
+  - **Control 2.12** - Links to Escalation Matrix and Action Authorization Matrix
+  - **Control 2.15** - Added environment routing fallback warning (users route to default environment if no rule matches)
+  - **Control 3.1** - Clarified two agent inventories (M365 Admin Center vs Power Platform Admin Center)
+  - **Control 3.8** - Renamed from "Copilot Command Center" to "Copilot Hub and Governance Dashboard" (official Microsoft terminology); links to Real-time Compliance Dashboard and Evidence Pack Assembly
+  - **Control 4.1** - Added Restricted SharePoint Search (RSS) allow-list guidance and Restricted Access Control (RAC) for ethical walls
+  - Multiple list formatting, cross-linking, and Microsoft Learn citation improvements across all pillars
 
 #### Fixed
 
 - Repository folder structure - Eliminated nested duplication (was `FSI-AgentGov/FSI-AgentGov/`, now `FSI-AgentGov/`)
+- 615 markdown list formatting issues resolved
+- Broken Microsoft Learn URLs corrected across all documentation
+- Control navigation and cross-reference accuracy
+
+#### Validation & Compliance
+
+- **Regulatory citations verified:** FINRA 2026 Report, SEC 2026 Exam Priorities, Colorado SB24-205
+- **Technical feasibility assessed:** Purview audit capabilities with documented workarounds
+- **Microsoft Learn validation:** All 48 controls validated against current Microsoft documentation (Jan 2026)
+  - 12 corrections validated and incorporated
+  - 4 outdated claims rejected
+  - 12 missing governance controls identified for future consideration
+- **Alignment confirmed:** All 10 operational template gaps enhance existing 48 controls with zero conflicts
 
 #### Documentation
 
-- Regulatory citations verified: FINRA 2026 Report, SEC 2026 Exam Priorities, Colorado SB24-205
-- Technical feasibility assessed: Purview audit capabilities with documented workarounds
-- Alignment confirmed: All 10 gaps enhance existing 48 controls with zero conflicts
+- CONTRIBUTING.md - Added reference to `.claude/claude.md` for Claude Code users
+- Multiple control files - Enhanced with comprehensive FSI guidance and regulatory alignment
+- 2,597 total insertions, 426 deletions across 73 files
 
 ---
 
