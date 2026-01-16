@@ -117,6 +117,7 @@ nav:
     - 2.16 RAG Source Integrity Validation: reference/pillar-2-management/2.16-rag-source-integrity-validation.md
     - 2.17 Multi-Agent Orchestration Limits: reference/pillar-2-management/2.17-multi-agent-orchestration-limits.md
     - 2.18 Automated Conflict of Interest Testing: reference/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
+    - 2.19 Customer AI Disclosure And Transparency: reference/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md
   - Reporting Controls (Pillar 3):
     - Overview: reference/pillar-3-reporting/index.md
     - 3.1 Agent Inventory And Metadata Management: reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
@@ -137,6 +138,7 @@ nav:
     - 4.4 Guest And External User Access Controls: reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md
     - 4.5 SharePoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
     - 4.6 Grounding Scope Governance: reference/pillar-4-sharepoint/4.6-grounding-scope-governance.md
+    - 4.7 Microsoft 365 Copilot Data Governance: reference/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md
   - Reference:
     - Control Index: reference/CONTROL-INDEX.md
     - Operational Templates:

@@ -8,6 +8,58 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.0] — January 2026
 
+### Feature Gap Analysis Implementation (January 16, 2026)
+
+**Status:** New controls and enhancements addressing identified feature gaps
+**Date:** January 16, 2026
+**Scope:** 2 new controls + 1 control enhancement (55 → 57 controls)
+
+#### New Controls Added
+
+- **Control 2.19: Customer AI Disclosure and Transparency** (HIGH priority)
+  - Formal processes for disclosing AI agent use to customers
+  - Disclosure templates by zone (Basic/Standard/Comprehensive)
+  - Human escalation path requirements
+  - Regulatory alignment: SEC Reg BI, CFPB UDAAP, FINRA 25-07, GLBA 501(b)
+  - Change management workflow for disclosure updates
+
+- **Control 4.7: Microsoft 365 Copilot Data Governance** (MEDIUM-HIGH priority)
+  - Governance for embedded M365 Copilot (Word, Excel, Teams, etc.)
+  - Knowledge source boundaries via Restricted Content Discovery
+  - Plugin and web access governance
+  - User behavior guardrails and acceptable use policy
+  - Output review processes for customer-facing content
+  - Distinction from Copilot Studio agent governance
+
+#### Control Enhancements
+
+- **Control 3.10 (Hallucination Feedback Loop)** - Added 4 new sections:
+  - **Proactive Output Quality Monitoring** - Pre-delivery content scanning, quality scoring thresholds, automated flagging
+  - **Content Safety Guardrails** - Tone monitoring, financial advice boundaries, harmful content prevention
+  - **Sensitive Topic Handling** - Financial hardship, complaints, crisis, regulatory inquiry procedures
+  - **Real-Time Quality Scoring** - Confidence-based routing, quality dashboards, degradation alerting
+
+#### Supporting Files Updated
+
+- **CONTROL-INDEX.md** - Added 2.19, 4.7; updated counts (55 → 57)
+- **regulatory-mappings.md** - Added new controls to applicable regulations; updated coverage summary
+- **mkdocs.yml** - Added navigation entries for 2.19, 4.7
+
+#### Framework Statistics Update
+
+- **Total controls:** 55 → 57 (+2)
+- **Pillar 2 (Management):** 18 → 19 (+1)
+- **Pillar 4 (SharePoint):** 6 → 7 (+1)
+
+#### Gap Analysis Source
+
+These additions address gaps identified during framework self-review:
+1. Customer AI disclosure (partial coverage → dedicated control)
+2. Output quality/content safety (reactive → proactive monitoring)
+3. M365 Copilot governance (minimal → dedicated control)
+
+---
+
 ### Link Validation CI Fix (January 16, 2026)
 
 **Status:** Fixed broken external URLs causing CI failure

@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (55 Controls)
+## Complete Control Reference (57 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
@@ -32,7 +32,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) |
 | 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) |
 
-## Pillar 2: Management Controls (18 Controls)
+## Pillar 2: Management Controls (19 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -54,6 +54,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.16 | [RAG Source Integrity Validation](pillar-2-management/2.16-rag-source-integrity-validation.md) |
 | 2.17 | [Multi-Agent Orchestration Limits](pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
 | 2.18 | [Automated Conflict of Interest Testing](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) |
+| 2.19 | [Customer AI Disclosure and Transparency](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
 
 ## Pillar 3: Agent Reporting (10 Controls)
 
@@ -70,7 +71,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 | 3.10 | [Hallucination Feedback Loop](pillar-3-reporting/3.10-hallucination-feedback-loop.md) |
 
-## Pillar 4: SharePoint Advanced Management (6 Controls)
+## Pillar 4: SharePoint Advanced Management (7 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -80,6 +81,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 4.4 | [Guest and External User Access Controls](pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) |
 | 4.5 | [SharePoint Security and Compliance Monitoring](pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) |
 | 4.6 | [Grounding Scope Governance](pillar-4-sharepoint/4.6-grounding-scope-governance.md) |
+| 4.7 | [Microsoft 365 Copilot Data Governance](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) |
 
 ---
 
@@ -116,7 +118,7 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - Network Isolation
 - Adversarial Input Protection
 
-### Pillar 2: Management Controls (18 Controls)
+### Pillar 2: Management Controls (19 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management
@@ -128,6 +130,7 @@ Focus: Govern the agent lifecycle, access control, change management, and model 
 - RAG Source Validation
 - Multi-Agent Orchestration
 - Conflict of Interest Testing
+- Customer AI Disclosure
 
 ### Pillar 3: Agent Reporting (10 Controls)
 Focus: Visibility and monitoring of agent activities, performance, and compliance.
@@ -142,7 +145,7 @@ Focus: Visibility and monitoring of agent activities, performance, and complianc
 - Sentinel Integration
 - Hallucination Feedback
 
-### Pillar 4: SharePoint Advanced Management (6 Controls)
+### Pillar 4: SharePoint Advanced Management (7 Controls)
 Focus: Govern SharePoint content accessed by agents with specific access, retention, and security controls.
 - Information Access Governance
 - Access Reviews
@@ -150,6 +153,7 @@ Focus: Govern SharePoint content accessed by agents with specific access, retent
 - Guest Access Controls
 - Security Monitoring
 - Grounding Scope Governance
+- M365 Copilot Data Governance
 
 ---
 

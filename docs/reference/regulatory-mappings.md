@@ -24,6 +24,7 @@ Requires firms to maintain records of all agent activities and communications.
 | [3.4](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Document all incidents |
 | [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Record and track accuracy issues |
 | [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Govern knowledge source records |
+| [4.7](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot usage records |
 
 ### Governance Framework Alignment
 
@@ -172,6 +173,7 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 | [3.1](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Registry of agents as records |
 | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Evidence retention |
 | [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Knowledge source records |
+| [4.7](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot usage logging |
 
 ### Record Categories
 
@@ -231,6 +233,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Agent accuracy and reliability |
 | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fair treatment across demographics |
 | [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Best interest standard compliance |
+| [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | AI transparency and disclosure |
 | [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Ensure advice accuracy |
 
 ### Key Requirements
@@ -284,6 +287,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [2.13](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Evidence for control effectiveness |
 | [2.17](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Control over complex agent systems |
 | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Control effectiveness reports |
+| [4.7](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
 ### Management Assessment Requirements
 
@@ -342,6 +346,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [1.18](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | RBAC | Access control |
 | [1.20](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Network-level safeguards |
 | [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Data source governance |
+| [4.7](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot access controls |
 
 ### Key Safeguard Areas
 
@@ -401,6 +406,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [2.17](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Complex model governance |
 | [3.2](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Performance Monitoring | Ongoing performance tracking |
 | [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Model output accuracy monitoring |
+| [4.7](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot output governance |
 
 ### Model Risk Framework (SR 11-7)
 
@@ -516,6 +522,7 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Algorithmic bias assessment |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Algorithmic governance |
 | [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Prevent unfair recommendations |
+| [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Prevent deceptive omissions |
 | [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Prevent deceptive outputs |
 
 ### UDAAP Considerations for AI Agents
@@ -785,21 +792,21 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 55/55 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 8/55 | 15% | Partial - supervision focus |
-| FINRA Notice 25-07 | 11/55 | 20% | Partial - model risk focus |
-| SEC 17a-3/4 | 48/55 | 87% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 6/55 | 11% | Limited - fairness focus |
-| SOX 302/404 | 43/55 | 78% | Substantial coverage |
-| GLBA 501-505 | 50/55 | 91% | Substantial coverage |
-| OCC 2011-12 | 32/55 | 58% | Partial - model risk focus |
-| Fed SR 11-7 | 32/55 | 58% | Partial - model risk focus |
-| Fed ECOA | 3/55 | 5% | Minimal - bias testing only |
-| CFPB / UDAAP | 6/55 | 11% | Consumer protection focus |
-| FDIC (Interagency) | 55/55 | 100% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 50/55 | 91% | Security program alignment |
-| NYDFS Part 500 | 44/55 | 80% | State-level awareness |
-| NAIC Model Law | 40/55 | 73% | Insurance awareness |
+| FINRA 4511 | 57/57 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 8/57 | 14% | Partial - supervision focus |
+| FINRA Notice 25-07 | 11/57 | 19% | Partial - model risk focus |
+| SEC 17a-3/4 | 49/57 | 86% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 7/57 | 12% | Limited - fairness + disclosure focus |
+| SOX 302/404 | 44/57 | 77% | Substantial coverage |
+| GLBA 501-505 | 51/57 | 89% | Substantial coverage |
+| OCC 2011-12 | 33/57 | 58% | Partial - model risk focus |
+| Fed SR 11-7 | 33/57 | 58% | Partial - model risk focus |
+| Fed ECOA | 3/57 | 5% | Minimal - bias testing only |
+| CFPB / UDAAP | 7/57 | 12% | Consumer protection + disclosure focus |
+| FDIC (Interagency) | 57/57 | 100% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 51/57 | 89% | Security program alignment |
+| NYDFS Part 500 | 45/57 | 79% | State-level awareness |
+| NAIC Model Law | 41/57 | 72% | Insurance awareness |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
