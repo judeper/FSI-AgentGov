@@ -95,6 +95,8 @@ nav:
     - 1.17 Endpoint Data Loss Prevention (Endpoint DLP): reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md
     - 1.18 Application-Level Authorization and RBAC: reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md
     - 1.19 eDiscovery For Agent Interactions: reference/pillar-1-security/1.19-ediscovery-for-agent-interactions.md
+    - 1.20 Network Isolation And Private Connectivity: reference/pillar-1-security/1.20-network-isolation-private-connectivity.md
+    - 1.21 Adversarial Input Logging: reference/pillar-1-security/1.21-adversarial-input-logging.md
   - Management Controls (Pillar 2):
     - Overview: reference/pillar-2-management/index.md
     - 2.1 Managed Environments: reference/pillar-2-management/2.1-managed-environments.md
@@ -112,6 +114,9 @@ nav:
     - 2.13 Documentation And Record Keeping: reference/pillar-2-management/2.13-documentation-and-record-keeping.md
     - 2.14 Training And Awareness Program: reference/pillar-2-management/2.14-training-and-awareness-program.md
     - 2.15 Environment Routing And Auto Provisioning: reference/pillar-2-management/2.15-environment-routing.md
+    - 2.16 RAG Source Integrity Validation: reference/pillar-2-management/2.16-rag-source-integrity-validation.md
+    - 2.17 Multi-Agent Orchestration Limits: reference/pillar-2-management/2.17-multi-agent-orchestration-limits.md
+    - 2.18 Automated Conflict of Interest Testing: reference/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
   - Reporting Controls (Pillar 3):
     - Overview: reference/pillar-3-reporting/index.md
     - 3.1 Agent Inventory And Metadata Management: reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
@@ -123,6 +128,7 @@ nav:
     - 3.7 PPAC Security Posture Assessment: reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md
     - 3.8 Copilot Hub: reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md
     - 3.9 Microsoft Sentinel Integration: reference/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
+    - 3.10 Hallucination Feedback Loop: reference/pillar-3-reporting/3.10-hallucination-feedback-loop.md
   - SharePoint Controls (Pillar 4):
     - Overview: reference/pillar-4-sharepoint/index.md
     - 4.1 SharePoint IAG and Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
@@ -130,6 +136,7 @@ nav:
     - 4.3 Site And Document Retention Management: reference/pillar-4-sharepoint/4.3-site-and-document-retention-management.md
     - 4.4 Guest And External User Access Controls: reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md
     - 4.5 SharePoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
+    - 4.6 Grounding Scope Governance: reference/pillar-4-sharepoint/4.6-grounding-scope-governance.md
   - Reference:
     - Control Index: reference/CONTROL-INDEX.md
     - Operational Templates:
@@ -144,10 +151,13 @@ nav:
         - Per-Agent Data Policy: operational-templates/templates/per-agent-data-policy.md
         - Purview Audit Query Pack: operational-templates/templates/purview-audit-query-pack.md
         - RACI Governance Template: operational-templates/templates/raci-governance-template.md
+        - Semantic Index Governance Queries: operational-templates/templates/semantic-index-governance-queries.md
         - Supply Chain Risk Register: operational-templates/templates/supply-chain-risk-register-entry.md
       - Specifications:
+        - AI Incident Response Playbook: operational-templates/specs/ai-incident-response-playbook.md
         - Confidence & Routing: operational-templates/specs/confidence-and-routing.md
         - Evidence Pack Assembly: operational-templates/specs/evidence-pack-assembly.md
+        - Human-in-the-Loop Triggers: operational-templates/specs/human-in-the-loop-triggers.md
         - Real-time Compliance Dashboard: operational-templates/specs/real-time-compliance-dashboard.md
         - Scope Creep Detection: operational-templates/specs/scope-creep-detection.md
         - Zone 1 Minimum Explainability: operational-templates/specs/zone1-min-explainability.md

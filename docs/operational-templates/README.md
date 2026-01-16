@@ -2,7 +2,7 @@
 
 **Status:** Added January 2026 to support FSI-AgentGov v1.0 framework implementation
 
-This section provides practical, production-ready templates and technical specifications that operationalize the existing 48 controls across the four pillars.
+This section provides practical, production-ready templates and technical specifications that operationalize the existing 55 controls across the four pillars.
 
 ---
 
@@ -33,6 +33,7 @@ Ready-to-use templates that provide structure for governance processes.
 | [Escalation Matrix](templates/escalation-matrix.md) | 2.12, 2.3 | Define escalation triggers, SLAs, and authority paths |
 | [Per-Agent Data Policy](templates/per-agent-data-policy.md) | 1.5, 1.6, 1.14 | Agent-specific allowed/prohibited data handling rules |
 | [Purview Audit Query Pack](templates/purview-audit-query-pack.md) | 3.9, 1.7 | KQL queries for M365 Purview audit log analysis |
+| [Semantic Index Governance Queries](templates/semantic-index-governance-queries.md) | 4.6, 4.1, 1.7 | PowerShell/KQL queries for auditing Semantic Index content |
 | [Supply Chain Risk Register Entry](templates/supply-chain-risk-register-entry.md) | 2.7 | AI-specific third-party vendor risk assessment |
 
 ### Specifications (Technical Blueprints)
@@ -41,8 +42,10 @@ Detailed technical specifications for governance infrastructure and continuous m
 
 | Specification | Related Control(s) | Purpose |
 |---------------|-------------------|---------|
+| [AI Incident Response Playbook](specs/ai-incident-response-playbook.md) | 3.4, 1.21, 3.10 | Structured procedures for AI agent-specific incidents |
 | [Confidence & Routing Workflow](specs/confidence-and-routing.md) | 2.9, 3.4 | Route low-confidence agent outputs for human review |
 | [Evidence Pack Assembly](specs/evidence-pack-assembly.md) | 1.7, 3.1, 3.4 | Audit-ready evidence collection for regulatory exams |
+| [Human-in-the-Loop Trigger Definitions](specs/human-in-the-loop-triggers.md) | 2.12, 2.17, 2.6 | Define when agent actions require human approval |
 | [Real-time Compliance Dashboard](specs/real-time-compliance-dashboard.md) | 3.8, 3.9, 3.2 | Governance metrics and exception monitoring dashboard |
 | [Scope Creep Detection](specs/scope-creep-detection.md) | 1.14, 1.7, 3.2 | Behavioral drift monitoring for agents |
 | [Zone 1 Minimum Explainability](specs/zone1-min-explainability.md) | 1.7, 3.1 | Baseline logging for low-risk "informational" agents |
@@ -167,9 +170,10 @@ All templates in this section follow FSI-AgentGov conventions:
 ## Version History
 
 ### v1.0 (January 2026)
-- Initial release of 9 templates and 5 specifications
+- Initial release of 10 templates and 7 specifications
 - Colorado AI Act readiness module (optional)
 - Full validation report included
+- Added AI Incident Response Playbook, Human-in-the-Loop Triggers, Semantic Index Governance Queries
 
 ---
 
@@ -185,7 +189,7 @@ For questions about specific templates or specifications:
 
 ## Related Resources
 
-- **[CONTROL-INDEX.md](../reference/CONTROL-INDEX.md)** - Master list of all 48 controls
+- **[CONTROL-INDEX.md](../reference/CONTROL-INDEX.md)** - Master list of all 55 controls
 - **[Regulatory Mappings](../reference/regulatory-mappings.md)** - How controls map to regulations
 - **[Role Catalog](../reference/role-catalog.md)** - Canonical role names
 

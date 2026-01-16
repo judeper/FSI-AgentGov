@@ -4,7 +4,7 @@ Protect data and systems from unauthorized access, misuse, and exploitation.
 
 ## Overview
 
-Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 19 controls address core risks including data leakage, unauthorized access, insufficient audit trails, and inadequate encryption—all critical concerns for regulated financial services environments.
+Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 21 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
 
 **Primary Regulatory Alignment:** FINRA 4511 (recordkeeping), SEC 17a-3/4 (records retention), GLBA 501(b) (safeguards), SOX 302/404 (internal controls)
 
@@ -15,7 +15,7 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 | Access Management | 1.1-1.4 | Agent publishing, connectors, permissions |
 | Data Protection | 1.5-1.9 | DLP, sensitivity labels, retention, encryption |
 | Monitoring & Detection | 1.10-1.14 | Compliance monitoring, insider risk, threat detection |
-| Advanced Security | 1.15-1.19 | IRM, endpoint DLP, RBAC, eDiscovery |
+| Advanced Security | 1.15-1.21 | IRM, endpoint DLP, RBAC, eDiscovery, network isolation, adversarial input detection |
 
 ## Controls
 - [1.1 Restrict Agent Publishing by Authorization](1.1-restrict-agent-publishing-by-authorization.md)
@@ -37,3 +37,5 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 - [1.17 Endpoint Data Loss Prevention (Endpoint DLP)](1.17-endpoint-data-loss-prevention-endpoint-dlp.md)
 - [1.18 Application-Level Authorization and RBAC](1.18-application-level-authorization-and-role-based-access-control-rbac.md)
 - [1.19 eDiscovery for Agent Interactions](1.19-ediscovery-for-agent-interactions.md)
+- [1.20 Network Isolation and Private Connectivity](1.20-network-isolation-private-connectivity.md)
+- [1.21 Adversarial Input Logging](1.21-adversarial-input-logging.md)

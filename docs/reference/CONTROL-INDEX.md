@@ -1,12 +1,12 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (48 Controls)
+## Complete Control Reference (55 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
 ---
 
-## Pillar 1: Security Controls (19 Controls)
+## Pillar 1: Security Controls (21 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -29,8 +29,10 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.17 | [Endpoint Data Loss Prevention (Endpoint DLP)](pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) |
 | 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) |
 | 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
+| 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) |
+| 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) |
 
-## Pillar 2: Management Controls (15 Controls)
+## Pillar 2: Management Controls (18 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -49,8 +51,11 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.13 | [Documentation and Record Keeping](pillar-2-management/2.13-documentation-and-record-keeping.md) |
 | 2.14 | [Training and Awareness Program](pillar-2-management/2.14-training-and-awareness-program.md) |
 | 2.15 | [Environment Routing and Auto-Provisioning](pillar-2-management/2.15-environment-routing.md) |
+| 2.16 | [RAG Source Integrity Validation](pillar-2-management/2.16-rag-source-integrity-validation.md) |
+| 2.17 | [Multi-Agent Orchestration Limits](pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
+| 2.18 | [Automated Conflict of Interest Testing](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) |
 
-## Pillar 3: Agent Reporting (9 Controls)
+## Pillar 3: Agent Reporting (10 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -63,8 +68,9 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) |
 | 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
 | 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
+| 3.10 | [Hallucination Feedback Loop](pillar-3-reporting/3.10-hallucination-feedback-loop.md) |
 
-## Pillar 4: SharePoint Advanced Management (5 Controls)
+## Pillar 4: SharePoint Advanced Management (6 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -73,6 +79,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 4.3 | [Site and Document Retention Management](pillar-4-sharepoint/4.3-site-and-document-retention-management.md) |
 | 4.4 | [Guest and External User Access Controls](pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) |
 | 4.5 | [SharePoint Security and Compliance Monitoring](pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) |
+| 4.6 | [Grounding Scope Governance](pillar-4-sharepoint/4.6-grounding-scope-governance.md) |
 
 ---
 
@@ -98,7 +105,7 @@ Each control is documented with three governance levels:
 
 ## Pillar Descriptions
 
-### Pillar 1: Security Controls (19 Controls)
+### Pillar 1: Security Controls (21 Controls)
 Focus: Protect data and systems from unauthorized access, misuse, and exploitation.
 - Authentication and Authorization
 - Data Loss Prevention
@@ -106,8 +113,10 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - Encryption
 - Threat Detection
 - eDiscovery
+- Network Isolation
+- Adversarial Input Protection
 
-### Pillar 2: Management Controls (15 Controls)
+### Pillar 2: Management Controls (18 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management
@@ -116,8 +125,11 @@ Focus: Govern the agent lifecycle, access control, change management, and model 
 - Model Risk Management
 - Vendor Management
 - Training & Supervision
+- RAG Source Validation
+- Multi-Agent Orchestration
+- Conflict of Interest Testing
 
-### Pillar 3: Agent Reporting (9 Controls)
+### Pillar 3: Agent Reporting (10 Controls)
 Focus: Visibility and monitoring of agent activities, performance, and compliance.
 - Agent Inventory
 - Usage Analytics
@@ -128,14 +140,16 @@ Focus: Visibility and monitoring of agent activities, performance, and complianc
 - PPAC Security Posture
 - Copilot Hub
 - Sentinel Integration
+- Hallucination Feedback
 
-### Pillar 4: SharePoint Advanced Management (5 Controls)
+### Pillar 4: SharePoint Advanced Management (6 Controls)
 Focus: Govern SharePoint content accessed by agents with specific access, retention, and security controls.
 - Information Access Governance
 - Access Reviews
 - Retention Management
 - Guest Access Controls
 - Security Monitoring
+- Grounding Scope Governance
 
 ---
 

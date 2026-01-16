@@ -8,6 +8,130 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.0] — January 2026
 
+### Link Consistency and Regulatory Mappings Update (January 16, 2026)
+
+**Status:** Self-review implementation - cross-reference and link improvements
+**Date:** January 16, 2026
+**Scope:** Link standardization, regulatory mappings update, navigation improvements
+
+#### Link Standardization
+
+- **Standardized Related Controls format** across all controls to Style A pattern: `| [X.Y - Control Name](path.md) | Description |`
+- **Fixed Control 1.5** - Changed from Style B (`[Control 1.6: DSPM for AI]`) to Style A
+- **Fixed Control 4.2** - Removed unique Priority column, standardized link format
+- **Fixed Control 2.18** - Added missing reciprocal link to 2.12 (Supervision)
+
+#### Dependencies Converted to Clickable Links
+
+Converted plain text dependencies to markdown links in 7 Pillar 2 controls:
+- Control 2.8 (Access Control and Segregation of Duties)
+- Control 2.9 (Agent Performance Monitoring)
+- Control 2.10 (Patch Management)
+- Control 2.11 (Bias Testing)
+- Control 2.12 (Supervision and Oversight)
+- Control 2.13 (Documentation and Record Keeping)
+- Control 2.14 (Training and Awareness)
+
+#### Regulatory Mappings Update
+
+- **Added 7 missing controls** to `regulatory-mappings.md`: 1.20, 1.21, 2.16, 2.17, 2.18, 3.10, 4.6
+- **Updated Control Coverage Summary** from 48/48 to 55/55 controls
+- **Recalculated percentages** for all 15 regulations
+
+#### Cross-Pillar Navigation
+
+- Added Control 4.1 (SharePoint IAG) reference to Control 1.4 (Advanced Connector Policies)
+- Verified existing cross-pillar links (2.1→1.20, 3.8→3.1/3.2, 1.14→1.3)
+
+#### Verification
+
+- Confirmed mkdocs.yml includes all 55 controls in correct numerical order
+- `mkdocs build --strict` passes with zero errors
+
+---
+
+### Gap Analysis Response Update (January 16, 2026)
+
+**Status:** Implementation of AI Governance Research Unit gap analysis recommendations
+**Date:** January 16, 2026
+**Scope:** 6 new controls + 4 control enhancements + 3 supporting documents (49 → 55 controls)
+
+#### New Controls Added
+
+- **Control 1.21: Adversarial Input Logging** (Critical)
+  - Detection patterns for prompt injection, jailbreaking, encoding attacks
+  - KQL queries for Sentinel integration
+  - Zone-specific configuration (Zone 1: monitoring only, Zone 2-3: blocking)
+  - Regulatory alignment: FFIEC CAT 2025, GLBA 501(b)
+
+- **Control 2.16: RAG Source Integrity Validation** (Critical)
+  - Knowledge source approval workflows
+  - Content versioning and staleness detection
+  - Citation logging requirements
+  - Regulatory alignment: Fed SR 11-7, FDIC FIL-15-2025
+
+- **Control 2.17: Multi-Agent Orchestration Limits** (High)
+  - Delegation depth limits by zone (Zone 1: 0, Zone 2: 2, Zone 3: 3)
+  - Circuit breaker configuration for cascade failure prevention
+  - HITL checkpoint integration
+  - Regulatory alignment: FINRA 2026 Priorities
+
+- **Control 2.18: Automated Conflict of Interest Testing** (Critical)
+  - Test scenarios for proprietary bias, commission bias, cross-selling
+  - SEC Reg BI compliance testing procedures
+  - Automated test execution scripts
+  - Regulatory alignment: SEC Reg BI, SEC 10b-5
+
+- **Control 3.10: Hallucination Feedback Loop** (Medium)
+  - User feedback collection mechanisms
+  - Hallucination categorization taxonomy
+  - Remediation tracking workflow
+  - Regulatory alignment: CFPB UDAAP, SOX 302
+
+- **Control 4.6: Grounding Scope Governance** (Critical)
+  - Semantic Index site scoping configuration
+  - Exclusion rules for Draft, Archived, Personal content
+  - PowerShell for auditing indexed content scope
+  - Regulatory alignment: SEC 17a-3/4, GLBA
+
+#### Control Enhancements
+
+- **Control 1.7 (Audit Logging)** - Added Adversarial Input Pattern Detection section with encoding attack detection (Base64, Unicode obfuscation, prompt chaining)
+- **Control 2.6 (Model Risk Management)** - Added Step 6a: Prompt Engineering Change Review with checklist for system prompt, topic, fallback, and grounding instruction changes
+- **Control 3.4 (Incident Reporting)** - Added Step 5a: RAG Citation Logging for Incident Investigation with KQL queries
+- **Control 4.2 (Site Access Reviews)** - Added AI Agent Service Account Access Reviews section with least privilege checklist for service principals
+
+#### New Operational Templates
+
+- **AI Incident Response Playbook** (`specs/ai-incident-response-playbook.md`)
+  - Incident categories: Hallucination, Prompt Injection, Data Leakage, Bias
+  - Response procedures with timelines (T+0 through T+48 hours)
+  - Regulatory notification requirements (GLBA, FINRA 4530, SEC)
+  - Post-incident review checklist
+
+- **Human-in-the-Loop Trigger Definitions** (`specs/human-in-the-loop-triggers.md`)
+  - Mandatory HITL triggers (financial thresholds, suitability determinations)
+  - Configurable triggers (confidence scores, complexity indicators)
+  - Zone-specific HITL configurations
+  - SLA definitions and breach handling
+
+- **Semantic Index Governance Queries** (`templates/semantic-index-governance-queries.md`)
+  - PowerShell: Get-CopilotRestrictionAudit, Get-HighRiskIndexedContent
+  - KQL queries for Sentinel monitoring
+  - Weekly audit automation script
+
+#### Framework Statistics Update
+
+- **Total controls:** 49 → 55 (+6)
+- **Pillar 1 (Security):** 20 → 21 (+1)
+- **Pillar 2 (Management):** 15 → 18 (+3)
+- **Pillar 3 (Reporting):** 9 → 10 (+1)
+- **Pillar 4 (SharePoint):** 5 → 6 (+1)
+- **Operational templates:** 9 → 10 (+1)
+- **Operational specifications:** 5 → 7 (+2)
+
+---
+
 ### Operational Templates & Comprehensive Framework Validation
 
 **Status:** Operational templates released + comprehensive validation against Microsoft Learn documentation
@@ -35,7 +159,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - **Control 1.1** - Added agent creation limitation warning and sterile containment strategy
   - **Control 1.5** - Added 6 Copilot Studio channel connectors documentation; noted DLP enforcement now enabled by default
   - **Control 1.7** - Added automatic security scan pre-publish feature; links to Decision Log Schema, Zone 1 Explainability, Evidence Pack Assembly
-  - **Control 2.1** - Expanded Managed Environment features to full 23-capability list
+  - **Control 2.1** - Expanded Managed Environment features to full 24-capability list
   - **Control 2.2** - Updated environment group rules count to 21 with source citations
   - **Control 2.7** - Links to Supply Chain Risk Register Entry template
   - **Control 2.12** - Links to Escalation Matrix and Action Authorization Matrix
@@ -44,6 +168,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - **Control 3.8** - Renamed from "Copilot Command Center" to "Copilot Hub and Governance Dashboard" (official Microsoft terminology); links to Real-time Compliance Dashboard and Evidence Pack Assembly
   - **Control 4.1** - Added Restricted SharePoint Search (RSS) allow-list guidance and Restricted Access Control (RAC) for ethical walls
   - Multiple list formatting, cross-linking, and Microsoft Learn citation improvements across all pillars
+- **Gap Analysis Enhancements (January 2026)**
+  - **Control 2.1** - Added cross-tenant inbound/outbound restrictions (capability #19); updated to 24 total Managed Environment capabilities
+  - **Control 1.7** - Added granular Copilot Studio audit operations tables (25+ operation names for targeted audit searches)
+  - **Control 1.4** - Added Copilot Studio DLP examples (4 scenarios: social media blocking, HTTP restrictions, knowledge sources, channel restrictions)
 
 #### Fixed
 

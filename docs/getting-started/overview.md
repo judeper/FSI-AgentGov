@@ -27,6 +27,19 @@ This framework provides governance guidance for:
 - **Power Platform** environments hosting agents
 - **SharePoint** as a knowledge source for agents
 
+### Agent Types: What's In Scope
+
+| Agent Type | In Scope? | Governance Location |
+|------------|-----------|---------------------|
+| Copilot Studio custom agents | ✅ Primary focus | Power Platform Admin Center |
+| Agent Builder agents (M365) | ✅ Primary focus | M365 Admin Center + PPAC |
+| Microsoft-built agents (Researcher, Analyst, Facilitator) | ⚠️ Partial | M365 Admin Center (limited controls) |
+| Third-party/partner agents | ⚠️ Varies by integration | M365 Admin Center |
+| Agent 365 control plane | ❌ Future (Frontier preview) | M365 Admin Center |
+
+!!! info "Microsoft Agent 365"
+    **Microsoft Agent 365** is a new centralized control plane for agent governance announced at Ignite 2025, currently in **Frontier preview**. It provides centralized agent registry, Entra Agent ID, lifecycle management, and observability dashboards. This framework will incorporate Agent 365 capabilities as they reach general availability. Monitor for GA announcements if your organization participates in the Frontier program.
+
 ### What This Framework Does NOT Cover
 
 - **Non-US regulations** (EU AI Act, GDPR, DORA, MiFID II are out of scope)
@@ -71,26 +84,26 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. [Security](../reference/pillar-1-security/index.md)** | 19 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery |
-| **2. [Management](../reference/pillar-2-management/index.md)** | 15 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Environment Routing |
-| **3. [Reporting](../reference/pillar-3-reporting/index.md)** | 9 | Monitor and track | Inventory, Usage, PPAC, Sentinel |
-| **4. [SharePoint Mgmt](../reference/pillar-4-sharepoint/index.md)** | 5 | SharePoint-specific controls | Access, Retention, External Sharing |
+| **1. [Security](../reference/pillar-1-security/index.md)** | 21 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation |
+| **2. [Management](../reference/pillar-2-management/index.md)** | 18 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration |
+| **3. [Reporting](../reference/pillar-3-reporting/index.md)** | 10 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
+| **4. [SharePoint Mgmt](../reference/pillar-4-sharepoint/index.md)** | 6 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope |
 
-**Total: 48 Comprehensive Controls**
+**Total: 55 Comprehensive Controls**
 
 ```mermaid
 graph TB
-    subgraph P4["Pillar 4: SharePoint (5)"]
-        SP[Access · Retention · External]
+    subgraph P4["Pillar 4: SharePoint (6)"]
+        SP[Access · Retention · External · Grounding]
     end
-    subgraph P3["Pillar 3: Reporting (9)"]
-        RP[Inventory · Usage · PPAC · Sentinel]
+    subgraph P3["Pillar 3: Reporting (10)"]
+        RP[Inventory · Usage · PPAC · Sentinel · Feedback]
     end
-    subgraph P2["Pillar 2: Management (15)"]
-        MG[Lifecycle · Testing · Model Risk · Routing]
+    subgraph P2["Pillar 2: Management (18)"]
+        MG[Lifecycle · Testing · Model Risk · Multi-Agent]
     end
-    subgraph P1["Pillar 1: Security (19)"]
-        SC[DLP · Audit · Encryption · MFA · eDiscovery]
+    subgraph P1["Pillar 1: Security (21)"]
+        SC[DLP · Audit · Encryption · MFA · Network · Adversarial]
     end
 
     P1 --> P2 --> P3 --> P4
@@ -182,11 +195,11 @@ The people layer assigns accountability and ensures human oversight:
 
 ## 📁 What's Included
 
-### Control Files (48 Total)
-- **Pillar 1:** 19 Security Controls (1.1-1.19)
-- **Pillar 2:** 15 Management Controls (2.1-2.15)
-- **Pillar 3:** 9 Reporting Controls (3.1-3.9)
-- **Pillar 4:** 5 SharePoint Controls (4.1-4.5)
+### Control Files (55 Total)
+- **Pillar 1:** 21 Security Controls (1.1-1.21)
+- **Pillar 2:** 18 Management Controls (2.1-2.18)
+- **Pillar 3:** 10 Reporting Controls (3.1-3.10)
+- **Pillar 4:** 6 SharePoint Controls (4.1-4.6)
 
 Each control includes:
 

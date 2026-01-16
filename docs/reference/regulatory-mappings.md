@@ -15,11 +15,15 @@ Requires firms to maintain records of all agent activities and communications.
 |---------|-------------|---------|
 | [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention + 1 year accessible |
 | [1.9](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per FINRA timeline |
+| [1.20](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure network architecture for records systems |
+| [1.21](pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Record security incidents and attacks |
 | [2.9](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Agent Performance Monitoring | Track all agent activity |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Compliance Officer oversight |
 | [3.1](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Central registry of all agents |
 | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance and Regulatory Reporting | Regular compliance reports |
 | [3.4](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Document all incidents |
+| [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Record and track accuracy issues |
+| [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Govern knowledge source records |
 
 ### Governance Framework Alignment
 
@@ -56,6 +60,8 @@ Requires written policies and procedures for supervision of agents and AI techno
 | [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
 | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
 | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness assessment |
+| [2.17](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
+| [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
 | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Supervision documentation |
 
 ### Key Requirements
@@ -95,7 +101,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (6/48 controls). Implementation required.
+Framework provides supervision procedure guidance (8/55 controls). Implementation required.
 
 ---
 
@@ -108,12 +114,17 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 
 | Control | Topic | Mapping |
 |---------|-------|---------|
+| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data handling governance |
+| [1.8](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Ongoing monitoring and alerting |
+| [1.21](pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Monitor for manipulation attempts |
 | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
 | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Quarterly fairness assessment |
-| [1.8](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Ongoing monitoring and alerting |
-| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data handling governance |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance procedures |
+| [2.16](pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Validate knowledge source quality |
+| [2.17](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Govern agent interactions |
+| [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
 | [3.2](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
+| [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Monitor output accuracy |
 
 ### Key Topics
 
@@ -140,7 +151,7 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 The framework treats agents as models requiring comprehensive governance per SR 11-7 principles.
 
 ### Framework Coverage
-Framework addresses Notice 25-07 topics (6/48 controls). Implementation and validation required.
+Framework addresses Notice 25-07 topics (11/55 controls). Implementation and validation required.
 
 ---
 
@@ -155,9 +166,12 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 |---------|-------------|---------|
 | [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year + 3-year accessible retention |
 | [1.9](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
+| [1.20](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure storage network architecture |
+| [1.21](pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Security event records |
 | [2.13](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | All records documented |
 | [3.1](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Registry of agents as records |
 | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Evidence retention |
+| [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Knowledge source records |
 
 ### Record Categories
 
@@ -212,10 +226,12 @@ Requires fair dealing in transactions and investment advice, including disclosur
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
+| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data governance and privacy |
+| [1.14](pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Use only necessary data |
 | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Agent accuracy and reliability |
 | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fair treatment across demographics |
-| [1.14](pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Use only necessary data |
-| [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data governance and privacy |
+| [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Best interest standard compliance |
+| [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Ensure advice accuracy |
 
 ### Key Requirements
 
@@ -247,7 +263,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (4/48 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (6/55 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -260,12 +276,14 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
+| [1.20](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Security control for IT infrastructure |
 | [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Control testing documented |
+| [2.8](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control | Segregation of duties enforced |
+| [2.10](pillar-2-management/2.10-patch-management-and-system-updates.md) | Patch Management | Security control maintenance |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Control procedures documented |
 | [2.13](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Evidence for control effectiveness |
-| [2.10](pillar-2-management/2.10-patch-management-and-system-updates.md) | Patch Management | Security control maintenance |
+| [2.17](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Control over complex agent systems |
 | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Control effectiveness reports |
-| [2.8](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control | Segregation of duties enforced |
 
 ### Management Assessment Requirements
 
@@ -303,7 +321,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 81% control coverage (40/48 controls). SOX-specific testing required. Implementation required.
+Framework provides 78% control coverage (43/55 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -316,12 +334,14 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
+| [1.3](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | SharePoint Governance | Permission management |
+| [1.5](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Data loss prevention |
 | [1.11](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access and MFA | Strong authentication |
 | [1.15](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Data protection in transit and at rest |
-| [1.5](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Data loss prevention |
 | [1.16](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Information Rights Management | Document-level protection |
 | [1.18](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | RBAC | Access control |
-| [1.3](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | SharePoint Governance | Permission management |
+| [1.20](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Network-level safeguards |
+| [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Data source governance |
 
 ### Key Safeguard Areas
 
@@ -360,7 +380,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 93% control coverage (45/48 controls). Implementation validation required.
+Framework provides 91% control coverage (50/55 controls). Implementation validation required.
 
 ---
 
@@ -373,11 +393,14 @@ Applies to national banks and federal savings associations. Requires governance 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
+| [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent validation |
 | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal SR 11-7 framework |
 | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness and discrimination testing |
-| [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent validation |
-| [3.2](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Performance Monitoring | Ongoing performance tracking |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance committee oversight |
+| [2.16](pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Data source validation |
+| [2.17](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Complex model governance |
+| [3.2](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Performance Monitoring | Ongoing performance tracking |
+| [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Model output accuracy monitoring |
 
 ### Model Risk Framework (SR 11-7)
 
@@ -429,7 +452,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 58% control coverage (30/48 controls). OCC-specific model validation required for full compliance.
+Framework provides 58% control coverage (32/55 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -488,10 +511,12 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Algorithmic bias assessment |
 | [1.6](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Consumer data protection |
 | [1.8](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Anomaly detection |
+| [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Algorithmic bias assessment |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Algorithmic governance |
+| [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Prevent unfair recommendations |
+| [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Prevent deceptive outputs |
 
 ### UDAAP Considerations for AI Agents
 
@@ -542,7 +567,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (4/48 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (6/55 controls). CFPB-specific implementation required.
 
 ---
 
@@ -597,7 +622,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 48 controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All 55 controls applicable.
 
 ---
 
@@ -624,6 +649,7 @@ NCUA follows similar principles to banking regulators for technology risk manage
 | [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit Logging | Examination documentation |
 | [1.11](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access/MFA | Authentication controls |
 | [1.15](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Member information security |
+| [1.20](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Network security controls |
 | [2.3](pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Control environment |
 | [2.7](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | Vendor oversight |
 | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Board and management oversight |
@@ -676,8 +702,8 @@ The framework's controls align with NYDFS Part 500 cybersecurity requirements:
 | §500.02 | Cybersecurity Program | Pillar 1 (Security), Pillar 2 (Management) |
 | §500.03 | Cybersecurity Policy | Governance documentation |
 | §500.05 | Penetration Testing | 2.5 Testing and Validation |
-| §500.06 | Audit Trail | 1.7 Comprehensive Audit Logging |
-| §500.07 | Access Privileges | 1.18 RBAC, 2.8 Segregation of Duties |
+| §500.06 | Audit Trail | 1.7 Comprehensive Audit Logging, 1.21 Adversarial Input Logging |
+| §500.07 | Access Privileges | 1.18 RBAC, 1.20 Network Isolation, 2.8 Segregation of Duties |
 | §500.08 | Application Security | 2.5 Testing, 1.8 Runtime Protection |
 | §500.10 | Cybersecurity Personnel | RACI Matrix role definitions |
 | §500.11 | Third-Party Risk | 2.7 Vendor and Third-Party Risk |
@@ -759,21 +785,21 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 48/48 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 6/48 | 14% | Partial - supervision focus |
-| FINRA Notice 25-07 | 6/48 | 14% | Partial - model risk focus |
-| SEC 17a-3/4 | 43/48 | 88% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 4/48 | 9% | Limited - fairness focus |
-| SOX 302/404 | 40/48 | 81% | Substantial coverage |
-| GLBA 501-505 | 45/48 | 93% | Substantial coverage |
-| OCC 2011-12 | 30/48 | 58% | Partial - model risk focus |
-| Fed SR 11-7 | 30/48 | 58% | Partial - model risk focus |
-| Fed ECOA | 2/48 | 5% | Minimal - bias testing only |
-| CFPB / UDAAP | 4/48 | 8% | Consumer protection focus |
-| FDIC (Interagency) | 48/48 | 100% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 45/48 | 93% | Security program alignment |
-| NYDFS Part 500 | 40/48 | 83% | State-level awareness |
-| NAIC Model Law | 35/48 | 73% | Insurance awareness |
+| FINRA 4511 | 55/55 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 8/55 | 15% | Partial - supervision focus |
+| FINRA Notice 25-07 | 11/55 | 20% | Partial - model risk focus |
+| SEC 17a-3/4 | 48/55 | 87% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 6/55 | 11% | Limited - fairness focus |
+| SOX 302/404 | 43/55 | 78% | Substantial coverage |
+| GLBA 501-505 | 50/55 | 91% | Substantial coverage |
+| OCC 2011-12 | 32/55 | 58% | Partial - model risk focus |
+| Fed SR 11-7 | 32/55 | 58% | Partial - model risk focus |
+| Fed ECOA | 3/55 | 5% | Minimal - bias testing only |
+| CFPB / UDAAP | 6/55 | 11% | Consumer protection focus |
+| FDIC (Interagency) | 55/55 | 100% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 50/55 | 91% | Security program alignment |
+| NYDFS Part 500 | 44/55 | 80% | State-level awareness |
+| NAIC Model Law | 40/55 | 73% | Insurance awareness |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 

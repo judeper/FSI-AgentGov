@@ -4,7 +4,7 @@ Ensure operational excellence, risk management, and reliable agent lifecycle man
 
 ## Overview
 
-Pillar 2 governs the operational processes required to manage AI agents throughout their lifecycle—from initial development through testing, deployment, monitoring, and eventual retirement. These 15 controls establish the governance framework for change management, model risk, vendor oversight, and ongoing supervision required by financial regulators.
+Pillar 2 governs the operational processes required to manage AI agents throughout their lifecycle—from initial development through testing, deployment, monitoring, and eventual retirement. These 18 controls establish the governance framework for change management, model risk, vendor oversight, multi-agent orchestration, and ongoing supervision required by financial regulators.
 
 **Primary Regulatory Alignment:** OCC 2011-12 / Fed SR 11-7 (model risk), FINRA Rule 3110 (supervision), FINRA 25-07 (AI fairness), SOX 302/404 (internal controls)
 
@@ -14,7 +14,7 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 |----------|----------|-------|
 | Environment Governance | 2.1-2.2, 2.15 | Managed environments, groups, routing |
 | Lifecycle Management | 2.3-2.5, 2.10 | Change control, BCDR, testing, patching |
-| Risk Management | 2.6-2.8 | Model risk, vendor risk, segregation of duties |
+| Risk Management | 2.6-2.8, 2.16-2.18 | Model risk, vendor risk, RAG validation, orchestration, conflict testing |
 | Oversight & Compliance | 2.9, 2.11-2.14 | Performance monitoring, bias testing, supervision, training |
 
 !!! note
@@ -38,3 +38,6 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 - [2.13 Documentation and Record Keeping](2.13-documentation-and-record-keeping.md)
 - [2.14 Training and Awareness Program](2.14-training-and-awareness-program.md)
 - [2.15 Environment Routing and Auto-Provisioning](2.15-environment-routing.md)
+- [2.16 RAG Source Integrity Validation](2.16-rag-source-integrity-validation.md)
+- [2.17 Multi-Agent Orchestration Limits](2.17-multi-agent-orchestration-limits.md)
+- [2.18 Automated Conflict of Interest Testing](2.18-automated-conflict-of-interest-testing.md)
