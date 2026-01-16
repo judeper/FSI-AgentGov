@@ -5,9 +5,9 @@
 **FSI Agent Governance Framework v1.0** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
-- **48 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **58 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
-- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7
+- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
 - **Audience:** M365 administrators in US financial services
 
@@ -35,10 +35,10 @@ C:\dev\FSI-AgentGov\
 ├── docs/
 │   ├── getting-started/          # Onboarding guides for admins
 │   ├── reference/
-│   │   ├── pillar-1-security/   # Controls 1.1-1.19 (19 controls)
-│   │   ├── pillar-2-management/ # Controls 2.1-2.15 (15 controls)
-│   │   ├── pillar-3-reporting/  # Controls 3.1-3.9 (9 controls)
-│   │   ├── pillar-4-sharepoint/ # Controls 4.1-4.5 (5 controls)
+│   │   ├── pillar-1-security/   # Controls 1.1-1.22 (22 controls)
+│   │   ├── pillar-2-management/ # Controls 2.1-2.19 (19 controls)
+│   │   ├── pillar-3-reporting/  # Controls 3.1-3.10 (10 controls)
+│   │   ├── pillar-4-sharepoint/ # Controls 4.1-4.7 (7 controls)
 │   │   ├── CONTROL-INDEX.md     # Master control list
 │   │   └── [other reference materials]
 │   ├── templates/               # Control authoring template

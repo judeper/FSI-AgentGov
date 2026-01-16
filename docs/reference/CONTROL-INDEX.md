@@ -1,12 +1,12 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (57 Controls)
+## Complete Control Reference (58 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
 ---
 
-## Pillar 1: Security Controls (21 Controls)
+## Pillar 1: Security Controls (22 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -31,6 +31,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
 | 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) |
 | 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) |
+| 1.22 | [Information Barriers for AI Agents](pillar-1-security/1.22-information-barriers.md) |
 
 ## Pillar 2: Management Controls (19 Controls)
 
@@ -107,7 +108,7 @@ Each control is documented with three governance levels:
 
 ## Pillar Descriptions
 
-### Pillar 1: Security Controls (21 Controls)
+### Pillar 1: Security Controls (22 Controls)
 Focus: Protect data and systems from unauthorized access, misuse, and exploitation.
 - Authentication and Authorization
 - Data Loss Prevention
@@ -117,6 +118,7 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - eDiscovery
 - Network Isolation
 - Adversarial Input Protection
+- Information Barriers
 
 ### Pillar 2: Management Controls (19 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.

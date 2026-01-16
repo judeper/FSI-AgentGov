@@ -97,6 +97,7 @@ nav:
     - 1.19 eDiscovery For Agent Interactions: reference/pillar-1-security/1.19-ediscovery-for-agent-interactions.md
     - 1.20 Network Isolation And Private Connectivity: reference/pillar-1-security/1.20-network-isolation-private-connectivity.md
     - 1.21 Adversarial Input Logging: reference/pillar-1-security/1.21-adversarial-input-logging.md
+    - 1.22 Information Barriers for AI Agents: reference/pillar-1-security/1.22-information-barriers.md
   - Management Controls (Pillar 2):
     - Overview: reference/pillar-2-management/index.md
     - 2.1 Managed Environments: reference/pillar-2-management/2.1-managed-environments.md

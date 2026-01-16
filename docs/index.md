@@ -27,10 +27,10 @@ To stay current: **[Star this repository](https://github.com/judeper/FSI-AgentGo
 - [Control Index](reference/CONTROL-INDEX.md)
 
 ## Controls by Pillar
-- [Pillar 1: Security](reference/pillar-1-security/index.md) - 19 controls for data protection
-- [Pillar 2: Management](reference/pillar-2-management/index.md) - 15 controls for lifecycle governance
-- [Pillar 3: Reporting](reference/pillar-3-reporting/index.md) - 9 controls for monitoring and analytics
-- [Pillar 4: SharePoint](reference/pillar-4-sharepoint/index.md) - 5 controls for SharePoint governance
+- [Pillar 1: Security](reference/pillar-1-security/index.md) - 22 controls for data protection
+- [Pillar 2: Management](reference/pillar-2-management/index.md) - 19 controls for lifecycle governance
+- [Pillar 3: Reporting](reference/pillar-3-reporting/index.md) - 10 controls for monitoring and analytics
+- [Pillar 4: SharePoint](reference/pillar-4-sharepoint/index.md) - 7 controls for SharePoint governance
 
 ## Downloads
 - [Administrator Templates](downloads/index.md) - Role-specific Excel checklists and dashboards

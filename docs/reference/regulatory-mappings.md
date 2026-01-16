@@ -508,6 +508,58 @@ Framework provides bias testing controls (2/48 controls applicable). ECOA-specif
 
 ---
 
+## CFTC Rule 1.31 - Recordkeeping Requirements
+
+### Overview
+Applies to futures commission merchants (FCMs), introducing brokers, commodity trading advisors, and commodity pool operators. Requires maintenance of books and records in accordance with CFTC regulations.
+
+### Applicable Controls
+
+| Control | Requirement | Mapping |
+|---------|-------------|---------|
+| [1.7](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 5-year retention (CFTC requires records for life of enterprise + 5 years) |
+| [1.8](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Security monitoring for trading systems |
+| [1.5](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Protection of trading data |
+| [1.9](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies per CFTC requirements |
+| [2.3](pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control for trading systems |
+| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Governance for algorithmic trading agents |
+| [2.13](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | Complete transaction documentation |
+| [3.1](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Registry of trading-related agents |
+| [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Regulatory reporting capabilities |
+
+### Key Recordkeeping Requirements
+
+1. **Electronic Records**
+   - Records must be maintained in electronic format capable of being retrieved and produced
+   - WORM (Write Once Read Many) or equivalent storage requirements
+   - Records must be searchable and accessible for CFTC examination
+
+2. **Retention Period**
+   - Minimum 5 years from creation
+   - First 2 years: readily accessible location
+   - Full retention: life of enterprise plus 5 years for certain records
+
+3. **AI Agent Records**
+   - All agent-assisted transactions must be recorded
+   - Agent decision logs for trading recommendations
+   - Audit trail of agent inputs and outputs
+   - Model validation documentation
+
+### Governance Framework Alignment
+
+**Derivatives/Commodities Trading Agents (Zone 3):**
+
+- Mandatory comprehensive audit logging
+- 5+ year retention with immediate accessibility
+- WORM-compliant storage
+- Complete transaction reconstruction capability
+- Model risk management per SR 11-7 principles
+
+### Framework Coverage
+Framework provides audit and recordkeeping controls. Organizations with CFTC-regulated entities should map these controls to specific Rule 1.31 requirements. Implementation and validation required.
+
+---
+
 ## CFPB Guidance - Algorithmic Accountability and UDAAP
 
 ### Overview
@@ -734,6 +786,70 @@ The framework's controls align with NYDFS Part 500 cybersecurity requirements:
 
 The framework's data governance controls (1.5, 1.6, 1.9, 1.14) support privacy compliance but do not specifically address CCPA/CPRA requirements.
 
+### State AI Governance Laws
+
+Several states have enacted or are developing AI-specific legislation that may apply to financial services AI agents. Organizations should monitor these developments and assess applicability to their AI agent deployments.
+
+#### California SB 1047 - AI Safety (Effective 2025+)
+
+**Applicability:** AI systems deployed in California, particularly high-risk systems.
+
+| Requirement | Description | Framework Alignment |
+|-------------|-------------|---------------------|
+| AI Transparency | Disclosure of AI decision-making processes | [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| Human Review | Human review for consequential decisions | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+| Safety Testing | Pre-deployment safety validation | [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
+| Incident Reporting | Report AI safety incidents | [3.4](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
+
+#### Colorado AI Act (SB 24-205)
+
+**Applicability:** Organizations deploying "high-risk AI systems" that make consequential decisions affecting consumers in Colorado. Effective February 1, 2026.
+
+| Requirement | Description | Framework Alignment |
+|-------------|-------------|---------------------|
+| Algorithmic Discrimination Prevention | Prevent discriminatory outcomes | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) |
+| Annual Bias Audits | Regular fairness assessments | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md), [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Consumer Opt-Out Rights | Right to opt out of AI processing | [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| Risk Management Policy | Document AI risk management | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Impact Assessments | Conduct and document impact assessments | See [Colorado AI Impact Assessment Template](../operational-templates/templates/colorado-ai-impact-assessment.md) |
+
+**High-Risk AI Systems under Colorado AI Act:**
+
+- Systems making consequential decisions in education, employment, financial services, government services, healthcare, housing, insurance, or legal services
+- Financial services organizations should assess whether customer-facing agents qualify as high-risk
+
+#### NYC Local Law 144 - Automated Employment Decision Tools
+
+**Applicability:** Employers using automated decision tools for employment decisions in New York City. While primarily focused on employment, similar principles may extend to other consequential AI decisions.
+
+| Requirement | Description | Framework Alignment |
+|-------------|-------------|---------------------|
+| Bias Audits | Annual third-party bias audits | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) |
+| Public Disclosure | Publish audit results summary | [3.3](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
+| Notice to Candidates | Notify affected individuals of AI use | [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| Alternative Procedures | Offer non-AI alternatives | [2.12](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+
+### Governance Framework Alignment for State AI Laws
+
+**Customer-Facing Financial AI Agents:**
+
+Organizations should consider the following when deploying AI agents that interact with customers in states with AI legislation:
+
+1. **Bias Testing:** Implement regular fairness assessments per Control 2.11
+2. **Transparency:** Disclose AI use and decision factors per Control 2.19
+3. **Human Escalation:** Provide clear paths to human review per Control 2.12
+4. **Documentation:** Maintain impact assessments and audit documentation per Control 2.6
+5. **Incident Response:** Report AI-related incidents per Control 3.4
+
+**Monitoring Requirement:**
+
+The state AI regulatory landscape is evolving rapidly. Organizations should:
+
+- Monitor legislative developments in states where they operate
+- Assess new laws for applicability to AI agent deployments
+- Update governance procedures as requirements change
+- Consult legal counsel for state-specific compliance strategies
+
 ### Other State Regulations
 
 Additional state-level requirements may apply:
@@ -803,10 +919,12 @@ Insurers should consult their primary state insurance regulator and legal counse
 | Fed SR 11-7 | 33/57 | 58% | Partial - model risk focus |
 | Fed ECOA | 3/57 | 5% | Minimal - bias testing only |
 | CFPB / UDAAP | 7/57 | 12% | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | 9/57 | 16% | Recordkeeping for derivatives/commodities |
 | FDIC (Interagency) | 57/57 | 100% | Full applicability; align to interagency guidance |
 | NCUA Part 748 | 51/57 | 89% | Security program alignment |
 | NYDFS Part 500 | 45/57 | 79% | State-level awareness |
 | NAIC Model Law | 41/57 | 72% | Insurance awareness |
+| State AI Laws | 6/57 | 11% | Emerging - transparency, bias, human review |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 

@@ -29,12 +29,12 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. Security** | 21 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation |
-| **2. Management** | 18 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration |
+| **1. Security** | 22 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
+| **2. Management** | 19 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. Reporting** | 10 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback |
-| **4. SharePoint Mgmt** | 6 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope |
+| **4. SharePoint Mgmt** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
-**Total: 55 Comprehensive Controls**
+**Total: 58 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -47,13 +47,13 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 ```mermaid
 graph LR
     subgraph "Zone 1: Personal"
-        Z1[Individual Use<br/>Self-Service<br/>Low Risk]
+        Z1[Individual Use]
     end
     subgraph "Zone 2: Team"
-        Z2[Departmental<br/>Manager Approval<br/>Medium Risk]
+        Z2[Departmental Use]
     end
     subgraph "Zone 3: Enterprise"
-        Z3[Production<br/>Committee Approval<br/>High Risk]
+        Z3[Production Use]
     end
     Z1 -->|Promote| Z2
     Z2 -->|Promote| Z3
@@ -69,11 +69,11 @@ graph LR
 
 ## 📁 What's Included
 
-### Control Files (55 Total)
-- **Pillar 1:** 21 Security Controls (1.1-1.21)
-- **Pillar 2:** 18 Management Controls (2.1-2.18)
+### Control Files (58 Total)
+- **Pillar 1:** 22 Security Controls (1.1-1.22)
+- **Pillar 2:** 19 Management Controls (2.1-2.19)
 - **Pillar 3:** 10 Reporting Controls (3.1-3.10)
-- **Pillar 4:** 6 SharePoint Controls (4.1-4.6)
+- **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
 
 Each control includes:
 - Overview and regulatory reference

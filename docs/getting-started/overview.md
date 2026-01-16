@@ -84,26 +84,26 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. [Security](../reference/pillar-1-security/index.md)** | 21 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation |
-| **2. [Management](../reference/pillar-2-management/index.md)** | 18 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration |
+| **1. [Security](../reference/pillar-1-security/index.md)** | 22 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
+| **2. [Management](../reference/pillar-2-management/index.md)** | 19 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. [Reporting](../reference/pillar-3-reporting/index.md)** | 10 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
-| **4. [SharePoint Mgmt](../reference/pillar-4-sharepoint/index.md)** | 6 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope |
+| **4. [SharePoint Mgmt](../reference/pillar-4-sharepoint/index.md)** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
-**Total: 55 Comprehensive Controls**
+**Total: 58 Comprehensive Controls**
 
 ```mermaid
 graph TB
-    subgraph P4["Pillar 4: SharePoint (6)"]
-        SP[Access · Retention · External · Grounding]
+    subgraph P4["Pillar 4: SharePoint (7)"]
+        SP[Access · Retention · External · Grounding · Copilot]
     end
     subgraph P3["Pillar 3: Reporting (10)"]
         RP[Inventory · Usage · PPAC · Sentinel · Feedback]
     end
-    subgraph P2["Pillar 2: Management (18)"]
-        MG[Lifecycle · Testing · Model Risk · Multi-Agent]
+    subgraph P2["Pillar 2: Management (19)"]
+        MG[Lifecycle · Testing · Model Risk · Multi-Agent · HITL]
     end
-    subgraph P1["Pillar 1: Security (21)"]
-        SC[DLP · Audit · Encryption · MFA · Network · Adversarial]
+    subgraph P1["Pillar 1: Security (22)"]
+        SC[DLP · Audit · Encryption · MFA · Network · Barriers]
     end
 
     P1 --> P2 --> P3 --> P4
@@ -131,10 +131,9 @@ Effective agent governance operates through three interconnected layers that wor
 ```mermaid
 graph TB
     subgraph Triangle["Governance Triangle"]
-        direction TB
-        Policy["🛡️ Policy<br/>Technical Controls & Guardrails"]
-        Process["⚙️ Process<br/>Operational Workflows"]
-        People["👥 People<br/>Roles & Responsibilities"]
+        Policy[Policy - Technical Controls]
+        Process[Process - Workflows]
+        People[People - Roles]
     end
 
     Policy --> Process
@@ -195,11 +194,11 @@ The people layer assigns accountability and ensures human oversight:
 
 ## 📁 What's Included
 
-### Control Files (55 Total)
-- **Pillar 1:** 21 Security Controls (1.1-1.21)
-- **Pillar 2:** 18 Management Controls (2.1-2.18)
+### Control Files (58 Total)
+- **Pillar 1:** 22 Security Controls (1.1-1.22)
+- **Pillar 2:** 19 Management Controls (2.1-2.19)
 - **Pillar 3:** 10 Reporting Controls (3.1-3.10)
-- **Pillar 4:** 6 SharePoint Controls (4.1-4.6)
+- **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
 
 Each control includes:
 
