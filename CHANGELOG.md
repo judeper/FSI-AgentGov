@@ -8,6 +8,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.0] — January 2026
 
+### Link Validation CI Fix (January 16, 2026)
+
+**Status:** Fixed broken external URLs causing CI failure
+**Date:** January 16, 2026
+**Scope:** 8 broken external URLs across 5 control files
+
+#### Configuration Update
+
+- **mlc-config.json** - Expanded SEC.gov ignore pattern to handle 403 blocks on regulation pages
+
+#### URL Fixes
+
+| File | Issue | Fix |
+|------|-------|-----|
+| 1.21 (Adversarial Input Logging) | Dead link to Defender for Cloud Apps AI protection | Updated to AI Agent Inventory URL |
+| 2.16 (RAG Source Integrity) | Dead links + placeholder URL parsed as link | Fixed Copilot Studio knowledge URL, SharePoint management URL, escaped placeholder |
+| 2.17 (Multi-Agent Orchestration) | Dead link to Power Automate error handling | Updated to coding guidelines error handling URL |
+| 4.6 (Grounding Scope Governance) | Dead links to SharePoint restricted content | Updated to restricted-content-discovery and data-access-governance-reports URLs |
+
+#### Verification
+
+- All 5 affected files pass `markdown-link-check` validation
+- `mkdocs build --strict` passes with zero errors
+
+---
+
 ### Link Consistency and Regulatory Mappings Update (January 16, 2026)
 
 **Status:** Self-review implementation - cross-reference and link improvements
