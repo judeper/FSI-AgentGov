@@ -17,7 +17,7 @@ Role names below use the framework's canonical short naming. See the [Administra
 | [Purview Administrator Checklist](purview-administrator-checklist.xlsx) | Purview Compliance Admin | Purview controls: DLP, DSPM for AI, Audit, eDiscovery |
 | [SharePoint Administrator Checklist](sharepoint-administrator-checklist.xlsx) | SharePoint Admin | SharePoint governance controls: access, retention, external sharing |
 | [Compliance Officer Checklist](compliance-officer-checklist.xlsx) | Compliance Officer | Regulatory mappings and audit evidence tracking |
-| [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 48 controls with maturity scoring and dashboard |
+| [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 58 controls with maturity scoring and dashboard |
 
 ---
 
@@ -72,6 +72,8 @@ Each Excel checklist includes:
 - 2.1 Managed Environments
 - 2.2 Environment Groups and Tier Classification
 - 2.15 Environment Routing and Auto-Provisioning
+- 2.16 RAG Source Integrity Validation
+- 2.17 Multi-Agent Orchestration Limits
 - 3.7 PPAC Security Posture Assessment
 - 3.8 Copilot Hub
 
@@ -82,6 +84,7 @@ Each Excel checklist includes:
 - 1.9 Data Retention and Deletion Policies
 - 1.10 Communication Compliance Monitoring
 - 1.19 eDiscovery for Agent Interactions
+- 1.22 Information Barriers for AI Agents
 
 ### SharePoint Administrator
 - 4.1 SharePoint Information Access Governance (IAG)
@@ -89,11 +92,21 @@ Each Excel checklist includes:
 - 4.3 Site and Document Retention Management
 - 4.4 Guest and External User Access Controls
 - 4.5 SharePoint Security and Compliance Monitoring
+- 4.6 Grounding Scope Governance
+- 4.7 Microsoft 365 Copilot Data Governance
 
 ### Compliance Officer
-- All regulatory mapping controls
-- Audit evidence collection
-- Examination preparation
+- 1.7 Comprehensive Audit Logging and Compliance
+- 1.19 eDiscovery for Agent Interactions
+- 1.22 Information Barriers for AI Agents
+- 2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+- 2.11 Bias Testing and Fairness Assessment
+- 2.12 Supervision and Oversight (FINRA Rule 3110)
+- 2.13 Documentation and Record Keeping
+- 2.18 Automated Conflict of Interest Testing
+- 2.19 Customer AI Disclosure and Transparency
+- 3.3 Compliance and Regulatory Reporting
+- 3.10 Hallucination Feedback Loop
 
 ---
 

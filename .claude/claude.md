@@ -202,6 +202,47 @@ This control ensures FINRA 4511(j) compliance and guarantees proper agent oversi
 
 ---
 
+## Excel Download Templates
+
+The framework includes Excel checklists for administrators in `docs/downloads/`. When adding new controls, these templates must be updated.
+
+### Template Files and Their Control Counts
+
+| File | Role | Controls | Notes |
+|------|------|----------|-------|
+| `governance-maturity-dashboard.xlsx` | AI Governance Lead | 58 (all) | Has "All Controls" + "Summary Dashboard" sheets |
+| `purview-administrator-checklist.xlsx` | Purview Compliance Admin | 7 | DLP, DSPM, Audit, eDiscovery, Information Barriers |
+| `sharepoint-administrator-checklist.xlsx` | SharePoint Admin | 7 | IAG, Access Reviews, Retention, External Access, Grounding |
+| `power-platform-administrator-checklist.xlsx` | Power Platform Admin | 7 | Environments, Groups, Routing, RAG, Orchestration |
+| `compliance-officer-checklist.xlsx` | Compliance Officer | 11 | Regulatory controls across pillars |
+| `entra-administrator-checklist.xlsx` | Entra Global Admin | 4 | Conditional Access, Insider Risk, RBAC |
+
+### Updating Excel Templates
+
+When adding new controls, update the relevant Excel files using Python with openpyxl:
+
+```bash
+pip install openpyxl
+```
+
+**Key considerations:**
+- `governance-maturity-dashboard.xlsx` has merged cells for pillar headers - unmerge before editing, re-merge after
+- Update the "Summary Dashboard" sheet control counts when adding controls
+- Insert new controls in numerical order within their pillar section
+- All checklists use the same column format: Control ID | Control Name | Status | Notes | Due Date
+
+**Control-to-checklist mapping:**
+- Pillar 1 Security controls → `purview-administrator-checklist.xlsx` (for Purview-managed controls)
+- Pillar 2 Management controls → `power-platform-administrator-checklist.xlsx` (for PPAC-managed controls)
+- Pillar 3 Reporting controls → Various based on reporting owner
+- Pillar 4 SharePoint controls → `sharepoint-administrator-checklist.xlsx`
+- Regulatory/compliance controls → `compliance-officer-checklist.xlsx`
+- ALL controls → `governance-maturity-dashboard.xlsx`
+
+See `docs/downloads/index.md` for the full control-to-role mapping.
+
+---
+
 ## Validation & Testing
 
 ### Before Committing Any Changes
