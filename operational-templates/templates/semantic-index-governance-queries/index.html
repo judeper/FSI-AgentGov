@@ -1,0 +1,4572 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/operational-templates/templates/semantic-index-governance-queries/">
+      
+      
+        <link rel="prev" href="../raci-governance-template/">
+      
+      
+        <link rel="next" href="../supply-chain-risk-register-entry/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Semantic Index Governance Queries - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#semantic-index-governance-queries" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Semantic Index Governance Queries
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-1-security/1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#powershell-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Queries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PowerShell Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-1-audit-site-copilot-restrictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 1: Audit Site Copilot Restrictions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-2-identify-high-risk-indexed-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 2: Identify High-Risk Indexed Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-3-monitor-copilot-restriction-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 3: Monitor Copilot Restriction Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-4-validate-agent-knowledge-source-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 4: Validate Agent Knowledge Source Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kql-queries-for-microsoft-sentinel-log-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KQL Queries (for Microsoft Sentinel / Log Analytics)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="KQL Queries (for Microsoft Sentinel / Log Analytics)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-1-track-copilot-content-access-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 1: Track Copilot Content Access Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-2-detect-unauthorized-source-access-attempts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 2: Detect Unauthorized Source Access Attempts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-3-monitor-index-scope-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 3: Monitor Index Scope Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-4-copilot-citation-source-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 4: Copilot Citation Source Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-5-detect-stale-content-being-cited" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 5: Detect Stale Content Being Cited
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-6-grounding-scope-compliance-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query 6: Grounding Scope Compliance Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduled-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduled Monitoring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduled Monitoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#weekly-audit-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Weekly Audit Script
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="semantic-index-governance-queries">Semantic Index Governance Queries</h1>
+<p><strong>Status:</strong> January 2026 - FSI-AgentGov v1.0
+<strong>Related Controls:</strong> 4.6 (Grounding Scope), 4.1 (IAG/RCD), 1.7 (Audit Logging)</p>
+<hr />
+<h2 id="purpose">Purpose</h2>
+<p>This template provides PowerShell and KQL queries for auditing and monitoring content indexed by Microsoft 365's Semantic Index for AI agent grounding. Use these queries to ensure governance compliance and identify potential oversharing risks.</p>
+<hr />
+<h2 id="powershell-queries">PowerShell Queries</h2>
+<h3 id="query-1-audit-site-copilot-restrictions">Query 1: Audit Site Copilot Restrictions</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Audit SharePoint Sites - Copilot Restriction Status</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Get-CopilotRestrictionAudit</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[string]</span><span class="nv">$AdminUrl</span> <span class="p">=</span> <span class="s2">&quot;https://tenant-admin.sharepoint.com&quot;</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\Copilot-Restriction-Audit-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Connect-SPOService</span> <span class="n">-Url</span> <span class="nv">$AdminUrl</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Auditing Copilot restriction status for all sites...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="nv">$sites</span> <span class="p">=</span> <span class="nb">Get-SPOSite</span> <span class="n">-Limit</span> <span class="n">All</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+        <span class="nv">$_</span><span class="p">.</span><span class="n">Template</span> <span class="o">-notlike</span> <span class="s2">&quot;*SPSPERS*&quot;</span>  <span class="c"># Exclude OneDrive</span>
+    <span class="p">}</span>
+
+    <span class="nv">$results</span> <span class="p">=</span> <span class="nv">$sites</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+        <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">Url</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Url</span>
+            <span class="n">Title</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Title</span>
+            <span class="n">Template</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Template</span>
+            <span class="n">Owner</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Owner</span>
+            <span class="n">RestrictedFromCopilot</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">RestrictContentOrgWideSearchAndCopilot</span>
+            <span class="n">SensitivityLabel</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SensitivityLabel</span>
+            <span class="n">SharingCapability</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SharingCapability</span>
+            <span class="n">StorageUsedGB</span> <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">StorageUsageCurrent</span> <span class="p">/</span> <span class="n">1024</span><span class="p">,</span> <span class="n">2</span><span class="p">)</span>
+            <span class="n">LastContentModified</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">LastContentModifiedDate</span>
+            <span class="n">AuditDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nv">$results</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="nv">$OutputPath</span> <span class="n">-NoTypeInformation</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Exported </span><span class="p">$(</span><span class="nv">$results</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> sites to: $OutputPath&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+    <span class="c"># Summary</span>
+    <span class="nv">$restricted</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$results</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">RestrictedFromCopilot</span><span class="p">).</span><span class="n">Count</span>
+    <span class="nv">$unrestricted</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$results</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">RestrictedFromCopilot</span> <span class="p">}).</span><span class="n">Count</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Summary:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Total Sites: </span><span class="p">$(</span><span class="nv">$results</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Restricted from Copilot: $restricted&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Available to Copilot: $unrestricted&quot;</span>
+
+    <span class="k">return</span> <span class="nv">$results</span>
+<span class="p">}</span>
+
+<span class="c"># Run audit</span>
+<span class="c"># $audit = Get-CopilotRestrictionAudit</span>
+</code></pre></div>
+<h3 id="query-2-identify-high-risk-indexed-content">Query 2: Identify High-Risk Indexed Content</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Identify High-Risk Content Available to Copilot</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Get-HighRiskIndexedContent</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[string]</span><span class="nv">$AdminUrl</span> <span class="p">=</span> <span class="s2">&quot;https://tenant-admin.sharepoint.com&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Connect-SPOService</span> <span class="n">-Url</span> <span class="nv">$AdminUrl</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Identifying high-risk content available to Copilot...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="nv">$sites</span> <span class="p">=</span> <span class="nb">Get-SPOSite</span> <span class="n">-Limit</span> <span class="n">All</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+        <span class="nv">$_</span><span class="p">.</span><span class="n">Template</span> <span class="o">-notlike</span> <span class="s2">&quot;*SPSPERS*&quot;</span> <span class="o">-and</span>
+        <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">RestrictContentOrgWideSearchAndCopilot</span>
+    <span class="p">}</span>
+
+    <span class="nv">$highRisk</span> <span class="p">=</span> <span class="p">@()</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$site</span> <span class="k">in</span> <span class="nv">$sites</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$riskFactors</span> <span class="p">=</span> <span class="p">@()</span>
+
+        <span class="c"># Check for risky patterns in URL</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$site</span><span class="p">.</span><span class="n">Url</span> <span class="o">-match</span> <span class="s2">&quot;draft|archive|test|sandbox|personal|confidential|restricted&quot;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$riskFactors</span> <span class="p">+=</span> <span class="s2">&quot;URL pattern suggests non-production content&quot;</span>
+        <span class="p">}</span>
+
+        <span class="c"># Check for broad sharing</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$site</span><span class="p">.</span><span class="n">SharingCapability</span> <span class="o">-eq</span> <span class="s2">&quot;ExternalUserAndGuestSharing&quot;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$riskFactors</span> <span class="p">+=</span> <span class="s2">&quot;External sharing enabled&quot;</span>
+        <span class="p">}</span>
+
+        <span class="c"># Check for large storage (potential data accumulation)</span>
+        <span class="nv">$storageGB</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">StorageUsageCurrent</span> <span class="p">/</span> <span class="n">1024</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$storageGB</span> <span class="o">-gt</span> <span class="n">50</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$riskFactors</span> <span class="p">+=</span> <span class="s2">&quot;Large storage (</span><span class="p">$(</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$storageGB</span><span class="p">,</span> <span class="n">1</span><span class="p">))</span><span class="s2"> GB)&quot;</span>
+        <span class="p">}</span>
+
+        <span class="c"># Check for stale content</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$site</span><span class="p">.</span><span class="n">LastContentModifiedDate</span> <span class="o">-lt</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">180</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nv">$riskFactors</span> <span class="p">+=</span> <span class="s2">&quot;Content not modified in 180+ days&quot;</span>
+        <span class="p">}</span>
+
+        <span class="c"># Check for missing sensitivity label</span>
+        <span class="k">if</span> <span class="p">(</span><span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="nv">$site</span><span class="p">.</span><span class="n">SensitivityLabel</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nv">$riskFactors</span> <span class="p">+=</span> <span class="s2">&quot;No sensitivity label applied&quot;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$riskFactors</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$highRisk</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">Url</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">Url</span>
+                <span class="n">Title</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">Title</span>
+                <span class="n">RiskFactors</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$riskFactors</span> <span class="n">-join</span> <span class="s2">&quot;; &quot;</span><span class="p">)</span>
+                <span class="n">RiskScore</span> <span class="p">=</span> <span class="nv">$riskFactors</span><span class="p">.</span><span class="n">Count</span>
+                <span class="n">SensitivityLabel</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">SensitivityLabel</span>
+                <span class="n">LastModified</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">LastContentModifiedDate</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nv">$highRisk</span> <span class="p">=</span> <span class="nv">$highRisk</span> <span class="p">|</span> <span class="nb">Sort-Object</span> <span class="n">RiskScore</span> <span class="n">-Descending</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">High-Risk Sites Available to Copilot:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+    <span class="nv">$highRisk</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">20</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">Url</span><span class="p">,</span> <span class="n">RiskScore</span><span class="p">,</span> <span class="n">RiskFactors</span> <span class="n">-Wrap</span>
+
+    <span class="k">return</span> <span class="nv">$highRisk</span>
+<span class="p">}</span>
+
+<span class="c"># Run analysis</span>
+<span class="c"># $risks = Get-HighRiskIndexedContent</span>
+</code></pre></div>
+<h3 id="query-3-monitor-copilot-restriction-changes">Query 3: Monitor Copilot Restriction Changes</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Monitor Changes to Copilot Restriction Settings</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Get-CopilotRestrictionChanges</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[int]</span><span class="nv">$DaysBack</span> <span class="p">=</span> <span class="n">30</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\Copilot-Restriction-Changes-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Searching for Copilot restriction changes in last $DaysBack days...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="c"># Connect to Security &amp; Compliance</span>
+    <span class="nb">Connect-IPPSSession</span>
+
+    <span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="nv">$DaysBack</span><span class="p">)</span>
+    <span class="nv">$endDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+    <span class="c"># Search for site setting changes</span>
+    <span class="nv">$changes</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+        <span class="n">-Operations</span> <span class="s2">&quot;SiteCollectionSettingsChanged&quot;</span> <span class="n">-ResultSize</span> <span class="n">1000</span>
+
+    <span class="nv">$restrictionChanges</span> <span class="p">=</span> <span class="p">@()</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$change</span> <span class="k">in</span> <span class="nv">$changes</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$change</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+
+        <span class="c"># Filter for Copilot-related changes</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$data</span><span class="p">.</span><span class="n">ModifiedProperty</span> <span class="o">-like</span> <span class="s2">&quot;*RestrictContentOrgWideSearchAndCopilot*&quot;</span> <span class="o">-or</span>
+            <span class="nv">$data</span><span class="p">.</span><span class="n">ModifiedProperty</span> <span class="o">-like</span> <span class="s2">&quot;*Copilot*&quot;</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="nv">$restrictionChanges</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">Timestamp</span> <span class="p">=</span> <span class="nv">$change</span><span class="p">.</span><span class="n">CreationDate</span>
+                <span class="n">User</span> <span class="p">=</span> <span class="nv">$change</span><span class="p">.</span><span class="n">UserIds</span>
+                <span class="n">SiteUrl</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">SiteUrl</span>
+                <span class="n">Operation</span> <span class="p">=</span> <span class="nv">$change</span><span class="p">.</span><span class="n">Operations</span>
+                <span class="n">ModifiedProperty</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">ModifiedProperty</span>
+                <span class="n">OldValue</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">OldValue</span>
+                <span class="n">NewValue</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">NewValue</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$restrictionChanges</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$restrictionChanges</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="nv">$OutputPath</span> <span class="n">-NoTypeInformation</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;Found </span><span class="p">$(</span><span class="nv">$restrictionChanges</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> Copilot restriction changes&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;Exported to: $OutputPath&quot;</span>
+
+        <span class="c"># Alert on unrestricted changes (sites made available to Copilot)</span>
+        <span class="nv">$unrestricted</span> <span class="p">=</span> <span class="nv">$restrictionChanges</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+            <span class="nv">$_</span><span class="p">.</span><span class="n">NewValue</span> <span class="o">-eq</span> <span class="s2">&quot;False&quot;</span> <span class="o">-or</span> <span class="nv">$_</span><span class="p">.</span><span class="n">NewValue</span> <span class="o">-eq</span> <span class="nv">$false</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$unrestricted</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">ALERT: </span><span class="p">$(</span><span class="nv">$unrestricted</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> sites were UNRESTRICTED (made available to Copilot):&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+            <span class="nv">$unrestricted</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">Timestamp</span><span class="p">,</span> <span class="n">User</span><span class="p">,</span> <span class="n">SiteUrl</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;No Copilot restriction changes found&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$restrictionChanges</span>
+<span class="p">}</span>
+
+<span class="c"># Run monitoring</span>
+<span class="c"># $changes = Get-CopilotRestrictionChanges -DaysBack 30</span>
+</code></pre></div>
+<h3 id="query-4-validate-agent-knowledge-source-alignment">Query 4: Validate Agent Knowledge Source Alignment</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Validate Agent Knowledge Sources Against Grounding Scope Policy</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Test-AgentGroundingScopeCompliance</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[string]</span><span class="nv">$AgentInventoryPath</span><span class="p">,</span>  <span class="c"># CSV with AgentId, KnowledgeSourceUrl columns</span>
+        <span class="no">[string]</span><span class="nv">$AdminUrl</span> <span class="p">=</span> <span class="s2">&quot;https://tenant-admin.sharepoint.com&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Connect-SPOService</span> <span class="n">-Url</span> <span class="nv">$AdminUrl</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Validating agent knowledge sources against grounding scope policy...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="c"># Load agent inventory</span>
+    <span class="nv">$agents</span> <span class="p">=</span> <span class="nb">Import-Csv</span> <span class="n">-Path</span> <span class="nv">$AgentInventoryPath</span>
+
+    <span class="nv">$validationResults</span> <span class="p">=</span> <span class="p">@()</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$agent</span> <span class="k">in</span> <span class="nv">$agents</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$sourceUrl</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">KnowledgeSourceUrl</span>
+
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="nv">$site</span> <span class="p">=</span> <span class="nb">Get-SPOSite</span> <span class="n">-Identity</span> <span class="nv">$sourceUrl</span> <span class="n">-ErrorAction</span> <span class="n">Stop</span>
+
+            <span class="nv">$compliant</span> <span class="p">=</span> <span class="nv">$true</span>
+            <span class="nv">$issues</span> <span class="p">=</span> <span class="p">@()</span>
+
+            <span class="c"># Check if site is restricted (should NOT be if agent needs access)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nv">$site</span><span class="p">.</span><span class="n">RestrictContentOrgWideSearchAndCopilot</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nv">$compliant</span> <span class="p">=</span> <span class="nv">$false</span>
+                <span class="nv">$issues</span> <span class="p">+=</span> <span class="s2">&quot;Site is restricted from Copilot but agent uses it&quot;</span>
+            <span class="p">}</span>
+
+            <span class="c"># Check sensitivity label alignment</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nv">$agent</span><span class="p">.</span><span class="n">Zone</span> <span class="o">-eq</span> <span class="s2">&quot;3&quot;</span> <span class="o">-and</span> <span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="nv">$site</span><span class="p">.</span><span class="n">SensitivityLabel</span><span class="p">))</span> <span class="p">{</span>
+                <span class="nv">$compliant</span> <span class="p">=</span> <span class="nv">$false</span>
+                <span class="nv">$issues</span> <span class="p">+=</span> <span class="s2">&quot;Zone 3 agent source lacks sensitivity label&quot;</span>
+            <span class="p">}</span>
+
+            <span class="nv">$validationResults</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">AgentId</span>
+                <span class="n">AgentName</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">AgentName</span>
+                <span class="n">Zone</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">Zone</span>
+                <span class="n">KnowledgeSourceUrl</span> <span class="p">=</span> <span class="nv">$sourceUrl</span>
+                <span class="n">Compliant</span> <span class="p">=</span> <span class="nv">$compliant</span>
+                <span class="n">Issues</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$issues</span> <span class="n">-join</span> <span class="s2">&quot;; &quot;</span><span class="p">)</span>
+                <span class="n">SiteRestricted</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">RestrictContentOrgWideSearchAndCopilot</span>
+                <span class="n">SensitivityLabel</span> <span class="p">=</span> <span class="nv">$site</span><span class="p">.</span><span class="n">SensitivityLabel</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">catch</span> <span class="p">{</span>
+            <span class="nv">$validationResults</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">AgentId</span>
+                <span class="n">AgentName</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">AgentName</span>
+                <span class="n">Zone</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">Zone</span>
+                <span class="n">KnowledgeSourceUrl</span> <span class="p">=</span> <span class="nv">$sourceUrl</span>
+                <span class="n">Compliant</span> <span class="p">=</span> <span class="nv">$false</span>
+                <span class="n">Issues</span> <span class="p">=</span> <span class="s2">&quot;Site not found or access denied&quot;</span>
+                <span class="n">SiteRestricted</span> <span class="p">=</span> <span class="s2">&quot;Unknown&quot;</span>
+                <span class="n">SensitivityLabel</span> <span class="p">=</span> <span class="s2">&quot;Unknown&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c"># Summary</span>
+    <span class="nv">$compliantCount</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$validationResults</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Compliant</span><span class="p">).</span><span class="n">Count</span>
+    <span class="nv">$nonCompliantCount</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$validationResults</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Compliant</span> <span class="p">}).</span><span class="n">Count</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Validation Summary:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Total Agents: </span><span class="p">$(</span><span class="nv">$validationResults</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Compliant: $compliantCount&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Non-Compliant: $nonCompliantCount&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$nonCompliantCount</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Non-Compliant Agents:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+        <span class="nv">$validationResults</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Compliant</span> <span class="p">}</span> <span class="p">|</span>
+            <span class="nb">Format-Table</span> <span class="n">AgentId</span><span class="p">,</span> <span class="n">KnowledgeSourceUrl</span><span class="p">,</span> <span class="n">Issues</span> <span class="n">-Wrap</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$validationResults</span>
+<span class="p">}</span>
+
+<span class="c"># Run validation</span>
+<span class="c"># $validation = Test-AgentGroundingScopeCompliance -AgentInventoryPath &quot;.\agent-inventory.csv&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="kql-queries-for-microsoft-sentinel-log-analytics">KQL Queries (for Microsoft Sentinel / Log Analytics)</h2>
+<h3 id="query-1-track-copilot-content-access-patterns">Query 1: Track Copilot Content Access Patterns</h3>
+<div class="highlight"><pre><span></span><code><span class="c">// Track which SharePoint sites Copilot is accessing most frequently</span>
+<span class="n">CopilotInteraction</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">30</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">SourceType</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;SharePoint&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span>
+<span class="w">    </span><span class="n">AccessCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">UniqueUsers</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dcount</span><span class="p">(</span><span class="n">UserId</span><span class="p">),</span>
+<span class="w">    </span><span class="n">LastAccess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">max</span><span class="p">(</span><span class="n">TimeGenerated</span><span class="p">)</span>
+<span class="w">    </span><span class="k">by</span><span class="w"> </span><span class="n">SourceSiteUrl</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">AccessCount</span><span class="w"> </span><span class="n">desc</span>
+<span class="p">|</span><span class="w"> </span><span class="k">take</span><span class="w"> </span><span class="mi">50</span>
+</code></pre></div>
+<h3 id="query-2-detect-unauthorized-source-access-attempts">Query 2: Detect Unauthorized Source Access Attempts</h3>
+<div class="highlight"><pre><span></span><code><span class="c">// Detect Copilot attempts to access restricted content</span>
+<span class="n">SharePointAuditLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">7</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;SearchQueryPerformed&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">AdditionalInfo</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="s">&quot;Copilot&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">join</span><span class="w"> </span><span class="n">kind</span><span class="p">=</span><span class="n">inner</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="c">// Sites that should be restricted</span>
+<span class="w">    </span><span class="n">SharePointSiteProperties</span>
+<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">RestrictedFromCopilot</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="n">true</span>
+<span class="p">)</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">SiteUrl</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="p">,</span><span class="w"> </span><span class="n">UserId</span><span class="p">,</span><span class="w"> </span><span class="n">SiteUrl</span><span class="p">,</span><span class="w"> </span><span class="n">Query</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div>
+<h3 id="query-3-monitor-index-scope-changes">Query 3: Monitor Index Scope Changes</h3>
+<div class="highlight"><pre><span></span><code><span class="c">// Alert on changes to Copilot restriction settings</span>
+<span class="n">SharePointAuditLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">24</span><span class="n">h</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;SiteCollectionSettingsChanged&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">ModifiedProperty</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="s">&quot;RestrictContentOrgWideSearchAndCopilot&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span>
+<span class="w">    </span><span class="n">ChangeDirection</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">case</span><span class="p">(</span>
+<span class="w">        </span><span class="n">NewValue</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;True&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Restricted (removed from Copilot)&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">NewValue</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;False&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Unrestricted (added to Copilot)&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;Unknown&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="p">,</span><span class="w"> </span><span class="n">UserId</span><span class="p">,</span><span class="w"> </span><span class="n">SiteUrl</span><span class="p">,</span><span class="w"> </span><span class="n">ChangeDirection</span><span class="p">,</span><span class="w"> </span><span class="n">OldValue</span><span class="p">,</span><span class="w"> </span><span class="n">NewValue</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div>
+<h3 id="query-4-copilot-citation-source-analysis">Query 4: Copilot Citation Source Analysis</h3>
+<div class="highlight"><pre><span></span><code><span class="c">// Analyze which sources Copilot cites most frequently</span>
+<span class="n">CopilotInteraction</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">30</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Citations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parse_json</span><span class="p">(</span><span class="n">ResponseMetadata</span><span class="p">)</span><span class="err">.</span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">mv-expand</span><span class="w"> </span><span class="n">Citation</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span>
+<span class="w">    </span><span class="n">CitationCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">AvgConfidence</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">avg</span><span class="p">(</span><span class="n">todouble</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">Confidence</span><span class="p">)),</span>
+<span class="w">    </span><span class="n">UniqueQueries</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dcount</span><span class="p">(</span><span class="n">UserQuery</span><span class="p">)</span>
+<span class="w">    </span><span class="k">by</span><span class="w"> </span><span class="n">SourceUrl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">SourceUrl</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">CitationCount</span><span class="w"> </span><span class="n">desc</span>
+<span class="p">|</span><span class="w"> </span><span class="k">take</span><span class="w"> </span><span class="mi">50</span>
+</code></pre></div>
+<h3 id="query-5-detect-stale-content-being-cited">Query 5: Detect Stale Content Being Cited</h3>
+<div class="highlight"><pre><span></span><code><span class="c">// Identify stale content being actively cited by Copilot</span>
+<span class="n">CopilotInteraction</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">7</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Citations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parse_json</span><span class="p">(</span><span class="n">ResponseMetadata</span><span class="p">)</span><span class="err">.</span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">mv-expand</span><span class="w"> </span><span class="n">Citation</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span><span class="w"> </span><span class="n">CitationCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">()</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">SourceUrl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">SourceUrl</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">join</span><span class="w"> </span><span class="n">kind</span><span class="p">=</span><span class="n">inner</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">SharePointFileProperties</span>
+<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">LastModified</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">180</span><span class="n">d</span><span class="p">)</span>
+<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">SourceUrl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Url</span><span class="p">,</span><span class="w"> </span><span class="n">LastModified</span><span class="p">,</span><span class="w"> </span><span class="n">DaysSinceModified</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">datetime_diff</span><span class="p">(</span><span class="s">&#39;day&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span><span class="w"> </span><span class="n">LastModified</span><span class="p">)</span>
+<span class="p">)</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">SourceUrl</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">SourceUrl</span><span class="p">,</span><span class="w"> </span><span class="n">CitationCount</span><span class="p">,</span><span class="w"> </span><span class="n">LastModified</span><span class="p">,</span><span class="w"> </span><span class="n">DaysSinceModified</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">CitationCount</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div>
+<h3 id="query-6-grounding-scope-compliance-dashboard">Query 6: Grounding Scope Compliance Dashboard</h3>
+<div class="highlight"><pre><span></span><code><span class="c">// Dashboard query for grounding scope compliance overview</span>
+<span class="n">let</span><span class="w"> </span><span class="n">IndexedSites</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SharePointSiteProperties</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">RestrictedFromCopilot</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="n">false</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span><span class="w"> </span><span class="n">IndexedCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">();</span>
+
+<span class="n">let</span><span class="w"> </span><span class="n">RestrictedSites</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SharePointSiteProperties</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">RestrictedFromCopilot</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="n">true</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span><span class="w"> </span><span class="n">RestrictedCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">();</span>
+
+<span class="n">let</span><span class="w"> </span><span class="n">HighRiskIndexed</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SharePointSiteProperties</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">RestrictedFromCopilot</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="n">false</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Url</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="s">&quot;draft&quot;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">Url</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="s">&quot;archive&quot;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">Url</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="s">&quot;test&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span><span class="w"> </span><span class="n">HighRiskCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">();</span>
+
+<span class="n">let</span><span class="w"> </span><span class="n">RecentChanges</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SharePointAuditLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">7</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;SiteCollectionSettingsChanged&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">ModifiedProperty</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="s">&quot;RestrictContentOrgWideSearchAndCopilot&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span><span class="w"> </span><span class="n">ChangeCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">();</span>
+
+<span class="k">union</span>
+<span class="w">    </span><span class="p">(</span><span class="n">IndexedSites</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Sites Available to Copilot&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">IndexedCount</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="n">RestrictedSites</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Sites Restricted from Copilot&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">RestrictedCount</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="n">HighRiskIndexed</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;High-Risk Sites Indexed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">HighRiskCount</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="n">RecentChanges</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Scope Changes (7 days)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ChangeCount</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">Metric</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span>
+</code></pre></div>
+<hr />
+<h2 id="scheduled-monitoring">Scheduled Monitoring</h2>
+<h3 id="weekly-audit-script">Weekly Audit Script</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Weekly Semantic Index Governance Audit</span>
+<span class="c"># Schedule via Task Scheduler or Azure Automation</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">param</span><span class="p">(</span>
+    <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;\\governance\reports\semantic-index&quot;</span><span class="p">,</span>
+    <span class="no">[string[]]</span><span class="nv">$AlertRecipients</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;ai-governance@company.com&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="nv">$timestamp</span> <span class="p">=</span> <span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s2">&quot;yyyyMMdd&quot;</span>
+<span class="nv">$reportPath</span> <span class="p">=</span> <span class="s2">&quot;$OutputPath\Weekly-Audit-$timestamp&quot;</span>
+
+<span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$reportPath</span> <span class="n">-Force</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Running Weekly Semantic Index Governance Audit...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="c"># Run all audits</span>
+<span class="nv">$siteAudit</span> <span class="p">=</span> <span class="nb">Get-CopilotRestrictionAudit</span> <span class="n">-OutputPath</span> <span class="s2">&quot;$reportPath\Site-Audit.csv&quot;</span>
+<span class="nv">$highRisk</span> <span class="p">=</span> <span class="nb">Get-HighRiskIndexedContent</span>
+<span class="nv">$changes</span> <span class="p">=</span> <span class="nb">Get-CopilotRestrictionChanges</span> <span class="n">-DaysBack</span> <span class="n">7</span>
+
+<span class="c"># Generate summary</span>
+<span class="nv">$summary</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">AuditDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+    <span class="n">TotalSites</span> <span class="p">=</span> <span class="nv">$siteAudit</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">RestrictedSites</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$siteAudit</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">RestrictedFromCopilot</span><span class="p">).</span><span class="n">Count</span>
+    <span class="n">UnrestrictedSites</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$siteAudit</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">RestrictedFromCopilot</span> <span class="p">}).</span><span class="n">Count</span>
+    <span class="n">HighRiskSites</span> <span class="p">=</span> <span class="nv">$highRisk</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">RecentChanges</span> <span class="p">=</span> <span class="nv">$changes</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">UnrestrictedChanges</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$changes</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">NewValue</span> <span class="o">-eq</span> <span class="s2">&quot;False&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+<span class="p">}</span>
+
+<span class="c"># Alert if issues found</span>
+<span class="nv">$alertConditions</span> <span class="p">=</span> <span class="p">@()</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$highRisk</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">10</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$alertConditions</span> <span class="p">+=</span> <span class="s2">&quot;High number of high-risk sites indexed: </span><span class="p">$(</span><span class="nv">$highRisk</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">UnrestrictedChanges</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$alertConditions</span> <span class="p">+=</span> <span class="s2">&quot;Sites unrestricted this week: </span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">UnrestrictedChanges</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$alertConditions</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;ALERT CONDITIONS MET:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+    <span class="nv">$alertConditions</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span> <span class="nb">Write-Host</span> <span class="s2">&quot;  - $_&quot;</span> <span class="p">}</span>
+
+    <span class="c"># Send alert email (implement your notification method)</span>
+    <span class="c"># Send-MailMessage -To $AlertRecipients -Subject &quot;Semantic Index Governance Alert&quot; -Body ($alertConditions -join &quot;`n&quot;)</span>
+<span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Audit complete. Reports saved to: $reportPath&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<hr />
+<h2 id="integration-with-controls">Integration with Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Query/Script</th>
+<th>Related Control</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Get-CopilotRestrictionAudit</td>
+<td><a href="../../../reference/pillar-4-sharepoint/4.6-grounding-scope-governance/">4.6 Grounding Scope</a></td>
+<td>Site inventory</td>
+</tr>
+<tr>
+<td>Get-HighRiskIndexedContent</td>
+<td><a href="../../../reference/pillar-4-sharepoint/4.6-grounding-scope-governance/">4.6 Grounding Scope</a></td>
+<td>Risk identification</td>
+</tr>
+<tr>
+<td>Get-CopilotRestrictionChanges</td>
+<td><a href="../../../reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/">1.7 Audit Logging</a></td>
+<td>Change monitoring</td>
+</tr>
+<tr>
+<td>Citation Analysis (KQL)</td>
+<td><a href="../../../reference/pillar-2-management/2.16-rag-source-integrity-validation/">2.16 RAG Source Integrity</a></td>
+<td>Source tracking</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>FSI Agent Governance Framework v1.0 - January 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

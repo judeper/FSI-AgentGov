@@ -1,0 +1,5343 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.23-step-up-authentication-for-agent-operations/">
+      
+      
+        <link rel="prev" href="../1.22-information-barriers/">
+      
+      
+        <link rel="next" href="../../pillar-2-management/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.23 Step-Up Authentication for Agent Operations - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-123-step-up-authentication-for-ai-agent-operations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.23 Step-Up Authentication for Agent Operations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-define-high-risk-agent-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Define High-Risk Agent Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-create-authentication-contexts-in-entra-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create Authentication Contexts in Entra ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-conditional-access-policies-for-step-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure Conditional Access Policies for Step-Up
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-integrate-step-up-with-power-platform-connectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Integrate Step-Up with Power Platform Connectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-implement-service-principal-step-up-for-agent-workloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Implement Service Principal Step-Up for Agent Workloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-configure-session-controls-for-agent-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Configure Session Controls for Agent Interactions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-implement-step-up-workflow-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Implement Step-Up Workflow for Agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-configure-monitoring-and-alerting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Configure Monitoring and Alerting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-implementation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Implementation Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-step-up-not-triggering-for-sensitive-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Step-Up Not Triggering for Sensitive Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-step-up-blocking-all-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Step-Up Blocking All Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-service-principal-operations-blocked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Service Principal Operations Blocked
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-users-frustrated-by-frequent-step-ups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Users Frustrated by Frequent Step-Ups
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-123-step-up-authentication-for-ai-agent-operations">Control 1.23: Step-Up Authentication for AI Agent Operations</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.23
+<strong>Control Name:</strong> Step-Up Authentication for AI Agent Operations
+<strong>Regulatory Reference:</strong> GLBA 501(b), FINRA 4511, SOX 302/404, NIST SP 800-63B, Zero Trust Architecture
+<strong>Setup Time:</strong> 3-5 hours</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Implement step-up authentication requirements when AI agents attempt sensitive operations such as financial transactions, data exports, or access to restricted information. While Control 1.11 establishes baseline Conditional Access policies for agent authentication, this control defines operational workflows for triggering re-authentication when agents perform high-risk actions through plugins, connectors, or API calls.</p>
+<div class="admonition warning">
+<p class="admonition-title">Critical for Financial Transactions</p>
+<p>Agents that can initiate or influence financial transactions, transfer customer data, or access confidential information must implement step-up authentication to verify the user's continued presence and authorization at the moment of action.</p>
+</div>
+<hr />
+<h3 id="description">Description</h3>
+<p>Step-Up Authentication for AI Agent Operations establishes controls to:</p>
+<ul>
+<li><strong>Define High-Risk Agent Actions:</strong> Catalog actions that require re-authentication before execution</li>
+<li><strong>Configure Authentication Contexts:</strong> Map sensitive actions to Entra ID Authentication Contexts</li>
+<li><strong>Implement Just-in-Time Verification:</strong> Require fresh authentication for critical operations</li>
+<li><strong>Enforce Phishing-Resistant Methods:</strong> Mandate strong authentication for high-risk scenarios</li>
+<li><strong>Audit Step-Up Events:</strong> Log all step-up authentication requests and outcomes</li>
+</ul>
+<p>See <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-cloud-apps#authentication-context">Microsoft Entra Authentication Contexts</a> for platform capabilities.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authentication Context Triggers</strong></td>
+<td>Define contexts for sensitive agent actions</td>
+<td>Granular access control</td>
+</tr>
+<tr>
+<td><strong>Fresh Authentication Requirement</strong></td>
+<td>Force re-auth for high-risk operations</td>
+<td>Prevents session hijacking</td>
+</tr>
+<tr>
+<td><strong>Phishing-Resistant MFA</strong></td>
+<td>Require FIDO2/Windows Hello for critical actions</td>
+<td>Strong authentication</td>
+</tr>
+<tr>
+<td><strong>Connector-Level Enforcement</strong></td>
+<td>Step-up at plugin/connector invocation</td>
+<td>Transaction security</td>
+</tr>
+<tr>
+<td><strong>Time-Bound Sessions</strong></td>
+<td>Limit session validity for sensitive operations</td>
+<td>Continuous verification</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Security Administrator
+<strong>Supporting Roles:</strong> Power Platform Admin, Entra ID Admin, Compliance Officer</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft Entra ID P1</td>
+<td>Conditional Access</td>
+<td>All levels</td>
+</tr>
+<tr>
+<td>Microsoft Entra ID P2</td>
+<td>Authentication Contexts, Risk-based CA</td>
+<td>Level 2+</td>
+</tr>
+<tr>
+<td>Power Platform per-user</td>
+<td>Agent governance</td>
+<td>All levels</td>
+</tr>
+<tr>
+<td>Microsoft Defender for Cloud Apps</td>
+<td>Session control</td>
+<td>Level 4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+<th>Assignment Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conditional Access Administrator</td>
+<td>Create/manage CA policies</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Security Administrator</td>
+<td>Authentication context management</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Power Platform Admin</td>
+<td>Connector policies</td>
+<td>Power Platform Admin Center</td>
+</tr>
+<tr>
+<td>Application Administrator</td>
+<td>Service principal configuration</td>
+<td>Entra ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Description</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../1.11-conditional-access-and-phishing-resistant-mfa/">Control 1.11 (Conditional Access)</a></td>
+<td>Baseline CA policies</td>
+<td>Verify CA configured</td>
+</tr>
+<tr>
+<td><a href="../1.4-advanced-connector-policies-acp/">Control 1.4 (Advanced Connector Policies)</a></td>
+<td>Connector governance</td>
+<td>Check ACP setup</td>
+</tr>
+<tr>
+<td><a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/">Control 1.18 (RBAC)</a></td>
+<td>Role-based access</td>
+<td>Verify roles defined</td>
+</tr>
+<tr>
+<td><a href="../1.7-comprehensive-audit-logging-and-compliance/">Control 1.7 (Audit Logging)</a></td>
+<td>Authentication logging</td>
+<td>Check Purview Audit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Microsoft Entra ID P2 licensing confirmed</li>
+<li>[ ] Baseline Conditional Access policies configured (Control 1.11)</li>
+<li>[ ] High-risk agent actions inventoried</li>
+<li>[ ] Authentication Contexts feature enabled</li>
+<li>[ ] Phishing-resistant MFA methods deployed (FIDO2, Windows Hello)</li>
+<li>[ ] Plugin/connector inventory with risk classification</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MFA enforcement</td>
+<td>All agent interactions require MFA</td>
+</tr>
+<tr>
+<td>Session limits</td>
+<td>8-hour session maximum</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>Document high-risk actions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Minimum requirements:</strong></p>
+<ul>
+<li>Baseline MFA for all Copilot and agent access</li>
+<li>Document actions that would benefit from step-up authentication</li>
+<li>Standard session timeout policies</li>
+<li>Quarterly review of authentication requirements</li>
+</ul>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Authentication Contexts</td>
+<td>Define contexts for sensitive actions</td>
+</tr>
+<tr>
+<td>Step-up triggers</td>
+<td>Configure triggers for financial/data actions</td>
+</tr>
+<tr>
+<td>Fresh authentication</td>
+<td>15-minute max age for sensitive operations</td>
+</tr>
+<tr>
+<td>Risk-based elevation</td>
+<td>Require stronger auth when risk detected</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI recommendations:</strong></p>
+<ul>
+<li>Configure Authentication Contexts for high-risk agent actions</li>
+<li>Implement step-up authentication for:</li>
+<li>Financial transaction initiation</li>
+<li>Customer data exports</li>
+<li>External API calls with customer data</li>
+<li>Agent configuration changes</li>
+<li>Require phishing-resistant MFA for step-up scenarios</li>
+<li>Monthly review of step-up authentication events</li>
+</ul>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mandatory step-up</td>
+<td>All sensitive actions require fresh auth</td>
+</tr>
+<tr>
+<td>Continuous verification</td>
+<td>Session verified before each high-risk action</td>
+</tr>
+<tr>
+<td>Hardware token requirement</td>
+<td>FIDO2/hardware key for critical operations</td>
+</tr>
+<tr>
+<td>Real-time monitoring</td>
+<td>Alert on step-up failures</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI considerations (high-risk):</strong></p>
+<ul>
+<li>Step-up authentication mandatory for all Zone 3 agent operations</li>
+<li>Phishing-resistant MFA required (no SMS/phone call)</li>
+<li>Session maximum of 4 hours with step-up at each sensitive action</li>
+<li>Real-time alerting on step-up authentication failures</li>
+<li>Full audit trail preserved for regulatory examination</li>
+<li>Third-party validation of step-up controls</li>
+</ul>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-define-high-risk-agent-actions">Step 1: Define High-Risk Agent Actions</h3>
+<p><strong>Action Classification Framework:</strong></p>
+<p>Identify actions that require step-up authentication based on risk level:</p>
+<table>
+<thead>
+<tr>
+<th>Risk Level</th>
+<th>Action Category</th>
+<th>Examples</th>
+<th>Step-Up Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Critical</strong></td>
+<td>Financial Transactions</td>
+<td>Trade execution, wire transfers, payment initiation</td>
+<td>Always required</td>
+</tr>
+<tr>
+<td><strong>Critical</strong></td>
+<td>Data Export</td>
+<td>Customer data download, bulk export, API extract</td>
+<td>Always required</td>
+</tr>
+<tr>
+<td><strong>High</strong></td>
+<td>External Integration</td>
+<td>CRM updates, third-party API calls with PII</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><strong>High</strong></td>
+<td>Configuration Changes</td>
+<td>Agent permissions, connector settings, knowledge sources</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><strong>Medium</strong></td>
+<td>Sensitive Queries</td>
+<td>Account balance, portfolio details, transaction history</td>
+<td>Risk-based</td>
+</tr>
+<tr>
+<td><strong>Low</strong></td>
+<td>General Assistance</td>
+<td>FAQ, general information, scheduling</td>
+<td>Standard MFA</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Agent Action Risk Assessment Template:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Agent Action Risk Assessment</span>
+
+<span class="gu">## Agent Information</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Agent Name/ID:**</span> [Name]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Agent Zone:**</span> [1/2/3]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Primary Function:**</span> [Description]
+
+<span class="gu">## Actions Inventory</span>
+| Action | Description | Data Sensitivity | External System | Step-Up Required |
+|--------|-------------|------------------|-----------------|------------------|
+| [Action 1] | [Description] | [High/Med/Low] | [Yes/No] | [Yes/No/Risk-based] |
+
+<span class="gu">## Recommended Authentication Context</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Context Name:**</span> [e.g., &quot;FinancialTransactions&quot;]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Authentication Strength:**</span> [Phishing-resistant/MFA/Password]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Max Session Age:**</span> [Minutes]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Location Restrictions:**</span> [Yes/No]
+
+<span class="gu">## Approval</span>
+<span class="k">-</span><span class="w"> </span>Assessed By: _________________ Date: _________
+<span class="k">-</span><span class="w"> </span>Approved By: _________________ Date: _________
+</code></pre></div>
+<h3 id="step-2-create-authentication-contexts-in-entra-id">Step 2: Create Authentication Contexts in Entra ID</h3>
+<p><strong>Portal Path:</strong> Microsoft Entra Admin Center → Protection → Conditional Access → Authentication Contexts</p>
+<ol>
+<li>Navigate to <strong>Microsoft Entra Admin Center</strong> (entra.microsoft.com)</li>
+<li>Go to <strong>Protection</strong> → <strong>Conditional Access</strong> → <strong>Authentication Contexts</strong></li>
+<li>Click <strong>+ New authentication context</strong></li>
+<li>Create contexts for agent operations:</li>
+</ol>
+<p><strong>Recommended Authentication Contexts for FSI:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Context Name</th>
+<th>ID</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c1</code></td>
+<td>AgentFinancialTransaction</td>
+<td>Financial transaction operations</td>
+<td>Trade execution, transfers</td>
+</tr>
+<tr>
+<td><code>c2</code></td>
+<td>AgentDataExport</td>
+<td>Data export operations</td>
+<td>Customer data, bulk exports</td>
+</tr>
+<tr>
+<td><code>c3</code></td>
+<td>AgentExternalAPI</td>
+<td>External system calls</td>
+<td>CRM, third-party APIs</td>
+</tr>
+<tr>
+<td><code>c4</code></td>
+<td>AgentConfigChange</td>
+<td>Configuration modifications</td>
+<td>Agent settings, permissions</td>
+</tr>
+<tr>
+<td><code>c5</code></td>
+<td>AgentSensitiveQuery</td>
+<td>Sensitive data queries</td>
+<td>Account details, balances</td>
+</tr>
+</tbody>
+</table>
+<p><strong>PowerShell Configuration:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Microsoft Graph</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;Policy.ReadWrite.ConditionalAccess&quot;</span>
+
+<span class="c"># Create Authentication Context for Financial Transactions</span>
+<span class="nv">$financialContext</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">DisplayName</span> <span class="p">=</span> <span class="s2">&quot;Agent Financial Transaction&quot;</span>
+    <span class="n">Description</span> <span class="p">=</span> <span class="s2">&quot;Step-up authentication for AI agent financial operations&quot;</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="s2">&quot;c1&quot;</span>
+    <span class="n">IsAvailable</span> <span class="p">=</span> <span class="nv">$true</span>
+<span class="p">}</span>
+
+<span class="c"># Note: Authentication contexts are created through the portal or Graph API</span>
+<span class="c"># This shows the configuration structure</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Create authentication contexts in Entra Admin Center:&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  - c1: Agent Financial Transaction&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  - c2: Agent Data Export&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  - c3: Agent External API&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  - c4: Agent Config Change&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  - c5: Agent Sensitive Query&quot;</span>
+</code></pre></div>
+<h3 id="step-3-configure-conditional-access-policies-for-step-up">Step 3: Configure Conditional Access Policies for Step-Up</h3>
+<p><strong>Portal Path:</strong> Microsoft Entra Admin Center → Protection → Conditional Access → Policies</p>
+<p><strong>Policy 1: Step-Up for Financial Transactions</strong></p>
+<ol>
+<li>Click <strong>+ Create new policy</strong></li>
+<li>Name: <code>FSI-Agent-StepUp-FinancialTransactions</code></li>
+<li><strong>Assignments:</strong></li>
+<li>Users: All users (or specific groups with agent access)</li>
+<li>Target resources: Authentication contexts → <code>c1</code> (Agent Financial Transaction)</li>
+<li><strong>Conditions:</strong></li>
+<li>Sign-in risk: Not configured (applies regardless of risk)</li>
+<li><strong>Grant:</strong></li>
+<li>Grant access</li>
+<li>Require authentication strength: Phishing-resistant MFA</li>
+<li>Require compliant device (recommended)</li>
+<li><strong>Session:</strong></li>
+<li>Sign-in frequency: 15 minutes (or every time)</li>
+<li>Enable policy: <strong>On</strong></li>
+</ol>
+<p><strong>Policy 2: Step-Up for Data Export</strong></p>
+<ol>
+<li>Create new policy: <code>FSI-Agent-StepUp-DataExport</code></li>
+<li>Target: Authentication context <code>c2</code></li>
+<li>Grant: Phishing-resistant MFA + Compliant device</li>
+<li>Session: Sign-in frequency every 30 minutes</li>
+</ol>
+<p><strong>Policy 3: Risk-Based Step-Up for Sensitive Queries</strong></p>
+<ol>
+<li>Create new policy: <code>FSI-Agent-StepUp-RiskBased</code></li>
+<li>Target: Authentication context <code>c5</code></li>
+<li><strong>Conditions:</strong></li>
+<li>Sign-in risk: Medium and above</li>
+<li>User risk: Low and above</li>
+<li>Grant: MFA required</li>
+<li>Session: Sign-in frequency 1 hour</li>
+</ol>
+<p><strong>PowerShell: Create Step-Up CA Policy</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Microsoft Graph</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;Policy.ReadWrite.ConditionalAccess&quot;</span>
+
+<span class="c"># Define policy for financial transactions step-up</span>
+<span class="nv">$policyParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">DisplayName</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-StepUp-FinancialTransactions&quot;</span>
+    <span class="n">State</span> <span class="p">=</span> <span class="s2">&quot;enabledForReportingButNotEnforced&quot;</span>  <span class="c"># Start in report-only</span>
+    <span class="n">Conditions</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Applications</span> <span class="p">=</span> <span class="p">@{</span>
+            <span class="n">IncludeAuthenticationContextClassReferences</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;c1&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">Users</span> <span class="p">=</span> <span class="p">@{</span>
+            <span class="n">IncludeUsers</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;All&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">GrantControls</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Operator</span> <span class="p">=</span> <span class="s2">&quot;AND&quot;</span>
+        <span class="n">AuthenticationStrength</span> <span class="p">=</span> <span class="p">@{</span>
+            <span class="n">Id</span> <span class="p">=</span> <span class="s2">&quot;00000000-0000-0000-0000-000000000004&quot;</span>  <span class="c"># Phishing-resistant MFA</span>
+        <span class="p">}</span>
+        <span class="n">BuiltInControls</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;compliantDevice&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">SessionControls</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">SignInFrequency</span> <span class="p">=</span> <span class="p">@{</span>
+            <span class="n">Value</span> <span class="p">=</span> <span class="n">15</span>
+            <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;minutes&quot;</span>
+            <span class="n">IsEnabled</span> <span class="p">=</span> <span class="nv">$true</span>
+            <span class="n">AuthenticationType</span> <span class="p">=</span> <span class="s2">&quot;primaryAndSecondaryAuthentication&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Create the policy</span>
+<span class="nv">$policy</span> <span class="p">=</span> <span class="nb">New-MgIdentityConditionalAccessPolicy</span> <span class="n">-BodyParameter</span> <span class="nv">$policyParams</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Created policy: </span><span class="p">$(</span><span class="nv">$policy</span><span class="p">.</span><span class="n">DisplayName</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Note: Test in report-only mode before enabling</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Policy is in report-only mode. Review sign-in logs before enabling.&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+</code></pre></div>
+<h3 id="step-4-integrate-step-up-with-power-platform-connectors">Step 4: Integrate Step-Up with Power Platform Connectors</h3>
+<p><strong>Approach:</strong> Configure custom connectors and actions to require specific authentication contexts.</p>
+<p><strong>Custom Connector Authentication Configuration:</strong></p>
+<p>For connectors that perform sensitive operations, configure OAuth to require step-up:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Custom Connector Definition (excerpt)</span>
+<span class="nt">securityDefinitions</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">oauth2_auth</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oauth2</span>
+<span class="w">    </span><span class="nt">flow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">accessCode</span>
+<span class="w">    </span><span class="nt">authorizationUrl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</span>
+<span class="w">    </span><span class="nt">tokenUrl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</span>
+<span class="w">    </span><span class="nt">scopes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">User.Read</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read user profile</span>
+<span class="w">      </span><span class="nt">FinancialOperations.Execute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Execute financial operations</span>
+<span class="w">    </span><span class="nt">x-ms-authentication-context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c1</span><span class="w">  </span><span class="c1"># Require financial transaction context</span>
+</code></pre></div>
+<p><strong>Action-Level Step-Up Configuration:</strong></p>
+<p>For built-in connectors, use DLP policies to block sensitive actions and route through step-up enabled alternatives:</p>
+<ol>
+<li><strong>Block direct sensitive actions</strong> in DLP policy</li>
+<li><strong>Create custom connector</strong> that wraps the action with step-up requirement</li>
+<li><strong>Route sensitive operations</strong> through the step-up connector</li>
+</ol>
+<h3 id="step-5-implement-service-principal-step-up-for-agent-workloads">Step 5: Implement Service Principal Step-Up for Agent Workloads</h3>
+<p><strong>Scenario:</strong> When agents operate as service principals (for background operations), configure workload identity risk detection and step-up equivalent controls.</p>
+<p><strong>Workload Identity Conditional Access (Preview):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Configure Conditional Access for workload identities</span>
+<span class="c"># This applies to service principals used by agents</span>
+
+<span class="nv">$workloadPolicy</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">DisplayName</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-ServicePrincipal-HighRisk&quot;</span>
+    <span class="n">State</span> <span class="p">=</span> <span class="s2">&quot;enabled&quot;</span>
+    <span class="n">Conditions</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Applications</span> <span class="p">=</span> <span class="p">@{</span>
+            <span class="n">IncludeApplications</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;ServicePrincipal&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">ServicePrincipalRiskLevels</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">GrantControls</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Operator</span> <span class="p">=</span> <span class="s2">&quot;OR&quot;</span>
+        <span class="n">BuiltInControls</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;block&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Note: Workload identity CA requires Entra ID P2</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Configure workload identity policies in Entra Admin Center&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Block high-risk service principal sign-ins&quot;</span>
+</code></pre></div>
+<p><strong>Agent Workload Step-Up Equivalent:</strong></p>
+<p>Since service principals cannot perform interactive MFA, implement compensating controls:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Compensating Control</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High-risk SP sign-in detected</td>
+<td>Block and alert; require human approval</td>
+</tr>
+<tr>
+<td>Sensitive action initiated</td>
+<td>Require approval workflow before execution</td>
+</tr>
+<tr>
+<td>Unusual behavior detected</td>
+<td>Pause operation and notify Security</td>
+</tr>
+<tr>
+<td>After-hours operation</td>
+<td>Require pre-authorization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-6-configure-session-controls-for-agent-interactions">Step 6: Configure Session Controls for Agent Interactions</h3>
+<p><strong>Portal Path:</strong> Microsoft Entra Admin Center → Protection → Conditional Access → Session</p>
+<p><strong>Session Control Configuration:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Zone 1</th>
+<th>Zone 2</th>
+<th>Zone 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sign-in frequency</strong></td>
+<td>8 hours</td>
+<td>4 hours</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td><strong>Persistent sessions</strong></td>
+<td>Allowed</td>
+<td>Disallowed</td>
+<td>Disallowed</td>
+</tr>
+<tr>
+<td><strong>Step-up for sensitive actions</strong></td>
+<td>Optional</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><strong>App-enforced restrictions</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Defender for Cloud Apps Session Control (Level 4):</strong></p>
+<p>For regulated environments, use Defender for Cloud Apps Conditional Access App Control:</p>
+<ol>
+<li>Navigate to <strong>Defender for Cloud Apps</strong> portal</li>
+<li>Go to <strong>Control</strong> → <strong>Policies</strong> → <strong>Conditional Access App Control</strong></li>
+<li>Create policy for session monitoring:</li>
+<li>Monitor all agent-related activities</li>
+<li>Block download of sensitive content without step-up</li>
+<li>Require approval for bulk operations</li>
+</ol>
+<h3 id="step-7-implement-step-up-workflow-for-agents">Step 7: Implement Step-Up Workflow for Agents</h3>
+<p><strong>Agent Step-Up Integration Pattern:</strong></p>
+<div class="highlight"><pre><span></span><code>User Invokes Agent → Agent Processes Request → Sensitive Action Detected?
+                                                       │
+                                   ┌───────────────────┴───────────────────┐
+                                   │                                       │
+                                  No                                      Yes
+                                   │                                       │
+                                   ▼                                       ▼
+                            Execute Action                      Check Last Auth Time
+                                                                       │
+                                              ┌────────────────────────┴────────────────────────┐
+                                              │                                                 │
+                                       Fresh (&lt;15 min)                                   Stale (&gt;15 min)
+                                              │                                                 │
+                                              ▼                                                 ▼
+                                       Execute Action                               Trigger Step-Up Auth
+                                                                                           │
+                                                                              ┌────────────┴────────────┐
+                                                                              │                         │
+                                                                        Auth Success              Auth Failure
+                                                                              │                         │
+                                                                              ▼                         ▼
+                                                                       Execute Action           Block &amp; Log
+</code></pre></div>
+<p><strong>Implementation in Power Automate:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Step-Up Check Flow (Conceptual)</span>
+<span class="nt">trigger</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent_sensitive_action</span>
+
+<span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">check_authentication_context</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">required_context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;c1&quot;</span><span class="w">  </span><span class="c1"># Financial transaction context</span>
+<span class="w">      </span><span class="nt">max_age_minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auth_context_valid</span>
+<span class="w">    </span><span class="nt">if_true</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">execute_sensitive_action</span>
+<span class="w">    </span><span class="nt">if_false</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">return_step_up_required</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">log_step_up_request</span>
+</code></pre></div>
+<h3 id="step-8-configure-monitoring-and-alerting">Step 8: Configure Monitoring and Alerting</h3>
+<p><strong>Step-Up Authentication Monitoring:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c">// Monitor step-up authentication events</span>
+<span class="n">SigninLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">24</span><span class="n">h</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">AuthenticationContextClassReferences</span><span class="w"> </span><span class="n">has_any</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;c1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;c2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;c3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;c4&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;c5&quot;</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">StepUpContext</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">AuthenticationContextClassReferences</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">StepUpResult</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">iff</span><span class="p">(</span><span class="n">ResultType</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Success&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Failure&quot;</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="p">,</span><span class="w"> </span><span class="n">UserPrincipalName</span><span class="p">,</span><span class="w"> </span><span class="n">AppDisplayName</span><span class="p">,</span><span class="w"> </span><span class="n">StepUpContext</span><span class="p">,</span><span class="w"> </span><span class="n">StepUpResult</span><span class="p">,</span><span class="w"> </span><span class="n">ResultDescription</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span>
+<span class="w">    </span><span class="n">TotalAttempts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">Successes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">countif</span><span class="p">(</span><span class="n">StepUpResult</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;Success&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Failures</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">countif</span><span class="p">(</span><span class="n">StepUpResult</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;Failure&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">by</span><span class="w"> </span><span class="n">StepUpContext</span><span class="p">,</span><span class="w"> </span><span class="n">bin</span><span class="p">(</span><span class="n">TimeGenerated</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="n">h</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div>
+<p><strong>Alert Configuration:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Alert</th>
+<th>Condition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Step-Up Failure Spike</td>
+<td>&gt;5 failures in 15 minutes</td>
+<td>Alert Security team</td>
+</tr>
+<tr>
+<td>Sensitive Action Without Step-Up</td>
+<td>Action executed without required context</td>
+<td>Alert Compliance</td>
+</tr>
+<tr>
+<td>Bypass Attempt</td>
+<td>Request for step-up waiver</td>
+<td>Alert AI Governance Lead</td>
+</tr>
+<tr>
+<td>After-Hours Sensitive Action</td>
+<td>High-risk action outside business hours</td>
+<td>Alert Security</td>
+</tr>
+</tbody>
+</table>
+<p><strong>PowerShell: Step-Up Audit Report</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Generate Step-Up Authentication Audit Report</span>
+
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;AuditLog.Read.All&quot;</span><span class="p">,</span> <span class="s2">&quot;Directory.Read.All&quot;</span>
+
+<span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">30</span><span class="p">).</span><span class="n">ToString</span><span class="p">(</span><span class="s2">&quot;yyyy-MM-ddT00:00:00Z&quot;</span><span class="p">)</span>
+<span class="nv">$endDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">ToString</span><span class="p">(</span><span class="s2">&quot;yyyy-MM-ddT23:59:59Z&quot;</span><span class="p">)</span>
+
+<span class="c"># Query sign-in logs with authentication context</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="s2">&quot;createdDateTime ge $startDate and createdDateTime le $endDate&quot;</span>
+<span class="nv">$signIns</span> <span class="p">=</span> <span class="nb">Get-MgAuditLogSignIn</span> <span class="n">-Filter</span> <span class="nv">$filter</span> <span class="n">-All</span>
+
+<span class="nv">$stepUpEvents</span> <span class="p">=</span> <span class="nv">$signIns</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="nv">$_</span><span class="p">.</span><span class="n">AuthenticationContextClassReferences</span> <span class="o">-ne</span> <span class="nv">$null</span> <span class="o">-and</span>
+    <span class="nv">$_</span><span class="p">.</span><span class="n">AuthenticationContextClassReferences</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span>
+<span class="p">}</span>
+
+<span class="nv">$report</span> <span class="p">=</span> <span class="nv">$stepUpEvents</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">Timestamp</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreatedDateTime</span>
+        <span class="n">User</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">UserPrincipalName</span>
+        <span class="n">Application</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AppDisplayName</span>
+        <span class="n">AuthContext</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">AuthenticationContextClassReferences</span> <span class="n">-join</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span>
+        <span class="n">Result</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Status</span><span class="p">.</span><span class="n">ErrorCode</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;Success&quot;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s2">&quot;Failure&quot;</span> <span class="p">}</span>
+        <span class="n">ErrorDetail</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Status</span><span class="p">.</span><span class="n">FailureReason</span>
+        <span class="n">Location</span> <span class="p">=</span> <span class="s2">&quot;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Location</span><span class="p">.</span><span class="n">City</span><span class="p">)</span><span class="s2">, </span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Location</span><span class="p">.</span><span class="n">CountryOrRegion</span><span class="p">)</span><span class="s2">&quot;</span>
+        <span class="n">Device</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">DeviceDetail</span><span class="p">.</span><span class="n">DisplayName</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$report</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;.\StepUp-Audit-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Exported </span><span class="p">$(</span><span class="nv">$report</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> step-up authentication events&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Summary statistics</span>
+<span class="nv">$summary</span> <span class="p">=</span> <span class="nv">$report</span> <span class="p">|</span> <span class="nb">Group-Object</span> <span class="n">Result</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Count</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Step-Up Summary:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nv">$summary</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>How This Control Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Customer information safeguards</td>
+<td>Verifies user identity before sensitive data access</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Books and records security</td>
+<td>Ensures authorized access to financial records</td>
+</tr>
+<tr>
+<td><strong>SOX 302/404</strong></td>
+<td>Internal controls</td>
+<td>Provides transaction-level authentication controls</td>
+</tr>
+<tr>
+<td><strong>NIST 800-63B</strong></td>
+<td>Digital identity guidelines</td>
+<td>Implements AAL2/AAL3 for sensitive operations</td>
+</tr>
+<tr>
+<td><strong>Zero Trust</strong></td>
+<td>Continuous verification</td>
+<td>Validates identity at moment of sensitive action</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nt">Configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Step-up authentication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Not required</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Session timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8 hours</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Standard MFA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Required</span>
+<span class="nt">Rationale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Personal productivity agents have limited risk exposure</span>
+</code></pre></div>
+<p><strong>Zone 2 (Team Collaboration):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nt">Configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Step-up authentication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Required for data exports and external API calls</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Authentication contexts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c2 (Data Export), c3 (External API)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Session timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4 hours</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Fresh auth for sensitive actions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30 minutes</span>
+<span class="nt">Rationale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Team agents may access shared data requiring additional verification</span>
+</code></pre></div>
+<p><strong>Zone 3 (Enterprise Managed):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nt">Configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Step-up authentication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MANDATORY for all sensitive actions</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Authentication contexts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c1-c5 (all contexts)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Session timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1 hour</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Fresh auth for sensitive actions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15 minutes</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Phishing-resistant MFA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Required</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Device compliance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Required</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Real-time monitoring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Enabled</span>
+<span class="nt">Rationale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Customer-facing and transaction-capable agents require strictest controls</span>
+</code></pre></div>
+<h3 id="fsi-implementation-example">FSI Implementation Example</h3>
+<p><strong>Scenario:</strong> Trading Platform Agent with Order Execution Capability</p>
+<p><strong>Step-Up Configuration:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nt">agent_configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Trading</span><span class="nv"> </span><span class="s">Assistant</span><span class="nv"> </span><span class="s">Agent&quot;</span>
+<span class="w">  </span><span class="nt">zone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">risk_classification</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Critical&quot;</span>
+
+<span class="w">  </span><span class="nt">actions</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;view_portfolio&quot;</span>
+<span class="w">      </span><span class="nt">risk</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;medium&quot;</span>
+<span class="w">      </span><span class="nt">auth_context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;c5&quot;</span><span class="w">  </span><span class="c1"># Sensitive query</span>
+<span class="w">      </span><span class="nt">step_up_required</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;risk_based&quot;</span>
+<span class="w">      </span><span class="nt">max_auth_age</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;30m&quot;</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;execute_trade&quot;</span>
+<span class="w">      </span><span class="nt">risk</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;critical&quot;</span>
+<span class="w">      </span><span class="nt">auth_context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;c1&quot;</span><span class="w">  </span><span class="c1"># Financial transaction</span>
+<span class="w">      </span><span class="nt">step_up_required</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;always&quot;</span>
+<span class="w">      </span><span class="nt">max_auth_age</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5m&quot;</span>
+<span class="w">      </span><span class="nt">additional_requirements</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;phishing_resistant_mfa&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;compliant_device&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;network_location_verified&quot;</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;export_trade_history&quot;</span>
+<span class="w">      </span><span class="nt">risk</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;high&quot;</span>
+<span class="w">      </span><span class="nt">auth_context</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;c2&quot;</span><span class="w">  </span><span class="c1"># Data export</span>
+<span class="w">      </span><span class="nt">step_up_required</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;always&quot;</span>
+<span class="w">      </span><span class="nt">max_auth_age</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;15m&quot;</span>
+
+<span class="w">  </span><span class="nt">monitoring</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">step_up_failures</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;alert_immediately&quot;</span>
+<span class="w">    </span><span class="nt">sensitive_actions</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;log_all&quot;</span>
+<span class="w">    </span><span class="nt">after_hours_trades</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;require_approval&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Access agent without MFA</td>
+<td>Access denied</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Complete MFA, access agent</td>
+<td>Access granted</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Wait &gt;15 minutes, attempt financial action</td>
+<td>Step-up authentication triggered</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Complete step-up with FIDO2</td>
+<td>Action executed</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Attempt step-up with SMS code</td>
+<td>Denied (if phishing-resistant required)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Review audit logs</td>
+<td>Step-up events logged</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compliance-checklist">Compliance Checklist</h3>
+<ul>
+<li>[ ] High-risk agent actions inventoried</li>
+<li>[ ] Authentication contexts created in Entra ID</li>
+<li>[ ] Conditional Access policies configured for each context</li>
+<li>[ ] Session controls configured per zone</li>
+<li>[ ] Phishing-resistant MFA required for critical actions</li>
+<li>[ ] Monitoring and alerting configured</li>
+<li>[ ] Step-up audit logs retained per policy</li>
+<li>[ ] User training completed on step-up requirements</li>
+<li>[ ] Quarterly review of step-up effectiveness scheduled</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-step-up-not-triggering-for-sensitive-actions">Issue: Step-Up Not Triggering for Sensitive Actions</h3>
+<p><strong>Symptoms:</strong> Users can perform sensitive actions without re-authentication</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify authentication context is correctly configured</li>
+<li>Check CA policy targets the correct authentication context</li>
+<li>Confirm application/connector is tagged to require the context</li>
+<li>Review sign-in logs for context claim presence</li>
+<li>Test with a new session (clear browser cache)</li>
+</ol>
+<h3 id="issue-step-up-blocking-all-actions">Issue: Step-Up Blocking All Actions</h3>
+<p><strong>Symptoms:</strong> Users cannot perform any agent operations</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Review CA policy scope (may be too broad)</li>
+<li>Check if session frequency is too aggressive</li>
+<li>Verify user has compliant device (if required)</li>
+<li>Confirm user has registered phishing-resistant MFA</li>
+<li>Test with policy in report-only mode first</li>
+</ol>
+<h3 id="issue-service-principal-operations-blocked">Issue: Service Principal Operations Blocked</h3>
+<p><strong>Symptoms:</strong> Background agent operations failing authentication</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Service principals cannot do interactive MFA</li>
+<li>Implement approval workflow for sensitive SP operations</li>
+<li>Configure workload identity risk policies</li>
+<li>Review service principal sign-in logs</li>
+<li>Consider managed identity where possible</li>
+</ol>
+<h3 id="issue-users-frustrated-by-frequent-step-ups">Issue: Users Frustrated by Frequent Step-Ups</h3>
+<p><strong>Symptoms:</strong> Complaints about too many authentication prompts</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Review action classification (may be over-classified)</li>
+<li>Extend session frequency for lower-risk actions</li>
+<li>Ensure SSO is working correctly</li>
+<li>Train users on the purpose of step-up</li>
+<li>Consider risk-based step-up instead of always-on</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-cloud-apps#authentication-context">Authentication contexts in Conditional Access</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-strengths">Authentication strengths</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-session-lifetime">Sign-in frequency and session controls</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-passwordless">Phishing-resistant MFA methods</a></li>
+<li><a href="https://pages.nist.gov/800-63-3/sp800-63b.html">NIST SP 800-63B Digital Identity Guidelines</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../1.11-conditional-access-and-phishing-resistant-mfa/">Control 1.11: Conditional Access</a></td>
+<td>Baseline CA policies; step-up builds on top</td>
+</tr>
+<tr>
+<td><a href="../1.4-advanced-connector-policies-acp/">Control 1.4: Advanced Connector Policies</a></td>
+<td>Connector governance enables action-level step-up</td>
+</tr>
+<tr>
+<td><a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/">Control 1.18: RBAC</a></td>
+<td>Role-based access complements step-up</td>
+</tr>
+<tr>
+<td><a href="../1.7-comprehensive-audit-logging-and-compliance/">Control 1.7: Audit Logging</a></td>
+<td>Step-up events must be logged</td>
+</tr>
+<tr>
+<td><a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/">Control 2.12: Supervision</a></td>
+<td>Supervision of sensitive agent actions</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>Security Administrator:</strong> Conditional Access and authentication context setup</li>
+<li><strong>Entra ID Admin:</strong> Authentication strength and MFA configuration</li>
+<li><strong>Power Platform Admin:</strong> Connector-level step-up implementation</li>
+<li><strong>Compliance Officer:</strong> Action classification and regulatory requirements</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026
+<strong>Version:</strong> v1.0 (Jan 2026)
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

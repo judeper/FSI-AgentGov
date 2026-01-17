@@ -1,0 +1,5907 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/">
+      
+      
+        <link rel="prev" href="../3.3-compliance-and-regulatory-reporting/">
+      
+      
+        <link rel="next" href="../3.5-cost-allocation-and-budget-tracking/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>3.4 Incident Reporting And Root Cause Analysis - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-34-incident-reporting-and-root-cause-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              3.4 Incident Reporting And Root Cause Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licensing-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licensing Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-define-incident-classification-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Define Incident Classification Taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-create-sharepoint-incident-tracking-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create SharePoint Incident Tracking System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-incident-reporting-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure Incident Reporting Form
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-set-up-automated-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Set Up Automated Workflows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-configure-root-cause-analysis-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Configure Root Cause Analysis Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5a-rag-citation-logging-for-incident-investigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5a: RAG Citation Logging for Incident Investigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-integrate-with-microsoft-sentinel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Integrate with Microsoft Sentinel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-establish-weekly-incident-review-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Establish Weekly Incident Review Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notification-sla-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notification SLA Framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sec-regulation-s-p-incident-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SEC Regulation S-P Incident Classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-example-critical-privacy-incident-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Example: Critical Privacy Incident Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-incidents-not-auto-assigning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Incidents Not Auto-Assigning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-sla-alerts-not-triggering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: SLA Alerts Not Triggering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-rca-template-not-saving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: RCA Template Not Saving
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-regulatory-notification-workflow-not-triggering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Regulatory Notification Workflow Not Triggering
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-34-incident-reporting-and-root-cause-analysis">Control 3.4: Incident Reporting and Root Cause Analysis</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 3.4
+<strong>Control Name:</strong> Incident Reporting and Root Cause Analysis
+<strong>Regulatory Reference:</strong> GLBA 501(b), SOX 404, FINRA 4511, SEC Rule 17a-4, FFIEC IT Handbook, SEC Regulation S-P (2024 Amendments)
+<strong>Setup Time:</strong> 3-4 hours  </p>
+<h3 id="purpose">Purpose</h3>
+<p>Incident Reporting and Root Cause Analysis establishes a systematic process for capturing, investigating, and remediating AI agent-related incidents. This control ensures that security events, policy violations, performance failures, and compliance breaches are properly documented, analyzed for root cause, and resolved with corrective actions. For financial services organizations, this control is critical for demonstrating regulatory compliance and maintaining operational resilience.</p>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Entra Security Admin
+<strong>Supporting Roles:</strong> Compliance Officer</p>
+<h3 id="licensing-requirements">Licensing Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>License Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft Sentinel</td>
+<td>Azure subscription + Sentinel workspace</td>
+</tr>
+<tr>
+<td>Microsoft Defender for Cloud Apps</td>
+<td>Microsoft 365 E5 Security</td>
+</tr>
+<tr>
+<td>Microsoft 365 Audit Logs</td>
+<td>Microsoft 365 E3/E5</td>
+</tr>
+<tr>
+<td>SharePoint for Case Management</td>
+<td>Microsoft 365 E3/E5</td>
+</tr>
+<tr>
+<td>Power Automate for Workflows</td>
+<td>Power Platform (included with M365)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Role/Permission</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Report Incidents</td>
+<td>All authenticated users</td>
+</tr>
+<tr>
+<td>Triage Incidents</td>
+<td>Compliance Reader, Security Reader</td>
+</tr>
+<tr>
+<td>Investigate Incidents</td>
+<td>Security Operator, Compliance Administrator</td>
+</tr>
+<tr>
+<td>Close Incidents</td>
+<td>Security Administrator, Compliance Administrator</td>
+</tr>
+<tr>
+<td>Access Incident Data</td>
+<td>Audit Log Reader</td>
+</tr>
+<tr>
+<td>Configure Incident Workflows</td>
+<td>Power Automate Administrator</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li>[x] Control 1.7: Comprehensive Audit Logging</li>
+<li>[x] Control 1.8: Runtime Protection and External Threat Detection</li>
+<li>[x] Control 3.2: Usage Analytics and Activity Monitoring</li>
+<li>[x] Control 2.5: Business Continuity and Disaster Recovery</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Incident classification taxonomy defined</li>
+<li>[ ] Escalation matrix approved by management</li>
+<li>[ ] SharePoint incident tracking list created</li>
+<li>[ ] On-call rotation established</li>
+<li>[ ] Regulatory notification thresholds documented</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Document incidents: security events, policy violations, performance failures; log root causes.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Incident tracking system; automated RCA workflow; weekly incident reviews.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Real-time incident reporting; mandatory SLA for investigation; audit-ready incident files.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-define-incident-classification-taxonomy">Step 1: Define Incident Classification Taxonomy</h3>
+<p><strong>Incident Categories:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Description</th>
+<th>Examples</th>
+<th>Severity Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Security</strong></td>
+<td>Unauthorized access, data breach</td>
+<td>Credential theft, DLP violation</td>
+<td>Critical - High</td>
+</tr>
+<tr>
+<td><strong>Compliance</strong></td>
+<td>Regulatory violation, policy breach</td>
+<td>Unapproved data access, missing audit</td>
+<td>Critical - Medium</td>
+</tr>
+<tr>
+<td><strong>Availability</strong></td>
+<td>Service outage, performance degradation</td>
+<td>Agent down, slow response</td>
+<td>High - Low</td>
+</tr>
+<tr>
+<td><strong>Data Quality</strong></td>
+<td>Incorrect outputs, hallucinations</td>
+<td>Wrong financial advice, calculation error</td>
+<td>Critical - Low</td>
+</tr>
+<tr>
+<td><strong>Privacy</strong></td>
+<td>PII exposure, consent violation</td>
+<td>Customer data leak, GLBA breach</td>
+<td>Critical - High</td>
+</tr>
+<tr>
+<td><strong>Bias/Fairness</strong></td>
+<td>Discriminatory outcomes</td>
+<td>Loan denial bias, unfair treatment</td>
+<td>Critical - High</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Severity Levels:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Response SLA</th>
+<th>Escalation</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Critical (P1)</strong></td>
+<td>15 minutes</td>
+<td>Immediate - CISO/CCO</td>
+<td>Data breach, regulatory filing required</td>
+</tr>
+<tr>
+<td><strong>High (P2)</strong></td>
+<td>1 hour</td>
+<td>4 hours - Director</td>
+<td>DLP violation, agent producing incorrect advice</td>
+</tr>
+<tr>
+<td><strong>Medium (P3)</strong></td>
+<td>4 hours</td>
+<td>24 hours - Manager</td>
+<td>Policy violation, performance degradation</td>
+</tr>
+<tr>
+<td><strong>Low (P4)</strong></td>
+<td>24 hours</td>
+<td>48 hours - Team Lead</td>
+<td>Minor UI issues, feature requests</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-2-create-sharepoint-incident-tracking-system">Step 2: Create SharePoint Incident Tracking System</h3>
+<p><strong>Portal Path:</strong> SharePoint Admin Center → Sites → Create Site</p>
+<p>Create SharePoint list with the following columns:</p>
+<table>
+<thead>
+<tr>
+<th>Column Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Values/Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Incident ID</td>
+<td>Auto-generated</td>
+<td>Yes</td>
+<td>INC-YYYY-MMDD-###</td>
+</tr>
+<tr>
+<td>Title</td>
+<td>Single line</td>
+<td>Yes</td>
+<td>Brief description</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Choice</td>
+<td>Yes</td>
+<td>Security, Compliance, Availability, etc.</td>
+</tr>
+<tr>
+<td>Severity</td>
+<td>Choice</td>
+<td>Yes</td>
+<td>Critical, High, Medium, Low</td>
+</tr>
+<tr>
+<td>Agent Name</td>
+<td>Lookup</td>
+<td>Yes</td>
+<td>Link to Agent Inventory</td>
+</tr>
+<tr>
+<td>Reported By</td>
+<td>Person</td>
+<td>Yes</td>
+<td>User</td>
+</tr>
+<tr>
+<td>Reported Date</td>
+<td>Date/Time</td>
+<td>Yes</td>
+<td>Auto-populated</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Choice</td>
+<td>Yes</td>
+<td>New, Investigating, Pending RCA, Remediation, Closed</td>
+</tr>
+<tr>
+<td>Assigned To</td>
+<td>Person</td>
+<td>Yes</td>
+<td>Investigator</td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Multi-line</td>
+<td>Yes</td>
+<td>Full incident details</td>
+</tr>
+<tr>
+<td>Root Cause</td>
+<td>Multi-line</td>
+<td>No</td>
+<td>RCA findings</td>
+</tr>
+<tr>
+<td>Corrective Actions</td>
+<td>Multi-line</td>
+<td>No</td>
+<td>Remediation steps</td>
+</tr>
+<tr>
+<td>Resolution Date</td>
+<td>Date/Time</td>
+<td>No</td>
+<td>When closed</td>
+</tr>
+<tr>
+<td>Time to Resolution</td>
+<td>Calculated</td>
+<td>Auto</td>
+<td>Resolution Date - Reported Date</td>
+</tr>
+<tr>
+<td>Regulatory Impact</td>
+<td>Yes/No</td>
+<td>Yes</td>
+<td>FINRA/SEC notification required</td>
+</tr>
+<tr>
+<td>Evidence Links</td>
+<td>Multiple links</td>
+<td>No</td>
+<td>Audit logs, screenshots</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-3-configure-incident-reporting-form">Step 3: Configure Incident Reporting Form</h3>
+<p><strong>Portal Path:</strong> SharePoint Site → New → List Form → Customize with Power Apps</p>
+<p>Create user-friendly intake form with:</p>
+<ul>
+<li>Required fields validation</li>
+<li>Auto-population of reporter and date</li>
+<li>Category-based severity suggestions</li>
+<li>File attachment for evidence</li>
+<li>Email confirmation to reporter</li>
+</ul>
+<h3 id="step-4-set-up-automated-workflows">Step 4: Set Up Automated Workflows</h3>
+<p><strong>Portal Path:</strong> Power Automate → Create → Automated cloud flow</p>
+<p><strong>Workflow 1: New Incident Notification</strong>
+<div class="highlight"><pre><span></span><code>Trigger: When item created in Incidents list
+Conditions:
+├── If Severity = Critical → Immediate escalation
+│   └── Email CISO, CCO, CEO
+│   └── Teams notification to Security-Ops
+│   └── Create Sentinel incident
+├── If Severity = High
+│   └── Email Security Team Lead
+│   └── Teams notification to AI-Ops
+└── All incidents
+    └── Assign to on-call investigator
+    └── Start SLA timer
+    └── Log to incident dashboard
+</code></pre></div></p>
+<p><strong>Workflow 2: SLA Breach Alert</strong>
+<div class="highlight"><pre><span></span><code>Trigger: Scheduled - Every 15 minutes
+Conditions:
+├── Find incidents past SLA
+├── For each overdue incident:
+│   └── Email escalation chain
+│   └── Update status to &quot;Escalated&quot;
+│   └── Notify manager
+</code></pre></div></p>
+<p><strong>Workflow 3: Incident Closure</strong>
+<div class="highlight"><pre><span></span><code>Trigger: When Status changed to &quot;Closed&quot;
+Actions:
+├── Validate required fields (Root Cause, Corrective Actions)
+├── Calculate Time to Resolution
+├── Archive evidence to permanent storage
+├── Update metrics dashboard
+├── If Regulatory Impact = Yes
+│   └── Queue for regulatory filing review
+└── Send closure notification
+</code></pre></div></p>
+<h3 id="step-5-configure-root-cause-analysis-template">Step 5: Configure Root Cause Analysis Template</h3>
+<p><strong>RCA Document Structure:</strong></p>
+<div class="highlight"><pre><span></span><code>INCIDENT ROOT CAUSE ANALYSIS
+============================
+Incident ID: [Auto-populated]
+Analysis Date: [Date]
+Analyst: [Name]
+
+1. INCIDENT SUMMARY
+   - What happened
+   - When discovered
+   - Impact scope
+
+2. TIMELINE
+   [Time] - Event 1
+   [Time] - Event 2
+   ...
+
+3. ROOT CAUSE ANALYSIS
+   Primary Cause: [Description]
+   Contributing Factors:
+   - Factor 1
+   - Factor 2
+
+   Analysis Method: ☐ 5 Whys ☐ Fishbone ☐ Fault Tree
+
+4. IMPACT ASSESSMENT
+   - Customers affected: [Number]
+   - Data exposed: [Yes/No - Details]
+   - Financial impact: [$Amount]
+   - Regulatory implications: [Description]
+
+5. CORRECTIVE ACTIONS
+   | Action | Owner | Due Date | Status |
+   |--------|-------|----------|--------|
+   | [Action 1] | [Name] | [Date] | [Status] |
+
+6. PREVENTIVE MEASURES
+   - Short-term: [Description]
+   - Long-term: [Description]
+
+7. LESSONS LEARNED
+   - [Key takeaways]
+
+8. APPROVALS
+   Analyst: _________________ Date: _______
+   Manager: _________________ Date: _______
+   Compliance: ______________ Date: _______
+</code></pre></div>
+<h3 id="step-5a-rag-citation-logging-for-incident-investigation">Step 5a: RAG Citation Logging for Incident Investigation</h3>
+<p><strong>Purpose:</strong> When investigating AI agent incidents (especially data quality or hallucination issues), understanding which knowledge sources the agent cited is critical for root cause analysis. Citation logging provides source attribution for agent responses.</p>
+<p><strong>Citation Data Fields:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Use in RCA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source URL</strong></td>
+<td>Knowledge source location</td>
+<td>Verify source accuracy</td>
+</tr>
+<tr>
+<td><strong>Source Title</strong></td>
+<td>Document/page title</td>
+<td>Quick identification</td>
+</tr>
+<tr>
+<td><strong>Citation Timestamp</strong></td>
+<td>When source was accessed</td>
+<td>Check for staleness</td>
+</tr>
+<tr>
+<td><strong>Confidence Score</strong></td>
+<td>Model's confidence in citation</td>
+<td>Assess reliability</td>
+</tr>
+<tr>
+<td><strong>Snippet Used</strong></td>
+<td>Text passage cited</td>
+<td>Validate interpretation</td>
+</tr>
+<tr>
+<td><strong>Response Context</strong></td>
+<td>How citation was used</td>
+<td>Understand agent reasoning</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Citation Audit Query (KQL):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c">// Retrieve citations for a specific incident</span>
+<span class="n">let</span><span class="w"> </span><span class="n">incidentTimeRange</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">-</span><span class="mi">01</span><span class="p">-</span><span class="mi">15</span><span class="n">T10</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="n">Z</span><span class="p">);</span>
+<span class="n">let</span><span class="w"> </span><span class="n">incidentAgent</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;AGT-001&quot;</span><span class="p">;</span>
+<span class="n">CopilotInteraction</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="k">between</span><span class="w"> </span><span class="p">((</span><span class="n">incidentTimeRange</span><span class="w"> </span><span class="p">-</span><span class="w"> </span><span class="mi">1</span><span class="n">h</span><span class="p">)</span><span class="w"> </span><span class="err">..</span><span class="w"> </span><span class="p">(</span><span class="n">incidentTimeRange</span><span class="w"> </span><span class="p">+</span><span class="w"> </span><span class="mi">1</span><span class="n">h</span><span class="p">))</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">AgentId</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="n">incidentAgent</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Citations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parse_json</span><span class="p">(</span><span class="n">ResponseMetadata</span><span class="p">)</span><span class="err">.</span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">mv-expand</span><span class="w"> </span><span class="n">Citation</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span>
+<span class="w">    </span><span class="n">TimeGenerated</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SessionId</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UserId</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UserQuery</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SourceUrl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">SourceUrl</span><span class="p">),</span>
+<span class="w">    </span><span class="n">SourceTitle</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">Title</span><span class="p">),</span>
+<span class="w">    </span><span class="n">ConfidenceScore</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">todouble</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">Confidence</span><span class="p">),</span>
+<span class="w">    </span><span class="n">ResponseSnippet</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">substring</span><span class="p">(</span><span class="n">ResponseText</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">asc</span>
+</code></pre></div>
+<p><strong>Enhanced RCA Template Fields for Citation Investigation:</strong></p>
+<p>Add these fields to Section 3 (Root Cause Analysis) for AI agent incidents:</p>
+<div class="highlight"><pre><span></span><code>3a. SOURCE ATTRIBUTION ANALYSIS
+    Sources Cited in Incident Response:
+    | Source | URL | Confidence | Issue Found |
+    |--------|-----|------------|-------------|
+    | [Source 1] | [URL] | [Score] | [Yes/No - Details] |
+
+    Citation Issues Identified:
+    - [ ] Source was outdated (last modified: [date])
+    - [ ] Source contained incorrect information
+    - [ ] Agent misinterpreted source content
+    - [ ] Source conflicted with other sources
+    - [ ] Agent fabricated citation (source doesn&#39;t exist)
+    - [ ] Low confidence citation presented as certain
+
+    Knowledge Source Remediation:
+    - Source requiring update: [URL]
+    - Corrective action: [Description]
+    - Owner: [Content Owner]
+</code></pre></div>
+<p><strong>PowerShell Script for Citation Investigation:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span> <span class="nb">Get-IncidentCitations</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$IncidentId</span><span class="p">,</span>
+        <span class="no">[datetime]</span><span class="nv">$IncidentTime</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$AgentId</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\Citation-Investigation-$IncidentId&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Investigating citations for incident: $IncidentId&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="c"># Query audit logs for the incident timeframe</span>
+    <span class="nv">$startTime</span> <span class="p">=</span> <span class="nv">$IncidentTime</span><span class="p">.</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">1</span><span class="p">)</span>
+    <span class="nv">$endTime</span> <span class="p">=</span> <span class="nv">$IncidentTime</span><span class="p">.</span><span class="n">AddHours</span><span class="p">(</span><span class="n">1</span><span class="p">)</span>
+
+    <span class="nv">$events</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startTime</span> <span class="n">-EndDate</span> <span class="nv">$endTime</span> <span class="p">`</span>
+        <span class="n">-RecordType</span> <span class="n">CopilotInteraction</span> <span class="n">-ResultSize</span> <span class="n">100</span>
+
+    <span class="c"># Parse citations from events</span>
+    <span class="nv">$citations</span> <span class="p">=</span> <span class="p">@()</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$event</span> <span class="k">in</span> <span class="nv">$events</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$event</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$data</span><span class="p">.</span><span class="n">AgentId</span> <span class="o">-eq</span> <span class="nv">$AgentId</span> <span class="o">-and</span> <span class="nv">$data</span><span class="p">.</span><span class="n">Citations</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">foreach</span> <span class="p">(</span><span class="nv">$citation</span> <span class="k">in</span> <span class="nv">$data</span><span class="p">.</span><span class="n">Citations</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nv">$citations</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                    <span class="n">Timestamp</span> <span class="p">=</span> <span class="nv">$event</span><span class="p">.</span><span class="n">CreationDate</span>
+                    <span class="n">SessionId</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">SessionId</span>
+                    <span class="n">SourceUrl</span> <span class="p">=</span> <span class="nv">$citation</span><span class="p">.</span><span class="n">Url</span>
+                    <span class="n">SourceTitle</span> <span class="p">=</span> <span class="nv">$citation</span><span class="p">.</span><span class="n">Title</span>
+                    <span class="n">Confidence</span> <span class="p">=</span> <span class="nv">$citation</span><span class="p">.</span><span class="n">Confidence</span>
+                    <span class="n">UserQuery</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">UserQuery</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c"># Export for analysis</span>
+    <span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$OutputPath</span> <span class="n">-Force</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+    <span class="nv">$citations</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$OutputPath\Citations.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Found </span><span class="p">$(</span><span class="nv">$citations</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> citations&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Exported to: $OutputPath\Citations.csv&quot;</span>
+
+    <span class="c"># Analyze for common issues</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Citation Analysis:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+    <span class="c"># Check for low confidence citations</span>
+    <span class="nv">$lowConfidence</span> <span class="p">=</span> <span class="nv">$citations</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Confidence</span> <span class="o">-lt</span> <span class="n">0</span><span class="p">.</span><span class="n">7</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$lowConfidence</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;  WARNING: </span><span class="p">$(</span><span class="nv">$lowConfidence</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> low-confidence citations&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+    <span class="p">}</span>
+
+    <span class="c"># Group by source</span>
+    <span class="nv">$sourceGroups</span> <span class="p">=</span> <span class="nv">$citations</span> <span class="p">|</span> <span class="nb">Group-Object</span> <span class="n">SourceUrl</span> <span class="p">|</span> <span class="nb">Sort-Object</span> <span class="n">Count</span> <span class="n">-Descending</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;  Most cited sources:&quot;</span>
+    <span class="nv">$sourceGroups</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">5</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;    - </span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">: </span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> citations&quot;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$citations</span>
+<span class="p">}</span>
+
+<span class="c"># Usage example:</span>
+<span class="c"># Get-IncidentCitations -IncidentId &quot;INC-2026-0115-001&quot; -IncidentTime &quot;2026-01-15 10:30:00&quot; -AgentId &quot;AGT-001&quot;</span>
+</code></pre></div>
+<p><strong>Integration with Incident Tracking:</strong></p>
+<p>Update the incident tracking SharePoint list (Step 2) to include citation fields:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CitationIssueDetected</td>
+<td>Yes/No</td>
+<td>Flag if citation was problematic</td>
+</tr>
+<tr>
+<td>ProblematicSource</td>
+<td>Hyperlink</td>
+<td>Link to incorrect source</td>
+</tr>
+<tr>
+<td>CitationRootCause</td>
+<td>Choice</td>
+<td>Outdated/Incorrect/Misinterpreted/Fabricated/Conflicting</td>
+</tr>
+<tr>
+<td>SourceRemediationOwner</td>
+<td>Person</td>
+<td>Content owner for fix</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-6-integrate-with-microsoft-sentinel">Step 6: Integrate with Microsoft Sentinel</h3>
+<p><strong>Portal Path:</strong> Azure Portal → Microsoft Sentinel → Analytics</p>
+<p>Create analytics rules for agent-related incidents:</p>
+<table>
+<thead>
+<tr>
+<th>Rule Name</th>
+<th>Data Source</th>
+<th>Trigger</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent DLP Violation</td>
+<td>M365 Defender</td>
+<td>DLP policy match</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Unauthorized Agent Access</td>
+<td>Entra ID</td>
+<td>Failed access after hours</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Agent Connector Failure</td>
+<td>Power Platform</td>
+<td>Error rate &gt;5%</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Unusual Data Volume</td>
+<td>Audit Log</td>
+<td>&gt;3σ from baseline</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Agent Response Anomaly</td>
+<td>App Insights</td>
+<td>Latency spike</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-7-establish-weekly-incident-review-process">Step 7: Establish Weekly Incident Review Process</h3>
+<p><strong>Meeting Structure:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Duration</th>
+<th>Participants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open Incidents Review</td>
+<td>15 min</td>
+<td>Ops Team</td>
+</tr>
+<tr>
+<td>Critical Incident Deep Dive</td>
+<td>20 min</td>
+<td>All stakeholders</td>
+</tr>
+<tr>
+<td>RCA Presentations</td>
+<td>15 min</td>
+<td>Analysts</td>
+</tr>
+<tr>
+<td>Trend Analysis</td>
+<td>5 min</td>
+<td>Manager</td>
+</tr>
+<tr>
+<td>Action Item Review</td>
+<td>5 min</td>
+<td>All</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Control 3.4: Incident Reporting and Root Cause Analysis</span>
+<span class="c"># PowerShell Configuration Script for FSI Organizations</span>
+<span class="c"># ============================================================</span>
+
+<span class="c"># Install required modules</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">PnP</span><span class="p">.</span><span class="n">PowerShell</span> <span class="n">-Force</span> <span class="n">-AllowClobber</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">Graph</span> <span class="n">-Force</span> <span class="n">-AllowClobber</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">Az</span><span class="p">.</span><span class="n">SecurityInsights</span> <span class="n">-Force</span> <span class="n">-AllowClobber</span>
+
+<span class="c"># Connect to services</span>
+<span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="s2">&quot;https://[tenant].sharepoint.com/sites/AI-Governance&quot;</span> <span class="n">-Interactive</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;SecurityEvents.Read.All&quot;</span><span class="p">,</span> <span class="s2">&quot;SecurityIncident.ReadWrite.All&quot;</span>
+<span class="nb">Connect-AzAccount</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 1: Create Incident Tracking List</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">New-IncidentTrackingList</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[string]</span><span class="nv">$SiteUrl</span> <span class="p">=</span> <span class="s2">&quot;https://[tenant].sharepoint.com/sites/AI-Governance&quot;</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$ListName</span> <span class="p">=</span> <span class="s2">&quot;AI Agent Incidents&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Creating Incident Tracking List...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$SiteUrl</span> <span class="n">-Interactive</span>
+
+    <span class="c"># Create list</span>
+    <span class="nv">$list</span> <span class="p">=</span> <span class="nb">New-PnPList</span> <span class="n">-Title</span> <span class="nv">$ListName</span> <span class="n">-Template</span> <span class="n">GenericList</span>
+
+    <span class="c"># Add columns</span>
+    <span class="nv">$columns</span> <span class="p">=</span> <span class="p">@(</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;IncidentID&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Text&quot;</span><span class="p">;</span> <span class="n">Required</span> <span class="p">=</span> <span class="nv">$true</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Category&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Choice&quot;</span><span class="p">;</span> <span class="n">Choices</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Security&quot;</span><span class="p">,</span> <span class="s2">&quot;Compliance&quot;</span><span class="p">,</span> <span class="s2">&quot;Availability&quot;</span><span class="p">,</span> <span class="s2">&quot;Data Quality&quot;</span><span class="p">,</span> <span class="s2">&quot;Privacy&quot;</span><span class="p">,</span> <span class="s2">&quot;Bias/Fairness&quot;</span><span class="p">)</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Severity&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Choice&quot;</span><span class="p">;</span> <span class="n">Choices</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;Critical&quot;</span><span class="p">,</span> <span class="s2">&quot;High&quot;</span><span class="p">,</span> <span class="s2">&quot;Medium&quot;</span><span class="p">,</span> <span class="s2">&quot;Low&quot;</span><span class="p">)</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;AgentName&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Text&quot;</span><span class="p">;</span> <span class="n">Required</span> <span class="p">=</span> <span class="nv">$true</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;ReportedDate&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;DateTime&quot;</span><span class="p">;</span> <span class="n">Required</span> <span class="p">=</span> <span class="nv">$true</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Status&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Choice&quot;</span><span class="p">;</span> <span class="n">Choices</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;New&quot;</span><span class="p">,</span> <span class="s2">&quot;Investigating&quot;</span><span class="p">,</span> <span class="s2">&quot;Pending RCA&quot;</span><span class="p">,</span> <span class="s2">&quot;Remediation&quot;</span><span class="p">,</span> <span class="s2">&quot;Closed&quot;</span><span class="p">)</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;AssignedTo&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;User&quot;</span><span class="p">;</span> <span class="n">Required</span> <span class="p">=</span> <span class="nv">$true</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;Description&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Note&quot;</span><span class="p">;</span> <span class="n">Required</span> <span class="p">=</span> <span class="nv">$true</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;RootCause&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Note&quot;</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;CorrectiveActions&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Note&quot;</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;ResolutionDate&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;DateTime&quot;</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;RegulatoryImpact&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Boolean&quot;</span> <span class="p">},</span>
+        <span class="p">@{</span> <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;TimeToResolutionHours&quot;</span><span class="p">;</span> <span class="nb">Type </span><span class="p">=</span> <span class="s2">&quot;Number&quot;</span> <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$col</span> <span class="k">in</span> <span class="nv">$columns</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="nv">$col</span><span class="p">.</span><span class="n">Type</span><span class="p">)</span> <span class="p">{</span>
+            <span class="s2">&quot;Text&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPField</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-DisplayName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-InternalName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Type</span> <span class="n">Text</span> <span class="n">-Required</span><span class="p">:</span><span class="nv">$col</span><span class="p">.</span><span class="n">Required</span> <span class="p">}</span>
+            <span class="s2">&quot;Choice&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPFieldFromXml</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-FieldXml</span> <span class="s2">&quot;&lt;Field Type=&#39;Choice&#39; DisplayName=&#39;</span><span class="p">$(</span><span class="nv">$col</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">&#39;&gt;&lt;CHOICES&gt;</span><span class="p">$(</span><span class="nv">$col</span><span class="p">.</span><span class="n">Choices</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span> <span class="s2">&quot;&lt;CHOICE&gt;$_&lt;/CHOICE&gt;&quot;</span> <span class="p">})</span><span class="s2">&lt;/CHOICES&gt;&lt;/Field&gt;&quot;</span> <span class="p">}</span>
+            <span class="s2">&quot;DateTime&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPField</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-DisplayName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-InternalName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Type</span> <span class="n">DateTime</span> <span class="p">}</span>
+            <span class="s2">&quot;Note&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPField</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-DisplayName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-InternalName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Type</span> <span class="n">Note</span> <span class="p">}</span>
+            <span class="s2">&quot;User&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPField</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-DisplayName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-InternalName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Type</span> <span class="n">User</span> <span class="p">}</span>
+            <span class="s2">&quot;Boolean&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPField</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-DisplayName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-InternalName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Type</span> <span class="n">Boolean</span> <span class="p">}</span>
+            <span class="s2">&quot;Number&quot;</span> <span class="p">{</span> <span class="nb">Add-PnPField</span> <span class="n">-List</span> <span class="nv">$ListName</span> <span class="n">-DisplayName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-InternalName</span> <span class="nv">$col</span><span class="p">.</span><span class="n">Name</span> <span class="n">-Type</span> <span class="n">Number</span> <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Incident Tracking List created successfully&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="k">return</span> <span class="nv">$list</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 2: Report New Incident</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">New-AgentIncident</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$Title</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="p">[</span><span class="k">ValidateSet</span><span class="p">(</span><span class="s2">&quot;Security&quot;</span><span class="p">,</span> <span class="s2">&quot;Compliance&quot;</span><span class="p">,</span> <span class="s2">&quot;Availability&quot;</span><span class="p">,</span> <span class="s2">&quot;Data Quality&quot;</span><span class="p">,</span> <span class="s2">&quot;Privacy&quot;</span><span class="p">,</span> <span class="s2">&quot;Bias/Fairness&quot;</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$Category</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="p">[</span><span class="k">ValidateSet</span><span class="p">(</span><span class="s2">&quot;Critical&quot;</span><span class="p">,</span> <span class="s2">&quot;High&quot;</span><span class="p">,</span> <span class="s2">&quot;Medium&quot;</span><span class="p">,</span> <span class="s2">&quot;Low&quot;</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$Severity</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$AgentName</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$Description</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$AssignTo</span> <span class="p">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="no">[bool]</span><span class="nv">$RegulatoryImpact</span> <span class="p">=</span> <span class="nv">$false</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Reporting new incident...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="c"># Generate Incident ID</span>
+    <span class="nv">$incidentId</span> <span class="p">=</span> <span class="s2">&quot;INC-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyy-MMdd&#39;</span><span class="p">)</span><span class="s2">-</span><span class="p">$(</span><span class="nb">Get-Random</span> <span class="n">-Minimum</span> <span class="n">100</span> <span class="n">-Maximum</span> <span class="n">999</span><span class="p">)</span><span class="s2">&quot;</span>
+
+    <span class="nv">$incident</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Title</span> <span class="p">=</span> <span class="nv">$Title</span>
+        <span class="n">IncidentID</span> <span class="p">=</span> <span class="nv">$incidentId</span>
+        <span class="n">Category</span> <span class="p">=</span> <span class="nv">$Category</span>
+        <span class="n">Severity</span> <span class="p">=</span> <span class="nv">$Severity</span>
+        <span class="n">AgentName</span> <span class="p">=</span> <span class="nv">$AgentName</span>
+        <span class="n">Description</span> <span class="p">=</span> <span class="nv">$Description</span>
+        <span class="n">ReportedDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+        <span class="n">Status</span> <span class="p">=</span> <span class="s2">&quot;New&quot;</span>
+        <span class="n">RegulatoryImpact</span> <span class="p">=</span> <span class="nv">$RegulatoryImpact</span>
+    <span class="p">}</span>
+
+    <span class="c"># Add to SharePoint</span>
+    <span class="nv">$item</span> <span class="p">=</span> <span class="nb">Add-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;AI Agent Incidents&quot;</span> <span class="n">-Values</span> <span class="nv">$incident</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Incident created: $incidentId&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+    <span class="c"># Trigger notifications based on severity</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$Severity</span> <span class="o">-eq</span> <span class="s2">&quot;Critical&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;CRITICAL INCIDENT - Initiating emergency escalation&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+        <span class="nb">Send-CriticalIncidentNotification</span> <span class="n">-IncidentId</span> <span class="nv">$incidentId</span> <span class="n">-Details</span> <span class="nv">$incident</span>
+    <span class="p">}</span>
+    <span class="k">elseif</span> <span class="p">(</span><span class="nv">$Severity</span> <span class="o">-eq</span> <span class="s2">&quot;High&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;HIGH SEVERITY - Notifying security team&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$incident</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nb">Send-CriticalIncidentNotification</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span><span class="nv">$IncidentId</span><span class="p">,</span> <span class="nv">$Details</span><span class="p">)</span>
+
+    <span class="c"># In production, integrate with email/Teams/PagerDuty</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;🚨 CRITICAL INCIDENT ALERT 🚨&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Incident ID: $IncidentId&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Category: </span><span class="p">$(</span><span class="nv">$Details</span><span class="p">.</span><span class="n">Category</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Agent: </span><span class="p">$(</span><span class="nv">$Details</span><span class="p">.</span><span class="n">AgentName</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Description: </span><span class="p">$(</span><span class="nv">$Details</span><span class="p">.</span><span class="n">Description</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Escalation chain notified: CISO, CCO, CEO&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 3: Update Incident Status</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Update-IncidentStatus</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$IncidentId</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="p">[</span><span class="k">ValidateSet</span><span class="p">(</span><span class="s2">&quot;Investigating&quot;</span><span class="p">,</span> <span class="s2">&quot;Pending RCA&quot;</span><span class="p">,</span> <span class="s2">&quot;Remediation&quot;</span><span class="p">,</span> <span class="s2">&quot;Closed&quot;</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$NewStatus</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$RootCause</span> <span class="p">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$CorrectiveActions</span> <span class="p">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Updating incident $IncidentId to status: $NewStatus&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="nv">$updates</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Status</span> <span class="p">=</span> <span class="nv">$NewStatus</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$NewStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Closed&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="nv">$RootCause</span><span class="p">)</span> <span class="o">-or</span> <span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="nv">$CorrectiveActions</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nb">Write-Error</span> <span class="s2">&quot;Root Cause and Corrective Actions required to close incident&quot;</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+        <span class="nv">$updates</span><span class="p">.</span><span class="n">RootCause</span> <span class="p">=</span> <span class="nv">$RootCause</span>
+        <span class="nv">$updates</span><span class="p">.</span><span class="n">CorrectiveActions</span> <span class="p">=</span> <span class="nv">$CorrectiveActions</span>
+        <span class="nv">$updates</span><span class="p">.</span><span class="n">ResolutionDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+    <span class="p">}</span>
+
+    <span class="c"># Find and update the item</span>
+    <span class="nv">$items</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;AI Agent Incidents&quot;</span> <span class="n">-Query</span> <span class="s2">&quot;&lt;View&gt;&lt;Query&gt;&lt;Where&gt;&lt;Eq&gt;&lt;FieldRef Name=&#39;IncidentID&#39;/&gt;&lt;Value Type=&#39;Text&#39;&gt;$IncidentId&lt;/Value&gt;&lt;/Eq&gt;&lt;/Where&gt;&lt;/Query&gt;&lt;/View&gt;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$items</span><span class="p">.</span><span class="n">Count</span> <span class="o">-eq</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Set-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;AI Agent Incidents&quot;</span> <span class="n">-Identity</span> <span class="nv">$items</span><span class="p">[</span><span class="n">0</span><span class="p">].</span><span class="n">Id</span> <span class="n">-Values</span> <span class="nv">$updates</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;Incident updated successfully&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+        <span class="c"># Calculate TTR if closing</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$NewStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Closed&quot;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$reportedDate</span> <span class="p">=</span> <span class="nv">$items</span><span class="p">[</span><span class="n">0</span><span class="p">][</span><span class="s2">&quot;ReportedDate&quot;</span><span class="p">]</span>
+            <span class="nv">$ttr</span> <span class="p">=</span> <span class="p">((</span><span class="nb">Get-Date</span><span class="p">)</span> <span class="p">-</span> <span class="no">[DateTime]</span><span class="nv">$reportedDate</span><span class="p">).</span><span class="n">TotalHours</span>
+            <span class="nb">Write-Host</span> <span class="s2">&quot;Time to Resolution: </span><span class="p">$(</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$ttr</span><span class="p">,</span> <span class="n">1</span><span class="p">))</span><span class="s2"> hours&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="nb">Write-Error</span> <span class="s2">&quot;Incident not found: $IncidentId&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 4: Generate Incident Metrics</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Get-IncidentMetrics</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[int]</span><span class="nv">$DaysBack</span> <span class="p">=</span> <span class="n">30</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Generating incident metrics for last $DaysBack days...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="nv">$DaysBack</span><span class="p">).</span><span class="n">ToString</span><span class="p">(</span><span class="s2">&quot;yyyy-MM-dd&quot;</span><span class="p">)</span>
+
+    <span class="nv">$allIncidents</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;AI Agent Incidents&quot;</span> <span class="n">-PageSize</span> <span class="n">500</span>
+
+    <span class="nv">$recentIncidents</span> <span class="p">=</span> <span class="nv">$allIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+        <span class="no">[DateTime]</span><span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ReportedDate&quot;</span><span class="p">]</span> <span class="o">-ge</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="nv">$DaysBack</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nv">$metrics</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">TotalIncidents</span> <span class="p">=</span> <span class="nv">$recentIncidents</span><span class="p">.</span><span class="n">Count</span>
+        <span class="n">BySeverity</span> <span class="p">=</span> <span class="p">@{</span>
+            <span class="n">Critical</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Severity&quot;</span><span class="p">]</span> <span class="o">-eq</span> <span class="s2">&quot;Critical&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+            <span class="n">High</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Severity&quot;</span><span class="p">]</span> <span class="o">-eq</span> <span class="s2">&quot;High&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+            <span class="n">Medium</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Severity&quot;</span><span class="p">]</span> <span class="o">-eq</span> <span class="s2">&quot;Medium&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+            <span class="n">Low</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Severity&quot;</span><span class="p">]</span> <span class="o">-eq</span> <span class="s2">&quot;Low&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+        <span class="p">}</span>
+        <span class="n">ByCategory</span> <span class="p">=</span> <span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Group-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Category&quot;</span><span class="p">]</span> <span class="p">}</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Count</span>
+        <span class="n">ByStatus</span> <span class="p">=</span> <span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Group-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Status&quot;</span><span class="p">]</span> <span class="p">}</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Count</span>
+        <span class="n">OpenIncidents</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Status&quot;</span><span class="p">]</span> <span class="o">-ne</span> <span class="s2">&quot;Closed&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+        <span class="n">AverageTimeToResolution</span> <span class="p">=</span> <span class="n">0</span>
+        <span class="n">RegulatoryImpactCount</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;RegulatoryImpact&quot;</span><span class="p">]</span> <span class="o">-eq</span> <span class="nv">$true</span> <span class="p">}).</span><span class="n">Count</span>
+    <span class="p">}</span>
+
+    <span class="c"># Calculate average TTR for closed incidents</span>
+    <span class="nv">$closedIncidents</span> <span class="p">=</span> <span class="nv">$recentIncidents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Status&quot;</span><span class="p">]</span> <span class="o">-eq</span> <span class="s2">&quot;Closed&quot;</span> <span class="o">-and</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ResolutionDate&quot;</span><span class="p">]</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$closedIncidents</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$totalHours</span> <span class="p">=</span> <span class="nv">$closedIncidents</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+            <span class="p">(</span><span class="no">[DateTime]</span><span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ResolutionDate&quot;</span><span class="p">]</span> <span class="p">-</span> <span class="no">[DateTime]</span><span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ReportedDate&quot;</span><span class="p">]).</span><span class="n">TotalHours</span>
+        <span class="p">}</span> <span class="p">|</span> <span class="nb">Measure-Object</span> <span class="n">-Average</span>
+        <span class="nv">$metrics</span><span class="p">.</span><span class="n">AverageTimeToResolution</span> <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$totalHours</span><span class="p">.</span><span class="n">Average</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Incident Metrics Summary:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;=========================&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Total Incidents: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">TotalIncidents</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Open Incidents: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">OpenIncidents</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Critical: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">BySeverity</span><span class="p">.</span><span class="n">Critical</span><span class="p">)</span><span class="s2"> | High: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">BySeverity</span><span class="p">.</span><span class="n">High</span><span class="p">)</span><span class="s2"> | Medium: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">BySeverity</span><span class="p">.</span><span class="n">Medium</span><span class="p">)</span><span class="s2"> | Low: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">BySeverity</span><span class="p">.</span><span class="n">Low</span><span class="p">)</span><span class="s2">&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Average TTR: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">AverageTimeToResolution</span><span class="p">)</span><span class="s2"> hours&quot;</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Regulatory Impact: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">RegulatoryImpactCount</span><span class="p">)</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="nv">$metrics</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 5: Generate RCA Report</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">New-RootCauseAnalysisReport</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$IncidentId</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string]</span><span class="nv">$PrimaryCause</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[string[]]</span><span class="nv">$ContributingFactors</span><span class="p">,</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+        <span class="no">[hashtable[]]</span><span class="nv">$CorrectiveActions</span><span class="p">,</span>
+        <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\RCA-$IncidentId.html&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Generating RCA Report for $IncidentId...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="c"># Get incident details</span>
+    <span class="nv">$incident</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;AI Agent Incidents&quot;</span> <span class="n">-Query</span> <span class="s2">&quot;&lt;View&gt;&lt;Query&gt;&lt;Where&gt;&lt;Eq&gt;&lt;FieldRef Name=&#39;IncidentID&#39;/&gt;&lt;Value Type=&#39;Text&#39;&gt;$IncidentId&lt;/Value&gt;&lt;/Eq&gt;&lt;/Where&gt;&lt;/Query&gt;&lt;/View&gt;&quot;</span>
+
+    <span class="nv">$html</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">&lt;!DOCTYPE html&gt;</span>
+<span class="sh">&lt;html&gt;</span>
+<span class="sh">&lt;head&gt;</span>
+<span class="sh">    &lt;title&gt;Root Cause Analysis - $IncidentId&lt;/title&gt;</span>
+<span class="sh">    &lt;style&gt;</span>
+<span class="sh">        body { font-family: &#39;Segoe UI&#39;, Arial, sans-serif; margin: 40px; }</span>
+<span class="sh">        h1 { color: #C41E3A; border-bottom: 3px solid #C41E3A; padding-bottom: 10px; }</span>
+<span class="sh">        h2 { color: #333; margin-top: 30px; }</span>
+<span class="sh">        table { width: 100%; border-collapse: collapse; margin: 20px 0; }</span>
+<span class="sh">        th { background: #0078D4; color: white; padding: 12px; text-align: left; }</span>
+<span class="sh">        td { border: 1px solid #ddd; padding: 10px; }</span>
+<span class="sh">        .section { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }</span>
+<span class="sh">        .cause-box { background: #FFF3CD; border-left: 4px solid #FFC107; padding: 15px; margin: 10px 0; }</span>
+<span class="sh">        .action-item { background: #D4EDDA; border-left: 4px solid #28A745; padding: 15px; margin: 10px 0; }</span>
+<span class="sh">        .signature-line { border-bottom: 1px solid #000; width: 300px; display: inline-block; margin: 10px 0; }</span>
+<span class="sh">    &lt;/style&gt;</span>
+<span class="sh">&lt;/head&gt;</span>
+<span class="sh">&lt;body&gt;</span>
+<span class="sh">    &lt;h1&gt;🔍 Root Cause Analysis Report&lt;/h1&gt;</span>
+
+<span class="sh">    &lt;div class=&quot;section&quot;&gt;</span>
+<span class="sh">        &lt;h2&gt;Incident Summary&lt;/h2&gt;</span>
+<span class="sh">        &lt;table&gt;</span>
+<span class="sh">            &lt;tr&gt;&lt;td&gt;&lt;strong&gt;Incident ID&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;$IncidentId&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sh">            &lt;tr&gt;&lt;td&gt;&lt;strong&gt;Title&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;$($incident[0][&quot;Title&quot;])&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sh">            &lt;tr&gt;&lt;td&gt;&lt;strong&gt;Category&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;$($incident[0][&quot;Category&quot;])&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sh">            &lt;tr&gt;&lt;td&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;$($incident[0][&quot;Severity&quot;])&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sh">            &lt;tr&gt;&lt;td&gt;&lt;strong&gt;Agent&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;$($incident[0][&quot;AgentName&quot;])&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sh">            &lt;tr&gt;&lt;td&gt;&lt;strong&gt;Reported&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;$($incident[0][&quot;ReportedDate&quot;])&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="sh">        &lt;/table&gt;</span>
+<span class="sh">    &lt;/div&gt;</span>
+
+<span class="sh">    &lt;h2&gt;Root Cause Analysis&lt;/h2&gt;</span>
+<span class="sh">    &lt;div class=&quot;cause-box&quot;&gt;</span>
+<span class="sh">        &lt;h3&gt;Primary Cause&lt;/h3&gt;</span>
+<span class="sh">        &lt;p&gt;$PrimaryCause&lt;/p&gt;</span>
+<span class="sh">    &lt;/div&gt;</span>
+
+<span class="sh">    &lt;div class=&quot;cause-box&quot;&gt;</span>
+<span class="sh">        &lt;h3&gt;Contributing Factors&lt;/h3&gt;</span>
+<span class="sh">        &lt;ul&gt;</span>
+<span class="sh">            </span><span class="p">$(</span><span class="nv">$ContributingFactors</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span> <span class="s2">&quot;&lt;li&gt;$_&lt;/li&gt;&quot;</span> <span class="p">})</span>
+<span class="sh">        &lt;/ul&gt;</span>
+<span class="sh">    &lt;/div&gt;</span>
+
+<span class="sh">    &lt;h2&gt;Corrective Actions&lt;/h2&gt;</span>
+<span class="sh">    &lt;table&gt;</span>
+<span class="sh">        &lt;tr&gt;&lt;th&gt;Action&lt;/th&gt;&lt;th&gt;Owner&lt;/th&gt;&lt;th&gt;Due Date&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;</span>
+<span class="sh">        </span><span class="p">$(</span><span class="nv">$CorrectiveActions</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span> <span class="s2">&quot;&lt;tr&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Owner</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">DueDate</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Status</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&quot;</span> <span class="p">})</span>
+<span class="sh">    &lt;/table&gt;</span>
+
+<span class="sh">    &lt;h2&gt;Approvals&lt;/h2&gt;</span>
+<span class="sh">    &lt;p&gt;&lt;strong&gt;Analyst:&lt;/strong&gt; &lt;span class=&quot;signature-line&quot;&gt;&lt;/span&gt; Date: __________&lt;/p&gt;</span>
+<span class="sh">    &lt;p&gt;&lt;strong&gt;Manager:&lt;/strong&gt; &lt;span class=&quot;signature-line&quot;&gt;&lt;/span&gt; Date: __________&lt;/p&gt;</span>
+<span class="sh">    &lt;p&gt;&lt;strong&gt;Compliance:&lt;/strong&gt; &lt;span class=&quot;signature-line&quot;&gt;&lt;/span&gt; Date: __________&lt;/p&gt;</span>
+
+<span class="sh">    &lt;p&gt;&lt;em&gt;Generated: </span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s2">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">)</span><span class="sh">&lt;/em&gt;&lt;/p&gt;</span>
+<span class="sh">&lt;/body&gt;</span>
+<span class="sh">&lt;/html&gt;</span>
+<span class="sh">&quot;@</span>
+
+    <span class="nv">$html</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-FilePath</span> <span class="nv">$OutputPath</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;RCA Report generated: $OutputPath&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+    <span class="k">return</span> <span class="nv">$OutputPath</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 6: SLA Compliance Check</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">function</span> <span class="nb">Test-IncidentSlaCompliance</span> <span class="p">{</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Checking SLA compliance for open incidents...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+    <span class="nv">$slaThresholds</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="s2">&quot;Critical&quot;</span> <span class="p">=</span> <span class="n">0</span><span class="p">.</span><span class="n">25</span>  <span class="c"># 15 minutes in hours</span>
+        <span class="s2">&quot;High&quot;</span> <span class="p">=</span> <span class="n">1</span>         <span class="c"># 1 hour</span>
+        <span class="s2">&quot;Medium&quot;</span> <span class="p">=</span> <span class="n">4</span>       <span class="c"># 4 hours</span>
+        <span class="s2">&quot;Low&quot;</span> <span class="p">=</span> <span class="n">24</span>         <span class="c"># 24 hours</span>
+    <span class="p">}</span>
+
+    <span class="nv">$openIncidents</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;AI Agent Incidents&quot;</span> <span class="n">-Query</span> <span class="s2">&quot;&lt;View&gt;&lt;Query&gt;&lt;Where&gt;&lt;Neq&gt;&lt;FieldRef Name=&#39;Status&#39;/&gt;&lt;Value Type=&#39;Text&#39;&gt;Closed&lt;/Value&gt;&lt;/Neq&gt;&lt;/Where&gt;&lt;/Query&gt;&lt;/View&gt;&quot;</span>
+
+    <span class="nv">$slaBreaches</span> <span class="p">=</span> <span class="p">@()</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$incident</span> <span class="k">in</span> <span class="nv">$openIncidents</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$severity</span> <span class="p">=</span> <span class="nv">$incident</span><span class="p">[</span><span class="s2">&quot;Severity&quot;</span><span class="p">]</span>
+        <span class="nv">$reportedDate</span> <span class="p">=</span> <span class="no">[DateTime]</span><span class="nv">$incident</span><span class="p">[</span><span class="s2">&quot;ReportedDate&quot;</span><span class="p">]</span>
+        <span class="nv">$hoursOpen</span> <span class="p">=</span> <span class="p">((</span><span class="nb">Get-Date</span><span class="p">)</span> <span class="p">-</span> <span class="nv">$reportedDate</span><span class="p">).</span><span class="n">TotalHours</span>
+        <span class="nv">$threshold</span> <span class="p">=</span> <span class="nv">$slaThresholds</span><span class="p">[</span><span class="nv">$severity</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$hoursOpen</span> <span class="o">-gt</span> <span class="nv">$threshold</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$slaBreaches</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">IncidentId</span> <span class="p">=</span> <span class="nv">$incident</span><span class="p">[</span><span class="s2">&quot;IncidentID&quot;</span><span class="p">]</span>
+                <span class="n">Severity</span> <span class="p">=</span> <span class="nv">$severity</span>
+                <span class="n">HoursOpen</span> <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$hoursOpen</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+                <span class="n">SlaThreshold</span> <span class="p">=</span> <span class="nv">$threshold</span>
+                <span class="n">BreachAmount</span> <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$hoursOpen</span> <span class="p">-</span> <span class="nv">$threshold</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$slaBreaches</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">⚠️ SLA BREACHES DETECTED:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+        <span class="nv">$slaBreaches</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">-AutoSize</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="nb">Write-Host</span> <span class="s2">&quot;✅ All incidents within SLA&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$slaBreaches</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># EXAMPLE USAGE</span>
+<span class="c"># ============================================================</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;=== Control 3.4: Incident Reporting and Root Cause Analysis ===&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Magenta</span>
+
+<span class="c"># Create incident tracking list</span>
+<span class="c"># New-IncidentTrackingList</span>
+
+<span class="c"># Report new incident</span>
+<span class="c"># New-AgentIncident -Title &quot;Customer data exposed in agent response&quot; -Category &quot;Privacy&quot; -Severity &quot;Critical&quot; -AgentName &quot;Account Inquiry Bot&quot; -Description &quot;Agent displayed another customer&#39;s account details&quot; -RegulatoryImpact $true</span>
+
+<span class="c"># Update incident status</span>
+<span class="c"># Update-IncidentStatus -IncidentId &quot;INC-2025-0115-123&quot; -NewStatus &quot;Closed&quot; -RootCause &quot;Session management bug allowed cross-user data leakage&quot; -CorrectiveActions &quot;Patched session handler; added data isolation checks&quot;</span>
+
+<span class="c"># Generate metrics</span>
+<span class="c"># Get-IncidentMetrics -DaysBack 30</span>
+
+<span class="c"># Check SLA compliance</span>
+<span class="c"># Test-IncidentSlaCompliance</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Configuration script ready. Uncomment and run desired functions.&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-requirements">Regulatory Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>Threshold</th>
+<th>Notification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Report security incidents affecting NPI</td>
+<td>Customer data exposed</td>
+<td>72 hours to affected customers</td>
+</tr>
+<tr>
+<td><strong>SEC 17a-4</strong></td>
+<td>Preserve incident records</td>
+<td>All incidents</td>
+<td>6 years minimum</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Document operational events</td>
+<td>Material incidents</td>
+<td>Include in books and records</td>
+</tr>
+<tr>
+<td><strong>SOX 404</strong></td>
+<td>Report control failures</td>
+<td>Material weakness</td>
+<td>Immediate to audit committee</td>
+</tr>
+<tr>
+<td><strong>FFIEC</strong></td>
+<td>Report cybersecurity incidents</td>
+<td>System compromise</td>
+<td>Report to primary regulator</td>
+</tr>
+<tr>
+<td><strong>State Breach Laws</strong></td>
+<td>Notify affected individuals</td>
+<td>PII exposure</td>
+<td>Varies by state (24-72 hours)</td>
+</tr>
+<tr>
+<td><strong>SEC Regulation S-P (2024)</strong></td>
+<td>Customer breach notification</td>
+<td>Unauthorized access to customer information</td>
+<td>30 days to affected customers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notification-sla-framework">Notification SLA Framework</h3>
+<div class="admonition warning">
+<p class="admonition-title">SEC Regulation S-P Amendments (2024) - Customer Notification</p>
+<p>The SEC's 2024 amendments to Regulation S-P establish a <strong>mandatory 30-day customer notification requirement</strong> for incidents involving unauthorized access to customer information. Covered institutions (broker-dealers, investment advisers, investment companies, transfer agents) must notify affected customers within 30 days of discovering an incident. Compliance deadline varies by institution type (2025-2026).</p>
+</div>
+<p><strong>Three-Tier Notification SLA Model:</strong></p>
+<p>Organizations must distinguish between three types of notification requirements with different timelines:</p>
+<table>
+<thead>
+<tr>
+<th>Notification Type</th>
+<th>Target</th>
+<th>SLA</th>
+<th>Regulatory Basis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Internal Response</strong></td>
+<td>Security/Incident team</td>
+<td>15 min - 24 hours (by severity)</td>
+<td>Internal policy</td>
+</tr>
+<tr>
+<td><strong>Regulatory Notification</strong></td>
+<td>Regulators/Supervisors</td>
+<td>24-72 hours</td>
+<td>GLBA, FFIEC, OCC, Fed</td>
+</tr>
+<tr>
+<td><strong>Customer Notification</strong></td>
+<td>Affected customers</td>
+<td><strong>30 days</strong></td>
+<td><strong>SEC Regulation S-P</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Internal Response SLAs (Existing):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Response SLA</th>
+<th>Escalation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical (P1)</td>
+<td>15 minutes</td>
+<td>Immediate - CISO/CCO</td>
+</tr>
+<tr>
+<td>High (P2)</td>
+<td>1 hour</td>
+<td>4 hours - Director</td>
+</tr>
+<tr>
+<td>Medium (P3)</td>
+<td>4 hours</td>
+<td>24 hours - Manager</td>
+</tr>
+<tr>
+<td>Low (P4)</td>
+<td>24 hours</td>
+<td>48 hours - Team Lead</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regulatory Notification SLAs:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Regulator</th>
+<th>Notification Window</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OCC (National Banks)</td>
+<td>36 hours</td>
+<td>Incident affecting customer data or operations</td>
+</tr>
+<tr>
+<td>Federal Reserve</td>
+<td>36 hours</td>
+<td>Security incident at supervised institution</td>
+</tr>
+<tr>
+<td>FDIC</td>
+<td>36 hours</td>
+<td>Computer-security incident</td>
+</tr>
+<tr>
+<td>State Banking Regulators</td>
+<td>24-72 hours (varies)</td>
+<td>State breach notification laws</td>
+</tr>
+<tr>
+<td>FINRA (Broker-Dealers)</td>
+<td>Prompt notification</td>
+<td>Material incident affecting operations</td>
+</tr>
+<tr>
+<td>SEC (Investment Advisers)</td>
+<td>Varies</td>
+<td>Material incident requiring Form ADV update</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Customer Notification SLAs (SEC Regulation S-P):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Timeline</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Discovery determination</td>
+<td>Prompt</td>
+<td>Institution must reasonably determine incident scope</td>
+</tr>
+<tr>
+<td>Customer notification deadline</td>
+<td><strong>30 days from discovery</strong></td>
+<td>Written notice to affected customers</td>
+</tr>
+<tr>
+<td>Notice content</td>
+<td>Required elements</td>
+<td>What happened, data involved, customer steps, contact info</td>
+</tr>
+<tr>
+<td>Service provider incidents</td>
+<td>Extended coordination</td>
+<td>May coordinate with service provider but institution remains responsible</td>
+</tr>
+<tr>
+<td>Senior management notification</td>
+<td>Immediate</td>
+<td>Internal escalation upon discovery</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-regulation-s-p-incident-classification">SEC Regulation S-P Incident Classification</h3>
+<p>For incidents potentially triggering Regulation S-P notification requirements:</p>
+<table>
+<thead>
+<tr>
+<th>Classification</th>
+<th>Description</th>
+<th>Notification Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Confirmed Breach</strong></td>
+<td>Unauthorized access to customer information confirmed</td>
+<td>Yes - within 30 days</td>
+</tr>
+<tr>
+<td><strong>Probable Breach</strong></td>
+<td>Evidence strongly suggests unauthorized access occurred</td>
+<td>Yes - within 30 days of confirmation</td>
+</tr>
+<tr>
+<td><strong>Potential Breach</strong></td>
+<td>Incident under investigation, access uncertain</td>
+<td>Prepare notification; issue upon confirmation</td>
+</tr>
+<tr>
+<td><strong>Near Miss</strong></td>
+<td>Attempted access prevented; no customer data exposed</td>
+<td>No customer notification; document internally</td>
+</tr>
+<tr>
+<td><strong>Non-Customer Data</strong></td>
+<td>Incident involved non-customer data only</td>
+<td>No S-P notification; other requirements may apply</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regulation S-P Incident Response Integration:</strong></p>
+<div class="highlight"><pre><span></span><code>INCIDENT INVOLVING CUSTOMER INFORMATION
+========================================
+T+0:00    - Incident detected
+T+0:15    - Initial severity assessment (P1/P2/P3/P4)
+T+1:00    - Determine if customer information potentially affected
+T+4:00    - Preliminary scope assessment
+T+24:00   - Regulatory notification (if required by threshold)
+T+48:00   - Customer impact assessment complete
+T+72:00   - Senior management briefing on S-P applicability
+...
+T+30 days - DEADLINE: Customer notification (if S-P applies)
+
+Customer Notification Content Requirements:
+├── Description of the incident (what happened)
+├── Types of customer information involved
+├── Steps customers should take to protect themselves
+├── Contact information for questions
+└── Information about credit monitoring (if applicable)
+</code></pre></div>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Incident Response</th>
+<th>RCA Requirement</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zone 1 (Personal Productivity)</strong></td>
+<td>Standard (24h)</td>
+<td>Optional for low severity</td>
+<td>3 years</td>
+</tr>
+<tr>
+<td><strong>Zone 2 (Team Collaboration)</strong></td>
+<td>Accelerated (4h)</td>
+<td>Required for all</td>
+<td>5 years</td>
+</tr>
+<tr>
+<td><strong>Zone 3 (Enterprise Managed)</strong></td>
+<td>Immediate (15min)</td>
+<td>Full RCA required</td>
+<td>7 years</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-example-critical-privacy-incident-response">FSI Example: Critical Privacy Incident Response</h3>
+<div class="highlight"><pre><span></span><code>INCIDENT: Customer data exposed in agent response
+SEVERITY: Critical (P1)
+GOVERNANCE TIER: Tier 3 (Enterprise Managed)
+
+TIMELINE:
+├── T+0:00 - Incident detected by customer complaint
+├── T+0:05 - Escalation to CISO/CCO initiated
+├── T+0:15 - Agent suspended from production
+├── T+0:30 - Initial scope assessment complete
+├── T+1:00 - Affected customers identified (15)
+├── T+4:00 - Root cause identified
+├── T+24:00 - Fix deployed to production
+├── T+48:00 - Customer notifications sent
+├── T+72:00 - Regulatory notification filed (if required)
+
+REGULATORY NOTIFICATIONS:
+├── State AG: [Required per state breach law]
+├── FINRA: [If customer assets affected]
+├── OCC: [If bank charter]
+└── SEC: [If investment adviser]
+</code></pre></div>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Incident Reporting Flow</strong></li>
+<li>Submit test incident through intake form</li>
+<li>Verify notifications trigger correctly</li>
+<li>
+<p>Confirm assignment to investigator</p>
+</li>
+<li>
+<p><strong>SLA Monitoring</strong></p>
+</li>
+<li>Create test incidents at each severity level</li>
+<li>Verify SLA timers activate</li>
+<li>
+<p>Confirm escalation triggers at breach</p>
+</li>
+<li>
+<p><strong>RCA Process</strong></p>
+</li>
+<li>Complete sample RCA document</li>
+<li>Verify approval workflow</li>
+<li>
+<p>Confirm archive to permanent storage</p>
+</li>
+<li>
+<p><strong>Metrics Dashboard</strong></p>
+</li>
+<li>Review incident metrics</li>
+<li>Verify calculations are accurate</li>
+<li>Test drill-down to individual incidents</li>
+</ol>
+<h3 id="compliance-checklist">Compliance Checklist</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Required For</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Incident tracking system operational</td>
+<td>All regulations</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>SLA monitoring configured</td>
+<td>FFIEC, SOX 404</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>RCA template approved</td>
+<td>Internal governance</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Escalation matrix documented</td>
+<td>All regulations</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Regulatory notification thresholds defined</td>
+<td>GLBA, State laws</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Incident records retained 6+ years</td>
+<td>SEC 17a-4</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Weekly incident review meetings</td>
+<td>Best practice</td>
+<td>☐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-incidents-not-auto-assigning">Issue: Incidents Not Auto-Assigning</h3>
+<p><strong>Symptoms:</strong> New incidents remain unassigned</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Check Power Automate flow is enabled</li>
+<li>Verify on-call assignment logic</li>
+<li>Confirm user accounts exist in lookup</li>
+<li>Check flow run history for errors</li>
+</ol>
+<h3 id="issue-sla-alerts-not-triggering">Issue: SLA Alerts Not Triggering</h3>
+<p><strong>Symptoms:</strong> Overdue incidents not generating alerts</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify scheduled flow is running</li>
+<li>Check SLA threshold configuration</li>
+<li>Confirm email delivery settings</li>
+<li>Test with shorter SLA for validation</li>
+</ol>
+<h3 id="issue-rca-template-not-saving">Issue: RCA Template Not Saving</h3>
+<p><strong>Symptoms:</strong> Root cause analysis forms fail to save</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Check required field validation</li>
+<li>Verify user has Contribute permissions</li>
+<li>Ensure document library isn't locked</li>
+<li>Check for character limit issues</li>
+</ol>
+<h3 id="issue-regulatory-notification-workflow-not-triggering">Issue: Regulatory Notification Workflow Not Triggering</h3>
+<p><strong>Symptoms:</strong> Incidents with regulatory impact not flagged</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify RegulatoryImpact field is set correctly</li>
+<li>Check notification workflow conditions</li>
+<li>Confirm compliance team distribution list</li>
+<li>Test workflow with manual trigger</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/azure/sentinel/investigate-cases">Microsoft Sentinel Incidents</a></li>
+<li><a href="https://learn.microsoft.com/power-automate/get-started-approvals">Power Automate Approval Workflows</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/control-lists">SharePoint List Management</a></li>
+<li><a href="https://learn.microsoft.com/purview/audit-log-search">Microsoft 365 Audit Log Search</a></li>
+<li><a href="https://learn.microsoft.com/security/operations/incident-response-planning">Incident Response Planning</a></li>
+</ul>
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/">1.7 Audit Logging</a></td>
+<td>Provides evidence for investigations</td>
+</tr>
+<tr>
+<td><a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/">1.8 Runtime Protection</a></td>
+<td>Detects security incidents</td>
+</tr>
+<tr>
+<td><a href="../3.2-usage-analytics-and-activity-monitoring/">3.2 Usage Analytics</a></td>
+<td>Identifies anomalies leading to incidents</td>
+</tr>
+<tr>
+<td><a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/">2.4 Business Continuity</a></td>
+<td>Recovery procedures for major incidents</td>
+</tr>
+<tr>
+<td><a href="../3.3-compliance-and-regulatory-reporting/">3.3 Compliance Reporting</a></td>
+<td>Includes incident summary in reports</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>AI Governance Lead</strong> (governance direction)</li>
+<li><strong>Compliance Officer</strong> (regulatory requirements)</li>
+<li><strong>Technical Implementation Team</strong> (platform setup)</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026
+<strong>Version:</strong> v1.1 (Jan 2026) - Added SEC Regulation S-P 30-day notification requirements
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

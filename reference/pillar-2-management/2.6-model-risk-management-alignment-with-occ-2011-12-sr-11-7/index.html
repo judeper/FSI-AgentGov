@@ -1,0 +1,7071 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/">
+      
+      
+        <link rel="prev" href="../2.5-testing-validation-and-quality-assurance/">
+      
+      
+        <link rel="next" href="../2.7-vendor-and-third-party-risk-management/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>2.6 Model Risk Management (OCC 2011-12 / SR 11-7) - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-26-model-risk-management-alignment-with-occ-2011-12sr-11-7" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gpt-5-model-availability-and-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPT-5 Model Availability and Governance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GPT-5 Model Availability and Governance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-selection-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Selection Governance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#occ-2011-12-implications-for-model-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCC 2011-12 Implications for Model Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-selection-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Selection Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-model-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Model Governance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-performance-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Performance Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-define-agent-as-model-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Define Agent-as-Model Classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-establish-model-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Establish Model Inventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-document-model-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Document Model Development
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3a-standardized-agent-card-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3a: Standardized Agent Card Template
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3a: Standardized Agent Card Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-card-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Card Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-card-template-markdown-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Card Template (Markdown Format)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-card-json-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Card JSON Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-card-requirements-by-model-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Card Requirements by Model Tier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-card-management-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Card Management Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-establish-validation-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Establish Validation Framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-configure-performance-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Configure Performance Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-establish-change-control-for-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Establish Change Control for Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6a-prompt-engineering-change-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6a: Prompt Engineering Change Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6b-agent-definition-manifest-version-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6b: Agent Definition (Manifest) Version Control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 6b: Agent Definition (Manifest) Version Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-manifest-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Manifest Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manifest-versioning-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest Versioning Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manifest-storage-and-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest Storage and Retrieval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#point-in-time-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Point-in-Time Reconstruction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback Procedures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manifest-version-control-compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest Version Control Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-configure-regulatory-reporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Configure Regulatory Reporting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-integrate-with-enterprise-mrm-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Integrate with Enterprise MRM Program
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8a-third-party-compliance-attestation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8a: Third-Party Compliance Attestation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 8a: Third-Party Compliance Attestation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cohasset-associates-compliance-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cohasset Associates Compliance Assessment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-9-multi-agent-scenario-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 9: Multi-Agent Scenario Governance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-10-explainability-testing-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 10: Explainability Testing Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 10: Explainability Testing Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#explainability-requirements-by-zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explainability Requirements by Zone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-3-explainability-testing-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 3 Explainability Testing Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-context-for-explainability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Context for Explainability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explainability-documentation-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explainability Documentation Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explainability-compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explainability Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-mrm-compliance-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate MRM Compliance Report
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-use-case-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Use Case Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-unclear-model-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 1: Unclear Model Classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-limited-validation-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 2: Limited Validation Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-performance-data-unavailable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 3: Performance Data Unavailable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-26-model-risk-management-alignment-with-occ-2011-12sr-11-7">Control 2.6: Model Risk Management (Alignment with OCC 2011-12/SR 11-7)</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 2.6<br />
+<strong>Control Name:</strong> Model Risk Management (Alignment with OCC 2011-12/SR 11-7)<br />
+<strong>Pillar:</strong> Management<br />
+<strong>Regulatory Reference:</strong> OCC 2011-12, Federal Reserve SR 11-7, FINRA Notice 25-07, SOX 302/404<br />
+<strong>Setup Time:</strong> 4-6 hours  </p>
+<h3 id="purpose">Purpose</h3>
+<p>Model Risk Management (MRM) ensures that AI agents used in financial services are subject to the same rigorous governance as traditional quantitative models. OCC Bulletin 2011-12 and Federal Reserve SR Letter 11-7 establish requirements for model development, validation, and ongoing monitoring. While Copilot Studio agents may not be "models" in the traditional sense, their use in customer-facing or decision-support roles requires similar governance to manage the risk of incorrect outputs, bias, or regulatory non-compliance.</p>
+<p>This control addresses key FSI requirements:</p>
+<ul>
+<li><strong>Model Inventory</strong>: Catalog agents that function as models</li>
+<li><strong>Independent Validation</strong>: Third-party review of agent behavior</li>
+<li><strong>Performance Monitoring</strong>: Track output quality over time</li>
+<li><strong>Bias Detection</strong>: Identify and mitigate unfair outcomes</li>
+<li><strong>Documentation</strong>: Complete model development lifecycle records</li>
+<li><strong>Change Control</strong>: Governance for model modifications</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> AI Governance Lead
+<strong>Supporting Roles:</strong> Compliance Officer, Power Platform Admin</p>
+<h3 id="required-licenses">Required Licenses</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Platform per-user</td>
+<td>Agent development and monitoring</td>
+</tr>
+<tr>
+<td>Microsoft Purview (any tier)</td>
+<td>Audit logging for model governance</td>
+</tr>
+<tr>
+<td>Azure Monitor (optional)</td>
+<td>Advanced performance monitoring</td>
+</tr>
+</tbody>
+</table>
+<h3 id="required-permissions">Required Permissions</h3>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Scope</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Platform Admin</td>
+<td>Tenant</td>
+<td>Agent inventory and oversight</td>
+</tr>
+<tr>
+<td>Compliance Administrator</td>
+<td>Microsoft Purview</td>
+<td>Audit log access</td>
+</tr>
+<tr>
+<td>Model Risk Manager</td>
+<td>Business role</td>
+<td>Model governance</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li><a href="../2.5-testing-validation-and-quality-assurance/">Control 2.5: Testing and Validation</a> - Pre-deployment validation</li>
+<li><a href="../2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/">Control 2.11: Bias Testing</a> - Fairness assessment</li>
+<li><a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/">Control 3.1: Agent Inventory</a> - Model inventory</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Review OCC 2011-12 and SR 11-7 requirements</li>
+<li>[ ] Identify agents that qualify as "models"</li>
+<li>[ ] Establish Model Risk Management committee</li>
+<li>[ ] Define model tiering criteria</li>
+<li>[ ] Identify independent validation resources</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Document model risk assessment for AI agents; establish validation procedures.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Quarterly model monitoring; bias testing; performance vs. baseline tracking.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Comprehensive model risk framework per SR 11-7; annual third-party validation; real-time performance monitoring.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="gpt-5-model-availability-and-governance">GPT-5 Model Availability and Governance</h3>
+<div class="admonition info">
+<p class="admonition-title">GPT-5 Now Default Model</p>
+<p>As of November 2025, <strong>GPT-5</strong> is the default model for new Copilot Studio agents. Organizations should update their Model Risk Management practices to address this new model capability.</p>
+</div>
+<h4 id="model-selection-governance">Model Selection Governance</h4>
+<p>Copilot Studio now offers multiple model options with different capabilities and risk profiles:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Availability</th>
+<th>Capability Level</th>
+<th>FSI Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPT-5</strong></td>
+<td>GA (Nov 2025)</td>
+<td>Production-ready, default</td>
+<td>Approved for all zones</td>
+</tr>
+<tr>
+<td><strong>GPT-5.2</strong></td>
+<td>Preview</td>
+<td>Experimental capabilities</td>
+<td>Zone 1 only; Zone 2/3 disabled</td>
+</tr>
+<tr>
+<td><strong>GPT-4o</strong></td>
+<td>GA</td>
+<td>Previous generation</td>
+<td>Approved for all zones</td>
+</tr>
+<tr>
+<td><strong>Custom models</strong></td>
+<td>Varies</td>
+<td>Organization-specific</td>
+<td>Requires MRM validation</td>
+</tr>
+</tbody>
+</table>
+<h4 id="occ-2011-12-implications-for-model-changes">OCC 2011-12 Implications for Model Changes</h4>
+<p>When an agent's underlying model changes (including automatic updates from Microsoft), this may constitute a material model change under OCC 2011-12:</p>
+<p><strong>Change Classification:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Classification</th>
+<th>Governance Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New agent with GPT-5 default</td>
+<td>Initial deployment</td>
+<td>Standard model validation</td>
+</tr>
+<tr>
+<td>Existing agent upgraded to GPT-5</td>
+<td>Material change</td>
+<td>Revalidation may be required</td>
+</tr>
+<tr>
+<td>Switch to experimental model</td>
+<td>Material change</td>
+<td>Full MRM review</td>
+</tr>
+<tr>
+<td>Microsoft model updates</td>
+<td>Monitor impact</td>
+<td>Performance baseline comparison</td>
+</tr>
+</tbody>
+</table>
+<h4 id="model-selection-configuration">Model Selection Configuration</h4>
+<p><strong>Portal Path:</strong> Copilot Studio → [Agent] → Settings → AI capabilities → Model</p>
+<ol>
+<li>Navigate to <strong>Copilot Studio</strong> → Select agent</li>
+<li>Click <strong>Settings</strong> → <strong>AI capabilities</strong></li>
+<li>Review <strong>Model</strong> selection</li>
+<li>Document model choice in agent inventory</li>
+</ol>
+<h4 id="zone-specific-model-governance">Zone-Specific Model Governance</h4>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Allowed Models</th>
+<th>Experimental Models</th>
+<th>Documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zone 1</strong></td>
+<td>GPT-5, GPT-4o</td>
+<td>Allowed for evaluation</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td><strong>Zone 2</strong></td>
+<td>GPT-5, GPT-4o</td>
+<td>Disabled</td>
+<td>Standard MRM</td>
+</tr>
+<tr>
+<td><strong>Zone 3</strong></td>
+<td>GPT-5, GPT-4o (approved only)</td>
+<td><strong>Disabled</strong></td>
+<td>Full MRM with validation</td>
+</tr>
+</tbody>
+</table>
+<h4 id="model-performance-monitoring">Model Performance Monitoring</h4>
+<p>When upgrading agents to new models, establish performance baselines:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Model Change Monitoring Checklist</span>
+<span class="nt">model_change</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">agent_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[Agent</span><span class="nv"> </span><span class="s">ID]&quot;</span>
+<span class="w">  </span><span class="nt">previous_model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GPT-4o&quot;</span>
+<span class="w">  </span><span class="nt">new_model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GPT-5&quot;</span>
+<span class="w">  </span><span class="nt">change_date</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[Date]&quot;</span>
+
+<span class="w">  </span><span class="nt">baseline_metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">accuracy_before</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[%]&quot;</span>
+<span class="w">    </span><span class="nt">accuracy_after</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[%]&quot;</span>
+<span class="w">    </span><span class="nt">response_time_before</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[ms]&quot;</span>
+<span class="w">    </span><span class="nt">response_time_after</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[ms]&quot;</span>
+<span class="w">    </span><span class="nt">user_satisfaction_before</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[score]&quot;</span>
+<span class="w">    </span><span class="nt">user_satisfaction_after</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[score]&quot;</span>
+
+<span class="w">  </span><span class="nt">validation</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Performance meets or exceeds baseline</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">No regression in accuracy</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Bias testing completed (if Tier 1/2 model)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User acceptance testing passed</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MRM notification submitted (if material)</span>
+</code></pre></div>
+<hr />
+<h3 id="step-1-define-agent-as-model-classification">Step 1: Define Agent-as-Model Classification</h3>
+<p><strong>Determine Which Agents Require MRM Governance:</strong></p>
+<ol>
+<li>
+<p><strong>Model Definition per OCC 2011-12:</strong></p>
+<blockquote>
+<p>A model is a quantitative method, system, or approach that applies statistical, economic, financial, or mathematical theories, techniques, and assumptions to process input data into quantitative estimates.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Agent Classification Criteria:</strong></p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Model Treatment</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Makes decisions affecting customers</td>
+<td>Yes - Tier 1</td>
+<td>Credit recommendation agent</td>
+</tr>
+<tr>
+<td>Provides financial calculations</td>
+<td>Yes - Tier 1/2</td>
+<td>Investment calculator agent</td>
+</tr>
+<tr>
+<td>Influences risk assessments</td>
+<td>Yes - Tier 1</td>
+<td>Risk scoring agent</td>
+</tr>
+<tr>
+<td>Customer-facing recommendations</td>
+<td>Yes - Tier 2</td>
+<td>Product recommendation agent</td>
+</tr>
+<tr>
+<td>Information retrieval only</td>
+<td>No</td>
+<td>FAQ/knowledge base agent</td>
+</tr>
+<tr>
+<td>Internal productivity</td>
+<td>No</td>
+<td>IT help desk agent</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Document Classification:</strong>
+   <div class="highlight"><pre><span></span><code>Agent Model Classification Form
+
+Agent Name: [Name]
+Agent ID: [ID]
+Business Owner: [Owner]
+
+Classification Decision:
+[ ] Model (requires MRM governance)
+[ ] Non-Model (standard agent governance)
+
+Justification:
+[Explain why agent does/doesn&#39;t qualify as model]
+
+Model Tier (if applicable):
+[ ] Tier 1 - High Risk (material business impact)
+[ ] Tier 2 - Medium Risk (significant but limited impact)
+[ ] Tier 3 - Low Risk (minimal business impact)
+
+Approved by: _________________ Date: _________
+Model Risk Manager
+</code></pre></div></li>
+</ol>
+<h3 id="step-2-establish-model-inventory">Step 2: Establish Model Inventory</h3>
+<p><strong>Create Model Inventory Registry:</strong></p>
+<ol>
+<li><strong>Required Inventory Fields:</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model ID</td>
+<td>Unique identifier</td>
+</tr>
+<tr>
+<td>Model Name</td>
+<td>Agent/model name</td>
+</tr>
+<tr>
+<td>Model Tier</td>
+<td>1, 2, or 3</td>
+</tr>
+<tr>
+<td>Business Purpose</td>
+<td>What the model does</td>
+</tr>
+<tr>
+<td>Model Owner</td>
+<td>Business owner</td>
+</tr>
+<tr>
+<td>Model Developer</td>
+<td>Technical owner</td>
+</tr>
+<tr>
+<td>Primary Users</td>
+<td>Who uses the model</td>
+</tr>
+<tr>
+<td>Data Inputs</td>
+<td>Data sources used</td>
+</tr>
+<tr>
+<td>Model Outputs</td>
+<td>Decisions/recommendations</td>
+</tr>
+<tr>
+<td>Implementation Date</td>
+<td>Go-live date</td>
+</tr>
+<tr>
+<td>Last Validation</td>
+<td>Date of last review</td>
+</tr>
+<tr>
+<td>Next Validation Due</td>
+<td>Scheduled review date</td>
+</tr>
+<tr>
+<td>Performance Status</td>
+<td>Green/Yellow/Red</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Create SharePoint List or Dataverse Table:</strong></li>
+<li>Power Platform Admin Center → Create new Dataverse table</li>
+<li>Or SharePoint → Create list with above columns</li>
+<li>Enable version history for audit trail</li>
+</ol>
+<h3 id="step-3-document-model-development">Step 3: Document Model Development</h3>
+<p><strong>Model Development Documentation Template:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Model Development Documentation</span>
+<span class="gu">## [Agent/Model Name]</span>
+
+<span class="gu">### 1. Executive Summary</span>
+<span class="k">-</span><span class="w"> </span>Model purpose and business objectives
+<span class="k">-</span><span class="w"> </span>Key stakeholders and users
+<span class="k">-</span><span class="w"> </span>Expected benefits and risks
+
+<span class="gu">### 2. Model Scope and Limitations</span>
+<span class="k">-</span><span class="w"> </span>Intended use cases
+<span class="k">-</span><span class="w"> </span>Populations/scenarios covered
+<span class="k">-</span><span class="w"> </span>Known limitations
+<span class="k">-</span><span class="w"> </span>Conditions where model should not be used
+
+<span class="gu">### 3. Model Design</span>
+<span class="k">-</span><span class="w"> </span>Conceptual design approach
+<span class="k">-</span><span class="w"> </span>Data sources and inputs
+<span class="k">-</span><span class="w"> </span>Processing methodology
+<span class="k">-</span><span class="w"> </span>Output specifications
+<span class="k">-</span><span class="w"> </span>Error handling approach
+
+<span class="gu">### 4. Development Process</span>
+<span class="k">-</span><span class="w"> </span>Development timeline
+<span class="k">-</span><span class="w"> </span>Team members and roles
+<span class="k">-</span><span class="w"> </span>Development environment
+<span class="k">-</span><span class="w"> </span>Testing methodology
+<span class="k">-</span><span class="w"> </span>Peer review documentation
+
+<span class="gu">### 5. Data Description</span>
+<span class="k">-</span><span class="w"> </span>Input data sources
+<span class="k">-</span><span class="w"> </span>Data quality requirements
+<span class="k">-</span><span class="w"> </span>Data preprocessing steps
+<span class="k">-</span><span class="w"> </span>Training data (if applicable)
+<span class="k">-</span><span class="w"> </span>Ongoing data requirements
+
+<span class="gu">### 6. Model Performance</span>
+<span class="k">-</span><span class="w"> </span>Performance metrics defined
+<span class="k">-</span><span class="w"> </span>Baseline performance levels
+<span class="k">-</span><span class="w"> </span>Acceptable performance thresholds
+<span class="k">-</span><span class="w"> </span>Monitoring approach
+
+<span class="gu">### 7. Implementation Details</span>
+<span class="k">-</span><span class="w"> </span>Production environment
+<span class="k">-</span><span class="w"> </span>Integration points
+<span class="k">-</span><span class="w"> </span>Security controls
+<span class="k">-</span><span class="w"> </span>Operational procedures
+
+<span class="gu">### 8. Validation Summary</span>
+<span class="k">-</span><span class="w"> </span>Initial validation results
+<span class="k">-</span><span class="w"> </span>Ongoing validation schedule
+<span class="k">-</span><span class="w"> </span>Validation methodology
+
+<span class="gu">### 9. Appendices</span>
+<span class="k">-</span><span class="w"> </span>Technical specifications
+<span class="k">-</span><span class="w"> </span>Test results
+<span class="k">-</span><span class="w"> </span>Approval documentation
+</code></pre></div>
+<h3 id="step-3a-standardized-agent-card-template">Step 3a: Standardized Agent Card Template</h3>
+<p><strong>Purpose:</strong> Agent Cards provide a standardized, machine-readable format for documenting AI agent capabilities, limitations, training sources, and governance status. This template is derived from ML Model Card best practices (Mitchell et al., 2019) and adapted for Copilot Studio agents and M365 Copilot deployments.</p>
+<h4 id="agent-card-overview">Agent Card Overview</h4>
+<p>An Agent Card serves as the definitive reference document for each AI agent, capturing:
+- What the agent does and doesn't do
+- How it was trained/configured
+- Known limitations and failure modes
+- Performance benchmarks
+- Governance and compliance status</p>
+<h4 id="agent-card-template-markdown-format">Agent Card Template (Markdown Format)</h4>
+<div class="highlight"><pre><span></span><code><span class="gh"># Agent Card: [Agent Name]</span>
+
+<span class="gu">## Basic Information</span>
+
+| Field | Value |
+|-------|-------|
+| <span class="gs">**Agent ID**</span> | [Unique identifier from registry] |
+| <span class="gs">**Agent Name**</span> | [Display name] |
+| <span class="gs">**Version**</span> | [Current version number] |
+| <span class="gs">**Model Tier**</span> | [1 (High) / 2 (Medium) / 3 (Low)] |
+| <span class="gs">**Governance Zone**</span> | [Zone 1 / Zone 2 / Zone 3] |
+| <span class="gs">**Status**</span> | [Active / Suspended / Retired] |
+| <span class="gs">**Last Updated**</span> | [Date] |
+| <span class="gs">**Card Version**</span> | [Agent card revision] |
+
+<span class="gu">## Ownership</span>
+
+| Role | Name | Contact |
+|------|------|---------|
+| <span class="gs">**Business Owner**</span> | [Name] | [Email] |
+| <span class="gs">**Technical Owner**</span> | [Name] | [Email] |
+| <span class="gs">**Designated Supervisor**</span> | [Name] | [Email] |
+| <span class="gs">**Model Risk Manager**</span> | [Name] | [Email] |
+
+<span class="gu">## Agent Description</span>
+
+<span class="gu">### Intended Use</span>
+[Describe the primary purpose and intended use cases for this agent]
+
+<span class="gu">### Target Users</span>
+[Describe who should use this agent]
+
+<span class="gu">### Out-of-Scope Uses</span>
+[List use cases that are explicitly NOT supported or prohibited]
+
+<span class="gu">## Underlying Model</span>
+
+| Field | Value |
+|-------|-------|
+| <span class="gs">**Base Model**</span> | [GPT-5 / GPT-4o / Custom] |
+| <span class="gs">**Model Version**</span> | [Version ID from Copilot Studio] |
+| <span class="gs">**Last Model Update**</span> | [Date of last model change] |
+| <span class="gs">**Model Change Impact**</span> | [None / Minor / Material - requires MRM notification] |
+
+<span class="gu">## Knowledge Sources</span>
+
+<span class="gu">### Grounding Data</span>
+
+| Source Type | Source Name | Data Classification | Last Refresh |
+|-------------|-------------|---------------------|--------------|
+| SharePoint | [Site/Library name] | [Confidential/Internal] | [Date] |
+| Dataverse | [Table name] | [Classification] | [Date] |
+| Custom API | [API name] | [Classification] | [Date] |
+| Web Search | [Enabled/Disabled] | N/A | N/A |
+
+<span class="gu">### Training/Fine-tuning</span>
+[Note: Copilot Studio agents use grounding rather than fine-tuning. Document any topic-specific training data if applicable.]
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Custom Topics:**</span> [Number of custom topics]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Sample Utterances:**</span> [Approximate count]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Knowledge Cutoff:**</span> [If applicable]
+
+<span class="gu">## Capabilities and Limitations</span>
+
+<span class="gu">### Capabilities</span>
+<span class="k">-</span><span class="w"> </span>[Capability 1: Description]
+<span class="k">-</span><span class="w"> </span>[Capability 2: Description]
+<span class="k">-</span><span class="w"> </span>[Capability 3: Description]
+
+<span class="gu">### Known Limitations</span>
+<span class="k">-</span><span class="w"> </span>[Limitation 1: Description and workaround]
+<span class="k">-</span><span class="w"> </span>[Limitation 2: Description and workaround]
+<span class="k">-</span><span class="w"> </span>[Limitation 3: Description and workaround]
+
+<span class="gu">### Failure Modes</span>
+| Failure Mode | Likelihood | Impact | Mitigation |
+|-------------|-----------|--------|------------|
+| [Failure description] | [Low/Med/High] | [Description] | [Mitigation] |
+
+<span class="gu">## Performance Metrics</span>
+
+<span class="gu">### Accuracy Benchmarks</span>
+
+| Metric | Target | Current | Trend |
+|--------|--------|---------|-------|
+| Response Accuracy | &gt;95% | [%] | [↑/↓/→] |
+| Citation Accuracy | &gt;90% | [%] | [↑/↓/→] |
+| Hallucination Rate | &lt;5% | [%] | [↑/↓/→] |
+
+<span class="gu">### Operational Metrics</span>
+
+| Metric | Target | Current | Trend |
+|--------|--------|---------|-------|
+| Resolution Rate | &gt;90% | [%] | [↑/↓/→] |
+| Escalation Rate | &lt;10% | [%] | [↑/↓/→] |
+| Average Response Time | &lt;2s | [s] | [↑/↓/→] |
+| User Satisfaction (CSAT) | &gt;4.0 | [/5.0] | [↑/↓/→] |
+
+<span class="gu">### Bias Testing Results</span>
+
+| Protected Class | Disparity Measure | Result | Pass/Fail |
+|-----------------|-------------------|--------|-----------|
+| [Per Control 2.11] | [Measure] | [Value] | [Status] |
+
+<span class="gu">## Governance Status</span>
+
+<span class="gu">### Validation</span>
+
+| Validation Type | Date | Validator | Result | Next Due |
+|-----------------|------|-----------|--------|----------|
+| Initial Validation | [Date] | [Name/Firm] | [Pass/Conditional] | N/A |
+| Annual Validation | [Date] | [Name/Firm] | [Pass/Conditional] | [Date] |
+| Bias Testing | [Date] | [Name] | [Pass/Fail] | [Date] |
+
+<span class="gu">### Compliance</span>
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| MRM Documentation Complete | [Yes/No] | [Link to docs] |
+| HITL Configured (if required) | [Yes/No/N/A] | [Config reference] |
+| Audit Logging Enabled | [Yes/No] | [Purview policy] |
+| Retention Policy Applied | [Yes/No] | [Policy name] |
+
+<span class="gu">### Change History</span>
+
+| Version | Date | Change Description | Approved By |
+|---------|------|-------------------|-------------|
+| [X.Y.Z] | [Date] | [Change summary] | [Approver] |
+
+<span class="gu">## Disclosures and Warnings</span>
+
+<span class="gu">### Required Disclosures</span>
+[List any disclosures the agent must make to users]
+
+<span class="gu">### User Warnings</span>
+[List warnings that should be communicated to users]
+
+<span class="gu">## Contact and Support</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Support Channel:**</span> [Link/email]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Escalation Path:**</span> [Escalation contacts]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Incident Reporting:**</span> [How to report issues]
+
+---
+
+<span class="gs">**Agent Card Generated:**</span> [Date]
+<span class="gs">**Next Review Due:**</span> [Date]
+<span class="gs">**Card Author:**</span> [Name]
+</code></pre></div>
+<h4 id="agent-card-json-schema">Agent Card JSON Schema</h4>
+<p>For automated agent card management, use this JSON schema:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://json-schema.org/draft/2020-12/schema&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FSI Agent Card&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;agentId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;version&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;modelTier&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;zone&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;agentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;modelTier&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;zone&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;suspended&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;retired&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;ownership&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;businessOwner&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;technicalOwner&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;designatedSupervisor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;modelRiskManager&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;underlyingModel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;baseModel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;lastModelUpdate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;knowledgeSources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;sourceType&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;sourceName&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;classification&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;lastRefresh&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;performanceMetrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;responseAccuracy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;resolutionRate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;escalationRate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;csat&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;validation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;lastValidationDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;nextValidationDue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;validationResult&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;cardVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;cardGeneratedDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;nextReviewDue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="agent-card-requirements-by-model-tier">Agent Card Requirements by Model Tier</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Tier 3 (Low)</th>
+<th>Tier 2 (Medium)</th>
+<th>Tier 1 (High)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Card Required</td>
+<td>Recommended</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>Full Limitations Section</td>
+<td>Optional</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>Bias Testing Results</td>
+<td>Optional</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>Performance Benchmarks</td>
+<td>Basic</td>
+<td>Standard</td>
+<td>Comprehensive</td>
+</tr>
+<tr>
+<td>Change History</td>
+<td>Summary</td>
+<td>Detailed</td>
+<td>Full audit trail</td>
+</tr>
+<tr>
+<td>Review Frequency</td>
+<td>Annual</td>
+<td>Semi-annual</td>
+<td>Quarterly</td>
+</tr>
+<tr>
+<td>External Validation</td>
+<td>No</td>
+<td>Recommended</td>
+<td>Required</td>
+</tr>
+</tbody>
+</table>
+<h4 id="agent-card-management-process">Agent Card Management Process</h4>
+<ol>
+<li><strong>Creation:</strong> Agent Card created during agent development (Control 3.1)</li>
+<li><strong>Review:</strong> Card reviewed at each validation cycle</li>
+<li><strong>Update:</strong> Card updated with any configuration or model change</li>
+<li><strong>Storage:</strong> Cards stored in agent registry with version control</li>
+<li><strong>Access:</strong> Cards accessible to supervisory personnel and auditors</li>
+</ol>
+<h3 id="step-4-establish-validation-framework">Step 4: Establish Validation Framework</h3>
+<p><strong>Independent Validation Requirements:</strong></p>
+<ol>
+<li><strong>Validation Tiers:</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Model Tier</th>
+<th>Validation Requirements</th>
+<th>Frequency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1</td>
+<td>Independent third-party</td>
+<td>Annual</td>
+</tr>
+<tr>
+<td>Tier 2</td>
+<td>Independent internal team</td>
+<td>Annual</td>
+</tr>
+<tr>
+<td>Tier 3</td>
+<td>Self-assessment + review</td>
+<td>Biennial</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Validation Scope:</strong></li>
+</ol>
+<p><strong>Conceptual Soundness:</strong>
+   - [ ] Model design is appropriate for intended use
+   - [ ] Methodology is theoretically sound
+   - [ ] Assumptions are reasonable and documented
+   - [ ] Limitations are clearly stated</p>
+<p><strong>Data Quality:</strong>
+   - [ ] Data sources are appropriate
+   - [ ] Data quality is acceptable
+   - [ ] Data preprocessing is appropriate
+   - [ ] Data is representative of use cases</p>
+<p><strong>Output Analysis:</strong>
+   - [ ] Outputs are accurate and reliable
+   - [ ] Performance meets expectations
+   - [ ] Outputs are consistent over time
+   - [ ] Edge cases handled appropriately</p>
+<p><strong>Implementation Verification:</strong>
+   - [ ] Model implemented as designed
+   - [ ] Controls are effective
+   - [ ] Documentation is complete
+   - [ ] Users are properly trained</p>
+<ol>
+<li><strong>Validation Report Template:</strong>
+   <div class="highlight"><pre><span></span><code><span class="gh"># Model Validation Report</span>
+<span class="gu">## [Model Name] - [Validation Date]</span>
+
+<span class="gu">### Validation Scope</span>
+<span class="k">-</span><span class="w"> </span>Validation type: [Initial / Annual / Ad-hoc]
+<span class="k">-</span><span class="w"> </span>Validator: [Name/Firm]
+<span class="k">-</span><span class="w"> </span>Independence statement: [Confirm no development involvement]
+
+<span class="gu">### Summary of Findings</span>
+| Area | Finding | Severity | Recommendation |
+|------|---------|----------|----------------|
+| [Data Quality] | [Example: 2% of test cases failed validation] | [Medium] | [Implement additional input validation] |
+
+<span class="gu">### Detailed Assessment</span>
+[Section for each validation area]
+
+<span class="gu">### Conclusion</span>
+<span class="k">-</span><span class="w"> </span>Overall validation status: [Approved / Conditional / Not Approved]
+<span class="k">-</span><span class="w"> </span>Conditions (if any): [List conditions]
+<span class="k">-</span><span class="w"> </span>Next validation date: [Date]
+
+<span class="gu">### Sign-off</span>
+Validator: _________________ Date: _________
+Model Risk Manager: _________________ Date: _________
+</code></pre></div></li>
+</ol>
+<h3 id="step-5-configure-performance-monitoring">Step 5: Configure Performance Monitoring</h3>
+<p><strong>Portal Path:</strong> Power Platform Admin Center → Analytics → Copilot Studio</p>
+<ol>
+<li><strong>Define Performance Metrics:</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Response Accuracy</td>
+<td>Correct responses / Total</td>
+<td>&gt;95%</td>
+</tr>
+<tr>
+<td>User Satisfaction</td>
+<td>CSAT score</td>
+<td>&gt;4.0/5.0</td>
+</tr>
+<tr>
+<td>Fallback Rate</td>
+<td>Escalations to human</td>
+<td>&lt;10%</td>
+</tr>
+<tr>
+<td>Response Time</td>
+<td>Average response latency</td>
+<td>&lt;2 seconds</td>
+</tr>
+<tr>
+<td>Error Rate</td>
+<td>Failed conversations</td>
+<td>&lt;2%</td>
+</tr>
+<tr>
+<td>Bias Indicators</td>
+<td>Demographic disparity</td>
+<td>&lt;5% variance</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Create Monitoring Dashboard:</strong></li>
+<li>Use Power BI connected to Dataverse</li>
+<li>Include trend charts for each metric</li>
+<li>
+<p>Configure alerts for threshold breaches</p>
+</li>
+<li>
+<p><strong>Automated Monitoring Script:</strong></p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c"># Model Performance Monitoring Script</span>
+<span class="k">param</span><span class="p">(</span>
+    <span class="no">[string]</span><span class="nv">$AgentId</span><span class="p">,</span>
+    <span class="no">[int]</span><span class="nv">$DaysToAnalyze</span> <span class="p">=</span> <span class="n">30</span>
+<span class="p">)</span>
+
+<span class="c"># Connect to Dataverse</span>
+<span class="c"># (Assumes connection established)</span>
+
+<span class="c"># Query conversation logs</span>
+<span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="nv">$DaysToAnalyze</span><span class="p">)</span>
+
+<span class="c"># Calculate metrics</span>
+<span class="nv">$metrics</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">TotalConversations</span> <span class="p">=</span> <span class="n">0</span>
+    <span class="n">SuccessfulResolutions</span> <span class="p">=</span> <span class="n">0</span>
+    <span class="n">Escalations</span> <span class="p">=</span> <span class="n">0</span>
+    <span class="n">AverageResponseTime</span> <span class="p">=</span> <span class="n">0</span>
+    <span class="n">UserSatisfactionAvg</span> <span class="p">=</span> <span class="n">0</span>
+<span class="p">}</span>
+
+<span class="c"># (Query and calculate actual values)</span>
+
+<span class="c"># Calculate performance scores</span>
+<span class="nv">$resolutionRate</span> <span class="p">=</span> <span class="nv">$metrics</span><span class="p">.</span><span class="n">SuccessfulResolutions</span> <span class="p">/</span> <span class="nv">$metrics</span><span class="p">.</span><span class="n">TotalConversations</span> <span class="p">*</span> <span class="n">100</span>
+<span class="nv">$escalationRate</span> <span class="p">=</span> <span class="nv">$metrics</span><span class="p">.</span><span class="n">Escalations</span> <span class="p">/</span> <span class="nv">$metrics</span><span class="p">.</span><span class="n">TotalConversations</span> <span class="p">*</span> <span class="n">100</span>
+
+<span class="c"># Determine status</span>
+<span class="nv">$status</span> <span class="p">=</span> <span class="s2">&quot;Green&quot;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$resolutionRate</span> <span class="o">-lt</span> <span class="n">90</span> <span class="o">-or</span> <span class="nv">$escalationRate</span> <span class="o">-gt</span> <span class="n">15</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$status</span> <span class="p">=</span> <span class="s2">&quot;Yellow&quot;</span>
+<span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$resolutionRate</span> <span class="o">-lt</span> <span class="n">80</span> <span class="o">-or</span> <span class="nv">$escalationRate</span> <span class="o">-gt</span> <span class="n">25</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$status</span> <span class="p">=</span> <span class="s2">&quot;Red&quot;</span>
+<span class="p">}</span>
+
+<span class="c"># Output report</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;=== Model Performance Report ===&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Agent: $AgentId&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Period: Last $DaysToAnalyze days&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Status: $status&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Metrics:&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  Resolution Rate: </span><span class="p">$(</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$resolutionRate</span><span class="p">,</span> <span class="n">2</span><span class="p">))</span><span class="s2">%&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  Escalation Rate: </span><span class="p">$(</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$escalationRate</span><span class="p">,</span> <span class="n">2</span><span class="p">))</span><span class="s2">%&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  Avg Response Time: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">AverageResponseTime</span><span class="p">)</span><span class="s2">ms&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;  User Satisfaction: </span><span class="p">$(</span><span class="nv">$metrics</span><span class="p">.</span><span class="n">UserSatisfactionAvg</span><span class="p">)</span><span class="s2">/5.0&quot;</span>
+
+<span class="c"># Alert if threshold breached</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$status</span> <span class="o">-ne</span> <span class="s2">&quot;Green&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">ALERT: Performance threshold breached!&quot;</span> <span class="n">-ForegroundColor</span> <span class="nv">$status</span>
+    <span class="c"># Send notification (Teams, email, etc.)</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="step-6-establish-change-control-for-models">Step 6: Establish Change Control for Models</h3>
+<p><strong>Model Change Governance:</strong></p>
+<ol>
+<li><strong>Change Classification:</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Change Type</th>
+<th>Description</th>
+<th>Governance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Material Change</td>
+<td>Affects model outputs significantly</td>
+<td>Full revalidation</td>
+</tr>
+<tr>
+<td>Non-Material Change</td>
+<td>Minor updates, bug fixes</td>
+<td>Abbreviated review</td>
+</tr>
+<tr>
+<td>Emergency Change</td>
+<td>Critical fix</td>
+<td>Expedited process</td>
+</tr>
+<tr>
+<td><strong>Prompt Change</strong></td>
+<td>System prompt, topic prompt, or grounding instructions</td>
+<td>See Step 6a</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Material Change Examples:</strong></li>
+<li>Changes to prompts affecting recommendations</li>
+<li>New data source integration</li>
+<li>Modified business logic</li>
+<li>
+<p>Significant performance tuning</p>
+</li>
+<li>
+<p><strong>Change Request Form:</strong>
+   <div class="highlight"><pre><span></span><code>Model Change Request
+
+Model: [Model Name/ID]
+Requestor: [Name]
+Date: [Date]
+
+Change Description:
+[Detailed description of change]
+
+Change Classification:
+[ ] Material Change
+[ ] Non-Material Change
+[ ] Emergency Change
+
+Justification:
+[Business/technical rationale]
+
+Impact Assessment:
+- Users affected: [Number/Groups]
+- Output changes expected: [Description]
+- Risk level: [High/Medium/Low]
+
+Testing Plan:
+[How change will be tested]
+
+Rollback Plan:
+[How to revert if issues]
+
+Approvals Required:
+[ ] Model Owner
+[ ] Model Risk Manager (material changes)
+[ ] Business Owner
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="step-6a-prompt-engineering-change-review">Step 6a: Prompt Engineering Change Review</h3>
+<p><strong>Purpose:</strong> Prompt changes can significantly alter agent behavior and outputs. This step establishes governance specifically for prompt modifications, which are increasingly common in AI agent maintenance.</p>
+<p><strong>Prompt Change Categories:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Change Type</th>
+<th>Description</th>
+<th>Review Level</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Prompt</strong></td>
+<td>Core agent instructions and persona</td>
+<td>Full review + testing</td>
+<td>Role definition, safety guardrails, output format</td>
+</tr>
+<tr>
+<td><strong>Topic Prompt</strong></td>
+<td>Topic-specific conversation logic</td>
+<td>Standard review</td>
+<td>FAQ responses, conversation flows</td>
+</tr>
+<tr>
+<td><strong>Fallback Prompt</strong></td>
+<td>Handling of unknown inputs</td>
+<td>Standard review</td>
+<td>"I don't know" responses, escalation triggers</td>
+</tr>
+<tr>
+<td><strong>Grounding Instructions</strong></td>
+<td>How agent uses knowledge sources</td>
+<td>Full review + testing</td>
+<td>Citation requirements, source priority</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Prompt Change Review Checklist:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Prompt Engineering Change Review</span>
+
+<span class="gu">## Change Information</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Agent Name/ID:**</span> [Name]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Change Requestor:**</span> [Name]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Change Date:**</span> [Date]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Prompt Type:**</span> [ ] System [ ] Topic [ ] Fallback [ ] Grounding
+
+<span class="gu">## Before/After Comparison</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Current Prompt:**</span> [Attach or reference]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Proposed Prompt:**</span> [Attach or reference]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Summary of Changes:**</span> [Description]
+
+<span class="gu">## Impact Assessment</span>
+<span class="k">- [ ]</span> Does the change affect agent persona or role?
+<span class="k">- [ ]</span> Does the change affect safety guardrails?
+<span class="k">- [ ]</span> Does the change affect how agent handles sensitive topics?
+<span class="k">- [ ]</span> Does the change affect regulatory disclosures?
+<span class="k">- [ ]</span> Does the change affect how agent cites sources?
+<span class="k">- [ ]</span> Could the change introduce bias (proprietary, demographic, etc.)?
+
+<span class="gu">## Compliance Review</span>
+<span class="k">- [ ]</span> No prohibited instructions (per Control 2.18)
+<span class="k">- [ ]</span> Required disclosures maintained
+<span class="k">- [ ]</span> Regulatory language preserved
+<span class="k">- [ ]</span> Safety guardrails intact
+
+<span class="gu">## Testing Requirements</span>
+<span class="k">- [ ]</span> Baseline test suite executed
+<span class="k">- [ ]</span> Bias testing completed (if applicable)
+<span class="k">- [ ]</span> Edge case testing completed
+<span class="k">- [ ]</span> User acceptance testing completed
+
+<span class="gu">## Approvals</span>
+<span class="k">- [ ]</span> Prompt Engineer: _______ Date: _____
+<span class="k">- [ ]</span> AI Governance Lead: _______ Date: _____
+<span class="k">- [ ]</span> Compliance (if regulatory): _______ Date: _____
+
+<span class="gu">## Documentation</span>
+<span class="k">- [ ]</span> Change logged in version control
+<span class="k">- [ ]</span> Agent inventory updated
+<span class="k">- [ ]</span> Test results archived
+</code></pre></div>
+<p><strong>Prompt Version Control:</strong></p>
+<p>Maintain version history of all prompts:</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Author</th>
+<th>Change Summary</th>
+<th>Approval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0</td>
+<td>2026-01-01</td>
+<td>Initial</td>
+<td>Initial deployment</td>
+<td>Approved</td>
+</tr>
+<tr>
+<td>1.1</td>
+<td>2026-01-15</td>
+<td>J. Smith</td>
+<td>Added safety guardrail</td>
+<td>Approved</td>
+</tr>
+<tr>
+<td>1.2</td>
+<td>2026-02-01</td>
+<td>A. Jones</td>
+<td>Updated disclosure language</td>
+<td>Pending</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Integration with Model Risk Management:</strong></p>
+<ul>
+<li>Prompt changes affecting Tier 1/2 agents require MRM notification</li>
+<li>Material prompt changes may trigger revalidation requirement</li>
+<li>Prompt testing results should be included in model documentation</li>
+<li>Prompt version history is part of model development documentation</li>
+</ul>
+<h3 id="step-6b-agent-definition-manifest-version-control">Step 6b: Agent Definition (Manifest) Version Control</h3>
+<p><strong>Purpose:</strong> Beyond individual prompt changes, this step establishes versioning requirements for the complete agent definition (manifest), including system instructions, knowledge sources, capabilities, topic configurations, and action authorizations. This comprehensive versioning enables point-in-time reconstruction of agent behavior for regulatory examination and incident investigation.</p>
+<h4 id="agent-manifest-components">Agent Manifest Components</h4>
+<p>An agent manifest includes all configuration elements that define agent behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+<th>Versioning Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Instructions</strong></td>
+<td>Core agent instructions and persona</td>
+<td>Every change</td>
+</tr>
+<tr>
+<td><strong>Topic Definitions</strong></td>
+<td>Conversation flows and trigger phrases</td>
+<td>Every change</td>
+</tr>
+<tr>
+<td><strong>Knowledge Sources</strong></td>
+<td>Connected SharePoint sites, files, URLs</td>
+<td>Add/remove events</td>
+</tr>
+<tr>
+<td><strong>Actions/Plugins</strong></td>
+<td>Enabled connectors and actions</td>
+<td>Every change</td>
+</tr>
+<tr>
+<td><strong>Authentication Config</strong></td>
+<td>User authentication requirements</td>
+<td>Every change</td>
+</tr>
+<tr>
+<td><strong>Grounding Settings</strong></td>
+<td>Citation, web search, scope limits</td>
+<td>Every change</td>
+</tr>
+<tr>
+<td><strong>Fallback Behaviors</strong></td>
+<td>Escalation and error handling</td>
+<td>Every change</td>
+</tr>
+<tr>
+<td><strong>Security Settings</strong></td>
+<td>Content moderation, input filters</td>
+<td>Every change</td>
+</tr>
+</tbody>
+</table>
+<h4 id="manifest-versioning-requirements">Manifest Versioning Requirements</h4>
+<p><strong>Version Numbering Convention:</strong></p>
+<div class="highlight"><pre><span></span><code>Format: [Major].[Minor].[Patch]-[Environment]
+Example: 2.3.1-prod
+
+Major: Significant capability changes or new knowledge domains
+Minor: Topic additions, prompt updates, action changes
+Patch: Bug fixes, minor wording adjustments
+Environment: dev, test, uat, prod
+</code></pre></div>
+<p><strong>Mandatory Version Triggers:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Change Type</th>
+<th>Version Increment</th>
+<th>Approval Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New capability or knowledge domain</td>
+<td>Major</td>
+<td>AI Governance + Business</td>
+</tr>
+<tr>
+<td>System instruction change</td>
+<td>Minor</td>
+<td>AI Governance</td>
+</tr>
+<tr>
+<td>Topic addition/modification</td>
+<td>Minor</td>
+<td>Business Owner</td>
+</tr>
+<tr>
+<td>Action/plugin enablement</td>
+<td>Minor</td>
+<td>Security + AI Governance</td>
+</tr>
+<tr>
+<td>Bug fix or minor adjustment</td>
+<td>Patch</td>
+<td>Developer</td>
+</tr>
+<tr>
+<td>Production deployment</td>
+<td>N/A (environment suffix)</td>
+<td>Change Management</td>
+</tr>
+</tbody>
+</table>
+<h4 id="manifest-storage-and-retrieval">Manifest Storage and Retrieval</h4>
+<p><strong>Recommended Approaches:</strong></p>
+<ol>
+<li><strong>Git-based Version Control (Recommended):</strong></li>
+<li>Store agent manifests in Git repository</li>
+<li>Use branch protection for production manifests</li>
+<li>Require pull request approval for changes</li>
+<li>Tag releases with version numbers</li>
+<li>
+<p>Enable full history and diff capabilities</p>
+</li>
+<li>
+<p><strong>SharePoint Document Library:</strong></p>
+</li>
+<li>Enable versioning on library</li>
+<li>Store manifest exports as JSON/YAML</li>
+<li>Apply retention policy (7+ years for Zone 3)</li>
+<li>
+<p>Restrict edit permissions</p>
+</li>
+<li>
+<p><strong>Azure DevOps Artifacts:</strong></p>
+</li>
+<li>Publish manifest as versioned artifact</li>
+<li>Integrate with CI/CD pipeline</li>
+<li>Enable artifact feeds for retrieval</li>
+</ol>
+<p><strong>Manifest Export Script:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Export Agent Manifest for Version Control</span>
+<span class="k">param</span><span class="p">(</span>
+    <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+    <span class="no">[string]</span><span class="nv">$AgentId</span><span class="p">,</span>
+    <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\manifests&quot;</span>
+<span class="p">)</span>
+
+<span class="c"># Ensure output directory exists</span>
+<span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$OutputPath</span> <span class="n">-Force</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+
+<span class="nv">$timestamp</span> <span class="p">=</span> <span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s2">&quot;yyyyMMdd-HHmmss&quot;</span>
+<span class="nv">$filename</span> <span class="p">=</span> <span class="s2">&quot;$OutputPath\$AgentId-manifest-$timestamp.json&quot;</span>
+
+<span class="c"># Connect to Dataverse/Power Platform</span>
+<span class="c"># Note: Actual implementation depends on available APIs</span>
+
+<span class="nv">$manifest</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">exportDate</span> <span class="p">=</span> <span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s2">&quot;yyyy-MM-ddTHH:mm:ssZ&quot;</span>
+    <span class="n">agentId</span> <span class="p">=</span> <span class="nv">$AgentId</span>
+    <span class="n">version</span> <span class="p">=</span> <span class="s2">&quot;1.0.0&quot;</span>  <span class="c"># Update based on your versioning</span>
+    <span class="n">components</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">systemInstructions</span> <span class="p">=</span> <span class="s2">&quot;[Export from Copilot Studio]&quot;</span>
+        <span class="n">topics</span> <span class="p">=</span> <span class="p">@()</span>
+        <span class="n">knowledgeSources</span> <span class="p">=</span> <span class="p">@()</span>
+        <span class="n">actions</span> <span class="p">=</span> <span class="p">@()</span>
+        <span class="n">settings</span> <span class="p">=</span> <span class="p">@{}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Export manifest</span>
+<span class="nv">$manifest</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="n">-Depth</span> <span class="n">10</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-FilePath</span> <span class="nv">$filename</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Manifest exported: $filename&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Commit this file to version control&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+</code></pre></div>
+<h4 id="point-in-time-reconstruction">Point-in-Time Reconstruction</h4>
+<p>For regulatory examination or incident investigation, be able to answer: "What was this agent's exact configuration on [date]?"</p>
+<p><strong>Reconstruction Requirements:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Reconstruction Capability</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zone 1</td>
+<td>Not required</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Zone 2</td>
+<td>Within 48 hours</td>
+<td>3 years</td>
+</tr>
+<tr>
+<td>Zone 3</td>
+<td>Within 24 hours</td>
+<td>7 years</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Reconstruction Procedure:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Agent Configuration Reconstruction Request</span>
+
+<span class="gu">## Request Details</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Request Date:**</span> [Date]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Requestor:**</span> [Name/Role]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Agent ID:**</span> [Agent ID]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Target Date:**</span> [Date for which configuration is needed]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Purpose:**</span> [Regulatory examination / Incident investigation / Other]
+
+<span class="gu">## Reconstruction Steps</span>
+<span class="k">1.</span> [ ] Identify manifest version active on target date
+<span class="k">2.</span> [ ] Retrieve manifest from version control
+<span class="k">3.</span> [ ] Export current configuration (for comparison)
+<span class="k">4.</span> [ ] Document differences between target and current
+<span class="k">5.</span> [ ] Provide reconstruction evidence package
+
+<span class="gu">## Deliverables</span>
+<span class="k">- [ ]</span> Manifest file as of target date
+<span class="k">- [ ]</span> Change log from target date to present
+<span class="k">- [ ]</span> Summary of material differences
+<span class="k">- [ ]</span> Attestation of reconstruction accuracy
+
+<span class="gu">## Sign-Off</span>
+Reconstructed by: _________________ Date: _________
+Verified by: _________________ Date: _________
+</code></pre></div>
+<h4 id="rollback-procedures">Rollback Procedures</h4>
+<p>When agent behavior issues require reverting to a previous version:</p>
+<p><strong>Rollback Decision Matrix:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Rollback Authority</th>
+<th>Max Time to Rollback</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Security vulnerability</td>
+<td>Security Admin</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>Regulatory violation</td>
+<td>Compliance Officer</td>
+<td>4 hours</td>
+</tr>
+<tr>
+<td>Functionality regression</td>
+<td>AI Governance Lead</td>
+<td>24 hours</td>
+</tr>
+<tr>
+<td>Performance degradation</td>
+<td>Platform Admin</td>
+<td>24 hours</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rollback Procedure:</strong></p>
+<ol>
+<li><strong>Initiate rollback request</strong> with justification</li>
+<li><strong>Identify target version</strong> in manifest history</li>
+<li><strong>Validate target version</strong> is stable and tested</li>
+<li><strong>Execute rollback</strong> in test environment first</li>
+<li><strong>Verify functionality</strong> post-rollback</li>
+<li><strong>Deploy to production</strong> following change management</li>
+<li><strong>Document rollback</strong> with root cause analysis</li>
+<li><strong>Update manifest</strong> to reflect rollback state</li>
+</ol>
+<p><strong>Post-Rollback Requirements:</strong></p>
+<ul>
+<li>Document reason for rollback</li>
+<li>Identify root cause of issue</li>
+<li>Update agent testing to prevent recurrence</li>
+<li>Report significant rollbacks to governance committee</li>
+</ul>
+<h4 id="manifest-version-control-compliance-checklist">Manifest Version Control Compliance Checklist</h4>
+<div class="highlight"><pre><span></span><code><span class="gh"># Agent Manifest Version Control Review</span>
+
+<span class="gu">## Agent Information</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Agent Name/ID:**</span> [Name]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Current Version:**</span> [X.Y.Z]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Zone:**</span> [1/2/3]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Review Date:**</span> [Date]
+
+<span class="gu">## Version Control</span>
+<span class="k">- [ ]</span> Manifest stored in approved version control system
+<span class="k">- [ ]</span> All changes tracked with commit messages
+<span class="k">- [ ]</span> Version numbers follow convention
+<span class="k">- [ ]</span> Change approvals documented
+
+<span class="gu">## Reconstruction Capability</span>
+<span class="k">- [ ]</span> Can retrieve manifest for any date within retention period
+<span class="k">- [ ]</span> Reconstruction procedure documented and tested
+<span class="k">- [ ]</span> Reconstruction exercise completed within last 12 months
+
+<span class="gu">## Rollback Capability</span>
+<span class="k">- [ ]</span> Rollback procedure documented
+<span class="k">- [ ]</span> Rollback tested within last 6 months
+<span class="k">- [ ]</span> Rollback authority matrix current
+
+<span class="gu">## Audit Trail</span>
+<span class="k">- [ ]</span> Complete change history maintained
+<span class="k">- [ ]</span> Retention meets regulatory requirements
+<span class="k">- [ ]</span> Access to manifest history is logged
+
+<span class="gu">## Sign-Off</span>
+Reviewed by: _________________ Date: _________
+AI Governance Lead: _________________ Date: _________
+</code></pre></div>
+<h3 id="step-7-configure-regulatory-reporting">Step 7: Configure Regulatory Reporting</h3>
+<p><strong>Regulatory Examination Readiness:</strong></p>
+<ol>
+<li><strong>Documentation Package:</strong></li>
+<li>Model inventory (complete list)</li>
+<li>Model development documentation</li>
+<li>Validation reports</li>
+<li>Performance monitoring reports</li>
+<li>Change control documentation</li>
+<li>
+<p>Issue/finding tracking</p>
+</li>
+<li>
+<p><strong>Examination Response Templates:</strong>
+   <div class="highlight"><pre><span></span><code>Model Risk Management Summary for Examination
+
+Total Models in Inventory: [Number]
+- Tier 1 (High Risk): [Number]
+- Tier 2 (Medium Risk): [Number]
+- Tier 3 (Low Risk): [Number]
+
+AI/Agent Models: [Number]
+
+Validation Status:
+- Current (validated within required period): [Number]
+- Overdue: [Number]
+
+Performance Status:
+- Green (meeting thresholds): [Number]
+- Yellow (watch list): [Number]
+- Red (remediation required): [Number]
+
+Open Findings: [Number]
+- High severity: [Number]
+- Medium severity: [Number]
+- Low severity: [Number]
+
+Key Issues/Remediation:
+[Summary of significant issues and status]
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="step-8-integrate-with-enterprise-mrm-program">Step 8: Integrate with Enterprise MRM Program</h3>
+<p><strong>If Organization Has Existing MRM Program:</strong></p>
+<ol>
+<li><strong>Align with Existing Framework:</strong></li>
+<li>Map agent governance to existing model tiers</li>
+<li>Use existing validation resources</li>
+<li>Integrate with model inventory system</li>
+<li>
+<p>Align reporting with MRM committee</p>
+</li>
+<li>
+<p><strong>AI-Specific Considerations:</strong></p>
+</li>
+<li>Add AI/agent-specific validation criteria</li>
+<li>Include bias testing in validation scope</li>
+<li>Address generative AI output risks</li>
+<li>Document AI-specific limitations</li>
+</ol>
+<h3 id="step-8a-third-party-compliance-attestation">Step 8a: Third-Party Compliance Attestation</h3>
+<p><a id="third-party-attestation"></a></p>
+<p>For organizations requiring independent compliance assessment, consider engaging third-party assessors with expertise in financial services recordkeeping and AI governance.</p>
+<h4 id="cohasset-associates-compliance-assessment">Cohasset Associates Compliance Assessment</h4>
+<p><a href="https://www.cohasset.com/">Cohasset Associates</a> provides independent compliance assessments for electronic records management systems, including AI-powered platforms. Their assessments evaluate compliance with:</p>
+<ul>
+<li><strong>SEC Rule 17a-4</strong> - Electronic recordkeeping requirements</li>
+<li><strong>CFTC Rule 1.31</strong> - Commodity trading records</li>
+<li><strong>FINRA Rules</strong> - Broker-dealer recordkeeping</li>
+<li><strong>DOL/ERISA</strong> - Retirement plan records</li>
+</ul>
+<p><strong>When to Consider Cohasset Assessment:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deploying customer-facing AI agents in broker-dealer operations</td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td>AI agents processing or generating transaction records</td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td>Regulatory examination identified recordkeeping concerns</td>
+<td>Strongly recommended</td>
+</tr>
+<tr>
+<td>New AI platform deployment for regulated functions</td>
+<td>Consider for Tier 1 agents</td>
+</tr>
+<tr>
+<td>Annual compliance review for Zone 3 agents</td>
+<td>Consider as best practice</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Assessment Scope for AI Agents:</strong></p>
+<p>A Cohasset-type assessment for AI agent platforms should cover:</p>
+<ol>
+<li><strong>Recordkeeping Compliance:</strong></li>
+<li>Are AI agent interactions captured in compliant format?</li>
+<li>Do records meet WORM (Write Once Read Many) requirements?</li>
+<li>Is the retention period configurable and enforced?</li>
+<li>
+<p>Can records be produced for regulatory examination?</p>
+</li>
+<li>
+<p><strong>Data Integrity:</strong></p>
+</li>
+<li>Are AI outputs and inputs preserved without modification?</li>
+<li>Is there an audit trail of all agent activities?</li>
+<li>
+<p>Are timestamps accurate and tamper-evident?</p>
+</li>
+<li>
+<p><strong>Accessibility:</strong></p>
+</li>
+<li>Can records be searched and retrieved efficiently?</li>
+<li>Are records accessible for the required retention period?</li>
+<li>
+<p>Can records be exported in standard formats?</p>
+</li>
+<li>
+<p><strong>Business Continuity:</strong></p>
+</li>
+<li>Are records protected against loss?</li>
+<li>Is there a disaster recovery plan for agent records?</li>
+<li>Are backup and restoration processes documented?</li>
+</ol>
+<p><strong>Documentation for Third-Party Assessment:</strong></p>
+<p>Prepare the following for a compliance assessment engagement:</p>
+<div class="highlight"><pre><span></span><code>Third-Party Assessment Preparation Checklist
+
+PLATFORM DOCUMENTATION:
+[ ] AI agent architecture documentation
+[ ] Data flow diagrams showing record capture
+[ ] Retention policy configuration
+[ ] Audit logging configuration
+[ ] Storage infrastructure documentation
+
+COMPLIANCE DOCUMENTATION:
+[ ] Model Risk Management policy
+[ ] Agent governance procedures
+[ ] Validation and testing results
+[ ] Bias testing results (if applicable)
+[ ] Incident response procedures
+
+EVIDENCE:
+[ ] Sample audit logs
+[ ] Sample agent interaction records
+[ ] Retention enforcement evidence
+[ ] Search/retrieval demonstration
+[ ] Disaster recovery test results
+</code></pre></div>
+<p><strong>Annual Assessment Recommendation:</strong></p>
+<p>For Zone 3 agents handling customer-facing or transaction-related functions, consider annual third-party compliance assessments to:</p>
+<ul>
+<li>Validate ongoing compliance with recordkeeping requirements</li>
+<li>Identify gaps before regulatory examination</li>
+<li>Demonstrate due diligence to regulators</li>
+<li>Benchmark against industry best practices</li>
+</ul>
+<p><strong>Cost-Benefit Consideration:</strong></p>
+<p>While third-party assessments involve cost, they provide:</p>
+<ul>
+<li>Independent validation of compliance posture</li>
+<li>Defensible evidence for regulatory examinations</li>
+<li>Identification of gaps before they become findings</li>
+<li>Industry benchmark comparison</li>
+<li>Expert guidance on emerging requirements</li>
+</ul>
+<h3 id="step-9-multi-agent-scenario-governance">Step 9: Multi-Agent Scenario Governance</h3>
+<p><strong>Purpose:</strong> When multiple agents interact (agent-to-agent calls, orchestration, or delegation), the combined system introduces additional model risk that requires governance beyond individual agent validation.</p>
+<p><strong>Multi-Agent Risk Considerations:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Risk Description</th>
+<th>Governance Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent Orchestration</strong></td>
+<td>Primary agent delegates tasks to secondary agents</td>
+<td>Treat orchestrated system as single model for validation</td>
+</tr>
+<tr>
+<td><strong>Agent-to-Agent Calls</strong></td>
+<td>Agent A invokes Agent B's capabilities</td>
+<td>Document delegation chain; validate combined outputs</td>
+</tr>
+<tr>
+<td><strong>Shared Knowledge Sources</strong></td>
+<td>Multiple agents access same data</td>
+<td>Ensure consistent data governance across agents</td>
+</tr>
+<tr>
+<td><strong>Cascading Failures</strong></td>
+<td>Error in one agent propagates to others</td>
+<td>Design circuit breakers; document failure modes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multi-Agent Model Risk Assessment:</strong></p>
+<p>When evaluating multi-agent systems, assess:</p>
+<ol>
+<li><strong>Delegation Chain Depth:</strong></li>
+<li>Maximum recommended depth: 3 levels (Agent A → B → C)</li>
+<li>Each additional level increases complexity and audit difficulty</li>
+<li>
+<p>Zone 3 agents should limit delegation to 2 levels without explicit approval</p>
+</li>
+<li>
+<p><strong>Combined Risk Classification:</strong></p>
+</li>
+<li>If any agent in chain is Tier 1, treat entire chain as Tier 1</li>
+<li>Document risk inheritance in model inventory</li>
+<li>
+<p>Validate end-to-end behavior, not just individual agents</p>
+</li>
+<li>
+<p><strong>Escalation Boundaries:</strong></p>
+</li>
+<li>Define when multi-agent delegation requires human review</li>
+<li>High-risk decisions (credit, suitability) should not be fully delegated</li>
+<li>Document escalation triggers in agent configuration</li>
+</ol>
+<p><strong>Multi-Agent Audit Trail Requirements:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Chain Logging</strong></td>
+<td>Log complete delegation path</td>
+<td>Include parent agent ID in each log entry</td>
+</tr>
+<tr>
+<td><strong>Response Attribution</strong></td>
+<td>Identify which agent produced each output</td>
+<td>Tag responses with originating agent</td>
+</tr>
+<tr>
+<td><strong>Timing Correlation</strong></td>
+<td>Track timing across agent calls</td>
+<td>Use correlation IDs across all interactions</td>
+</tr>
+<tr>
+<td><strong>Decision Reconstruction</strong></td>
+<td>Enable replay of decision logic</td>
+<td>Store inputs/outputs at each delegation point</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multi-Agent Validation Approach:</strong></p>
+<div class="highlight"><pre><span></span><code>Multi-Agent Validation Checklist
+
+System Name: [Orchestration Name]
+Agents Involved: [List all agents in chain]
+Total Delegation Depth: [Number]
+
+1. Individual Agent Validation
+   [ ] Each agent validated independently per tier
+   [ ] Individual performance baselines established
+   [ ] Individual bias testing completed
+
+2. Combined System Validation
+   [ ] End-to-end test scenarios executed
+   [ ] Delegation paths tested under normal conditions
+   [ ] Failure mode testing completed
+   [ ] Combined output accuracy validated
+   [ ] Combined bias testing (if customer-impacting)
+
+3. Operational Readiness
+   [ ] Circuit breakers configured
+   [ ] Fallback procedures documented
+   [ ] Monitoring covers full chain
+   [ ] Alerting configured for cascade failures
+
+4. Documentation
+   [ ] System architecture documented
+   [ ] Delegation rules documented
+   [ ] Risk inheritance documented
+   [ ] Combined limitations stated
+
+Validated By: _________________ Date: _________
+Model Risk Manager
+</code></pre></div>
+<p><strong>Zone Restrictions for Multi-Agent Scenarios:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Multi-Agent Allowance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zone 1</strong></td>
+<td>No agent-to-agent delegation allowed</td>
+</tr>
+<tr>
+<td><strong>Zone 2</strong></td>
+<td>Delegation within same zone only; max depth 2</td>
+</tr>
+<tr>
+<td><strong>Zone 3</strong></td>
+<td>Cross-zone delegation with explicit approval; max depth 3</td>
+</tr>
+</tbody>
+</table>
+<p>For Zone 3 multi-agent systems, include the complete agent chain in the model inventory as a single entry with references to component agents.</p>
+<h3 id="step-10-explainability-testing-framework">Step 10: Explainability Testing Framework</h3>
+<p><strong>Purpose:</strong> For agents that influence customer-facing decisions or financial recommendations, regulators increasingly expect organizations to explain how AI outputs are generated. This step establishes an explainability testing framework aligned with regulatory expectations (SEC robo-advisor guidance, FINRA Notice 25-07).</p>
+<h4 id="explainability-requirements-by-zone">Explainability Requirements by Zone</h4>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Explainability Requirement</th>
+<th>Testing Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zone 1</strong></td>
+<td>Citation logging only</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Zone 2</strong></td>
+<td>Decision reasoning documentation</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><strong>Zone 3</strong></td>
+<td>Formal XAI testing for customer-impacting agents</td>
+<td>Comprehensive</td>
+</tr>
+</tbody>
+</table>
+<h4 id="zone-3-explainability-testing-scope">Zone 3 Explainability Testing Scope</h4>
+<p>For agents classified as Tier 1 or Tier 2 models (per Step 1), implement the following explainability testing:</p>
+<p><strong>1. Citation and Source Attribution:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source Identification</td>
+<td>Agent cites specific documents/sources used</td>
+<td>Review 50+ sample responses</td>
+</tr>
+<tr>
+<td>Citation Accuracy</td>
+<td>Cited sources contain the referenced information</td>
+<td>Spot-check 10% of citations</td>
+</tr>
+<tr>
+<td>Confidence Indication</td>
+<td>Agent indicates certainty level when appropriate</td>
+<td>Pattern analysis of responses</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. Decision Path Documentation:</strong></p>
+<p>For agents providing recommendations or assessments, document how inputs influence outputs:</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Decision Path Documentation Template</span>
+
+<span class="gu">## Agent: [Agent Name]</span>
+<span class="gu">## Decision Type: [e.g., Product Recommendation, Risk Assessment]</span>
+
+<span class="gu">### Input Factors</span>
+| Factor | Weight/Influence | Source |
+|--------|-----------------|--------|
+| Customer Age | Medium | User profile |
+| Risk Tolerance | High | Questionnaire |
+| Investment Horizon | High | User input |
+| Account Balance | Low | Account data |
+
+<span class="gu">### Decision Logic</span>
+<span class="k">1.</span> Agent evaluates [input factors]
+<span class="k">2.</span> Agent applies [business rules]
+<span class="k">3.</span> Agent generates [recommendation type]
+<span class="k">4.</span> Agent provides [disclaimers/limitations]
+
+<span class="gu">### Limitations</span>
+<span class="k">-</span><span class="w"> </span>Agent cannot assess [specific factors]
+<span class="k">-</span><span class="w"> </span>Recommendations do not consider [excluded factors]
+<span class="k">-</span><span class="w"> </span>Human review required for [specific scenarios]
+</code></pre></div>
+<p><strong>3. Formal XAI Testing Methods (Tier 1 Agents):</strong></p>
+<p>For high-risk agents (customer-facing, decision-support), consider formal explainability testing:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Applicability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature Attribution</strong></td>
+<td>Identify which inputs most influenced the output</td>
+<td>Agents using structured data inputs</td>
+</tr>
+<tr>
+<td><strong>Counterfactual Analysis</strong></td>
+<td>"What would change the recommendation?"</td>
+<td>Product recommendation agents</td>
+</tr>
+<tr>
+<td><strong>Attention Visualization</strong></td>
+<td>Which parts of input the model focused on</td>
+<td>Complex query handling</td>
+</tr>
+<tr>
+<td><strong>Response Decomposition</strong></td>
+<td>Break down how response was assembled</td>
+<td>RAG-based agents</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Feature Attribution Testing:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Feature Attribution Test Results</span>
+
+<span class="gu">## Agent: Investment Product Recommender</span>
+<span class="gu">## Test Date: [Date]</span>
+<span class="gu">## Tester: [Name]</span>
+
+<span class="gu">### Test Scenario</span>
+Customer Profile:
+<span class="k">-</span><span class="w"> </span>Age: 45
+<span class="k">-</span><span class="w"> </span>Risk Tolerance: Moderate
+<span class="k">-</span><span class="w"> </span>Investment Horizon: 15 years
+<span class="k">-</span><span class="w"> </span>Current Assets: $500,000
+
+Agent Recommendation: Balanced Growth Portfolio
+
+<span class="gu">### Attribution Analysis</span>
+Input Factor         | Contribution to Output
+---------------------|----------------------
+Risk Tolerance       | 35%
+Investment Horizon   | 30%
+Age                  | 20%
+Current Assets       | 15%
+
+<span class="gu">### Key Finding</span>
+Primary driver of recommendation: Risk tolerance + Investment horizon (65% combined)
+
+<span class="gu">### Validation</span>
+<span class="k">- [ ]</span> Attribution aligns with expected business logic
+<span class="k">- [ ]</span> No unexpected factors influencing output
+<span class="k">- [ ]</span> Sensitive attributes (race, gender, etc.) have zero contribution
+</code></pre></div>
+<p><strong>4. Counterfactual Testing:</strong></p>
+<p>Test how changes to inputs affect outputs:</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Counterfactual Test Results</span>
+
+<span class="gu">## Agent: Credit Decision Support Agent</span>
+<span class="gu">## Test Date: [Date]</span>
+
+<span class="gu">### Baseline Scenario</span>
+Input: Customer with 720 credit score, $75k income, $20k existing debt
+Output: Pre-approval recommended
+
+<span class="gu">### Counterfactual Tests</span>
+| Change | New Output | Expected? | Notes |
+|--------|-----------|-----------|-------|
+| Credit score → 650 | Review required | Yes | Expected threshold behavior |
+| Income → $50k | Pre-approval recommended | Yes | Debt-to-income still acceptable |
+| Debt → $40k | Review required | Yes | Debt-to-income exceeded threshold |
+| Age 25 → 65 | No change | Yes | Age not a factor (as expected) |
+
+<span class="gu">### Validation</span>
+<span class="k">- [ ]</span> Output changes align with documented business rules
+<span class="k">- [ ]</span> Protected characteristics do not influence decisions
+<span class="k">- [ ]</span> Threshold behaviors are consistent
+</code></pre></div>
+<h4 id="regulatory-context-for-explainability">Regulatory Context for Explainability</h4>
+<table>
+<thead>
+<tr>
+<th>Regulation/Guidance</th>
+<th>Explainability Expectation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SEC Robo-Advisor Guidance</strong></td>
+<td>Disclose methodology; explain how recommendations generated</td>
+</tr>
+<tr>
+<td><strong>FINRA Notice 25-07</strong></td>
+<td>Transparency in AI decision-making for customer interactions</td>
+</tr>
+<tr>
+<td><strong>OCC 2021-18</strong></td>
+<td>Explainability as component of AI risk management</td>
+</tr>
+<tr>
+<td><strong>Fed SR 11-7</strong></td>
+<td>Model documentation must include methodology explanation</td>
+</tr>
+<tr>
+<td><strong>ECOA/Reg B</strong></td>
+<td>Adverse action notices require reason disclosure</td>
+</tr>
+</tbody>
+</table>
+<h4 id="explainability-documentation-requirements">Explainability Documentation Requirements</h4>
+<p>For each Tier 1/2 agent, maintain:</p>
+<ol>
+<li><strong>Methodology Documentation:</strong></li>
+<li>How the agent generates outputs</li>
+<li>Data sources and their influence</li>
+<li>Business rules applied</li>
+<li>
+<p>Known limitations</p>
+</li>
+<li>
+<p><strong>Testing Evidence:</strong></p>
+</li>
+<li>Citation accuracy test results</li>
+<li>Feature attribution analysis (if applicable)</li>
+<li>Counterfactual test results (if applicable)</li>
+<li>
+<p>Bias testing results (per Control 2.11)</p>
+</li>
+<li>
+<p><strong>User-Facing Disclosures:</strong></p>
+</li>
+<li>How agent reaches recommendations</li>
+<li>Limitations of agent advice</li>
+<li>When to consult human advisor</li>
+</ol>
+<h4 id="explainability-compliance-checklist">Explainability Compliance Checklist</h4>
+<div class="highlight"><pre><span></span><code><span class="gh"># Explainability Compliance Review</span>
+
+<span class="gu">## Agent: [Name]</span>
+<span class="gu">## Model Tier: [1/2/3]</span>
+<span class="gu">## Review Date: [Date]</span>
+
+<span class="gu">### Documentation</span>
+<span class="k">- [ ]</span> Methodology documented
+<span class="k">- [ ]</span> Input factors and weights documented
+<span class="k">- [ ]</span> Limitations clearly stated
+<span class="k">- [ ]</span> User-facing disclosures reviewed by Compliance
+
+<span class="gu">### Testing (Tier 1/2 Only)</span>
+<span class="k">- [ ]</span> Citation accuracy testing completed
+<span class="k">- [ ]</span> Decision path documentation current
+<span class="k">- [ ]</span> Counterfactual testing completed (Tier 1)
+<span class="k">- [ ]</span> Feature attribution analysis completed (Tier 1 if applicable)
+
+<span class="gu">### Regulatory Alignment</span>
+<span class="k">- [ ]</span> Meets SEC robo-advisor disclosure requirements (if applicable)
+<span class="k">- [ ]</span> Meets FINRA 25-07 transparency expectations
+<span class="k">- [ ]</span> Adverse action explanations available (if applicable)
+
+<span class="gu">### Sign-Off</span>
+Compliance Officer: _________________ Date: _________
+Model Risk Manager: _________________ Date: _________
+</code></pre></div>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="generate-mrm-compliance-report">Generate MRM Compliance Report</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Model Risk Management Compliance Report</span>
+<span class="k">param</span><span class="p">(</span>
+    <span class="no">[string]</span><span class="nv">$ModelInventoryPath</span><span class="p">,</span>
+    <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\MRM_Report_</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.html&quot;</span>
+<span class="p">)</span>
+
+<span class="c"># Load model inventory</span>
+<span class="nv">$models</span> <span class="p">=</span> <span class="nb">Import-Csv</span> <span class="n">-Path</span> <span class="nv">$ModelInventoryPath</span>
+
+<span class="c"># Calculate compliance metrics</span>
+<span class="nv">$totalModels</span> <span class="p">=</span> <span class="nv">$models</span><span class="p">.</span><span class="n">Count</span>
+<span class="nv">$tier1</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Tier</span> <span class="o">-eq</span> <span class="s2">&quot;1&quot;</span><span class="p">).</span><span class="n">Count</span>
+<span class="nv">$tier2</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Tier</span> <span class="o">-eq</span> <span class="s2">&quot;2&quot;</span><span class="p">).</span><span class="n">Count</span>
+<span class="nv">$tier3</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Tier</span> <span class="o">-eq</span> <span class="s2">&quot;3&quot;</span><span class="p">).</span><span class="n">Count</span>
+
+<span class="nv">$currentDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+<span class="nv">$validationCurrent</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="no">[datetime]</span><span class="nv">$_</span><span class="p">.</span><span class="n">NextValidationDue</span> <span class="o">-gt</span> <span class="nv">$currentDate</span>
+<span class="p">}).</span><span class="n">Count</span>
+<span class="nv">$validationOverdue</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="no">[datetime]</span><span class="nv">$_</span><span class="p">.</span><span class="n">NextValidationDue</span> <span class="o">-le</span> <span class="nv">$currentDate</span>
+<span class="p">}).</span><span class="n">Count</span>
+
+<span class="nv">$performanceGreen</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">PerformanceStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Green&quot;</span><span class="p">).</span><span class="n">Count</span>
+<span class="nv">$performanceYellow</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">PerformanceStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Yellow&quot;</span><span class="p">).</span><span class="n">Count</span>
+<span class="nv">$performanceRed</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$models</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">PerformanceStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Red&quot;</span><span class="p">).</span><span class="n">Count</span>
+
+<span class="c"># Generate HTML report</span>
+<span class="nv">$html</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">&lt;!DOCTYPE html&gt;</span>
+<span class="sh">&lt;html&gt;</span>
+<span class="sh">&lt;head&gt;</span>
+<span class="sh">&lt;title&gt;Model Risk Management Report&lt;/title&gt;</span>
+<span class="sh">&lt;style&gt;</span>
+<span class="sh">body { font-family: &#39;Segoe UI&#39;, sans-serif; margin: 20px; }</span>
+<span class="sh">h1, h2 { color: #0078d4; }</span>
+<span class="sh">.dashboard { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }</span>
+<span class="sh">.card { padding: 20px; background: #f3f2f1; border-radius: 8px; min-width: 150px; }</span>
+<span class="sh">.card.green { background: #dff6dd; }</span>
+<span class="sh">.card.yellow { background: #fff4ce; }</span>
+<span class="sh">.card.red { background: #fed9cc; }</span>
+<span class="sh">table { width: 100%; border-collapse: collapse; margin-top: 20px; }</span>
+<span class="sh">th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }</span>
+<span class="sh">th { background: #0078d4; color: white; }</span>
+<span class="sh">.overdue { color: red; font-weight: bold; }</span>
+<span class="sh">&lt;/style&gt;</span>
+<span class="sh">&lt;/head&gt;</span>
+<span class="sh">&lt;body&gt;</span>
+<span class="sh">&lt;h1&gt;Model Risk Management Compliance Report&lt;/h1&gt;</span>
+<span class="sh">&lt;p&gt;Report Date: </span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;MMMM dd, yyyy&#39;</span><span class="p">)</span><span class="sh">&lt;/p&gt;</span>
+
+<span class="sh">&lt;h2&gt;Model Inventory Summary&lt;/h2&gt;</span>
+<span class="sh">&lt;div class=&quot;dashboard&quot;&gt;</span>
+<span class="sh">&lt;div class=&quot;card&quot;&gt;&lt;h3&gt;Total Models&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$totalModels&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;div class=&quot;card&quot;&gt;&lt;h3&gt;Tier 1 (High)&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$tier1&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;div class=&quot;card&quot;&gt;&lt;h3&gt;Tier 2 (Medium)&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$tier2&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;div class=&quot;card&quot;&gt;&lt;h3&gt;Tier 3 (Low)&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$tier3&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;/div&gt;</span>
+
+<span class="sh">&lt;h2&gt;Validation Status&lt;/h2&gt;</span>
+<span class="sh">&lt;div class=&quot;dashboard&quot;&gt;</span>
+<span class="sh">&lt;div class=&quot;card green&quot;&gt;&lt;h3&gt;Current&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$validationCurrent&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;div class=&quot;card red&quot;&gt;&lt;h3&gt;Overdue&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$validationOverdue&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;/div&gt;</span>
+
+<span class="sh">&lt;h2&gt;Performance Status&lt;/h2&gt;</span>
+<span class="sh">&lt;div class=&quot;dashboard&quot;&gt;</span>
+<span class="sh">&lt;div class=&quot;card green&quot;&gt;&lt;h3&gt;Green&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$performanceGreen&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;div class=&quot;card yellow&quot;&gt;&lt;h3&gt;Yellow&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$performanceYellow&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;div class=&quot;card red&quot;&gt;&lt;h3&gt;Red&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;$performanceRed&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">&lt;/div&gt;</span>
+
+<span class="sh">&lt;h2&gt;Model Details&lt;/h2&gt;</span>
+<span class="sh">&lt;table&gt;</span>
+<span class="sh">&lt;tr&gt;&lt;th&gt;Model ID&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Tier&lt;/th&gt;&lt;th&gt;Owner&lt;/th&gt;&lt;th&gt;Last Validation&lt;/th&gt;&lt;th&gt;Next Due&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;</span>
+<span class="p">$(</span>
+<span class="nv">$models</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="nv">$overdueClass</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="no">[datetime]</span><span class="nv">$_</span><span class="p">.</span><span class="n">NextValidationDue</span> <span class="o">-le</span> <span class="nv">$currentDate</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;overdue&quot;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s2">&quot;&quot;</span> <span class="p">}</span>
+    <span class="s2">&quot;&lt;tr&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">ModelID</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">ModelName</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Tier</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">ModelOwner</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">LastValidation</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td class=&#39;$overdueClass&#39;&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">NextValidationDue</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="p">$(</span><span class="nv">$_</span><span class="p">.</span><span class="n">PerformanceStatus</span><span class="p">)</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&quot;</span>
+<span class="p">}</span>
+<span class="p">)</span>
+<span class="sh">&lt;/table&gt;</span>
+<span class="sh">&lt;/body&gt;</span>
+<span class="sh">&lt;/html&gt;</span>
+<span class="sh">&quot;@</span>
+
+<span class="nv">$html</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-FilePath</span> <span class="nv">$OutputPath</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;MRM Report generated: $OutputPath&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>MRM Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OCC 2011-12</strong></td>
+<td>Model risk management framework</td>
+<td>Agent-as-model governance</td>
+</tr>
+<tr>
+<td><strong>Fed SR 11-7</strong></td>
+<td>Model validation and monitoring</td>
+<td>Independent validation program</td>
+</tr>
+<tr>
+<td><strong>FINRA 25-07</strong></td>
+<td>AI fairness and transparency</td>
+<td>Bias testing and documentation</td>
+</tr>
+<tr>
+<td><strong>SOX 302/404</strong></td>
+<td>Internal controls</td>
+<td>Documented model controls</td>
+</tr>
+<tr>
+<td><strong>OCC 2021-18</strong></td>
+<td>AI/ML risk management</td>
+<td>AI-specific governance</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Zone 1</th>
+<th>Zone 2</th>
+<th>Zone 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MRM Applicability</strong></td>
+<td>Non-model</td>
+<td>May be model</td>
+<td>Likely model</td>
+</tr>
+<tr>
+<td><strong>Validation Type</strong></td>
+<td>N/A</td>
+<td>Internal</td>
+<td>Independent third-party</td>
+</tr>
+<tr>
+<td><strong>Validation Frequency</strong></td>
+<td>N/A</td>
+<td>Annual</td>
+<td>Annual + ongoing</td>
+</tr>
+<tr>
+<td><strong>Performance Monitoring</strong></td>
+<td>Basic</td>
+<td>Standard</td>
+<td>Real-time</td>
+</tr>
+<tr>
+<td><strong>Documentation Level</strong></td>
+<td>Basic</td>
+<td>Comprehensive</td>
+<td>Comprehensive</td>
+</tr>
+<tr>
+<td><strong>Change Governance</strong></td>
+<td>Standard</td>
+<td>Enhanced</td>
+<td>Formal CAB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-use-case-example">FSI Use Case Example</h3>
+<p><strong>Scenario:</strong> Investment Recommendation Agent</p>
+<p><strong>MRM Classification:</strong></p>
+<ul>
+<li>Tier 1 Model (material business impact)</li>
+<li>Provides investment product recommendations</li>
+<li>Influences customer financial decisions</li>
+</ul>
+<p><strong>MRM Implementation:</strong></p>
+<ol>
+<li><strong>Documentation:</strong></li>
+<li>Complete model development documentation</li>
+<li>Input data: Customer profile, risk tolerance, investment goals</li>
+<li>Output: Product recommendations</li>
+<li>
+<p>Limitations: Not personalized financial advice</p>
+</li>
+<li>
+<p><strong>Validation:</strong></p>
+</li>
+<li>Annual third-party validation</li>
+<li>Quarterly performance review</li>
+<li>Bias testing for demographic fairness</li>
+<li>
+<p>Output analysis for recommendation quality</p>
+</li>
+<li>
+<p><strong>Monitoring:</strong></p>
+</li>
+<li>Real-time accuracy tracking</li>
+<li>User satisfaction monitoring</li>
+<li>Escalation rate tracking</li>
+<li>
+<p>Compliance sampling</p>
+</li>
+<li>
+<p><strong>Governance:</strong></p>
+</li>
+<li>Changes reviewed by Model Risk Committee</li>
+<li>Material changes require revalidation</li>
+<li>Quarterly reporting to MRM committee</li>
+</ol>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Classification Verification:</strong></li>
+<li>[ ] All agents reviewed for model classification</li>
+<li>[ ] Model/non-model decisions documented</li>
+<li>
+<p>[ ] Model tier assignments justified</p>
+</li>
+<li>
+<p><strong>Documentation Verification:</strong></p>
+</li>
+<li>[ ] Model development docs complete</li>
+<li>[ ] Validation reports current</li>
+<li>
+<p>[ ] Change control documentation maintained</p>
+</li>
+<li>
+<p><strong>Monitoring Verification:</strong></p>
+</li>
+<li>[ ] Performance dashboards operational</li>
+<li>[ ] Alerts configured</li>
+<li>
+<p>[ ] Regular reporting in place</p>
+</li>
+<li>
+<p><strong>Governance Verification:</strong></p>
+</li>
+<li>[ ] MRM committee oversight</li>
+<li>[ ] Validation schedule maintained</li>
+<li>[ ] Regulatory reporting ready</li>
+</ol>
+<h3 id="compliance-checklist">Compliance Checklist</h3>
+<ul>
+<li>[ ] Agent-as-model classification completed</li>
+<li>[ ] Model inventory maintained</li>
+<li>[ ] Validation program established</li>
+<li>[ ] Performance monitoring active</li>
+<li>[ ] Change control process documented</li>
+<li>[ ] Agent manifest versioning implemented</li>
+<li>[ ] Point-in-time reconstruction capability verified</li>
+<li>[ ] Rollback procedures documented and tested</li>
+<li>[ ] Regulatory examination package ready</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-1-unclear-model-classification">Issue 1: Unclear Model Classification</h3>
+<p><strong>Symptoms:</strong> Difficulty determining if agent is a "model"</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Review OCC 2011-12 model definition</li>
+<li>Assess if agent provides quantitative estimates</li>
+<li>Evaluate impact on business decisions</li>
+<li>Consult Model Risk Management team</li>
+<li>When in doubt, treat as model</li>
+</ol>
+<h3 id="issue-2-limited-validation-resources">Issue 2: Limited Validation Resources</h3>
+<p><strong>Symptoms:</strong> Cannot perform independent validation</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Identify internal teams not involved in development</li>
+<li>Consider second-line risk functions</li>
+<li>Engage external validators for Tier 1</li>
+<li>Use automated validation tools</li>
+<li>Document resource constraints</li>
+</ol>
+<h3 id="issue-3-performance-data-unavailable">Issue 3: Performance Data Unavailable</h3>
+<p><strong>Symptoms:</strong> Cannot measure model performance</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Enable conversation logging</li>
+<li>Configure Dataverse analytics</li>
+<li>Implement user feedback collection</li>
+<li>Create manual sampling process</li>
+<li>Document data limitations</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html">OCC Bulletin 2011-12</a></li>
+<li><a href="https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm">Federal Reserve SR 11-7</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview">Copilot Studio analytics</a></li>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-monitor">Power Platform CoE analytics</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control ID</th>
+<th>Control Name</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.5</td>
+<td>Testing and Validation</td>
+<td>Pre-deployment validation</td>
+</tr>
+<tr>
+<td>2.11</td>
+<td>Bias Testing</td>
+<td>Fairness assessment</td>
+</tr>
+<tr>
+<td>3.1</td>
+<td>Agent Inventory</td>
+<td>Model inventory</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>Compliance Reporting</td>
+<td>MRM reporting</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>AI Governance Lead</strong> (governance direction)</li>
+<li><strong>Compliance Officer</strong> (regulatory requirements)</li>
+<li><strong>Technical Implementation Team</strong> (platform setup)</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026
+<strong>Version:</strong> v1.0 (Jan 2026)
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,5087 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.16-information-rights-management-irm-for-documents/">
+      
+      
+        <link rel="prev" href="../1.15-encryption-data-in-transit-and-at-rest/">
+      
+      
+        <link rel="next" href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.16 Information Rights Management (IRM) for Documents - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-116-information-rights-management-irm-for-documents" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.16 Information Rights Management (IRM) for Documents
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-activate-azure-rights-management-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Activate Azure Rights Management Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-create-irm-enabled-sensitivity-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create IRM-Enabled Sensitivity Labels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-sharepoint-library-irm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure SharePoint Library IRM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-configure-irm-for-onedrive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Configure IRM for OneDrive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-configure-agent-access-to-irm-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Configure Agent Access to IRM Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-enable-document-tracking-and-revocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Enable Document Tracking and Revocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-configure-label-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Configure Label Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-configure-auto-labeling-for-irm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Configure Auto-Labeling for IRM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-azure-rms-and-configure-irm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable Azure RMS and Configure IRM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-sharepoint-library-irm-via-powershell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure SharePoint Library IRM via PowerShell
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-irm-protected-document-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit IRM-Protected Document Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-sensitivity-label-with-irm-microsoft-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Sensitivity Label with IRM (Microsoft Graph)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-use-case-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Use Case Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-agent-cannot-access-irm-protected-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 1: Agent Cannot Access IRM-Protected Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-irm-not-applying-to-downloaded-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 2: IRM Not Applying to Downloaded Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-users-cannot-open-irm-protected-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 3: Users Cannot Open IRM-Protected Documents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-4-irm-watermarks-not-displaying" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 4: IRM Watermarks Not Displaying
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-116-information-rights-management-irm-for-documents">Control 1.16: Information Rights Management (IRM) for Documents</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.16<br />
+<strong>Control Name:</strong> Information Rights Management (IRM) for Documents<br />
+<strong>Pillar:</strong> Security<br />
+<strong>Regulatory Reference:</strong> GLBA 501(b), SEC Reg S-P, FINRA 4511, SOX 404<br />
+<strong>Setup Time:</strong> 1-2 hours  </p>
+<h3 id="purpose">Purpose</h3>
+<p>Information Rights Management (IRM) provides persistent protection for documents accessed by Copilot Studio agents, ensuring that sensitive financial documents maintain protection even when downloaded or shared outside the organization. IRM controls what users and agents can do with protected content—preventing unauthorized copying, printing, forwarding, or screen capture of sensitive financial information. In FSI environments, IRM is critical for protecting MNPI, customer PII, and confidential trading strategies.</p>
+<p>This control addresses key FSI requirements:</p>
+<ul>
+<li><strong>Persistent Document Protection</strong>: Rights travel with the document</li>
+<li><strong>Access Control</strong>: Control who can view, edit, copy, or print</li>
+<li><strong>Expiration and Revocation</strong>: Time-limit access and revoke remotely</li>
+<li><strong>Audit Trail</strong>: Track who accessed protected content</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Purview Info Protection Admin
+<strong>Supporting Roles:</strong> SharePoint Admin</p>
+<h3 id="required-licenses">Required Licenses</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft 365 E3/E5</td>
+<td>Azure Information Protection</td>
+</tr>
+<tr>
+<td>Microsoft 365 E5 or E5 Compliance</td>
+<td>Advanced sensitivity labels</td>
+</tr>
+<tr>
+<td>Azure Information Protection P1/P2</td>
+<td>IRM protection and tracking</td>
+</tr>
+</tbody>
+</table>
+<h3 id="required-permissions">Required Permissions</h3>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Scope</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compliance Administrator</td>
+<td>Microsoft Purview</td>
+<td>Create and manage sensitivity labels</td>
+</tr>
+<tr>
+<td>SharePoint Administrator</td>
+<td>SharePoint Online</td>
+<td>Configure IRM on libraries</td>
+</tr>
+<tr>
+<td>Global Administrator</td>
+<td>Initial setup</td>
+<td>Enable Azure RMS</td>
+</tr>
+<tr>
+<td>Information Protection Admin</td>
+<td>Microsoft Purview</td>
+<td>Manage label policies</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li><a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/">Control 1.5: DLP and Sensitivity Labels</a> - Sensitivity label creation</li>
+<li><a href="../1.15-encryption-data-in-transit-and-at-rest/">Control 1.15: Encryption</a> - Underlying encryption</li>
+<li><a href="../1.3-sharepoint-content-governance-and-permissions/">Control 1.3: SharePoint Governance</a> - Library permissions</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Azure Rights Management Service (Azure RMS) activated</li>
+<li>[ ] Sensitivity labels created with encryption</li>
+<li>[ ] SharePoint modern experience enabled</li>
+<li>[ ] Client applications support IRM (Office 365 ProPlus)</li>
+<li>[ ] Document classification scheme defined</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Apply IRM to sensitive documents; restrict copy, print, screenshot, forward permissions.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>IRM applied to all team collaboration and enterprise managed documents; time-limited access; audit logging of document access.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Mandatory IRM with expiration; no download without audit; continuous access revocation capability.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-activate-azure-rights-management-service">Step 1: Activate Azure Rights Management Service</h3>
+<p><strong>Portal Path:</strong> Microsoft 365 Admin Center → Settings → Org settings → Security &amp; privacy → Azure Information Protection</p>
+<ol>
+<li>Navigate to <strong>Microsoft 365 Admin Center</strong> (admin.microsoft.com)</li>
+<li>Select <strong>Settings</strong> → <strong>Org settings</strong></li>
+<li>Click <strong>Security &amp; privacy</strong> tab</li>
+<li>Select <strong>Azure Information Protection</strong></li>
+<li><strong>Activate Azure RMS:</strong></li>
+<li>If not activated, click <strong>Manage Microsoft Azure Information Protection</strong></li>
+<li>This redirects to Azure portal</li>
+<li>Navigate to <strong>Azure Information Protection</strong> → <strong>Protection activation</strong></li>
+<li>Click <strong>Activate</strong> if status shows "Not activated"</li>
+<li>Verify activation status shows "Protection is activated"</li>
+</ol>
+<h3 id="step-2-create-irm-enabled-sensitivity-labels">Step 2: Create IRM-Enabled Sensitivity Labels</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → Information protection → Labels → Create label</p>
+<ol>
+<li>Navigate to <strong>Microsoft Purview</strong> (compliance.microsoft.com)</li>
+<li>Select <strong>Information protection</strong> → <strong>Labels</strong></li>
+<li>Click <strong>+ Create a label</strong></li>
+<li><strong>Configure Label Properties:</strong></li>
+<li><strong>Name:</strong> "Confidential - FSI Client Data"</li>
+<li><strong>Display name:</strong> "Confidential - Client Data"</li>
+<li><strong>Description for users:</strong> "Apply to documents containing client financial information"</li>
+<li>
+<p><strong>Description for admins:</strong> "IRM-protected label for client PII and financial data"</p>
+</li>
+<li>
+<p>Click <strong>Next</strong> → <strong>Scope:</strong></p>
+</li>
+<li>Enable <strong>Items</strong> (files, emails)</li>
+<li>
+<p>Enable <strong>Groups &amp; sites</strong> (optional for library protection)</p>
+</li>
+<li>
+<p>Click <strong>Next</strong> → <strong>Encryption:</strong></p>
+</li>
+<li>Select <strong>Apply encryption</strong></li>
+<li>
+<p><strong>Assign permissions now:</strong></p>
+<ul>
+<li>Click <strong>Assign permissions</strong></li>
+<li>Add internal users/groups with appropriate rights</li>
+<li>Add agent service accounts with <strong>Viewer</strong> rights only</li>
+</ul>
+</li>
+<li>
+<p><strong>Configure Rights:</strong>
+   | Permission | Personal Productivity | Team Collaboration | Enterprise Managed |
+   |------------|--------|--------|--------|
+   | View | ✓ | ✓ | ✓ |
+   | Copy | ✓ | ✗ | ✗ |
+   | Print | ✓ | ✗ | ✗ |
+   | Edit | ✓ | ✓ | ✗ |
+   | Forward | ✗ | ✗ | ✗ |</p>
+</li>
+<li>
+<p><strong>Set Content Expiration:</strong></p>
+</li>
+<li>For enterprise managed: Set <strong>Content access expires</strong> to 90 days</li>
+<li>
+<p>Configure <strong>Allow offline access</strong> for limited days (7-14)</p>
+</li>
+<li>
+<p>Click <strong>Next</strong> → <strong>Content marking:</strong></p>
+</li>
+<li>Enable watermark for enterprise managed documents</li>
+<li>Add header: "CONFIDENTIAL - [CompanyName]"</li>
+<li>
+<p>Add footer: "Internal Use Only"</p>
+</li>
+<li>
+<p>Complete label creation and publish</p>
+</li>
+</ol>
+<h3 id="step-3-configure-sharepoint-library-irm">Step 3: Configure SharePoint Library IRM</h3>
+<p><strong>Portal Path:</strong> SharePoint site → Library settings → Information Rights Management</p>
+<ol>
+<li>Navigate to the SharePoint site containing agent knowledge sources</li>
+<li>Go to the document library</li>
+<li>Click <strong>Settings</strong> (gear icon) → <strong>Library settings</strong></li>
+<li>Under <strong>Permissions and Management</strong>, click <strong>Information Rights Management</strong></li>
+<li><strong>Enable IRM on the library:</strong></li>
+<li>Check <strong>Restrict permission to documents in this library on download</strong></li>
+<li><strong>Policy title:</strong> "FSI Protected Content"</li>
+<li>
+<p><strong>Policy description:</strong> "Protected by IRM - copying and printing restricted"</p>
+</li>
+<li>
+<p><strong>Configure IRM Settings:</strong></p>
+</li>
+<li><strong>Allow viewers to print:</strong> Uncheck for enterprise managed</li>
+<li><strong>Allow viewers to run script and screen reader:</strong> Check (accessibility)</li>
+<li><strong>Allow users to upload documents that do not support IRM:</strong> Uncheck</li>
+<li>
+<p><strong>Stop restricting access to the library at:</strong> Set expiration date if needed</p>
+</li>
+<li>
+<p><strong>Additional Options (click "Show Options"):</strong></p>
+</li>
+<li><strong>Group protection:</strong> Set reasonable group size</li>
+<li><strong>Document access rights:</strong> Configure per governance level</li>
+<li>
+<p><strong>Prevent opening documents in browser:</strong> Enable for high-security libraries</p>
+</li>
+<li>
+<p>Click <strong>OK</strong> to apply IRM settings</p>
+</li>
+</ol>
+<h3 id="step-4-configure-irm-for-onedrive">Step 4: Configure IRM for OneDrive</h3>
+<p><strong>Portal Path:</strong> SharePoint Admin Center → Settings → OneDrive → Sync</p>
+<ol>
+<li>Navigate to <strong>SharePoint Admin Center</strong> (admin.sharepoint.com)</li>
+<li>Select <strong>Settings</strong> → <strong>OneDrive</strong></li>
+<li><strong>Enable IRM for OneDrive:</strong></li>
+<li>Under <strong>Sync</strong>, click <strong>IRM</strong></li>
+<li>Enable <strong>Let users sync IRM-protected files with the OneDrive sync app</strong></li>
+<li><strong>Configure Sync Client IRM:</strong></li>
+<li>Users can sync IRM-protected libraries</li>
+<li>Files maintain protection when synced locally</li>
+</ol>
+<h3 id="step-5-configure-agent-access-to-irm-content">Step 5: Configure Agent Access to IRM Content</h3>
+<p><strong>Portal Path:</strong> Copilot Studio → [Agent] → Knowledge → Manage sources</p>
+<ol>
+<li>Open <strong>Copilot Studio</strong> (copilotstudio.microsoft.com)</li>
+<li>Select the agent that accesses protected content</li>
+<li>Navigate to <strong>Knowledge</strong> → <strong>Manage sources</strong></li>
+<li><strong>Verify Agent Permissions:</strong></li>
+<li>Agent service account must be included in label permissions</li>
+<li>Grant minimum required rights (typically View only)</li>
+<li><strong>For IRM-Protected Libraries:</strong></li>
+<li>Agent respects IRM permissions</li>
+<li>Agent cannot extract content beyond granted rights</li>
+<li>
+<p>Document content is decrypted for authorized access only</p>
+</li>
+<li>
+<p><strong>Test Agent Access:</strong></p>
+</li>
+<li>Upload IRM-protected test document</li>
+<li>Query agent about document content</li>
+<li>Verify agent can read but not expose protected content inappropriately</li>
+</ol>
+<h3 id="step-6-enable-document-tracking-and-revocation">Step 6: Enable Document Tracking and Revocation</h3>
+<p><strong>Portal Path:</strong> Azure Information Protection → Track and revoke</p>
+<ol>
+<li>Navigate to <strong>Azure portal</strong> → <strong>Azure Information Protection</strong></li>
+<li>Select <strong>Track and revoke</strong></li>
+<li><strong>Enable Document Tracking:</strong></li>
+<li>Users can track who accessed their protected documents</li>
+<li>Available in Office applications and online</li>
+<li><strong>Configure Revocation:</strong></li>
+<li>Authorized users can revoke access to protected documents</li>
+<li>Revocation is immediate for online access</li>
+<li>
+<p>Offline access limited by "Allow offline access" days setting</p>
+</li>
+<li>
+<p><strong>For Compliance Teams:</strong></p>
+</li>
+<li>Compliance administrators can track all protected documents</li>
+<li>Super user account can access all protected content (audit access)</li>
+</ol>
+<h3 id="step-7-configure-label-policies">Step 7: Configure Label Policies</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → Information protection → Label policies</p>
+<ol>
+<li>Navigate to <strong>Microsoft Purview</strong> → <strong>Information protection</strong></li>
+<li>Select <strong>Label policies</strong> → <strong>Publish labels</strong></li>
+<li><strong>Create Publishing Policy:</strong></li>
+<li><strong>Name:</strong> "FSI Agent Document Protection"</li>
+<li><strong>Labels:</strong> Select IRM-enabled labels created in Step 2</li>
+<li>
+<p><strong>Users/Groups:</strong> All users who work with agent-accessed content</p>
+</li>
+<li>
+<p><strong>Policy Settings:</strong></p>
+</li>
+<li><strong>Apply default label to documents:</strong> Select appropriate default</li>
+<li><strong>Require users to apply a label:</strong> Enable for enterprise managed</li>
+<li>
+<p><strong>Require justification for label change:</strong> Enable</p>
+</li>
+<li>
+<p><strong>Publish the policy</strong></p>
+</li>
+<li>Allow 24-48 hours for policy propagation</li>
+</ol>
+<h3 id="step-8-configure-auto-labeling-for-irm">Step 8: Configure Auto-Labeling for IRM</h3>
+<p><strong>Portal Path:</strong> Microsoft Purview → Information protection → Auto-labeling</p>
+<ol>
+<li>Navigate to <strong>Microsoft Purview</strong> → <strong>Information protection</strong></li>
+<li>Select <strong>Auto-labeling</strong> → <strong>Create auto-labeling policy</strong></li>
+<li><strong>Configure Policy:</strong></li>
+<li><strong>Name:</strong> "Auto-protect FSI Documents"</li>
+<li><strong>Conditions:</strong> Match sensitive information types<ul>
+<li>SSN, Credit card numbers, Bank account numbers</li>
+<li>Custom SITs for MNPI indicators</li>
+</ul>
+</li>
+<li><strong>Select IRM Label:</strong></li>
+<li>Choose label with IRM protection</li>
+<li>Configure for automatic application</li>
+<li><strong>Locations:</strong></li>
+<li>SharePoint sites used by agents</li>
+<li>OneDrive locations</li>
+<li>Exchange for email content</li>
+<li>Run policy in simulation mode first, then enable</li>
+</ol>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="enable-azure-rms-and-configure-irm">Enable Azure RMS and Configure IRM</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Install required modules</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">AIPService</span>
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">PnP</span><span class="p">.</span><span class="n">PowerShell</span>
+
+<span class="c"># Connect to Azure Information Protection</span>
+<span class="nb">Connect-AipService</span>
+
+<span class="c"># Verify Azure RMS is activated</span>
+<span class="nv">$rmsStatus</span> <span class="p">=</span> <span class="nb">Get-AipServiceConfiguration</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Azure RMS Status: </span><span class="p">$(</span><span class="nv">$rmsStatus</span><span class="p">.</span><span class="n">FunctionalState</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="c"># If not activated, activate it</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$rmsStatus</span><span class="p">.</span><span class="n">FunctionalState</span> <span class="o">-ne</span> <span class="s2">&quot;Enabled&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Enable-AipService</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Azure RMS has been activated&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="p">}</span>
+
+<span class="c"># Configure super user feature (for compliance access)</span>
+<span class="nb">Enable-AipServiceSuperUserFeature</span>
+
+<span class="c"># Add compliance admin as super user</span>
+<span class="nb">Add-AipServiceSuperUser</span> <span class="n">-EmailAddress</span> <span class="s2">&quot;compliance-admin@domain.com&quot;</span>
+
+<span class="c"># Get current IRM configuration</span>
+<span class="nb">Get-AipServiceConfiguration</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="p">*</span>
+</code></pre></div>
+<h3 id="configure-sharepoint-library-irm-via-powershell">Configure SharePoint Library IRM via PowerShell</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to SharePoint Online</span>
+<span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="s2">&quot;https://yourtenant.sharepoint.com/sites/AgentKnowledgeBase&quot;</span> <span class="n">-Interactive</span>
+
+<span class="c"># Get the library</span>
+<span class="nv">$libraryName</span> <span class="p">=</span> <span class="s2">&quot;Agent Documents&quot;</span>
+<span class="nv">$library</span> <span class="p">=</span> <span class="nb">Get-PnPList</span> <span class="n">-Identity</span> <span class="nv">$libraryName</span>
+
+<span class="c"># Enable IRM on the library</span>
+<span class="nb">Set-PnPList</span> <span class="n">-Identity</span> <span class="nv">$libraryName</span> <span class="n">-IrmEnabled</span> <span class="nv">$true</span>
+
+<span class="c"># Configure IRM settings</span>
+<span class="nv">$irmSettings</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">PolicyTitle</span> <span class="p">=</span> <span class="s2">&quot;FSI Protected Content&quot;</span>
+    <span class="n">PolicyDescription</span> <span class="p">=</span> <span class="s2">&quot;Documents protected by IRM - copying and printing restricted&quot;</span>
+    <span class="n">AllowPrint</span> <span class="p">=</span> <span class="nv">$false</span>
+    <span class="n">AllowScript</span> <span class="p">=</span> <span class="nv">$true</span>
+    <span class="n">AllowWriteCopy</span> <span class="p">=</span> <span class="nv">$false</span>
+    <span class="n">DisableDocumentBrowserView</span> <span class="p">=</span> <span class="nv">$true</span>
+    <span class="n">DocumentAccessExpireDays</span> <span class="p">=</span> <span class="n">90</span>
+    <span class="n">EnableDocumentAccessExpire</span> <span class="p">=</span> <span class="nv">$true</span>
+    <span class="n">GroupProtectionExpiryDays</span> <span class="p">=</span> <span class="n">30</span>
+<span class="p">}</span>
+
+<span class="c"># Apply IRM settings via CSOM (more granular control)</span>
+<span class="nv">$ctx</span> <span class="p">=</span> <span class="nb">Get-PnPContext</span>
+<span class="nv">$list</span> <span class="p">=</span> <span class="nv">$ctx</span><span class="p">.</span><span class="n">Web</span><span class="p">.</span><span class="n">Lists</span><span class="p">.</span><span class="n">GetByTitle</span><span class="p">(</span><span class="nv">$libraryName</span><span class="p">)</span>
+<span class="nv">$ctx</span><span class="p">.</span><span class="n">Load</span><span class="p">(</span><span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">)</span>
+<span class="nv">$ctx</span><span class="p">.</span><span class="n">ExecuteQuery</span><span class="p">()</span>
+
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">AllowPrint</span> <span class="p">=</span> <span class="nv">$false</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">AllowScript</span> <span class="p">=</span> <span class="nv">$true</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">AllowWriteCopy</span> <span class="p">=</span> <span class="nv">$false</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">DisableDocumentBrowserView</span> <span class="p">=</span> <span class="nv">$true</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">DocumentAccessExpireDays</span> <span class="p">=</span> <span class="n">90</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">EnableDocumentAccessExpire</span> <span class="p">=</span> <span class="nv">$true</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">PolicyTitle</span> <span class="p">=</span> <span class="s2">&quot;FSI Protected Content&quot;</span>
+<span class="nv">$list</span><span class="p">.</span><span class="n">InformationRightsManagementSettings</span><span class="p">.</span><span class="n">PolicyDescription</span> <span class="p">=</span> <span class="s2">&quot;Restricted by IRM&quot;</span>
+
+<span class="nv">$list</span><span class="p">.</span><span class="n">Update</span><span class="p">()</span>
+<span class="nv">$ctx</span><span class="p">.</span><span class="n">ExecuteQuery</span><span class="p">()</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;IRM configured on library: $libraryName&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<h3 id="audit-irm-protected-document-access">Audit IRM-Protected Document Access</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Exchange Online for audit log search</span>
+<span class="nb">Connect-ExchangeOnline</span>
+
+<span class="c"># Search for IRM document access events</span>
+<span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">30</span><span class="p">)</span>
+<span class="nv">$endDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+<span class="nv">$irmEvents</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-Operations</span> <span class="s2">&quot;ProtectionApplied&quot;</span><span class="p">,</span><span class="s2">&quot;ProtectionRemoved&quot;</span><span class="p">,</span><span class="s2">&quot;FileAccessed&quot;</span> <span class="p">`</span>
+    <span class="n">-RecordType</span> <span class="n">AzureActiveDirectoryAccountLogon</span> <span class="p">`</span>
+    <span class="n">-ResultSize</span> <span class="n">5000</span>
+
+<span class="c"># Parse IRM access events</span>
+<span class="nv">$accessReport</span> <span class="p">=</span> <span class="nv">$irmEvents</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="nv">$auditData</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+    <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">Timestamp</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreationDate</span>
+        <span class="n">User</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">UserIds</span>
+        <span class="n">Operation</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Operations</span>
+        <span class="n">File</span> <span class="p">=</span> <span class="nv">$auditData</span><span class="p">.</span><span class="n">ObjectId</span>
+        <span class="n">Result</span> <span class="p">=</span> <span class="nv">$auditData</span><span class="p">.</span><span class="n">ResultStatus</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Export report</span>
+<span class="nv">$accessReport</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;IRM_AccessReport_</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Summary</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;=== IRM Access Summary ===&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Total IRM events: </span><span class="p">$(</span><span class="nv">$irmEvents</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Protection applied: </span><span class="p">$((</span><span class="nv">$irmEvents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Operations</span> <span class="o">-eq</span> <span class="s1">&#39;ProtectionApplied&#39;</span><span class="p">).</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Documents accessed: </span><span class="p">$((</span><span class="nv">$irmEvents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="n">Operations</span> <span class="o">-eq</span> <span class="s1">&#39;FileAccessed&#39;</span><span class="p">).</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="create-sensitivity-label-with-irm-microsoft-graph">Create Sensitivity Label with IRM (Microsoft Graph)</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Note: Requires Microsoft.Graph module</span>
+<span class="nb">Install-Module</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">Graph</span><span class="p">.</span><span class="n">Identity</span><span class="p">.</span><span class="n">SignIns</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;InformationProtectionPolicy.ReadWrite.All&quot;</span>
+
+<span class="c"># Define label with encryption (simplified example)</span>
+<span class="nv">$labelParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">displayName</span> <span class="p">=</span> <span class="s2">&quot;Highly Confidential - FSI&quot;</span>
+    <span class="n">description</span> <span class="p">=</span> <span class="s2">&quot;For MNPI and highly sensitive financial data&quot;</span>
+    <span class="n">color</span> <span class="p">=</span> <span class="s2">&quot;#FF0000&quot;</span>
+    <span class="n">sensitivity</span> <span class="p">=</span> <span class="n">10</span>
+    <span class="n">contentFormats</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">)</span>
+    <span class="n">isEndpointProtectionEnabled</span> <span class="p">=</span> <span class="nv">$true</span>
+    <span class="n">settings</span> <span class="p">=</span> <span class="p">@(</span>
+        <span class="p">@{</span>
+            <span class="s2">&quot;@odata.type&quot;</span> <span class="p">=</span> <span class="s2">&quot;#microsoft.graph.encryptionSettings&quot;</span>
+            <span class="n">encryptionMethod</span> <span class="p">=</span> <span class="s2">&quot;AESGCM256&quot;</span>
+            <span class="n">contentExpiredOnDateInDaysOrNever</span> <span class="p">=</span> <span class="s2">&quot;90&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Note: Full implementation requires Microsoft Graph API calls</span>
+<span class="c"># This is a simplified example - use Microsoft Purview portal for production</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>IRM Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Protect customer NPI</td>
+<td>IRM prevents unauthorized copying/sharing</td>
+</tr>
+<tr>
+<td><strong>SEC Reg S-P</strong></td>
+<td>Privacy of consumer financial info</td>
+<td>Watermarks and access restrictions</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Books and records retention</td>
+<td>IRM audit trail for access history</td>
+</tr>
+<tr>
+<td><strong>SOX 404</strong></td>
+<td>Internal controls</td>
+<td>Prevent unauthorized document distribution</td>
+</tr>
+<tr>
+<td><strong>SEC Reg S-ID</strong></td>
+<td>Red flags for identity theft</td>
+<td>Protect customer identity documents</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Zone 1 (Personal Productivity)</th>
+<th>Zone 2 (Team Collaboration)</th>
+<th>Zone 3 (Enterprise Managed)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IRM on Libraries</strong></td>
+<td>Optional</td>
+<td>Required</td>
+<td>Mandatory</td>
+</tr>
+<tr>
+<td><strong>Print Protection</strong></td>
+<td>Allowed</td>
+<td>Blocked</td>
+<td>Blocked</td>
+</tr>
+<tr>
+<td><strong>Copy Protection</strong></td>
+<td>Allowed</td>
+<td>Blocked</td>
+<td>Blocked</td>
+</tr>
+<tr>
+<td><strong>Watermarking</strong></td>
+<td>Disabled</td>
+<td>Header/Footer</td>
+<td>Full watermark</td>
+</tr>
+<tr>
+<td><strong>Access Expiration</strong></td>
+<td>None</td>
+<td>180 days</td>
+<td>90 days</td>
+</tr>
+<tr>
+<td><strong>Offline Access</strong></td>
+<td>30 days</td>
+<td>14 days</td>
+<td>7 days</td>
+</tr>
+<tr>
+<td><strong>Screen Capture Block</strong></td>
+<td>Disabled</td>
+<td>Enabled</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td><strong>Revocation Capability</strong></td>
+<td>Manual</td>
+<td>Admin + User</td>
+<td>Automated alerts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-use-case-example">FSI Use Case Example</h3>
+<p><strong>Scenario:</strong> Research Analyst Report Protection</p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Equity research reports contain MNPI</li>
+<li>SEC regulations require access controls</li>
+<li>Reports shared with select institutional clients</li>
+</ul>
+<p><strong>IRM Implementation:</strong></p>
+<ol>
+<li><strong>Sensitivity Label:</strong> "Highly Confidential - Research"</li>
+<li><strong>Permissions:</strong></li>
+<li>Research team: View, Edit</li>
+<li>Sales desk: View only</li>
+<li>Institutional clients: View only (via external sharing)</li>
+<li>No copy, print, or forward</li>
+<li><strong>Expiration:</strong> Access expires 90 days after publication</li>
+<li><strong>Watermarking:</strong> Dynamic watermark with viewer's email</li>
+<li><strong>Agent Access:</strong> Copilot agents have View-only access for Q&amp;A</li>
+</ol>
+<p><strong>Regulatory Benefit:</strong></p>
+<ul>
+<li>Demonstrates MNPI access controls to SEC/FINRA</li>
+<li>Audit trail for who accessed research</li>
+<li>Revocation capability for compliance issues</li>
+</ul>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Azure RMS Verification:</strong></li>
+<li>[ ] Azure RMS activated in tenant</li>
+<li>[ ] IRM-enabled labels published</li>
+<li>
+<p>[ ] Label policies applied to users</p>
+</li>
+<li>
+<p><strong>Library IRM Verification:</strong></p>
+</li>
+<li>[ ] IRM enabled on sensitive libraries</li>
+<li>[ ] Download restrictions working</li>
+<li>
+<p>[ ] Print/copy blocked as configured</p>
+</li>
+<li>
+<p><strong>Agent Access Testing:</strong></p>
+</li>
+<li>[ ] Agent can read IRM-protected content</li>
+<li>[ ] Agent respects protection restrictions</li>
+<li>
+<p>[ ] Agent cannot expose protected content inappropriately</p>
+</li>
+<li>
+<p><strong>Audit Trail Verification:</strong></p>
+</li>
+<li>[ ] Document access logged</li>
+<li>[ ] Protection events captured</li>
+<li>[ ] Revocation tested and working</li>
+</ol>
+<h3 id="compliance-checklist">Compliance Checklist</h3>
+<ul>
+<li>[ ] IRM enabled on all team collaboration and enterprise managed document libraries</li>
+<li>[ ] Sensitivity labels include IRM protection</li>
+<li>[ ] Auto-labeling policies active for SIT matches</li>
+<li>[ ] Document tracking enabled</li>
+<li>[ ] Revocation procedures documented</li>
+<li>[ ] Agent service accounts have minimum IRM rights</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-1-agent-cannot-access-irm-protected-content">Issue 1: Agent Cannot Access IRM-Protected Content</h3>
+<p><strong>Symptoms:</strong> Agent returns errors or empty responses for protected documents</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify agent service account is in label permissions</li>
+<li>Check that service account has Azure RMS rights</li>
+<li>Confirm library IRM settings allow service accounts</li>
+<li>Test with unprotected version to isolate issue</li>
+<li>Review agent authentication method</li>
+</ol>
+<h3 id="issue-2-irm-not-applying-to-downloaded-files">Issue 2: IRM Not Applying to Downloaded Files</h3>
+<p><strong>Symptoms:</strong> Files lose protection when downloaded</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify IRM is enabled on the library</li>
+<li>Check that file type supports IRM (Office docs, PDF)</li>
+<li>Ensure client has Azure Information Protection client</li>
+<li>Verify user isn't in exception group</li>
+<li>Check for conflicting Group Policy settings</li>
+</ol>
+<h3 id="issue-3-users-cannot-open-irm-protected-documents">Issue 3: Users Cannot Open IRM-Protected Documents</h3>
+<p><strong>Symptoms:</strong> "You don't have permission" errors</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify user is in label permissions</li>
+<li>Check document expiration date</li>
+<li>Verify offline access hasn't expired</li>
+<li>Ensure Azure RMS is reachable</li>
+<li>Clear Azure RMS credential cache</li>
+</ol>
+<h3 id="issue-4-irm-watermarks-not-displaying">Issue 4: IRM Watermarks Not Displaying</h3>
+<p><strong>Symptoms:</strong> Content marking not appearing on documents</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify content marking enabled in label</li>
+<li>Check that document format supports watermarks</li>
+<li>Ensure client application is updated</li>
+<li>Verify label was properly applied</li>
+<li>Check for macro or add-in interference</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/azure/information-protection/what-is-information-protection">Azure Information Protection overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/apply-irm-to-a-list-or-library">Apply IRM to SharePoint library</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/encryption-sensitivity-labels">Sensitivity labels with encryption</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/information-protection/rms-client/track-and-revoke-admin">Track and revoke documents</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-365/compliance/apply-sensitivity-label-automatically">Auto-labeling policies</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control ID</th>
+<th>Control Name</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.5</td>
+<td>DLP and Sensitivity Labels</td>
+<td>Label-based protection</td>
+</tr>
+<tr>
+<td>1.15</td>
+<td>Encryption</td>
+<td>Underlying encryption</td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>SharePoint Governance</td>
+<td>Library permissions</td>
+</tr>
+<tr>
+<td>1.14</td>
+<td>Data Minimization</td>
+<td>Access restrictions</td>
+</tr>
+<tr>
+<td>4.1</td>
+<td>SharePoint IAG</td>
+<td>Content discovery control</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>AI Governance Lead</strong> (governance direction)</li>
+<li><strong>Compliance Officer</strong> (regulatory requirements)</li>
+<li><strong>Technical Implementation Team</strong> (platform setup)</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026<br />
+<strong>Version:</strong> v1.0 (Jan 2026)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

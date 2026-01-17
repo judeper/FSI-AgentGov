@@ -1,0 +1,5596 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/">
+      
+      
+        <link rel="prev" href="../1.7-comprehensive-audit-logging-and-compliance/">
+      
+      
+        <link rel="next" href="../1.9-data-retention-and-deletion-policies/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.8 Runtime Protection And External Threat Detection - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-18-runtime-protection-and-external-threat-detection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.8 Runtime Protection And External Threat Detection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-enable-managed-environments-prerequisite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Enable Managed Environments (Prerequisite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-agent-security-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Agent Security Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-enable-runtime-protection-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Enable Runtime Protection for Agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-configure-copilot-studio-security-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Configure Copilot Studio Security Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-implement-egress-controls-and-toolconnector-guardrails-required-for-evidence-grade-runtime-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Implement Egress Controls and Tool/Connector Guardrails (Required for evidence-grade runtime protection)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-set-up-external-threat-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Set Up External Threat Detection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 6: Set Up External Threat Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-6a-external-threat-detection-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6a: External Threat Detection Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6b-configure-entra-app-registration-for-webhook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6b: Configure Entra App Registration for Webhook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6c-configure-external-threat-detection-in-power-platform-admin-center" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6c: Configure External Threat Detection in Power Platform Admin Center
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6d-fsi-data-sharing-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6d: FSI Data Sharing Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6e-microsoft-defender-integration-option" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6e: Microsoft Defender Integration Option
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-configure-alert-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Configure Alert Policies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 7: Configure Alert Policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alert-1-agent-prompt-injection-detected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alert 1: Agent Prompt Injection Detected
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alert-2-agent-jailbreak-attempt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alert 2: Agent Jailbreak Attempt
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alert-3-unusual-agent-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alert 3: Unusual Agent Activity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-configure-siem-integration-recommended-for-higher-risk-tiers-soc-dependent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Configure SIEM Integration (Recommended for higher-risk tiers; SOC-dependent)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Zone-Specific Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zone-1-personal-productivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 1 (Personal Productivity)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-2-team-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 2 (Team Collaboration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-3-enterprise-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 3 (Enterprise Managed)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#threat-categories-and-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threat Categories and Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-configuration-example-investment-bank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Configuration Example: Investment Bank
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-runtime-protection-not-blocking-threats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Runtime Protection Not Blocking Threats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-too-many-false-positives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Too Many False Positives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-alerts-not-being-generated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Alerts Not Being Generated
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-siem-not-receiving-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: SIEM Not Receiving Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-external-threat-detection-webhook-not-responding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: External Threat Detection Webhook Not Responding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-external-threat-detection-blocking-legitimate-tool-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: External Threat Detection Blocking Legitimate Tool Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-federated-identity-credential-authentication-failing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Federated Identity Credential Authentication Failing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-18-runtime-protection-and-external-threat-detection">Control 1.8: Runtime Protection and External Threat Detection</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.8<br />
+<strong>Control Name:</strong> Runtime Protection and External Threat Detection<br />
+<strong>Regulatory Reference:</strong> FINRA Notice 25-07, SEC AI priorities, GLBA 501(b)<br />
+<strong>Setup Time:</strong> 1-2 hours (initial); ongoing monitoring  </p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Runtime Protection provides real-time security controls for Copilot Studio agents, detecting and blocking prompt injection attacks, jailbreak attempts, and malicious agent behavior. For financial services, runtime protection is critical for:</p>
+<ul>
+<li><strong>Prompt Injection Prevention</strong>: Blocking attempts to manipulate agent behavior through malicious inputs</li>
+<li><strong>Jailbreak Detection</strong>: Identifying attempts to bypass agent guardrails</li>
+<li><strong>FINRA 25-07 Compliance</strong>: Demonstrating AI risk controls and monitoring</li>
+<li><strong>GLBA 501(b)</strong>: Protecting customer data from exfiltration via AI agents</li>
+<li><strong>SEC AI Priorities</strong>: Implementing appropriate governance for AI-driven systems</li>
+<li><strong>External Threat Detection</strong>: Identifying and blocking known malicious patterns</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Entra Security Admin
+<strong>Supporting Roles:</strong> None</p>
+<h3 id="required-licenses">Required Licenses</h3>
+<ul>
+<li><strong>Power Platform</strong> with Managed Environments (Premium)</li>
+<li>Microsoft Defender for Cloud Apps (recommended for SaaS threat detection and session controls)</li>
+<li>Microsoft Defender XDR (optional, for SOC correlation across identities/endpoints/email)</li>
+<li>Microsoft Sentinel (optional, for SIEM/SOAR correlation and advanced detections)</li>
+</ul>
+<h3 id="required-permissions">Required Permissions</h3>
+<ul>
+<li><strong>Power Platform Administrator</strong> (tenant-level configuration)</li>
+<li><strong>Environment Administrator</strong> (environment-level settings)</li>
+<li><strong>Security Administrator</strong> (alert configuration)</li>
+</ul>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li><strong>Control 2.1 (Managed Environments)</strong>: Required for runtime protection</li>
+<li><strong>Control 1.7 (Audit Logging)</strong>: Logging infrastructure for threats</li>
+<li><strong>Control 1.4 (ACP)</strong>: Connector controls complement runtime protection</li>
+</ul>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Managed Environments enabled</li>
+<li>[ ] Security operations team identified</li>
+<li>[ ] Incident response procedures documented</li>
+<li>[ ] Alert recipients and escalation paths defined</li>
+<li>[ ] SIEM integration requirements assessed</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<p>Implement secure prompt practices and manual review; restrict risky actions and external data access.</p>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<p>Enable runtime protections and monitor threats; integrate alerts with security operations.</p>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<p>Runtime protection required with external threat detection; defined incident response playbooks and SLAs.</p>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-enable-managed-environments-prerequisite">Step 1: Enable Managed Environments (Prerequisite)</h3>
+<p><strong>Portal Path:</strong> <a href="https://admin.powerplatform.microsoft.com">Power Platform Admin Center</a> → <strong>Environments</strong> → [Environment] → <strong>Enable Managed Environment</strong></p>
+<ol>
+<li>Navigate to Power Platform Admin Center</li>
+<li>Select target environment</li>
+<li>Click <strong>Enable Managed Environment</strong> (if not already enabled)</li>
+<li>Confirm enablement</li>
+<li>Wait for activation (may take up to 30 minutes)</li>
+</ol>
+<h3 id="step-2-configure-agent-security-settings">Step 2: Configure Agent Security Settings</h3>
+<p><strong>Portal Path:</strong> Power Platform Admin Center → <strong>Environments</strong> → [Environment] → <strong>Settings</strong> → <strong>Features</strong> → <strong>Agent capabilities</strong></p>
+<ol>
+<li>Navigate to environment settings</li>
+<li>Go to <strong>Features</strong> → <strong>Agent capabilities</strong></li>
+<li>Configure security settings:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Recommended Value</th>
+<th>Tier 3 Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Allow AI-generated responses</strong></td>
+<td>On</td>
+<td>On (with guardrails)</td>
+</tr>
+<tr>
+<td><strong>Moderation and safety</strong></td>
+<td>Enabled</td>
+<td>Enabled - Strict</td>
+</tr>
+<tr>
+<td><strong>Block prompt injection attempts</strong></td>
+<td>Enabled</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td><strong>Log AI interactions</strong></td>
+<td>Enabled</td>
+<td>Enabled - Verbose</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h3 id="step-3-enable-runtime-protection-for-agents">Step 3: Enable Runtime Protection for Agents</h3>
+<p><strong>Portal Path:</strong> Power Platform Admin Center → <strong>Policies</strong> → <strong>Agent security</strong></p>
+<ol>
+<li>Navigate to <strong>Policies</strong> → <strong>Agent security</strong> (or similar section)</li>
+<li>Enable <strong>Runtime protection</strong></li>
+<li>Configure protection levels:</li>
+</ol>
+<p><strong>Protection Configuration:</strong>
+<div class="highlight"><pre><span></span><code>Prompt Injection Detection: Enabled
+├── Sensitivity: High (recommended for FSI)
+├── Action: Block and log
+└── Notify: Security team
+
+Jailbreak Prevention: Enabled
+├── Detection mode: Active
+├── Action: Block and alert
+└── Log level: Detailed
+
+Content Safety: Enabled
+├── Categories: All (hate, violence, self-harm, sexual)
+├── Threshold: Strict
+└── Action: Block and log
+
+Sensitive Data Protection: Enabled
+├── PII detection: On
+├── Financial data: On
+├── Action: Mask in responses, log attempts
+└── Alert: On threshold breach
+</code></pre></div></p>
+<h3 id="step-4-configure-copilot-studio-security-settings">Step 4: Configure Copilot Studio Security Settings</h3>
+<p><strong>Portal Path:</strong> <a href="https://copilotstudio.microsoft.com">Copilot Studio</a> → [Agent] → <strong>Settings</strong> → <strong>Security</strong></p>
+<p>For each agent, configure:</p>
+<ol>
+<li>Open agent in Copilot Studio</li>
+<li>Navigate to <strong>Settings</strong> → <strong>Security</strong></li>
+<li>Configure:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Tier 1</th>
+<th>Tier 2</th>
+<th>Tier 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>Optional</td>
+<td>Required</td>
+<td>Required + MFA</td>
+</tr>
+<tr>
+<td><strong>Secure input</strong></td>
+<td>Off</td>
+<td>On</td>
+<td>On</td>
+</tr>
+<tr>
+<td><strong>Secure output</strong></td>
+<td>Off</td>
+<td>On</td>
+<td>On</td>
+</tr>
+<tr>
+<td><strong>Log conversations</strong></td>
+<td>Optional</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Under <strong>Moderation</strong>:</li>
+<li>Enable content moderation</li>
+<li>Set appropriate topic scope</li>
+<li>Configure fallback responses</li>
+</ol>
+<h3 id="step-5-implement-egress-controls-and-toolconnector-guardrails-required-for-evidence-grade-runtime-protection">Step 5: Implement Egress Controls and Tool/Connector Guardrails (Required for evidence-grade runtime protection)</h3>
+<p>Runtime protection must be paired with <strong>egress controls</strong> so agents cannot exfiltrate data via tools/connectors even if a malicious prompt is attempted.</p>
+<p><strong>Required outcomes</strong>
+- <strong>Allowed tools are explicit:</strong> Each agent has an approved list of actions/tools/connectors it may call.
+- <strong>Allowed destinations are explicit:</strong> Outbound network destinations (domains/endpoints) are allowlisted where feasible.
+- <strong>Sensitive operations are gated:</strong> High-risk actions require authentication/authorization and are logged with sufficient detail for investigation.</p>
+<p><strong>Configuration expectations (Power Platform + Copilot Studio)</strong>
+1. <strong>Connector allowlist + environment DLP (Control 1.4, Control 2.1)</strong>
+   - Restrict environments to approved connectors only.
+   - Treat <strong>HTTP</strong>, <strong>Custom connectors</strong>, <strong>SQL/File</strong>, and any connector enabling arbitrary outbound calls as <strong>high-risk</strong> and block by default unless explicitly approved with documented justification.
+2. <strong>Constrain “generic fetch” patterns</strong>
+   - If a connector enables arbitrary URLs, enforce an allowlist (domain/path patterns) in the connector implementation where supported.
+   - For custom connectors, restrict base URL(s) and methods to approved endpoints only.
+3. <strong>Least-privilege identity for tool execution</strong>
+   - Use dedicated app identities/service accounts with scoped permissions for each agent/tool integration.
+   - Separate read-only vs write actions where possible; prevent “write” by default.
+4. <strong>Abuse controls</strong>
+   - Define operational thresholds (requests/min, tool calls/session, auth failures/session) and alert on breaches as potential automation abuse or exfiltration attempts.</p>
+<p><strong>Evidence requirements for egress controls</strong>
+- Screenshot/export of <strong>DLP policies</strong> applied to the environment.
+- Screenshot/export of <strong>ACP/connector allowlist</strong> (or documented compensating control if allowlisting is not technically supported for a specific connector).
+- For each Tier 3 agent: list of <strong>approved connectors/tools</strong> and approved <strong>external destinations</strong> (domains/endpoints) if applicable.</p>
+<h3 id="step-6-set-up-external-threat-detection">Step 6: Set Up External Threat Detection</h3>
+<div class="admonition warning">
+<p class="admonition-title">Preview Feature</p>
+<p>External threat detection via custom webhooks is currently in <strong>preview</strong>. For regulated FSI environments, evaluate feature stability and data handling before production deployment. Monitor <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider">Microsoft documentation</a> for GA announcement and any changes to data sharing behavior.</p>
+</div>
+<p>External threat detection enables real-time evaluation of agent tool invocations through third-party security providers or Microsoft Defender. When configured, Copilot Studio sends tool invocation requests to an external webhook endpoint, which returns allow/block decisions before execution.</p>
+<h4 id="step-6a-external-threat-detection-architecture">Step 6a: External Threat Detection Architecture</h4>
+<p><strong>How It Works:</strong></p>
+<div class="highlight"><pre><span></span><code>User Prompt → Agent Evaluates Tool Use → External Threat Detection Endpoint
+                                                    ↓
+                                        Provider Evaluates Request
+                                                    ↓
+                              ┌─────────────────────┴─────────────────────┐
+                              ↓                                           ↓
+                          ALLOW                                        BLOCK
+                              ↓                                           ↓
+                    Tool Executes Normally                    Tool Blocked + User Notified
+</code></pre></div>
+<p><strong>Key Characteristics:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Timeout</strong></td>
+<td>1 second maximum response time</td>
+</tr>
+<tr>
+<td><strong>Default Behavior</strong></td>
+<td>Configurable: allow or block on timeout/error</td>
+</tr>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>Federated Identity Credentials (FIC) - secret-less</td>
+</tr>
+<tr>
+<td><strong>Scope</strong></td>
+<td>Evaluates tool invocations before execution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data Shared with External Provider:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Data Element</th>
+<th>Description</th>
+<th>FSI Sensitivity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User prompts</td>
+<td>Current and historical prompts in session</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Chat history</td>
+<td>Conversation context</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Tool invocations</td>
+<td>Tool name, reasoning, input parameters</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Conversation metadata</td>
+<td>Agent ID, user identity (UPN), tenant ID</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Session context</td>
+<td>Conversation ID, timestamps</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<h4 id="step-6b-configure-entra-app-registration-for-webhook">Step 6b: Configure Entra App Registration for Webhook</h4>
+<p><strong>Portal Path:</strong> <a href="https://entra.microsoft.com">Microsoft Entra Admin Center</a> → <strong>Applications</strong> → <strong>App registrations</strong> → <strong>New registration</strong></p>
+<p>To enable secret-less authentication between Copilot Studio and your external threat detection endpoint, create an Entra app registration with Federated Identity Credentials (FIC).</p>
+<ol>
+<li>Navigate to <strong>Microsoft Entra Admin Center</strong> → <strong>Applications</strong> → <strong>App registrations</strong></li>
+<li>Click <strong>+ New registration</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>CopilotStudio-ThreatDetection-Webhook</code></li>
+<li><strong>Supported account types:</strong> Accounts in this organizational directory only</li>
+<li><strong>Redirect URI:</strong> Leave blank (not required for FIC)</li>
+<li>Click <strong>Register</strong></li>
+<li>Note the <strong>Application (client) ID</strong> - you'll need this for Power Platform configuration</li>
+</ol>
+<p><strong>Configure Federated Identity Credentials:</strong></p>
+<ol>
+<li>In the app registration, navigate to <strong>Certificates &amp; secrets</strong> → <strong>Federated credentials</strong></li>
+<li>Click <strong>+ Add credential</strong></li>
+<li>Select <strong>Other issuer</strong></li>
+<li>Configure:</li>
+<li><strong>Issuer:</strong> <code>https://login.microsoftonline.com/{your-tenant-id}/v2.0</code></li>
+<li><strong>Subject identifier:</strong> <code>/eid1/c/pub/t/{base64_tenantId}/a/m1WPnYRZpEaQKq1Cceg--g/{base64_endpoint}</code></li>
+<li><strong>Name:</strong> <code>CopilotStudio-FIC</code></li>
+<li><strong>Audience:</strong> <code>api://AzureADTokenExchange</code></li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> The subject identifier format is specific to Power Platform. Replace <code>{base64_tenantId}</code> with your tenant ID encoded in base64, and <code>{base64_endpoint}</code> with your webhook endpoint URL encoded in base64.</p>
+</blockquote>
+<p><strong>PowerShell Alternative:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Create-CopilotWebhookApp.ps1</span>
+<span class="c"># Creates Entra app registration with FIC for Copilot Studio external threat detection</span>
+
+<span class="k">param</span><span class="p">(</span>
+    <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+    <span class="no">[string]</span><span class="nv">$TenantId</span><span class="p">,</span>
+
+    <span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+    <span class="no">[string]</span><span class="nv">$WebhookEndpoint</span>
+<span class="p">)</span>
+
+<span class="c"># Connect to Microsoft Graph</span>
+<span class="nb">Connect-MgGraph</span> <span class="n">-Scopes</span> <span class="s2">&quot;Application.ReadWrite.All&quot;</span>
+
+<span class="c"># Create app registration</span>
+<span class="nv">$AppParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">DisplayName</span> <span class="p">=</span> <span class="s2">&quot;CopilotStudio-ThreatDetection-Webhook&quot;</span>
+    <span class="n">SignInAudience</span> <span class="p">=</span> <span class="s2">&quot;AzurADMyOrg&quot;</span>
+<span class="p">}</span>
+
+<span class="nv">$App</span> <span class="p">=</span> <span class="nb">New-MgApplication</span> <span class="nv">@AppParams</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;App registration created: </span><span class="p">$(</span><span class="nv">$App</span><span class="p">.</span><span class="n">AppId</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Encode values for FIC subject</span>
+<span class="nv">$TenantIdBase64</span> <span class="p">=</span> <span class="no">[Convert]</span><span class="p">::</span><span class="n">ToBase64String</span><span class="p">(</span><span class="no">[Text.Encoding]</span><span class="p">::</span><span class="n">UTF8</span><span class="p">.</span><span class="n">GetBytes</span><span class="p">(</span><span class="nv">$TenantId</span><span class="p">))</span>
+<span class="nv">$EndpointBase64</span> <span class="p">=</span> <span class="no">[Convert]</span><span class="p">::</span><span class="n">ToBase64String</span><span class="p">(</span><span class="no">[Text.Encoding]</span><span class="p">::</span><span class="n">UTF8</span><span class="p">.</span><span class="n">GetBytes</span><span class="p">(</span><span class="nv">$WebhookEndpoint</span><span class="p">))</span>
+
+<span class="c"># Configure Federated Identity Credential</span>
+<span class="nv">$FicParams</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">ApplicationId</span> <span class="p">=</span> <span class="nv">$App</span><span class="p">.</span><span class="n">Id</span>
+    <span class="n">BodyParameter</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Name</span> <span class="p">=</span> <span class="s2">&quot;CopilotStudio-FIC&quot;</span>
+        <span class="n">Issuer</span> <span class="p">=</span> <span class="s2">&quot;https://login.microsoftonline.com/$TenantId/v2.0&quot;</span>
+        <span class="n">Subject</span> <span class="p">=</span> <span class="s2">&quot;/eid1/c/pub/t/$TenantIdBase64/a/m1WPnYRZpEaQKq1Cceg--g/$EndpointBase64&quot;</span>
+        <span class="n">Audiences</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;api://AzureADTokenExchange&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">New-MgApplicationFederatedIdentityCredential</span> <span class="nv">@FicParams</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Federated Identity Credential configured&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Application ID for Power Platform: </span><span class="p">$(</span><span class="nv">$App</span><span class="p">.</span><span class="n">AppId</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+</code></pre></div>
+<h4 id="step-6c-configure-external-threat-detection-in-power-platform-admin-center">Step 6c: Configure External Threat Detection in Power Platform Admin Center</h4>
+<p><strong>Portal Path:</strong> <a href="https://admin.powerplatform.microsoft.com">Power Platform Admin Center</a> → <strong>Security</strong> → <strong>Threat detection</strong> → <strong>Additional threat detection</strong></p>
+<ol>
+<li>Navigate to <strong>Power Platform Admin Center</strong></li>
+<li>Go to <strong>Security</strong> → <strong>Threat detection</strong></li>
+<li>Select <strong>Additional threat detection</strong> (or similar section for external providers)</li>
+<li>Configure:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Enable external threat detection</strong></td>
+<td>On</td>
+<td>Enables webhook integration</td>
+</tr>
+<tr>
+<td><strong>Enable data sharing</strong></td>
+<td>On</td>
+<td>Required - see data sharing table in Step 6a</td>
+</tr>
+<tr>
+<td><strong>Application ID</strong></td>
+<td>[From Step 6b]</td>
+<td>Entra app registration client ID</td>
+</tr>
+<tr>
+<td><strong>Endpoint URL</strong></td>
+<td>Your webhook URL</td>
+<td>Must be HTTPS, publicly accessible</td>
+</tr>
+<tr>
+<td><strong>Default behavior on error</strong></td>
+<td>Block (recommended for FSI)</td>
+<td>Fail-closed for regulated environments</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p><strong>Important Configuration Decisions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Recommended for FSI</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default on timeout</strong></td>
+<td>Block</td>
+<td>Fail-closed prevents unvetted tool execution</td>
+</tr>
+<tr>
+<td><strong>Default on error</strong></td>
+<td>Block</td>
+<td>Assume malicious until verified</td>
+</tr>
+<tr>
+<td><strong>Logging</strong></td>
+<td>Verbose</td>
+<td>Required for audit trail and incident investigation</td>
+</tr>
+</tbody>
+</table>
+<h4 id="step-6d-fsi-data-sharing-considerations">Step 6d: FSI Data Sharing Considerations</h4>
+<p>External threat detection requires sharing sensitive data with the webhook endpoint provider. For FSI organizations, consider:</p>
+<p><strong>Risk Assessment Requirements:</strong></p>
+<ul>
+<li>[ ] <strong>Vendor risk assessment completed</strong> - Third-party providers handling user prompts and conversation data must undergo vendor due diligence (see <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/">Control 2.7</a>)</li>
+<li>[ ] <strong>Data residency verified</strong> - Confirm webhook endpoint location meets data residency requirements</li>
+<li>[ ] <strong>Data retention policy reviewed</strong> - Understand how long provider retains shared data</li>
+<li>[ ] <strong>Encryption in transit confirmed</strong> - HTTPS required; verify TLS 1.2+ enforcement</li>
+<li>[ ] <strong>SOC 2 / ISO 27001 attestation</strong> - Third-party providers should provide security certifications</li>
+</ul>
+<p><strong>Regulatory Considerations:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>External Threat Detection Implication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>User prompts may contain NPI - provider must meet GLBA safeguards</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Conversation data may be a "communication" subject to retention</td>
+</tr>
+<tr>
+<td><strong>SEC 17a-4</strong></td>
+<td>Tool invocations involving customer data may require preservation</td>
+</tr>
+<tr>
+<td><strong>SOX 302/404</strong></td>
+<td>Provider access to financial systems data requires controls assessment</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data Minimization Recommendations:</strong></p>
+<ol>
+<li>If using a third-party provider (not Microsoft Defender), evaluate whether the provider offers:</li>
+<li>Data anonymization options</li>
+<li>Configurable data sharing scope</li>
+<li>
+<p>Regional endpoint options for data residency</p>
+</li>
+<li>
+<p>Document the business justification for external threat detection, including:</p>
+</li>
+<li>Threat categories addressed</li>
+<li>Alternative controls considered</li>
+<li>Risk acceptance for data sharing</li>
+</ol>
+<h4 id="step-6e-microsoft-defender-integration-option">Step 6e: Microsoft Defender Integration Option</h4>
+<p>For organizations preferring a Microsoft-first approach, integrate with Microsoft Defender for Cloud Apps instead of (or in addition to) a custom webhook.</p>
+<p><strong>Portal Path:</strong> <a href="https://security.microsoft.com">Microsoft Defender Portal</a> → <strong>Cloud apps</strong> → <strong>Connected apps</strong> → <strong>App connectors</strong></p>
+<ol>
+<li>Navigate to <strong>Microsoft Defender Portal</strong></li>
+<li>Go to <strong>Cloud apps</strong> → <strong>Connected apps</strong> → <strong>App connectors</strong></li>
+<li>Click <strong>+ Connect an app</strong> → <strong>Microsoft Power Platform</strong></li>
+<li>Follow connection wizard to authorize Defender access</li>
+<li>Enable relevant policies:</li>
+<li><strong>Anomalous activity detection</strong> - Unusual agent behavior patterns</li>
+<li><strong>Session policies</strong> - Real-time controls during agent interactions</li>
+<li><strong>Access policies</strong> - Conditional access for agent usage</li>
+</ol>
+<p><strong>Defender Integration Benefits for FSI:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Benefit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Microsoft data handling</strong></td>
+<td>Data stays within Microsoft ecosystem</td>
+</tr>
+<tr>
+<td><strong>Unified security view</strong></td>
+<td>Correlates with identity, endpoint, and email signals</td>
+</tr>
+<tr>
+<td><strong>Built-in compliance</strong></td>
+<td>Microsoft compliance certifications apply</td>
+</tr>
+<tr>
+<td><strong>No custom webhook maintenance</strong></td>
+<td>Managed service, no infrastructure to operate</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-7-configure-alert-policies">Step 7: Configure Alert Policies</h3>
+<p><strong>Portal Path:</strong> <a href="https://compliance.microsoft.com">Microsoft Purview</a> → <strong>Policies</strong> → <strong>Alert policies</strong></p>
+<p>Create alerts for runtime protection events:</p>
+<h4 id="alert-1-agent-prompt-injection-detected">Alert 1: Agent Prompt Injection Detected</h4>
+<ol>
+<li>Click <strong>+ New alert policy</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-Agent-PromptInjection</code></li>
+<li><strong>Description:</strong> "Prompt injection attempt detected"</li>
+<li><strong>Category:</strong> Threat management</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Activity:</strong> Custom activity (Power Platform audit log)</li>
+<li><strong>Condition:</strong> Operation = PromptInjectionBlocked</li>
+<li><strong>Notification:</strong></li>
+<li>Email: security-operations@contoso.com</li>
+<li>Frequency: Immediately</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h4 id="alert-2-agent-jailbreak-attempt">Alert 2: Agent Jailbreak Attempt</h4>
+<ol>
+<li>Click <strong>+ New alert policy</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-Agent-JailbreakAttempt</code></li>
+<li><strong>Description:</strong> "Agent jailbreak attempt detected"</li>
+<li><strong>Severity:</strong> Critical</li>
+<li><strong>Activity:</strong> Jailbreak detection event</li>
+<li><strong>Notification:</strong> SOC immediate alert</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h4 id="alert-3-unusual-agent-activity">Alert 3: Unusual Agent Activity</h4>
+<ol>
+<li>Click <strong>+ New alert policy</strong></li>
+<li>Configure:</li>
+<li><strong>Name:</strong> <code>FSI-Agent-UnusualActivity</code></li>
+<li><strong>Description:</strong> "Unusual volume or pattern of agent usage"</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Activity:</strong> Agent session count threshold exceeded</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<h3 id="step-8-configure-siem-integration-recommended-for-higher-risk-tiers-soc-dependent">Step 8: Configure SIEM Integration (Recommended for higher-risk tiers; SOC-dependent)</h3>
+<p><strong>Portal Path:</strong> Power Platform Admin Center → <strong>Settings</strong> → <strong>Data export</strong></p>
+<p>For Microsoft Sentinel integration:</p>
+<blockquote>
+<p>Sentinel/SIEM severity tiering and SOC routing are operational decisions and are not mapped to the Agent Governance zones.</p>
+</blockquote>
+<ol>
+<li>Navigate to <strong>Settings</strong> → <strong>Data export</strong></li>
+<li>Enable activity log export to Event Hub</li>
+<li>In Microsoft Sentinel:</li>
+<li>Add <strong>Power Platform</strong> data connector</li>
+<li>
+<p>Enable relevant log categories:</p>
+<ul>
+<li>✅ Copilot Studio events</li>
+<li>✅ Security events</li>
+<li>✅ Admin activities</li>
+</ul>
+</li>
+<li>
+<p>Create detection rules in Sentinel:
+   <div class="highlight"><pre><span></span><code><span class="c">// Prompt Injection Detection</span>
+<span class="n">PowerPlatformAdminActivity</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;PromptInjectionDetected&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">AgentName</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">parse_json</span><span class="p">(</span><span class="n">ExtendedProperties</span><span class="p">)</span><span class="err">.</span><span class="n">AgentName</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="p">,</span><span class="w"> </span><span class="n">UserId</span><span class="p">,</span><span class="w"> </span><span class="n">AgentName</span><span class="p">,</span><span class="w"> </span><span class="n">ClientIP</span><span class="p">,</span><span class="w"> </span><span class="n">Operation</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Runtime Protection Configuration and Monitoring</span>
+<span class="c"># Requires: Power Platform Admin PowerShell, Microsoft Graph</span>
+
+<span class="c"># ===== CONNECT TO POWER PLATFORM =====</span>
+
+<span class="nb">Install-Module</span> <span class="n">-Name</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">PowerApps</span><span class="p">.</span><span class="n">Administration</span><span class="p">.</span><span class="n">PowerShell</span> <span class="n">-Force</span>
+<span class="nb">Add-PowerAppsAccount</span>
+
+<span class="c"># ===== GET MANAGED ENVIRONMENT STATUS =====</span>
+
+<span class="nv">$Environments</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironment</span>
+
+<span class="nv">$EnvReport</span> <span class="p">=</span> <span class="p">@()</span>
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$Env</span> <span class="k">in</span> <span class="nv">$Environments</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$EnvReport</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">DisplayName</span> <span class="p">=</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">DisplayName</span>
+        <span class="n">EnvironmentName</span> <span class="p">=</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">EnvironmentName</span>
+        <span class="n">IsManaged</span> <span class="p">=</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="n">protectionLevel</span> <span class="o">-eq</span> <span class="s2">&quot;Standard&quot;</span>
+        <span class="n">Location</span> <span class="p">=</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">Location</span>
+        <span class="n">EnvironmentType</span> <span class="p">=</span> <span class="nv">$Env</span><span class="p">.</span><span class="n">EnvironmentType</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Managed Environment Status:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nv">$EnvReport</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">-AutoSize</span>
+
+<span class="c"># ===== ENABLE MANAGED ENVIRONMENT =====</span>
+
+<span class="c"># Enable for specific environment</span>
+<span class="nv">$EnvName</span> <span class="p">=</span> <span class="s2">&quot;00000000-0000-0000-0000-000000000000&quot;</span>  <span class="c"># Replace with environment ID</span>
+
+<span class="c"># Set-AdminPowerAppEnvironmentProtectionLevel -EnvironmentName $EnvName -ProtectionLevel &quot;Standard&quot;</span>
+
+<span class="c"># ===== GET AGENT SECURITY SETTINGS =====</span>
+
+<span class="c"># Note: Direct PowerShell for runtime protection settings may be limited</span>
+<span class="c"># Use Power Platform Admin Center or APIs for full configuration</span>
+
+<span class="c"># Get environment policies</span>
+<span class="nv">$EnvPolicies</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppEnvironmentPolicies</span> <span class="n">-EnvironmentName</span> <span class="nv">$EnvName</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Environment Policies:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="nv">$EnvPolicies</span> <span class="p">|</span> <span class="nb">Format-List</span>
+
+<span class="c"># ===== AUDIT LOG ANALYSIS FOR THREATS =====</span>
+
+<span class="c"># Connect to Security &amp; Compliance</span>
+<span class="nb">Connect-IPPSSession</span>
+
+<span class="nv">$StartDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">7</span><span class="p">)</span>
+<span class="nv">$EndDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+<span class="c"># Search for Copilot Studio security events</span>
+<span class="nv">$SecurityEvents</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="p">`</span>
+    <span class="n">-StartDate</span> <span class="nv">$StartDate</span> <span class="p">`</span>
+    <span class="n">-EndDate</span> <span class="nv">$EndDate</span> <span class="p">`</span>
+    <span class="n">-RecordType</span> <span class="n">CopilotInteraction</span> <span class="p">`</span>
+    <span class="n">-ResultSize</span> <span class="n">1000</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Copilot interaction events found: </span><span class="p">$(</span><span class="nv">$SecurityEvents</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="c"># Parse for security-relevant events</span>
+<span class="nv">$SecurityAnalysis</span> <span class="p">=</span> <span class="nv">$SecurityEvents</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="nv">$AuditData</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+
+    <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">Date</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreationDate</span>
+        <span class="n">User</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">UserIds</span>
+        <span class="n">Operation</span> <span class="p">=</span> <span class="nv">$AuditData</span><span class="p">.</span><span class="n">Operation</span>
+        <span class="n">AppName</span> <span class="p">=</span> <span class="nv">$AuditData</span><span class="p">.</span><span class="n">AppName</span>
+        <span class="n">Result</span> <span class="p">=</span> <span class="nv">$AuditData</span><span class="p">.</span><span class="n">ResultStatus</span>
+        <span class="c"># Look for security indicators</span>
+        <span class="n">SecurityFlag</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$AuditData</span><span class="p">.</span><span class="n">Operation</span> <span class="o">-match</span> <span class="s2">&quot;block|inject|jailbreak&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;ALERT&quot;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s2">&quot;Normal&quot;</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Identify potential threats</span>
+<span class="nv">$Threats</span> <span class="p">=</span> <span class="nv">$SecurityAnalysis</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SecurityFlag</span> <span class="o">-eq</span> <span class="s2">&quot;ALERT&quot;</span> <span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$Threats</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+   <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">POTENTIAL THREATS DETECTED:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+    <span class="nv">$Threats</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">No threat indicators found in period&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="p">}</span>
+
+<span class="c"># ===== GENERATE SECURITY REPORT =====</span>
+
+<span class="nv">$Report</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">ReportDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+    <span class="n">AnalysisPeriod</span> <span class="p">=</span> <span class="s2">&quot;$StartDate to $EndDate&quot;</span>
+    <span class="n">TotalCopilotEvents</span> <span class="p">=</span> <span class="nv">$SecurityEvents</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">ThreatIndicators</span> <span class="p">=</span> <span class="nv">$Threats</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">ManagedEnvironments</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$EnvReport</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">IsManaged</span> <span class="p">}).</span><span class="n">Count</span>
+    <span class="n">UnmanagedEnvironments</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$EnvReport</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">IsManaged</span> <span class="p">}).</span><span class="n">Count</span>
+<span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">=== RUNTIME PROTECTION SECURITY SUMMARY ===&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nv">$Report</span> <span class="p">|</span> <span class="nb">Format-List</span>
+
+<span class="c"># Export detailed report</span>
+<span class="nv">$SecurityAnalysis</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="s2">&quot;C:\Governance\RuntimeProtection-Analysis-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># ===== CHECK CONNECTOR SECURITY =====</span>
+
+<span class="c"># Get connectors used by agents in managed environments</span>
+<span class="nv">$Connectors</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppConnector</span>
+
+<span class="nv">$HighRiskConnectors</span> <span class="p">=</span> <span class="nv">$Connectors</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="nv">$_</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="n">displayName</span> <span class="o">-match</span> <span class="s2">&quot;HTTP|Custom|SQL|File&quot;</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$HighRiskConnectors</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">High-risk connectors requiring review:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="nv">$HighRiskConnectors</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="p">@{</span><span class="n">N</span><span class="p">=</span><span class="s1">&#39;Name&#39;</span><span class="p">;</span> <span class="n">E</span><span class="p">={</span><span class="nv">$_</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="n">displayName</span><span class="p">}},</span> <span class="n">ConnectorId</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Runtime Protection Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FINRA 25-07</strong></td>
+<td>Demonstrate AI governance and risk controls</td>
+</tr>
+<tr>
+<td><strong>SEC AI Priorities</strong></td>
+<td>Appropriate safeguards for AI systems</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Protect customer NPI from exfiltration</td>
+</tr>
+<tr>
+<td><strong>OCC 2011-12</strong></td>
+<td>Model risk controls for AI/ML systems</td>
+</tr>
+<tr>
+<td><strong>FFIEC Guidance</strong></td>
+<td>Cybersecurity controls for fintech</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<h4 id="zone-1-personal-productivity">Zone 1 (Personal Productivity)</h4>
+<div class="highlight"><pre><span></span><code>Runtime Protection: Optional (recommended)
+Prompt Injection: Log only
+Jailbreak Detection: Alert only
+Content Moderation: Basic
+SIEM Integration: Not required
+External Threat Detection: Not applicable (preview feature)
+Response SLA: Best effort
+</code></pre></div>
+<h4 id="zone-2-team-collaboration">Zone 2 (Team Collaboration)</h4>
+<div class="highlight"><pre><span></span><code>Runtime Protection: Required
+Prompt Injection: Block and log
+Jailbreak Detection: Block and alert
+Content Moderation: Standard
+SIEM Integration: Recommended
+External Threat Detection: Not applicable (preview feature)
+Response SLA: 4 hours
+</code></pre></div>
+<h4 id="zone-3-enterprise-managed">Zone 3 (Enterprise Managed)</h4>
+<div class="highlight"><pre><span></span><code>Runtime Protection: Required - Maximum
+Prompt Injection: Block, log, and investigate
+Jailbreak Detection: Block and immediate SOC alert
+Content Moderation: Strict
+SIEM Integration: Required
+External Threat Detection: Optional (requires vendor risk assessment)
+Response SLA: 15 minutes
+Incident Playbook: Required
+</code></pre></div>
+<blockquote>
+<p><strong>Note:</strong> External threat detection via custom webhooks is a preview feature. For Zone 3 regulated environments, evaluate GA status before deployment. If using third-party webhook providers, complete vendor risk assessment per <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/">Control 2.7</a> before enabling.</p>
+</blockquote>
+<h3 id="threat-categories-and-response">Threat Categories and Response</h3>
+<table>
+<thead>
+<tr>
+<th>Threat Type</th>
+<th>Detection</th>
+<th>Response</th>
+<th>FSI Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Prompt Injection</strong></td>
+<td>Pattern matching, AI analysis</td>
+<td>Block, log, alert</td>
+<td>Critical</td>
+</tr>
+<tr>
+<td><strong>Jailbreak Attempt</strong></td>
+<td>Behavioral analysis</td>
+<td>Block, investigate, remediate</td>
+<td>Critical</td>
+</tr>
+<tr>
+<td><strong>Data Exfiltration</strong></td>
+<td>DLP + content analysis</td>
+<td>Block, preserve evidence</td>
+<td>Critical</td>
+</tr>
+<tr>
+<td><strong>Credential Theft</strong></td>
+<td>Pattern recognition</td>
+<td>Block, reset credentials</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>Malicious Content</strong></td>
+<td>Content moderation</td>
+<td>Block, quarantine</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>Denial of Service</strong></td>
+<td>Rate limiting</td>
+<td>Throttle, alert</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-configuration-example-investment-bank">FSI Configuration Example: Investment Bank</h3>
+<p><strong>Scenario:</strong> An investment bank deploys customer-facing agents that handle trade inquiries and account information.</p>
+<p><strong>Runtime Protection Configuration:</strong>
+<div class="highlight"><pre><span></span><code>Customer Service Agent (Tier 3)
+├── Prompt Injection Protection
+│   ├── Sensitivity: Maximum
+│   ├── Patterns: Financial manipulation, account access
+│   ├── Action: Block immediately
+│   └── Alert: SOC + Compliance
+│
+├── Jailbreak Prevention
+│   ├── Detection: All categories
+│   ├── Historical behavior analysis: Enabled
+│   ├── Action: Block + session termination
+│   └── Alert: Immediate + incident ticket
+│
+├── Content Safety
+│   ├── PII in responses: Mask (show last 4 only)
+│   ├── Account numbers: Require authentication
+│   ├── Trading data: Read-only, no execution
+│   └── Sensitive topics: Redirect to human
+│
+├── Session Controls
+│   ├── Max session duration: 30 minutes
+│   ├── Idle timeout: 5 minutes
+│   ├── Re-authentication: Required for sensitive ops
+│   └── Session logging: Complete
+│
+└── SIEM Integration
+    ├── Real-time streaming: Enabled
+    ├── Alert correlation: Trading anomalies
+    ├── Playbook: Auto-create incident
+    └── Response SLA: 15 minutes
+</code></pre></div></p>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="verification-steps">Verification Steps</h3>
+<ol>
+<li><strong>Confirm Managed Environment:</strong></li>
+<li>Power Platform Admin Center → Environment → Verify "Managed" status</li>
+<li>
+<p><strong>EXPECTED:</strong> Environment shows as Managed</p>
+</li>
+<li>
+<p><strong>Test Prompt Injection Detection:</strong></p>
+</li>
+<li>Submit test prompt with injection pattern</li>
+<li>
+<p><strong>EXPECTED:</strong> Blocked with log entry</p>
+</li>
+<li>
+<p><strong>Validate Egress Controls (tools/connectors):</strong></p>
+</li>
+<li>Attempt to invoke a blocked/high-risk connector (e.g., HTTP/custom connector) from the agent</li>
+<li>Attempt to reach a non-approved destination (where allowlisting is implemented)</li>
+<li>
+<p><strong>EXPECTED:</strong> Invocation blocked; audit log/event captured with agent name, user, time, and policy reason</p>
+</li>
+<li>
+<p><strong>Verify Alert Configuration:</strong></p>
+</li>
+<li>Check alert policies in Purview</li>
+<li>
+<p><strong>EXPECTED:</strong> FSI alerts created and enabled</p>
+</li>
+<li>
+<p><strong>Test Content Moderation:</strong></p>
+</li>
+<li>Submit content that should be blocked</li>
+<li>
+<p><strong>EXPECTED:</strong> Appropriate moderation response</p>
+</li>
+<li>
+<p><strong>Validate SIEM Integration (Tier 3):</strong></p>
+</li>
+<li>Generate test security event</li>
+<li>Verify event appears in SIEM</li>
+<li>
+<p><strong>EXPECTED:</strong> Events streaming within SLA</p>
+</li>
+<li>
+<p><strong>Verify External Threat Detection Configuration (Zone 3, if enabled):</strong></p>
+</li>
+<li>Power Platform Admin Center → Security → Threat detection → Additional threat detection</li>
+<li><strong>EXPECTED:</strong> External threat detection shows as enabled with configured endpoint</li>
+<li>Test webhook connectivity by triggering an agent tool invocation</li>
+<li>
+<p><strong>EXPECTED:</strong> Webhook receives request and returns allow/block decision within 1 second</p>
+</li>
+<li>
+<p><strong>Verify Entra App Registration for Webhook:</strong></p>
+</li>
+<li>Microsoft Entra Admin Center → App registrations → CopilotStudio-ThreatDetection-Webhook</li>
+<li><strong>EXPECTED:</strong> App registration exists with Federated Identity Credential configured</li>
+<li>Verify FIC subject identifier matches expected format</li>
+</ol>
+<h3 id="verification-evidence">Verification Evidence</h3>
+<ul>
+<li>[ ] Screenshot: Managed environment confirmation</li>
+<li>[ ] Screenshot: Runtime protection settings</li>
+<li>[ ] Export: Alert policy configurations</li>
+<li>[ ] Log: Prompt injection detection test</li>
+<li>[ ] Export/screenshot: DLP policy and connector restrictions applied to the environment (Control 1.4 linkage)</li>
+<li>[ ] Log: Egress/tool blocking test (blocked connector/tool call, policy reason, correlation ID if available)</li>
+<li>[ ] Documentation: Incident response playbook</li>
+<li>[ ] SIEM: Power Platform connector status</li>
+<li>[ ] Screenshot: External threat detection configuration (Zone 3, if enabled)</li>
+<li>[ ] Screenshot: Entra app registration with FIC configured (if using custom webhook)</li>
+<li>[ ] Documentation: Vendor risk assessment for third-party threat detection provider (if applicable)</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-runtime-protection-not-blocking-threats">Issue: Runtime Protection Not Blocking Threats</h3>
+<p><strong>Symptoms:</strong> Malicious prompts not being blocked</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify Managed Environment is enabled</li>
+<li>Check runtime protection settings are active</li>
+<li>Review sensitivity threshold (may need adjustment)</li>
+<li>Ensure agent security settings are configured</li>
+<li>Check for policy conflicts</li>
+</ol>
+<h3 id="issue-too-many-false-positives">Issue: Too Many False Positives</h3>
+<p><strong>Symptoms:</strong> Legitimate queries being blocked</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Review blocking patterns</li>
+<li>Adjust sensitivity from High to Medium</li>
+<li>Add exclusions for common legitimate patterns</li>
+<li>Tune content moderation thresholds</li>
+<li>Review and whitelist specific scenarios</li>
+</ol>
+<h3 id="issue-alerts-not-being-generated">Issue: Alerts Not Being Generated</h3>
+<p><strong>Symptoms:</strong> Security events not triggering alerts</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify alert policy is enabled</li>
+<li>Check activity matches alert conditions</li>
+<li>Confirm notification recipients are valid</li>
+<li>Review alert threshold settings</li>
+<li>Check mailflow for alert delivery</li>
+</ol>
+<h3 id="issue-siem-not-receiving-events">Issue: SIEM Not Receiving Events</h3>
+<p><strong>Symptoms:</strong> Power Platform events missing in SIEM</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify data export is configured</li>
+<li>Check Event Hub connectivity</li>
+<li>Confirm data connector is enabled in Sentinel</li>
+<li>Review permissions for data streaming</li>
+<li>Check for throttling or quota issues</li>
+</ol>
+<h3 id="issue-external-threat-detection-webhook-not-responding">Issue: External Threat Detection Webhook Not Responding</h3>
+<p><strong>Symptoms:</strong> Agent tool invocations timing out or defaulting to fallback behavior</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify webhook endpoint is publicly accessible via HTTPS</li>
+<li>Confirm endpoint responds within 1-second timeout</li>
+<li>Check Entra app registration exists with correct Application ID</li>
+<li>Verify Federated Identity Credential is configured correctly:</li>
+<li>Issuer matches tenant ID</li>
+<li>Subject identifier format is correct (base64 encoding)</li>
+<li>Audience is <code>api://AzureADTokenExchange</code></li>
+<li>Test endpoint manually using curl/Postman to verify connectivity</li>
+<li>Review webhook endpoint logs for authentication errors</li>
+</ol>
+<h3 id="issue-external-threat-detection-blocking-legitimate-tool-calls">Issue: External Threat Detection Blocking Legitimate Tool Calls</h3>
+<p><strong>Symptoms:</strong> Valid agent tool invocations being blocked by external provider</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Review external provider's evaluation criteria and thresholds</li>
+<li>Check if specific tool names or parameters are triggering false positives</li>
+<li>Temporarily set default behavior to "Allow" to isolate webhook vs. built-in protection</li>
+<li>Work with provider to tune detection rules for your use case</li>
+<li>Consider using Microsoft Defender integration for better built-in tuning</li>
+</ol>
+<h3 id="issue-federated-identity-credential-authentication-failing">Issue: Federated Identity Credential Authentication Failing</h3>
+<p><strong>Symptoms:</strong> Webhook receives requests but authentication fails</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Regenerate the FIC subject identifier with correct base64 encoding</li>
+<li>Verify tenant ID is correct in both issuer URL and subject</li>
+<li>Confirm webhook endpoint URL in subject matches exactly (including trailing slashes)</li>
+<li>Check app registration has not been modified or deleted</li>
+<li>Review Entra sign-in logs for detailed authentication error messages</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-overview">Managed Environments Overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance">Copilot Studio Security</a></li>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider">External Threat Detection for Copilot Studio</a> (Preview)</li>
+<li><a href="https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview">Power Platform Security Best Practices</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/sentinel/business-applications/solution-overview">Microsoft Sentinel Power Platform Connector</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview">AI Safety and Content Moderation</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation">Federated Identity Credentials</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../pillar-2-management/2.1-managed-environments/">Control 2.1</a></td>
+<td>Managed Environments prerequisite</td>
+</tr>
+<tr>
+<td><a href="../1.7-comprehensive-audit-logging-and-compliance/">Control 1.7</a></td>
+<td>Audit logging for threats</td>
+</tr>
+<tr>
+<td><a href="../1.4-advanced-connector-policies-acp/">Control 1.4</a></td>
+<td>Connector-level security</td>
+</tr>
+<tr>
+<td><a href="../1.12-insider-risk-detection-and-response/">Control 1.12</a></td>
+<td>Insider threat correlation</td>
+</tr>
+<tr>
+<td><a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/">Control 2.7</a></td>
+<td>Third-party webhook provider risk assessment</td>
+</tr>
+<tr>
+<td><a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/">Control 4.5</a></td>
+<td>SharePoint security monitoring</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>Security Operations:</strong> Runtime protection monitoring</li>
+<li><strong>Power Platform Administrator:</strong> Environment configuration</li>
+<li><strong>AI Governance Lead:</strong> Agent security policies</li>
+<li><strong>Incident Response Team:</strong> Threat response procedures</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026<br />
+<strong>Version:</strong> v1.0 (Jan 2026)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

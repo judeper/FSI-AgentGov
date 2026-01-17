@@ -1,0 +1,5237 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-4-sharepoint/4.3-site-and-document-retention-management/">
+      
+      
+        <link rel="prev" href="../4.2-site-access-reviews-and-certification/">
+      
+      
+        <link rel="next" href="../4.4-guest-and-external-user-access-controls/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>4.3 Site And Document Retention Management - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-43-site-and-document-retention-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              4.3 Site And Document Retention Management
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#site-lifecycle-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Site Lifecycle Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-retention-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Retention Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-document-retention-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Document Retention Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-inactive-site-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Inactive Site Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-site-ownership-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure Site Ownership Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-set-organization-retention-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Set Organization Retention Defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-integrate-with-microsoft-purview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Integrate with Microsoft Purview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connect-to-purview-powershell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect to Purview PowerShell
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-retention-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Retention Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-retention-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apply Retention Labels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-retention-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export Retention Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-sites-with-retention-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get Sites with Retention Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-specific-retention-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier-Specific Retention Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-implementation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Implementation Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Procedure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues-and-solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues and Solutions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-43-site-and-document-retention-management">Control 4.3: Site and Document Retention Management</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 4.3<br />
+<strong>Control Name:</strong> Site and Document Retention Management<br />
+<strong>Regulatory Reference:</strong> FINRA 4511, SEC 17a-3/4, GLBA 501(b), SOX 404<br />
+<strong>Setup Time:</strong> 1-2 hours  </p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Manage the lifecycle of SharePoint sites and documents to ensure proper retention for regulatory compliance and timely disposition of content no longer needed. This control addresses both site-level lifecycle management and document retention through sensitivity labels and retention policies.</p>
+<p>For agent governance, retention management is critical because AI agents access SharePoint as a knowledge source. Properly retained content ensures agents provide accurate, compliant responses while expired or outdated content is appropriately archived or disposed of. This prevents agents from surfacing stale information that could lead to regulatory violations or poor customer outcomes.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<h3 id="site-lifecycle-management">Site Lifecycle Management</h3>
+<p>Automated policies for managing inactive, orphaned, and uncertified sites.</p>
+<p><strong>Navigation:</strong> SharePoint Admin Center → Policies → Site lifecycle management</p>
+<p><strong>Policy Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Policy Type</th>
+<th>Purpose</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inactive site policies</td>
+<td>Identify sites with no activity</td>
+<td>Notify owners, archive, or mark read-only</td>
+</tr>
+<tr>
+<td>Site ownership policies</td>
+<td>Find sites without owners</td>
+<td>Notify admins, require new owner, mark read-only</td>
+</tr>
+<tr>
+<td>Site attestation policies</td>
+<td>Ensure site information is current</td>
+<td>Notify owners, require attestation, archive if overdue</td>
+</tr>
+</tbody>
+</table>
+<h3 id="document-retention-settings">Document Retention Settings</h3>
+<p>Organization-wide retention settings for documents and OneDrive content.</p>
+<p><strong>Navigation:</strong> SharePoint Admin Center → Settings</p>
+<p><strong>Key Settings:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OneDrive Retention</td>
+<td>Days to retain deleted user OneDrive</td>
+<td>30 days</td>
+</tr>
+<tr>
+<td>Version history limits</td>
+<td>How many versions to keep</td>
+<td>Organization-level setting</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> SharePoint Admin
+<strong>Supporting Roles:</strong> Purview Records Manager, Purview Compliance Admin</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Microsoft 365 E5</strong> or <strong>E5 Compliance</strong></td>
+<td>Full retention capabilities and advanced eDiscovery</td>
+<td>Tier 2-3 environments</td>
+</tr>
+<tr>
+<td><strong>SharePoint Advanced Management Plan 1</strong></td>
+<td>Site lifecycle management policies</td>
+<td>All zones with lifecycle automation</td>
+</tr>
+<tr>
+<td><strong>Microsoft Purview</strong></td>
+<td>Retention labels and policies</td>
+<td>Document-level retention</td>
+</tr>
+<tr>
+<td><strong>Power Platform Premium</strong></td>
+<td>Agent governance integration</td>
+<td>Agents using SharePoint sources</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Microsoft Purview Compliance Administrator</strong></td>
+<td>Create and manage retention policies and labels</td>
+<td>Tenant-wide</td>
+</tr>
+<tr>
+<td><strong>SharePoint Administrator</strong></td>
+<td>Configure site lifecycle policies and settings</td>
+<td>SharePoint Admin Center</td>
+</tr>
+<tr>
+<td><strong>Records Management</strong></td>
+<td>Manage file plan and disposition</td>
+<td>Purview Compliance Portal</td>
+</tr>
+<tr>
+<td><strong>Compliance Data Administrator</strong></td>
+<td>Review retention reports and analytics</td>
+<td>Purview Compliance Portal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Control Reference</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sensitivity Labels</td>
+<td><a href="../4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/">4.1 - Information Access Governance</a></td>
+<td>Labels can trigger retention</td>
+</tr>
+<tr>
+<td>Audit Logging</td>
+<td><a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/">1.7 - Comprehensive Audit Logging</a></td>
+<td>Track retention events</td>
+</tr>
+<tr>
+<td>eDiscovery</td>
+<td><a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/">1.19 - eDiscovery for Agent Interactions</a></td>
+<td>Legal hold coordination</td>
+</tr>
+<tr>
+<td>DLP Policies</td>
+<td><a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/">1.5 - Data Loss Prevention</a></td>
+<td>Protect retained content</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Microsoft 365 E5 or E5 Compliance licenses assigned</li>
+<li>[ ] SharePoint Advanced Management enabled for tenant</li>
+<li>[ ] Retention requirements documented by regulation and content type</li>
+<li>[ ] File plan created for regulated content categories</li>
+<li>[ ] Stakeholder approval for retention periods obtained</li>
+<li>[ ] Legal hold procedures documented</li>
+<li>[ ] Agent knowledge source inventory completed</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retention policy awareness</td>
+<td>Document retention requirements per regulation</td>
+</tr>
+<tr>
+<td>Inactive site identification</td>
+<td>Create inactive site policy to identify stale sites</td>
+</tr>
+<tr>
+<td>Basic version history</td>
+<td>Enable version history for document recovery</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation Steps:</strong></p>
+<ol>
+<li>Navigate to <a href="https://admin.sharepoint.com">SharePoint Admin Center</a></li>
+<li>Go to <strong>Policies</strong> → <strong>Site lifecycle management</strong></li>
+<li>Click <strong>Open</strong> under "Inactive site policies"</li>
+<li>Create policy to identify sites inactive for 90+ days</li>
+<li>Configure notification to site owners</li>
+<li>Set action to "notify only" initially</li>
+</ol>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Site ownership policies</td>
+<td>Ensure all sites have active owners</td>
+</tr>
+<tr>
+<td>Automated disposition</td>
+<td>Configure archive/read-only for abandoned sites</td>
+</tr>
+<tr>
+<td>Retention by content type</td>
+<td>Apply retention labels to regulated content</td>
+</tr>
+<tr>
+<td>Deletion audit logs</td>
+<td>Enable audit logging for deletions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Additional Steps:</strong></p>
+<ol>
+<li>Create <strong>Site ownership policy</strong>:</li>
+<li>Identify sites where owner has left organization</li>
+<li>Notify admins to assign new owners</li>
+<li>Mark read-only after 30 days if no owner assigned</li>
+<li>Configure <strong>Inactive site policy</strong> actions:</li>
+<li>Notify owners after 90 days inactivity</li>
+<li>Archive after 180 days if no response</li>
+<li>Navigate to <strong>Settings</strong> → <strong>OneDrive Retention</strong><ul>
+<li>Set appropriate retention period (recommend 365 days for Tier 2+)</li>
+</ul>
+</li>
+</ol>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policy-driven retention</td>
+<td>All Tier 3 (enterprise-managed) sites have documented retention policies</td>
+</tr>
+<tr>
+<td>No manual deletion</td>
+<td>Disable manual deletion for regulated content</td>
+</tr>
+<tr>
+<td>Immutable deletion logs</td>
+<td>All deletions logged and non-editable</td>
+</tr>
+<tr>
+<td>Legal hold integration</td>
+<td>Coordinate with eDiscovery for holds</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Retention Periods by Regulation:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Retention Period</th>
+<th>Content Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FINRA 4511</td>
+<td>6 years</td>
+<td>Books and records</td>
+</tr>
+<tr>
+<td>SEC 17a-3/4</td>
+<td>6 years</td>
+<td>Communications, records</td>
+</tr>
+<tr>
+<td>SOX 404</td>
+<td>7 years</td>
+<td>Financial records</td>
+</tr>
+<tr>
+<td>GLBA</td>
+<td>5-7 years</td>
+<td>Customer information</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<p><a id="implementation-guidance"></a></p>
+<h3 id="step-1-document-retention-requirements">Step 1: Document Retention Requirements</h3>
+<p>Identify retention requirements for your organization:</p>
+<ul>
+<li>Regulatory requirements (FINRA, SEC, SOX, GLBA)</li>
+<li>Business requirements</li>
+<li>Legal hold requirements</li>
+<li>Agent knowledge source retention needs</li>
+</ul>
+<h3 id="step-2-configure-inactive-site-policies">Step 2: Configure Inactive Site Policies</h3>
+<p>Create policy to manage inactive sites:</p>
+<ol>
+<li>Navigate to <strong>Policies</strong> → <strong>Site lifecycle management</strong></li>
+<li>Click <strong>Open</strong> under "Inactive site policies"</li>
+<li>Click <strong>Create policy</strong></li>
+<li>Configure:</li>
+<li><strong>Scope:</strong> All sites or specific site templates</li>
+<li><strong>Inactivity period:</strong> 90 days (adjust per requirements)</li>
+<li><strong>Notification:</strong> Email to site owners and admins</li>
+<li><strong>Action:</strong> Notify → Mark read-only → Archive</li>
+<li>Enable the policy</li>
+</ol>
+<h3 id="step-3-configure-site-ownership-policies">Step 3: Configure Site Ownership Policies</h3>
+<p>Ensure sites have active owners:</p>
+<ol>
+<li>Click <strong>Open</strong> under "Site ownership policies"</li>
+<li>Create policy to identify orphaned sites</li>
+<li>Configure notification to SharePoint admins</li>
+<li>Set action for unresolved ownership issues</li>
+</ol>
+<h3 id="step-4-set-organization-retention-defaults">Step 4: Set Organization Retention Defaults</h3>
+<p>Configure organization-wide settings:</p>
+<ol>
+<li>Navigate to <strong>Settings</strong></li>
+<li>Review "OneDrive Retention" setting</li>
+<li>Set to 365 days minimum for regulated organizations</li>
+<li>Review "Version history limits" settings</li>
+</ol>
+<h3 id="step-5-integrate-with-microsoft-purview">Step 5: Integrate with Microsoft Purview</h3>
+<p>For comprehensive retention:</p>
+<ol>
+<li>Use Microsoft Purview retention labels for document-level retention</li>
+<li>Apply retention labels to sensitivity-labeled content</li>
+<li>Configure retention policies for regulated content types</li>
+<li>Coordinate with eDiscovery for legal holds</li>
+</ol>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="connect-to-purview-powershell">Connect to Purview PowerShell</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Prerequisites: Install Exchange Online PowerShell module</span>
+<span class="c"># Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser</span>
+
+<span class="c"># Connect to Security &amp; Compliance PowerShell</span>
+<span class="nb">Connect-IPPSSession</span> <span class="n">-UserPrincipalName</span> <span class="n">admin</span><span class="nv">@contoso</span><span class="p">.</span><span class="n">com</span>
+
+<span class="c"># Verify connection</span>
+<span class="nb">Get-RetentionCompliancePolicy</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">Mode</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+</code></pre></div>
+<h3 id="create-retention-policies">Create Retention Policies</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Create a retention policy for SharePoint sites containing agent knowledge</span>
+<span class="nv">$PolicyName</span> <span class="p">=</span> <span class="s2">&quot;FSI-Agent-Knowledge-Retention-7Years&quot;</span>
+
+<span class="nb">New-RetentionCompliancePolicy</span> <span class="n">-Name</span> <span class="nv">$PolicyName</span> <span class="p">`</span>
+    <span class="n">-Comment</span> <span class="s2">&quot;Retention policy for agent knowledge sources per FINRA 4511 and SEC 17a-4&quot;</span> <span class="p">`</span>
+    <span class="n">-SharePointLocation</span> <span class="s2">&quot;https://contoso.sharepoint.com/sites/AgentKnowledge&quot;</span> <span class="p">`</span>
+    <span class="n">-Enabled</span> <span class="nv">$true</span>
+
+<span class="c"># Create retention rule for the policy (7 years, retain and delete)</span>
+<span class="nb">New-RetentionComplianceRule</span> <span class="n">-Name</span> <span class="s2">&quot;FSI-7Year-Retention-Rule&quot;</span> <span class="p">`</span>
+    <span class="n">-Policy</span> <span class="nv">$PolicyName</span> <span class="p">`</span>
+    <span class="n">-RetentionDuration</span> <span class="n">2555</span> <span class="p">`</span>
+    <span class="n">-RetentionDurationDisplayHint</span> <span class="n">Days</span> <span class="p">`</span>
+    <span class="n">-RetentionComplianceAction</span> <span class="n">KeepAndDelete</span> <span class="p">`</span>
+    <span class="n">-ExpirationDateOption</span> <span class="n">ModificationAgeInDays</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Retention policy created: $PolicyName&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Create tier-specific retention policies</span>
+<span class="nv">$Tiers</span> <span class="p">=</span> <span class="p">@(</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;Tier1-Personal&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">365</span><span class="p">;</span> <span class="n">Sites</span><span class="p">=</span><span class="s2">&quot;https://contoso.sharepoint.com/sites/Tier1-*&quot;</span><span class="p">},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;Tier2-Team&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">1825</span><span class="p">;</span> <span class="n">Sites</span><span class="p">=</span><span class="s2">&quot;https://contoso.sharepoint.com/sites/Tier2-*&quot;</span><span class="p">},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;Tier3-Enterprise&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">2555</span><span class="p">;</span> <span class="n">Sites</span><span class="p">=</span><span class="s2">&quot;https://contoso.sharepoint.com/sites/Tier3-*&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$Tier</span> <span class="k">in</span> <span class="nv">$Tiers</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">New-RetentionCompliancePolicy</span> <span class="n">-Name</span> <span class="s2">&quot;FSI-</span><span class="p">$(</span><span class="nv">$Tier</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">-Retention&quot;</span> <span class="p">`</span>
+        <span class="n">-SharePointLocation</span> <span class="nv">$Tier</span><span class="p">.</span><span class="n">Sites</span> <span class="p">`</span>
+        <span class="n">-Enabled</span> <span class="nv">$true</span>
+
+    <span class="nb">New-RetentionComplianceRule</span> <span class="n">-Name</span> <span class="s2">&quot;FSI-</span><span class="p">$(</span><span class="nv">$Tier</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">-Rule&quot;</span> <span class="p">`</span>
+        <span class="n">-Policy</span> <span class="s2">&quot;FSI-</span><span class="p">$(</span><span class="nv">$Tier</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">-Retention&quot;</span> <span class="p">`</span>
+        <span class="n">-RetentionDuration</span> <span class="nv">$Tier</span><span class="p">.</span><span class="n">Duration</span> <span class="p">`</span>
+        <span class="n">-RetentionDurationDisplayHint</span> <span class="n">Days</span> <span class="p">`</span>
+        <span class="n">-RetentionComplianceAction</span> <span class="n">KeepAndDelete</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Created retention policy for </span><span class="p">$(</span><span class="nv">$Tier</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="apply-retention-labels">Apply Retention Labels</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Create retention labels for different content types</span>
+<span class="nv">$Labels</span> <span class="p">=</span> <span class="p">@(</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;FSI-Financial-Records-7Y&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">2555</span><span class="p">;</span> <span class="n">Action</span><span class="p">=</span><span class="s2">&quot;KeepAndDelete&quot;</span><span class="p">;</span> <span class="n">Description</span><span class="p">=</span><span class="s2">&quot;7-year retention for financial records (SOX 802)&quot;</span><span class="p">},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;FSI-Communications-6Y&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">2190</span><span class="p">;</span> <span class="n">Action</span><span class="p">=</span><span class="s2">&quot;KeepAndDelete&quot;</span><span class="p">;</span> <span class="n">Description</span><span class="p">=</span><span class="s2">&quot;6-year retention for communications (FINRA 4511)&quot;</span><span class="p">},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;FSI-Customer-Data-5Y&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">1825</span><span class="p">;</span> <span class="n">Action</span><span class="p">=</span><span class="s2">&quot;KeepAndDelete&quot;</span><span class="p">;</span> <span class="n">Description</span><span class="p">=</span><span class="s2">&quot;5-year retention for customer information (GLBA)&quot;</span><span class="p">},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s2">&quot;FSI-Regulatory-Immutable&quot;</span><span class="p">;</span> <span class="n">Duration</span><span class="p">=</span><span class="n">2555</span><span class="p">;</span> <span class="n">Action</span><span class="p">=</span><span class="s2">&quot;Keep&quot;</span><span class="p">;</span> <span class="n">Description</span><span class="p">=</span><span class="s2">&quot;7-year immutable retention for regulatory records&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$Label</span> <span class="k">in</span> <span class="nv">$Labels</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">New-ComplianceTag</span> <span class="n">-Name</span> <span class="nv">$Label</span><span class="p">.</span><span class="n">Name</span> <span class="p">`</span>
+        <span class="n">-Comment</span> <span class="nv">$Label</span><span class="p">.</span><span class="n">Description</span> <span class="p">`</span>
+        <span class="n">-RetentionDuration</span> <span class="nv">$Label</span><span class="p">.</span><span class="n">Duration</span> <span class="p">`</span>
+        <span class="n">-RetentionAction</span> <span class="nv">$Label</span><span class="p">.</span><span class="n">Action</span> <span class="p">`</span>
+        <span class="n">-RetentionType</span> <span class="n">ModificationAgeInDays</span> <span class="p">`</span>
+        <span class="n">-IsRecordLabel</span> <span class="nv">$false</span>
+
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Created retention label: </span><span class="p">$(</span><span class="nv">$Label</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="p">}</span>
+
+<span class="c"># Publish retention labels via label policy</span>
+<span class="nb">New-RetentionCompliancePolicy</span> <span class="n">-Name</span> <span class="s2">&quot;FSI-Retention-Labels-Policy&quot;</span> <span class="p">`</span>
+    <span class="n">-PublishComplianceTag</span> <span class="s2">&quot;FSI-Financial-Records-7Y&quot;</span><span class="p">,</span><span class="s2">&quot;FSI-Communications-6Y&quot;</span><span class="p">,</span><span class="s2">&quot;FSI-Customer-Data-5Y&quot;</span><span class="p">,</span><span class="s2">&quot;FSI-Regulatory-Immutable&quot;</span> <span class="p">`</span>
+    <span class="n">-SharePointLocation</span> <span class="n">All</span> <span class="p">`</span>
+    <span class="n">-Enabled</span> <span class="nv">$true</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Retention labels published to all SharePoint sites&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+</code></pre></div>
+<h3 id="export-retention-configuration">Export Retention Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Export all retention policies for documentation</span>
+<span class="nv">$ExportPath</span> <span class="p">=</span> <span class="s2">&quot;C:\FSI-Governance\RetentionConfig&quot;</span>
+<span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$ExportPath</span> <span class="n">-Force</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+
+<span class="c"># Get all retention policies</span>
+<span class="nv">$Policies</span> <span class="p">=</span> <span class="nb">Get-RetentionCompliancePolicy</span>
+<span class="nv">$Policies</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">SharePointLocation</span><span class="p">,</span> <span class="n">Comment</span><span class="p">,</span> <span class="n">WhenCreated</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$ExportPath\RetentionPolicies.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Get all retention rules</span>
+<span class="nv">$Rules</span> <span class="p">=</span> <span class="nb">Get-RetentionComplianceRule</span>
+<span class="nv">$Rules</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Policy</span><span class="p">,</span> <span class="n">RetentionDuration</span><span class="p">,</span> <span class="n">RetentionComplianceAction</span><span class="p">,</span> <span class="n">ExpirationDateOption</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$ExportPath\RetentionRules.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Get all retention labels</span>
+<span class="nv">$Labels</span> <span class="p">=</span> <span class="nb">Get-ComplianceTag</span>
+<span class="nv">$Labels</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">RetentionDuration</span><span class="p">,</span> <span class="n">RetentionAction</span><span class="p">,</span> <span class="n">IsRecordLabel</span><span class="p">,</span> <span class="n">Comment</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$ExportPath\RetentionLabels.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Retention configuration exported to: $ExportPath&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Create summary report</span>
+<span class="nv">$Report</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">FSI Retention Configuration Report</span>
+<span class="sh">Generated: </span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s2">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">)</span>
+<span class="sh">=====================================</span>
+
+<span class="sh">Total Retention Policies: </span><span class="p">$(</span><span class="nv">$Policies</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span>
+<span class="sh">Total Retention Rules: </span><span class="p">$(</span><span class="nv">$Rules</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span>
+<span class="sh">Total Retention Labels: </span><span class="p">$(</span><span class="nv">$Labels</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span>
+
+<span class="sh">Policies by Status:</span>
+
+<span class="sh">- Enabled: </span><span class="p">$(</span><span class="nv">$Policies</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Enabled</span> <span class="o">-eq</span> <span class="nv">$true</span><span class="p">})</span><span class="sh">.Count</span>
+<span class="sh">- Disabled: </span><span class="p">$(</span><span class="nv">$Policies</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Enabled</span> <span class="o">-eq</span> <span class="nv">$false</span><span class="p">})</span><span class="sh">.Count</span>
+
+<span class="sh">&quot;@</span>
+<span class="nv">$Report</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="s2">&quot;$ExportPath\RetentionSummary.txt&quot;</span>
+</code></pre></div>
+<h3 id="get-sites-with-retention-policies">Get Sites with Retention Policies</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to SharePoint Online</span>
+<span class="c"># Connect-SPOService -Url https://contoso-admin.sharepoint.com</span>
+
+<span class="c"># Get all retention policies and their SharePoint locations</span>
+<span class="nv">$RetentionPolicies</span> <span class="p">=</span> <span class="nb">Get-RetentionCompliancePolicy</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SharePointLocation</span> <span class="o">-ne</span> <span class="nv">$null</span> <span class="p">}</span>
+
+<span class="nv">$SiteRetentionReport</span> <span class="p">=</span> <span class="p">@()</span>
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$Policy</span> <span class="k">in</span> <span class="nv">$RetentionPolicies</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$Rule</span> <span class="p">=</span> <span class="nb">Get-RetentionComplianceRule</span> <span class="n">-Policy</span> <span class="nv">$Policy</span><span class="p">.</span><span class="n">Name</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$Site</span> <span class="k">in</span> <span class="nv">$Policy</span><span class="p">.</span><span class="n">SharePointLocation</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$SiteRetentionReport</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">SiteUrl</span> <span class="p">=</span> <span class="nv">$Site</span>
+            <span class="n">PolicyName</span> <span class="p">=</span> <span class="nv">$Policy</span><span class="p">.</span><span class="n">Name</span>
+            <span class="n">RetentionDuration</span> <span class="p">=</span> <span class="nv">$Rule</span><span class="p">.</span><span class="n">RetentionDuration</span>
+            <span class="n">Action</span> <span class="p">=</span> <span class="nv">$Rule</span><span class="p">.</span><span class="n">RetentionComplianceAction</span>
+            <span class="n">PolicyEnabled</span> <span class="p">=</span> <span class="nv">$Policy</span><span class="p">.</span><span class="n">Enabled</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c"># Display report</span>
+<span class="nv">$SiteRetentionReport</span> <span class="p">|</span> <span class="nb">Format-Table</span> <span class="n">-AutoSize</span>
+
+<span class="c"># Export for compliance documentation</span>
+<span class="nv">$SiteRetentionReport</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;C:\FSI-Governance\SiteRetentionMapping.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Site retention mapping exported&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="c"># Find sites WITHOUT retention policies (potential gap)</span>
+<span class="nv">$AllSites</span> <span class="p">=</span> <span class="nb">Get-SPOSite</span> <span class="n">-Limit</span> <span class="n">All</span>
+<span class="nv">$SitesWithRetention</span> <span class="p">=</span> <span class="nv">$SiteRetentionReport</span><span class="p">.</span><span class="n">SiteUrl</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-Unique</span>
+<span class="nv">$SitesWithoutRetention</span> <span class="p">=</span> <span class="nv">$AllSites</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Url</span> <span class="n">-notin</span> <span class="nv">$SitesWithRetention</span> <span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Sites WITHOUT retention policies: </span><span class="p">$(</span><span class="nv">$SitesWithoutRetention</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="nv">$SitesWithoutRetention</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Url</span><span class="p">,</span> <span class="n">Title</span><span class="p">,</span> <span class="n">Template</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-mapping">Regulatory Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>Retention Period</th>
+<th>How This Control Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Books and records retention</td>
+<td>6 years</td>
+<td>Automated retention policies ensure compliant retention periods</td>
+</tr>
+<tr>
+<td><strong>SEC 17a-4</strong></td>
+<td>Non-rewriteable, non-erasable storage</td>
+<td>6 years</td>
+<td>Preservation lock prevents modification during retention</td>
+</tr>
+<tr>
+<td><strong>SOX 802</strong></td>
+<td>Audit workpapers and records</td>
+<td>7 years</td>
+<td>Financial records retained with immutable settings</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(b)</strong></td>
+<td>Customer information protection</td>
+<td>5-7 years</td>
+<td>Customer data retained securely with access controls</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tier-specific-retention-requirements">Tier-Specific Retention Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Content Types</th>
+<th>Retention Period</th>
+<th>Disposition</th>
+<th>Agent Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tier 1 (Personal Productivity)</strong></td>
+<td>Personal productivity docs</td>
+<td>1 year</td>
+<td>Auto-delete</td>
+<td>No agent access allowed</td>
+</tr>
+<tr>
+<td><strong>Tier 2 (Team Collaboration)</strong></td>
+<td>Team collaboration, internal docs</td>
+<td>3-5 years</td>
+<td>Review then delete</td>
+<td>Agents may access; stale content flagged</td>
+</tr>
+<tr>
+<td><strong>Tier 3 (Enterprise Managed)</strong></td>
+<td>Customer communications, financial records</td>
+<td>6-7 years</td>
+<td>Legal review required</td>
+<td>Agents access current, compliant content only</td>
+</tr>
+<tr>
+<td><strong>Tier 3+ (Regulated)</strong></td>
+<td>Regulatory filings, audit records</td>
+<td>7+ years</td>
+<td>Regulatory approval</td>
+<td>Immutable; agents read-only access</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-implementation-example">FSI Implementation Example</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># FSI Retention Configuration Example</span>
+<span class="nt">fsi_retention_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">organization</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Contoso</span><span class="nv"> </span><span class="s">Financial</span><span class="nv"> </span><span class="s">Services&quot;</span>
+<span class="w">  </span><span class="nt">compliance_framework</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FINRA</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEC</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SOX</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GLBA</span>
+
+<span class="w">  </span><span class="nt">retention_policies</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Tier1-Personal-Retention&quot;</span>
+<span class="w">  </span><span class="w w-Error">    </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Personal</span><span class="nv"> </span><span class="s">productivity</span><span class="nv"> </span><span class="s">sites&quot;</span>
+<span class="w">      </span><span class="nt">retention_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">365</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;KeepAndDelete&quot;</span>
+<span class="w">      </span><span class="nt">agent_access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">- name</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Tier2-Team-Retention&quot;</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Team</span><span class="nv"> </span><span class="s">collaboration</span><span class="nv"> </span><span class="s">sites&quot;</span>
+<span class="w">      </span><span class="nt">retention_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1825</span><span class="w">  </span><span class="c1"># 5 years</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;KeepAndDelete&quot;</span>
+<span class="w">      </span><span class="nt">agent_access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">agent_freshness_flag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90</span><span class="w">  </span><span class="c1"># Flag content older than 90 days</span>
+
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Tier3-Enterprise-Retention&quot;</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Enterprise</span><span class="nv"> </span><span class="s">managed</span><span class="nv"> </span><span class="s">sites&quot;</span>
+<span class="w">      </span><span class="nt">retention_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2555</span><span class="w">  </span><span class="c1"># 7 years</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;KeepAndDelete&quot;</span>
+<span class="w">      </span><span class="nt">legal_review_required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">agent_access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">agent_version_control</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">- name</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Tier3-Regulatory-Immutable&quot;</span>
+<span class="w">      </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Regulatory</span><span class="nv"> </span><span class="s">compliance</span><span class="nv"> </span><span class="s">sites&quot;</span>
+<span class="w">      </span><span class="nt">retention_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2555</span><span class="w">  </span><span class="c1"># 7 years</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Keep&quot;</span><span class="w">  </span><span class="c1"># No deletion without approval</span>
+<span class="w">      </span><span class="nt">preservation_lock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">agent_access</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;read-only&quot;</span>
+<span class="w">      </span><span class="nt">audit_all_access</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">agent_knowledge_sources</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">site</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://contoso.sharepoint.com/sites/AgentKB&quot;</span>
+<span class="w">            </span><span class="nt">retention_policy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Tier3-Enterprise-Retention&quot;</span>
+<span class="w">      </span><span class="nt">content_review_cycle</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;quarterly&quot;</span>
+<span class="w">      </span><span class="nt">stale_content_threshold_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
+<span class="w">      </span><span class="nt">auto_archive_stale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">disposition_workflow</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">review_stages</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">        </span><span class="nt">reviewer</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Content</span><span class="nv"> </span><span class="s">Owner&quot;</span>
+<span class="w">        </span><span class="nt">sla_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">        </span><span class="nt">reviewer</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Compliance</span><span class="nv"> </span><span class="s">Officer&quot;</span>
+<span class="w">        </span><span class="nt">sla_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">reviewer</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Legal</span><span class="nv"> </span><span class="s">(if</span><span class="nv"> </span><span class="s">required)&quot;</span>
+<span class="w">        </span><span class="nt">sla_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+
+<span class="w">    </span><span class="nt">escalation</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">escalate_after_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45</span>
+<span class="w">      </span><span class="nt">escalate_to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Records</span><span class="nv"> </span><span class="s">Management&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong></p>
+<ul>
+<li>Apply a baseline minimum of retention policies/labels for SharePoint content that impacts tenant-wide safety (where applicable), and document any exceptions for personal agents.</li>
+<li>Avoid expanding scope beyond the user’s own data unless explicitly justified.</li>
+<li>Rationale: reduces risk from personal use while keeping friction low; legal/compliance can tighten later.</li>
+</ul>
+<p><strong>Zone 2 (Team Collaboration):</strong></p>
+<ul>
+<li>Apply ensure agent knowledge sources follow retention and disposition rules for shared agents and shared data sources; require an identified owner and an approval trail.</li>
+<li>Validate configuration in a pilot environment before broader rollout; retain policy configs + evidence of label/policy assignment.</li>
+<li>Rationale: shared agents increase blast radius; controls must be consistently applied and provable.</li>
+</ul>
+<p><strong>Zone 3 (Enterprise Managed):</strong></p>
+<ul>
+<li>Require the strictest configuration for retention policies/labels for SharePoint content and enforce it via policy where possible (not manual-only).</li>
+<li>Treat changes as controlled (change ticket + documented testing); retain policy configs + evidence of label/policy assignment.</li>
+<li>Rationale: enterprise agents handle the most sensitive content and are the highest audit/regulatory risk.</li>
+</ul>
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<h3 id="test-procedure">Test Procedure</h3>
+<ol>
+<li>Navigate to SharePoint Admin Center → Policies → Site lifecycle management</li>
+<li>Verify inactive site policy exists and is enabled</li>
+<li>Check site ownership policy configuration</li>
+<li>Review policy notification settings</li>
+<li>Navigate to Settings → verify OneDrive retention setting</li>
+<li>Test policy by reviewing notification queue</li>
+</ol>
+<p><strong>Expected Results:</strong></p>
+<ul>
+<li>[ ] Inactive site policy configured and enabled</li>
+<li>[ ] Site ownership policy configured (recommended)</li>
+<li>[ ] Notification templates customized appropriately</li>
+<li>[ ] OneDrive retention set per requirements</li>
+<li>[ ] Policy actions align with governance requirements</li>
+</ul>
+<h3 id="verification-evidence">Verification Evidence</h3>
+<table>
+<thead>
+<tr>
+<th>Evidence Type</th>
+<th>Location</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policy configuration screenshots</td>
+<td>Site lifecycle management</td>
+<td>1 year</td>
+</tr>
+<tr>
+<td>Policy execution logs</td>
+<td>Site lifecycle management</td>
+<td>Per policy</td>
+</tr>
+<tr>
+<td>Retention settings screenshot</td>
+<td>Settings page</td>
+<td>1 year</td>
+</tr>
+<tr>
+<td>Site disposition records</td>
+<td>Governance documentation</td>
+<td>6 years</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="common-issues-and-solutions">Common Issues and Solutions</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Possible Cause</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retention policy not applying to sites</strong></td>
+<td>Policy scope misconfigured or sync delay</td>
+<td>Verify SharePoint locations in policy; wait 24-48 hours for propagation; check policy is enabled</td>
+</tr>
+<tr>
+<td><strong>Users can delete content under retention</strong></td>
+<td>Retention label not set to "Record"</td>
+<td>Enable record declaration on label or use preservation lock; users can delete but content is preserved</td>
+</tr>
+<tr>
+<td><strong>Retention labels not visible to users</strong></td>
+<td>Label policy not published to location</td>
+<td>Publish label policy to SharePoint locations; wait up to 24 hours for sync</td>
+</tr>
+<tr>
+<td><strong>Disposition review not triggering</strong></td>
+<td>Review not configured or reviewers not assigned</td>
+<td>Configure disposition review in label settings; assign reviewers with Disposition Management role</td>
+</tr>
+<tr>
+<td><strong>Legal hold conflicts with retention</strong></td>
+<td>Hold takes precedence over retention deletion</td>
+<td>This is expected behavior; content under hold is never deleted regardless of retention policy</td>
+</tr>
+<tr>
+<td><strong>Agent accessing stale content</strong></td>
+<td>Content past freshness threshold</td>
+<td>Implement content review workflow; use metadata to flag stale content; configure agent to filter by date</td>
+</tr>
+<tr>
+<td><strong>Audit events missing for retention actions</strong></td>
+<td>Unified audit log not enabled</td>
+<td>Enable audit logging in Purview portal; retention events appear under "File and page activities"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="validation-commands">Validation Commands</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Verify retention policy status</span>
+<span class="nb">Get-RetentionCompliancePolicy</span> <span class="n">-Identity</span> <span class="s2">&quot;FSI-Agent-Knowledge-Retention-7Years&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">DistributionStatus</span>
+
+<span class="c"># Check retention rule configuration</span>
+<span class="nb">Get-RetentionComplianceRule</span> <span class="n">-Policy</span> <span class="s2">&quot;FSI-Agent-Knowledge-Retention-7Years&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">RetentionDuration</span><span class="p">,</span> <span class="n">RetentionComplianceAction</span>
+
+<span class="c"># Verify label publication status</span>
+<span class="nb">Get-RetentionCompliancePolicy</span> <span class="n">-Identity</span> <span class="s2">&quot;FSI-Retention-Labels-Policy&quot;</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">PublishComplianceTag</span>
+
+<span class="c"># Check for policy distribution errors</span>
+<span class="nb">Get-RetentionCompliancePolicy</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">DistributionStatus</span> <span class="o">-ne</span> <span class="s2">&quot;Success&quot;</span> <span class="p">}</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">DistributionStatus</span><span class="p">,</span> <span class="n">DistributionResults</span>
+</code></pre></div>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/site-lifecycle-management">Site lifecycle management overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/site-lifecycle-management#inactive-site-policies">Inactive site policies</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/site-lifecycle-management#site-ownership-policies">Site ownership policies</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/retention-policies-sharepoint">Retention policies for SharePoint and OneDrive</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/create-retention-labels-data-lifecycle-management">Create and configure retention labels</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/apply-retention-labels-automatically">Apply retention labels automatically</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/disposition">Disposition of content</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/retention-regulatory-requirements">Use preservation lock for regulatory requirements</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/">4.1 - Information Access Governance</a></td>
+<td>Sensitivity labels can auto-apply retention</td>
+</tr>
+<tr>
+<td><a href="../4.2-site-access-reviews-and-certification/">4.2 - Site Access Reviews</a></td>
+<td>Access reviews align with retention periods</td>
+</tr>
+<tr>
+<td><a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/">1.7 - Comprehensive Audit Logging</a></td>
+<td>Track retention policy events</td>
+</tr>
+<tr>
+<td><a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/">1.19 - eDiscovery for Agent Interactions</a></td>
+<td>Legal holds override retention deletion</td>
+</tr>
+<tr>
+<td><a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/">1.5 - Data Loss Prevention</a></td>
+<td>DLP protects retained content</td>
+</tr>
+<tr>
+<td><a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/">2.4 - Business Continuity and Disaster Recovery</a></td>
+<td>Retained content included in backups</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>Records Management Lead</strong> (retention policy design)</li>
+<li><strong>Compliance Officer</strong> (regulatory requirements)</li>
+<li><strong>SharePoint Administrator</strong> (site lifecycle policies)</li>
+<li><strong>AI Governance Lead</strong> (agent knowledge source management)</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026<br />
+<strong>Version:</strong> v1.0 (Jan 2026)<br />
+<strong>UI Verification Status:</strong> ✅ Current</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,5557 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-2-management/2.16-rag-source-integrity-validation/">
+      
+      
+        <link rel="prev" href="../2.15-environment-routing/">
+      
+      
+        <link rel="next" href="../2.17-multi-agent-orchestration-limits/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>2.16 RAG Source Integrity Validation - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-216-rag-source-integrity-validation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2.16 RAG Source Integrity Validation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.6-microsoft-purview-dspm-for-ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-1-security/1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#baseline-level-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline (Level 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-level-2-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended (Level 2-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatedhigh-risk-level-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulated/High-Risk (Level 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-establish-knowledge-source-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Establish Knowledge Source Inventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-implement-approval-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Implement Approval Workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-citation-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Configure Citation Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-implement-content-integrity-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Implement Content Integrity Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-configure-staleness-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Configure Staleness Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-establish-review-cadence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Establish Review Cadence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comprehensive-rag-source-validation-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comprehensive RAG Source Validation Script
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-configuration-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Configuration Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification &amp; Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compliance-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-approval-workflow-not-triggering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Approval Workflow Not Triggering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-citation-logging-not-capturing-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Citation Logging Not Capturing Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-staleness-detection-missing-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Staleness Detection Missing Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-216-rag-source-integrity-validation">Control 2.16: RAG Source Integrity Validation</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 2.16
+<strong>Control Name:</strong> RAG Source Integrity Validation
+<strong>Regulatory Reference:</strong> Fed SR 11-7, FDIC FIL-15-2025, OCC 2011-12, FINRA 4511
+<strong>Setup Time:</strong> 3-4 hours</p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Establish governance over knowledge sources used for Retrieval-Augmented Generation (RAG) in Microsoft 365 Copilot and Copilot Studio agents. This control ensures that content used to ground agent responses is accurate, current, approved, and properly attributed. For financial services organizations, RAG source integrity is critical for model risk management and ensuring agents provide reliable information to users and customers.</p>
+<div class="admonition info">
+<p class="admonition-title">RAG in Microsoft 365 Context</p>
+<p>RAG enables AI agents to retrieve relevant content from organizational knowledge bases (SharePoint, OneDrive, Teams) to ground their responses. The quality and governance of these source materials directly impacts the accuracy and reliability of agent outputs.</p>
+</div>
+<hr />
+<h3 id="description">Description</h3>
+<p>RAG Source Integrity Validation establishes processes to ensure knowledge sources meet quality and governance standards before being used to ground AI agent responses. Key capabilities include:</p>
+<ul>
+<li><strong>Source Approval Workflow:</strong> Formal approval before content becomes agent knowledge</li>
+<li><strong>Content Versioning:</strong> Track changes to knowledge sources over time</li>
+<li><strong>Integrity Verification:</strong> Validate source content hasn't been tampered with</li>
+<li><strong>Citation Logging:</strong> Track which sources agents use in responses</li>
+<li><strong>Staleness Detection:</strong> Identify outdated content requiring refresh</li>
+</ul>
+<p>See <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Copilot Studio knowledge sources</a> for platform capabilities.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source Approval</strong></td>
+<td>Formal workflow for knowledge source approval</td>
+<td>Governance evidence</td>
+</tr>
+<tr>
+<td><strong>Version Control</strong></td>
+<td>Track changes to source content</td>
+<td>Audit trail</td>
+</tr>
+<tr>
+<td><strong>Citation Tracking</strong></td>
+<td>Log which sources ground responses</td>
+<td>Attribution and accuracy</td>
+</tr>
+<tr>
+<td><strong>Staleness Alerts</strong></td>
+<td>Detect outdated knowledge sources</td>
+<td>Data quality</td>
+</tr>
+<tr>
+<td><strong>Integrity Checks</strong></td>
+<td>Validate source authenticity</td>
+<td>Tamper detection</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> AI Governance Lead
+<strong>Supporting Roles:</strong> SharePoint Admin, Power Platform Admin, Compliance Officer</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft 365 E3/E5</td>
+<td>SharePoint and content services</td>
+<td>All levels</td>
+</tr>
+<tr>
+<td>Power Platform per-user</td>
+<td>Copilot Studio agent development</td>
+<td>Agent creators</td>
+</tr>
+<tr>
+<td>SharePoint Advanced Management</td>
+<td>Enhanced governance</td>
+<td>Level 2+</td>
+</tr>
+<tr>
+<td>Microsoft Purview</td>
+<td>Audit logging and compliance</td>
+<td>Level 4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+<th>Assignment Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Governance Lead</td>
+<td>Approve knowledge sources</td>
+<td>Business role</td>
+</tr>
+<tr>
+<td>Power Platform Admin</td>
+<td>Agent and knowledge configuration</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>SharePoint Admin</td>
+<td>Site and content governance</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Content Owner</td>
+<td>Certify content accuracy</td>
+<td>Business role</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Description</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Control 2.6 (Model Risk)</td>
+<td>MRM framework for agent governance</td>
+<td>Check MRM process</td>
+</tr>
+<tr>
+<td>Control 3.1 (Agent Inventory)</td>
+<td>Agent metadata including knowledge sources</td>
+<td>Verify inventory</td>
+</tr>
+<tr>
+<td>Control 4.1 (IAG/RCD)</td>
+<td>Site access governance</td>
+<td>Check IAG config</td>
+</tr>
+<tr>
+<td>Control 4.6 (Grounding Scope)</td>
+<td>Content inclusion/exclusion</td>
+<td>Verify scope rules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] Agent inventory with knowledge sources documented</li>
+<li>[ ] Content owner identification for each knowledge source</li>
+<li>[ ] Approval workflow process defined</li>
+<li>[ ] Version control strategy established</li>
+<li>[ ] Citation logging capability confirmed</li>
+<li>[ ] Staleness thresholds defined by content type</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="baseline-level-1">Baseline (Level 1)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source documentation</td>
+<td>Document all knowledge sources per agent</td>
+</tr>
+<tr>
+<td>Content owner</td>
+<td>Identify owner for each source</td>
+</tr>
+<tr>
+<td>Annual review</td>
+<td>Yearly review of source accuracy</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Minimum requirements:</strong></p>
+<ul>
+<li>Maintain inventory of knowledge sources per agent</li>
+<li>Assign content owner for each source</li>
+<li>Annual certification that content is accurate</li>
+<li>Document source locations in agent metadata</li>
+</ul>
+<h3 id="recommended-level-2-3">Recommended (Level 2-3)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Formal approval</td>
+<td>Approval workflow before source activation</td>
+</tr>
+<tr>
+<td>Quarterly review</td>
+<td>Quarterly content accuracy review</td>
+</tr>
+<tr>
+<td>Version tracking</td>
+<td>Track content changes</td>
+</tr>
+<tr>
+<td>Citation logging</td>
+<td>Log which sources agents cite</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI recommendations:</strong></p>
+<ul>
+<li>Implement approval workflow for new knowledge sources</li>
+<li>Quarterly review of source content for accuracy</li>
+<li>Track version history of knowledge documents</li>
+<li>Enable citation logging in audit</li>
+<li>Configure staleness alerts for content &gt;90 days unchanged</li>
+</ul>
+<h3 id="regulatedhigh-risk-level-4">Regulated/High-Risk (Level 4)</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Strict approval</td>
+<td>Multi-level approval for Tier 3 agent sources</td>
+</tr>
+<tr>
+<td>Real-time monitoring</td>
+<td>Continuous integrity monitoring</td>
+</tr>
+<tr>
+<td>Full citation audit</td>
+<td>Complete citation trail for all responses</td>
+</tr>
+<tr>
+<td>Automated validation</td>
+<td>Automated content freshness checks</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI considerations (high-risk):</strong></p>
+<ul>
+<li>Multi-level approval (Content Owner + Compliance + AI Governance)</li>
+<li>Monthly content accuracy certification</li>
+<li>Real-time monitoring for unauthorized changes</li>
+<li>Full citation logging with source attribution</li>
+<li>Automated alerts for stale or modified content</li>
+<li>Integration with model risk management process</li>
+</ul>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="step-1-establish-knowledge-source-inventory">Step 1: Establish Knowledge Source Inventory</h3>
+<p><strong>Create Knowledge Source Registry:</strong></p>
+<p>Extend the agent inventory (Control 3.1) with knowledge source details:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent ID</td>
+<td>Unique agent identifier</td>
+<td>AGT-2026-001</td>
+</tr>
+<tr>
+<td>Agent Name</td>
+<td>Agent display name</td>
+<td>Customer Service Bot</td>
+</tr>
+<tr>
+<td>Knowledge Source Type</td>
+<td>SharePoint, File, URL, etc.</td>
+<td>SharePoint Site</td>
+</tr>
+<tr>
+<td>Source Location</td>
+<td>URL or path</td>
+<td><code>https://tenant.sharepoint.com/sites/KB</code></td>
+</tr>
+<tr>
+<td>Content Owner</td>
+<td>Business owner</td>
+<td>knowledge@contoso.com</td>
+</tr>
+<tr>
+<td>Approval Status</td>
+<td>Pending, Approved, Revoked</td>
+<td>Approved</td>
+</tr>
+<tr>
+<td>Approval Date</td>
+<td>When approved</td>
+<td>2026-01-15</td>
+</tr>
+<tr>
+<td>Approved By</td>
+<td>Approver name</td>
+<td>AI Governance Lead</td>
+</tr>
+<tr>
+<td>Last Review Date</td>
+<td>Most recent review</td>
+<td>2026-01-15</td>
+</tr>
+<tr>
+<td>Next Review Due</td>
+<td>Scheduled review</td>
+<td>2026-04-15</td>
+</tr>
+<tr>
+<td>Staleness Threshold</td>
+<td>Days before stale alert</td>
+<td>90</td>
+</tr>
+<tr>
+<td>Content Classification</td>
+<td>Sensitivity level</td>
+<td>Confidential</td>
+</tr>
+</tbody>
+</table>
+<p><strong>PowerShell to Export Current Knowledge Sources:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Power Platform</span>
+<span class="nb">Connect-PowerPlatform</span>
+
+<span class="c"># Note: Copilot Studio API access required</span>
+<span class="c"># This shows conceptual approach - actual implementation depends on available APIs</span>
+
+<span class="k">function</span> <span class="nb">Get-AgentKnowledgeSources</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span><span class="no">[string]</span><span class="nv">$EnvironmentId</span><span class="p">)</span>
+
+    <span class="c"># Get all agents in environment</span>
+    <span class="nv">$agents</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppAgent</span> <span class="n">-EnvironmentName</span> <span class="nv">$EnvironmentId</span>
+
+    <span class="nv">$knowledgeSources</span> <span class="p">=</span> <span class="p">@()</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$agent</span> <span class="k">in</span> <span class="nv">$agents</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c"># Get agent configuration including knowledge sources</span>
+        <span class="nv">$config</span> <span class="p">=</span> <span class="nb">Get-AdminPowerAppAgentConfiguration</span> <span class="n">-AgentId</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">AgentId</span>
+
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$source</span> <span class="k">in</span> <span class="nv">$config</span><span class="p">.</span><span class="n">KnowledgeSources</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$knowledgeSources</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">AgentId</span>
+                <span class="n">AgentName</span> <span class="p">=</span> <span class="nv">$agent</span><span class="p">.</span><span class="n">DisplayName</span>
+                <span class="n">SourceType</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="nb">Type</span>
+                <span class="n">SourceLocation</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="n">Url</span>
+                <span class="n">LastModified</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="n">LastModified</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$knowledgeSources</span>
+<span class="p">}</span>
+
+<span class="c"># Export knowledge sources</span>
+<span class="c"># $sources = Get-AgentKnowledgeSources -EnvironmentId &quot;env-guid&quot;</span>
+<span class="c"># $sources | Export-Csv -Path &quot;Knowledge-Sources.csv&quot; -NoTypeInformation</span>
+</code></pre></div>
+<h3 id="step-2-implement-approval-workflow">Step 2: Implement Approval Workflow</h3>
+<p><strong>Option A: SharePoint List-Based Workflow</strong></p>
+<p>Create SharePoint list for knowledge source approval:</p>
+<ol>
+<li><strong>Create approval list columns:</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Title</td>
+<td>Single line</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Agent Name</td>
+<td>Single line</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Source Type</td>
+<td>Choice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Source URL</td>
+<td>Hyperlink</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Content Owner</td>
+<td>Person</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Business Justification</td>
+<td>Multi-line</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Content Description</td>
+<td>Multi-line</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Sensitivity Classification</td>
+<td>Choice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Approval Status</td>
+<td>Choice</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Approved By</td>
+<td>Person</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Approval Date</td>
+<td>Date</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Review Due Date</td>
+<td>Date</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Comments</td>
+<td>Multi-line</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Configure Power Automate approval flow:</strong></li>
+</ol>
+<div class="highlight"><pre><span></span><code>Trigger: When item created in Knowledge Source Approvals list
+
+Actions:
+├── Get Content Owner details
+├── Start Approval (Content Owner)
+│   └── If Approved by Content Owner:
+│       ├── Start Approval (AI Governance Lead)
+│       │   └── If Approved by AI Governance:
+│       │       ├── Update list: Status = &quot;Approved&quot;
+│       │       ├── Set Review Due Date (+ 90 days)
+│       │       ├── Send notification to requestor
+│       │       └── Log to audit
+│       │   └── If Rejected:
+│       │       ├── Update list: Status = &quot;Rejected&quot;
+│       │       └── Send rejection notice with comments
+│   └── If Rejected by Content Owner:
+│       ├── Update list: Status = &quot;Rejected&quot;
+│       └── Send rejection notice
+</code></pre></div>
+<p><strong>Option B: Forms-Based Approval (Simpler)</strong></p>
+<p>Create Microsoft Forms for knowledge source requests:</p>
+<ul>
+<li>Requestor fills out form with source details</li>
+<li>Form submission triggers Power Automate</li>
+<li>Approvals routed via email/Teams</li>
+<li>Results logged to SharePoint list</li>
+</ul>
+<h3 id="step-3-configure-citation-logging">Step 3: Configure Citation Logging</h3>
+<p><strong>Enable Citation Tracking in Audit Logs:</strong></p>
+<p>Citation logging captures which knowledge sources agents reference in responses:</p>
+<div class="highlight"><pre><span></span><code><span class="c">// Query Copilot Studio agent citations</span>
+<span class="n">CopilotStudioLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">7</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;AgentResponse&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Citations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parse_json</span><span class="p">(</span><span class="n">ResponseMetadata</span><span class="p">)</span><span class="err">.</span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">mv-expand</span><span class="w"> </span><span class="n">Citation</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span>
+<span class="w">    </span><span class="n">TimeGenerated</span><span class="p">,</span>
+<span class="w">    </span><span class="n">AgentId</span><span class="p">,</span>
+<span class="w">    </span><span class="n">AgentName</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UserId</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SourceUrl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">SourceUrl</span><span class="p">),</span>
+<span class="w">    </span><span class="n">SourceTitle</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">Title</span><span class="p">),</span>
+<span class="w">    </span><span class="n">ConfidenceScore</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">todouble</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">Confidence</span><span class="p">),</span>
+<span class="w">    </span><span class="n">ResponseSnippet</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">substring</span><span class="p">(</span><span class="n">ResponseText</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div>
+<p><strong>Create Citation Summary Report:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c">// Citation frequency by source</span>
+<span class="n">CopilotStudioLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">30</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="p">==</span><span class="w"> </span><span class="s">&quot;AgentResponse&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">Citations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">parse_json</span><span class="p">(</span><span class="n">ResponseMetadata</span><span class="p">)</span><span class="err">.</span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">mv-expand</span><span class="w"> </span><span class="n">Citation</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Citations</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span>
+<span class="w">    </span><span class="n">CitationCount</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">count</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">UniqueUsers</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dcount</span><span class="p">(</span><span class="n">UserId</span><span class="p">),</span>
+<span class="w">    </span><span class="n">AvgConfidence</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">avg</span><span class="p">(</span><span class="n">todouble</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">Confidence</span><span class="p">))</span>
+<span class="w">    </span><span class="k">by</span><span class="w"> </span><span class="n">SourceUrl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tostring</span><span class="p">(</span><span class="n">Citation</span><span class="err">.</span><span class="n">SourceUrl</span><span class="p">),</span><span class="w"> </span><span class="n">AgentId</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">CitationCount</span><span class="w"> </span><span class="n">desc</span>
+<span class="p">|</span><span class="w"> </span><span class="k">take</span><span class="w"> </span><span class="mi">50</span>
+</code></pre></div>
+<h3 id="step-4-implement-content-integrity-checks">Step 4: Implement Content Integrity Checks</h3>
+<p><strong>Track SharePoint Content Changes:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span> <span class="nb">Get-KnowledgeSourceChanges</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="no">[string]</span><span class="nv">$SiteUrl</span><span class="p">,</span>
+        <span class="no">[int]</span><span class="nv">$DaysBack</span> <span class="p">=</span> <span class="n">30</span>
+    <span class="p">)</span>
+
+    <span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$SiteUrl</span> <span class="n">-Interactive</span>
+
+    <span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="nv">$DaysBack</span><span class="p">)</span>
+
+    <span class="c"># Get all items modified in the period</span>
+    <span class="nv">$lists</span> <span class="p">=</span> <span class="nb">Get-PnPList</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Hidden</span> <span class="o">-eq</span> <span class="nv">$false</span> <span class="p">}</span>
+
+    <span class="nv">$changes</span> <span class="p">=</span> <span class="p">@()</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$list</span> <span class="k">in</span> <span class="nv">$lists</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$items</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="nv">$list</span><span class="p">.</span><span class="n">Title</span> <span class="n">-Query</span> <span class="s2">&quot;</span>
+<span class="s2">            &lt;View&gt;</span>
+<span class="s2">                &lt;Query&gt;</span>
+<span class="s2">                    &lt;Where&gt;</span>
+<span class="s2">                        &lt;Geq&gt;</span>
+<span class="s2">                            &lt;FieldRef Name=&#39;Modified&#39; /&gt;</span>
+<span class="s2">                            &lt;Value Type=&#39;DateTime&#39;&gt;</span><span class="p">$(</span><span class="nv">$startDate</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="s1">&#39;yyyy-MM-ddTHH:mm:ss&#39;</span><span class="p">))</span><span class="s2">Z&lt;/Value&gt;</span>
+<span class="s2">                        &lt;/Geq&gt;</span>
+<span class="s2">                    &lt;/Where&gt;</span>
+<span class="s2">                &lt;/Query&gt;</span>
+<span class="s2">            &lt;/View&gt;&quot;</span>
+
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$item</span> <span class="k">in</span> <span class="nv">$items</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nv">$changes</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+                <span class="n">SiteUrl</span> <span class="p">=</span> <span class="nv">$SiteUrl</span>
+                <span class="n">ListName</span> <span class="p">=</span> <span class="nv">$list</span><span class="p">.</span><span class="n">Title</span>
+                <span class="n">ItemId</span> <span class="p">=</span> <span class="nv">$item</span><span class="p">.</span><span class="n">Id</span>
+                <span class="n">Title</span> <span class="p">=</span> <span class="nv">$item</span><span class="p">[</span><span class="s2">&quot;Title&quot;</span><span class="p">]</span>
+                <span class="n">Modified</span> <span class="p">=</span> <span class="nv">$item</span><span class="p">[</span><span class="s2">&quot;Modified&quot;</span><span class="p">]</span>
+                <span class="n">ModifiedBy</span> <span class="p">=</span> <span class="nv">$item</span><span class="p">[</span><span class="s2">&quot;Editor&quot;</span><span class="p">].</span><span class="n">Email</span>
+                <span class="n">ChangeType</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$item</span><span class="p">[</span><span class="s2">&quot;Created&quot;</span><span class="p">]</span> <span class="o">-ge</span> <span class="nv">$startDate</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;Created&quot;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s2">&quot;Modified&quot;</span> <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$changes</span>
+<span class="p">}</span>
+
+<span class="c"># Check knowledge source for changes</span>
+<span class="nv">$changes</span> <span class="p">=</span> <span class="nb">Get-KnowledgeSourceChanges</span> <span class="n">-SiteUrl</span> <span class="s2">&quot;https://tenant.sharepoint.com/sites/KB&quot;</span> <span class="n">-DaysBack</span> <span class="n">30</span>
+<span class="nv">$changes</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;KB-Changes.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Found </span><span class="p">$(</span><span class="nv">$changes</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> changes in knowledge source&quot;</span>
+</code></pre></div>
+<p><strong>Calculate Content Hash for Integrity:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span> <span class="nb">Get-DocumentHash</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span><span class="no">[string]</span><span class="nv">$FileUrl</span><span class="p">)</span>
+
+    <span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$FileUrl</span> <span class="n">-Interactive</span>
+
+    <span class="c"># Download file content</span>
+    <span class="nv">$fileContent</span> <span class="p">=</span> <span class="nb">Get-PnPFile</span> <span class="n">-Url</span> <span class="nv">$FileUrl</span> <span class="n">-AsMemoryStream</span>
+
+    <span class="c"># Calculate SHA256 hash</span>
+    <span class="nv">$hasher</span> <span class="p">=</span> <span class="no">[System.Security.Cryptography.SHA256]</span><span class="p">::</span><span class="n">Create</span><span class="p">()</span>
+    <span class="nv">$hash</span> <span class="p">=</span> <span class="nv">$hasher</span><span class="p">.</span><span class="n">ComputeHash</span><span class="p">(</span><span class="nv">$fileContent</span><span class="p">.</span><span class="n">ToArray</span><span class="p">())</span>
+    <span class="nv">$hashString</span> <span class="p">=</span> <span class="no">[BitConverter]</span><span class="p">::</span><span class="n">ToString</span><span class="p">(</span><span class="nv">$hash</span><span class="p">)</span> <span class="o">-replace</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="nv">$hashString</span>
+<span class="p">}</span>
+
+<span class="c"># Store hashes for integrity verification</span>
+<span class="k">function</span> <span class="nb">Update-KnowledgeSourceHashes</span> <span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span><span class="no">[string]</span><span class="nv">$SiteUrl</span><span class="p">)</span>
+
+    <span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$SiteUrl</span> <span class="n">-Interactive</span>
+
+    <span class="nv">$files</span> <span class="p">=</span> <span class="nb">Get-PnPFolderItem</span> <span class="n">-FolderSiteRelativeUrl</span> <span class="s2">&quot;Shared Documents&quot;</span> <span class="n">-ItemType</span> <span class="n">File</span> <span class="n">-Recursive</span>
+
+    <span class="nv">$hashes</span> <span class="p">=</span> <span class="nv">$files</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+        <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">FileUrl</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">ServerRelativeUrl</span>
+            <span class="n">FileName</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Name</span>
+            <span class="n">Modified</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">TimeLastModified</span>
+            <span class="n">Hash</span> <span class="p">=</span> <span class="nb">Get-DocumentHash</span> <span class="n">-FileUrl</span> <span class="nv">$_</span><span class="p">.</span><span class="n">ServerRelativeUrl</span>
+            <span class="n">CaptureDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$hashes</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="step-5-configure-staleness-detection">Step 5: Configure Staleness Detection</h3>
+<p><strong>Define Staleness Thresholds:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Content Type</th>
+<th>Staleness Threshold</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product Information</td>
+<td>30 days</td>
+<td>Alert content owner</td>
+</tr>
+<tr>
+<td>Regulatory Guidance</td>
+<td>90 days</td>
+<td>Alert + compliance review</td>
+</tr>
+<tr>
+<td>Procedures/Policies</td>
+<td>180 days</td>
+<td>Alert + mandatory review</td>
+</tr>
+<tr>
+<td>FAQs</td>
+<td>60 days</td>
+<td>Alert content owner</td>
+</tr>
+<tr>
+<td>Training Materials</td>
+<td>365 days</td>
+<td>Annual review</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Power Automate Staleness Check:</strong></p>
+<div class="highlight"><pre><span></span><code>Trigger: Recurrence (Weekly)
+
+Actions:
+├── Get all approved knowledge sources from registry
+├── For each knowledge source:
+│   ├── Check last modified date of source content
+│   ├── Calculate days since last modification
+│   ├── Compare against staleness threshold
+│   └── If stale:
+│       ├── Send alert to content owner
+│       ├── Update registry: StaleAlert = True
+│       └── If critically stale (2x threshold):
+│           ├── Escalate to AI Governance Lead
+│           └── Consider temporary source suspension
+</code></pre></div>
+<p><strong>KQL Query for Stale Sources:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c">// Identify stale knowledge sources</span>
+<span class="n">let</span><span class="w"> </span><span class="n">stalenessThreshold</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">90</span><span class="n">d</span><span class="p">;</span>
+<span class="n">SharePointAuditLogs</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">365</span><span class="n">d</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">Operation</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;FileModified&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;FileUploaded&quot;</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">summarize</span><span class="w"> </span><span class="n">LastModified</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">max</span><span class="p">(</span><span class="n">TimeGenerated</span><span class="p">)</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">SiteUrl</span>
+<span class="p">|</span><span class="w"> </span><span class="k">extend</span><span class="w"> </span><span class="n">DaysSinceModified</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">datetime_diff</span><span class="p">(</span><span class="s">&#39;day&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span><span class="w"> </span><span class="n">LastModified</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">DaysSinceModified</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">stalenessThreshold</span>
+<span class="p">|</span><span class="w"> </span><span class="k">project</span><span class="w"> </span><span class="n">SiteUrl</span><span class="p">,</span><span class="w"> </span><span class="n">LastModified</span><span class="p">,</span><span class="w"> </span><span class="n">DaysSinceModified</span><span class="p">,</span><span class="w"> </span><span class="n">Status</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Stale&quot;</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">DaysSinceModified</span><span class="w"> </span><span class="n">desc</span>
+</code></pre></div>
+<h3 id="step-6-establish-review-cadence">Step 6: Establish Review Cadence</h3>
+<p><strong>Review Schedule by Zone:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Review Frequency</th>
+<th>Reviewer</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zone 1</td>
+<td>Annual</td>
+<td>Content Owner</td>
+<td>Accuracy check</td>
+</tr>
+<tr>
+<td>Zone 2</td>
+<td>Quarterly</td>
+<td>Content Owner + AI Governance</td>
+<td>Accuracy + relevance</td>
+</tr>
+<tr>
+<td>Zone 3</td>
+<td>Monthly</td>
+<td>Content Owner + Compliance + AI Governance</td>
+<td>Full validation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Review Checklist:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Knowledge Source Review Checklist</span>
+
+<span class="gu">## Source Information</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Source Name:**</span> [Name]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Source URL:**</span> [URL]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Agent(s) Using Source:**</span> [List agents]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Review Date:**</span> [Date]
+<span class="k">-</span><span class="w"> </span><span class="gs">**Reviewer:**</span> [Name]
+
+<span class="gu">## Accuracy Validation</span>
+<span class="k">- [ ]</span> Content is factually accurate
+<span class="k">- [ ]</span> No outdated information present
+<span class="k">- [ ]</span> Statistics and figures are current
+<span class="k">- [ ]</span> References are valid and accessible
+<span class="k">- [ ]</span> No conflicting information with other sources
+
+<span class="gu">## Compliance Check</span>
+<span class="k">- [ ]</span> Content meets sensitivity classification
+<span class="k">- [ ]</span> No PII/NPI exposed inappropriately
+<span class="k">- [ ]</span> Regulatory references are current
+<span class="k">- [ ]</span> Disclaimers are present where required
+
+<span class="gu">## Quality Assessment</span>
+<span class="k">- [ ]</span> Content is clearly written
+<span class="k">- [ ]</span> No ambiguous statements
+<span class="k">- [ ]</span> Appropriate for AI grounding
+<span class="k">- [ ]</span> No potential for misinterpretation
+
+<span class="gu">## Approval</span>
+<span class="k">- [ ]</span> Approved for continued use
+<span class="k">- [ ]</span> Approved with modifications required
+<span class="k">- [ ]</span> Suspended pending updates
+<span class="k">- [ ]</span> Revoked (remove from agent)
+
+<span class="gu">## Notes</span>
+[Reviewer notes and action items]
+
+<span class="gu">## Next Review Date</span>
+[Date based on zone schedule]
+</code></pre></div>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="comprehensive-rag-source-validation-script">Comprehensive RAG Source Validation Script</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># ============================================================</span>
+<span class="c"># Control 2.16: RAG Source Integrity Validation</span>
+<span class="c"># Comprehensive Validation and Reporting Script</span>
+<span class="c"># ============================================================</span>
+
+<span class="k">param</span><span class="p">(</span>
+    <span class="no">[string]</span><span class="nv">$RegistryListUrl</span> <span class="p">=</span> <span class="s2">&quot;https://tenant.sharepoint.com/sites/Governance/Lists/KnowledgeSourceRegistry&quot;</span><span class="p">,</span>
+    <span class="no">[string]</span><span class="nv">$OutputPath</span> <span class="p">=</span> <span class="s2">&quot;.\RAG-Validation-</span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s1">&#39;yyyyMMdd&#39;</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="c"># Create output directory</span>
+<span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$OutputPath</span> <span class="n">-Force</span> <span class="p">|</span> <span class="nb">Out-Null</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;=== RAG Source Integrity Validation ===&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 1: Load Knowledge Source Registry</span>
+<span class="c"># ============================================================</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Section 1: Loading knowledge source registry...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$RegistryListUrl</span> <span class="n">-Interactive</span>
+
+<span class="nv">$registryItems</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;KnowledgeSourceRegistry&quot;</span> <span class="n">-PageSize</span> <span class="n">500</span>
+
+<span class="nv">$registry</span> <span class="p">=</span> <span class="nv">$registryItems</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;AgentId&quot;</span><span class="p">]</span>
+        <span class="n">AgentName</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;AgentName&quot;</span><span class="p">]</span>
+        <span class="n">SourceType</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;SourceType&quot;</span><span class="p">]</span>
+        <span class="n">SourceUrl</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;SourceUrl&quot;</span><span class="p">]</span>
+        <span class="n">ContentOwner</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ContentOwner&quot;</span><span class="p">]</span>
+        <span class="n">ApprovalStatus</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ApprovalStatus&quot;</span><span class="p">]</span>
+        <span class="n">ApprovalDate</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;ApprovalDate&quot;</span><span class="p">]</span>
+        <span class="n">LastReviewDate</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;LastReviewDate&quot;</span><span class="p">]</span>
+        <span class="n">NextReviewDue</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;NextReviewDue&quot;</span><span class="p">]</span>
+        <span class="n">StalenessThreshold</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;StalenessThreshold&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Loaded </span><span class="p">$(</span><span class="nv">$registry</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> knowledge sources from registry&quot;</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 2: Validate Source Accessibility</span>
+<span class="c"># ============================================================</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Section 2: Validating source accessibility...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="nv">$accessResults</span> <span class="p">=</span> <span class="p">@()</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$source</span> <span class="k">in</span> <span class="nv">$registry</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$source</span><span class="p">.</span><span class="n">SourceType</span> <span class="o">-eq</span> <span class="s2">&quot;SharePoint Site&quot;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$source</span><span class="p">.</span><span class="n">SourceUrl</span> <span class="n">-Interactive</span>
+            <span class="nv">$site</span> <span class="p">=</span> <span class="nb">Get-PnPWeb</span>
+            <span class="nv">$accessible</span> <span class="p">=</span> <span class="nv">$true</span>
+            <span class="nv">$error</span> <span class="p">=</span> <span class="nv">$null</span>
+        <span class="p">}</span>
+        <span class="c"># Add other source type checks as needed</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="nv">$accessible</span> <span class="p">=</span> <span class="nv">$true</span>
+            <span class="nv">$error</span> <span class="p">=</span> <span class="s2">&quot;Source type not validated&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">{</span>
+        <span class="nv">$accessible</span> <span class="p">=</span> <span class="nv">$false</span>
+        <span class="nv">$error</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Exception</span><span class="p">.</span><span class="n">Message</span>
+    <span class="p">}</span>
+
+    <span class="nv">$accessResults</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+        <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="n">AgentId</span>
+        <span class="n">SourceUrl</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="n">SourceUrl</span>
+        <span class="n">Accessible</span> <span class="p">=</span> <span class="nv">$accessible</span>
+        <span class="n">Error</span> <span class="p">=</span> <span class="nv">$error</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$inaccessible</span> <span class="p">=</span> <span class="nv">$accessResults</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="o">-not</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Accessible</span> <span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$inaccessible</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;WARNING: </span><span class="p">$(</span><span class="nv">$inaccessible</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> sources are inaccessible!&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+    <span class="nv">$inaccessible</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$OutputPath\Inaccessible-Sources.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;All sources accessible&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 3: Check Staleness</span>
+<span class="c"># ============================================================</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Section 3: Checking for stale sources...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="nv">$stalenessResults</span> <span class="p">=</span> <span class="p">@()</span>
+
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$source</span> <span class="k">in</span> <span class="p">(</span><span class="nv">$registry</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">SourceType</span> <span class="o">-eq</span> <span class="s2">&quot;SharePoint Site&quot;</span> <span class="p">}))</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="nb">Connect-PnPOnline</span> <span class="n">-Url</span> <span class="nv">$source</span><span class="p">.</span><span class="n">SourceUrl</span> <span class="n">-Interactive</span>
+
+        <span class="c"># Get most recent modification</span>
+        <span class="nv">$recentItems</span> <span class="p">=</span> <span class="nb">Get-PnPListItem</span> <span class="n">-List</span> <span class="s2">&quot;Documents&quot;</span> <span class="n">-PageSize</span> <span class="n">10</span> <span class="p">|</span>
+            <span class="nb">Sort-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">[</span><span class="s2">&quot;Modified&quot;</span><span class="p">]</span> <span class="p">}</span> <span class="n">-Descending</span> <span class="p">|</span>
+            <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">1</span>
+
+        <span class="nv">$lastModified</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$recentItems</span><span class="p">)</span> <span class="p">{</span> <span class="nv">$recentItems</span><span class="p">[</span><span class="s2">&quot;Modified&quot;</span><span class="p">]</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="nv">$null</span> <span class="p">}</span>
+        <span class="nv">$daysSinceModified</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$lastModified</span><span class="p">)</span> <span class="p">{</span>
+            <span class="p">((</span><span class="nb">Get-Date</span><span class="p">)</span> <span class="p">-</span> <span class="no">[DateTime]</span><span class="nv">$lastModified</span><span class="p">).</span><span class="n">Days</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="n">999</span> <span class="p">}</span>
+
+        <span class="nv">$threshold</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$source</span><span class="p">.</span><span class="n">StalenessThreshold</span><span class="p">)</span> <span class="p">{</span> <span class="nv">$source</span><span class="p">.</span><span class="n">StalenessThreshold</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="n">90</span> <span class="p">}</span>
+        <span class="nv">$isStale</span> <span class="p">=</span> <span class="nv">$daysSinceModified</span> <span class="o">-gt</span> <span class="nv">$threshold</span>
+
+        <span class="nv">$stalenessResults</span> <span class="p">+=</span> <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">AgentId</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="n">AgentId</span>
+            <span class="n">SourceUrl</span> <span class="p">=</span> <span class="nv">$source</span><span class="p">.</span><span class="n">SourceUrl</span>
+            <span class="n">LastModified</span> <span class="p">=</span> <span class="nv">$lastModified</span>
+            <span class="n">DaysSinceModified</span> <span class="p">=</span> <span class="nv">$daysSinceModified</span>
+            <span class="n">StalenessThreshold</span> <span class="p">=</span> <span class="nv">$threshold</span>
+            <span class="n">IsStale</span> <span class="p">=</span> <span class="nv">$isStale</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">{</span>
+        <span class="nb">Write-Warning</span> <span class="s2">&quot;Could not check staleness for </span><span class="p">$(</span><span class="nv">$source</span><span class="p">.</span><span class="n">SourceUrl</span><span class="p">)</span><span class="s2">: $_&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$stalesSources</span> <span class="p">=</span> <span class="nv">$stalenessResults</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">IsStale</span> <span class="p">}</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$staleSources</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;WARNING: </span><span class="p">$(</span><span class="nv">$staleSources</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> sources are stale!&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="nv">$staleSources</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$OutputPath\Stale-Sources.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;No stale sources found&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 4: Check Approval Status</span>
+<span class="c"># ============================================================</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Section 4: Checking approval status...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="nv">$unapproved</span> <span class="p">=</span> <span class="nv">$registry</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">ApprovalStatus</span> <span class="o">-ne</span> <span class="s2">&quot;Approved&quot;</span> <span class="p">}</span>
+<span class="nv">$pendingReview</span> <span class="p">=</span> <span class="nv">$registry</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="nv">$_</span><span class="p">.</span><span class="n">NextReviewDue</span> <span class="o">-and</span> <span class="no">[DateTime]</span><span class="nv">$_</span><span class="p">.</span><span class="n">NextReviewDue</span> <span class="o">-le</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;Unapproved sources: </span><span class="p">$(</span><span class="nv">$unapproved</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Sources pending review: </span><span class="p">$(</span><span class="nv">$pendingReview</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2">&quot;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$pendingReview</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$pendingReview</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;$OutputPath\Pending-Review.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+<span class="p">}</span>
+
+<span class="c"># ============================================================</span>
+<span class="c"># SECTION 5: Generate Summary Report</span>
+<span class="c"># ============================================================</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Section 5: Generating summary report...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+
+<span class="nv">$summary</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">TotalSources</span> <span class="p">=</span> <span class="nv">$registry</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">ApprovedSources</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$registry</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">ApprovalStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Approved&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+    <span class="n">PendingSources</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$registry</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">ApprovalStatus</span> <span class="o">-eq</span> <span class="s2">&quot;Pending&quot;</span> <span class="p">}).</span><span class="n">Count</span>
+    <span class="n">InaccessibleSources</span> <span class="p">=</span> <span class="nv">$inaccessible</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">StaleSources</span> <span class="p">=</span> <span class="nv">$staleSources</span><span class="p">.</span><span class="n">Count</span>
+    <span class="n">PendingReview</span> <span class="p">=</span> <span class="nv">$pendingReview</span><span class="p">.</span><span class="n">Count</span>
+<span class="p">}</span>
+
+<span class="nv">$html</span> <span class="p">=</span> <span class="sh">@&quot;</span>
+<span class="sh">&lt;!DOCTYPE html&gt;</span>
+<span class="sh">&lt;html&gt;</span>
+<span class="sh">&lt;head&gt;</span>
+<span class="sh">    &lt;title&gt;RAG Source Integrity Validation Report&lt;/title&gt;</span>
+<span class="sh">    &lt;style&gt;</span>
+<span class="sh">        body { font-family: &#39;Segoe UI&#39;, sans-serif; margin: 40px; }</span>
+<span class="sh">        h1 { color: #0078d4; }</span>
+<span class="sh">        .dashboard { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }</span>
+<span class="sh">        .card { padding: 20px; background: #f5f5f5; border-radius: 8px; min-width: 150px; }</span>
+<span class="sh">        .card.success { background: #dff6dd; }</span>
+<span class="sh">        .card.warning { background: #fff4ce; }</span>
+<span class="sh">        .card.danger { background: #fde7e9; }</span>
+<span class="sh">        table { width: 100%; border-collapse: collapse; margin: 20px 0; }</span>
+<span class="sh">        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }</span>
+<span class="sh">        th { background: #0078d4; color: white; }</span>
+<span class="sh">    &lt;/style&gt;</span>
+<span class="sh">&lt;/head&gt;</span>
+<span class="sh">&lt;body&gt;</span>
+<span class="sh">    &lt;h1&gt;RAG Source Integrity Validation Report&lt;/h1&gt;</span>
+<span class="sh">    &lt;p&gt;Generated: </span><span class="p">$(</span><span class="nb">Get-Date</span> <span class="n">-Format</span> <span class="s2">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">)</span><span class="sh">&lt;/p&gt;</span>
+
+<span class="sh">    &lt;h2&gt;Summary&lt;/h2&gt;</span>
+<span class="sh">    &lt;div class=&quot;dashboard&quot;&gt;</span>
+<span class="sh">        &lt;div class=&quot;card&quot;&gt;&lt;h3&gt;Total Sources&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;</span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">TotalSources</span><span class="p">)</span><span class="sh">&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">        &lt;div class=&quot;card success&quot;&gt;&lt;h3&gt;Approved&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;</span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">ApprovedSources</span><span class="p">)</span><span class="sh">&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">        &lt;div class=&quot;card warning&quot;&gt;&lt;h3&gt;Pending Approval&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;</span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingSources</span><span class="p">)</span><span class="sh">&lt;/p&gt;&lt;/div&gt;</span>
+<span class="sh">        &lt;div class=&quot;card </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">InaccessibleSources</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;danger&#39;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s1">&#39;success&#39;</span> <span class="p">})</span><span class="sh">&quot;&gt;</span>
+<span class="sh">            &lt;h3&gt;Inaccessible&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;</span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">InaccessibleSources</span><span class="p">)</span><span class="sh">&lt;/p&gt;</span>
+<span class="sh">        &lt;/div&gt;</span>
+<span class="sh">        &lt;div class=&quot;card </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">StaleSources</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;warning&#39;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s1">&#39;success&#39;</span> <span class="p">})</span><span class="sh">&quot;&gt;</span>
+<span class="sh">            &lt;h3&gt;Stale&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;</span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">StaleSources</span><span class="p">)</span><span class="sh">&lt;/p&gt;</span>
+<span class="sh">        &lt;/div&gt;</span>
+<span class="sh">        &lt;div class=&quot;card </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingReview</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;warning&#39;</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s1">&#39;success&#39;</span> <span class="p">})</span><span class="sh">&quot;&gt;</span>
+<span class="sh">            &lt;h3&gt;Review Due&lt;/h3&gt;&lt;p style=&quot;font-size:28px;&quot;&gt;</span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingReview</span><span class="p">)</span><span class="sh">&lt;/p&gt;</span>
+<span class="sh">        &lt;/div&gt;</span>
+<span class="sh">    &lt;/div&gt;</span>
+
+<span class="sh">    &lt;h2&gt;Action Items&lt;/h2&gt;</span>
+<span class="sh">    &lt;ul&gt;</span>
+<span class="sh">        </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">InaccessibleSources</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;&lt;li&gt;&lt;strong&gt;Critical:&lt;/strong&gt; Review </span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">InaccessibleSources</span><span class="p">)</span><span class="s2"> inaccessible sources&lt;/li&gt;&quot;</span> <span class="p">})</span>
+<span class="sh">        </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">StaleSources</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;&lt;li&gt;&lt;strong&gt;High:&lt;/strong&gt; Update </span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">StaleSources</span><span class="p">)</span><span class="s2"> stale sources&lt;/li&gt;&quot;</span> <span class="p">})</span>
+<span class="sh">        </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingReview</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;&lt;li&gt;&lt;strong&gt;Medium:&lt;/strong&gt; Complete </span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingReview</span><span class="p">)</span><span class="s2"> pending reviews&lt;/li&gt;&quot;</span> <span class="p">})</span>
+<span class="sh">        </span><span class="p">$(</span><span class="k">if</span> <span class="p">(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingSources</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;&lt;li&gt;&lt;strong&gt;Medium:&lt;/strong&gt; Process </span><span class="p">$(</span><span class="nv">$summary</span><span class="p">.</span><span class="n">PendingSources</span><span class="p">)</span><span class="s2"> pending approvals&lt;/li&gt;&quot;</span> <span class="p">})</span>
+<span class="sh">    &lt;/ul&gt;</span>
+
+<span class="sh">    &lt;h2&gt;Next Steps&lt;/h2&gt;</span>
+<span class="sh">    &lt;ol&gt;</span>
+<span class="sh">        &lt;li&gt;Address critical issues (inaccessible sources) immediately&lt;/li&gt;</span>
+<span class="sh">        &lt;li&gt;Schedule content owner meetings for stale sources&lt;/li&gt;</span>
+<span class="sh">        &lt;li&gt;Complete pending reviews before due dates&lt;/li&gt;</span>
+<span class="sh">        &lt;li&gt;Process pending approval requests&lt;/li&gt;</span>
+<span class="sh">    &lt;/ol&gt;</span>
+<span class="sh">&lt;/body&gt;</span>
+<span class="sh">&lt;/html&gt;</span>
+<span class="sh">&quot;@</span>
+
+<span class="nv">$html</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-FilePath</span> <span class="s2">&quot;$OutputPath\RAG-Validation-Report.html&quot;</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Report generated: $OutputPath\RAG-Validation-Report.html&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+
+<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">=== Validation Complete ===&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-alignment">Regulatory Alignment</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>Requirement</th>
+<th>How This Control Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fed SR 11-7</strong></td>
+<td>Model risk management</td>
+<td>Ensures data quality for AI models</td>
+</tr>
+<tr>
+<td><strong>FDIC FIL-15-2025</strong></td>
+<td>AI governance expectations</td>
+<td>Validates knowledge source integrity</td>
+</tr>
+<tr>
+<td><strong>OCC 2011-12</strong></td>
+<td>Model inputs and data quality</td>
+<td>Documents source approval and validation</td>
+</tr>
+<tr>
+<td><strong>FINRA 4511</strong></td>
+<td>Books and records</td>
+<td>Citation logging creates audit trail</td>
+</tr>
+<tr>
+<td><strong>SOX 302/404</strong></td>
+<td>Internal controls</td>
+<td>Approval workflow provides control evidence</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong></p>
+<ul>
+<li>Document knowledge sources used</li>
+<li>Annual accuracy review</li>
+<li>Content owner identification</li>
+<li>Rationale: Basic tracking for low-risk personal agents</li>
+</ul>
+<p><strong>Zone 2 (Team Collaboration):</strong></p>
+<ul>
+<li>Formal approval workflow required</li>
+<li>Quarterly accuracy reviews</li>
+<li>Citation logging enabled</li>
+<li>Staleness alerts configured</li>
+<li>Rationale: Shared agents need validated knowledge bases</li>
+</ul>
+<p><strong>Zone 3 (Enterprise Managed):</strong></p>
+<ul>
+<li>Multi-level approval (Owner + Compliance + AI Governance)</li>
+<li>Monthly accuracy reviews</li>
+<li>Full citation audit trail</li>
+<li>Real-time staleness monitoring</li>
+<li>Integration with model risk management</li>
+<li>Rationale: Customer-facing agents require highest data quality</li>
+</ul>
+<h3 id="fsi-configuration-example">FSI Configuration Example</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># FSI RAG Source Integrity Configuration</span>
+<span class="nt">fsi_rag_governance</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">organization</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Investment</span><span class="nv"> </span><span class="s">Adviser&quot;</span>
+<span class="w">  </span><span class="nt">control_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.16&quot;</span>
+
+<span class="w">  </span><span class="nt">approval_workflow</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tier_1_agents</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">approvers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;Content</span><span class="nv"> </span><span class="s">Owner&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">review_frequency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Annual&quot;</span>
+
+<span class="w">    </span><span class="nt">tier_2_agents</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">approvers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;Content</span><span class="nv"> </span><span class="s">Owner&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;AI</span><span class="nv"> </span><span class="s">Governance</span><span class="nv"> </span><span class="s">Lead&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">review_frequency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Quarterly&quot;</span>
+
+<span class="w">    </span><span class="nt">tier_3_agents</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">approvers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;Content</span><span class="nv"> </span><span class="s">Owner&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Compliance</span><span class="nv"> </span><span class="s">Officer&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;AI</span><span class="nv"> </span><span class="s">Governance</span><span class="nv"> </span><span class="s">Lead&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">review_frequency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Monthly&quot;</span>
+
+<span class="w">  </span><span class="nt">staleness_thresholds</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">regulatory_content</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">  </span><span class="c1"># Days</span>
+<span class="w">    </span><span class="nt">product_information</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">    </span><span class="nt">general_knowledge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90</span>
+<span class="w">    </span><span class="nt">training_materials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">365</span>
+
+<span class="w">  </span><span class="nt">citation_logging</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">retention_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2555</span><span class="w">  </span><span class="c1"># 7 years</span>
+<span class="w">    </span><span class="nt">include_confidence_scores</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">integrity_checks</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">hash_verification</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">change_detection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">unauthorized_modification_alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">evidence_retention</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">approval_records</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;7</span><span class="nv"> </span><span class="s">years&quot;</span>
+<span class="w">    </span><span class="nt">review_records</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;7</span><span class="nv"> </span><span class="s">years&quot;</span>
+<span class="w">    </span><span class="nt">citation_logs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;7</span><span class="nv"> </span><span class="s">years&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Review knowledge source registry</td>
+<td>All agents have documented sources</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Submit test approval request</td>
+<td>Workflow triggers correctly</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Complete approval workflow</td>
+<td>Source marked as approved</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify citation logging</td>
+<td>Agent citations appear in audit</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test staleness detection</td>
+<td>Stale sources flagged</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Run validation script</td>
+<td>Report generated with findings</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compliance-checklist">Compliance Checklist</h3>
+<ul>
+<li>[ ] Knowledge source registry established</li>
+<li>[ ] Approval workflow configured</li>
+<li>[ ] Content owners assigned for all sources</li>
+<li>[ ] Citation logging enabled</li>
+<li>[ ] Staleness thresholds defined</li>
+<li>[ ] Review schedule established by zone</li>
+<li>[ ] Validation script running periodically</li>
+<li>[ ] Integration with model risk management (Level 4)</li>
+</ul>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-approval-workflow-not-triggering">Issue: Approval Workflow Not Triggering</h3>
+<p><strong>Symptoms:</strong> New sources not routed for approval</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify Power Automate flow is enabled</li>
+<li>Check list trigger configuration</li>
+<li>Confirm approver accounts are valid</li>
+<li>Review flow run history for errors</li>
+<li>Test with manual trigger</li>
+</ol>
+<h3 id="issue-citation-logging-not-capturing-data">Issue: Citation Logging Not Capturing Data</h3>
+<p><strong>Symptoms:</strong> Agent responses don't show source citations</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify audit logging is enabled (Control 1.7)</li>
+<li>Check agent is configured to include citations</li>
+<li>Confirm audit log query syntax is correct</li>
+<li>Allow for audit log ingestion latency (up to 24h)</li>
+<li>Verify Copilot Studio agent version supports citations</li>
+</ol>
+<h3 id="issue-staleness-detection-missing-sources">Issue: Staleness Detection Missing Sources</h3>
+<p><strong>Symptoms:</strong> Stale sources not flagged</p>
+<p><strong>Resolution:</strong></p>
+<ol>
+<li>Verify staleness threshold is set in registry</li>
+<li>Check Power Automate schedule is running</li>
+<li>Confirm access to source site for modification check</li>
+<li>Review threshold calculation logic</li>
+<li>Test with known stale source</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Copilot Studio Knowledge Sources</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sharepoint/advanced-management">SharePoint Advanced Management</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/audit-solutions-overview">Microsoft Purview Audit Logging</a></li>
+<li><a href="https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm">OCC SR 11-7 Model Risk Management</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/">Control 2.6: Model Risk Management</a></td>
+<td>MRM framework for agent governance</td>
+</tr>
+<tr>
+<td><a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/">Control 3.1: Agent Inventory</a></td>
+<td>Agent metadata including sources</td>
+</tr>
+<tr>
+<td><a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/">Control 4.1: IAG/RCD</a></td>
+<td>Site access governance</td>
+</tr>
+<tr>
+<td><a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/">Control 4.6: Grounding Scope</a></td>
+<td>Content inclusion/exclusion</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>AI Governance Lead:</strong> Source approval policy</li>
+<li><strong>Content Owners:</strong> Source accuracy certification</li>
+<li><strong>Power Platform Admin:</strong> Agent and workflow configuration</li>
+<li><strong>Compliance Officer:</strong> Regulatory requirements for data quality</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026
+<strong>Version:</strong> v1.0 (Jan 2026)
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

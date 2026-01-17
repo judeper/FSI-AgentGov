@@ -1,0 +1,6171 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services">
+      
+      
+        <meta name="author" content="FSI Agent Governance Team">
+      
+      
+        <link rel="canonical" href="https://judeper.github.io/FSI-AgentGov/reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/">
+      
+      
+        <link rel="prev" href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/">
+      
+      
+        <link rel="next" href="../1.7-comprehensive-audit-logging-and-compliance/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>1.6 Microsoft Purview DSPM for AI - FSI Agent Governance Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control-16-microsoft-purview-dspm-for-ai" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-header__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FSI Agent Governance Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              1.6 Microsoft Purview DSPM for AI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FSI Agent Governance Framework" class="md-nav__button md-logo" aria-label="FSI Agent Governance Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FSI Agent Governance Framework
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../disclaimer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disclaimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/zones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zones Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/governance-review-cadence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Review Cadence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Controls (Pillar 1)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security Controls (Pillar 1)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.1-restrict-agent-publishing-by-authorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.1 Restrict Agent Publishing By Authorization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.2-agent-registry-and-integrated-apps-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 Agent Registry And Integrated Apps Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.3-sharepoint-content-governance-and-permissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.3 SharePoint Content Governance And Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.4-advanced-connector-policies-acp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.4 Advanced Connector Policies (ACP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.5 Data Loss Prevention (DLP) and Sensitivity Labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.6 Microsoft Purview DSPM for AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scope-us-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope (US-only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licenses-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licenses Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permissions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-setup-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Setup Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#governance-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Governance Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1 - Baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-3-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2-3 - Recommended
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-regulatedhigh-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4 - Regulated/High-Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup &amp; Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup &amp; Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dspm-for-ai-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DSPM for AI Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-dspm-for-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing DSPM for AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dspm-for-ai-sub-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DSPM for AI Sub-Pages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-started-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get Started Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Get Started Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-required-activate-microsoft-purview-audit-dependency-alignment-with-control-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 (Required): Activate Microsoft Purview Audit (dependency alignment with Control 1.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#steps-24-recommended-extend-visibility-beyond-microsoft-365-copilot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Steps 2–4 (Recommended): Extend visibility beyond Microsoft 365 Copilot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overview-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Sections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendation-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendation Tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendation-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendation Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-recommendations-for-fsi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Recommendations for FSI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report Sections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#policy-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Policy Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#policy-configuration-evidence-grade-align-with-control-15-dlp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy configuration (evidence-grade) — align with Control 1.5 (DLP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evidence-grade-interaction-review-reports-activity-explorer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence-grade interaction review (Reports + Activity explorer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-policy-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Policy Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#activity-explorer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activity Explorer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#activity-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activity Columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export Capability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#microsoft-information-protection-mip-labels-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Microsoft Information Protection (MIP) Labels for Agents
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Microsoft Information Protection (MIP) Labels for Agents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-mip-labels-for-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is MIP Labels for Agents?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-capabilities_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-mip-labels-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific MIP Labels Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-risk-assessments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Risk Assessments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oversharing-prevention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Oversharing Prevention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#three-step-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three-Step Process
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Three-Step Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oversharing-assessment-evidence-grade-what-to-run-and-what-to-keep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Oversharing assessment (evidence-grade) — what to run and what to keep
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-assessments-preview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Assessments (Preview)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powershell-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PowerShell Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-unified-audit-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable Unified Audit Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-ai-related-audit-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search AI-Related Audit Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-dspm-activity-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Export DSPM Activity Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-policy-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify Policy Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-administrator-access-to-dspm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Administrator Access to DSPM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#financial-sector-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Financial Sector Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Financial Sector Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-dspm-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific DSPM Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-specific-recommendations-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI-Specific Recommendations Priority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsi-example-dspm-dashboard-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FSI Example: DSPM Dashboard Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regulatory Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-regulation-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Regulation Compliance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examination-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examination Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification &amp; Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting &amp; Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting &amp; Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-dspm-dashboard-shows-no-ai-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: DSPM Dashboard Shows No AI Interactions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-browser-extension-not-capturing-third-party-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Browser Extension Not Capturing Third-Party AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-recommendations-not-updating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Recommendations Not Updating
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-activity-explorer-missing-expected-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Activity Explorer Missing Expected Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-oversharing-assessment-returns-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Oversharing Assessment Returns Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Controls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Support &amp; Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7-comprehensive-audit-logging-and-compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 Comprehensive Audit Logging And Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.8-runtime-protection-and-external-threat-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 Runtime Protection And External Threat Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.9-data-retention-and-deletion-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 Data Retention And Deletion Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.10-communication-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 Communication Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.11-conditional-access-and-phishing-resistant-mfa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.11 Conditional Access and Phishing-Resistant MFA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.12-insider-risk-detection-and-response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.12 Insider Risk Detection And Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.13-sensitive-information-types-sits-and-pattern-recognition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.13 Sensitive Information Types (SITs) and Pattern Recognition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.14-data-minimization-and-agent-scope-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.14 Data Minimization And Agent Scope Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.15-encryption-data-in-transit-and-at-rest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.15 Encryption Data In Transit And At Rest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.16-information-rights-management-irm-for-documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.16 Information Rights Management (IRM) for Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.17-endpoint-data-loss-prevention-endpoint-dlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.17 Endpoint Data Loss Prevention (Endpoint DLP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.18-application-level-authorization-and-role-based-access-control-rbac/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.18 Application-Level Authorization and RBAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.19-ediscovery-for-agent-interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.19 eDiscovery For Agent Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.20-network-isolation-private-connectivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.20 Network Isolation And Private Connectivity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.21-adversarial-input-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.21 Adversarial Input Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.22-information-barriers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.22 Information Barriers for AI Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.23-step-up-authentication-for-agent-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.23 Step-Up Authentication for Agent Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Management Controls (Pillar 2)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Management Controls (Pillar 2)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.1-managed-environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 Managed Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.2-environment-groups-and-tier-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 Environment Groups And Tier Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.3-change-management-and-release-planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Change Management And Release Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.4-business-continuity-and-disaster-recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.4 Business Continuity And Disaster Recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.5-testing-validation-and-quality-assurance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 Testing Validation And Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Model Risk Management (OCC 2011-12 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.7-vendor-and-third-party-risk-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.7 Vendor And Third Party Risk Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.8-access-control-and-segregation-of-duties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.8 Access Control And Segregation Of Duties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.9-agent-performance-monitoring-and-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.9 Agent Performance Monitoring And Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.10-patch-management-and-system-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.10 Patch Management And System Updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.12 Supervision and Oversight (FINRA Rule 3110)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.13-documentation-and-record-keeping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.13 Documentation And Record Keeping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.14-training-and-awareness-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.14 Training And Awareness Program
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.15-environment-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.15 Environment Routing And Auto Provisioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.16-rag-source-integrity-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.16 RAG Source Integrity Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.17-multi-agent-orchestration-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.17 Multi-Agent Orchestration Limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.18-automated-conflict-of-interest-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.18 Automated Conflict of Interest Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.19-customer-ai-disclosure-and-transparency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.19 Customer AI Disclosure And Transparency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-2-management/2.20-adversarial-testing-and-red-team-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.20 Adversarial Testing and Red Team Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Controls (Pillar 3)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reporting Controls (Pillar 3)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.1-agent-inventory-and-metadata-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 Agent Inventory And Metadata Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 Usage Analytics And Activity Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.3-compliance-and-regulatory-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 Compliance And Regulatory Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 Incident Reporting And Root Cause Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.5 Cost Allocation And Budget Tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.6 Orphaned Agent Detection And Remediation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.7-ppac-security-posture-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.7 PPAC Security Posture Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.8 Copilot Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.9-microsoft-sentinel-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.9 Microsoft Sentinel Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-3-reporting/3.10-hallucination-feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.10 Hallucination Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SharePoint Controls (Pillar 4)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SharePoint Controls (Pillar 4)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 SharePoint IAG and Restricted Content Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.2-site-access-reviews-and-certification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Site Access Reviews And Certification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.3-site-and-document-retention-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Site And Document Retention Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Guest And External User Access Controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 SharePoint Security And Compliance Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.6-grounding-scope-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 Grounding Scope Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 Microsoft 365 Copilot Data Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTROL-INDEX/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../evidence-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operational Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/action-authorization-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action Authorization Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/agent-inventory-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Inventory Entry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/colorado-ai-impact-assessment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Impact Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/decision-log-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision Log Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/dspm-for-ai-policy-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPM for AI Policy Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/escalation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Escalation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/per-agent-data-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Per-Agent Data Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/purview-audit-query-pack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Purview Audit Query Pack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/governance-operating-calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Operating Calendar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/raci-governance-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Governance Template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/semantic-index-governance-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Index Governance Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/templates/supply-chain-risk-register-entry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Risk Register
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_3" id="__nav_8_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specifications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specifications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/ai-incident-response-playbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Incident Response Playbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/confidence-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Confidence & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/evidence-pack-assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Pack Assembly
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/human-in-the-loop-triggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop Triggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/real-time-compliance-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time Compliance Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/scope-creep-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope Creep Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/specs/zone1-min-explainability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zone 1 Minimum Explainability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3_4" id="__nav_8_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operational-templates/modules/colorado-ai-act-readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colorado AI Act Readiness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../role-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Role Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../raci-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RACI Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regulatory-mappings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulatory Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license-requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../portal-paths-quick-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Paths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../microsoft-learn-urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Microsoft Learn URLs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fsi-configuration-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FSI Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Downloads
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Downloads
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administrator Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="control-16-microsoft-purview-dspm-for-ai">Control 1.6: Microsoft Purview: DSPM for AI</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Control ID:</strong> 1.6<br />
+<strong>Control Name:</strong> Microsoft Purview: DSPM for AI<br />
+<strong>Regulatory Reference:</strong> FINRA Notice 25-07, SEC AI priorities, GLBA 501(a), SOX 302<br />
+<strong>Setup Time:</strong> 2-4 hours  </p>
+<hr />
+<h3 id="purpose">Purpose</h3>
+<p>Implement Data Security Posture Management for AI to gain comprehensive visibility into how Microsoft 365 Copilot, Copilot Studio agents, and other AI applications interact with organizational data. DSPM for AI is the central hub for AI governance, providing monitoring, policy management, risk assessment, and compliance reporting for financial services organizations.</p>
+<hr />
+<h3 id="description">Description</h3>
+<p>Data Security Posture Management (DSPM) for AI provides comprehensive visibility into AI interactions across Microsoft 365 Copilot, Copilot Studio agents, and other AI applications. DSPM for AI helps organizations discover sensitive data exposure, monitor AI usage patterns, and implement protective policies.</p>
+<p>See <a href="https://learn.microsoft.com/en-us/purview/ai-microsoft-purview-considerations">DSPM for AI</a> for detailed capabilities.</p>
+<hr />
+<h3 id="key-capabilities">Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI interaction monitoring</strong></td>
+<td>Track all Microsoft 365 Copilot and agent interactions</td>
+<td>Complete visibility</td>
+</tr>
+<tr>
+<td><strong>Sensitive data detection</strong></td>
+<td>Identify sensitive info in AI prompts/responses</td>
+<td>Data protection</td>
+</tr>
+<tr>
+<td><strong>Recommendations</strong></td>
+<td>Guided security improvements</td>
+<td>Compliance posture</td>
+</tr>
+<tr>
+<td><strong>Policy integration</strong></td>
+<td>DLP, Insider Risk, Communication Compliance</td>
+<td>Unified governance</td>
+</tr>
+<tr>
+<td><strong>Oversharing assessment</strong></td>
+<td>Identify data exposure risks</td>
+<td>Risk mitigation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="scope-us-only">Scope (US-only)</h3>
+<p>This control is implemented for <strong>US-only operations</strong>:</p>
+<ul>
+<li><strong>Tenant and data boundary:</strong> Use a tenant configuration and data locations that keep content and compliance data within the United States (including any applicable tenant geography/data residency configuration you have enabled).</li>
+<li><strong>Operational boundary:</strong> Configure DSPM for AI and supporting policies for US supervisory expectations. If your tenant is multi-geo, document how US-only scope is enforced (which geographies/workloads are in scope and how cross-geo access is governed).</li>
+<li><strong>Evidence boundary:</strong> Store exported reports, screenshots, and audit exports in a <strong>US-only evidence repository</strong> with access controls and retention aligned to your recordkeeping requirements.</li>
+</ul>
+<h2 id="prerequisites">Prerequisites</h2>
+<p><strong>Primary Owner Admin Role:</strong> Purview Compliance Admin
+<strong>Supporting Roles:</strong> None</p>
+<h3 id="licenses-required">Licenses Required</h3>
+<table>
+<thead>
+<tr>
+<th>License</th>
+<th>Purpose</th>
+<th>Required For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft 365 E5</td>
+<td>Full DSPM capabilities</td>
+<td>All governance levels</td>
+</tr>
+<tr>
+<td>Microsoft 365 E5 Compliance</td>
+<td>Standalone compliance</td>
+<td>Alternative to E5</td>
+</tr>
+<tr>
+<td>Microsoft Purview Data Loss Prevention</td>
+<td>DLP integration</td>
+<td>Level 2+</td>
+</tr>
+<tr>
+<td>Microsoft 365 Copilot</td>
+<td>AI interactions to monitor</td>
+<td>Monitoring scope</td>
+</tr>
+</tbody>
+</table>
+<h3 id="permissions-required">Permissions Required</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Purpose</th>
+<th>Assignment Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compliance Administrator</td>
+<td>Full DSPM access</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Security Administrator</td>
+<td>View reports and policies</td>
+<td>Entra ID</td>
+</tr>
+<tr>
+<td>Insider Risk Management Admin</td>
+<td>IRM integration</td>
+<td>Purview RBAC</td>
+</tr>
+<tr>
+<td>Privacy Management Admin</td>
+<td>Privacy features</td>
+<td>Purview RBAC</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependencies">Dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Description</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Control 1.7: Audit Logging</td>
+<td>Unified audit logging enabled and ingesting</td>
+<td>Purview Audit is enabled; recent events present</td>
+</tr>
+<tr>
+<td>Microsoft 365 Copilot deployment</td>
+<td>AI users to monitor</td>
+<td>Verify license assignment</td>
+</tr>
+<tr>
+<td>Browser extension (optional)</td>
+<td>Third-party AI monitoring</td>
+<td>Endpoint Manager deployment</td>
+</tr>
+<tr>
+<td>Control 1.5: DLP and Sensitivity Labels</td>
+<td>DLP policies and labels support “protect what Copilot can access”</td>
+<td>DLP policies exist and are in intended mode; labels applied to sensitive content</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>If you cannot see <strong>DSPM for AI</strong> in the Purview portal navigation, validate licensing and role assignment first (see Troubleshooting).</p>
+</blockquote>
+<h3 id="pre-setup-checklist">Pre-Setup Checklist</h3>
+<ul>
+<li>[ ] E5 or E5 Compliance licenses active</li>
+<li>[ ] Purview portal access verified</li>
+<li>[ ] Unified audit logging enabled</li>
+<li>[ ] Microsoft 365 Copilot deployed to users</li>
+<li>[ ] Compliance Administrator role assigned</li>
+<li>[ ] Agent inventory available (from Control 3.1)</li>
+</ul>
+<hr />
+<h2 id="governance-levels">Governance Levels</h2>
+<h3 id="level-1-baseline">Level 1 - Baseline</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSPM access</td>
+<td>DSPM for AI portal accessible</td>
+</tr>
+<tr>
+<td>Basic setup</td>
+<td>Complete Get Started steps 1 and 4</td>
+</tr>
+<tr>
+<td>Review frequency</td>
+<td>Monthly dashboard review</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Minimum requirements:</strong></p>
+<ul>
+<li>Activate Microsoft Purview Audit</li>
+<li>Review Overview dashboard monthly</li>
+<li>Document any sensitive data exposure</li>
+</ul>
+<h3 id="level-2-3-recommended">Level 2-3 - Recommended</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full setup</td>
+<td>All 4 Get Started steps completed</td>
+</tr>
+<tr>
+<td>Recommendations</td>
+<td>Address high-priority recommendations</td>
+</tr>
+<tr>
+<td>Policies</td>
+<td>DLP and DSPM policies enabled</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>Weekly report review</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI recommendations:</strong></p>
+<ul>
+<li>Complete all setup steps including browser extension</li>
+<li>Enable Communication Compliance for agent interactions</li>
+<li>Weekly review of sensitive interactions reports</li>
+<li>Implement top recommendations</li>
+</ul>
+<h3 id="level-4-regulatedhigh-risk">Level 4 - Regulated/High-Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comprehensive monitoring</td>
+<td>All policy types enabled</td>
+</tr>
+<tr>
+<td>Risk assessments</td>
+<td>Regular oversharing assessments</td>
+</tr>
+<tr>
+<td>Activity review</td>
+<td>Daily Activity explorer review for Tier 3 (enterprise managed)</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>Insider Risk Management enabled</td>
+</tr>
+<tr>
+<td>Evidence retention</td>
+<td>Export and retain activity logs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FSI requirements:</strong></p>
+<ul>
+<li>All Insider Risk Management policies active</li>
+<li>Custom data risk assessments for customer data</li>
+<li>Daily review of Tier 3 (enterprise managed) agent interactions</li>
+<li>Integration with SOC for alert escalation</li>
+<li>Quarterly compliance reporting from DSPM</li>
+</ul>
+<hr />
+<h2 id="setup-configuration">Setup &amp; Configuration</h2>
+<h3 id="dspm-for-ai-navigation">DSPM for AI Navigation</h3>
+<p>The Microsoft Purview portal UI changes frequently. As of <strong>Dec 2025</strong>, common navigation patterns include:</p>
+<ol>
+<li>Open <a href="https://purview.microsoft.com">Microsoft Purview</a></li>
+<li>In the left navigation, locate <strong>Solutions</strong> (or expand the nav if collapsed)</li>
+<li>Select <strong>DSPM for AI</strong></li>
+<li>Use the DSPM sub-pages: <strong>Overview</strong>, <strong>Recommendations</strong>, <strong>Reports</strong>, <strong>Policies</strong>, <strong>Activity explorer</strong>, <strong>Data risk assessments</strong></li>
+</ol>
+<p><strong>Evidence tip (UI):</strong> capture a screenshot showing the left navigation with <strong>DSPM for AI</strong> selected and the tenant name visible.</p>
+<h3 id="accessing-dspm-for-ai">Accessing DSPM for AI</h3>
+<ol>
+<li>Open <a href="https://purview.microsoft.com">Microsoft Purview</a></li>
+<li>Navigate to <strong>DSPM for AI</strong> in left navigation</li>
+<li>Select the appropriate sub-page</li>
+</ol>
+<h3 id="dspm-for-ai-sub-pages">DSPM for AI Sub-Pages</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Purpose</th>
+<th>Key Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Overview</strong></td>
+<td>Dashboard and quick start</td>
+<td>Get started steps, metrics, recommendations</td>
+</tr>
+<tr>
+<td><strong>Recommendations</strong></td>
+<td>Security improvement guidance</td>
+<td>Prioritized actions, completion tracking</td>
+</tr>
+<tr>
+<td><strong>Reports</strong></td>
+<td>AI activity analytics</td>
+<td>Interactions, sensitive data, insider risk</td>
+</tr>
+<tr>
+<td><strong>Policies</strong></td>
+<td>Policy management</td>
+<td>DLP, DSPM, IRM, Communication Compliance</td>
+</tr>
+<tr>
+<td><strong>Activity explorer</strong></td>
+<td>Detailed interaction logs</td>
+<td>Filters, export, investigation</td>
+</tr>
+<tr>
+<td><strong>Data risk assessments</strong></td>
+<td>Oversharing detection</td>
+<td>Custom assessments, remediation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="get-started-setup">Get Started Setup</h3>
+<p>The Overview page provides four required setup steps:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Task</th>
+<th>Description</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Activate Microsoft Purview Audit</strong></td>
+<td>Get insights into user interactions with Microsoft 365 Copilot experiences and agents</td>
+<td>7 min</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Install Microsoft Purview browser extension</strong></td>
+<td>Detect risky user activity and get insights into user interactions with other AI apps</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Onboard devices to Microsoft Purview</strong></td>
+<td>Prevent sensitive data from leaking to other AI apps</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Extend your insights for data discovery</strong></td>
+<td>Discover sensitive data in user interactions with other AI apps</td>
+<td>10 min</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">FSI Recommendation</p>
+<p>Complete all four setup steps to enable comprehensive AI monitoring across Microsoft and
+third-party AI applications.</p>
+</div>
+<h4 id="step-1-required-activate-microsoft-purview-audit-dependency-alignment-with-control-17">Step 1 (Required): Activate Microsoft Purview Audit (dependency alignment with Control 1.7)</h4>
+<p>DSPM for AI relies on audit signals. For evidence-grade implementation:</p>
+<ol>
+<li>In <strong>Purview → DSPM for AI → Overview</strong>, open the <strong>Get started</strong> card.</li>
+<li>Select <strong>Activate Microsoft Purview Audit</strong> and complete the guided workflow.</li>
+<li>In <strong>Purview → Audit</strong>, confirm audit is enabled and that recent events are present.</li>
+</ol>
+<p><strong>Verification artifacts (minimum):</strong></p>
+<ul>
+<li>Screenshot: DSPM <strong>Get started</strong> shows Step 1 completed</li>
+<li>Screenshot: Purview <strong>Audit</strong> page indicates logging is enabled</li>
+<li>Export (or screenshot): a small sample of audit results demonstrating recent activity exists (redact as needed)</li>
+</ul>
+<h4 id="steps-24-recommended-extend-visibility-beyond-microsoft-365-copilot">Steps 2–4 (Recommended): Extend visibility beyond Microsoft 365 Copilot</h4>
+<p>Steps 2–4 expand coverage to other AI apps. If your US-only scope disallows monitoring certain endpoints or browsers, document the exception, the rationale, and what coverage remains.</p>
+<hr />
+<h3 id="overview-dashboard">Overview Dashboard</h3>
+<h3 id="view-options">View Options</h3>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>All AI apps</strong></td>
+<td>Microsoft 365 Copilot, Copilot Studio, third-party AI</td>
+</tr>
+<tr>
+<td><strong>Microsoft 365 Copilot</strong></td>
+<td>M365 Copilot interactions only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dashboard-sections">Dashboard Sections</h3>
+<p><strong>Recommendations:</strong></p>
+<ul>
+<li>"Fortify your data security" - Data protection actions</li>
+<li>"Get guided assistance to AI regulations" - ISO 42001, NIST AI RMF compliance</li>
+</ul>
+<p><strong>Reports:</strong></p>
+<ul>
+<li>Total interactions over time (Microsoft 365 Copilot and agents)</li>
+<li>Sensitive interactions per AI app (pie chart by sensitive info type)</li>
+</ul>
+<p><strong>Metrics:</strong></p>
+<ul>
+<li>Interactions with sensitive data (last 30 days)</li>
+<li>Activity counts by AI application</li>
+</ul>
+<hr />
+<h3 id="recommendations">Recommendations</h3>
+<h3 id="recommendation-tracking">Recommendation Tracking</h3>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Not Started</strong></td>
+<td>Actions pending implementation</td>
+</tr>
+<tr>
+<td><strong>Dismissed</strong></td>
+<td>Actions marked as not applicable</td>
+</tr>
+<tr>
+<td><strong>Completed</strong></td>
+<td>Actions successfully implemented</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommendation-types">Recommendation Types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data security</strong></td>
+<td>Protect sensitive data in Microsoft 365 Copilot responses, Safeguard Microsoft 365 Copilot interactions</td>
+</tr>
+<tr>
+<td><strong>AI regulations</strong></td>
+<td>Guided assistance to AI regulations (ISO 42001, NIST AI RMF)</td>
+</tr>
+<tr>
+<td><strong>Data discovery</strong></td>
+<td>Discover and govern ChatGPT Enterprise AI interactions</td>
+</tr>
+<tr>
+<td><strong>Insider risk management</strong></td>
+<td>Detect risky interactions in AI apps</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-recommendations-for-fsi">Key Recommendations for FSI</h3>
+<table>
+<thead>
+<tr>
+<th>Recommendation</th>
+<th>Priority</th>
+<th>FSI Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Protect sensitive data referenced in Microsoft 365 Copilot and agent responses</td>
+<td>High</td>
+<td>Customer data protection</td>
+</tr>
+<tr>
+<td>Detect risky interactions in AI apps</td>
+<td>High</td>
+<td>Insider threat detection</td>
+</tr>
+<tr>
+<td>Protect items with sensitivity labels from Microsoft 365 Copilot</td>
+<td>High</td>
+<td>Classification enforcement</td>
+</tr>
+<tr>
+<td>Secure interactions from enterprise AI apps</td>
+<td>Medium</td>
+<td>Third-party AI governance</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="reports">Reports</h3>
+<h3 id="report-filters">Report Filters</h3>
+<table>
+<thead>
+<tr>
+<th>Filter</th>
+<th>Options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Copilot experiences &amp; agents</strong></td>
+<td>Microsoft 365 Copilot, Copilot Studio agents</td>
+</tr>
+<tr>
+<td><strong>Enterprise AI apps</strong></td>
+<td>ChatGPT Enterprise, other corporate AI</td>
+</tr>
+<tr>
+<td><strong>Other AI apps</strong></td>
+<td>Consumer AI applications</td>
+</tr>
+</tbody>
+</table>
+<h3 id="report-sections">Report Sections</h3>
+<p><strong>Activity:</strong></p>
+<ul>
+<li>Total interactions over time (trend chart)</li>
+<li>Interaction counts by AI application</li>
+</ul>
+<p><strong>Data:</strong></p>
+<ul>
+<li>Sensitive interactions per AI app</li>
+<li>Top unethical AI interactions</li>
+<li>Sensitive interactions by department</li>
+<li>Top sensitivity labels referenced in Microsoft 365 Copilot and agents</li>
+</ul>
+<p><strong>User:</strong></p>
+<ul>
+<li>Insider risk severity (by risk level)</li>
+<li>Insider risk severity per AI app</li>
+<li>Potential risky AI usage</li>
+</ul>
+<hr />
+<h3 id="policies">Policies</h3>
+<p>DSPM for AI policies integrate with multiple Microsoft Purview solutions:</p>
+<h3 id="policy-types">Policy Types</h3>
+<table>
+<thead>
+<tr>
+<th>Solution</th>
+<th>Purpose</th>
+<th>Example Policies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Loss Prevention</strong></td>
+<td>Prevent sensitive data exposure</td>
+<td>Detect sensitive info added to AI sites</td>
+</tr>
+<tr>
+<td><strong>DSPM for AI</strong></td>
+<td>AI-specific protections</td>
+<td>Detect sensitive info shared in AI prompts in Edge</td>
+</tr>
+<tr>
+<td><strong>Insider Risk Management</strong></td>
+<td>Risky behavior detection</td>
+<td>Risky AI usage, Data theft by departing users</td>
+</tr>
+<tr>
+<td><strong>Communication Compliance</strong></td>
+<td>Content monitoring</td>
+<td>Unethical behavior in AI apps, M365 Copilot interactions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="policy-management">Policy Management</h3>
+<ol>
+<li>Navigate to <strong>DSPM for AI → Policies</strong></li>
+<li>View policies grouped by solution type</li>
+<li>Check status (On/Off) for each policy</li>
+<li>Review last modified date and owner</li>
+</ol>
+<h4 id="policy-configuration-evidence-grade-align-with-control-15-dlp">Policy configuration (evidence-grade) — align with Control 1.5 (DLP)</h4>
+<p>Use DSPM for AI to confirm your DLP baseline is reducing exposure in AI usage:</p>
+<ol>
+<li>Go to <strong>DSPM for AI → Policies → Data Loss Prevention</strong>.</li>
+<li>Identify the DLP policies that apply to the data sources Microsoft 365 Copilot and agents can reach (commonly SharePoint, OneDrive, Teams).</li>
+<li>Confirm policy <strong>Mode</strong> aligns with your governance level (e.g., test vs enforced) and that user scoping matches your intended AI rollout groups.</li>
+<li>If you use sensitivity labels, confirm labeled content is covered by DLP conditions/actions that enforce your desired behavior when content is accessed or shared.</li>
+</ol>
+<p><strong>Verification artifacts (recommended):</strong></p>
+<ul>
+<li>Screenshot: the relevant DLP policies as displayed in <strong>DSPM for AI → Policies</strong> (showing status and last modified)</li>
+<li>Screenshot (or export): DLP policy details page showing scope and mode (redact names if needed)</li>
+<li>Link evidence: cross-reference your Control 1.5 implementation record (policy name, purpose, owner, change ticket)</li>
+</ul>
+<h4 id="evidence-grade-interaction-review-reports-activity-explorer">Evidence-grade interaction review (Reports + Activity explorer)</h4>
+<p>To produce audit-ready evidence of AI usage and sensitive data exposure:</p>
+<ol>
+<li>Go to <strong>DSPM for AI → Reports</strong> and select a timeframe that matches your evidence window (e.g., last 7/30 days).</li>
+<li>Capture the following minimum views for your evidence pack:<ul>
+<li>Total interactions trend</li>
+<li>Sensitive interactions summary (by AI app and sensitive info type)</li>
+</ul>
+</li>
+<li>Go to <strong>DSPM for AI → Activity explorer</strong>:<ul>
+<li>Filter <strong>AI app category</strong> to <strong>Copilot experiences &amp; agents</strong></li>
+<li>Filter <strong>Activity type</strong> to <strong>AI Interaction</strong> (and/or sensitive info type activity as needed)</li>
+<li>Optionally filter by <strong>Agent name</strong> for Tier 3 (enterprise managed) agents in scope</li>
+</ul>
+</li>
+<li>Use <strong>Export</strong> to produce a CSV for your evidence repository.</li>
+</ol>
+<p><strong>Verification artifacts (minimum):</strong></p>
+<ul>
+<li>Screenshot: Reports page with filters visible</li>
+<li>Export: Activity explorer CSV (stored US-only) + evidence log entry (date, scope, exporter)</li>
+<li>Screenshot: Activity explorer filters showing scoping (date range, AI app category, and agent filter if used)</li>
+</ul>
+<h3 id="fsi-policy-recommendations">FSI Policy Recommendations</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Recommended Policies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1 (personal productivity)</td>
+<td>Basic DLP policies</td>
+</tr>
+<tr>
+<td>Tier 2 (team collaboration)</td>
+<td>DLP + DSPM for AI + Communication Compliance</td>
+</tr>
+<tr>
+<td>Tier 3 (enterprise managed)</td>
+<td>All policy types enabled + Insider Risk Management</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="activity-explorer">Activity Explorer</h3>
+<h3 id="overview_1">Overview</h3>
+<p>Activity explorer provides detailed logs of AI interactions for investigation and compliance:</p>
+<p><strong>Description:</strong> "Review AI activity including AI interactions (prompts and responses), activity with sensitive info types, and more."</p>
+<h3 id="available-filters">Available Filters</h3>
+<table>
+<thead>
+<tr>
+<th>Filter</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Timestamp</strong></td>
+<td>Date range selection</td>
+</tr>
+<tr>
+<td><strong>Activity type</strong></td>
+<td>AI Interaction, Sensitive info types</td>
+</tr>
+<tr>
+<td><strong>AI app category</strong></td>
+<td>Copilot experiences &amp; agents, Enterprise AI, Other</td>
+</tr>
+<tr>
+<td><strong>App</strong></td>
+<td>Specific application (Copilot Studio, M365 apps)</td>
+</tr>
+<tr>
+<td><strong>App accessed in</strong></td>
+<td>Access context</td>
+</tr>
+<tr>
+<td><strong>Agent name</strong></td>
+<td>Specific agent identifier</td>
+</tr>
+<tr>
+<td><strong>User participant</strong></td>
+<td>User who performed the interaction</td>
+</tr>
+<tr>
+<td><strong>Sensitive info type</strong></td>
+<td>Types of sensitive data detected</td>
+</tr>
+<tr>
+<td><strong>Web searched</strong></td>
+<td>Whether web search was used</td>
+</tr>
+<tr>
+<td><strong>Sensitivity label</strong></td>
+<td>Applied sensitivity labels</td>
+</tr>
+</tbody>
+</table>
+<h3 id="activity-columns">Activity Columns</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Activity type</td>
+<td>AI Interaction or Sensitive info types</td>
+</tr>
+<tr>
+<td>Timestamp (UTC)</td>
+<td>When the activity occurred</td>
+</tr>
+<tr>
+<td>AI app category</td>
+<td>Category of AI application</td>
+</tr>
+<tr>
+<td>App</td>
+<td>Specific application name</td>
+</tr>
+<tr>
+<td>App accessed in</td>
+<td>Access context</td>
+</tr>
+<tr>
+<td>Agent name</td>
+<td>Name of the agent involved</td>
+</tr>
+<tr>
+<td>User participant</td>
+<td>User who performed the action</td>
+</tr>
+<tr>
+<td>Sensitive info type</td>
+<td>Detected sensitive information</td>
+</tr>
+<tr>
+<td>Web searched</td>
+<td>Yes/No</td>
+</tr>
+<tr>
+<td>Sensitivity label</td>
+<td>Applied label</td>
+</tr>
+</tbody>
+</table>
+<h3 id="export-capability">Export Capability</h3>
+<ul>
+<li>Export activity data for compliance documentation</li>
+<li>Use for regulatory examination evidence</li>
+<li>Support incident investigations</li>
+</ul>
+<hr />
+<h3 id="microsoft-information-protection-mip-labels-for-agents">Microsoft Information Protection (MIP) Labels for Agents</h3>
+<div class="admonition warning">
+<p class="admonition-title">Preview Feature</p>
+<p>MIP Label integration for Copilot Studio agents is currently in <strong>Preview</strong> (July 2025). Features and configuration may change before general availability. Monitor Microsoft documentation for updates.</p>
+</div>
+<h4 id="what-is-mip-labels-for-agents">What is MIP Labels for Agents?</h4>
+<p>MIP Labels for Agents enables sensitivity labels to be applied to agent responses and prevent oversharing of classified content. When an agent accesses labeled content, the label and its protections can follow the information into the agent's response, maintaining data governance throughout the AI interaction.</p>
+<h4 id="key-capabilities_1">Key Capabilities</h4>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+<th>FSI Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Label inheritance</strong></td>
+<td>Responses inherit labels from source documents</td>
+<td>Maintains classification through AI</td>
+</tr>
+<tr>
+<td><strong>Oversharing prevention</strong></td>
+<td>Block responses containing highly sensitive labeled content</td>
+<td>GLBA, SEC data protection</td>
+</tr>
+<tr>
+<td><strong>Label-based restrictions</strong></td>
+<td>Restrict agent actions based on content sensitivity</td>
+<td>Regulatory content governance</td>
+</tr>
+<tr>
+<td><strong>Audit trail</strong></td>
+<td>Log label interactions in DSPM Activity Explorer</td>
+<td>FINRA 4511 recordkeeping</td>
+</tr>
+</tbody>
+</table>
+<h4 id="configuration-path">Configuration Path</h4>
+<p><strong>Portal Path:</strong> Microsoft Purview → Information protection → Auto-labeling → AI interactions</p>
+<ol>
+<li>Navigate to <strong>Microsoft Purview</strong> → <strong>Information protection</strong></li>
+<li>Select <strong>Auto-labeling</strong> → <strong>Create policy</strong></li>
+<li>Choose <strong>AI interactions</strong> as the scope</li>
+<li>Configure label conditions for agent responses</li>
+<li>Set actions (apply label, block response, notify compliance)</li>
+</ol>
+<h4 id="zone-specific-mip-labels-configuration">Zone-Specific MIP Labels Configuration</h4>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>MIP Configuration</th>
+<th>Blocked Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zone 1</strong></td>
+<td>No label enforcement</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Zone 2</strong></td>
+<td>Label inheritance; warn on Confidential</td>
+<td>Highly Confidential</td>
+</tr>
+<tr>
+<td><strong>Zone 3</strong></td>
+<td>Strict enforcement; block restricted</td>
+<td>Highly Confidential, Restricted, MNPI</td>
+</tr>
+</tbody>
+</table>
+<h4 id="regulatory-alignment">Regulatory Alignment</h4>
+<ul>
+<li><strong>GLBA 501(b)</strong> - Maintain NPI classification through AI interactions</li>
+<li><strong>SEC 17a-4</strong> - Ensure labeled records maintain integrity</li>
+<li><strong>FINRA 4511</strong> - Audit trail for sensitive content in AI</li>
+</ul>
+<hr />
+<h3 id="data-risk-assessments">Data Risk Assessments</h3>
+<h3 id="oversharing-prevention">Oversharing Prevention</h3>
+<p>Data risk assessments help identify and remediate oversharing risks:</p>
+<p><strong>Tabs:</strong> Microsoft 365 | Fabric</p>
+<h3 id="three-step-process">Three-Step Process</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Identify</strong></td>
+<td>Review assessments</td>
+<td>Weekly results from default assessment or custom assessments</td>
+</tr>
+<tr>
+<td><strong>2. Protect</strong></td>
+<td>Apply controls</td>
+<td>Limit Copilot access to sensitive data, apply labels and retention</td>
+</tr>
+<tr>
+<td><strong>3. Monitor</strong></td>
+<td>Ongoing review</td>
+<td>SharePoint site and access reviews for permissions</td>
+</tr>
+</tbody>
+</table>
+<h4 id="oversharing-assessment-evidence-grade-what-to-run-and-what-to-keep">Oversharing assessment (evidence-grade) — what to run and what to keep</h4>
+<p>For US-only implementations, oversharing evidence should demonstrate (a) the assessment ran successfully, (b) overshared items were identified (or confirmed minimal), and (c) remediation was tracked.</p>
+<ol>
+<li>Navigate to <strong>DSPM for AI → Data risk assessments</strong>.</li>
+<li>Run the default assessment (if available) for the defined scope and wait for completion.</li>
+<li>Review results and record:<ul>
+<li>Assessment name</li>
+<li>Scope (sites/users/data sources included)</li>
+<li>Run timestamp and completion timestamp</li>
+<li>Overshared items count and severity (if shown)</li>
+</ul>
+</li>
+<li>Create a remediation record that ties findings to corrective actions (e.g., SharePoint permission cleanup, label application, DLP policy tightening).</li>
+</ol>
+<p><strong>Verification artifacts (minimum):</strong></p>
+<ul>
+<li>Screenshot: assessment list showing status and completion time</li>
+<li>Screenshot: results summary showing overshared items count</li>
+<li>Change evidence: ticket(s) or work items for remediation, including before/after access state where feasible</li>
+</ul>
+<h3 id="custom-assessments-preview">Custom Assessments (Preview)</h3>
+<p>Create targeted assessments for specific data sources:</p>
+<ol>
+<li>Navigate to <strong>DSPM for AI → Data risk assessments</strong></li>
+<li>Click <strong>+ Create custom assessment</strong></li>
+<li>Define data sources and users to assess</li>
+<li>Review results for overshared items</li>
+<li>Take remediation actions</li>
+</ol>
+<p><strong>Assessment tracking:</strong> Name, Status, Started on, Completed on, Results expiry, Overshared items count</p>
+<hr />
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<h3 id="enable-unified-audit-logging">Enable Unified Audit Logging</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Connect to Security &amp; Compliance Center</span>
+<span class="nb">Connect-IPPSSession</span> <span class="n">-UserPrincipalName</span> <span class="n">admin</span><span class="nv">@contoso</span><span class="p">.</span><span class="n">com</span>
+
+<span class="c"># Enable unified audit logging (required for DSPM)</span>
+<span class="nb">Set-AdminAuditLogConfig</span> <span class="n">-UnifiedAuditLogIngestionEnabled</span> <span class="nv">$true</span>
+
+<span class="c"># Verify audit logging is enabled</span>
+<span class="nb">Get-AdminAuditLogConfig</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">UnifiedAuditLogIngestionEnabled</span>
+</code></pre></div>
+<h3 id="search-ai-related-audit-events">Search AI-Related Audit Events</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Search for Copilot-related audit events</span>
+<span class="nv">$startDate</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddDays</span><span class="p">(-</span><span class="n">30</span><span class="p">)</span>
+<span class="nv">$endDate</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+<span class="c"># Note: audit schemas/record types can change. If your tenant does not support a specific</span>
+<span class="c"># RecordType (such as CopilotInteraction), remove it and filter using Operations/AuditData.</span>
+
+<span class="c"># Get recent audit events (filter as needed)</span>
+<span class="nv">$copilotEvents</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-ResultSize</span> <span class="n">5000</span>
+
+<span class="nv">$copilotEvents</span> <span class="p">=</span> <span class="nv">$copilotEvents</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span>
+    <span class="nv">$_</span><span class="p">.</span><span class="n">Operations</span> <span class="o">-match</span> <span class="s1">&#39;Copilot|AI&#39;</span> <span class="o">-or</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AuditData</span> <span class="o">-match</span> <span class="s1">&#39;Copilot&#39;</span>
+<span class="p">}</span>
+
+<span class="c"># Export results for analysis</span>
+<span class="nv">$copilotEvents</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">CreationDate</span><span class="p">,</span> <span class="n">UserIds</span><span class="p">,</span> <span class="n">Operations</span><span class="p">,</span> <span class="n">AuditData</span> <span class="p">|</span>
+    <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;Copilot-Audit-Events.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+
+<span class="c"># Parse and display recent AI interactions</span>
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$event</span> <span class="k">in</span> <span class="nv">$copilotEvents</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">10</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$event</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;User: </span><span class="p">$(</span><span class="nv">$event</span><span class="p">.</span><span class="n">UserIds</span><span class="p">)</span><span class="s2"> - App: </span><span class="p">$(</span><span class="nv">$data</span><span class="p">.</span><span class="n">Application</span><span class="p">)</span><span class="s2"> - Time: </span><span class="p">$(</span><span class="nv">$event</span><span class="p">.</span><span class="n">CreationDate</span><span class="p">)</span><span class="s2">&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="export-dspm-activity-data">Export DSPM Activity Data</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Search for specific sensitive information in AI interactions</span>
+<span class="nv">$sensitiveSearch</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-ResultSize</span> <span class="n">5000</span>
+
+<span class="c"># Filter for events with sensitive data</span>
+<span class="nv">$sensitiveEvents</span> <span class="p">=</span> <span class="nv">$sensitiveSearch</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$data</span><span class="p">.</span><span class="n">SensitiveInfoTypes</span><span class="p">)</span> <span class="p">{</span>
+        <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">Date</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreationDate</span>
+            <span class="n">User</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">UserIds</span>
+            <span class="n">SensitiveTypes</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$data</span><span class="p">.</span><span class="n">SensitiveInfoTypes</span> <span class="n">-join</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span>
+            <span class="n">Application</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">Application</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$sensitiveEvents</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;DSPM-Sensitive-Events.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+</code></pre></div>
+<h3 id="verify-policy-status">Verify Policy Status</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Get DLP policies for DSPM integration</span>
+<span class="nb">Get-DlpCompliancePolicy</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Mode</span> <span class="o">-eq</span> <span class="s2">&quot;Enable&quot;</span> <span class="p">}</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">Enabled</span><span class="p">,</span> <span class="n">WhenCreated</span> <span class="p">|</span>
+    <span class="nb">Format-Table</span>
+
+<span class="c"># Get Communication Compliance policies</span>
+<span class="c"># Note: Limited PowerShell support - use Purview portal for full management</span>
+
+<span class="c"># Check retention policies that may affect AI data</span>
+<span class="nb">Get-RetentionCompliancePolicy</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Enabled</span> <span class="o">-eq</span> <span class="nv">$true</span> <span class="p">}</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">RetentionDuration</span> <span class="p">|</span>
+    <span class="nb">Format-Table</span>
+</code></pre></div>
+<h3 id="audit-administrator-access-to-dspm">Audit Administrator Access to DSPM</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Track who has accessed DSPM for AI</span>
+<span class="nv">$dspmAccess</span> <span class="p">=</span> <span class="nb">Search-UnifiedAuditLog</span> <span class="n">-StartDate</span> <span class="nv">$startDate</span> <span class="n">-EndDate</span> <span class="nv">$endDate</span> <span class="p">`</span>
+    <span class="n">-Operations</span> <span class="s2">&quot;PageViewed&quot;</span> <span class="n">-ResultSize</span> <span class="n">1000</span>
+
+<span class="nv">$dspmPageViews</span> <span class="p">=</span> <span class="nv">$dspmAccess</span> <span class="p">|</span> <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+    <span class="nv">$data</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">AuditData</span> <span class="p">|</span> <span class="nb">ConvertFrom-Json</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$data</span><span class="p">.</span><span class="n">ObjectId</span> <span class="o">-match</span> <span class="s2">&quot;DSPM|ai-microsoft-purview&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="no">[PSCustomObject]</span><span class="p">@{</span>
+            <span class="n">Date</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">CreationDate</span>
+            <span class="n">User</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">UserIds</span>
+            <span class="n">Page</span> <span class="p">=</span> <span class="nv">$data</span><span class="p">.</span><span class="n">ObjectId</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$dspmPageViews</span> <span class="p">|</span> <span class="nb">Export-Csv</span> <span class="n">-Path</span> <span class="s2">&quot;DSPM-Admin-Access.csv&quot;</span> <span class="n">-NoTypeInformation</span>
+</code></pre></div>
+<hr />
+<h2 id="financial-sector-considerations">Financial Sector Considerations</h2>
+<h3 id="regulatory-mapping">Regulatory Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>DSPM for AI Requirement</th>
+<th>Control Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FINRA 25-07</strong></td>
+<td>AI supervision and monitoring</td>
+<td>Activity explorer for agent interactions</td>
+</tr>
+<tr>
+<td><strong>SEC AI priorities</strong></td>
+<td>Transparency in AI-assisted decisions</td>
+<td>Reports → Sensitive interactions</td>
+</tr>
+<tr>
+<td><strong>GLBA 501(a)</strong></td>
+<td>Protection of customer information</td>
+<td>Oversharing assessments</td>
+</tr>
+<tr>
+<td><strong>SOX 302</strong></td>
+<td>Internal controls over AI systems</td>
+<td>Policy enforcement and audit trail</td>
+</tr>
+<tr>
+<td><strong>OCC 2011-12</strong></td>
+<td>Model risk management</td>
+<td>Data risk assessments</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zone-specific-dspm-configuration">Zone-Specific DSPM Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Monitoring Level</th>
+<th>Review Frequency</th>
+<th>Alert Threshold</th>
+<th>Evidence Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 1 (personal productivity)</td>
+<td>Basic</td>
+<td>Monthly</td>
+<td>High risk only</td>
+<td>90 days</td>
+</tr>
+<tr>
+<td>Tier 2 (team collaboration)</td>
+<td>Enhanced</td>
+<td>Weekly</td>
+<td>Medium + High</td>
+<td>1 year</td>
+</tr>
+<tr>
+<td>Tier 3 (enterprise managed)</td>
+<td>Comprehensive</td>
+<td>Daily</td>
+<td>All sensitive</td>
+<td>6 years (per FINRA 4511)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-specific-recommendations-priority">FSI-Specific Recommendations Priority</h3>
+<table>
+<thead>
+<tr>
+<th>DSPM Recommendation</th>
+<th>FSI Priority</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enable Insider Risk Management</td>
+<td>Critical</td>
+<td>Required for Tier 2–3 (team collaboration–enterprise managed)</td>
+</tr>
+<tr>
+<td>Configure Communication Compliance</td>
+<td>Critical</td>
+<td>Required for Tier 3 (enterprise managed)</td>
+</tr>
+<tr>
+<td>Deploy browser extension</td>
+<td>High</td>
+<td>Capture third-party AI use</td>
+</tr>
+<tr>
+<td>Enable DLP for AI</td>
+<td>Critical</td>
+<td>Required for all zones</td>
+</tr>
+<tr>
+<td>Run oversharing assessment</td>
+<td>High</td>
+<td>Monthly for customer data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fsi-example-dspm-dashboard-configuration">FSI Example: DSPM Dashboard Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">Organization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Regional Investment Bank</span>
+<span class="nt">DSPM Configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Overview</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Get Started</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All 4 steps completed</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Key metrics monitored</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Total AI interactions (trending)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sensitive data exposure events (zero tolerance)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Recommendation completion rate (&gt;90%)</span>
+
+<span class="w">  </span><span class="nt">Reports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Interactions&quot;</span><span class="w"> </span><span class="nt">reviewed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Daily for Tier 3 (enterprise managed)</span>
+<span class="w">  </span><span class="w w-Error">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Sensitive</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">interactions&quot;</span><span class="w"> </span><span class="nt">reviewed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Real-time alerts</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Data</span><span class="nv"> </span><span class="s">oversharing&quot;</span><span class="w"> </span><span class="nt">reviewed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Weekly</span>
+
+<span class="w">  </span><span class="nt">Policies Enabled</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">DLP for Copilot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Block mode</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Insider Risk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Data theft template active</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Communication Compliance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Regulatory template</span>
+
+<span class="w">  </span><span class="nt">Custom Assessments</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Customer Data Sites</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Weekly scan</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Trading Data SharePoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Daily scan</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Agent Knowledge Sources</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Bi-weekly scan</span>
+</code></pre></div>
+<hr />
+<h3 id="regulatory-context">Regulatory Context</h3>
+<p><strong>Primary Regulations:</strong> FINRA Notice 25-07, SEC AI priorities, GLBA 501(a), SOX 302</p>
+<table>
+<thead>
+<tr>
+<th>Regulation</th>
+<th>DSPM for AI Support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FINRA 25-07</td>
+<td>AI supervision and monitoring requirements</td>
+</tr>
+<tr>
+<td>SEC AI priorities</td>
+<td>Transparency in AI-assisted decisions</td>
+</tr>
+<tr>
+<td>GLBA 501(a)</td>
+<td>Protection of customer information in AI</td>
+</tr>
+<tr>
+<td>SOX 302</td>
+<td>Internal controls over AI systems</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-regulation-compliance">AI Regulation Compliance</h3>
+<p>DSPM for AI provides guided assistance for:</p>
+<ul>
+<li><strong>ISO 42001</strong> - AI Management System standard</li>
+<li><strong>NIST AI RMF</strong> - AI Risk Management Framework</li>
+</ul>
+<h3 id="examination-considerations">Examination Considerations</h3>
+<p>Regulators may request:</p>
+<ul>
+<li>AI interaction logs and audit trails</li>
+<li>Sensitive data exposure reports</li>
+<li>Policy configuration evidence</li>
+<li>Risk assessment results</li>
+<li>Remediation action documentation</li>
+</ul>
+<hr />
+<h3 id="zone-specific-configuration">Zone-Specific Configuration</h3>
+<p><strong>Zone 1 (Personal Productivity):</strong></p>
+<ul>
+<li>Apply a baseline minimum of Microsoft Purview: DSPM for AI controls that impacts tenant-wide safety (where applicable), and document any exceptions for personal agents.</li>
+<li>Avoid expanding scope beyond the user’s own data unless explicitly justified.</li>
+<li>Rationale: reduces risk from personal use while keeping friction low; legal/compliance can tighten later.</li>
+</ul>
+<p><strong>Zone 2 (Team Collaboration):</strong></p>
+<ul>
+<li>Apply the control for shared agents and shared data sources; require an identified owner and an approval trail.</li>
+<li>Validate configuration in a pilot environment before broader rollout; retain evidence (screenshots/exports/logs).</li>
+<li>Rationale: shared agents increase blast radius; controls must be consistently applied and provable.</li>
+</ul>
+<p><strong>Zone 3 (Enterprise Managed):</strong></p>
+<ul>
+<li>Require the strictest configuration for Microsoft Purview: DSPM for AI controls and enforce it via policy where possible (not manual-only).</li>
+<li>Treat changes as controlled (change ticket + documented testing); retain evidence (screenshots/exports/logs).</li>
+<li>Rationale: enterprise agents handle the most sensitive content and are the highest audit/regulatory risk.</li>
+</ul>
+<h2 id="verification-testing">Verification &amp; Testing</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Navigate to purview.microsoft.com → DSPM for AI</td>
+<td>Dashboard displayed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Check Get Started completion</td>
+<td>All steps show completed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Review Recommendations</td>
+<td>Actions tracked with status</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Access Reports</td>
+<td>Interaction data visible</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check Policies</td>
+<td>Required policies enabled</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Open Activity explorer</td>
+<td>AI interactions logged</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Review Data risk assessments</td>
+<td>Assessment capability available</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-validation">Troubleshooting &amp; Validation</h2>
+<p><a id="troubleshooting"></a></p>
+<h3 id="issue-dspm-dashboard-shows-no-ai-interactions">Issue: DSPM Dashboard Shows No AI Interactions</h3>
+<p><strong>Symptoms:</strong> Overview displays zero interactions despite active Copilot usage</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify unified audit logging is enabled (Get Started step 1)</li>
+<li>Check that users have Microsoft 365 Copilot licenses assigned</li>
+<li>Wait 24-48 hours for initial data population</li>
+<li>Verify date range filter in reports</li>
+<li>Confirm users are actually using Copilot features</li>
+</ol>
+<h3 id="issue-browser-extension-not-capturing-third-party-ai">Issue: Browser Extension Not Capturing Third-Party AI</h3>
+<p><strong>Symptoms:</strong> ChatGPT, Claude, other AI usage not appearing in reports</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify extension deployment via Intune/Endpoint Manager</li>
+<li>Check extension is enabled in user browsers</li>
+<li>Confirm AI domains are in the monitored list</li>
+<li>Verify users are signed in to browser with work account</li>
+<li>Check extension version is current</li>
+</ol>
+<h3 id="issue-recommendations-not-updating">Issue: Recommendations Not Updating</h3>
+<p><strong>Symptoms:</strong> Completed actions still show as pending in Recommendations</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Manually mark recommendation as complete if action was taken</li>
+<li>Refresh the browser/dashboard</li>
+<li>Wait for sync (can take up to 24 hours)</li>
+<li>Verify the action was fully completed in source system</li>
+<li>Contact Microsoft support if stuck for &gt;48 hours</li>
+</ol>
+<h3 id="issue-activity-explorer-missing-expected-events">Issue: Activity Explorer Missing Expected Events</h3>
+<p><strong>Symptoms:</strong> Known AI interactions not appearing in Activity explorer</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Adjust date range filter to include event timeframe</li>
+<li>Check filter settings (user, app, activity type)</li>
+<li>Verify audit retention policy hasn't deleted events</li>
+<li>Confirm user/app is in scope for monitoring</li>
+<li>Export all data and search manually if needed</li>
+</ol>
+<h3 id="issue-oversharing-assessment-returns-errors">Issue: Oversharing Assessment Returns Errors</h3>
+<p><strong>Symptoms:</strong> Data risk assessment fails or shows errors</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify SharePoint sites are accessible</li>
+<li>Check permissions to run assessments</li>
+<li>Ensure sites aren't in a locked/read-only state</li>
+<li>Reduce scope and retry with smaller site set</li>
+<li>Check service health for Purview/SharePoint issues</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<p><a id="microsoft-learn-references"></a></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/purview/ai-microsoft-purview">DSPM for AI Overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/ai-microsoft-purview-considerations">DSPM for AI Considerations</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/data-classification-activity-explorer">Activity Explorer</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/insider-risk-management">Insider Risk Management</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/communication-compliance">Communication Compliance</a></li>
+<li><a href="https://learn.microsoft.com/en-us/purview/audit-solutions-overview">Purview Audit</a></li>
+</ul>
+<hr />
+<h2 id="related-controls">Related Controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../1.5-data-loss-prevention-dlp-and-sensitivity-labels/">Control 1.5: DLP and Sensitivity Labels</a></td>
+<td>Data protection policies</td>
+</tr>
+<tr>
+<td><a href="../1.7-comprehensive-audit-logging-and-compliance/">Control 1.7: Audit Logging</a></td>
+<td>Activity logging</td>
+</tr>
+<tr>
+<td><a href="../1.12-insider-risk-detection-and-response/">Control 1.12: Insider Risk Detection</a></td>
+<td>Risk management</td>
+</tr>
+<tr>
+<td><a href="../1.10-communication-compliance-monitoring/">Control 1.10: Communication Compliance</a></td>
+<td>Content monitoring</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-questions">Support &amp; Questions</h2>
+<p>For implementation support or questions about this control, contact:</p>
+<ul>
+<li><strong>Microsoft Purview Administrator:</strong> DSPM configuration</li>
+<li><strong>Security Operations:</strong> Alert monitoring and escalation</li>
+<li><strong>Compliance Officer:</strong> Regulatory reporting requirements</li>
+<li><strong>AI Governance Lead:</strong> Overall AI governance strategy</li>
+</ul>
+<hr />
+<p><strong>Updated:</strong> Jan 2026<br />
+<strong>Version:</strong> v1.0 (Jan 2026)<br />
+<strong>UI Verification Status:</strong> ❌ Needs verification</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      *FSI Agent Governance Framework v1.0 - January 2026*
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
