@@ -28,3 +28,12 @@ docs/verification-report.md
 
 # Maintainer-only local artifacts (NEVER commit)
 maintainers-local/
+
+# Git bundles (backup files)
+*.bundle
+
+# Windows artifacts
+nul
+
+# Claude Code local settings
+.claude/settings.local.json
