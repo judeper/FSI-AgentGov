@@ -5,7 +5,7 @@
 **FSI Agent Governance Framework v1.0** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
-- **58 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **60 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
@@ -35,8 +35,8 @@ C:\dev\FSI-AgentGov\
 ├── docs/
 │   ├── getting-started/          # Onboarding guides for admins
 │   ├── reference/
-│   │   ├── pillar-1-security/   # Controls 1.1-1.22 (22 controls)
-│   │   ├── pillar-2-management/ # Controls 2.1-2.19 (19 controls)
+│   │   ├── pillar-1-security/   # Controls 1.1-1.23 (23 controls)
+│   │   ├── pillar-2-management/ # Controls 2.1-2.20 (20 controls)
 │   │   ├── pillar-3-reporting/  # Controls 3.1-3.10 (10 controls)
 │   │   ├── pillar-4-sharepoint/ # Controls 4.1-4.7 (7 controls)
 │   │   ├── CONTROL-INDEX.md     # Master control list
@@ -363,6 +363,38 @@ Claude can then:
 2. Identify their current Zone 1 guidance
 3. Present proposed updates for your review
 4. Apply consistent changes across all files
+
+---
+
+## Researcher Package
+
+The framework maintains a compiled "researcher package" for external reviewers to assess regulatory accuracy and identify gaps. This package is stored locally and not committed to the repository.
+
+### Location
+
+`maintainers-local/researcher-package/`
+
+### Contents
+
+| File | Contents |
+|------|----------|
+| `00-FSI-AgentGov-Summary-and-Review-Guide.md` | Framework overview, reviewer guidance, control index |
+| `01-Pillar-1-Security-Controls.md` | Controls 1.1-1.23 (23 controls) |
+| `02-Pillar-2-Management-Controls.md` | Controls 2.1-2.20 (20 controls) |
+| `03-Pillar-3-Reporting-Controls.md` | Controls 3.1-3.10 (10 controls) |
+| `04-Pillar-4-SharePoint-Controls.md` | Controls 4.1-4.7 (7 controls) |
+
+### Regenerating the Package
+
+When pillar controls are updated, regenerate the package:
+
+```bash
+python scripts/compile_researcher_package.py
+```
+
+### Automatic Reminder Hook
+
+A Claude Code hook (`PostToolUse`) is configured to remind you to regenerate the researcher package when pillar control files are edited. The hook is defined in `.claude/settings.local.json` and runs `scripts/hooks/researcher-package-reminder.py`.
 
 ---
 

@@ -8,6 +8,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.0] — January 2026
 
+### Researcher Feedback v2 - Agentic AI and 2025/2026 Compliance (January 17, 2026)
+
+**Status:** New controls and enhancements addressing researcher feedback
+**Date:** January 17, 2026
+**Scope:** 2 new controls + 6 control enhancements (58 → 60 controls)
+
+#### New Controls Added
+
+- **Control 1.23: Step-up Authentication for Agent Operations** (HIGH priority)
+  - Risk-based authentication escalation for sensitive agent actions
+  - Multi-factor authentication triggers for financial transactions
+  - Zone-specific step-up thresholds
+  - Regulatory alignment: FFIEC Authentication Guidance, GLBA 501(b), FINRA 3110
+
+- **Control 2.20: Adversarial Testing and Red Team Framework** (HIGH priority)
+  - Structured red team exercises for AI agents
+  - Prompt injection and jailbreak testing procedures
+  - Data exfiltration and boundary testing
+  - Regulatory alignment: OCC 2011-12, Fed SR 11-7, NIST AI RMF
+
+#### Control Enhancements
+
+- **Control 1.18 (Application-Level Authorization)** - Enhanced RBAC guidance for agentic scenarios
+- **Control 2.3 (Change Management)** - Added AI-specific change categories and risk assessment
+- **Control 2.5 (Testing and Validation)** - Expanded test scenarios for agent behaviors
+- **Control 2.6 (Model Risk Management)** - Enhanced OCC 2011-12 alignment with agentic AI considerations
+- **Control 2.12 (Supervision and Oversight)** - Updated FINRA 3110 guidance for automated supervision
+- **Control 4.7 (Copilot Data Governance)** - Enhanced data governance for M365 Copilot grounding
+
+#### Supporting Materials Added
+
+- **Evidence Standards Reference** (`docs/reference/evidence-standards.md`)
+- **Governance Operating Calendar** (`docs/operational-templates/templates/governance-operating-calendar.md`)
+- **Screenshot Specifications** for controls 1.20, 1.21, 2.16, 4.6
+- **Researcher Package Compiler** (`scripts/compile_researcher_package.py`)
+
+#### Framework Statistics Update
+
+- **Total controls:** 58 → 60 (+2)
+- **Pillar 1 (Security):** 22 → 23 (+1)
+- **Pillar 2 (Management):** 19 → 20 (+1)
+
+---
+
 ### Feature Gap Analysis Implementation (January 16, 2026)
 
 **Status:** New controls and enhancements addressing identified feature gaps
