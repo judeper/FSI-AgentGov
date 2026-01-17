@@ -283,14 +283,14 @@ Agents typically progress through zones as they mature:
 
 ```mermaid
 graph TB
-    Z1[Zone 1: Personal<br/>Development & Learning]
-    Z2[Zone 2: Team<br/>Collaboration]
-    Z3[Zone 3: Enterprise<br/>Production]
+    Z1[Zone 1: Personal]
+    Z2[Zone 2: Team]
+    Z3[Zone 3: Enterprise]
 
-    Z1 -->|"Proven value +<br/>Manager approval"| Z2
-    Z2 -->|"Full testing +<br/>Committee approval"| Z3
-    Z3 -.->|"Policy violation"| Z2
-    Z2 -.->|"Compliance failure"| Z1
+    Z1 -->|Promote| Z2
+    Z2 -->|Promote| Z3
+    Z3 -.->|Policy violation| Z2
+    Z2 -.->|Compliance failure| Z1
 
     style Z1 fill:#66BB6A,color:#fff
     style Z2 fill:#FFA726,color:#fff
@@ -366,17 +366,17 @@ Use this decision tree to determine the appropriate zone for your agent:
 
 ```mermaid
 flowchart TD
-    Start([New Agent]) --> Q1{Customer-facing<br/>or regulated data?}
+    Start([New Agent]) --> Q1{Customer or regulated data?}
     Q1 -->|Yes| Z3[Zone 3: Enterprise]
-    Q1 -->|No| Q2{Shared across<br/>team/department?}
-    Q2 -->|Yes| Q3{Accesses internal<br/>business data?}
+    Q1 -->|No| Q2{Shared across team?}
+    Q2 -->|Yes| Q3{Internal business data?}
     Q2 -->|No| Z1[Zone 1: Personal]
     Q3 -->|Yes| Z2[Zone 2: Team]
     Q3 -->|No| Z1
 
-    Z1 --> A1[Self-Service<br/>30-day audit]
-    Z2 --> A2[Manager Approval<br/>1-year audit]
-    Z3 --> A3[Committee Approval<br/>10-year audit]
+    Z1 --> A1[Self-Service]
+    Z2 --> A2[Manager Approval]
+    Z3 --> A3[Committee Approval]
 
     style Z1 fill:#66BB6A,color:#fff
     style Z2 fill:#FFA726,color:#fff
@@ -405,16 +405,16 @@ When determining the appropriate zone for an agent, evaluate these risk factors:
 
 ```mermaid
 flowchart TD
-    A[📋 New Agent Request] --> B{Data Classification?}
+    A[New Agent Request] --> B{Data Classification?}
 
     B -->|Public/Personal Only| C{User Scope?}
     B -->|Internal Business Data| D{External Access?}
-    B -->|Customer PII/Financial| E[🔴 Zone 3<br/>Enterprise Managed]
+    B -->|Customer PII/Financial| E[Zone 3: Enterprise]
 
-    C -->|Individual| F[🟢 Zone 1<br/>Personal Productivity]
+    C -->|Individual| F[Zone 1: Personal]
     C -->|Team/Department| G{Regulatory Impact?}
 
-    D -->|No| H[🟡 Zone 2<br/>Team Collaboration]
+    D -->|No| H[Zone 2: Team]
     D -->|Yes| E
 
     G -->|Minimal| H

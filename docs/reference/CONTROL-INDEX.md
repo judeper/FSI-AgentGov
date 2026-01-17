@@ -1,12 +1,12 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (58 Controls)
+## Complete Control Reference (60 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
 ---
 
-## Pillar 1: Security Controls (22 Controls)
+## Pillar 1: Security Controls (23 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -32,8 +32,9 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) |
 | 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) |
 | 1.22 | [Information Barriers for AI Agents](pillar-1-security/1.22-information-barriers.md) |
+| 1.23 | [Step-Up Authentication for AI Agent Operations](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) |
 
-## Pillar 2: Management Controls (19 Controls)
+## Pillar 2: Management Controls (20 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -56,6 +57,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.17 | [Multi-Agent Orchestration Limits](pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
 | 2.18 | [Automated Conflict of Interest Testing](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) |
 | 2.19 | [Customer AI Disclosure and Transparency](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| 2.20 | [Adversarial Testing and Red Team Framework](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) |
 
 ## Pillar 3: Agent Reporting (10 Controls)
 
@@ -108,7 +110,7 @@ Each control is documented with three governance levels:
 
 ## Pillar Descriptions
 
-### Pillar 1: Security Controls (22 Controls)
+### Pillar 1: Security Controls (23 Controls)
 Focus: Protect data and systems from unauthorized access, misuse, and exploitation.
 - Authentication and Authorization
 - Data Loss Prevention
@@ -119,8 +121,9 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - Network Isolation
 - Adversarial Input Protection
 - Information Barriers
+- Step-Up Authentication
 
-### Pillar 2: Management Controls (19 Controls)
+### Pillar 2: Management Controls (20 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management
@@ -133,6 +136,7 @@ Focus: Govern the agent lifecycle, access control, change management, and model 
 - Multi-Agent Orchestration
 - Conflict of Interest Testing
 - Customer AI Disclosure
+- Adversarial Testing & Red Teaming
 
 ### Pillar 3: Agent Reporting (10 Controls)
 Focus: Visibility and monitoring of agent activities, performance, and compliance.

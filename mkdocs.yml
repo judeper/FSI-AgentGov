@@ -98,6 +98,7 @@ nav:
     - 1.20 Network Isolation And Private Connectivity: reference/pillar-1-security/1.20-network-isolation-private-connectivity.md
     - 1.21 Adversarial Input Logging: reference/pillar-1-security/1.21-adversarial-input-logging.md
     - 1.22 Information Barriers for AI Agents: reference/pillar-1-security/1.22-information-barriers.md
+    - 1.23 Step-Up Authentication for Agent Operations: reference/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md
   - Management Controls (Pillar 2):
     - Overview: reference/pillar-2-management/index.md
     - 2.1 Managed Environments: reference/pillar-2-management/2.1-managed-environments.md
@@ -119,6 +120,7 @@ nav:
     - 2.17 Multi-Agent Orchestration Limits: reference/pillar-2-management/2.17-multi-agent-orchestration-limits.md
     - 2.18 Automated Conflict of Interest Testing: reference/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
     - 2.19 Customer AI Disclosure And Transparency: reference/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md
+    - 2.20 Adversarial Testing and Red Team Framework: reference/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md
   - Reporting Controls (Pillar 3):
     - Overview: reference/pillar-3-reporting/index.md
     - 3.1 Agent Inventory And Metadata Management: reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
@@ -142,6 +144,7 @@ nav:
     - 4.7 Microsoft 365 Copilot Data Governance: reference/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md
   - Reference:
     - Control Index: reference/CONTROL-INDEX.md
+    - Evidence Standards: reference/evidence-standards.md
     - Operational Templates:
       - Overview: operational-templates/README.md
       - Templates:
@@ -153,6 +156,7 @@ nav:
         - Escalation Matrix: operational-templates/templates/escalation-matrix.md
         - Per-Agent Data Policy: operational-templates/templates/per-agent-data-policy.md
         - Purview Audit Query Pack: operational-templates/templates/purview-audit-query-pack.md
+        - Governance Operating Calendar: operational-templates/templates/governance-operating-calendar.md
         - RACI Governance Template: operational-templates/templates/raci-governance-template.md
         - Semantic Index Governance Queries: operational-templates/templates/semantic-index-governance-queries.md
         - Supply Chain Risk Register: operational-templates/templates/supply-chain-risk-register-entry.md
