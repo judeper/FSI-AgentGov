@@ -8,6 +8,7 @@ Scripts for validating, maintaining, and automating governance controls.
 scripts/
 ├── README.md                    # This file
 ├── requirements.txt             # Python dependencies
+├── validate_before_push.py      # Pre-push validation (run before every push)
 │
 ├── validation/                  # Framework validation scripts
 │   ├── verify_controls.py       # Validate control structure
@@ -55,6 +56,20 @@ pip install -r scripts/requirements.txt
 - No external dependencies for core validation scripts
 
 ## Usage
+
+### Pre-Push Validation (Recommended)
+
+**Run all validations before pushing:**
+```bash
+python scripts/validate_before_push.py
+```
+
+This script runs:
+1. `mkdocs build --strict` — Validates internal links and markdown syntax
+2. `verify_controls.py` — Validates control file structure and footers
+3. `markdown-link-check` — Validates external URLs (requires: `npm install -g markdown-link-check`)
+
+Run this before every push to catch issues before CI fails.
 
 ### Validation Scripts
 
