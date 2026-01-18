@@ -145,8 +145,8 @@ Each control has a dedicated folder with:
 - `troubleshooting.md` — Common issues and solutions
 - `screenshots/` — UI verification images
 
-!!! info "Coming Soon"
-    Per-control implementation playbooks are planned for a future release. For now, see the implementation guidance within each control in the [Control Catalog](../controls/index.md).
+!!! success "Available Now"
+    Per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Each control has 4 playbooks: portal walkthrough, PowerShell setup, verification testing, and troubleshooting.
 
 ---
 

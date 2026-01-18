@@ -4,7 +4,7 @@ Protect data and systems from unauthorized access, misuse, and exploitation.
 
 ## Overview
 
-Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 22 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
+Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 23 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
 
 **Primary Regulatory Alignment:** FINRA 4511 (recordkeeping), SEC 17a-3/4 (records retention), GLBA 501(b) (safeguards), SOX 302/404 (internal controls)
 
@@ -40,3 +40,4 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 - [1.20 Network Isolation and Private Connectivity](1.20-network-isolation-private-connectivity.md)
 - [1.21 Adversarial Input Logging](1.21-adversarial-input-logging.md)
 - [1.22 Information Barriers for AI Agents](1.22-information-barriers.md)
+- [1.23 Step-Up Authentication for AI Agent Operations](1.23-step-up-authentication-for-agent-operations.md)
