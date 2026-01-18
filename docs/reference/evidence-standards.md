@@ -391,10 +391,10 @@ Compliance: _________________ Date: _________
 
 | Document | Relationship |
 |----------|-------------|
-| [Control 1.7 - Audit Logging](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Primary source of log evidence |
-| [Control 2.13 - Documentation and Record Keeping](pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation standards |
-| [Control 3.3 - Compliance Reporting](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance evidence aggregation |
-| [Evidence Pack Assembly Spec](../operational-templates/specs/evidence-pack-assembly.md) | Detailed assembly procedures |
+| [Control 1.7 - Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Primary source of log evidence |
+| [Control 2.13 - Documentation and Record Keeping](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation standards |
+| [Control 3.3 - Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance evidence aggregation |
+| [Evidence Pack Assembly](../playbooks/compliance-and-audit/evidence-pack-assembly.md) | Detailed assembly procedures |
 
 ---
 

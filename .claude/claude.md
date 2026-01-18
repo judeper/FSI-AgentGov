@@ -2,11 +2,12 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.0** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.1** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **60 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
+- **3-layer documentation** (Framework → Controls → Playbooks)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
 - **Audience:** M365 administrators in US financial services
@@ -34,27 +35,82 @@ C:\dev\FSI-AgentGov\
 ├── .claude/                      # Claude Code configuration
 ├── docs/
 │   ├── getting-started/          # Onboarding guides for admins
-│   ├── reference/
-│   │   ├── pillar-1-security/   # Controls 1.1-1.23 (23 controls)
-│   │   ├── pillar-2-management/ # Controls 2.1-2.20 (20 controls)
-│   │   ├── pillar-3-reporting/  # Controls 3.1-3.10 (10 controls)
-│   │   ├── pillar-4-sharepoint/ # Controls 4.1-4.7 (7 controls)
-│   │   ├── CONTROL-INDEX.md     # Master control list
-│   │   └── [other reference materials]
-│   ├── templates/               # Control authoring template
-│   ├── images/                  # Screenshot verification specs (LOCAL ONLY)
-│   └── downloads/               # Excel templates for admins
+│   ├── framework/                # NEW in v1.1: Governance principles layer
+│   │   ├── executive-summary.md  # Strategic overview for leadership
+│   │   ├── zones-and-tiers.md    # Governance zone definitions
+│   │   ├── adoption-roadmap.md   # Phased implementation approach
+│   │   └── ...                   # Lifecycle, roles, risk framework
+│   ├── controls/                 # RENAMED in v1.1 (was: reference/pillar-*)
+│   │   ├── pillar-1-security/    # Controls 1.1-1.23 (23 controls)
+│   │   ├── pillar-2-management/  # Controls 2.1-2.20 (20 controls)
+│   │   ├── pillar-3-reporting/   # Controls 3.1-3.10 (10 controls)
+│   │   ├── pillar-4-sharepoint/  # Controls 4.1-4.7 (7 controls)
+│   │   └── CONTROL-INDEX.md      # Master control list
+│   ├── playbooks/                # NEW in v1.1: Implementation layer
+│   │   ├── control-implementations/  # Per-control guides (240 files)
+│   │   ├── governance-operations/    # Standing governance procedures
+│   │   ├── compliance-and-audit/     # Audit preparation guides
+│   │   ├── incident-response/        # Incident handling procedures
+│   │   └── lifecycle-operations/     # Agent lifecycle management
+│   ├── reference/                # Supporting materials
+│   │   ├── role-catalog.md       # Canonical role names
+│   │   ├── regulatory-mappings.md # Regulation-to-control mapping
+│   │   ├── glossary.md           # Term definitions
+│   │   └── ...                   # License requirements, FAQ
+│   ├── templates/                # Control authoring template
+│   ├── images/                   # Screenshot verification specs (LOCAL ONLY)
+│   └── downloads/                # Excel templates for admins
 ├── scripts/                      # Python validation scripts
-├── maintainers-local/           # LOCAL ONLY - gitignored (reports, notes, evidence)
-├── review/                      # Review materials and proposals
-├── mkdocs.yml                   # Site navigation and MkDocs config
-├── AGENTS.md                    # Agent workflow instructions
-├── CONTRIBUTING.md              # Language and style guidelines
-├── README.md                    # Repository home page
-├── CHANGELOG.md                 # Release history
-├── SECURITY.md                  # Security policy
+├── maintainers-local/            # LOCAL ONLY - gitignored (reports, notes, evidence)
+├── releases/                     # Release artifacts by version
+├── mkdocs.yml                    # Site navigation and MkDocs config
+├── AGENTS.md                     # Agent workflow instructions
+├── CONTRIBUTING.md               # Language and style guidelines
+├── README.md                     # Repository home page
+├── CHANGELOG.md                  # Release history
+├── SECURITY.md                   # Security policy
 └── [LICENSE, CODE_OF_CONDUCT.md, etc.]
 ```
+
+---
+
+## Three-Layer Documentation Architecture (v1.1)
+
+The framework uses a three-layer documentation model:
+
+### Layer 1: Framework (`docs/framework/`)
+**Purpose:** Governance principles, strategy, and organizational context
+
+| File | Content |
+|------|---------|
+| `executive-summary.md` | Strategic overview for leadership buy-in |
+| `zones-and-tiers.md` | Zone 1/2/3 definitions with governance levels |
+| `adoption-roadmap.md` | 30/60/90-day phased implementation |
+| `lifecycle-governance.md` | Agent lifecycle management process |
+| `roles-and-responsibilities.md` | RACI and accountability model |
+| `risk-framework.md` | Risk assessment methodology |
+| `regulatory-context.md` | Financial services regulatory landscape |
+| `training-and-awareness.md` | User education requirements |
+| `index.md` | Framework layer overview |
+
+### Layer 2: Control Catalog (`docs/controls/pillar-*`)
+**Purpose:** Technical control specifications with 12-section format
+
+- **Pillar 1 - Security:** 23 controls (1.1-1.23) - Data protection, access, audit
+- **Pillar 2 - Management:** 20 controls (2.1-2.20) - Lifecycle, risk, operations
+- **Pillar 3 - Reporting:** 10 controls (3.1-3.10) - Visibility, metrics, dashboards
+- **Pillar 4 - SharePoint:** 7 controls (4.1-4.7) - Content governance, grounding
+
+### Layer 3: Playbooks (`docs/playbooks/`)
+**Purpose:** Step-by-step implementation procedures
+
+| Category | Content |
+|----------|---------|
+| `control-implementations/` | 4 playbooks per control (admin, lifecycle, validation, troubleshooting) |
+| `governance-operations/` | Standing procedures (weekly reviews, quarterly assessments) |
+| `compliance-and-audit/` | Audit preparation, evidence collection |
+| `incident-response/` | Data exposure, compliance violation handling |
+| `lifecycle-operations/` | Agent provisioning, retirement, updates |
 
 ---
 
@@ -65,12 +121,13 @@ C:\dev\FSI-AgentGov\
 **Scenario:** You need to modify a control's content (e.g., update instructions for a step, fix a typo, add new regulation reference)
 
 **Steps:**
-1. **Read the control** you're updating: `docs/reference/pillar-{1-4}-{name}/{id}-{kebab-case}.md`
+1. **Read the control** you're updating: `docs/controls/pillar-{1-4}-{name}/{id}-{kebab-case}.md`
 2. **Read the template** for structure: `docs/templates/control-setup-template.md`
 3. **Make changes** while preserving all 12 sections (never skip or remove a section)
 4. **Update footer date:** Change "Updated: Month-Year" to current date
 5. **If portal paths changed:** Update `docs/images/{control-id}/EXPECTED.md` with new screenshot requirements
-6. **Validate:** Run `mkdocs build --strict` (must pass with zero errors)
+6. **Update related playbooks:** Check `docs/playbooks/control-implementations/` for impacted guides
+7. **Validate:** Run `mkdocs build --strict` (must pass with zero errors)
 
 **Critical Language Rules (NEVER violate):**
 - ❌ Avoid: "ensures compliance", "guarantees", "will prevent"
@@ -89,8 +146,8 @@ C:\dev\FSI-AgentGov\
 
 **Steps:**
 1. **Copy template:** `docs/templates/control-setup-template.md`
-2. **Paste into correct pillar folder** with proper naming: `docs/reference/pillar-{n}-{name}/{id}-{kebab-case-name}.md`
-   - Example: `docs/reference/pillar-1-security/1.20-new-control-example.md`
+2. **Paste into correct pillar folder** with proper naming: `docs/controls/pillar-{n}-{name}/{id}-{kebab-case-name}.md`
+   - Example: `docs/controls/pillar-1-security/1.24-new-control-example.md`
 3. **Fill ALL 12 sections** (do not skip any):
    - Section 1: Overview (ID, Name, Regulatory Reference, Setup Time)
    - Section 2: Prerequisites (License, Primary Owner Admin Role, Dependencies)
@@ -103,18 +160,19 @@ C:\dev\FSI-AgentGov\
    - Section 9: Additional Resources (Microsoft Learn links)
    - Section 10: Related Controls (cross-references)
    - Section 11: Support & Questions (contact roles)
-   - Section 12: Footer (Updated: Month-Year, Version: v1.0 (Jan 2026), UI Verification Status)
-4. **Update CONTROL-INDEX.md:** Add entry to master control list
+   - Section 12: Footer (Updated: Month-Year, Version: v1.1 (Jan 2026), UI Verification Status)
+4. **Update CONTROL-INDEX.md:** Add entry to master control list at `docs/controls/CONTROL-INDEX.md`
 5. **Update mkdocs.yml:** Add entry to navigation under correct pillar
 6. **Create screenshot spec:** `docs/images/{control-id}/EXPECTED.md` with required screenshots
-7. **Validate:** Run `mkdocs build --strict` (must pass with zero errors)
+7. **Create playbooks:** Add 4 playbook files in `docs/playbooks/control-implementations/{control-id}/`
+8. **Validate:** Run `mkdocs build --strict` (must pass with zero errors)
 
 ### 3. Verify Screenshots
 
 **Scenario:** You need to check if control documentation matches actual portal UI
 
 **Steps:**
-1. **Read the control** doc: `docs/reference/pillar-{n}-*/`
+1. **Read the control** doc: `docs/controls/pillar-{n}-*/`
 2. **Read expected screenshots:** `docs/images/{control-id}/EXPECTED.md`
 3. **Review workflow in `docs/images/VERIFY.md`** for detailed instructions
 4. **Compare:** Portal instructions against screenshot requirements
@@ -131,16 +189,26 @@ C:\dev\FSI-AgentGov\
 
 **Rules:**
 - Maintain alphabetical/numerical order within each pillar
-- Keep pillar sections organized: Pillar 1, Pillar 2, Pillar 3, Pillar 4
+- Keep three-layer structure: Framework → Controls → Playbooks
 - Validate after changes: `mkdocs build --strict`
 
 **Example nav entry:**
 ```yaml
-- Pillar 1 - Security:
-  - Pillar 1 Overview: reference/pillar-1-security/index.md
-  - 1.1 - Control Name: reference/pillar-1-security/1.1-control-name.md
-  - 1.2 - Control Name: reference/pillar-1-security/1.2-control-name.md
-  # ... maintain numerical order
+- Framework:
+  - Framework Overview: framework/index.md
+  - Executive Summary: framework/executive-summary.md
+  # ... other framework docs
+
+- Controls:
+  - Control Index: controls/CONTROL-INDEX.md
+  - Pillar 1 - Security:
+    - Pillar 1 Overview: controls/pillar-1-security/index.md
+    - 1.1 - Control Name: controls/pillar-1-security/1.1-control-name.md
+    # ... maintain numerical order
+
+- Playbooks:
+  - Implementation Guides: playbooks/control-implementations/index.md
+  # ... playbook categories
 ```
 
 ---
@@ -189,16 +257,18 @@ This control ensures FINRA 4511(j) compliance and guarantees proper agent oversi
 
 | File | Purpose | Modification Policy |
 |------|---------|-------------------|
-| `.github/copilot-instructions.md` | Copilot context | Never modify without permission |
+| `.github/copilot-instructions.md` | Copilot context | Update when structure changes |
 | `AGENTS.md` | Autonomous agent workflows | Reference only |
 | `docs/templates/control-setup-template.md` | Control authoring template | Reference only |
 | `CONTRIBUTING.md` | Language and style rules | Update if rules change |
 | `mkdocs.yml` | Site navigation and config | Update for nav changes |
-| `docs/reference/CONTROL-INDEX.md` | Master control list | Update when controls added/removed |
+| `docs/controls/CONTROL-INDEX.md` | Master control list | Update when controls added/removed |
+| `docs/framework/*.md` | Governance principles | Update for strategic changes |
+| `docs/playbooks/**/*.md` | Implementation guides | Update when procedures change |
 | `LICENSE` | Legal file | Never modify without permission |
 | `SECURITY.md` | Security policy | Never modify without permission |
 | `CODE_OF_CONDUCT.md` | Community standards | Never modify without permission |
-| Individual control files `docs/reference/pillar-*/` | Control documentation | Update following template |
+| Individual control files `docs/controls/pillar-*/` | Control documentation | Update following template |
 
 ---
 
@@ -210,7 +280,7 @@ The framework includes Excel checklists for administrators in `docs/downloads/`.
 
 | File | Role | Controls | Notes |
 |------|------|----------|-------|
-| `governance-maturity-dashboard.xlsx` | AI Governance Lead | 58 (all) | Has "All Controls" + "Summary Dashboard" sheets |
+| `governance-maturity-dashboard.xlsx` | AI Governance Lead | 60 (all) | Has "All Controls" + "Summary Dashboard" sheets |
 | `purview-administrator-checklist.xlsx` | Purview Compliance Admin | 7 | DLP, DSPM, Audit, eDiscovery, Information Barriers |
 | `sharepoint-administrator-checklist.xlsx` | SharePoint Admin | 7 | IAG, Access Reviews, Retention, External Access, Grounding |
 | `power-platform-administrator-checklist.xlsx` | Power Platform Admin | 7 | Environments, Groups, Routing, RAG, Orchestration |
@@ -317,8 +387,8 @@ The framework uses **canonical short role names** consistently throughout contro
 ### Error: "Broken reference to control X.X"
 **Cause:** Control doesn't exist or file name is wrong
 **Solution:**
-1. Check `docs/reference/CONTROL-INDEX.md` to verify control exists
-2. Verify file path: `docs/reference/pillar-{n}-{name}/{id}-{kebab-case}.md`
+1. Check `docs/controls/CONTROL-INDEX.md` to verify control exists
+2. Verify file path: `docs/controls/pillar-{n}-{name}/{id}-{kebab-case}.md`
 3. Update the reference with correct control ID
 
 ### Error: "Control missing section X"
@@ -339,7 +409,7 @@ The framework uses **canonical short role names** consistently throughout contro
 ### Error: Build passes locally but fails on GitHub Pages
 **Cause:** Path differences between Windows and Linux
 **Solution:**
-1. Use forward slashes in all links: `docs/reference/...` not `docs\reference\...`
+1. Use forward slashes in all links: `docs/controls/...` not `docs\controls\...`
 2. Use lowercase file names and folder names
 3. Test with `mkdocs build --strict` before committing
 
@@ -359,7 +429,7 @@ Instead of editing each control individually, provide context about what needs c
 > "Update all Pillar 1 controls' 'Zone-Specific Configuration' section to clarify that Zone 1 agents should use minimal data access. Show me the changes before I approve them."
 
 Claude can then:
-1. Read all 19 Pillar 1 controls
+1. Read all 23 Pillar 1 controls
 2. Identify their current Zone 1 guidance
 3. Present proposed updates for your review
 4. Apply consistent changes across all files
@@ -396,6 +466,22 @@ python scripts/compile_researcher_package.py
 
 A Claude Code hook (`PostToolUse`) is configured to remind you to regenerate the researcher package when pillar control files are edited. The hook is defined in `.claude/settings.local.json` and runs `scripts/hooks/researcher-package-reminder.py`.
 
+### Project Boundary Check Hook
+
+A `PreToolUse` hook is configured to prevent Bash commands from accidentally operating outside the project directory. The hook intercepts all Bash tool invocations and blocks commands that might escape `C:\dev\FSI-AgentGov`.
+
+**Blocked patterns include:**
+- Absolute paths to other drives or directories (e.g., `C:\Users`, `/c/Windows`)
+- Root-level find/ls/dir operations
+- Excessive parent directory traversal
+
+**Safe patterns allowed:**
+- Commands explicitly targeting the project path
+- Git, mkdocs, python, pip commands
+- Relative path operations
+
+The hook is defined in `.claude/settings.local.json` and runs `scripts/hooks/boundary-check.py`.
+
 ---
 
 ## Quick Navigation
@@ -403,11 +489,13 @@ A Claude Code hook (`PostToolUse`) is configured to remind you to regenerate the
 **Want to...**
 - Add a new control? → Start with `docs/templates/control-setup-template.md`
 - Update site menu? → Edit `mkdocs.yml` navigation section
-- Check all controls? → Read `docs/reference/CONTROL-INDEX.md`
+- Check all controls? → Read `docs/controls/CONTROL-INDEX.md`
 - Review rules? → Read `CONTRIBUTING.md`
 - Understand regulations? → Read `docs/reference/regulatory-mappings.md`
 - See role names? → Read `docs/reference/role-catalog.md`
-- Understand zones? → Read `docs/getting-started/zones.md`
+- Understand zones? → Read `docs/framework/zones-and-tiers.md`
+- Read framework docs? → Browse `docs/framework/`
+- Find playbooks? → Browse `docs/playbooks/`
 
 ---
 
@@ -425,6 +513,6 @@ See individual control files' Section 11 (Support & Questions) for role-based co
 ---
 
 ## Version Info
-- **Framework Version:** 1.0 (January 2026)
+- **Framework Version:** 1.1 (January 2026)
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov

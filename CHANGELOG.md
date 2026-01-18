@@ -6,6 +6,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1] — January 2026
+
+### Architecture
+
+- Restructured documentation into three layers: Framework, Control Catalog, Playbooks
+- Created `docs/framework/` layer with stable governance content for executives and compliance officers
+- Reorganized `docs/operational-templates/` to `docs/playbooks/` with clearer categorization
+- Renamed `docs/reference/pillar-*/` to `docs/controls/pillar-*/` for clarity
+- Added role-based navigation on homepage
+
+### Added
+
+- **Framework Layer Documents:**
+  - Executive Summary (`framework/executive-summary.md`) — Board-level overview
+  - Governance Fundamentals (`framework/governance-fundamentals.md`) — Core framework concepts
+  - Zones and Tiers (`framework/zones-and-tiers.md`) — Zone classification guidance
+  - Agent Lifecycle (`framework/agent-lifecycle.md`) — Lifecycle management
+  - Regulatory Framework (`framework/regulatory-framework.md`) — Control-to-regulation mappings
+  - Operating Model (`framework/operating-model.md`) — RACI and governance structure
+  - Governance Cadence (`framework/governance-cadence.md`) — Review schedules
+  - Adoption Roadmap (`framework/adoption-roadmap.md`) — Phased implementation guide
+
+- **New Playbooks:**
+  - Phase 0 Governance Setup (`playbooks/getting-started/phase-0-governance-setup.md`)
+  - Phase 1 Minimal Viable Controls (`playbooks/getting-started/phase-1-minimal-viable-controls.md`)
+  - Phase 2 Hardening (`playbooks/getting-started/phase-2-hardening.md`)
+  - Audit Readiness Checklist (`playbooks/compliance-and-audit/audit-readiness-checklist.md`)
+  - Examination Response Guide (`playbooks/compliance-and-audit/examination-response-guide.md`)
+  - Agent Promotion Checklist (`playbooks/agent-lifecycle/agent-promotion-checklist.md`)
+  - Agent Decommissioning (`playbooks/agent-lifecycle/agent-decommissioning.md`)
+  - Health Check Procedures (`playbooks/monitoring-and-validation/health-check-procedures.md`)
+  - AI Risk Assessment Template (`playbooks/incident-and-risk/ai-risk-assessment-template.md`)
+  - Remediation Tracking (`playbooks/incident-and-risk/remediation-tracking.md`)
+
+- **Scripts Directory Enhancement:**
+  - Added `scripts/README.md` with usage guide
+  - Added `scripts/requirements.txt` for dependencies
+  - Created `scripts/governance/` and `scripts/reporting/` placeholder directories
+
+### Changed
+
+- Zone 1 regulatory language softened to conditional phrasing
+- Pillar 4 explicitly positions as SharePoint specialization of Pillars 1-3
+- HITL patterns explicitly defined (Pre-Approval, Sampled Review, Escalation-on-Threshold)
+- Controls 2.12 and 2.19 updated with customer-facing conduct notes
+
+### Fixed
+
+- Updated all internal links to reflect new directory structure
+- Fixed 60+ broken cross-references between controls and playbooks
+- Resolved orphaned file warnings in mkdocs build
+
+---
+
 ## [1.0] — January 2026
 
 ### Researcher Feedback v2 - Agentic AI and 2025/2026 Compliance (January 17, 2026)

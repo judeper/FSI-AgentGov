@@ -2,11 +2,12 @@
 
 ## Project Overview
 
-FSI Agent Governance Framework v1.0 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+FSI Agent Governance Framework v1.1 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
-- **48 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **60 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
-- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7
+- **3-layer documentation** (Framework → Controls → Playbooks)
+- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
 - **Documentation site:** Built with MkDocs Material, published to GitHub Pages
 
 ## Design Decisions
@@ -17,7 +18,7 @@ FSI Agent Governance Framework v1.0 - A governance framework for Microsoft 365 A
 - **NOT for:** Developers, end users
 
 ### GitHub Pages (What to Publish)
-- **Publish:** Controls, getting started guides, reference materials, downloads
+- **Publish:** Framework docs, controls, playbooks, getting started guides, reference materials, downloads
 - **Do NOT publish:** `images/`, `scripts/`, `templates/` folders
 
 ### Deliverables (Scope)
@@ -30,11 +31,12 @@ FSI Agent Governance Framework v1.0 - A governance framework for Microsoft 365 A
 - Each control folder has `EXPECTED.md` listing required screenshots (no images are committed)
 - Store screenshots and tenant evidence under `maintainers-local/tenant-evidence/` (gitignored)
 
-### Navigation Philosophy
-- **Getting Started:** Admin onboarding only (no repo structure info)
-- **Pillars 1-4:** Implementation guidance for each control
+### Navigation Philosophy (Three-Layer Model)
+- **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
+- **Controls:** Technical specifications with 12-section format (`docs/controls/pillar-*/`)
+- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
-- **Contributors:** Repo structure and maintenance info for maintainers
+- **Getting Started:** Admin onboarding only (no repo structure info)
 - **Downloads:** Role-based Excel checklists for admins
 
 ### Language Standards
@@ -48,25 +50,48 @@ FSI Agent Governance Framework v1.0 - A governance framework for Microsoft 365 A
 
 ```
 docs/
-├── getting-started/          # Onboarding guides (overview, quick-start, zones, lifecycle, checklist)
-├── reference/
-│   ├── pillar-1-security/    # 19 security controls (1.1-1.19)
-│   ├── pillar-2-management/  # 15 management controls (2.1-2.15)
-│   ├── pillar-3-reporting/   # 9 reporting controls (3.1-3.9)
-│   ├── pillar-4-sharepoint/  # 5 SharePoint controls (4.1-4.5)
+├── getting-started/              # Onboarding guides (overview, quick-start, zones, lifecycle, checklist)
+├── framework/                    # NEW in v1.1: Governance principles layer
+│   ├── executive-summary.md      # Strategic overview for leadership
+│   ├── zones-and-tiers.md        # Zone 1/2/3 definitions
+│   ├── adoption-roadmap.md       # 30/60/90-day phased implementation
+│   ├── lifecycle-governance.md   # Agent lifecycle management
+│   ├── roles-and-responsibilities.md
+│   ├── risk-framework.md
+│   ├── regulatory-context.md
+│   ├── training-and-awareness.md
+│   └── index.md
+├── controls/                     # RENAMED in v1.1 (was: reference/pillar-*)
+│   ├── pillar-1-security/        # 23 security controls (1.1-1.23)
+│   ├── pillar-2-management/      # 20 management controls (2.1-2.20)
+│   ├── pillar-3-reporting/       # 10 reporting controls (3.1-3.10)
+│   ├── pillar-4-sharepoint/      # 7 SharePoint controls (4.1-4.7)
 │   └── CONTROL-INDEX.md          # Master control list
-├── templates/                # Control authoring template
-├── images/                   # Screenshot verification (LOCAL ONLY - gitignored)
-└── downloads/                # Excel templates for admins
-scripts/                      # Validation scripts (verify_controls.py, verify_templates.py)
-mkdocs.yml                    # Site navigation and configuration
+├── playbooks/                    # NEW in v1.1: Implementation layer
+│   ├── control-implementations/  # Per-control guides (240 files, 4 per control)
+│   ├── governance-operations/    # Standing procedures
+│   ├── compliance-and-audit/     # Audit preparation guides
+│   ├── incident-response/        # Incident handling procedures
+│   └── lifecycle-operations/     # Agent lifecycle management
+├── reference/                    # Supporting materials
+│   ├── role-catalog.md
+│   ├── regulatory-mappings.md
+│   ├── glossary.md
+│   └── ...
+├── templates/                    # Control authoring template
+├── images/                       # Screenshot verification (LOCAL ONLY - gitignored)
+└── downloads/                    # Excel templates for admins
+scripts/                          # Validation scripts (verify_controls.py, verify_templates.py)
+releases/                         # Release artifacts by version
+mkdocs.yml                        # Site navigation and configuration
 
-maintainers-local/            # LOCAL ONLY (gitignored)
-├── reference-pack/           # Whitepapers and extracted reference content
-├── reports/                  # Generated reports / audits
-├── tenant-evidence/          # Screenshots, exports, tenant notes
-├── notes/                    # Maintainer notes and context
-└── tmp/                      # Scratch artifacts
+maintainers-local/                # LOCAL ONLY (gitignored)
+├── reference-pack/               # Whitepapers and extracted reference content
+├── researcher-package/           # Compiled controls for external review
+├── reports/                      # Generated reports / audits
+├── tenant-evidence/              # Screenshots, exports, tenant notes
+├── notes/                        # Maintainer notes and context
+└── tmp/                          # Scratch artifacts
 ```
 
 ## Control Authoring
@@ -86,7 +111,7 @@ maintainers-local/            # LOCAL ONLY (gitignored)
 9. Additional Resources (Microsoft Learn links)
 10. Related Controls (cross-references)
 11. Support & Questions (contact roles)
-12. Footer (Updated: Month-Year, Version: v1.0 (Jan 2026), UI Verification Status)
+12. Footer (Updated: Month-Year, Version: v1.1 (Jan 2026), UI Verification Status)
 
 ### Administrator Role Naming (Canonical)
 
@@ -114,7 +139,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
 | `docs/templates/control-setup-template.md` | Control format (12 sections) |
-| `docs/reference/CONTROL-INDEX.md` | Master list of all 48 controls |
+| `docs/controls/CONTROL-INDEX.md` | Master list of all 60 controls |
 | `mkdocs.yml` | Site navigation structure |
 
 ## Build and Validate
@@ -140,15 +165,17 @@ python scripts/verify_templates.py
 1. Copy `docs/templates/control-setup-template.md` to appropriate pillar folder
 2. Rename following pattern: `{id}-{kebab-case-name}.md`
 3. Fill all 12 sections
-4. Update `docs/reference/CONTROL-INDEX.md`
+4. Update `docs/controls/CONTROL-INDEX.md`
 5. Add entry to `mkdocs.yml` navigation
+6. Create playbooks in `docs/playbooks/control-implementations/{control-id}/`
 7. Run `mkdocs build --strict` to validate
 
 ### Updating a Control
 1. Make changes following template structure
 2. Update "Updated" in footer (Month-Year)
 3. If portal paths changed, update EXPECTED.md in `docs/images/{control-id}/`
-4. Run `mkdocs build --strict` to validate
+4. Update related playbooks in `docs/playbooks/control-implementations/`
+5. Run `mkdocs build --strict` to validate
 
 ### Verifying Screenshots
 1. Ask to "verify screenshots for control X.X"

@@ -1,0 +1,24 @@
+# FSI Agent Governance Framework - Script Dependencies
+# Install with: pip install -r scripts/requirements.txt
+
+# Core validation (no external dependencies required)
+# Python 3.9+ standard library is sufficient for:
+# - verify_controls.py
+# - verify_templates.py
+# - validate_docs_anchors.py
+# - normalize_controls.py
+
+# Optional: Enhanced validation
+# pyyaml>=6.0          # YAML parsing for mkdocs.yml validation
+# markdown>=3.4        # Markdown parsing for content validation
+
+# Optional: Excel template management
+# openpyxl>=3.1.0      # Excel file manipulation
+
+# Optional: HTTP link checking
+# requests>=2.28       # HTTP requests for external link validation
+
+# Development tools
+# pytest>=7.0          # Testing framework
+# black>=23.0          # Code formatting
+# flake8>=6.0          # Linting

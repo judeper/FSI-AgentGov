@@ -11,13 +11,13 @@ Common questions and answers about the FSI Agent Governance Framework.
 A: Read in this order:
 
 1. README.md (5 min overview)
-2. [Zones Guide](../getting-started/zones.md) (understand your zone)
+2. [Zones Guide](../framework/zones-and-tiers.md) (understand your zone)
 3. [Quick Start](../getting-started/quick-start.md) (30 min hands-on)
-4. [Regulatory Mappings](regulatory-mappings.md) (if regulated)
+4. [Regulatory Mappings](../framework/regulatory-framework.md) (if regulated)
 
 ### Q: What if I don't know which zone my agent should be in?
 
-A: Use the [Zone Decision Matrix](../getting-started/zones.md#zone-decision-matrix):
+A: Use the [Zone Decision Matrix](../framework/zones-and-tiers.md#zone-decision-matrix):
 
 - Zone 1: Personal only, M365 data only
 - Zone 2: Team/dept, internal data only
@@ -94,7 +94,7 @@ A: Enable **environment routing** in Power Platform Admin Center:
 3. Configure routing rules to direct makers to appropriate environments
 4. Optionally enable **Developer environment auto-provisioning**
 
-This prevents shadow AI by automatically routing makers to governed environments. See [Control 2.15: Environment Routing](pillar-2-management/2.15-environment-routing.md).
+This prevents shadow AI by automatically routing makers to governed environments. See [Control 2.15: Environment Routing](../controls/pillar-2-management/2.15-environment-routing.md).
 
 ### Q: Where can I see all agents across my tenant?
 
@@ -107,7 +107,7 @@ A: Use the **PPAC Inventory experience** (Preview):
 
 Also check M365 Admin Center → Settings → Integrated Apps for published agents.
 
-See [Control 3.1: Agent Inventory](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+See [Control 3.1: Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
 ### Q: How do I promote an agent from Zone 2 to Zone 3?
 
@@ -120,7 +120,7 @@ A: Follow the **zone promotion process**:
 5. Use ALM pipelines to deploy from test to production
 6. Document promotion and retain evidence
 
-See [Lifecycle Governance Guide](../getting-started/lifecycle.md) and [Control 2.3: Change Management](pillar-2-management/2.3-change-management-and-release-planning.md).
+See [Lifecycle Governance Guide](../framework/agent-lifecycle.md) and [Control 2.3: Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 
 ### Q: What are Environment Groups and how do they help governance?
 
@@ -131,7 +131,7 @@ A: **Environment Groups** allow you to:
 - Enforce connector policies, sharing limits, and AI model restrictions
 - Prevent configuration drift with centralized rule management
 
-Navigate to PPAC → Manage → Environment groups to configure. See [Control 2.2: Environment Groups](pillar-2-management/2.2-environment-groups-and-tier-classification.md).
+Navigate to PPAC → Manage → Environment groups to configure. See [Control 2.2: Environment Groups](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md).
 
 ### Q: What is the Copilot Hub?
 
@@ -143,7 +143,7 @@ A: The **Copilot Hub** (in Power Platform Admin Center) provides:
 - Capacity/consumption monitoring
 - Quick access to governance controls
 
-Access via PPAC → Copilot. See [Control 3.8: Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
+Access via PPAC → Copilot. See [Control 3.8: Copilot Hub](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
 
 ### Q: How do I monitor AI data security risks?
 
@@ -155,7 +155,7 @@ A: Use **Microsoft Purview DSPM for AI**:
 4. Configure DLP policies targeting AI applications
 5. Run oversharing assessments for agent knowledge sources
 
-See [Control 1.6: DSPM for AI](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
+See [Control 1.6: DSPM for AI](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
 
 ### Q: What are the 48 controls?
 
@@ -166,7 +166,7 @@ A: The framework includes 48 controls across four pillars:
 - **Pillar 3 - Reporting:** 9 controls (3.1-3.9) covering inventory, monitoring, incidents, Sentinel
 - **Pillar 4 - SharePoint:** 5 controls (4.1-4.5) covering SharePoint-specific governance
 
-See [Control Index](./CONTROL-INDEX.md) for the complete list.
+See [Control Index](../controls/index.md) for the complete list.
 
 ### Q: How do I monitor my Power Platform security posture?
 
@@ -178,7 +178,7 @@ A: Use the **PPAC Security Posture Assessment**:
 4. Click recommendations to see remediation steps
 5. Track improvements over time
 
-This provides a centralized view of tenant security configuration. See [Control 3.7: PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md).
+This provides a centralized view of tenant security configuration. See [Control 3.7: PPAC Security Posture Assessment](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md).
 
 ### Q: How do I integrate with Microsoft Sentinel for agent monitoring?
 
@@ -193,7 +193,7 @@ A: For Zone 3 agents requiring SOC integration:
 4. Configure incident response playbooks
 5. Integrate with your SOC procedures
 
-This enables real-time threat detection and automated response for production agents. See [Control 3.9: Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
+This enables real-time threat detection and automated response for production agents. See [Control 3.9: Microsoft Sentinel Integration](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 
 ---
 
@@ -261,7 +261,7 @@ A: Get feedback and revise:
 1. Address concerns raised
 2. Provide additional information
 3. Re-submit
-4. Escalate if needed per the [RACI Matrix](raci-matrix.md)
+4. Escalate if needed per the [RACI Matrix](../framework/operating-model.md)
 
 ### Q: Who is the Governance Committee?
 
@@ -274,7 +274,7 @@ A: Typically:
 - Chief Risk Officer (if applicable)
 - Business owner (agent requester)
 
-See the [RACI Matrix](raci-matrix.md) for detailed roles.
+See the [RACI Matrix](../framework/operating-model.md) for detailed roles.
 
 ---
 
@@ -296,7 +296,7 @@ Check with your Compliance Officer.
 
 A: Implement controls that satisfy all:
 
-1. Check [Regulatory Mappings](regulatory-mappings.md) for each regulation
+1. Check [Regulatory Mappings](../framework/regulatory-framework.md) for each regulation
 2. Take strictest requirement
 3. Document compliance with each
 4. Implement control at highest level needed
@@ -305,7 +305,7 @@ Example: If both FINRA (1yr) and SEC (6yr) apply, implement 6-year retention.
 
 ### Q: Are there controls I don't need to implement?
 
-A: Possibly. Review [Regulatory Mappings](regulatory-mappings.md):
+A: Possibly. Review [Regulatory Mappings](../framework/regulatory-framework.md):
 
 1. Find your regulations
 2. See applicable controls
@@ -376,7 +376,7 @@ A: Typically:
   - CISO or Security Admin (security)
   - Internal Audit (independent testing)
 
-See the [RACI Matrix](raci-matrix.md) for detailed roles.
+See the [RACI Matrix](../framework/operating-model.md) for detailed roles.
 
 ---
 
@@ -491,7 +491,7 @@ A: Depends on regulation:
 - **GLBA:** 5-7 years
 - **OCC/SR 11-7:** Per model (typically 3+ years)
 
-See [Regulatory Mappings](regulatory-mappings.md) for your regulations.
+See [Regulatory Mappings](../framework/regulatory-framework.md) for your regulations.
 
 ### Q: What evidence do auditors want to see?
 

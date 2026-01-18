@@ -30,10 +30,10 @@ The framework recommends a structured 3-phase adoption approach:
 
 | Activity | Priority | Control Reference |
 |----------|----------|-------------------|
-| Enable environment routing | Critical | [2.15](../reference/pillar-2-management/2.15-environment-routing.md) |
-| Configure environment groups | Critical | [2.2](../reference/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
+| Enable environment routing | Critical | [2.15](../controls/pillar-2-management/2.15-environment-routing.md) |
+| Configure environment groups | Critical | [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
 | Deploy security controls | High | Pillar 1 controls |
-| Set up monitoring | High | [3.7](../reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
+| Set up monitoring | High | [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md), [3.8](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
 | Iterate based on feedback | Ongoing | All controls |
 
 ---
@@ -213,14 +213,14 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 | Question | Answer |
 |----------|--------|
 | "How do I get started?" | You're reading it! |
-| "What are the zones?" | [Zones Guide](zones.md) |
-| "Which regulations apply?" | [Regulatory Mappings](../reference/regulatory-mappings.md) |
+| "What are the zones?" | [Zones Guide](../framework/zones-and-tiers.md) |
+| "Which regulations apply?" | [Regulatory Framework](../framework/regulatory-framework.md) |
 | "What's the full framework?" | [Overview](../index.md) |
-| "Who does what?" | [RACI Matrix](../reference/raci-matrix.md) |
+| "Who does what?" | [Operating Model](../framework/operating-model.md) |
 | "How do I implement?" | [Implementation Checklist](checklist.md) |
 | "What does this term mean?" | [Glossary](../reference/glossary.md) |
 | "Common questions?" | [FAQ](../reference/faq.md) |
-| "Tell me about control 1.5" | [1.5 Data Loss Prevention](../reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
+| "Tell me about control 1.5" | [1.5 Data Loss Prevention](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
 | "I need a policy" | Check control files for policy guidance |
 
 ---
@@ -240,8 +240,8 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ## ✅ Next Steps
 
-1. **Read [Zones Guide](zones.md)** (understand zones)
-2. **Review [Regulatory Mappings](../reference/regulatory-mappings.md)** (find your regulations)
+1. **Read [Zones Guide](../framework/zones-and-tiers.md)** (understand zones)
+2. **Review [Regulatory Framework](../framework/regulatory-framework.md)** (find your regulations)
 3. **Check [Implementation Checklist](checklist.md)** (get step-by-step tasks)
 4. **Reference individual controls** (implement details)
 5. **Document evidence** (compliance proof)

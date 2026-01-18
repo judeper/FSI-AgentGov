@@ -2,7 +2,7 @@ site_name: FSI Agent Governance Framework
 site_description: "Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services"
 site_author: "FSI Agent Governance Team"
 site_url: "https://judeper.github.io/FSI-AgentGov/"
-copyright: "*FSI Agent Governance Framework v1.0 - January 2026*"
+copyright: "*FSI Agent Governance Framework v1.1 - January 2026*"
 
 extra:
   generator: false
@@ -13,6 +13,7 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
+    - navigation.sections
     - search.suggest
     - search.highlight
     - toc.integrate
@@ -47,10 +48,24 @@ validation:
     absolute_links: warn
 
 # Exclude files that are intentionally not in navigation
-# Note: 'templates/' matches docs/templates/ but NOT operational-templates/
+# Legacy files retained for backwards compatibility during transition
 exclude_docs: |
   images/
   scripts/
+  templates/
+  operational-templates/
+  reference/pillar-1-security/
+  reference/pillar-2-management/
+  reference/pillar-3-reporting/
+  reference/pillar-4-sharepoint/
+  reference/CONTROL-INDEX.md
+  reference/raci-matrix.md
+  reference/regulatory-mappings.md
+  controls/CONTROL-INDEX.md
+  getting-started/overview.md
+  getting-started/zones.md
+  getting-started/lifecycle.md
+  getting-started/governance-review-cadence.md
 
 markdown_extensions:
   - admonition
@@ -67,117 +82,145 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Disclaimer: disclaimer.md
+
   - Getting Started:
-    - Overview: getting-started/overview.md
     - Quick Start: getting-started/quick-start.md
-    - Zones Guide: getting-started/zones.md
-    - Lifecycle Governance: getting-started/lifecycle.md
     - Implementation Checklist: getting-started/checklist.md
-    - Governance Review Cadence: getting-started/governance-review-cadence.md
-  - Security Controls (Pillar 1):
-    - Overview: reference/pillar-1-security/index.md
-    - 1.1 Restrict Agent Publishing By Authorization: reference/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
-    - 1.2 Agent Registry And Integrated Apps Management: reference/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md
-    - 1.3 SharePoint Content Governance And Permissions: reference/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md
-    - 1.4 Advanced Connector Policies (ACP): reference/pillar-1-security/1.4-advanced-connector-policies-acp.md
-    - 1.5 Data Loss Prevention (DLP) and Sensitivity Labels: reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md
-    - 1.6 Microsoft Purview DSPM for AI: reference/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md
-    - 1.7 Comprehensive Audit Logging And Compliance: reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md
-    - 1.8 Runtime Protection And External Threat Detection: reference/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md
-    - 1.9 Data Retention And Deletion Policies: reference/pillar-1-security/1.9-data-retention-and-deletion-policies.md
-    - 1.10 Communication Compliance Monitoring: reference/pillar-1-security/1.10-communication-compliance-monitoring.md
-    - 1.11 Conditional Access and Phishing-Resistant MFA: reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md
-    - 1.12 Insider Risk Detection And Response: reference/pillar-1-security/1.12-insider-risk-detection-and-response.md
-    - 1.13 Sensitive Information Types (SITs) and Pattern Recognition: reference/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md
-    - 1.14 Data Minimization And Agent Scope Control: reference/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md
-    - 1.15 Encryption Data In Transit And At Rest: reference/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md
-    - 1.16 Information Rights Management (IRM) for Documents: reference/pillar-1-security/1.16-information-rights-management-irm-for-documents.md
-    - 1.17 Endpoint Data Loss Prevention (Endpoint DLP): reference/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md
-    - 1.18 Application-Level Authorization and RBAC: reference/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md
-    - 1.19 eDiscovery For Agent Interactions: reference/pillar-1-security/1.19-ediscovery-for-agent-interactions.md
-    - 1.20 Network Isolation And Private Connectivity: reference/pillar-1-security/1.20-network-isolation-private-connectivity.md
-    - 1.21 Adversarial Input Logging: reference/pillar-1-security/1.21-adversarial-input-logging.md
-    - 1.22 Information Barriers for AI Agents: reference/pillar-1-security/1.22-information-barriers.md
-    - 1.23 Step-Up Authentication for Agent Operations: reference/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md
-  - Management Controls (Pillar 2):
-    - Overview: reference/pillar-2-management/index.md
-    - 2.1 Managed Environments: reference/pillar-2-management/2.1-managed-environments.md
-    - 2.2 Environment Groups And Tier Classification: reference/pillar-2-management/2.2-environment-groups-and-tier-classification.md
-    - 2.3 Change Management And Release Planning: reference/pillar-2-management/2.3-change-management-and-release-planning.md
-    - 2.4 Business Continuity And Disaster Recovery: reference/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md
-    - 2.5 Testing Validation And Quality Assurance: reference/pillar-2-management/2.5-testing-validation-and-quality-assurance.md
-    - 2.6 Model Risk Management (OCC 2011-12 / SR 11-7): reference/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md
-    - 2.7 Vendor And Third Party Risk Management: reference/pillar-2-management/2.7-vendor-and-third-party-risk-management.md
-    - 2.8 Access Control And Segregation Of Duties: reference/pillar-2-management/2.8-access-control-and-segregation-of-duties.md
-    - 2.9 Agent Performance Monitoring And Optimization: reference/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md
-    - 2.10 Patch Management And System Updates: reference/pillar-2-management/2.10-patch-management-and-system-updates.md
-    - 2.11 Bias Testing and Fairness (FINRA 25-07 / SR 11-7): reference/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md
-    - 2.12 Supervision and Oversight (FINRA Rule 3110): reference/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
-    - 2.13 Documentation And Record Keeping: reference/pillar-2-management/2.13-documentation-and-record-keeping.md
-    - 2.14 Training And Awareness Program: reference/pillar-2-management/2.14-training-and-awareness-program.md
-    - 2.15 Environment Routing And Auto Provisioning: reference/pillar-2-management/2.15-environment-routing.md
-    - 2.16 RAG Source Integrity Validation: reference/pillar-2-management/2.16-rag-source-integrity-validation.md
-    - 2.17 Multi-Agent Orchestration Limits: reference/pillar-2-management/2.17-multi-agent-orchestration-limits.md
-    - 2.18 Automated Conflict of Interest Testing: reference/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
-    - 2.19 Customer AI Disclosure And Transparency: reference/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md
-    - 2.20 Adversarial Testing and Red Team Framework: reference/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md
-  - Reporting Controls (Pillar 3):
-    - Overview: reference/pillar-3-reporting/index.md
-    - 3.1 Agent Inventory And Metadata Management: reference/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
-    - 3.2 Usage Analytics And Activity Monitoring: reference/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md
-    - 3.3 Compliance And Regulatory Reporting: reference/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md
-    - 3.4 Incident Reporting And Root Cause Analysis: reference/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md
-    - 3.5 Cost Allocation And Budget Tracking: reference/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md
-    - 3.6 Orphaned Agent Detection And Remediation: reference/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md
-    - 3.7 PPAC Security Posture Assessment: reference/pillar-3-reporting/3.7-ppac-security-posture-assessment.md
-    - 3.8 Copilot Hub: reference/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md
-    - 3.9 Microsoft Sentinel Integration: reference/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
-    - 3.10 Hallucination Feedback Loop: reference/pillar-3-reporting/3.10-hallucination-feedback-loop.md
-  - SharePoint Controls (Pillar 4):
-    - Overview: reference/pillar-4-sharepoint/index.md
-    - 4.1 SharePoint IAG and Restricted Content Discovery: reference/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
-    - 4.2 Site Access Reviews And Certification: reference/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md
-    - 4.3 Site And Document Retention Management: reference/pillar-4-sharepoint/4.3-site-and-document-retention-management.md
-    - 4.4 Guest And External User Access Controls: reference/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md
-    - 4.5 SharePoint Security And Compliance Monitoring: reference/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
-    - 4.6 Grounding Scope Governance: reference/pillar-4-sharepoint/4.6-grounding-scope-governance.md
-    - 4.7 Microsoft 365 Copilot Data Governance: reference/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md
+
+  - Framework:
+    - Overview: framework/index.md
+    - Executive Summary: framework/executive-summary.md
+    - Governance Fundamentals: framework/governance-fundamentals.md
+    - Zones and Tiers: framework/zones-and-tiers.md
+    - Agent Lifecycle: framework/agent-lifecycle.md
+    - Regulatory Framework: framework/regulatory-framework.md
+    - Operating Model: framework/operating-model.md
+    - Governance Cadence: framework/governance-cadence.md
+    - Adoption Roadmap: framework/adoption-roadmap.md
+
+  - Control Catalog:
+    - Control Index: controls/index.md
+    - Pillar 1 - Security:
+      - Overview: controls/pillar-1-security/index.md
+      - 1.1 Restrict Agent Publishing: controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
+      - 1.2 Agent Registry: controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md
+      - 1.3 SharePoint Content Governance: controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md
+      - 1.4 Advanced Connector Policies: controls/pillar-1-security/1.4-advanced-connector-policies-acp.md
+      - 1.5 DLP and Sensitivity Labels: controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md
+      - 1.6 DSPM for AI: controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md
+      - 1.7 Comprehensive Audit Logging: controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md
+      - 1.8 Runtime Protection: controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md
+      - 1.9 Data Retention: controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md
+      - 1.10 Communication Compliance: controls/pillar-1-security/1.10-communication-compliance-monitoring.md
+      - 1.11 Conditional Access and MFA: controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md
+      - 1.12 Insider Risk Detection: controls/pillar-1-security/1.12-insider-risk-detection-and-response.md
+      - 1.13 Sensitive Information Types: controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md
+      - 1.14 Data Minimization: controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md
+      - 1.15 Encryption: controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md
+      - 1.16 Information Rights Management: controls/pillar-1-security/1.16-information-rights-management-irm-for-documents.md
+      - 1.17 Endpoint DLP: controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md
+      - 1.18 Application-Level RBAC: controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md
+      - 1.19 eDiscovery: controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md
+      - 1.20 Network Isolation: controls/pillar-1-security/1.20-network-isolation-private-connectivity.md
+      - 1.21 Adversarial Input Logging: controls/pillar-1-security/1.21-adversarial-input-logging.md
+      - 1.22 Information Barriers: controls/pillar-1-security/1.22-information-barriers.md
+      - 1.23 Step-Up Authentication: controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md
+    - Pillar 2 - Management:
+      - Overview: controls/pillar-2-management/index.md
+      - 2.1 Managed Environments: controls/pillar-2-management/2.1-managed-environments.md
+      - 2.2 Environment Groups: controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md
+      - 2.3 Change Management: controls/pillar-2-management/2.3-change-management-and-release-planning.md
+      - 2.4 Business Continuity: controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md
+      - 2.5 Testing and Validation: controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md
+      - 2.6 Model Risk Management: controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md
+      - 2.7 Vendor Risk Management: controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md
+      - 2.8 Segregation of Duties: controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md
+      - 2.9 Performance Monitoring: controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md
+      - 2.10 Patch Management: controls/pillar-2-management/2.10-patch-management-and-system-updates.md
+      - 2.11 Bias Testing: controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md
+      - 2.12 Supervision and Oversight: controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
+      - 2.13 Documentation: controls/pillar-2-management/2.13-documentation-and-record-keeping.md
+      - 2.14 Training Program: controls/pillar-2-management/2.14-training-and-awareness-program.md
+      - 2.15 Environment Routing: controls/pillar-2-management/2.15-environment-routing.md
+      - 2.16 RAG Source Integrity: controls/pillar-2-management/2.16-rag-source-integrity-validation.md
+      - 2.17 Multi-Agent Orchestration: controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md
+      - 2.18 Conflict of Interest Testing: controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
+      - 2.19 AI Disclosure: controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md
+      - 2.20 Adversarial Testing: controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md
+    - Pillar 3 - Reporting:
+      - Overview: controls/pillar-3-reporting/index.md
+      - 3.1 Agent Inventory: controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
+      - 3.2 Usage Analytics: controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md
+      - 3.3 Compliance Reporting: controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md
+      - 3.4 Incident Reporting: controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md
+      - 3.5 Cost Allocation: controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md
+      - 3.6 Orphaned Agent Detection: controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md
+      - 3.7 PPAC Security Posture: controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md
+      - 3.8 Copilot Hub: controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md
+      - 3.9 Sentinel Integration: controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md
+      - 3.10 Hallucination Feedback: controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md
+    - Pillar 4 - SharePoint:
+      - Overview: controls/pillar-4-sharepoint/index.md
+      - 4.1 SharePoint IAG: controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md
+      - 4.2 Site Access Reviews: controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md
+      - 4.3 Retention Management: controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md
+      - 4.4 External User Controls: controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md
+      - 4.5 Security Monitoring: controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
+      - 4.6 Grounding Scope: controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md
+      - 4.7 M365 Copilot Data Governance: controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md
+
+  - Playbooks:
+    - Overview: playbooks/index.md
+    - Control Implementations: playbooks/control-implementations/index.md
+    - Getting Started:
+      - Phase 0 - Governance Setup: playbooks/getting-started/phase-0-governance-setup.md
+      - Phase 1 - Minimal Viable Controls: playbooks/getting-started/phase-1-minimal-viable-controls.md
+      - Phase 2 - Hardening: playbooks/getting-started/phase-2-hardening.md
+    - Governance Operations:
+      - Governance Operating Calendar: playbooks/governance-operations/governance-operating-calendar.md
+      - RACI Governance Template: playbooks/governance-operations/raci-governance-template.md
+      - Action Authorization Matrix: playbooks/governance-operations/action-authorization-matrix.md
+      - Escalation Matrix: playbooks/governance-operations/escalation-matrix.md
+      - Decision Log Schema: playbooks/governance-operations/decision-log-schema.md
+    - Compliance and Audit:
+      - Evidence Pack Assembly: playbooks/compliance-and-audit/evidence-pack-assembly.md
+      - Audit Readiness Checklist: playbooks/compliance-and-audit/audit-readiness-checklist.md
+      - Examination Response Guide: playbooks/compliance-and-audit/examination-response-guide.md
+    - Incident and Risk:
+      - AI Incident Response Playbook: playbooks/incident-and-risk/ai-incident-response-playbook.md
+      - AI Risk Assessment Template: playbooks/incident-and-risk/ai-risk-assessment-template.md
+      - Remediation Tracking: playbooks/incident-and-risk/remediation-tracking.md
+    - Agent Lifecycle:
+      - Agent Inventory Entry: playbooks/agent-lifecycle/agent-inventory-entry.md
+      - Per-Agent Data Policy: playbooks/agent-lifecycle/per-agent-data-policy.md
+      - Agent Promotion Checklist: playbooks/agent-lifecycle/agent-promotion-checklist.md
+      - Agent Decommissioning: playbooks/agent-lifecycle/agent-decommissioning.md
+    - Monitoring and Validation:
+      - Real-time Compliance Dashboard: playbooks/monitoring-and-validation/real-time-compliance-dashboard.md
+      - Scope Creep Detection: playbooks/monitoring-and-validation/scope-creep-detection.md
+      - Health Check Procedures: playbooks/monitoring-and-validation/health-check-procedures.md
+      - Purview Audit Query Pack: playbooks/monitoring-and-validation/purview-audit-query-pack.md
+      - Semantic Index Governance Queries: playbooks/monitoring-and-validation/semantic-index-governance-queries.md
+    - Advanced Implementations:
+      - Human-in-the-Loop Triggers: playbooks/advanced-implementations/human-in-the-loop-triggers.md
+      - Confidence and Routing: playbooks/advanced-implementations/confidence-and-routing.md
+      - Zone 1 Minimum Explainability: playbooks/advanced-implementations/zone1-min-explainability.md
+      - DSPM for AI Policy Pack: playbooks/advanced-implementations/dspm-for-ai-policy-pack.md
+    - Regulatory Modules:
+      - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
+      - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md
+      - Supply Chain Risk Register: playbooks/regulatory-modules/supply-chain-risk-register-entry.md
+
   - Reference:
-    - Control Index: reference/CONTROL-INDEX.md
+    - Overview: reference/index.md
     - Evidence Standards: reference/evidence-standards.md
-    - Operational Templates:
-      - Overview: operational-templates/README.md
-      - Templates:
-        - Action Authorization Matrix: operational-templates/templates/action-authorization-matrix.md
-        - Agent Inventory Entry: operational-templates/templates/agent-inventory-entry.md
-        - Colorado AI Impact Assessment: operational-templates/templates/colorado-ai-impact-assessment.md
-        - Decision Log Schema: operational-templates/templates/decision-log-schema.md
-        - DSPM for AI Policy Pack: operational-templates/templates/dspm-for-ai-policy-pack.md
-        - Escalation Matrix: operational-templates/templates/escalation-matrix.md
-        - Per-Agent Data Policy: operational-templates/templates/per-agent-data-policy.md
-        - Purview Audit Query Pack: operational-templates/templates/purview-audit-query-pack.md
-        - Governance Operating Calendar: operational-templates/templates/governance-operating-calendar.md
-        - RACI Governance Template: operational-templates/templates/raci-governance-template.md
-        - Semantic Index Governance Queries: operational-templates/templates/semantic-index-governance-queries.md
-        - Supply Chain Risk Register: operational-templates/templates/supply-chain-risk-register-entry.md
-      - Specifications:
-        - AI Incident Response Playbook: operational-templates/specs/ai-incident-response-playbook.md
-        - Confidence & Routing: operational-templates/specs/confidence-and-routing.md
-        - Evidence Pack Assembly: operational-templates/specs/evidence-pack-assembly.md
-        - Human-in-the-Loop Triggers: operational-templates/specs/human-in-the-loop-triggers.md
-        - Real-time Compliance Dashboard: operational-templates/specs/real-time-compliance-dashboard.md
-        - Scope Creep Detection: operational-templates/specs/scope-creep-detection.md
-        - Zone 1 Minimum Explainability: operational-templates/specs/zone1-min-explainability.md
-      - Modules:
-        - Colorado AI Act Readiness: operational-templates/modules/colorado-ai-act-readiness.md
     - Administrator Role Catalog: reference/role-catalog.md
-    - Glossary: reference/glossary.md
-    - RACI Matrix: reference/raci-matrix.md
-    - Regulatory Mappings: reference/regulatory-mappings.md
     - License Requirements: reference/license-requirements.md
     - Portal Paths: reference/portal-paths-quick-reference.md
     - Microsoft Learn URLs: reference/microsoft-learn-urls.md
     - FSI Examples: reference/fsi-configuration-examples.md
+    - Glossary: reference/glossary.md
     - FAQ: reference/faq.md
+
   - Downloads:
     - Administrator Templates: downloads/index.md

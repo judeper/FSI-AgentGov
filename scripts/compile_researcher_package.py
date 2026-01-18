@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 BASE_DIR = Path(r"C:\dev\FSI-AgentGov")
-DOCS_DIR = BASE_DIR / "docs" / "reference"
+DOCS_DIR = BASE_DIR / "docs" / "controls"
 OUTPUT_DIR = BASE_DIR / "maintainers-local" / "researcher-package"
 
 # Pillar definitions with control numbers

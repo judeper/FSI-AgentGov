@@ -33,8 +33,9 @@ def main():
     file_path = tool_input.get("file_path", "")
 
     # Check if the file is a pillar control document
-    # Match patterns like: docs/reference/pillar-1-security/1.1-xxx.md
-    pillar_pattern = r"docs[/\\]reference[/\\]pillar-\d+-\w+[/\\]\d+\.\d+.*\.md"
+    # Match patterns like: docs/controls/pillar-1-security/1.1-xxx.md
+    # Also supports legacy docs/reference/pillar-* path during v1.0→v1.1 transition
+    pillar_pattern = r"docs[/\\](controls|reference)[/\\]pillar-\d+-\w+[/\\]\d+\.\d+.*\.md"
 
     if re.search(pillar_pattern, file_path, re.IGNORECASE):
         # Output reminder message

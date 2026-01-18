@@ -5,9 +5,9 @@ import sys
 from pathlib import Path
 
 DOCS_DIR = Path("docs")
-CONTROL_INDEX_PATH = DOCS_DIR / "reference" / "CONTROL-INDEX.md"
+CONTROL_INDEX_PATH = DOCS_DIR / "controls" / "CONTROL-INDEX.md"
 REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
-PILLARS_DIR = DOCS_DIR / "reference"
+PILLARS_DIR = DOCS_DIR / "controls"
 
 CANON_UPDATED = "**Updated:** Jan 2026"
 CANON_VERSION = "**Version:** v1.0 (Jan 2026)"

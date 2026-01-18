@@ -1,4 +1,32 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/hooks/boundary-check.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/hooks/researcher-package-reminder.py"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\")",
@@ -9,7 +37,23 @@
       "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov rev-parse:*)",
       "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov bundle verify /c/dev/FSI-AgentGov/FSI-AgentGov-pre-rewrite-2025-12-18.bundle)",
       "Bash(git bundle:*)",
-      "Bash(git rev-parse:*)"
+      "Bash(git rev-parse:*)",
+      "Bash(find:*)",
+      "Bash(mkdocs build:*)",
+      "Bash(ls -la \"C:\\\\dev\\\\FSI-AgentGov\\\\docs\\\\images\"\" 2>nul | grep -i \"1. \")",
+      "WebFetch(domain:www.microsoft.com)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(npx markdown-link-check:*)",
+      "Bash(git commit:*)",
+      "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\\\\review\\\\researcher-package\" /b)",
+      "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\\\\review\\\\researcher-package\")",
+      "Bash(dir /s /b \"C:\\\\dev\\\\FSI-AgentGov\\\\review\\\\researcher-package\\\\*.md\")",
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
     ]
   }
 }
