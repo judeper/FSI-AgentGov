@@ -33,7 +33,7 @@ FSI Agent Governance Framework v1.1 - A governance framework for Microsoft 365 A
 
 ### Navigation Philosophy (Three-Layer Model)
 - **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
-- **Controls:** Technical specifications with 12-section format (`docs/controls/pillar-*/`)
+- **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
 - **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
 - **Getting Started:** Admin onboarding only (no repo structure info)
@@ -99,19 +99,27 @@ maintainers-local/                # LOCAL ONLY (gitignored)
 ### Template Location
 `docs/templates/control-setup-template.md` - Use this for all new controls.
 
-### Required 12 Sections
-1. Overview (ID, Name, Regulatory Reference, Setup Time)
-2. Prerequisites (License, Primary Owner Admin Role, Dependencies)
-3. Governance Levels (Baseline, Recommended, Regulated)
-4. Setup & Configuration (Portal steps + PowerShell alternative)
-5. Financial Sector Considerations (Regulatory Alignment table)
-6. Zone-Specific Configuration
-7. Verification & Testing (numbered steps with EXPECTED result)
-8. Troubleshooting & Validation (Common Issues table)
-9. Additional Resources (Microsoft Learn links)
-10. Related Controls (cross-references)
-11. Support & Questions (contact roles)
-12. Footer (Updated: Month-Year, Version: v1.1 (Jan 2026), UI Verification Status)
+### Required 10 Sections
+
+Controls follow a standardized format with header metadata, 10 sections, and footer metadata:
+
+**Header Metadata:**
+- Control ID, Pillar, Regulatory Reference, Last UI Verified, Governance Levels
+
+**Sections:**
+1. Objective (concise purpose statement)
+2. Why This Matters for FSI (regulatory bullet points)
+3. Control Description (detailed technical explanation)
+4. Key Configuration Points (bulleted configuration items)
+5. Zone-Specific Requirements (Zone 1/2/3 table)
+6. Roles & Responsibilities (admin roles table)
+7. Related Controls (cross-reference table)
+8. Implementation Guides (links to 4 playbooks)
+9. Verification Criteria (verification checklist)
+10. Additional Resources (Microsoft Learn links)
+
+**Footer Metadata:**
+- *Updated: Month-Year | Version: v1.1 | UI Verification Status: Current*
 
 ### Administrator Role Naming (Canonical)
 
@@ -138,7 +146,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 | File | Purpose |
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
-| `docs/templates/control-setup-template.md` | Control format (12 sections) |
+| `docs/templates/control-setup-template.md` | Control format (10 sections) |
 | `docs/controls/CONTROL-INDEX.md` | Master list of all 60 controls |
 | `mkdocs.yml` | Site navigation structure |
 
@@ -164,7 +172,7 @@ python scripts/verify_templates.py
 ### Adding a New Control
 1. Copy `docs/templates/control-setup-template.md` to appropriate pillar folder
 2. Rename following pattern: `{id}-{kebab-case-name}.md`
-3. Fill all 12 sections
+3. Fill all 10 sections (plus header and footer metadata)
 4. Update `docs/controls/CONTROL-INDEX.md`
 5. Add entry to `mkdocs.yml` navigation
 6. Create playbooks in `docs/playbooks/control-implementations/{control-id}/`

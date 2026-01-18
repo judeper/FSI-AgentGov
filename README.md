@@ -83,7 +83,7 @@ Each control includes:
 
 ### Documentation Files
 - **README.md** - This file (overview)
-- **Zones-Overview.md** - [Detailed governance zones](docs/getting-started/zones.md)
+- **Zones-Overview.md** - [Detailed governance zones](docs/framework/zones-and-tiers.md)
 - **Regulatory-Mappings.md** - [Regulation-to-control mapping](docs/reference/regulatory-mappings.md)
 - **Quick-Start-Guide.md** - [How to use the framework](docs/getting-started/quick-start.md)
 - **Glossary.md** - [Key terms and definitions](docs/reference/glossary.md)
@@ -102,7 +102,7 @@ Each control includes:
 
 ### For First-Time Users
 1. Read **[Quick Start Guide](docs/getting-started/quick-start.md)** (10 minutes)
-2. Review **[Zones Overview](docs/getting-started/zones.md)** to classify your agents (15 minutes)
+2. Review **[Zones Overview](docs/framework/zones-and-tiers.md)** to classify your agents (15 minutes)
 3. Check **[Regulatory Mappings](docs/reference/regulatory-mappings.md)** for your relevant regulations (10 minutes)
 
 ### For Implementation
@@ -113,7 +113,7 @@ Each control includes:
 
 ### For Governance
 1. Use **[RACI Matrix](docs/reference/raci-matrix.md)** to assign roles and responsibilities
-2. Establish governance committee per **[Zones Overview](docs/getting-started/zones.md)**
+2. Establish governance committee per **[Zones Overview](docs/framework/zones-and-tiers.md)**
 3. Schedule recurring compliance reviews
 4. Track incidents and remediation
 
@@ -265,7 +265,7 @@ See **[Implementation Checklist](docs/getting-started/checklist.md)** for detail
 
 ### For Different Questions:
 - **"How do I get started?"** → Read **[Quick Start Guide](docs/getting-started/quick-start.md)**
-- **"What's my governance zone?"** → See **[Zones Overview](docs/getting-started/zones.md)**
+- **"What's my governance zone?"** → See **[Zones Overview](docs/framework/zones-and-tiers.md)**
 - **"Which controls apply to my regulation?"** → Check **[Regulatory Mappings](docs/reference/regulatory-mappings.md)**
 - **"Who does what?"** → Review **[RACI Matrix](docs/reference/raci-matrix.md)**
 - **"What does this term mean?"** → Look up **[Glossary](docs/reference/glossary.md)**

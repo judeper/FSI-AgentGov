@@ -36,18 +36,26 @@ Thank you for your interest in contributing to the FSI Agent Governance Framewor
 Control files in `docs/controls/pillar-*/` must follow the standard structure:
 
 **Required Sections:**
-1. **Overview** - Control ID, name, regulatory reference, setup time
-2. **Prerequisites** - License, **Primary Owner Admin Role**, dependencies
-3. **Governance Levels** - Baseline (Level 1), Recommended (Level 2-3), Regulated (Level 4)
-4. **Setup & Configuration** - Portal-based steps with PowerShell alternative
-5. **Financial Sector Considerations** - Regulatory alignment table and FSI notes
-6. **Zone-Specific Configuration** - Zone 1/2/3 guidance
-7. **Verification & Testing** - Step-by-step verification procedures with expected results
-8. **Troubleshooting & Validation** - Common issues table and validation steps
-9. **Additional Resources** - Microsoft Learn links and portal URLs
-10. **Related Controls** - Cross-references to other controls
-11. **Support & Questions** - Contact roles and escalation paths
-12. **Footer** - **Updated: Month-Year**, **Version: v1.1 (Jan 2026)**, UI Verification Status
+
+Controls follow a standardized format with header metadata, 10 sections, and footer metadata:
+
+**Header Metadata:**
+- Control ID, Pillar, Regulatory Reference, Last UI Verified, Governance Levels
+
+**10 Required Sections:**
+1. **Objective** - Concise purpose statement
+2. **Why This Matters for FSI** - Regulatory bullet points
+3. **Control Description** - Detailed technical explanation
+4. **Key Configuration Points** - Bulleted configuration items
+5. **Zone-Specific Requirements** - Zone 1/2/3 table with requirements and rationale
+6. **Roles & Responsibilities** - Admin roles table
+7. **Related Controls** - Cross-reference table with relationships
+8. **Implementation Guides** - Links to 4 playbooks (portal, powershell, verification, troubleshooting)
+9. **Verification Criteria** - Verification checklist
+10. **Additional Resources** - Microsoft Learn links
+
+**Footer Metadata:**
+- *Updated: Month-Year | Version: v1.1 | UI Verification Status: Current*
 
 **Administrator Role Naming:**
 - Use the framework's canonical short role names (e.g., "Power Platform Admin", "Purview Compliance Admin").
@@ -103,7 +111,7 @@ When preparing a public/beta update, confirm these repo-level settings and docs 
 
 ## Questions?
 
-Open a [Discussion](https://github.com/judeper/FSI-AgentGov/discussions) or contact the maintainers.
+Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the maintainers.
 
 ---
 

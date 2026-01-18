@@ -1,6 +1,13 @@
-"""Refactor all control markdown files to the canonical 12-section structure.
+"""LEGACY SCRIPT - Refactor control markdown files to canonical section structure.
 
-Goal (Option B):
+WARNING: This script is OUTDATED as of v1.1 restructuring (January 2026).
+- It references old paths (docs/reference/pillar-*) instead of docs/controls/pillar-*
+- It references old section names that don't match the current 10-section template
+- The current control structure uses 10 sections (see docs/templates/control-setup-template.md)
+
+DO NOT USE this script without updating it first.
+
+Original Goal (Option B):
 - Make every control use the canonical H2 headings in the canonical order.
 - Keep content intact, but re-home non-canonical H2 headings as H3 subheadings
   under the appropriate canonical section.

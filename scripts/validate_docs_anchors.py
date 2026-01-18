@@ -23,6 +23,10 @@ from __future__ import annotations
 import re
 import sys
 from dataclasses import dataclass
+
+# Fix Unicode encoding issues on Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
 from pathlib import Path
 from typing import Iterable, Optional
 

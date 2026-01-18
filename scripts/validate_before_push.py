@@ -19,6 +19,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Fix Unicode encoding issues on Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Colors for terminal output
 GREEN = "\033[92m"
 RED = "\033[91m"

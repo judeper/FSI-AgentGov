@@ -19,7 +19,7 @@
 Read these files for full repository context:
 1. **`.github/copilot-instructions.md`** - Full repository structure and design decisions
 2. **`AGENTS.md`** - Instructions for autonomous agent tasks (vs. interactive work)
-3. **`docs/templates/control-setup-template.md`** - The 12-section control template
+3. **`docs/templates/control-setup-template.md`** - The 10-section control template
 4. **`CONTRIBUTING.md`** - Language guidelines and style rules
 5. **`.claude/claude.md`** - This file (you're reading it!)
 
@@ -94,7 +94,7 @@ The framework uses a three-layer documentation model:
 | `index.md` | Framework layer overview |
 
 ### Layer 2: Control Catalog (`docs/controls/pillar-*`)
-**Purpose:** Technical control specifications with 12-section format
+**Purpose:** Technical control specifications with 10-section format
 
 - **Pillar 1 - Security:** 23 controls (1.1-1.23) - Data protection, access, audit
 - **Pillar 2 - Management:** 20 controls (2.1-2.20) - Lifecycle, risk, operations
@@ -123,7 +123,7 @@ The framework uses a three-layer documentation model:
 **Steps:**
 1. **Read the control** you're updating: `docs/controls/pillar-{1-4}-{name}/{id}-{kebab-case}.md`
 2. **Read the template** for structure: `docs/templates/control-setup-template.md`
-3. **Make changes** while preserving all 12 sections (never skip or remove a section)
+3. **Make changes** while preserving all 10 sections (never skip or remove a section)
 4. **Update footer date:** Change "Updated: Month-Year" to current date
 5. **If portal paths changed:** Update `docs/images/{control-id}/EXPECTED.md` with new screenshot requirements
 6. **Update related playbooks:** Check `docs/playbooks/control-implementations/` for impacted guides
@@ -148,19 +148,19 @@ The framework uses a three-layer documentation model:
 1. **Copy template:** `docs/templates/control-setup-template.md`
 2. **Paste into correct pillar folder** with proper naming: `docs/controls/pillar-{n}-{name}/{id}-{kebab-case-name}.md`
    - Example: `docs/controls/pillar-1-security/1.24-new-control-example.md`
-3. **Fill ALL 12 sections** (do not skip any):
-   - Section 1: Overview (ID, Name, Regulatory Reference, Setup Time)
-   - Section 2: Prerequisites (License, Primary Owner Admin Role, Dependencies)
-   - Section 3: Governance Levels (Baseline/Recommended/Regulated configs)
-   - Section 4: Setup & Configuration (Portal steps + PowerShell alternative)
-   - Section 5: Financial Sector Considerations (Regulatory Alignment table)
-   - Section 6: Zone-Specific Configuration (Zone 1/2/3 variations)
-   - Section 7: Verification & Testing (numbered steps with EXPECTED result)
-   - Section 8: Troubleshooting & Validation (Common Issues table)
-   - Section 9: Additional Resources (Microsoft Learn links)
-   - Section 10: Related Controls (cross-references)
-   - Section 11: Support & Questions (contact roles)
-   - Section 12: Footer (Updated: Month-Year, Version: v1.1 (Jan 2026), UI Verification Status)
+3. **Fill ALL 10 sections** (do not skip any):
+   - Header metadata (Control ID, Pillar, Regulatory Reference, Last UI Verified, Governance Levels)
+   - Section 1: Objective (concise purpose statement)
+   - Section 2: Why This Matters for FSI (regulatory bullet points)
+   - Section 3: Control Description (detailed technical explanation)
+   - Section 4: Key Configuration Points (bulleted configuration items)
+   - Section 5: Zone-Specific Requirements (Zone 1/2/3 table)
+   - Section 6: Roles & Responsibilities (admin roles table)
+   - Section 7: Related Controls (cross-reference table)
+   - Section 8: Implementation Guides (links to 4 playbooks)
+   - Section 9: Verification Criteria (verification checklist)
+   - Section 10: Additional Resources (Microsoft Learn links)
+   - Footer metadata (Updated: Month-Year | Version: v1.1 | UI Verification Status)
 4. **Update CONTROL-INDEX.md:** Add entry to master control list at `docs/controls/CONTROL-INDEX.md`
 5. **Update mkdocs.yml:** Add entry to navigation under correct pillar
 6. **Create screenshot spec:** `docs/images/{control-id}/EXPECTED.md` with required screenshots
@@ -392,9 +392,9 @@ The framework uses **canonical short role names** consistently throughout contro
 3. Update the reference with correct control ID
 
 ### Error: "Control missing section X"
-**Cause:** Control file doesn't include all 12 required sections
+**Cause:** Control file doesn't include all 10 required sections
 **Solution:**
-1. Read `docs/templates/control-setup-template.md` for the 12 sections
+1. Read `docs/templates/control-setup-template.md` for the 10 sections
 2. Add missing section(s) to the control file
 3. Ensure all sections are present, even if one is brief
 

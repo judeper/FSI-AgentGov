@@ -4,6 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Fix Unicode encoding issues on Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 DOCS_DIR = Path("docs")
 CONTROL_INDEX_PATH = DOCS_DIR / "controls" / "CONTROL-INDEX.md"
 REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
@@ -19,7 +23,12 @@ REQUIRED_HEADINGS = [
     "## Objective",
     "## Why This Matters for FSI",
     "## Control Description",
+    "## Key Configuration Points",
+    "## Zone-Specific Requirements",
+    "## Roles & Responsibilities",
     "## Related Controls",
+    "## Implementation Guides",
+    "## Verification Criteria",
     "## Additional Resources",
 ]
 
@@ -83,8 +92,9 @@ def validate_control_file(path: Path):
     failures = []
 
     # 0) Must look like a control page (title)
-    if not re.search(r"^#\s+Control\s+\d+\.\d+:\s+.+$", content, flags=re.MULTILINE):
-        failures.append("missing or malformed control title (expected '# Control X.Y: ...')")
+    # Accept both formats: "# Control X.Y: Name" or "# Control X.Y - Name"
+    if not re.search(r"^#\s+Control\s+\d+\.\d+[:\-]\s+.+$", content, flags=re.MULTILINE):
+        failures.append("missing or malformed control title (expected '# Control X.Y: ...' or '# Control X.Y - ...')")
 
     # 1) Minimal structural headings (current baseline across repo)
 

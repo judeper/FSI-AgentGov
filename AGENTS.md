@@ -15,7 +15,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 1. Read `docs/templates/control-setup-template.md` for required structure
 2. Copy template to correct pillar folder: `docs/controls/pillar-{n}-{name}/`
 3. Name file: `{id}-{kebab-case-name}.md` (e.g., `1.20-new-control.md`)
-4. Fill all 12 sections - do not skip any
+4. Fill all 10 sections (plus header and footer metadata) - do not skip any
 5. Update these files:
    - `docs/controls/CONTROL-INDEX.md` - add the new control to the master index
    - `mkdocs.yml` - add to navigation under correct pillar
@@ -25,7 +25,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 ### Update Existing Control
 
 1. Read current control file completely
-2. Preserve all 12 sections - do not remove any
+2. Preserve all 10 sections - do not remove any
 3. Update "Updated" in footer (Month-Year)
 4. If portal paths changed, update `docs/images/{control-id}/EXPECTED.md`
 5. Validate: `mkdocs build --strict`

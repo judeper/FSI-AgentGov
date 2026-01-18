@@ -2,6 +2,10 @@ from pathlib import Path
 import os
 import sys
 
+# Fix Unicode encoding issues on Windows
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 try:
     import openpyxl
     HAS_OPENPYXL = True
@@ -63,26 +67,27 @@ def verify_markdown_template():
     
     content = template_path.read_text(encoding='utf-8')
     
-    # Check for required sections (canonical 12-section template)
+    # Check for required sections (canonical template structure matching actual controls)
     required_sections = [
-        "## Overview",
-        "## Prerequisites",
-        "## Governance Levels",
-        "## Setup & Configuration",
-        "## Financial Sector Considerations",
-        "### Zone-Specific Configuration",
-        "## Verification & Testing",
-        "## Troubleshooting & Validation",
-        "## Additional Resources",
+        "## Objective",
+        "## Why This Matters for FSI",
+        "## Control Description",
+        "## Key Configuration Points",
+        "## Zone-Specific Requirements",
+        "## Roles & Responsibilities",
         "## Related Controls",
-        "## Support & Questions",
+        "## Implementation Guides",
+        "## Verification Criteria",
+        "## Additional Resources",
     ]
 
     required_snippets = [
-        "**Primary Owner Admin Role:**",
-        "**Updated:** Jan 2026",
-        "**Version:** v1.0 (Jan 2026)",
-        "**UI Verification Status:**",
+        "**Control ID:**",
+        "**Pillar:**",
+        "**Regulatory Reference:**",
+        "Updated: January 2026",
+        "Version: v1.1",
+        "UI Verification Status:",
     ]
     
     print(f"\nFile: {template_path}")
