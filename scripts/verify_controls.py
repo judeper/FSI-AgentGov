@@ -9,26 +9,22 @@ CONTROL_INDEX_PATH = DOCS_DIR / "controls" / "CONTROL-INDEX.md"
 REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
 PILLARS_DIR = DOCS_DIR / "controls"
 
-CANON_UPDATED = "**Updated:** Jan 2026"
-CANON_VERSION = "**Version:** v1.0 (Jan 2026)"
-CANON_UI_STATUS_PREFIX = "**UI Verification Status:**"
-PRIMARY_OWNER_FIELD = "**Primary Owner Admin Role:**"
+CANON_UPDATED = "Updated: January 2026"
+CANON_VERSION = "Version: v1.1"
+CANON_UI_STATUS_PREFIX = "UI Verification Status:"
+# Control files use a Roles & Responsibilities section instead of a single Primary Owner field
+ROLES_SECTION = "## Roles & Responsibilities"
 
 REQUIRED_HEADINGS = [
-    "## Overview",
-    "## Prerequisites",
-    "## Governance Levels",
-    "## Setup & Configuration",
-    "## Financial Sector Considerations",
-    "## Verification & Testing",
-    "## Troubleshooting & Validation",
-    "## Additional Resources",
+    "## Objective",
+    "## Why This Matters for FSI",
+    "## Control Description",
     "## Related Controls",
-    "## Support & Questions",
+    "## Additional Resources",
 ]
 
 REQUIRED_SUBHEADINGS = [
-    "### Zone-Specific Configuration",
+    # Zone-Specific Requirements is a ## heading, not a ### subheading
 ]
 
 _LEGACY_MARKER_PATTERNS = [
@@ -40,9 +36,8 @@ _LEGACY_MARKER_PATTERNS = [
 
 _REQUIRED_METADATA_FIELDS = [
     "**Control ID:**",
-    "**Control Name:**",
+    "**Pillar:**",
     "**Regulatory Reference:**",
-    "**Setup Time:**",
 ]
 
 def parse_control_index():
@@ -106,17 +101,17 @@ def validate_control_file(path: Path):
         if field not in content:
             failures.append(f"missing required metadata field: {field}")
 
-    if PRIMARY_OWNER_FIELD not in content:
-        failures.append("missing Primary Owner Admin Role field")
+    if ROLES_SECTION not in content:
+        failures.append("missing Roles & Responsibilities section")
 
     if CANON_UPDATED not in content:
-        failures.append("missing canonical Updated: Jan 2026 footer")
+        failures.append(f"missing canonical '{CANON_UPDATED}' in footer")
 
     if CANON_VERSION not in content:
-        failures.append("missing canonical Version: v1.0 (Jan 2026) footer")
+        failures.append(f"missing canonical '{CANON_VERSION}' in footer")
 
     if CANON_UI_STATUS_PREFIX not in content:
-        failures.append("missing UI Verification Status footer line")
+        failures.append("missing UI Verification Status in footer")
 
     # 3) Guardrail: legacy version/update markers should not remain
     for pattern in _LEGACY_MARKER_PATTERNS:

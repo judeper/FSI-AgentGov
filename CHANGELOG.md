@@ -73,6 +73,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **Fixed `verify_controls.py` validation mismatch** (CI failure):
+  - Updated footer constants to match actual control format (`Updated: January 2026`, `Version: v1.1`, `UI Verification Status:`)
+  - Updated required headings to match actual control structure (`## Objective`, `## Why This Matters for FSI`, `## Control Description`, etc.)
+  - Updated required metadata fields to match actual control files (`**Control ID:**`, `**Pillar:**`, `**Regulatory Reference:**`)
+  - Changed Primary Owner validation to check for `## Roles & Responsibilities` section
+  - Fixed missing `UI Verification Status` in controls 2.1 and 2.2 footers
 - Fixed 6 broken cross-references between controls:
   - Control 2.16 → 4.1 (wrong filename)
   - Control 2.19 → 1.6 (wrong filename)
