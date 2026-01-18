@@ -512,7 +512,88 @@ See individual control files' Section 11 (Support & Questions) for role-based co
 
 ---
 
+## Recent Work Context (January 2026)
+
+This section provides context for new Claude Code sessions about recent major changes.
+
+### v1.1 Restructuring Complete (January 18, 2026)
+
+The framework underwent a major restructuring from a flat documentation model to a three-layer architecture:
+
+#### What Was Done
+
+1. **Created Framework Layer** (`docs/framework/`)
+   - 9 documents covering governance principles, zones, lifecycle, roles, risk
+   - Target audience: executives, compliance officers, governance leads
+
+2. **Reorganized Controls** (`docs/controls/`)
+   - Moved from `docs/reference/pillar-*/` to `docs/controls/pillar-*/`
+   - 60 controls across 4 pillars remain unchanged in content
+   - Updated all cross-references and navigation
+
+3. **Created 240 Playbooks** (`docs/playbooks/control-implementations/`)
+   - 4 playbooks per control (60 × 4 = 240 files)
+   - Each control has: portal-walkthrough, powershell-setup, verification-testing, troubleshooting
+   - Playbooks contain step-by-step implementation details
+
+4. **Fixed Build Issues**
+   - Fixed 6 broken cross-references between controls
+   - Fixed relative path issues in playbooks (1.1, 3.1, 3.2)
+   - Build now passes with no link errors
+
+#### Current State
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| Framework docs | Complete | `docs/framework/` (9 files) |
+| Control catalog | Complete | `docs/controls/pillar-*/` (60 files) |
+| Playbooks | Complete | `docs/playbooks/control-implementations/` (240 files) |
+| Navigation | Complete | `mkdocs.yml` updated |
+| Cross-references | Fixed | All links working |
+| Build validation | Passing | `mkdocs build` succeeds |
+
+#### Files Modified in v1.1
+
+| File | Changes |
+|------|---------|
+| `.claude/claude.md` | Updated for three-layer architecture |
+| `.github/copilot-instructions.md` | Updated directory structure, counts |
+| `mkdocs.yml` | Three-layer navigation structure |
+| `CHANGELOG.md` | Detailed v1.1 release notes |
+| `scripts/verify_controls.py` | Path updated to `docs/controls/` |
+| `scripts/compile_researcher_package.py` | Path updated to `docs/controls/` |
+| `scripts/hooks/researcher-package-reminder.py` | Supports both old and new paths |
+
+#### Known Issues / Future Work
+
+| Item | Priority | Notes |
+|------|----------|-------|
+| Legacy `docs/reference/pillar-*/` | Low | Excluded from nav; keep for transition, remove in v1.2 |
+| Legacy `docs/operational-templates/` | Low | Content migrated to playbooks; remove in v1.2 |
+| PowerShell scripts in `scripts/governance/` | Medium | Placeholder directories; implement actual scripts |
+| PowerShell scripts in `scripts/reporting/` | Medium | Placeholder directories; implement actual scripts |
+
+#### Playbook Structure Reference
+
+Each control's playbooks follow this structure:
+
+```
+docs/playbooks/control-implementations/{control-id}/
+├── portal-walkthrough.md    # Step-by-step portal configuration
+├── powershell-setup.md      # PowerShell automation scripts
+├── verification-testing.md  # Test cases, evidence collection, attestation
+└── troubleshooting.md       # Common issues, resolutions, escalation
+```
+
+Each playbook contains:
+- **Portal Walkthrough:** Prerequisites, numbered steps, screenshots locations, validation checklist
+- **PowerShell Setup:** Module requirements, automated scripts, validation script
+- **Verification Testing:** Manual test steps, test cases table, evidence checklist, attestation template
+- **Troubleshooting:** Common issues table, detailed resolution steps, escalation path, known limitations
+
+---
+
 ## Version Info
 - **Framework Version:** 1.1 (January 2026)
-- **Last Updated:** January 2026
+- **Last Updated:** January 18, 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov

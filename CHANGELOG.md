@@ -10,40 +10,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Architecture
 
-- Restructured documentation into three layers: Framework, Control Catalog, Playbooks
-- Created `docs/framework/` layer with stable governance content for executives and compliance officers
-- Reorganized `docs/operational-templates/` to `docs/playbooks/` with clearer categorization
+- **Three-Layer Documentation Model:**
+  - **Layer 1 - Framework** (`docs/framework/`): Governance principles for executives and compliance
+  - **Layer 2 - Controls** (`docs/controls/`): Technical specifications (60 controls across 4 pillars)
+  - **Layer 3 - Playbooks** (`docs/playbooks/`): Step-by-step implementation procedures
 - Renamed `docs/reference/pillar-*/` to `docs/controls/pillar-*/` for clarity
+- Reorganized `docs/operational-templates/` content into `docs/playbooks/`
 - Added role-based navigation on homepage
 
 ### Added
 
-- **Framework Layer Documents:**
-  - Executive Summary (`framework/executive-summary.md`) — Board-level overview
-  - Governance Fundamentals (`framework/governance-fundamentals.md`) — Core framework concepts
-  - Zones and Tiers (`framework/zones-and-tiers.md`) — Zone classification guidance
-  - Agent Lifecycle (`framework/agent-lifecycle.md`) — Lifecycle management
-  - Regulatory Framework (`framework/regulatory-framework.md`) — Control-to-regulation mappings
-  - Operating Model (`framework/operating-model.md`) — RACI and governance structure
-  - Governance Cadence (`framework/governance-cadence.md`) — Review schedules
-  - Adoption Roadmap (`framework/adoption-roadmap.md`) — Phased implementation guide
+- **Framework Layer (9 documents):**
+  - `executive-summary.md` — Board-level overview
+  - `zones-and-tiers.md` — Zone 1/2/3 classification guidance
+  - `adoption-roadmap.md` — 30/60/90-day phased implementation
+  - `lifecycle-governance.md` — Agent lifecycle management
+  - `roles-and-responsibilities.md` — RACI and accountability
+  - `risk-framework.md` — Risk assessment methodology
+  - `regulatory-context.md` — FSI regulatory landscape
+  - `training-and-awareness.md` — User education requirements
+  - `index.md` — Framework layer overview
 
-- **New Playbooks:**
-  - Phase 0 Governance Setup (`playbooks/getting-started/phase-0-governance-setup.md`)
-  - Phase 1 Minimal Viable Controls (`playbooks/getting-started/phase-1-minimal-viable-controls.md`)
-  - Phase 2 Hardening (`playbooks/getting-started/phase-2-hardening.md`)
-  - Audit Readiness Checklist (`playbooks/compliance-and-audit/audit-readiness-checklist.md`)
-  - Examination Response Guide (`playbooks/compliance-and-audit/examination-response-guide.md`)
-  - Agent Promotion Checklist (`playbooks/agent-lifecycle/agent-promotion-checklist.md`)
-  - Agent Decommissioning (`playbooks/agent-lifecycle/agent-decommissioning.md`)
-  - Health Check Procedures (`playbooks/monitoring-and-validation/health-check-procedures.md`)
-  - AI Risk Assessment Template (`playbooks/incident-and-risk/ai-risk-assessment-template.md`)
-  - Remediation Tracking (`playbooks/incident-and-risk/remediation-tracking.md`)
+- **Control Implementation Playbooks (240 files):**
+  - Created 4 playbooks per control (60 controls × 4 = 240 files)
+  - Playbook types for each control:
+    - `portal-walkthrough.md` — Step-by-step portal configuration
+    - `powershell-setup.md` — PowerShell automation scripts
+    - `verification-testing.md` — Test cases and evidence collection
+    - `troubleshooting.md` — Common issues and resolutions
+  - Located at `docs/playbooks/control-implementations/{control-id}/`
+  - Each playbook includes: prerequisites, step-by-step instructions, configuration by governance level, FSI example configurations, validation checklists
+
+- **Playbook Categories:**
+  - `governance-operations/` — Standing procedures (weekly reviews, quarterly assessments)
+  - `compliance-and-audit/` — Audit preparation, evidence collection, examination response
+  - `incident-response/` — Data exposure, compliance violation handling
+  - `lifecycle-operations/` — Agent provisioning, retirement, updates
 
 - **Scripts Directory Enhancement:**
-  - Added `scripts/README.md` with usage guide
-  - Added `scripts/requirements.txt` for dependencies
-  - Created `scripts/governance/` and `scripts/reporting/` placeholder directories
+  - `scripts/README.md` — Usage guide
+  - `scripts/requirements.txt` — Python dependencies
+  - `scripts/governance/` — Governance automation (placeholder)
+  - `scripts/reporting/` — Reporting automation (placeholder)
+  - `scripts/hooks/boundary-check.py` — Project boundary protection hook
+
+- **GitHub Issue Templates:**
+  - `bug-report.md` — Bug reporting template
+  - `feature-request.md` — Feature request template
+  - `ui-verification.md` — UI verification checklist
 
 ### Changed
 
@@ -51,12 +65,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Pillar 4 explicitly positions as SharePoint specialization of Pillars 1-3
 - HITL patterns explicitly defined (Pre-Approval, Sampled Review, Escalation-on-Threshold)
 - Controls 2.12 and 2.19 updated with customer-facing conduct notes
+- Updated `.claude/claude.md` with three-layer documentation guidance
+- Updated `.github/copilot-instructions.md` with new directory structure
+- Updated `scripts/verify_controls.py` to use `docs/controls/` path
+- Updated `scripts/compile_researcher_package.py` to use `docs/controls/` path
+- Updated `scripts/hooks/researcher-package-reminder.py` to detect both old and new paths
 
 ### Fixed
 
-- Updated all internal links to reflect new directory structure
-- Fixed 60+ broken cross-references between controls and playbooks
-- Resolved orphaned file warnings in mkdocs build
+- Fixed 6 broken cross-references between controls:
+  - Control 2.16 → 4.1 (wrong filename)
+  - Control 2.19 → 1.6 (wrong filename)
+  - Control 2.4 → 3.4 (wrong filename)
+  - Control 2.6 → 3.3 (wrong filename)
+  - Control 3.5 → 2.2 (wrong filename)
+  - Control 3.6 → 2.3 (wrong filename)
+- Fixed relative path issues in playbooks (1.1, 3.1, 3.2)
+- Resolved all link warnings in mkdocs build
 
 ---
 
