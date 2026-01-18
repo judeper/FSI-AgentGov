@@ -92,7 +92,7 @@ Each control includes:
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
 ### Supporting Files
-- **CONTROL-INDEX.md** - [Master index of all controls](docs/reference/CONTROL-INDEX.md)
+- **CONTROL-INDEX.md** - [Master index of all controls](docs/controls/CONTROL-INDEX.md)
 - **Administrator Excel Templates** - Role-specific checklists and dashboards (see [Downloads](docs/downloads/index.md))
 - **Offline Deliverables** - This repository ships **web docs + Excel templates only** (no Word/PDF document bundle)
 

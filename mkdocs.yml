@@ -52,7 +52,6 @@ exclude_docs: |
   images/
   scripts/
   templates/
-  reference/CONTROL-INDEX.md
   reference/raci-matrix.md
   reference/regulatory-mappings.md
   controls/CONTROL-INDEX.md
