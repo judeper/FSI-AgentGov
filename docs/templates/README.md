@@ -6,7 +6,7 @@ This folder contains templates for creating consistent documentation.
 
 | Template | Purpose |
 |----------|---------|
-| `control-setup-template.md` | Standard structure for all 48 governance controls |
+| `control-setup-template.md` | Standard structure for all 60 governance controls |
 
 ## Using the Control Template
 
@@ -45,10 +45,9 @@ Examples:
 ### After Creating a Control
 
 1. Add to `mkdocs.yml` navigation
-2. Update `docs/reference/controls_structure.json`
-3. Update `docs/reference/FILES-MANIFEST.json`
-4. Create screenshot specs in `docs/images/{control-id}/EXPECTED.md`
-5. Validate: `mkdocs build --strict`
+2. Update `docs/controls/CONTROL-INDEX.md` with the new control entry
+3. Create screenshot specs in `docs/images/{control-id}/EXPECTED.md`
+4. Validate: `mkdocs build --strict`
 
 ## Style Guidelines
 

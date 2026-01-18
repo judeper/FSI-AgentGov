@@ -100,6 +100,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Updated mkdocs.yml** — removed exclude_docs entries for deleted files
 - **Fixed docs/downloads/index.md** — corrected control count (58→60) and version (v1.0→v1.1)
 
+### Documentation Cleanup (January 18, 2026)
+
+Fixed stale documentation after v1.1 restructuring:
+
+- **docs/reference/regulatory-mappings.md** — Fixed broken hyperlink to Colorado AI Impact Assessment (changed from deleted `../operational-templates/...` to `../playbooks/regulatory-modules/...`)
+- **docs/getting-started/checklist.md** — Updated control counts from 48 to 60; fixed pillar counts (19→23, 15→20, 9→10, 5→7); updated version footer from v1.0 to v1.1
+- **docs/reference/faq.md** — Updated control counts from 48 to 60 with corrected pillar breakdown
+- **docs/images/README.md** — Updated documentation paths from `docs/reference/pillar-*` to `docs/controls/pillar-*`
+- **docs/images/VERIFY.md** — Updated path pattern from `docs/reference/...` to `docs/controls/...`
+- **docs/templates/README.md** — Removed references to non-existent JSON files; updated control count from 48 to 60; updated "After Creating a Control" steps to reference CONTROL-INDEX.md
+- **mkdocs.yml** — Added `playbooks/control-implementations/*/` to exclude_docs to suppress 240 "not in nav" warnings
+
 ---
 
 ## [1.0] — January 2026

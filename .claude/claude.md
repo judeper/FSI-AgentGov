@@ -580,6 +580,20 @@ Removed legacy/duplicate files to streamline the repository:
 - Updated `mkdocs.yml` exclude_docs section
 - Fixed `docs/downloads/index.md` (58→60 controls, v1.0→v1.1)
 
+#### v1.1 Documentation Cleanup (January 18, 2026)
+
+Fixed stale documentation after v1.1 restructuring:
+
+| File | Issue | Fix |
+|------|-------|-----|
+| `docs/reference/regulatory-mappings.md` | Broken hyperlink to deleted `../operational-templates/...` | Updated to `../playbooks/regulatory-modules/...` |
+| `docs/getting-started/checklist.md` | Control counts (48→60), version (v1.0→v1.1) | Updated all pillar counts and version footer |
+| `docs/reference/faq.md` | Control counts (48→60) | Updated all pillar counts |
+| `docs/images/README.md` | Old paths `docs/reference/pillar-*` | Updated to `docs/controls/pillar-*` |
+| `docs/images/VERIFY.md` | Old path pattern | Updated to `docs/controls/...` |
+| `docs/templates/README.md` | Non-existent JSON files, old count (48) | Removed JSON references, updated to 60 controls |
+| `mkdocs.yml` | 240 playbook "not in nav" warnings | Added `playbooks/control-implementations/*/` to exclude_docs |
+
 #### Playbook Structure Reference
 
 Each control's playbooks follow this structure:

@@ -811,7 +811,7 @@ Several states have enacted or are developing AI-specific legislation that may a
 | Annual Bias Audits | Regular fairness assessments | [2.11](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md), [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
 | Consumer Opt-Out Rights | Right to opt out of AI processing | [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
 | Risk Management Policy | Document AI risk management | [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
-| Impact Assessments | Conduct and document impact assessments | See [Colorado AI Impact Assessment Template](../operational-templates/templates/colorado-ai-impact-assessment.md) |
+| Impact Assessments | Conduct and document impact assessments | See [Colorado AI Impact Assessment Template](../playbooks/regulatory-modules/colorado-ai-impact-assessment.md) |
 
 **High-Risk AI Systems under Colorado AI Act:**
 

@@ -39,18 +39,18 @@ Full framework: 8-week phased approach (see the [Implementation Checklist](../ge
 
 ## Framework Questions
 
-### Q: Why are there 48 controls?
+### Q: Why are there 60 controls?
 
 A: The framework covers:
 
-- **Pillar 1:** 19 security controls
-- **Pillar 2:** 15 management/lifecycle controls
-- **Pillar 3:** 9 reporting/monitoring controls
-- **Pillar 4:** 5 SharePoint-specific controls
+- **Pillar 1:** 23 security controls
+- **Pillar 2:** 20 management/lifecycle controls
+- **Pillar 3:** 10 reporting/monitoring controls
+- **Pillar 4:** 7 SharePoint-specific controls
 
-Total = 48 controls covering all governance areas.
+Total = 60 controls covering all governance areas.
 
-### Q: Do I need to implement all 48 controls?
+### Q: Do I need to implement all 60 controls?
 
 A: No. Implement based on:
 
