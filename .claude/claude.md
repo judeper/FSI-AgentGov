@@ -568,10 +568,17 @@ The framework underwent a major restructuring from a flat documentation model to
 
 | Item | Priority | Notes |
 |------|----------|-------|
-| Legacy `docs/reference/pillar-*/` | Low | Excluded from nav; keep for transition, remove in v1.2 |
-| Legacy `docs/operational-templates/` | Low | Content migrated to playbooks; remove in v1.2 |
 | PowerShell scripts in `scripts/governance/` | Medium | Placeholder directories; implement actual scripts |
 | PowerShell scripts in `scripts/reporting/` | Medium | Placeholder directories; implement actual scripts |
+
+#### v1.1 Legacy Cleanup (January 18, 2026)
+
+Removed legacy/duplicate files to streamline the repository:
+- Deleted `docs/reference/pillar-*/` (64 files) - superseded by `docs/controls/pillar-*/`
+- Deleted `docs/operational-templates/` (21 files) - migrated to `docs/playbooks/`
+- Deleted 4 excluded getting-started files (duplicates of framework layer)
+- Updated `mkdocs.yml` exclude_docs section
+- Fixed `docs/downloads/index.md` (58→60 controls, v1.0→v1.1)
 
 #### Playbook Structure Reference
 

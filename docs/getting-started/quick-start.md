@@ -46,10 +46,10 @@ The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
 
-1. Security (19 controls) - Protect data
-2. Management (15 controls) - Govern lifecycle
-3. Reporting (9 controls) - Monitor activities
-4. SharePoint (5 controls) - Govern SharePoint
+1. Security (23 controls) - Protect data
+2. Management (20 controls) - Govern lifecycle
+3. Reporting (10 controls) - Monitor activities
+4. SharePoint (7 controls) - Govern SharePoint
 
 **3 Zones (risk levels):**
 
@@ -195,7 +195,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 **Controls Required (comprehensive):**
 
-- All 48 controls apply
+- All 60 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 
@@ -228,7 +228,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 ## 🔑 Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (48 total)
+- **Control:** Governance requirement (60 total)
 - **Pillar:** Control category (Security, Management, Reporting, SharePoint)
 - **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
 - **MFA:** Multi-Factor Authentication (login security)
@@ -257,4 +257,4 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

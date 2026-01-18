@@ -33,7 +33,7 @@ Thank you for your interest in contributing to the FSI Agent Governance Framewor
 
 ### Control Files
 
-Control files in `docs/reference/pillar-*/` must follow the standard structure:
+Control files in `docs/controls/pillar-*/` must follow the standard structure:
 
 **Required Sections:**
 1. **Overview** - Control ID, name, regulatory reference, setup time
@@ -47,7 +47,7 @@ Control files in `docs/reference/pillar-*/` must follow the standard structure:
 9. **Additional Resources** - Microsoft Learn links and portal URLs
 10. **Related Controls** - Cross-references to other controls
 11. **Support & Questions** - Contact roles and escalation paths
-12. **Footer** - **Updated: Month-Year**, **Version: v1.0 (Jan 2026)**, UI Verification Status
+12. **Footer** - **Updated: Month-Year**, **Version: v1.1 (Jan 2026)**, UI Verification Status
 
 **Administrator Role Naming:**
 - Use the framework's canonical short role names (e.g., "Power Platform Admin", "Purview Compliance Admin").
@@ -107,4 +107,4 @@ Open a [Discussion](https://github.com/judeper/FSI-AgentGov/discussions) or cont
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

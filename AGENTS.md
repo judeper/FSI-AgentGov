@@ -13,11 +13,11 @@ This file provides guidance for autonomous AI agents working on this repository.
 ### Add a New Control
 
 1. Read `docs/templates/control-setup-template.md` for required structure
-2. Copy template to correct pillar folder: `docs/reference/pillar-{n}-{name}/`
+2. Copy template to correct pillar folder: `docs/controls/pillar-{n}-{name}/`
 3. Name file: `{id}-{kebab-case-name}.md` (e.g., `1.20-new-control.md`)
 4. Fill all 12 sections - do not skip any
 5. Update these files:
-   - `docs/reference/CONTROL-INDEX.md` - add the new control to the master index
+   - `docs/controls/CONTROL-INDEX.md` - add the new control to the master index
    - `mkdocs.yml` - add to navigation under correct pillar
 6. Create `docs/images/{control-id}/EXPECTED.md` for screenshot specs
 7. Validate: `mkdocs build --strict`
@@ -32,7 +32,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 ### Verify Screenshots
 
-1. Read the control's `.md` file in `docs/reference/pillar-{n}-*/`
+1. Read the control's `.md` file in `docs/controls/pillar-{n}-*/`
 2. Read `docs/images/{control-id}/EXPECTED.md` for required screenshots
 3. Read `docs/images/VERIFY.md` for detailed verification workflow
 4. Compare portal instructions in control doc against screenshot requirements

@@ -83,6 +83,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fixed relative path issues in playbooks (1.1, 3.1, 3.2)
 - Resolved all link warnings in mkdocs build
 
+### Removed (Legacy Cleanup - January 18, 2026)
+
+- **Deleted legacy pillar directories** (64 files):
+  - `docs/reference/pillar-1-security/` — superseded by `docs/controls/pillar-1-security/`
+  - `docs/reference/pillar-2-management/` — superseded by `docs/controls/pillar-2-management/`
+  - `docs/reference/pillar-3-reporting/` — superseded by `docs/controls/pillar-3-reporting/`
+  - `docs/reference/pillar-4-sharepoint/` — superseded by `docs/controls/pillar-4-sharepoint/`
+- **Deleted legacy operational-templates** (21 files):
+  - `docs/operational-templates/` — content migrated to `docs/playbooks/`
+- **Deleted excluded getting-started duplicates** (4 files):
+  - `docs/getting-started/overview.md` — duplicate of `docs/framework/index.md`
+  - `docs/getting-started/zones.md` — duplicate of `docs/framework/zones-and-tiers.md`
+  - `docs/getting-started/lifecycle.md` — duplicate of `docs/framework/agent-lifecycle.md`
+  - `docs/getting-started/governance-review-cadence.md` — duplicate of `docs/framework/governance-cadence.md`
+- **Updated mkdocs.yml** — removed exclude_docs entries for deleted files
+- **Fixed docs/downloads/index.md** — corrected control count (58→60) and version (v1.0→v1.1)
+
 ---
 
 ## [1.0] — January 2026

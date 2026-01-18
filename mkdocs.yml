@@ -48,24 +48,14 @@ validation:
     absolute_links: warn
 
 # Exclude files that are intentionally not in navigation
-# Legacy files retained for backwards compatibility during transition
 exclude_docs: |
   images/
   scripts/
   templates/
-  operational-templates/
-  reference/pillar-1-security/
-  reference/pillar-2-management/
-  reference/pillar-3-reporting/
-  reference/pillar-4-sharepoint/
   reference/CONTROL-INDEX.md
   reference/raci-matrix.md
   reference/regulatory-mappings.md
   controls/CONTROL-INDEX.md
-  getting-started/overview.md
-  getting-started/zones.md
-  getting-started/lifecycle.md
-  getting-started/governance-review-cadence.md
 
 markdown_extensions:
   - admonition

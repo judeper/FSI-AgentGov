@@ -1,7 +1,28 @@
 {
-  "attribution": {
-    "commit": "",
-    "pr": ""
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(mkdocs build:*)",
+      "Bash(mkdocs serve:*)",
+      "Bash(mkdocs gh-deploy:*)",
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(rm -r docs/reference/pillar-*)",
+      "Bash(rm -r docs/operational-templates)",
+      "Bash(rm docs/getting-started/*.md)",
+      "Bash(rm -r site)",
+      "Bash(rm -r maintainers-local/tmp)",
+      "WebFetch(domain:www.microsoft.com)",
+      "WebFetch(domain:learn.microsoft.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:judeper.github.io)"
+    ]
   },
   "hooks": {
     "PreToolUse": [
@@ -25,35 +46,6 @@
           }
         ]
       }
-    ]
-  },
-  "permissions": {
-    "allow": [
-      "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\")",
-      "Bash(git -C \"C:\\\\dev\\\\FSI-AgentGov\" rev-parse:*)",
-      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov remote:*)",
-      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov config:*)",
-      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov log --oneline --all --graph -10)",
-      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov rev-parse:*)",
-      "Bash(git -C /c/dev/FSI-AgentGov/FSI-AgentGov bundle verify /c/dev/FSI-AgentGov/FSI-AgentGov-pre-rewrite-2025-12-18.bundle)",
-      "Bash(git bundle:*)",
-      "Bash(git rev-parse:*)",
-      "Bash(find:*)",
-      "Bash(mkdocs build:*)",
-      "Bash(ls -la \"C:\\\\dev\\\\FSI-AgentGov\\\\docs\\\\images\"\" 2>nul | grep -i \"1. \")",
-      "WebFetch(domain:www.microsoft.com)",
-      "Bash(ls:*)",
-      "Bash(git add:*)",
-      "Bash(git push:*)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:api.github.com)",
-      "Bash(npx markdown-link-check:*)",
-      "Bash(git commit:*)",
-      "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\\\\review\\\\researcher-package\" /b)",
-      "Bash(dir \"C:\\\\dev\\\\FSI-AgentGov\\\\review\\\\researcher-package\")",
-      "Bash(dir /s /b \"C:\\\\dev\\\\FSI-AgentGov\\\\review\\\\researcher-package\\\\*.md\")",
-      "Bash(dir:*)",
-      "Bash(findstr:*)"
     ]
   }
 }
