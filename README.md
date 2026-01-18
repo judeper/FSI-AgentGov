@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework v1.0
+# FSI Agent Governance Framework v1.1
 
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.0 (January 2026)
+**Version:** 1.1 (January 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -29,12 +29,12 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. Security** | 22 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. Management** | 19 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
+| **1. Security** | 23 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
+| **2. Management** | 20 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. Reporting** | 10 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback |
 | **4. SharePoint Mgmt** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
-**Total: 58 Comprehensive Controls**
+**Total: 60 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -69,9 +69,9 @@ graph LR
 
 ## 📁 What's Included
 
-### Control Files (58 Total)
-- **Pillar 1:** 22 Security Controls (1.1-1.22)
-- **Pillar 2:** 19 Management Controls (2.1-2.19)
+### Control Files (60 Total)
+- **Pillar 1:** 23 Security Controls (1.1-1.23)
+- **Pillar 2:** 20 Management Controls (2.1-2.20)
 - **Pillar 3:** 10 Reporting Controls (3.1-3.10)
 - **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
 
@@ -185,11 +185,11 @@ These foundation controls should be implemented first as other controls depend o
 
 | Priority | Control | Why First |
 |----------|---------|-----------|
-| 1 | [2.1 - Managed Environments](docs/reference/pillar-2-management/2.1-managed-environments.md) | Required for 15+ other controls |
-| 2 | [1.7 - Audit Logging](docs/reference/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Compliance evidence for all controls |
-| 3 | [1.11 - Conditional Access & MFA](docs/reference/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Security baseline |
-| 4 | [1.5 - DLP & Sensitivity Labels](docs/reference/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Data protection foundation |
-| 5 | [1.4 - Advanced Connector Policies](docs/reference/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Connector governance for agents |
+| 1 | [2.1 - Managed Environments](docs/controls/pillar-2-management/2.1-managed-environments.md) | Required for 15+ other controls |
+| 2 | [1.7 - Audit Logging](docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Compliance evidence for all controls |
+| 3 | [1.11 - Conditional Access & MFA](docs/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Security baseline |
+| 4 | [1.5 - DLP & Sensitivity Labels](docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Data protection foundation |
+| 5 | [1.4 - Advanced Connector Policies](docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Connector governance for agents |
 
 ### Admin Portal Quick Access
 
@@ -327,5 +327,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*
