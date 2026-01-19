@@ -15,6 +15,20 @@ This Framework layer establishes the foundational governance principles, organiz
 
 ---
 
+## Three-Layer Documentation Architecture
+
+The FSI Agent Governance Framework uses a three-layer documentation model to separate stable governance principles from frequently-updated implementation procedures:
+
+| Layer | Content | Update Frequency | Files |
+|-------|---------|------------------|-------|
+| **1. Framework** (this layer) | Governance principles, zones, lifecycle, regulatory context | 1-2x per year | 9 documents |
+| **2. Control Catalog** | 60 technical control specifications across 4 pillars | Quarterly | 60 control files |
+| **3. Playbooks** | Step-by-step implementation procedures | Continuous (as Microsoft portals change) | 240 playbook files (4 per control) |
+
+This separation ensures governance stability while allowing rapid updates to implementation guidance as Microsoft 365 and Power Platform evolve.
+
+---
+
 ## Framework Components
 
 | Document | Purpose | Audience |

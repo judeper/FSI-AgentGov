@@ -69,7 +69,15 @@ graph LR
 
 ## 📁 What's Included
 
+### Framework Documents (9 Files)
+Strategic governance principles in `docs/framework/`:
+- Executive summary and adoption roadmap
+- Governance zones and tiers
+- Agent lifecycle management
+- Operating model and regulatory framework
+
 ### Control Files (60 Total)
+Technical specifications in `docs/controls/`:
 - **Pillar 1:** 23 Security Controls (1.1-1.23)
 - **Pillar 2:** 20 Management Controls (2.1-2.20)
 - **Pillar 3:** 10 Reporting Controls (3.1-3.10)
@@ -78,8 +86,16 @@ graph LR
 Each control includes:
 - Overview and regulatory reference
 - 3 governance levels (Baseline, Recommended, Regulated)
+- Zone-specific requirements
 - Verification and testing procedures
-- Implementation guidance
+
+### Implementation Playbooks (240 Files)
+Step-by-step procedures in `docs/playbooks/control-implementations/`:
+- **4 playbooks per control** (60 controls × 4 = 240 playbooks)
+- Portal walkthrough guides with click-by-click navigation
+- PowerShell automation scripts with validation
+- Verification testing procedures with evidence checklists
+- Troubleshooting guides with common issues and resolutions
 
 ### Documentation Files
 - **README.md** - This file (overview)
@@ -119,6 +135,64 @@ Each control includes:
 
 ---
 
+## 📚 Three-Layer Documentation Architecture
+
+Version 1.1 introduces a three-layer documentation model designed to serve different audiences and use cases:
+
+### Layer 1: Framework (`docs/framework/`)
+**Purpose:** Strategic governance principles and organizational context
+**Audience:** Executives, compliance officers, governance leads
+
+9 comprehensive documents covering:
+- Executive summary for leadership buy-in
+- Governance zone definitions (Zone 1/2/3)
+- 30/60/90-day adoption roadmap
+- Agent lifecycle management process
+- Operating model with RACI
+- Regulatory framework landscape
+
+**Start here:** [Framework Overview](docs/framework/index.md)
+
+### Layer 2: Controls (`docs/controls/`)
+**Purpose:** Technical control specifications
+**Audience:** Administrators, engineers, security teams
+
+60 detailed controls organized by pillar:
+- **Pillar 1 - Security:** 23 controls (1.1-1.23)
+- **Pillar 2 - Management:** 20 controls (2.1-2.20)
+- **Pillar 3 - Reporting:** 10 controls (3.1-3.10)
+- **Pillar 4 - SharePoint:** 7 controls (4.1-4.7)
+
+Each control follows a 10-section format including objective, regulatory alignment, configuration points, zone-specific requirements, and verification criteria.
+
+**Start here:** [Control Index](docs/controls/CONTROL-INDEX.md)
+
+### Layer 3: Playbooks (`docs/playbooks/`)
+**Purpose:** Step-by-step implementation procedures
+**Audience:** Hands-on implementers, auditors
+
+240 implementation playbooks (4 per control):
+1. **Portal Walkthrough** - Click-by-click configuration in admin portals
+2. **PowerShell Setup** - Automation scripts with validation
+3. **Verification Testing** - Test cases, evidence collection, attestation templates
+4. **Troubleshooting** - Common issues, resolutions, escalation paths
+
+**Start here:** [Playbooks Overview](docs/playbooks/control-implementations/index.md)
+
+```mermaid
+graph TD
+    A[Layer 1: Framework] -->|Defines principles| B[Layer 2: Controls]
+    B -->|Specifies requirements| C[Layer 3: Playbooks]
+    C -->|Provides evidence| B
+    B -->|Validates strategy| A
+
+    style A fill:#66BB6A,color:#fff
+    style B fill:#FFA726,color:#fff
+    style C fill:#42A5F5,color:#fff
+```
+
+---
+
 ## 🔧 Setup & Verification Workflow
 
 Each control in this framework follows a consistent documentation structure.
@@ -129,7 +203,7 @@ Use this workflow for implementing controls:
 
 ### Control Documentation Structure
 
-Every control file (1.1-4.5) follows this enhanced structure:
+Every control file (1.1-4.7) follows this enhanced structure:
 
 | Section | Purpose |
 |---------|---------|
@@ -273,7 +347,7 @@ See **[Implementation Checklist](docs/getting-started/checklist.md)** for detail
 - **"Common questions?"** → See **[FAQ](docs/reference/faq.md)**
 
 ### For Technical Implementation:
-- Reference individual control files (1.1-4.5)
+- Reference individual control files (1.1-4.7)
 - Each control includes step-by-step verification procedures
 - Contact your Power Platform Admin for platform-specific setup
 

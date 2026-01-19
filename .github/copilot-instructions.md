@@ -34,7 +34,7 @@ FSI Agent Governance Framework v1.1 - A governance framework for Microsoft 365 A
 ### Navigation Philosophy (Three-Layer Model)
 - **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
 - **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
-- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`)
+- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 240 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
 - **Getting Started:** Admin onboarding only (no repo structure info)
 - **Downloads:** Role-based Excel checklists for admins
@@ -53,13 +53,13 @@ docs/
 ├── getting-started/              # Onboarding guides (overview, quick-start, zones, lifecycle, checklist)
 ├── framework/                    # NEW in v1.1: Governance principles layer
 │   ├── executive-summary.md      # Strategic overview for leadership
+│   ├── governance-fundamentals.md # Core framework concepts and structure
 │   ├── zones-and-tiers.md        # Zone 1/2/3 definitions
+│   ├── agent-lifecycle.md        # Agent lifecycle management
+│   ├── regulatory-framework.md   # US regulatory requirements and control mappings
+│   ├── operating-model.md        # RACI, roles, governance structure
+│   ├── governance-cadence.md     # Review schedules and audit readiness
 │   ├── adoption-roadmap.md       # 30/60/90-day phased implementation
-│   ├── lifecycle-governance.md   # Agent lifecycle management
-│   ├── roles-and-responsibilities.md
-│   ├── risk-framework.md
-│   ├── regulatory-context.md
-│   ├── training-and-awareness.md
 │   └── index.md
 ├── controls/                     # RENAMED in v1.1 (was: reference/pillar-*)
 │   ├── pillar-1-security/        # 23 security controls (1.1-1.23)
@@ -71,8 +71,8 @@ docs/
 │   ├── control-implementations/  # Per-control guides (240 files, 4 per control)
 │   ├── governance-operations/    # Standing procedures
 │   ├── compliance-and-audit/     # Audit preparation guides
-│   ├── incident-response/        # Incident handling procedures
-│   └── lifecycle-operations/     # Agent lifecycle management
+│   ├── incident-and-risk/        # Incident handling procedures
+│   └── agent-lifecycle/          # Agent lifecycle management
 ├── reference/                    # Supporting materials
 │   ├── role-catalog.md
 │   ├── regulatory-mappings.md

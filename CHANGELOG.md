@@ -24,11 +24,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `executive-summary.md` — Board-level overview
   - `zones-and-tiers.md` — Zone 1/2/3 classification guidance
   - `adoption-roadmap.md` — 30/60/90-day phased implementation
-  - `lifecycle-governance.md` — Agent lifecycle management
-  - `roles-and-responsibilities.md` — RACI and accountability
-  - `risk-framework.md` — Risk assessment methodology
-  - `regulatory-context.md` — FSI regulatory landscape
-  - `training-and-awareness.md` — User education requirements
+  - `agent-lifecycle.md` — Agent lifecycle management
+  - `operating-model.md` — RACI and accountability
+  - `governance-fundamentals.md` — Core governance principles
+  - `governance-cadence.md` — Recurring governance activities
+  - `regulatory-framework.md` — FSI regulatory landscape
   - `index.md` — Framework layer overview
 
 - **Control Implementation Playbooks (240 files):**
@@ -44,8 +44,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Playbook Categories:**
   - `governance-operations/` — Standing procedures (weekly reviews, quarterly assessments)
   - `compliance-and-audit/` — Audit preparation, evidence collection, examination response
-  - `incident-response/` — Data exposure, compliance violation handling
-  - `lifecycle-operations/` — Agent provisioning, retirement, updates
+  - `incident-and-risk/` — Data exposure, compliance violation handling
+  - `agent-lifecycle/` — Agent provisioning, retirement, updates
 
 - **Scripts Directory Enhancement:**
   - `scripts/README.md` — Usage guide
@@ -148,6 +148,27 @@ Exhaustive verification of all repository content (scripts, Excel files, documen
 - Zero stale "48 control" references in docs
 - Zero stale `docs/reference/pillar-*` paths in active scripts
 - Zero stale "v1.0" references (except CHANGELOG historical entries)
+
+### Playbook Navigation Integration Fix (January 19, 2026)
+
+**Problem Fixed:** 240 playbook files were excluded from MkDocs build and not published to GitHub Pages, causing broken links in control documentation Section 8 (Implementation Guides).
+
+**Root Cause:** The `playbooks/control-implementations/*/` directory pattern was listed in `mkdocs.yml` under `exclude_docs` (added during v1.1 to suppress "not in nav" warnings), which prevented the playbook files from being published.
+
+**Solution:**
+- Removed `playbooks/control-implementations/*/` from `exclude_docs` in `mkdocs.yml`
+- Added all 60 control playbook sections to site navigation under `Playbooks → Control Implementations` (~305 lines)
+- Each control now has 4 nested playbook links: Portal Walkthrough, PowerShell Setup, Verification, Troubleshooting
+
+**Files Modified:**
+- `mkdocs.yml` - Removed exclusion pattern, added nested playbook nav structure (lines 163-468)
+- `.claude/CLAUDE.md` - Added context section documenting this fix
+- `.claude/settings.local.json` - Added `includeCoAuthoredBy: false` setting
+
+**Validation:**
+- `mkdocs build --strict` passes
+- All 240 playbook HTML files now generated in site/
+- Navigation hierarchy complete: Framework → Controls → Playbooks (with nested control sections)
 
 ---
 

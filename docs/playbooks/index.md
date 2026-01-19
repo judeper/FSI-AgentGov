@@ -137,16 +137,17 @@ Regulation-specific implementation guidance.
 
 Per-control implementation guides extracted from control documentation.
 
+**240 playbooks** (60 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
+
 Each control has a dedicated folder with:
 
 - `portal-walkthrough.md` — Step-by-step portal configuration
 - `powershell-setup.md` — Automation scripts
 - `verification-testing.md` — How to verify the control works
 - `troubleshooting.md` — Common issues and solutions
-- `screenshots/` — UI verification images
 
 !!! success "Available Now"
-    Per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Each control has 4 playbooks: portal walkthrough, PowerShell setup, verification testing, and troubleshooting.
+    All 240 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
 
 ---
 

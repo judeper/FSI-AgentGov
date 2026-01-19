@@ -50,8 +50,8 @@ C:\dev\FSI-AgentGov\
 │   │   ├── control-implementations/  # Per-control guides (240 files)
 │   │   ├── governance-operations/    # Standing governance procedures
 │   │   ├── compliance-and-audit/     # Audit preparation guides
-│   │   ├── incident-response/        # Incident handling procedures
-│   │   └── lifecycle-operations/     # Agent lifecycle management
+│   │   ├── incident-and-risk/        # Incident handling procedures
+│   │   └── agent-lifecycle/          # Agent lifecycle management
 │   ├── reference/                # Supporting materials
 │   │   ├── role-catalog.md       # Canonical role names
 │   │   ├── regulatory-mappings.md # Regulation-to-control mapping
@@ -109,8 +109,8 @@ The framework uses a three-layer documentation model:
 | `control-implementations/` | 4 playbooks per control (admin, lifecycle, validation, troubleshooting) |
 | `governance-operations/` | Standing procedures (weekly reviews, quarterly assessments) |
 | `compliance-and-audit/` | Audit preparation, evidence collection |
-| `incident-response/` | Data exposure, compliance violation handling |
-| `lifecycle-operations/` | Agent provisioning, retirement, updates |
+| `incident-and-risk/` | Data exposure, compliance violation handling |
+| `agent-lifecycle/` | Agent provisioning, retirement, updates |
 
 ---
 
@@ -725,6 +725,27 @@ Exhaustive 10-agent parallel verification of ALL repository content as final qua
 - These are screenshot specification files only - controls and build are complete
 
 **Repository Status:** Verified clean, all validation passes.
+
+#### Playbook Navigation Integration Fix (January 19, 2026)
+
+**Problem:** 240 playbook files were excluded from the MkDocs build and not published to GitHub Pages, causing broken links in control documentation Section 8 (Implementation Guides).
+
+**Root Cause:** The `playbooks/control-implementations/*/` directory pattern was listed in `mkdocs.yml` under `exclude_docs` (added during v1.1 to suppress "not in nav" warnings), which prevented MkDocs from publishing any files in that subtree.
+
+**Solution:**
+1. Removed exclusion pattern from `exclude_docs` in `mkdocs.yml` (Phase 1, Step 1 - completed earlier)
+2. Added all 60 control playbook sections to the site navigation under `Playbooks → Control Implementations` (~305 lines added)
+3. Each control now has 4 nested playbook links: Portal Walkthrough, PowerShell Setup, Verification, Troubleshooting
+
+**Files Modified:**
+- `mkdocs.yml` - Removed exclusion, added nested playbook nav structure (lines 163-468)
+- `.claude/CLAUDE.md` - Added this context section
+
+**Result:**
+- ✅ All 240 playbook files now published and accessible on GitHub Pages
+- ✅ Cross-references from controls Section 8 to playbooks now resolve correctly
+- ✅ Navigation hierarchy complete: Framework → Controls → Playbooks (with nested control sections)
+- ✅ Validation passes: `mkdocs build --strict`
 
 #### Playbook Structure Reference
 
