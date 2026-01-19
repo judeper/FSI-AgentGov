@@ -6,6 +6,83 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.2] — January 19, 2026 (NIST AI RMF Crosswalk Correction)
+
+### Fixed
+
+- **NIST AI RMF Crosswalk Accuracy** (`docs/reference/nist-ai-rmf-crosswalk.md`)
+  - Corrected subcategory counts in summary table (was 61, actual 67 subcategories addressed)
+  - Added methodology section explaining coverage calculation against NIST AI RMF 1.0 (72 total subcategories)
+  - Updated coverage figures: 93% of NIST subcategories addressed, 97% effective coverage of applicable areas
+  - Documented 5 subcategories not explicitly addressed (MEASURE 2.12/2.13, MAP 3.4/3.5, GOVERN 4.4) with rationale
+  - Updated auditor guidance with accurate coverage metrics
+
+### Changed
+
+- **Coverage Summary Table:** Now shows correct subcategory counts per function (GOVERN 19, MAP 16, MEASURE 19, MANAGE 13)
+- **Coverage Claim:** Changed from "92% Full coverage" to "93% subcategories addressed, 97% effective coverage of applicable areas"
+
+### Context
+
+This fix was identified during a comprehensive 18-agent framework review. The original summary table had arithmetic errors in the subcategory counts, and the coverage calculation did not account for the full NIST AI RMF 1.0 structure (72 subcategories). The crosswalk content and control mappings remain accurate; only the summary statistics were corrected.
+
+---
+
+## [1.1.1] — January 2026 (Researcher Gap Analysis Response)
+
+### Overview
+
+This release addresses findings from an external researcher gap analysis, implementing valid recommendations and documenting rationale for rejected items.
+
+**Summary:** Of 19 claimed gaps, 8 were invalid (already covered), 5 were partially valid (minor enhancements), 2 were valid (new content created), and 4 were out of scope.
+
+### Added
+
+- **Control 2.21: AI Marketing Claims and Substantiation** — New control addressing SEC Marketing Rule (206(4)-1) and "AI washing" enforcement precedent (Delphia, Global Predictions 2024 settlements)
+- **4 Playbooks for Control 2.21:**
+  - `portal-walkthrough.md` — Claims inventory setup and review workflow
+  - `powershell-setup.md` — SharePoint list and automation scripts
+  - `verification-testing.md` — Test cases and attestation template
+  - `troubleshooting.md` — Common issues and resolutions
+- **NIST AI RMF Crosswalk** (`docs/reference/nist-ai-rmf-crosswalk.md`) — Maps all 61 controls to NIST AI RMF GOVERN/MAP/MEASURE/MANAGE functions (92% coverage)
+- **SEC Marketing Rule section** in `docs/reference/regulatory-mappings.md`
+
+### Enhanced (8 Controls)
+
+- **Control 1.7:** Added AI-generated communication tagging guidance per FINRA 25-07 (AI vs human attribution, event types)
+- **Control 1.10:** Added monitored Copilot and AI locations table with audit event names and friendly names
+- **Control 1.8:** Added AI-enabled threat patterns section (deepfakes, AI phishing, synthetic identities) per NYDFS cyber guidance
+- **Control 1.11:** Added PIM baselines table for AI administration roles with activation durations and approvers
+- **Control 1.23:** Added PIM integration for sensitive agent operations (publishing, deletion, policy changes)
+- **Control 1.4:** Added Copilot plugins and extensions terminology table clarifying governance scope
+- **Control 2.7:** Added FSI-specific vendor categories table including archiving vendors (Smarsh, Global Relay, etc.)
+- **Control 3.3:** Added AI regulatory impact assessment template with regulatory driver mapping
+
+### Changed
+
+- **Control count:** 60 → 61 controls
+- **Pillar 2 count:** 20 → 21 controls
+- Updated `docs/controls/CONTROL-INDEX.md` with Control 2.21
+- Updated `mkdocs.yml` navigation for Control 2.21 and NIST crosswalk
+- Updated `docs/reference/regulatory-mappings.md` coverage table to 61 controls
+
+### Researcher Gap Analysis Summary
+
+| Gap Category | Count | Action |
+|--------------|-------|--------|
+| **INVALID (Already Covered)** | 8 | No action - researcher missed existing coverage |
+| **PARTIALLY VALID (Enhancement)** | 5 | Minor documentation improvements (completed) |
+| **VALID (New Content)** | 2 | Control 2.21 + NIST crosswalk (completed) |
+| **OUT OF SCOPE** | 4 | Rejected - outside M365 framework focus |
+
+**Rejected Items (Out of Scope):**
+- REG-004: SEC predictive analytics (proposal not finalized)
+- REG-007: NAIC AI Model Bulletin (insurance outside primary scope)
+- CC-012: ISO 42001/23894 (US FSI-focused, not multi-jurisdiction)
+- IND-015: SEC/FINRA exam focus (restatement, not gap)
+
+---
+
 ## [1.1] — January 2026
 
 ### Architecture
