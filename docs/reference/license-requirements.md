@@ -1,6 +1,6 @@
 # License Requirements by Control
 
-Complete license mapping for all 48 FSI Agent Governance Framework controls.
+Complete license mapping for all 60 FSI Agent Governance Framework controls.
 
 ---
 

@@ -594,6 +594,36 @@ Fixed stale documentation after v1.1 restructuring:
 | `docs/templates/README.md` | Non-existent JSON files, old count (48) | Removed JSON references, updated to 60 controls |
 | `mkdocs.yml` | 240 playbook "not in nav" warnings | Added `playbooks/control-implementations/*/` to exclude_docs |
 
+#### v1.1 Deep Verification (January 18, 2026)
+
+Comprehensive verification of all documentation after v1.1 restructuring:
+
+**Verified Clean:**
+- All 60 controls present with correct 10-section structure
+- All 240 playbooks present with complete content
+- All internal cross-references working
+- No placeholder/TODO content in controls
+- Build passes with `mkdocs build --strict`
+
+**Fixed Issues:**
+
+| File | Issue | Fix |
+|------|-------|-----|
+| `scripts/refactor_controls_to_canonical_sections.py` | Legacy script with old paths | Deleted (marked LEGACY, unusable) |
+| `scripts/normalize_controls.py:4` | Comment said "v1.0" | Updated to "v1.1" |
+| `docs/reference/license-requirements.md:3` | Said "48 FSI Agent" | Updated to "60 FSI Agent" |
+| `docs/images/README.md` | Said "48 possible folders" with old ranges | Updated to "60 possible folders" with correct ranges |
+| `scripts/hooks/researcher-package-reminder.py` | Legacy path support in regex | Removed legacy `reference` path |
+| `.github/workflows/publish_docs.yml:24` | Error message incomplete | Updated to mention both paths |
+| `.github/workflows/link-check.yml:49` | Error message incomplete | Updated to mention both paths |
+
+**Validation Results:**
+- `mkdocs build --strict`: ✅ Pass
+- `python scripts/verify_controls.py`: ✅ 60/60 controls valid
+- `python scripts/verify_templates.py`: ✅ All templates valid
+- Zero stale "48 controls" references in docs
+- Zero active `docs/reference/pillar-*` paths (only in CHANGELOG)
+
 #### Playbook Structure Reference
 
 Each control's playbooks follow this structure:

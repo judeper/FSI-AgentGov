@@ -1,7 +1,7 @@
 """Normalize control document metadata across all 60 controls.
 
 This script enforces the v1.1 requirements:
-- Footer must include the exact string: "v1.0 (Jan 2026)"
+- Footer must include the exact string: "v1.1 (Jan 2026)"
 - Footer must include: "Updated: Jan 2026" (month-year)
 
 It also removes legacy/conflicting metadata in control overviews/footers
