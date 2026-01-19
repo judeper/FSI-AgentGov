@@ -1,6 +1,6 @@
 # Semantic Index Governance Queries
 
-**Status:** January 2026 - FSI-AgentGov v1.0
+**Status:** January 2026 - FSI-AgentGov v1.1
 **Related Controls:** 4.6 (Grounding Scope), 4.1 (IAG/RCD), 1.7 (Audit Logging)
 
 ---
@@ -499,4 +499,4 @@ Write-Host "`nAudit complete. Reports saved to: $reportPath" -ForegroundColor Gr
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

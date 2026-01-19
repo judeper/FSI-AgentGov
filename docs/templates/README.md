@@ -17,20 +17,18 @@ Use `control-setup-template.md` when:
 - Restructuring an existing control to match the standard format
 - Adding sections that are missing from older controls
 
-### Required Sections (12 Total)
+### Required Sections (10 Total)
 
-1. **Overview** - Control ID, name, regulatory reference, setup time
-2. **Prerequisites** - License, admin role, dependencies
-3. **Governance Levels** - Baseline, Recommended, Regulated configurations
-4. **Setup & Configuration** - Portal-based steps with PowerShell alternative
-5. **Financial Sector Considerations** - Regulatory alignment table
-6. **Zone-Specific Configuration** - Zone 1/2/3 guidance
-7. **Verification & Testing** - Numbered steps with EXPECTED results
-8. **Troubleshooting & Validation** - Common issues table
-9. **Additional Resources** - Microsoft Learn links
-10. **Related Controls** - Cross-references
-11. **Support & Questions** - Contact roles
-12. **Footer** - Last Updated, Version, UI Verification Status
+1. **Objective** - Concise statement of the control's purpose
+2. **Why This Matters for FSI** - Regulatory bullet points
+3. **Control Description** - Detailed technical explanation
+4. **Key Configuration Points** - Bulleted configuration items
+5. **Zone-Specific Requirements** - Zone 1/2/3 table
+6. **Roles & Responsibilities** - Admin roles table
+7. **Related Controls** - Cross-reference table
+8. **Implementation Guides** - Links to 4 playbooks
+9. **Verification Criteria** - Verification checklist
+10. **Additional Resources** - Microsoft Learn links
 
 ### Naming Convention
 

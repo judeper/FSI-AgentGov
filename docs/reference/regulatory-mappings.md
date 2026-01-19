@@ -102,7 +102,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (8/55 controls). Implementation required.
+Framework provides supervision procedure guidance (8/60 controls). Implementation required.
 
 ---
 
@@ -152,7 +152,7 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 The framework treats agents as models requiring comprehensive governance per SR 11-7 principles.
 
 ### Framework Coverage
-Framework addresses Notice 25-07 topics (11/55 controls). Implementation and validation required.
+Framework addresses Notice 25-07 topics (11/60 controls). Implementation and validation required.
 
 ---
 
@@ -266,7 +266,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (6/55 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (6/60 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -325,7 +325,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 78% control coverage (43/55 controls). SOX-specific testing required. Implementation required.
+Framework provides 73% control coverage (43/60 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -385,7 +385,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 91% control coverage (50/55 controls). Implementation validation required.
+Framework provides 83% control coverage (50/60 controls). Implementation validation required.
 
 ---
 
@@ -458,7 +458,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 58% control coverage (32/55 controls). OCC-specific model validation required for full compliance.
+Framework provides 53% control coverage (32/60 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -504,7 +504,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/48 controls applicable). ECOA-specific testing and validation required.
+Framework provides bias testing controls (2/60 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -626,7 +626,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (6/55 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (6/60 controls). CFPB-specific implementation required.
 
 ---
 
@@ -681,7 +681,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 55 controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All 60 controls applicable.
 
 ---
 
@@ -741,7 +741,7 @@ Part 748 requires credit unions to maintain a security program. Framework contro
 - Compliance Officer oversight for Zone 2+ agents
 
 ### Framework Coverage
-Framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
+All 60 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
 
 ---
 
@@ -908,23 +908,23 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 57/57 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 8/57 | 14% | Partial - supervision focus |
-| FINRA Notice 25-07 | 11/57 | 19% | Partial - model risk focus |
-| SEC 17a-3/4 | 49/57 | 86% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/57 | 12% | Limited - fairness + disclosure focus |
-| SOX 302/404 | 44/57 | 77% | Substantial coverage |
-| GLBA 501-505 | 51/57 | 89% | Substantial coverage |
-| OCC 2011-12 | 33/57 | 58% | Partial - model risk focus |
-| Fed SR 11-7 | 33/57 | 58% | Partial - model risk focus |
-| Fed ECOA | 3/57 | 5% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/57 | 12% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/57 | 16% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 57/57 | 100% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/57 | 89% | Security program alignment |
-| NYDFS Part 500 | 45/57 | 79% | State-level awareness |
-| NAIC Model Law | 41/57 | 72% | Insurance awareness |
-| State AI Laws | 6/57 | 11% | Emerging - transparency, bias, human review |
+| FINRA 4511 | 60/60 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 8/60 | 13% | Partial - supervision focus |
+| FINRA Notice 25-07 | 11/60 | 18% | Partial - model risk focus |
+| SEC 17a-3/4 | 49/60 | 82% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 7/60 | 12% | Limited - fairness + disclosure focus |
+| SOX 302/404 | 44/60 | 73% | Substantial coverage |
+| GLBA 501-505 | 51/60 | 85% | Substantial coverage |
+| OCC 2011-12 | 33/60 | 55% | Partial - model risk focus |
+| Fed SR 11-7 | 33/60 | 55% | Partial - model risk focus |
+| Fed ECOA | 3/60 | 5% | Minimal - bias testing only |
+| CFPB / UDAAP | 7/60 | 12% | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | 9/60 | 15% | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | 60/60 | 100% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 51/60 | 85% | Security program alignment |
+| NYDFS Part 500 | 45/60 | 75% | State-level awareness |
+| NAIC Model Law | 41/60 | 68% | Insurance awareness |
+| State AI Laws | 6/60 | 10% | Emerging - transparency, bias, human review |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
@@ -940,4 +940,4 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

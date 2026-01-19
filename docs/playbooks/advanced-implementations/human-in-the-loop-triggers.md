@@ -1,6 +1,6 @@
 # Human-in-the-Loop (HITL) Trigger Definitions
 
-**Status:** January 2026 - FSI-AgentGov v1.0
+**Status:** January 2026 - FSI-AgentGov v1.1
 **Related Controls:** 2.12 (Supervision), 2.17 (Multi-Agent Orchestration), 2.6 (Model Risk)
 
 ---
@@ -397,4 +397,4 @@ zone_3_hitl:
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

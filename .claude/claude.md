@@ -86,11 +86,11 @@ The framework uses a three-layer documentation model:
 | `executive-summary.md` | Strategic overview for leadership buy-in |
 | `zones-and-tiers.md` | Zone 1/2/3 definitions with governance levels |
 | `adoption-roadmap.md` | 30/60/90-day phased implementation |
-| `lifecycle-governance.md` | Agent lifecycle management process |
-| `roles-and-responsibilities.md` | RACI and accountability model |
-| `risk-framework.md` | Risk assessment methodology |
-| `regulatory-context.md` | Financial services regulatory landscape |
-| `training-and-awareness.md` | User education requirements |
+| `agent-lifecycle.md` | Agent lifecycle management process |
+| `operating-model.md` | RACI and accountability model |
+| `governance-fundamentals.md` | Core governance principles and concepts |
+| `governance-cadence.md` | Recurring governance activities and timelines |
+| `regulatory-framework.md` | Financial services regulatory landscape |
 | `index.md` | Framework layer overview |
 
 ### Layer 2: Control Catalog (`docs/controls/pillar-*`)
@@ -523,7 +523,7 @@ The framework underwent a major restructuring from a flat documentation model to
 #### What Was Done
 
 1. **Created Framework Layer** (`docs/framework/`)
-   - 9 documents covering governance principles, zones, lifecycle, roles, risk
+   - 9 documents covering governance principles, zones, lifecycle, operating model, regulatory context
    - Target audience: executives, compliance officers, governance leads
 
 2. **Reorganized Controls** (`docs/controls/`)

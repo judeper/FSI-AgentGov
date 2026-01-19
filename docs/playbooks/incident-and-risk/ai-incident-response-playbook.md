@@ -1,6 +1,6 @@
 # AI Incident Response Playbook
 
-**Status:** January 2026 - FSI-AgentGov v1.0
+**Status:** January 2026 - FSI-AgentGov v1.1
 **Related Controls:** 3.4 (Incident Reporting), 1.21 (Adversarial Input), 3.10 (Hallucination Feedback)
 
 ---
@@ -380,4 +380,4 @@ Is customer data involved?
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

@@ -24,4 +24,4 @@ This Code of Conduct is adapted from common open source community standards.
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

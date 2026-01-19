@@ -157,16 +157,16 @@ A: Use **Microsoft Purview DSPM for AI**:
 
 See [Control 1.6: DSPM for AI](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
 
-### Q: What are the 48 controls?
+### Q: How many controls are in the framework?
 
-A: The framework includes 48 controls across four pillars:
+A: The framework includes 60 controls across four pillars:
 
-- **Pillar 1 - Security:** 19 controls (1.1-1.19) covering DLP, encryption, audit logging, eDiscovery
-- **Pillar 2 - Management:** 15 controls (2.1-2.15) covering lifecycle, change control, environment routing
-- **Pillar 3 - Reporting:** 9 controls (3.1-3.9) covering inventory, monitoring, incidents, Sentinel
-- **Pillar 4 - SharePoint:** 5 controls (4.1-4.5) covering SharePoint-specific governance
+- **Pillar 1 - Security:** 23 controls (1.1-1.23) covering DLP, encryption, audit logging, eDiscovery
+- **Pillar 2 - Management:** 20 controls (2.1-2.20) covering lifecycle, change control, environment routing
+- **Pillar 3 - Reporting:** 10 controls (3.1-3.10) covering inventory, monitoring, incidents, Sentinel
+- **Pillar 4 - SharePoint:** 7 controls (4.1-4.7) covering SharePoint-specific governance
 
-See [Control Index](../controls/index.md) for the complete list.
+See [Control Index](../controls/CONTROL-INDEX.md) for the complete list.
 
 ### Q: How do I monitor my Power Platform security posture?
 
@@ -699,4 +699,4 @@ A: See Control 2.14: Training & Awareness Program
 
 ---
 
-*FSI Agent Governance Framework v1.0 - January 2026*
+*FSI Agent Governance Framework v1.1 - January 2026*

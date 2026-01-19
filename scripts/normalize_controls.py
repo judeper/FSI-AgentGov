@@ -1,6 +1,6 @@
-"""Normalize control document metadata across all 48 controls.
+"""Normalize control document metadata across all 60 controls.
 
-This script enforces the v1.0 requirements:
+This script enforces the v1.1 requirements:
 - Footer must include the exact string: "v1.0 (Jan 2026)"
 - Footer must include: "Updated: Jan 2026" (month-year)
 
@@ -25,14 +25,14 @@ from pathlib import Path
 
 DOCS_DIR = Path("docs")
 PILLAR_DIRS = [
-    DOCS_DIR / "reference" / "pillar-1-security",
-    DOCS_DIR / "reference" / "pillar-2-management",
-    DOCS_DIR / "reference" / "pillar-3-reporting",
-    DOCS_DIR / "reference" / "pillar-4-sharepoint",
+    DOCS_DIR / "controls" / "pillar-1-security",
+    DOCS_DIR / "controls" / "pillar-2-management",
+    DOCS_DIR / "controls" / "pillar-3-reporting",
+    DOCS_DIR / "controls" / "pillar-4-sharepoint",
 ]
 
 CANON_UPDATED = "Jan 2026"
-CANON_VERSION = "v1.0 (Jan 2026)"
+CANON_VERSION = "v1.1 (Jan 2026)"
 
 
 @dataclass

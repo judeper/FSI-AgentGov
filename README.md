@@ -176,7 +176,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 55 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for all 60 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
 
 ### Priority Controls (Start Here)

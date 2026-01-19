@@ -410,4 +410,4 @@ For questions about evidence standards:
 ---
 
 **Updated:** Jan 2026
-**Version:** v1.0 (Jan 2026)
+**Version:** v1.1 (Jan 2026)
