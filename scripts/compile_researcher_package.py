@@ -23,7 +23,7 @@ PILLARS = {
     2: {
         "name": "Management",
         "folder": "pillar-2-management",
-        "controls": list(range(1, 21)),  # 2.1 to 2.20
+        "controls": list(range(1, 22)),  # 2.1 to 2.21
         "description": "Govern agent lifecycle, risk management, and operational oversight."
     },
     3: {

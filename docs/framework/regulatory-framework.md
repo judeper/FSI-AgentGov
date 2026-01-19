@@ -336,7 +336,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 | GLBA 501(b) | 6 controls | Safeguards |
 | OCC 2011-12 / SR 11-7 | 6 controls | Model risk |
 
-**Total:** 60 controls across 4 pillars providing mapped coverage to primary US financial regulations.
+**Total:** 61 controls across 4 pillars providing mapped coverage to primary US financial regulations.
 
 !!! note
     Coverage indicates which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance.

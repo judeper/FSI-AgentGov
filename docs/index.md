@@ -24,7 +24,7 @@ Start here to understand the governance framework and regulatory alignment.
 
 Start here for technical implementation guidance.
 
-1. **Read:** [Control Catalog](controls/index.md) — All 60 controls
+1. **Read:** [Control Catalog](controls/index.md) — All 61 controls
 2. **Then:** [Pillar 1 Security](controls/pillar-1-security/index.md) and [Pillar 2 Management](controls/pillar-2-management/index.md)
 3. **Action:** [Implementation Playbooks](playbooks/index.md) — Step-by-step procedures
 4. **Use:** [Phase 0 Setup](playbooks/getting-started/phase-0-governance-setup.md) — Initial deployment
@@ -55,19 +55,19 @@ The framework is organized into three layers:
 | Layer | Audience | Content |
 |-------|----------|---------|
 | **[Framework](framework/index.md)** | Executives, Compliance, Governance | Principles, zones, regulatory context |
-| **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 60 control requirements |
+| **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 61 control requirements |
 | **[Playbooks](playbooks/index.md)** | Platform Teams, Operations | Step-by-step procedures |
 
 ---
 
 ## Control Summary
 
-**60 controls** across four governance pillars:
+**61 controls** across four governance pillars:
 
 | Pillar | Controls | Focus |
 |--------|----------|-------|
 | [Pillar 1: Security](controls/pillar-1-security/index.md) | 23 | DLP, audit, encryption, MFA, eDiscovery |
-| [Pillar 2: Management](controls/pillar-2-management/index.md) | 20 | Lifecycle, testing, model risk, supervision |
+| [Pillar 2: Management](controls/pillar-2-management/index.md) | 21 | Lifecycle, testing, model risk, supervision |
 | [Pillar 3: Reporting](controls/pillar-3-reporting/index.md) | 10 | Inventory, usage, PPAC, Sentinel |
 | [Pillar 4: SharePoint](controls/pillar-4-sharepoint/index.md) | 7 | Access, retention, grounding scope |
 

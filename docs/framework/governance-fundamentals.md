@@ -65,12 +65,12 @@ This framework provides governance guidance for:
 
 ## Four Governance Pillars
 
-The framework organizes 60 controls across four pillars:
+The framework organizes 61 controls across four pillars:
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
 | **1. [Security](../controls/pillar-1-security/index.md)** | 23 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. [Management](../controls/pillar-2-management/index.md)** | 20 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
+| **2. [Management](../controls/pillar-2-management/index.md)** | 21 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 10 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
 | **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
@@ -196,7 +196,7 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 **For Control Requirements:**
 
-- [Control Catalog](../controls/index.md) — All 60 controls
+- [Control Catalog](../controls/index.md) — All 61 controls
 - [Regulatory Framework](regulatory-framework.md) — Regulation-to-control mappings
 
 **For Implementation:**

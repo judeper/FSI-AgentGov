@@ -102,7 +102,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (8/60 controls). Implementation required.
+Framework provides supervision procedure guidance (8/61 controls). Implementation required.
 
 ---
 
@@ -152,7 +152,7 @@ Discusses model risk management considerations for AI and algorithmic systems. T
 The framework treats agents as models requiring comprehensive governance per SR 11-7 principles.
 
 ### Framework Coverage
-Framework addresses Notice 25-07 topics (11/60 controls). Implementation and validation required.
+Framework addresses Notice 25-07 topics (11/61 controls). Implementation and validation required.
 
 ---
 
@@ -266,7 +266,59 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (6/60 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (6/61 controls). Legal review recommended. Implementation required.
+
+---
+
+## SEC Marketing Rule (206(4)-1) - AI Marketing Claims
+
+### Overview
+The SEC Marketing Rule governs advertising by investment advisers, including claims about AI capabilities. SEC enforcement actions in 2024 (Delphia Inc., Global Predictions Inc.) established precedent for "AI washing" enforcement.
+
+### Applicable Controls
+
+| Control | Requirement | Mapping |
+|---------|-------------|---------|
+| [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | AI Marketing Claims and Substantiation | Primary control for marketing rule compliance |
+| [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Transparency complements marketing accuracy |
+| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Performance claims require substantiation |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Validates AI capabilities being marketed |
+| [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Maintains substantiation evidence |
+
+### Key Requirements
+
+1. **Substantiation Required**
+   - All AI capability claims must have reasonable basis
+   - Performance claims require documented testing methodology
+   - Comparative claims require controlled studies
+
+2. **No Material Misstatements**
+   - Cannot overstate AI capabilities
+   - Must disclose AI limitations
+   - Cannot imply human-level judgment where AI is used
+
+3. **Pre-Publication Review**
+   - Compliance review before external publication
+   - Legal review for Zone 3 customer-facing claims
+   - Document approval workflow
+
+4. **Ongoing Monitoring**
+   - Quarterly review of published claims
+   - Update or retire claims when AI capabilities change
+   - Monitor for regulatory guidance changes
+
+### Governance Framework Alignment
+
+**Zone 3 Customer-Facing AI Marketing:**
+
+- Mandatory pre-publication compliance review
+- Legal review for all external AI claims
+- Substantiation file maintained with evidence
+- Quarterly claims accuracy review
+- 7-year retention per FINRA 4511
+
+### Framework Coverage
+Framework provides dedicated AI marketing claims control (Control 2.21). Implementation required for investment advisers.
 
 ---
 
@@ -325,7 +377,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 73% control coverage (43/60 controls). SOX-specific testing required. Implementation required.
+Framework provides 72% control coverage (44/61 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -385,7 +437,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 83% control coverage (50/60 controls). Implementation validation required.
+Framework provides 84% control coverage (51/61 controls). Implementation validation required.
 
 ---
 
@@ -458,7 +510,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 53% control coverage (32/60 controls). OCC-specific model validation required for full compliance.
+Framework provides 54% control coverage (33/61 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -504,7 +556,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/60 controls applicable). ECOA-specific testing and validation required.
+Framework provides bias testing controls (2/61 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -626,7 +678,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (6/60 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (6/61 controls). CFPB-specific implementation required.
 
 ---
 
@@ -681,7 +733,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 60 controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All 61 controls applicable.
 
 ---
 
@@ -741,7 +793,7 @@ Part 748 requires credit unions to maintain a security program. Framework contro
 - Compliance Officer oversight for Zone 2+ agents
 
 ### Framework Coverage
-All 60 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
+All 61 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
 
 ---
 
@@ -908,23 +960,24 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 60/60 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 8/60 | 13% | Partial - supervision focus |
-| FINRA Notice 25-07 | 11/60 | 18% | Partial - model risk focus |
-| SEC 17a-3/4 | 49/60 | 82% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/60 | 12% | Limited - fairness + disclosure focus |
-| SOX 302/404 | 44/60 | 73% | Substantial coverage |
-| GLBA 501-505 | 51/60 | 85% | Substantial coverage |
-| OCC 2011-12 | 33/60 | 55% | Partial - model risk focus |
-| Fed SR 11-7 | 33/60 | 55% | Partial - model risk focus |
-| Fed ECOA | 3/60 | 5% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/60 | 12% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/60 | 15% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 60/60 | 100% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/60 | 85% | Security program alignment |
-| NYDFS Part 500 | 45/60 | 75% | State-level awareness |
-| NAIC Model Law | 41/60 | 68% | Insurance awareness |
-| State AI Laws | 6/60 | 10% | Emerging - transparency, bias, human review |
+| FINRA 4511 | 61/61 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 8/61 | 13% | Partial - supervision focus |
+| FINRA Notice 25-07 | 11/61 | 18% | Partial - model risk focus |
+| SEC 17a-3/4 | 49/61 | 80% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 7/61 | 11% | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | 5/61 | 8% | AI marketing claims - Control 2.21 |
+| SOX 302/404 | 44/61 | 72% | Substantial coverage |
+| GLBA 501-505 | 51/61 | 84% | Substantial coverage |
+| OCC 2011-12 | 33/61 | 54% | Partial - model risk focus |
+| Fed SR 11-7 | 33/61 | 54% | Partial - model risk focus |
+| Fed ECOA | 3/61 | 5% | Minimal - bias testing only |
+| CFPB / UDAAP | 7/61 | 11% | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | 9/61 | 15% | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | 61/61 | 100% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 51/61 | 84% | Security program alignment |
+| NYDFS Part 500 | 45/61 | 74% | State-level awareness |
+| NAIC Model Law | 41/61 | 67% | Insurance awareness |
+| State AI Laws | 6/61 | 10% | Emerging - transparency, bias, human review |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 

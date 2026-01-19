@@ -4,7 +4,7 @@
 
 FSI Agent Governance Framework v1.1 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
-- **60 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **61 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
@@ -34,7 +34,7 @@ FSI Agent Governance Framework v1.1 - A governance framework for Microsoft 365 A
 ### Navigation Philosophy (Three-Layer Model)
 - **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
 - **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
-- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 240 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 244 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
 - **Getting Started:** Admin onboarding only (no repo structure info)
 - **Downloads:** Role-based Excel checklists for admins
@@ -63,12 +63,12 @@ docs/
 │   └── index.md
 ├── controls/                     # RENAMED in v1.1 (was: reference/pillar-*)
 │   ├── pillar-1-security/        # 23 security controls (1.1-1.23)
-│   ├── pillar-2-management/      # 20 management controls (2.1-2.20)
+│   ├── pillar-2-management/      # 21 management controls (2.1-2.21)
 │   ├── pillar-3-reporting/       # 10 reporting controls (3.1-3.10)
 │   ├── pillar-4-sharepoint/      # 7 SharePoint controls (4.1-4.7)
 │   └── CONTROL-INDEX.md          # Master control list
 ├── playbooks/                    # NEW in v1.1: Implementation layer
-│   ├── control-implementations/  # Per-control guides (240 files, 4 per control)
+│   ├── control-implementations/  # Per-control guides (244 files, 4 per control)
 │   ├── governance-operations/    # Standing procedures
 │   ├── compliance-and-audit/     # Audit preparation guides
 │   ├── incident-and-risk/        # Incident handling procedures
@@ -147,7 +147,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
 | `docs/templates/control-setup-template.md` | Control format (10 sections) |
-| `docs/controls/CONTROL-INDEX.md` | Master list of all 60 controls |
+| `docs/controls/CONTROL-INDEX.md` | Master list of all 61 controls |
 | `mkdocs.yml` | Site navigation structure |
 
 ## Build and Validate

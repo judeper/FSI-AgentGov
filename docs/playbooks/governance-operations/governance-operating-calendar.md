@@ -10,7 +10,7 @@ This template provides a consolidated operational calendar for AI agent governan
 
 The Governance Operating Calendar:
 
-- **Consolidates** tasks from 60 controls into a single operational view
+- **Consolidates** tasks from 61 controls into a single operational view
 - **Prevents gaps** by scheduling recurring governance activities
 - **Supports audit** by documenting when tasks should be performed
 - **Enables planning** for resource allocation and scheduling
@@ -281,7 +281,7 @@ AI Governance Lead: _________________ Date: _________
 
 ## Comprehensive Reviews
 - [ ] Full control effectiveness assessed
-  - Controls tested: 60
+  - Controls tested: 61
   - Effective: ____
   - Partially effective: ____
   - Not effective: ____

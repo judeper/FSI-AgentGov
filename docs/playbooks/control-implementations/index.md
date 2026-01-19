@@ -51,7 +51,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.22 Information Barriers](../../controls/pillar-1-security/1.22-information-barriers.md) | [Portal](1.22/portal-walkthrough.md) | [PS](1.22/powershell-setup.md) | [Test](1.22/verification-testing.md) | [Fix](1.22/troubleshooting.md) |
 | [1.23 Step-Up Authentication](../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | [Portal](1.23/portal-walkthrough.md) | [PS](1.23/powershell-setup.md) | [Test](1.23/verification-testing.md) | [Fix](1.23/troubleshooting.md) |
 
-### Pillar 2: Management (20 controls)
+### Pillar 2: Management (21 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -75,6 +75,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [2.18 Conflict of Interest Testing](../../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | [Portal](2.18/portal-walkthrough.md) | [PS](2.18/powershell-setup.md) | [Test](2.18/verification-testing.md) | [Fix](2.18/troubleshooting.md) |
 | [2.19 AI Disclosure](../../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | [Portal](2.19/portal-walkthrough.md) | [PS](2.19/powershell-setup.md) | [Test](2.19/verification-testing.md) | [Fix](2.19/troubleshooting.md) |
 | [2.20 Adversarial Testing](../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | [Portal](2.20/portal-walkthrough.md) | [PS](2.20/powershell-setup.md) | [Test](2.20/verification-testing.md) | [Fix](2.20/troubleshooting.md) |
+| [2.21 AI Marketing Claims](../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal](2.21/portal-walkthrough.md) | [PS](2.21/powershell-setup.md) | [Test](2.21/verification-testing.md) | [Fix](2.21/troubleshooting.md) |
 
 ### Pillar 3: Reporting (10 controls)
 

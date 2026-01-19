@@ -136,6 +136,7 @@ nav:
       - 2.18 Conflict of Interest Testing: controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
       - 2.19 AI Disclosure: controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md
       - 2.20 Adversarial Testing: controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md
+      - 2.21 AI Marketing Claims: controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md
     - Pillar 3 - Reporting:
       - Overview: controls/pillar-3-reporting/index.md
       - 3.1 Agent Inventory: controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
@@ -379,6 +380,11 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/2.20/powershell-setup.md
           - Verification: playbooks/control-implementations/2.20/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/2.20/troubleshooting.md
+        - 2.21 AI Marketing Claims:
+          - Portal Walkthrough: playbooks/control-implementations/2.21/portal-walkthrough.md
+          - PowerShell Setup: playbooks/control-implementations/2.21/powershell-setup.md
+          - Verification: playbooks/control-implementations/2.21/verification-testing.md
+          - Troubleshooting: playbooks/control-implementations/2.21/troubleshooting.md
       - Pillar 3 - Reporting:
         - 3.1 Agent Inventory:
           - Portal Walkthrough: playbooks/control-implementations/3.1/portal-walkthrough.md
@@ -513,6 +519,7 @@ nav:
     - Portal Paths: reference/portal-paths-quick-reference.md
     - Microsoft Learn URLs: reference/microsoft-learn-urls.md
     - FSI Examples: reference/fsi-configuration-examples.md
+    - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
     - Glossary: reference/glossary.md
     - FAQ: reference/faq.md
 

@@ -30,11 +30,11 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
 | **1. Security** | 23 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. Management** | 20 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
+| **2. Management** | 21 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. Reporting** | 10 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback |
 | **4. SharePoint Mgmt** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
-**Total: 60 Comprehensive Controls**
+**Total: 61 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -76,10 +76,10 @@ Strategic governance principles in `docs/framework/`:
 - Agent lifecycle management
 - Operating model and regulatory framework
 
-### Control Files (60 Total)
+### Control Files (61 Total)
 Technical specifications in `docs/controls/`:
 - **Pillar 1:** 23 Security Controls (1.1-1.23)
-- **Pillar 2:** 20 Management Controls (2.1-2.20)
+- **Pillar 2:** 21 Management Controls (2.1-2.21)
 - **Pillar 3:** 10 Reporting Controls (3.1-3.10)
 - **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
 
@@ -89,9 +89,9 @@ Each control includes:
 - Zone-specific requirements
 - Verification and testing procedures
 
-### Implementation Playbooks (240 Files)
+### Implementation Playbooks (244 Files)
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
-- **4 playbooks per control** (60 controls × 4 = 240 playbooks)
+- **4 playbooks per control** (61 controls × 4 = 244 playbooks)
 - Portal walkthrough guides with click-by-click navigation
 - PowerShell automation scripts with validation
 - Verification testing procedures with evidence checklists
@@ -157,9 +157,9 @@ Version 1.1 introduces a three-layer documentation model designed to serve diffe
 **Purpose:** Technical control specifications
 **Audience:** Administrators, engineers, security teams
 
-60 detailed controls organized by pillar:
+61 detailed controls organized by pillar:
 - **Pillar 1 - Security:** 23 controls (1.1-1.23)
-- **Pillar 2 - Management:** 20 controls (2.1-2.20)
+- **Pillar 2 - Management:** 21 controls (2.1-2.21)
 - **Pillar 3 - Reporting:** 10 controls (3.1-3.10)
 - **Pillar 4 - SharePoint:** 7 controls (4.1-4.7)
 
@@ -171,7 +171,7 @@ Each control follows a 10-section format including objective, regulatory alignme
 **Purpose:** Step-by-step implementation procedures
 **Audience:** Hands-on implementers, auditors
 
-240 implementation playbooks (4 per control):
+244 implementation playbooks (4 per control):
 1. **Portal Walkthrough** - Click-by-click configuration in admin portals
 2. **PowerShell Setup** - Automation scripts with validation
 3. **Verification Testing** - Test cases, evidence collection, attestation templates
@@ -250,7 +250,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 60 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for all 61 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
 
 ### Priority Controls (Start Here)

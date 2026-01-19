@@ -17,7 +17,7 @@ Role names below use the framework's canonical short naming. See the [Administra
 | [Purview Administrator Checklist](purview-administrator-checklist.xlsx) | Purview Compliance Admin | Purview controls: DLP, DSPM for AI, Audit, eDiscovery |
 | [SharePoint Administrator Checklist](sharepoint-administrator-checklist.xlsx) | SharePoint Admin | SharePoint governance controls: access, retention, external sharing |
 | [Compliance Officer Checklist](compliance-officer-checklist.xlsx) | Compliance Officer | Regulatory mappings and audit evidence tracking |
-| [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 60 controls with maturity scoring and dashboard |
+| [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 61 controls with maturity scoring and dashboard |
 
 ---
 
@@ -105,6 +105,7 @@ Each Excel checklist includes:
 - 2.13 Documentation and Record Keeping
 - 2.18 Automated Conflict of Interest Testing
 - 2.19 Customer AI Disclosure and Transparency
+- 2.21 AI Marketing Claims and Substantiation
 - 3.3 Compliance and Regulatory Reporting
 - 3.10 Hallucination Feedback Loop
 

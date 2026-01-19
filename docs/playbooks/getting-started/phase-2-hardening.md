@@ -177,7 +177,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 
 ### Full Framework Assessment
 
-Conduct comprehensive review of all 60 controls:
+Conduct comprehensive review of all 61 controls:
 
 - [ ] Each control assessed for implementation status
 - [ ] Gaps identified and documented
@@ -257,7 +257,7 @@ Create and maintain:
 
 ### Steady-State Operations
 
-- [ ] All 60 controls assessed
+- [ ] All 61 controls assessed
 - [ ] Gaps documented with remediation plans
 - [ ] Operations guide created
 - [ ] Ongoing cadence established
@@ -271,7 +271,7 @@ Phase 2 is complete when:
 1. Runtime protection is detecting threats
 2. Sentinel integration provides centralized monitoring
 3. Adversarial testing program is operational
-4. All 60 controls have been assessed
+4. All 61 controls have been assessed
 5. Steady-state operations documentation is complete
 6. Annual governance review has been conducted
 

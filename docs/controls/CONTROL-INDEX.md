@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (60 Controls)
+## Complete Control Reference (61 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
@@ -34,7 +34,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.22 | [Information Barriers for AI Agents](pillar-1-security/1.22-information-barriers.md) |
 | 1.23 | [Step-Up Authentication for AI Agent Operations](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) |
 
-## Pillar 2: Management Controls (20 Controls)
+## Pillar 2: Management Controls (21 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -58,6 +58,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.18 | [Automated Conflict of Interest Testing](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) |
 | 2.19 | [Customer AI Disclosure and Transparency](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
 | 2.20 | [Adversarial Testing and Red Team Framework](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) |
+| 2.21 | [AI Marketing Claims and Substantiation](pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) |
 
 ## Pillar 3: Agent Reporting (10 Controls)
 
@@ -123,7 +124,7 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - Information Barriers
 - Step-Up Authentication
 
-### Pillar 2: Management Controls (20 Controls)
+### Pillar 2: Management Controls (21 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management
@@ -137,6 +138,7 @@ Focus: Govern the agent lifecycle, access control, change management, and model 
 - Conflict of Interest Testing
 - Customer AI Disclosure
 - Adversarial Testing & Red Teaming
+- AI Marketing Claims & Substantiation
 
 ### Pillar 3: Agent Reporting (10 Controls)
 Focus: Visibility and monitoring of agent activities, performance, and compliance.
