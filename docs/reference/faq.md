@@ -452,7 +452,7 @@ Check with your Microsoft account team.
 
 A: Some controls reference Microsoft features that are currently in preview:
 
-| Feature | Status (Dec 2025) | Access |
+| Feature | Status (Jan 2026) | Access |
 |---------|-------------------|--------|
 | **Agent 365** | Frontier Preview | Requires Frontier program enrollment |
 | **Entra Agent ID** | Public Preview | Available in Entra Admin Center |

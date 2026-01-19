@@ -118,6 +118,37 @@ Fixed stale documentation after v1.1 restructuring:
 - **docs/templates/README.md** — Removed references to non-existent JSON files; updated control count from 48 to 60; updated "After Creating a Control" steps to reference CONTROL-INDEX.md
 - **mkdocs.yml** — Added `playbooks/control-implementations/*/` to exclude_docs to suppress 240 "not in nav" warnings
 
+### Comprehensive Repository Verification (January 18, 2026)
+
+Exhaustive verification of all repository content (scripts, Excel files, documentation) with automated tooling.
+
+**Scripts Deleted (6 legacy one-time migration scripts with stale paths):**
+- `scripts/apply_primary_owner_roles.py`
+- `scripts/fix_zone_guidance_grammar.py`
+- `scripts/tailor_zone_guidance.py`
+- `scripts/fix_controls_targeted_cleanup.py`
+- `scripts/audit_controls_zone_hygiene.py`
+- `scripts/generate_zone_cleanup_plan.py`
+
+**Scripts Added:**
+- `scripts/verify_excel_templates.py` — Validates Excel template control counts and stale content
+- `scripts/update_excel_templates.py` — Updates Excel templates (version references, missing controls)
+
+**Documentation Fixed:**
+- **docs/reference/microsoft-learn-urls.md** — Updated footer date from "December 2025" to "January 2026"
+- **docs/reference/faq.md** — Updated preview feature table header from "Dec 2025" to "Jan 2026"
+
+**Excel Templates Updated (all 6 files):**
+- Updated version footer from "v1.0 Beta" to "v1.1" in all 6 Excel files
+- Added missing controls 1.23 and 2.20 to `governance-maturity-dashboard.xlsx` (58→60 controls)
+
+**Validation Results:**
+- All documentation layers verified clean (framework, reference, controls, playbooks, getting-started)
+- All Excel templates pass verification (`verify_excel_templates.py`)
+- Zero stale "48 control" references in docs
+- Zero stale `docs/reference/pillar-*` paths in active scripts
+- Zero stale "v1.0" references (except CHANGELOG historical entries)
+
 ---
 
 ## [1.0] — January 2026

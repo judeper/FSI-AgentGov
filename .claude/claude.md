@@ -624,6 +624,61 @@ Comprehensive verification of all documentation after v1.1 restructuring:
 - Zero stale "48 controls" references in docs
 - Zero active `docs/reference/pillar-*` paths (only in CHANGELOG)
 
+#### v1.1 Comprehensive Repository Verification (January 18, 2026)
+
+Exhaustive verification of ALL repository content including scripts, Excel files, and issue templates.
+
+**Phase 1: Parallel Documentation Sweep (6 agents)**
+- Framework layer (`docs/framework/`): ✅ Clean
+- Reference directory (`docs/reference/`): 2 date fixes needed
+- Control & playbook indexes: ✅ Clean
+- Legacy scripts audit: 6 scripts identified for deletion
+- GitHub & root files: ✅ Clean
+- Getting-started & templates: ✅ Clean
+
+**Phase 2: Excel Template Verification**
+- Created `scripts/verify_excel_templates.py` for automated Excel validation
+- Found: 6 files with "v1.0 Beta" references, dashboard missing 2 controls
+
+**Phase 3: Remediation**
+
+*Files Deleted (6 legacy scripts with stale `docs/reference/pillar-*` paths):*
+- `scripts/apply_primary_owner_roles.py`
+- `scripts/fix_zone_guidance_grammar.py`
+- `scripts/tailor_zone_guidance.py`
+- `scripts/fix_controls_targeted_cleanup.py`
+- `scripts/audit_controls_zone_hygiene.py`
+- `scripts/generate_zone_cleanup_plan.py`
+
+*Documentation Fixed:*
+| File | Issue | Fix |
+|------|-------|-----|
+| `docs/reference/microsoft-learn-urls.md:140` | "December 2025" | Updated to "January 2026" |
+| `docs/reference/faq.md:455` | "Dec 2025" | Updated to "Jan 2026" |
+
+*Excel Templates Updated (all 6 files):*
+| File | Changes |
+|------|---------|
+| `governance-maturity-dashboard.xlsx` | v1.0 Beta → v1.1, added controls 1.23 & 2.20 (58→60) |
+| `compliance-officer-checklist.xlsx` | v1.0 Beta → v1.1 |
+| `entra-administrator-checklist.xlsx` | v1.0 Beta → v1.1 |
+| `power-platform-administrator-checklist.xlsx` | v1.0 Beta → v1.1 |
+| `purview-administrator-checklist.xlsx` | v1.0 Beta → v1.1 |
+| `sharepoint-administrator-checklist.xlsx` | v1.0 Beta → v1.1 |
+
+*New Scripts Created:*
+- `scripts/verify_excel_templates.py` - Validates Excel template content and counts
+- `scripts/update_excel_templates.py` - Updates Excel templates (version refs, missing controls)
+
+**Phase 4: Final Validation**
+- `mkdocs build --strict`: ✅ Pass
+- `python scripts/verify_controls.py`: ✅ 60/60 controls valid
+- `python scripts/verify_templates.py`: ✅ All templates valid
+- `python scripts/verify_excel_templates.py`: ✅ All 6 files pass
+- Zero stale "48 control" references
+- Zero stale `docs/reference/pillar-*` paths in active code
+- Zero stale "v1.0" references (except CHANGELOG)
+
 #### Playbook Structure Reference
 
 Each control's playbooks follow this structure:

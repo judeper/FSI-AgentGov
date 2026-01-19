@@ -137,5 +137,5 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 ---
 
-*Last Updated: December 2025*
+*Last Updated: January 2026*
 *Note: Microsoft documentation URLs may change. Verify links before use.*

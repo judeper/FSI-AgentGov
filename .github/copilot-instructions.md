@@ -165,6 +165,9 @@ python scripts/verify_controls.py
 
 # Validate templates are valid
 python scripts/verify_templates.py
+
+# Validate Excel templates (control counts, version references)
+python scripts/verify_excel_templates.py
 ```
 
 ## Common Tasks
