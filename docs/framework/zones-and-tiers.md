@@ -249,42 +249,48 @@ Zone 3 agents handling regulated data may be subject to comprehensive oversight 
 
 **MANDATORY Controls:**
 
-1. **Governance Committee Approval**
-   - AI Governance Lead
-   - Compliance Officer
-   - CISO
-   - Legal/General Counsel
-   - Business Owner
+**Governance Committee Approval**
 
-2. **Model Risk Management**
-   - Validation testing
-   - Bias testing and fairness assessment
-   - Performance monitoring vs. baseline
-   - Annual third-party validation (recommended)
+- AI Governance Lead
+- Compliance Officer
+- CISO
+- Legal/General Counsel
+- Business Owner
 
-3. **Data Security**
-   - DLP with strictest policies
-   - Sensitivity labels mandatory
-   - Encryption in transit and at rest
-   - Customer-managed keys (recommended)
+**Model Risk Management**
 
-4. **Audit and Logging**
-   - 10-year retention with immutable storage
-   - Real-time monitoring and alerting
-   - Daily compliance reviews
-   - Weekly executive reporting
+- Validation testing
+- Bias testing and fairness assessment
+- Performance monitoring vs. baseline
+- Annual third-party validation (recommended)
 
-5. **Change Management**
-   - 48-hour change review window
-   - Formal change advisory board (CAB)
-   - Automated rollback capability
-   - Testing in lower tier before promotion
+**Data Security**
 
-6. **Incident Response**
-   - SLA for incident investigation (<4 hours)
-   - Root cause analysis required
-   - Executive escalation procedures
-   - Board notification procedures
+- DLP with strictest policies
+- Sensitivity labels mandatory
+- Encryption in transit and at rest
+- Customer-managed keys (recommended)
+
+**Audit and Logging**
+
+- 10-year retention with immutable storage
+- Real-time monitoring and alerting
+- Daily compliance reviews
+- Weekly executive reporting
+
+**Change Management**
+
+- 48-hour change review window
+- Formal change advisory board (CAB)
+- Automated rollback capability
+- Testing in lower tier before promotion
+
+**Incident Response**
+
+- SLA for incident investigation (<4 hours)
+- Root cause analysis required
+- Executive escalation procedures
+- Board notification procedures
 
 ### Implementation Considerations
 

@@ -291,7 +291,6 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
 - [NIST AI Risk Management Framework 1.0](https://www.nist.gov/itl/ai-risk-management-framework)
 - [NIST AI RMF Playbook](https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook)
 - [Treasury AI in Financial Services Report (March 2024)](https://home.treasury.gov/news/press-releases/jy2212)
-- [FSI Agent Governance Framework](../framework/index.md)
 
 ---
 
