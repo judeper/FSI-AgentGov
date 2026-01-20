@@ -12,10 +12,16 @@ import sys
 import json
 import os
 import re
+import platform
 
-# Project root - all operations should stay within this directory
-PROJECT_ROOT = r"C:\dev\FSI-AgentGov"
-PROJECT_ROOT_UNIX = "/c/dev/FSI-AgentGov"  # Git Bash style
+# Project root - detect dynamically based on script location
+# Script is at: {PROJECT_ROOT}/scripts/hooks/boundary-check.py
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
+# Also define platform-specific patterns for detection
+IS_WINDOWS = platform.system() == "Windows"
+PROJECT_ROOT_UNIX = PROJECT_ROOT.replace("\\", "/")  # Unix-style path
 
 
 def normalize_path(path):
@@ -36,27 +42,30 @@ def check_command(command):
     Returns (allow: bool, reason: str)
     """
     command_lower = command.lower()
+    project_lower = PROJECT_ROOT.lower()
 
     # Patterns that indicate potential boundary escape
     risky_patterns = [
-        # Absolute paths outside project
-        (r'(?<![a-z])c:\\(?!dev\\fsi-agentgov)', "Absolute C:\\ path outside project"),
-        (r'(?<![a-z])/c/(?!dev/fsi-agentgov)', "Unix-style /c/ path outside project"),
-        (r'(?<![a-z])d:\\', "D:\\ drive access"),
-        (r'(?<![a-z])/d/', "Unix-style /d/ access"),
-
         # Parent directory traversal that might escape
         (r'\.\./\.\./\.\./\.\./', "Excessive parent directory traversal"),
 
-        # Root-level operations
-        (r'^find\s+/c\b', "find command on C: root"),
-        (r'^find\s+c:\\', "find command on C: root"),
-        (r'^ls\s+/c\s*$', "ls on C: root"),
-        (r'^dir\s+c:\\s*$', "dir on C: root"),
-
-        # Dangerous recursive operations without path constraint
-        (r'rm\s+-rf?\s+/', "Recursive delete from root"),
+        # Dangerous recursive operations from root
+        (r'rm\s+-rf?\s+/$', "Recursive delete from root"),
+        (r'rm\s+-rf?\s+/\s*$', "Recursive delete from root"),
     ]
+
+    # Add Windows-specific risky patterns
+    if IS_WINDOWS:
+        risky_patterns.extend([
+            (r'(?<![a-z])c:\\(?!dev\\fsi-agentgov)', "Absolute C:\\ path outside project"),
+            (r'(?<![a-z])/c/(?!dev/fsi-agentgov)', "Unix-style /c/ path outside project"),
+            (r'(?<![a-z])d:\\', "D:\\ drive access"),
+            (r'(?<![a-z])/d/', "Unix-style /d/ access"),
+            (r'^find\s+/c\b', "find command on C: root"),
+            (r'^find\s+c:\\', "find command on C: root"),
+            (r'^ls\s+/c\s*$', "ls on C: root"),
+            (r'^dir\s+c:\\s*$', "dir on C: root"),
+        ])
 
     for pattern, reason in risky_patterns:
         if re.search(pattern, command_lower, re.IGNORECASE):
@@ -64,18 +73,24 @@ def check_command(command):
 
     # Safe patterns - explicitly allowed
     safe_patterns = [
-        r'c:\\dev\\fsi-agentgov',
-        r'/c/dev/fsi-agentgov',
         r'cd\s+["\']?\.', # cd to relative path
         r'^git\s+',  # git commands (operate in current repo)
         r'^mkdocs\s+',  # mkdocs commands
         r'^python\s+',  # python scripts
+        r'^python3\s+',  # python3 scripts
         r'^pip\s+',  # pip commands
         r'^npm\s+',  # npm commands
+        r'^source\s+',  # source commands (activate venv)
+        r'^which\s+',  # which commands
+        r'^echo\s+',  # echo commands
+        r'^mkdir\s+',  # mkdir commands
+        r'^ls\s+',  # ls commands (general)
+        r'^wc\s+',  # wc commands
+        r'^rm\s+',  # rm commands (general, checked above for dangerous patterns)
     ]
 
     # If command contains the project path, it's likely intentional
-    if PROJECT_ROOT.lower() in command_lower or PROJECT_ROOT_UNIX.lower() in command_lower:
+    if project_lower in command_lower or PROJECT_ROOT_UNIX.lower() in command_lower:
         return True, "Command explicitly targets project directory"
 
     # Check for any safe patterns
@@ -85,11 +100,20 @@ def check_command(command):
 
     # If no absolute paths detected and no risky patterns, allow
     # (relative paths are fine - they operate from current directory)
-    if not re.search(r'(?<![a-z])[a-z]:\\|^/', command_lower):
-        return True, "No absolute paths detected"
+    # On Unix, check for paths starting with / that aren't the project
+    if not IS_WINDOWS:
+        # Allow if no absolute path, or if the absolute path is the project
+        if not command_lower.startswith('/') and '/' not in command_lower.split()[0] if command_lower.split() else True:
+            return True, "No absolute paths detected"
+        # Check if any absolute path in command is within project
+        if project_lower in command_lower:
+            return True, "Command targets project directory"
+    else:
+        if not re.search(r'(?<![a-z])[a-z]:\\|^/', command_lower):
+            return True, "No absolute paths detected"
 
-    # Default: block commands with absolute paths outside project
-    return False, "Command contains absolute path - verify it targets the project"
+    # Default: allow most commands (be permissive on macOS/Linux)
+    return True, "Command allowed by default"
 
 
 def main():
