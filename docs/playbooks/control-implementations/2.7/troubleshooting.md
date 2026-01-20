@@ -116,6 +116,61 @@
 
 ---
 
+## Microsoft Platform Update Monitoring
+
+For Copilot Studio agents, the underlying models are managed by Microsoft. Organizations should proactively monitor for platform changes that may affect agent behavior.
+
+### Monitoring Channels
+
+| Channel | URL | What to Monitor |
+|---------|-----|-----------------|
+| **Microsoft 365 Message Center** | https://admin.microsoft.com → Message center | Copilot Studio updates, model changes, feature deprecations |
+| **Service Health Dashboard** | https://admin.microsoft.com → Service health | Outages, degraded performance, incident reports |
+| **Power Platform Release Plans** | https://learn.microsoft.com/en-us/power-platform/released-versions/overview | Upcoming features, breaking changes |
+| **Copilot Studio What's New** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Feature updates, capability changes |
+| **Microsoft 365 Roadmap** | https://www.microsoft365.com/roadmap | Future features, timeline visibility |
+
+### Recommended Monitoring Process
+
+**Weekly:**
+1. Review Message Center for Copilot Studio / Power Platform announcements
+2. Check Service Health for any ongoing issues
+3. Document any announcements affecting deployed agents
+
+**Monthly:**
+1. Review Power Platform release notes
+2. Assess impact of upcoming changes on Zone 2/3 agents
+3. Plan re-validation for material changes
+
+**Quarterly:**
+1. Review vendor SLA performance metrics
+2. Assess Microsoft platform changes against MRM requirements
+3. Update vendor risk assessment score
+
+### When to Trigger Re-Validation
+
+Re-validate agents per Control 2.6 (Model Risk Management) when:
+
+- Microsoft announces a model change affecting Copilot Studio
+- Agent behavior metrics deviate from baseline by >5%
+- Microsoft announces deprecation of features your agent uses
+- Service incident impacts data integrity or agent accuracy
+- Customer complaints increase without configuration changes
+
+### PowerShell: Message Center Monitoring
+
+```powershell
+# Get recent Message Center announcements for Power Platform
+Connect-MgGraph -Scopes "ServiceMessage.Read.All"
+
+$messages = Get-MgServiceAnnouncementMessage -Filter "services/any(s:s eq 'Power Platform')" `
+    -Top 50 | Where-Object { $_.LastModifiedDateTime -gt (Get-Date).AddDays(-7) }
+
+$messages | Select-Object Title, LastModifiedDateTime, Severity | Format-Table -AutoSize
+```
+
+---
+
 ## Escalation Path
 
 If issues cannot be resolved using this guide:
