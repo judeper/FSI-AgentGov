@@ -84,7 +84,12 @@ mkdocs serve           # Preview locally at http://localhost:8000
 If you're using AI assistants with this repository:
 
 - **`.github/copilot-instructions.md`** - Repository-wide context for GitHub Copilot
-- **`.claude/claude.md`** - Context and workflows for Claude Code (interactive pair programming)
+- **`.claude/CLAUDE.md`** - Core instructions for Claude Code
+- **`.claude/skills/`** - On-demand workflow guides for Claude Code:
+  - `/update-control` - Modifying existing controls
+  - `/add-control` - Adding new controls
+  - `/update-excel` - Excel template maintenance
+  - `/verify-ui` - Screenshot verification
 - **`AGENTS.md`** - Instructions for autonomous agent tasks
 - **`docs/templates/README.md`** - Guide to using control templates
 

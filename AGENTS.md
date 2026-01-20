@@ -8,6 +8,19 @@ This file provides guidance for autonomous AI agents working on this repository.
 2. **Understand the task scope** - is it a control edit, nav update, or new feature?
 3. **Check related files** - controls often reference each other
 
+## Claude Code Skills
+
+For Claude Code, detailed workflows are available as on-demand skills in `.claude/skills/`:
+
+| Skill | Use When |
+|-------|----------|
+| `/update-control` | Modifying existing control content |
+| `/add-control` | Adding a new control to a pillar |
+| `/update-excel` | Maintaining Excel checklist templates |
+| `/verify-ui` | Verifying portal screenshots match documentation |
+
+Use these skills for step-by-step guidance on common tasks.
+
 ## Agent Workflows
 
 ### Add a New Control

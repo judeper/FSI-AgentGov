@@ -150,6 +150,19 @@ Screenshots are stored locally for verifying portal instructions stay current.
 | `docs/controls/CONTROL-INDEX.md` | Master list of all 61 controls |
 | `mkdocs.yml` | Site navigation structure |
 
+## Claude Code Skills (On-Demand Workflows)
+
+For Claude Code users, detailed workflows are available as on-demand skills in `.claude/skills/`:
+
+| Skill | Use When |
+|-------|----------|
+| `/update-control` | Modifying existing control content |
+| `/add-control` | Adding a new control to a pillar |
+| `/update-excel` | Maintaining Excel checklist templates |
+| `/verify-ui` | Verifying portal screenshots match documentation |
+
+These skills provide step-by-step instructions and are loaded only when invoked.
+
 ## Build and Validate
 
 ```bash
