@@ -28,6 +28,9 @@
       "pattern": "^https://www\\.sec\\.gov"
     },
     {
+      "pattern": "^https://www\\.ftc\\.gov"
+    },
+    {
       "pattern": "^https://admin\\.portal\\.com"
     },
     {
@@ -35,6 +38,12 @@
     },
     {
       "pattern": "^link$"
+    },
+    {
+      "pattern": "\\[X\\.X\\]"
+    },
+    {
+      "pattern": "path/to/"
     }
   ],
   "timeout": "20s",
