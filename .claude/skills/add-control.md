@@ -1,3 +1,10 @@
+---
+name: add-control
+description: Use when adding a brand new control to one of the four pillars in the governance framework
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
+user-invocable: true
+---
+
 # Skill: Add Control
 
 Use this skill when adding a brand new control to one of the four pillars.

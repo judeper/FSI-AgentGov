@@ -1,3 +1,10 @@
+---
+name: update-control
+description: Use when modifying existing control content, fixing typos, adding regulation references, or updating portal paths
+allowed-tools: Read, Edit, Glob, Grep, Bash
+user-invocable: true
+---
+
 # Skill: Update Control
 
 Use this skill when modifying an existing control's content (e.g., update instructions, fix typos, add regulation references).

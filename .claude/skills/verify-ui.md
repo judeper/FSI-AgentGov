@@ -1,3 +1,10 @@
+---
+name: verify-ui
+description: Use when verifying that control documentation matches actual Microsoft portal UI, checking navigation paths and setting names
+allowed-tools: Read, Edit, Glob, Grep, WebFetch
+user-invocable: true
+---
+
 # Skill: Verify UI Screenshots
 
 Use this skill to check if control documentation matches actual Microsoft portal UI.

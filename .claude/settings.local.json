@@ -2,55 +2,11 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git rev-parse:*)",
-      "Bash(mkdocs build:*)",
-      "Bash(mkdocs serve:*)",
-      "Bash(mkdocs gh-deploy:*)",
-      "Bash(python:*)",
-      "Bash(pip:*)",
-      "Bash(rm -r docs/reference/pillar-*)",
-      "Bash(rm -r docs/operational-templates)",
-      "Bash(rm docs/getting-started/*.md)",
-      "Bash(rm -r site)",
-      "Bash(rm -r maintainers-local/tmp)",
       "WebFetch(domain:www.microsoft.com)",
       "WebFetch(domain:learn.microsoft.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:judeper.github.io)",
-      "Bash(git -C /Users/admin/dev/FSI-AgentGov log --oneline --all)",
-      "Bash(git -C /Users/admin/dev/FSI-AgentGov ls-files)",
-      "Bash(git -C /Users/admin/dev/FSI-AgentGov diff --name-only --diff-filter=D HEAD)",
       "Bash(gh run list:*)"
-    ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python scripts/hooks/boundary-check.py"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python scripts/hooks/researcher-package-reminder.py"
-          }
-        ]
-      }
     ]
   }
 }

@@ -6,6 +6,73 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.5] — January 20, 2026 (Claude Code Configuration Update)
+
+### Overview
+
+This release updates the Claude Code configuration to align with latest Anthropic documentation (v2.1+, January 2026), including YAML frontmatter for skills and a split settings architecture.
+
+### Added
+
+- **Team-shared settings file** (`.claude/settings.json`)
+  - Base permissions for git, mkdocs, python, pip commands
+  - Deny rules for dangerous operations (`rm -rf /`, `.env` access)
+  - Hook configurations (PreToolUse, PostToolUse)
+  - Version-controlled for team consistency
+
+- **YAML frontmatter to all 4 skills**
+  - `name` - Skill identifier for invocation
+  - `description` - Enables auto-suggestion based on task context
+  - `allowed-tools` - Restricts tool access per skill
+  - `user-invocable: true` - Enables `/skill-name` invocation
+
+### Changed
+
+- **Settings architecture split**
+  - `settings.json` - Team-shared configuration (committed)
+  - `settings.local.json` - Local overrides only (not committed)
+  - Settings merge at runtime for flexibility
+
+- **Slimmed settings.local.json**
+  - Reduced from 30 rules to 5 local-only rules
+  - Contains: `includeCoAuthoredBy`, WebFetch domains, GitHub CLI permissions
+
+- **Updated CLAUDE.md documentation**
+  - New "Configuration" section with settings file reference
+  - Updated directory structure showing both settings files
+  - Enhanced Skills section with frontmatter description
+  - Detailed hooks documentation with JSON output format
+
+### Skills Updated
+
+| Skill | Allowed Tools |
+|-------|---------------|
+| `/update-control` | Read, Edit, Glob, Grep, Bash |
+| `/add-control` | Read, Write, Edit, Glob, Grep, Bash |
+| `/update-excel` | Read, Bash, Glob |
+| `/verify-ui` | Read, Edit, Glob, Grep, WebFetch |
+
+### Files Modified
+
+| File | Action |
+|------|--------|
+| `.claude/skills/update-control.md` | Added YAML frontmatter |
+| `.claude/skills/add-control.md` | Added YAML frontmatter |
+| `.claude/skills/update-excel.md` | Added YAML frontmatter |
+| `.claude/skills/verify-ui.md` | Added YAML frontmatter |
+| `.claude/settings.json` | Created (team-shared) |
+| `.claude/settings.local.json` | Slimmed to local-only |
+| `.claude/CLAUDE.md` | Updated configuration documentation |
+
+### Validation
+
+- `mkdocs build --strict`: ✅ Pass
+- All 4 skills have valid YAML frontmatter
+- Hook scripts output correct JSON format
+- Boundary check hook blocks dangerous commands
+
+---
+
 ## [1.1.4] — January 20, 2026 (Microsoft Audit Reporting Tools Integration)
 
 ### Overview

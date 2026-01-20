@@ -1,3 +1,10 @@
+---
+name: update-excel
+description: Use when maintaining Excel checklist templates after adding new controls or updating version references
+allowed-tools: Read, Bash, Glob
+user-invocable: true
+---
+
 # Skill: Update Excel Templates
 
 Use this skill when maintaining Excel checklist templates after adding new controls.
