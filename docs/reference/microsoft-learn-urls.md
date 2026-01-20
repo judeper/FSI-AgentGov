@@ -51,7 +51,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Power Platform Governance | https://learn.microsoft.com/en-us/power-platform/guidance/adoption/dlp-strategy | Jan 2026 |
 | Environment Strategy | https://learn.microsoft.com/en-us/power-platform/guidance/adoption/environment-strategy | Jan 2026 |
 | CoE Power BI Monitor | https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-monitor | Jan 2026 |
-| Release Plans | https://learn.microsoft.com/en-us/power-platform/released-versions/overview | Jan 2026 |
+| Release Plans | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Jan 2026 |
 
 ---
 
@@ -173,7 +173,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Access Reviews** | https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview | Jan 2026 |
 | Create Access Review | https://learn.microsoft.com/en-us/entra/id-governance/create-access-review | Jan 2026 |
 | **Privileged Identity Management** | https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure | Jan 2026 |
-| User Management | https://learn.microsoft.com/entra/identity/users/users-manage | Jan 2026 |
+| User Management | https://learn.microsoft.com/en-us/entra/identity/users/ | Jan 2026 |
 
 ---
 

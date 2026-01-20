@@ -126,7 +126,7 @@ For Copilot Studio agents, the underlying models are managed by Microsoft. Organ
 |---------|-----|-----------------|
 | **Microsoft 365 Message Center** | https://admin.microsoft.com → Message center | Copilot Studio updates, model changes, feature deprecations |
 | **Service Health Dashboard** | https://admin.microsoft.com → Service health | Outages, degraded performance, incident reports |
-| **Power Platform Release Plans** | https://learn.microsoft.com/en-us/power-platform/released-versions/overview | Upcoming features, breaking changes |
+| **Power Platform Release Plans** | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Upcoming features, breaking changes |
 | **Copilot Studio What's New** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Feature updates, capability changes |
 | **Microsoft 365 Roadmap** | https://www.microsoft365.com/roadmap | Future features, timeline visibility |
 
