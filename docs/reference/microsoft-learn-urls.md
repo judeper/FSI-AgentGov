@@ -362,6 +362,19 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 ---
 
+## Microsoft Open Source Tools
+
+These Microsoft Engineering open-source tools extend native M365 Admin Center reporting capabilities for enterprise-scale Copilot/AI analytics.
+
+| Tool | GitHub Repository | Purpose |
+|------|-------------------|---------|
+| AI-in-One Dashboard | https://github.com/microsoft/AI-in-One-Dashboard | Power BI template for Copilot adoption analytics |
+| PAX (Portable Audit eXporter) | https://github.com/microsoft/PAX | PowerShell scripts to export audit log data at scale |
+
+See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-implementations/microsoft-audit-reporting-tools.md) for FSI implementation guidance.
+
+---
+
 ## Regulatory References (External)
 
 | Regulation | Reference | URL |

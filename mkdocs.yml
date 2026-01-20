@@ -6,7 +6,9 @@ copyright: "*FSI Agent Governance Framework v1.1 - January 2026*"
 
 extra:
   generator: false
-  footer: "This framework does not constitute legal advice. See Disclaimer."
+  footer: |
+    Built with care for the US Financial Services Microsoft Community
+    This framework does not constitute legal advice. See Disclaimer.
 
 theme:
   name: material
@@ -66,7 +68,13 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: false
   - attr_list
+
+extra_css:
+  - stylesheets/extra.css
 
 nav:
   - Home: index.md
@@ -501,11 +509,15 @@ nav:
       - Health Check Procedures: playbooks/monitoring-and-validation/health-check-procedures.md
       - Purview Audit Query Pack: playbooks/monitoring-and-validation/purview-audit-query-pack.md
       - Semantic Index Governance Queries: playbooks/monitoring-and-validation/semantic-index-governance-queries.md
+    - Validation Testing:
+      - Overview: playbooks/validation-testing/index.md
+      - Script Validation Guide: playbooks/validation-testing/script-validation-guide.md
     - Advanced Implementations:
       - Human-in-the-Loop Triggers: playbooks/advanced-implementations/human-in-the-loop-triggers.md
       - Confidence and Routing: playbooks/advanced-implementations/confidence-and-routing.md
       - Zone 1 Minimum Explainability: playbooks/advanced-implementations/zone1-min-explainability.md
       - DSPM for AI Policy Pack: playbooks/advanced-implementations/dspm-for-ai-policy-pack.md
+      - Microsoft Audit Reporting Tools: playbooks/advanced-implementations/microsoft-audit-reporting-tools.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md

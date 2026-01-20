@@ -6,6 +6,76 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.4] — January 20, 2026 (Microsoft Audit Reporting Tools Integration)
+
+### Overview
+
+This release integrates two Microsoft Engineering open-source tools that address a common FSI pain point: M365 Admin Center provides limited Copilot/AI reporting data, and Viva Insights data is de-identified. These tools enable enterprise-scale audit data extraction and adoption analytics.
+
+### Added
+
+- **Microsoft Audit Reporting Tools Playbook** (`docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md`)
+  - Comprehensive guide for AI-in-One Dashboard and PAX (Portable Audit eXporter)
+  - FSI-specific implementation considerations and use cases
+  - Integration guidance for FINRA 25-07 prompt/response capture
+  - SEC 17a-4 WORM storage workflow support
+  - Compliance considerations (data handling, permissions, classification)
+
+- **Microsoft Open Source Tools Section** (`docs/reference/microsoft-learn-urls.md`)
+  - AI-in-One Dashboard GitHub repository link
+  - PAX (Portable Audit eXporter) GitHub repository link
+  - Cross-reference to implementation playbook
+
+### Enhanced
+
+- **Control 1.7 (Comprehensive Audit Logging)** - Added cross-reference to Microsoft Audit Reporting Tools playbook for enterprise-scale audit extraction
+- **Control 3.2 (Usage Analytics)** - Added cross-reference to Microsoft Audit Reporting Tools playbook for enhanced adoption analytics
+- **Control 3.3 (Compliance Reporting)** - Added cross-reference to Microsoft Audit Reporting Tools playbook for examination evidence generation
+- **Control 3.8 (Copilot Hub)** - Added cross-reference to Microsoft Audit Reporting Tools playbook for supplemental reporting capabilities
+
+### Changed
+
+- **mkdocs.yml** - Added navigation entry for Microsoft Audit Reporting Tools under Advanced Implementations
+
+### Tools Integrated
+
+| Tool | GitHub Repository | Purpose |
+|------|-------------------|---------|
+| AI-in-One Dashboard | microsoft/AI-in-One-Dashboard | Power BI template for Copilot adoption analytics |
+| PAX (Portable Audit eXporter) | microsoft/PAX | PowerShell scripts to export audit log data at scale |
+
+### Gaps Addressed
+
+These tools address the following capability gaps identified in the framework:
+
+| Gap | Tool | How Addressed |
+|-----|------|---------------|
+| Real-Time Executive Dashboard | AI-in-One Dashboard | Pre-built Power BI template with department segmentation |
+| Advanced Data Analytics | PAX | Raw data export for custom analytics pipelines |
+| Trend Analysis | AI-in-One Dashboard | Time-series adoption tracking by department/role |
+| Third-Party Integration | PAX | CSV/Excel export compatible with any BI tool |
+| 50K Record Export Limit | PAX | Incremental exports with watermarking bypass native limits |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md` | **Created** - New playbook |
+| `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Added cross-reference |
+| `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | Added cross-reference |
+| `docs/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md` | Added cross-reference |
+| `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` | Added cross-reference |
+| `docs/reference/microsoft-learn-urls.md` | Added Microsoft Open Source Tools section |
+| `mkdocs.yml` | Added nav entry for new playbook |
+
+### Validation
+
+- `mkdocs build --strict`: ✅ Pass
+- All cross-references resolve correctly
+- GitHub repository links verified accessible
+
+---
+
 ## [1.1.3] — January 19, 2026 (Deep Review & Enhancements)
 
 ### Overview

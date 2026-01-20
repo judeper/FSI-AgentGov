@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.1 (January 2026)
+**Version:** 1.1.4 (January 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -238,9 +238,9 @@ graph LR
 
 Run these from the repo root (`FSI-AgentGov/`):
 
-- `python scripts\verify_controls.py`
-- `python scripts\verify_templates.py`
-- `python scripts\audit_controls_zone_hygiene.py`
+- `python scripts/verify_controls.py`
+- `python scripts/verify_templates.py`
+- `python scripts/verify_excel_templates.py`
 - `mkdocs build --strict`
 
 ### Quick Reference Resources
@@ -373,8 +373,13 @@ This framework is designed for continuous evolution:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | Jan 2026 | Added evaluation gates, adversarial testing, multi-agent governance, RACI templates, governance review cadence | FSI Governance Team |
-| 1.0 Beta | Dec 2025 | Enhanced with AI data governance (DSPM), bias testing, runtime protection, FINRA Notice 25-07 alignment | FSI Governance Team |
+| 1.1.4 | Jan 2026 | Microsoft Audit Reporting Tools integration (AI-in-One Dashboard, PAX) | FSI Governance Team |
+| 1.1.3 | Jan 2026 | Deep review & enhancements, Microsoft Learn URLs expansion (159 URLs) | FSI Governance Team |
+| 1.1.2 | Jan 2026 | NIST AI RMF crosswalk accuracy corrections | FSI Governance Team |
+| 1.1.1 | Jan 2026 | Researcher gap analysis response, Control 2.21 (AI Marketing Claims) | FSI Governance Team |
+| 1.1 | Jan 2026 | Three-layer documentation architecture, 244 playbooks, framework layer | FSI Governance Team |
+| 1.0 | Jan 2026 | Added evaluation gates, adversarial testing, multi-agent governance, RACI templates | FSI Governance Team |
+| 1.0 Beta | Dec 2025 | Enhanced with DSPM, bias testing, runtime protection, FINRA Notice 25-07 alignment | FSI Governance Team |
 | 0.9 | Oct 2025 | Initial Internal Draft | FSI Governance Team |
 
 ---
@@ -401,5 +406,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.1.4 - January 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

@@ -864,7 +864,60 @@ Each playbook contains:
 
 ---
 
+#### Microsoft Audit Reporting Tools Integration (January 20, 2026)
+
+Integrated two Microsoft Engineering open-source tools to address M365 Admin Center reporting limitations for Copilot/AI analytics.
+
+**Tools Integrated:**
+
+| Tool | GitHub | Purpose |
+|------|--------|---------|
+| AI-in-One Dashboard | microsoft/AI-in-One-Dashboard | Power BI template for Copilot adoption analytics |
+| PAX (Portable Audit eXporter) | microsoft/PAX | PowerShell scripts to export audit log data at scale |
+
+**Problem Addressed:** M365 Admin Center provides limited Copilot/AI reporting granularity, and Viva Insights data is de-identified. FSI compliance needs require detailed per-user and per-agent analytics, often necessitating direct Unified Audit Log access. These tools bridge that gap.
+
+**Files Created:**
+- `docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md` - Comprehensive playbook covering both tools with FSI context
+
+**Files Modified:**
+
+| File | Change |
+|------|--------|
+| `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Added "Microsoft Audit Reporting Tools" subsection in Additional Resources |
+| `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | Added "Microsoft Audit Reporting Tools" subsection in Additional Resources |
+| `docs/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md` | Added "Microsoft Audit Reporting Tools" subsection in Additional Resources |
+| `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` | Added "Microsoft Audit Reporting Tools" subsection in Additional Resources |
+| `docs/reference/microsoft-learn-urls.md` | Added "Microsoft Open Source Tools" section with GitHub links |
+| `mkdocs.yml` | Added nav entry for new playbook under Advanced Implementations |
+| `CHANGELOG.md` | Added v1.1.4 release notes |
+| `README.md` | Updated version to v1.1.4, fixed stale script references, expanded version history |
+
+**Playbook Contents:**
+1. Background on M365 Admin Center reporting limitations
+2. AI-in-One Dashboard overview (features, prerequisites, FSI considerations)
+3. PAX overview with three processors (Purview Audit Log, Copilot Interactions Content, Graph Audit Log)
+4. FSI use cases (FINRA 25-07 prompt/response capture, SEC 17a-4 WORM storage)
+5. Compliance considerations (data handling, permissions, classification)
+6. Integration mapping to framework controls (1.7, 3.2, 3.3, 3.8)
+7. Known limitations
+
+**Gaps Addressed:**
+
+| Gap | Tool | How |
+|-----|------|-----|
+| Real-Time Executive Dashboard | AI-in-One Dashboard | Pre-built Power BI template |
+| 50K Record Export Limit | PAX | Incremental exports with watermarking |
+| Third-Party Integration | PAX | CSV/Excel export for any BI tool |
+| Trend Analysis | AI-in-One Dashboard | Time-series adoption tracking |
+
+**Validation:** `mkdocs build --strict` passes with no warnings.
+
+**Version:** v1.1.4 (January 20, 2026)
+
+---
+
 ## Version Info
-- **Framework Version:** 1.1.3 (January 2026)
-- **Last Updated:** January 19, 2026
+- **Framework Version:** 1.1.4 (January 2026)
+- **Last Updated:** January 20, 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
