@@ -30,7 +30,9 @@ Read these files for context:
 FSI-AgentGov/
 ├── .claude/
 │   ├── CLAUDE.md              # This file (core instructions)
-│   └── skills/                # On-demand workflow guides
+│   ├── settings.json          # Team-shared settings (hooks, permissions)
+│   ├── settings.local.json    # Local overrides (not committed)
+│   └── skills/                # On-demand workflow guides (YAML frontmatter)
 ├── docs/
 │   ├── framework/             # Layer 1: Governance principles (9 docs)
 │   ├── controls/              # Layer 2: Control catalog (61 controls)
@@ -44,6 +46,13 @@ FSI-AgentGov/
 │   ├── downloads/             # Excel templates
 │   └── images/                # Screenshot specs
 ├── scripts/                   # Python validation scripts
+│   ├── learn_monitor.py           # Microsoft Learn documentation monitor
+│   ├── verify_controls.py         # Control structure validation
+│   ├── compile_researcher_package.py  # Research package generator
+│   └── hooks/                     # Claude Code hooks
+├── data/                      # Runtime data (state files)
+├── reports/                   # Generated reports
+│   └── learn-changes/             # Learn documentation change reports
 ├── mkdocs.yml                 # Site navigation
 └── CHANGELOG.md               # Release history
 ```
@@ -88,7 +97,11 @@ Use these skills for detailed step-by-step workflows:
 | `/update-excel` | Maintaining Excel checklist templates |
 | `/verify-ui` | Verifying portal screenshots match documentation |
 
-Skills are loaded on-demand to reduce context size.
+Skills are loaded on-demand to reduce context size. Each skill includes YAML frontmatter with:
+- `name` - Skill identifier
+- `description` - When to use this skill (enables auto-suggestion)
+- `allowed-tools` - Tools the skill can access
+- `user-invocable: true` - Can be invoked via `/skill-name`
 
 ---
 
@@ -159,12 +172,62 @@ python scripts/verify_controls.py
 
 # Validate Excel templates
 python scripts/verify_excel_templates.py
+
+# Check Microsoft Learn URLs for changes (manual run)
+python scripts/learn_monitor.py --dry-run --limit 5
+
+# Regenerate researcher package after control changes
+python scripts/compile_researcher_package.py
 ```
 
 ### What "Pass" Means
 - `mkdocs build --strict` produces zero errors/warnings
 - `verify_controls.py` reports all 61 controls valid
 - No broken internal links
+
+---
+
+## Automation
+
+### Microsoft Learn Documentation Monitor
+
+Monitors Microsoft Learn URLs for content changes that may require framework updates.
+
+**Script:** `scripts/learn_monitor.py`
+**Workflow:** `.github/workflows/learn-monitor.yml`
+**Schedule:** Daily at 6:00 AM UTC
+
+**Usage:**
+```bash
+# Test with limited URLs
+python scripts/learn_monitor.py --limit 5 --dry-run
+
+# Debug a single URL
+python scripts/learn_monitor.py --url "https://learn.microsoft.com/..."
+
+# Full run with verbose output
+python scripts/learn_monitor.py --verbose
+```
+
+**Output:**
+- `data/learn-monitor-state.json` - Content hashes for all monitored URLs
+- `reports/learn-changes/learn-changes-YYYY-MM-DD.md` - Change reports with diffs
+
+**Change Classification:**
+| Classification | Trigger | Action |
+|---------------|---------|--------|
+| CRITICAL | Playbook portal-walkthrough.md affected | Immediate update required |
+| HIGH | UI steps, policy language, deprecations | Review and update |
+| MEDIUM | Minor content changes | Review optional |
+| NOISE | Metadata/formatting only | Ignore |
+
+### GitHub Actions Workflows
+
+| Workflow | Schedule | Purpose |
+|----------|----------|---------|
+| `link-check.yml` | Weekly (Sundays) | Validate markdown links |
+| `publish_docs.yml` | On push to main | Deploy to GitHub Pages |
+| `learn-monitor.yml` | Daily (6 AM UTC) | Monitor Learn documentation changes |
 
 ---
 
@@ -192,29 +255,51 @@ python scripts/verify_excel_templates.py
 
 ---
 
-## Hooks
+## Configuration
 
-### Researcher Package Reminder
-A `PostToolUse` hook reminds you to regenerate the researcher package when pillar controls are edited:
-```bash
-python scripts/compile_researcher_package.py
-```
+### Settings Files
 
-### Project Boundary Check
-A `PreToolUse` hook prevents Bash commands from operating outside the project directory.
+| File | Purpose | Committed |
+|------|---------|-----------|
+| `.claude/settings.json` | Team-shared settings (hooks, base permissions, deny rules) | Yes |
+| `.claude/settings.local.json` | Local overrides (WebFetch domains, personal preferences) | No |
+
+Settings are merged at runtime: `settings.json` provides the base, `settings.local.json` adds local overrides.
+
+### Hooks
+
+**PreToolUse: Project Boundary Check**
+- Script: `scripts/hooks/boundary-check.py`
+- Blocks Bash commands that might operate outside the project directory
+- Returns JSON: `{"decision": "allow"}` or `{"decision": "block", "reason": "..."}`
+
+**PostToolUse: Researcher Package Reminder**
+- Script: `scripts/hooks/researcher-package-reminder.py`
+- Triggers when pillar control files are edited
+- Reminds to run: `python scripts/compile_researcher_package.py`
+
+### Permissions
+
+**Team-shared (settings.json):**
+- Allow: git, mkdocs, python, pip commands
+- Deny: `rm -rf /`, `.env` file access
+
+**Local overrides (settings.local.json):**
+- WebFetch domains (microsoft.com, learn.microsoft.com, github.com)
+- GitHub CLI commands
 
 ---
 
 ## Current State
 
-**Version:** 1.1.4 (January 2026)
-**Status:** All 61 controls complete, all 244 playbooks complete, build passing
+**Version:** 1.1.6 (January 2026)
+**Status:** All 61 controls complete, all 244 playbooks complete, build passing, Learn monitor active
 
 For detailed release history, see `CHANGELOG.md`.
 
 ---
 
 ## Version Info
-- **Framework Version:** 1.1.4
+- **Framework Version:** 1.1.6
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov

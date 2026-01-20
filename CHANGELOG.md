@@ -6,6 +6,73 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.6] — January 20, 2026 (Microsoft Learn Documentation Monitor)
+
+### Overview
+
+This release adds an automated monitoring system to detect changes in Microsoft Learn documentation that may require updates to the FSI-AgentGov framework. The monitor runs daily, classifies changes by impact, identifies affected controls and playbooks, and creates PRs for human review.
+
+### Added
+
+- **Microsoft Learn Documentation Monitor** (`scripts/learn_monitor.py`)
+  - Monitors ~190 Microsoft Learn URLs from the watchlist
+  - Detects content changes using BeautifulSoup + SHA-256 hashing
+  - Classifies changes as meaningful/minor/noise based on:
+    - UI navigation steps (CRITICAL for playbooks)
+    - Policy language and compliance features (HIGH)
+    - Deprecation notices and breaking changes (HIGH)
+    - Configuration instructions (MEDIUM)
+  - Maps changes to affected controls and playbooks
+  - Generates markdown reports with diff snippets
+  - Supports debugging: `--url`, `--debug`, `--verbose`, `--limit`, `--dry-run`
+
+- **GitHub Actions Workflow** (`.github/workflows/learn-monitor.yml`)
+  - Daily scheduled runs at 6:00 AM UTC
+  - Manual trigger via workflow_dispatch
+  - Creates PRs on meaningful changes or weekly baseline (Sundays)
+  - Labels: `documentation`, `automated`, `learn-watch`
+
+- **State and Report Directories**
+  - `data/` - Stores `learn-monitor-state.json` with content hashes
+  - `reports/learn-changes/` - Stores dated change reports
+
+### Changed
+
+- **Fixed cross-platform path issue** (`scripts/compile_researcher_package.py`)
+  - Changed from hardcoded Windows path to dynamic detection
+  - Now works on Windows, macOS, and Linux
+
+- **Improved hook error handling** (`scripts/hooks/boundary-check.py`)
+  - Added empty input handling
+  - Added JSONDecodeError catch
+  - Simplified confusing conditional logic
+
+- **Improved hook error handling** (`scripts/hooks/researcher-package-reminder.py`)
+  - Added empty input handling
+  - Added broad exception catch
+  - Both hooks now fail open (allow on error)
+
+### Files Modified
+
+| File | Action |
+|------|--------|
+| `scripts/learn_monitor.py` | Created (~750 lines) |
+| `.github/workflows/learn-monitor.yml` | Created |
+| `data/.gitkeep` | Created |
+| `reports/learn-changes/.gitkeep` | Created |
+| `scripts/compile_researcher_package.py` | Fixed path detection |
+| `scripts/hooks/boundary-check.py` | Improved error handling |
+| `scripts/hooks/researcher-package-reminder.py` | Improved error handling |
+
+### Validation
+
+- `mkdocs build --strict`: ✅ Pass
+- `python scripts/learn_monitor.py --limit 3 --dry-run`: ✅ Pass
+- `python scripts/compile_researcher_package.py`: ✅ Pass
+- Hook scripts handle edge cases without errors
+
+---
+
 ## [1.1.5] — January 20, 2026 (Claude Code Configuration Update)
 
 ### Overview

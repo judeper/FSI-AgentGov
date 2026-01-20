@@ -3,9 +3,9 @@
 Customer-facing reference list of the Microsoft Learn links used throughout the FSI Agent Governance Framework.
 
 - **Organization:** by topic area (admin teams typically search by product)
-- **Purpose:** Enable automated monitoring for documentation changes
+- **Automated Monitoring:** `scripts/learn_monitor.py` checks these URLs daily for content changes
 - **Last Verified:** last time this specific URL was checked for accuracy
-- **Total URLs Tracked:** 159
+- **Total URLs Tracked:** ~190 (Learn URLs only, excludes admin portals and regulatory references)
 
 ---
 

@@ -102,9 +102,19 @@ def check_command(command):
     # (relative paths are fine - they operate from current directory)
     # On Unix, check for paths starting with / that aren't the project
     if not IS_WINDOWS:
-        # Allow if no absolute path, or if the absolute path is the project
-        if not command_lower.startswith('/') and '/' not in command_lower.split()[0] if command_lower.split() else True:
+        # Check if command has absolute paths
+        command_parts = command_lower.split()
+        has_absolute_path = False
+        if command_parts:
+            # Check first part and any arguments for absolute paths
+            for part in command_parts:
+                if part.startswith('/') and not part.startswith(project_lower):
+                    has_absolute_path = True
+                    break
+
+        if not has_absolute_path:
             return True, "No absolute paths detected"
+
         # Check if any absolute path in command is within project
         if project_lower in command_lower:
             return True, "Command targets project directory"
@@ -120,7 +130,13 @@ def main():
     """Main hook entry point."""
     try:
         # Read input from stdin
-        input_data = json.loads(sys.stdin.read())
+        stdin_data = sys.stdin.read()
+        if not stdin_data.strip():
+            # No input - allow by default
+            print(json.dumps({"decision": "allow"}))
+            return
+
+        input_data = json.loads(stdin_data)
 
         tool_input = input_data.get("tool_input", {})
         command = tool_input.get("command", "")
@@ -142,8 +158,11 @@ def main():
                          f"Command: {command[:100]}..."
             }))
 
+    except json.JSONDecodeError:
+        # Invalid JSON input - allow by default
+        print(json.dumps({"decision": "allow"}))
     except Exception as e:
-        # On error, allow the command but log warning
+        # On any error, allow the command (fail open)
         print(json.dumps({
             "decision": "allow",
             "message": f"Boundary check error (allowing): {str(e)}"

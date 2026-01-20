@@ -2,13 +2,23 @@
 """
 Compile FSI-AgentGov controls into researcher package documents.
 Creates consolidated markdown files for external research review.
+
+Usage:
+    python scripts/compile_researcher_package.py
 """
 
 import os
 import re
+import sys
 from pathlib import Path
 
-BASE_DIR = Path(r"C:\dev\FSI-AgentGov")
+# Handle Windows encoding
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
+# Detect project root dynamically (works on Windows, macOS, Linux)
+SCRIPT_DIR = Path(__file__).parent
+BASE_DIR = SCRIPT_DIR.parent  # Go up from scripts/ to project root
 DOCS_DIR = BASE_DIR / "docs" / "controls"
 OUTPUT_DIR = BASE_DIR / "maintainers-local" / "researcher-package"
 
