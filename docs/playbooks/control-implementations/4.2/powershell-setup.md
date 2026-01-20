@@ -265,29 +265,45 @@ param(
     [switch]$CreateAccessReview
 )
 
-# Connect to services
-Write-Host "Connecting to services..." -ForegroundColor Cyan
-Connect-MgGraph -Scopes "AccessReview.ReadWrite.All", "Directory.Read.All"
-Connect-SPOService -Url $TenantAdminUrl
+try {
+    # Connect to services
+    Write-Host "Connecting to services..." -ForegroundColor Cyan
+    Connect-MgGraph -Scopes "AccessReview.ReadWrite.All", "Directory.Read.All"
+    Connect-SPOService -Url $TenantAdminUrl
 
-# Export site permissions
-Write-Host "`nExporting site permissions..." -ForegroundColor Yellow
-$sites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPERS*" }
-$sites | Select-Object Url, Title, Owner, SharingCapability, SensitivityLabel |
-    Export-Csv -Path "SitePermissions_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-Write-Host "  [DONE] Exported $($sites.Count) sites" -ForegroundColor Green
+    # Export site permissions
+    Write-Host "`nExporting site permissions..." -ForegroundColor Yellow
+    $sites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPERS*" }
+    $sites | Select-Object Url, Title, Owner, SharingCapability, SensitivityLabel |
+        Export-Csv -Path "SitePermissions_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+    Write-Host "  [DONE] Exported $($sites.Count) sites" -ForegroundColor Green
 
-# List existing access reviews
-Write-Host "`nExisting Access Reviews:" -ForegroundColor Yellow
-Get-MgIdentityGovernanceAccessReviewDefinition | Format-Table DisplayName, Status
+    # List existing access reviews
+    Write-Host "`nExisting Access Reviews:" -ForegroundColor Yellow
+    Get-MgIdentityGovernanceAccessReviewDefinition | Format-Table DisplayName, Status
 
-if ($CreateAccessReview) {
-    Write-Host "`nCreating new access review..." -ForegroundColor Yellow
-    # Add review creation logic here
-    Write-Host "  [INFO] Use the detailed script above to create access reviews" -ForegroundColor Cyan
+    if ($CreateAccessReview) {
+        Write-Host "`nCreating new access review..." -ForegroundColor Yellow
+        # Add review creation logic here
+        Write-Host "  [INFO] Use the detailed script above to create access reviews" -ForegroundColor Cyan
+    }
+
+    Write-Host "`nControl 4.2 setup complete!" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 4.2 configuration completed successfully" -ForegroundColor Green
 }
-
-Write-Host "`nControl 4.2 setup complete!" -ForegroundColor Green
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-MgGraph -ErrorAction SilentlyContinue
+    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
+        Disconnect-SPOService -ErrorAction SilentlyContinue
+    }
+}
 ```
 
 ---

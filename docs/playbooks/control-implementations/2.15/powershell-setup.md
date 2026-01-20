@@ -202,4 +202,116 @@ Write-Host "Note: Environment Groups and Routing Rules must be verified in PPAC 
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete environment routing configuration for Control 2.15
+
+.DESCRIPTION
+    Executes end-to-end environment routing setup including:
+    - Environment inventory collection
+    - Routing readiness validation
+    - Configuration export for documentation
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.15.ps1 -OutputPath ".\EnvironmentRouting"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.15 - Environment Routing and Auto-Provisioning
+#>
+
+param(
+    [string]$OutputPath = ".\EnvironmentRouting-Report"
+)
+
+try {
+    Write-Host "=== Control 2.15: Environment Routing Configuration ===" -ForegroundColor Cyan
+
+    # Connect to Power Platform
+    Add-PowerAppsAccount
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Get all environments
+    $environments = Get-AdminPowerAppEnvironment
+    Write-Host "[INFO] Found $($environments.Count) environments" -ForegroundColor Cyan
+
+    # Build routing readiness report
+    $routingReport = $environments | ForEach-Object {
+        $isManaged = $_.Properties.protectionLevel -ne "Standard"
+        $isUSRegion = $_.Location -match "unitedstates|US"
+        $isActive = $_.States.Runtime -eq "Enabled"
+        $isProduction = $_.EnvironmentType -eq "Production"
+
+        [PSCustomObject]@{
+            Name = $_.DisplayName
+            EnvironmentId = $_.EnvironmentName
+            Type = $_.EnvironmentType
+            Region = $_.Location
+            State = $_.States.Runtime
+            IsManaged = $isManaged
+            IsUSRegion = $isUSRegion
+            IsActive = $isActive
+            RoutingReady = ($isManaged -and $isUSRegion -and $isActive)
+            CreatedDate = $_.Properties.createdTime
+            CreatedBy = $_.Properties.createdBy.displayName
+        }
+    }
+
+    # Export full inventory
+    $routingReport | Export-Csv -Path "$OutputPath\EnvironmentInventory.csv" -NoTypeInformation
+
+    # Display readiness summary
+    Write-Host "`n=== Routing Readiness Summary ===" -ForegroundColor Cyan
+    $readyCount = ($routingReport | Where-Object { $_.RoutingReady }).Count
+    $prodCount = ($routingReport | Where-Object { $_.Type -eq "Production" }).Count
+    $managedCount = ($routingReport | Where-Object { $_.IsManaged }).Count
+
+    Write-Host "Total Environments: $($routingReport.Count)"
+    Write-Host "Production Environments: $prodCount"
+    Write-Host "Managed Environments: $managedCount"
+    Write-Host "Routing Ready: $readyCount"
+
+    # Flag environments not ready
+    $notReady = $routingReport | Where-Object { $_.Type -eq "Production" -and -not $_.RoutingReady }
+    if ($notReady.Count -gt 0) {
+        Write-Host "`n[WARN] Production environments NOT ready for routing:" -ForegroundColor Yellow
+        $notReady | Select-Object Name, IsManaged, IsUSRegion, IsActive | Format-Table -AutoSize
+        $notReady | Export-Csv -Path "$OutputPath\NotRoutingReady.csv" -NoTypeInformation
+    } else {
+        Write-Host "`n[PASS] All production environments are routing-ready" -ForegroundColor Green
+    }
+
+    # Export configuration for documentation
+    $config = @{
+        ExportDate = Get-Date -Format "yyyy-MM-dd HH:mm"
+        TotalEnvironments = $environments.Count
+        ProductionEnvironments = $prodCount
+        ManagedEnvironments = $managedCount
+        RoutingReadyEnvironments = $readyCount
+    }
+    $config | ConvertTo-Json | Out-File -FilePath "$OutputPath\RoutingConfig.json"
+
+    Write-Host "`n[PASS] Control 2.15 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections if applicable
+    # Note: Add-PowerAppsAccount does not require explicit disconnect
+}
+```
+
+---
+
 [Back to Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

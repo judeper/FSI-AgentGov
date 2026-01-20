@@ -177,56 +177,63 @@ param(
     [string]$RegisteredAgentsPath = "C:\Governance\RegisteredAgents.csv"
 )
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
 
-Write-Host "=== Agent Registry Inventory ===" -ForegroundColor Cyan
+    Write-Host "=== Agent Registry Inventory ===" -ForegroundColor Cyan
 
-# Step 1: Discover all agents
-$AllEnvironments = Get-AdminPowerAppEnvironment
-$AgentInventory = @()
+    # Step 1: Discover all agents
+    $AllEnvironments = Get-AdminPowerAppEnvironment
+    $AgentInventory = @()
 
-foreach ($Env in $AllEnvironments) {
-    Write-Host "  Scanning: $($Env.DisplayName)" -ForegroundColor Gray
-    $Apps = Get-AdminPowerApp -EnvironmentName $Env.EnvironmentName
+    foreach ($Env in $AllEnvironments) {
+        Write-Host "  Scanning: $($Env.DisplayName)" -ForegroundColor Gray
+        $Apps = Get-AdminPowerApp -EnvironmentName $Env.EnvironmentName
 
-    foreach ($App in $Apps) {
-        $AgentInventory += [PSCustomObject]@{
-            AgentName = $App.DisplayName
-            AgentID = $App.AppName
-            Environment = $Env.DisplayName
-            Owner = $App.Owner.displayName
-            OwnerEmail = $App.Owner.email
-            CreatedTime = $App.CreatedTime
-            LastModifiedTime = $App.LastModifiedTime
+        foreach ($App in $Apps) {
+            $AgentInventory += [PSCustomObject]@{
+                AgentName = $App.DisplayName
+                AgentID = $App.AppName
+                Environment = $Env.DisplayName
+                Owner = $App.Owner.displayName
+                OwnerEmail = $App.Owner.email
+                CreatedTime = $App.CreatedTime
+                LastModifiedTime = $App.LastModifiedTime
+            }
         }
     }
-}
 
-Write-Host "  [DONE] Discovered $($AgentInventory.Count) agents" -ForegroundColor Green
+    Write-Host "  [DONE] Discovered $($AgentInventory.Count) agents" -ForegroundColor Green
 
-# Step 2: Export inventory
-$InventoryFile = Join-Path $ExportPath "AgentInventory-$(Get-Date -Format 'yyyyMMdd').csv"
-$AgentInventory | Export-Csv -Path $InventoryFile -NoTypeInformation
-Write-Host "  [DONE] Exported to $InventoryFile" -ForegroundColor Green
+    # Step 2: Export inventory
+    $InventoryFile = Join-Path $ExportPath "AgentInventory-$(Get-Date -Format 'yyyyMMdd').csv"
+    $AgentInventory | Export-Csv -Path $InventoryFile -NoTypeInformation
+    Write-Host "  [DONE] Exported to $InventoryFile" -ForegroundColor Green
 
-# Step 3: Compare with registered agents (if file exists)
-if (Test-Path $RegisteredAgentsPath) {
-    $RegisteredAgents = Import-Csv $RegisteredAgentsPath
-    $RegisteredIDs = $RegisteredAgents.AgentID
-    $UnregisteredAgents = $AgentInventory | Where-Object { $_.AgentID -notin $RegisteredIDs }
+    # Step 3: Compare with registered agents (if file exists)
+    if (Test-Path $RegisteredAgentsPath) {
+        $RegisteredAgents = Import-Csv $RegisteredAgentsPath
+        $RegisteredIDs = $RegisteredAgents.AgentID
+        $UnregisteredAgents = $AgentInventory | Where-Object { $_.AgentID -notin $RegisteredIDs }
 
-    if ($UnregisteredAgents.Count -gt 0) {
-        Write-Host "`n  [WARN] Found $($UnregisteredAgents.Count) unregistered agents:" -ForegroundColor Yellow
-        $UnregisteredAgents | Format-Table AgentName, Owner, Environment
+        if ($UnregisteredAgents.Count -gt 0) {
+            Write-Host "`n  [WARN] Found $($UnregisteredAgents.Count) unregistered agents:" -ForegroundColor Yellow
+            $UnregisteredAgents | Format-Table AgentName, Owner, Environment
+        } else {
+            Write-Host "  [PASS] All agents are registered" -ForegroundColor Green
+        }
     } else {
-        Write-Host "  [PASS] All agents are registered" -ForegroundColor Green
+        Write-Host "  [INFO] No registered agents file found - skipping comparison" -ForegroundColor Gray
     }
-} else {
-    Write-Host "  [INFO] No registered agents file found - skipping comparison" -ForegroundColor Gray
-}
 
-Write-Host "`nAgent Registry inventory complete!" -ForegroundColor Cyan
+    Write-Host "`n[PASS] Control 1.2 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
 ```
 
 ---

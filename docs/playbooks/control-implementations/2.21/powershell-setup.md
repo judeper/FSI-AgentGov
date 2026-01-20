@@ -323,4 +323,160 @@ Disconnect-PnPOnline
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete AI marketing claims configuration for Control 2.21
+
+.DESCRIPTION
+    Executes end-to-end marketing claims setup including:
+    - Claims inventory list creation
+    - Substantiation evidence library setup
+    - Folder structure creation
+    - Claims status export
+
+.PARAMETER SiteUrl
+    SharePoint site URL for governance
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.21.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/AIGovernance" -OutputPath ".\MarketingClaims"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.21 - AI Marketing Claims and Substantiation
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SiteUrl,
+    [string]$OutputPath = ".\MarketingClaims-Report"
+)
+
+try {
+    Write-Host "=== Control 2.21: AI Marketing Claims Configuration ===" -ForegroundColor Cyan
+
+    # Connect to SharePoint
+    Connect-PnPOnline -Url $SiteUrl -Interactive
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Step 1: Create or verify Claims Inventory List
+    Write-Host "`n[Step 1] Configuring Claims Inventory List..." -ForegroundColor Cyan
+    $listName = "AI Marketing Claims Inventory"
+    $claimsList = Get-PnPList -Identity $listName -ErrorAction SilentlyContinue
+
+    if (-not $claimsList) {
+        Write-Host "  Creating list: $listName" -ForegroundColor Yellow
+        New-PnPList -Title $listName -Template GenericList
+
+        # Add columns
+        Add-PnPField -List $listName -DisplayName "Claim Text" -InternalName "ClaimText" -Type Note
+        Add-PnPField -List $listName -DisplayName "Claim Category" -InternalName "ClaimCategory" -Type Choice `
+            -Choices "Performance","Capability","Comparative","Predictive","Efficiency"
+        Add-PnPField -List $listName -DisplayName "Agent/Product" -InternalName "AgentProduct" -Type Text
+        Add-PnPField -List $listName -DisplayName "Target Channel" -InternalName "TargetChannel" -Type Choice `
+            -Choices "Website","Email","Social Media","Sales Collateral","Press Release","Multiple"
+        Add-PnPField -List $listName -DisplayName "Governance Zone" -InternalName "GovernanceZone" -Type Choice `
+            -Choices "Zone 1 - Personal","Zone 2 - Team","Zone 3 - Enterprise"
+        Add-PnPField -List $listName -DisplayName "Substantiation File" -InternalName "SubstantiationFile" -Type URL
+        Add-PnPField -List $listName -DisplayName "Status" -InternalName "ClaimStatus" -Type Choice `
+            -Choices "Draft","Under Review","Approved","Rejected","Retired"
+        Add-PnPField -List $listName -DisplayName "Submitted By" -InternalName "SubmittedBy" -Type User
+        Add-PnPField -List $listName -DisplayName "Submission Date" -InternalName "SubmissionDate" -Type DateTime
+        Add-PnPField -List $listName -DisplayName "Compliance Reviewer" -InternalName "ComplianceReviewer" -Type User
+        Add-PnPField -List $listName -DisplayName "Review Date" -InternalName "ReviewDate" -Type DateTime
+        Add-PnPField -List $listName -DisplayName "Approval Date" -InternalName "ApprovalDate" -Type DateTime
+        Add-PnPField -List $listName -DisplayName "Next Review Date" -InternalName "NextReviewDate" -Type DateTime
+        Add-PnPField -List $listName -DisplayName "Review Comments" -InternalName "ReviewComments" -Type Note
+
+        Write-Host "  [CREATED] $listName with all columns" -ForegroundColor Green
+    } else {
+        Write-Host "  [EXISTS] $listName" -ForegroundColor Yellow
+    }
+
+    # Step 2: Create or verify Substantiation Library
+    Write-Host "`n[Step 2] Configuring Substantiation Library..." -ForegroundColor Cyan
+    $libraryName = "AI Claims Substantiation"
+    $substLib = Get-PnPList -Identity $libraryName -ErrorAction SilentlyContinue
+
+    if (-not $substLib) {
+        Write-Host "  Creating library: $libraryName" -ForegroundColor Yellow
+        New-PnPList -Title $libraryName -Template DocumentLibrary
+
+        # Enable versioning
+        Set-PnPList -Identity $libraryName -EnableVersioning $true -MajorVersions 50
+
+        # Create folder structure
+        $categories = @(
+            "Performance Claims",
+            "Capability Claims",
+            "Comparative Claims",
+            "Predictive Claims",
+            "Efficiency Claims"
+        )
+
+        foreach ($category in $categories) {
+            Add-PnPFolder -Name $category -Folder $libraryName
+            Write-Host "    Created folder: $category" -ForegroundColor Cyan
+        }
+
+        Write-Host "  [CREATED] $libraryName with folder structure" -ForegroundColor Green
+    } else {
+        Write-Host "  [EXISTS] $libraryName" -ForegroundColor Yellow
+    }
+
+    # Step 3: Export current claims status
+    Write-Host "`n[Step 3] Exporting claims inventory..." -ForegroundColor Cyan
+    $claims = Get-PnPListItem -List $listName -PageSize 500 -ErrorAction SilentlyContinue
+
+    if ($claims -and $claims.Count -gt 0) {
+        $claimsExport = $claims | ForEach-Object {
+            [PSCustomObject]@{
+                ClaimID = $_.Id
+                ClaimText = $_.FieldValues.ClaimText
+                Category = $_.FieldValues.ClaimCategory
+                AgentProduct = $_.FieldValues.AgentProduct
+                Channel = $_.FieldValues.TargetChannel
+                Zone = $_.FieldValues.GovernanceZone
+                Status = $_.FieldValues.ClaimStatus
+                SubmissionDate = $_.FieldValues.SubmissionDate
+                ApprovalDate = $_.FieldValues.ApprovalDate
+                NextReviewDate = $_.FieldValues.NextReviewDate
+                HasSubstantiation = if ($_.FieldValues.SubstantiationFile) { "Yes" } else { "No" }
+            }
+        }
+
+        $claimsExport | Export-Csv -Path "$OutputPath\ClaimsInventory.csv" -NoTypeInformation
+        Write-Host "  Exported $($claimsExport.Count) claims" -ForegroundColor Cyan
+
+        # Summary by status
+        Write-Host "`n=== Claims Summary ===" -ForegroundColor Cyan
+        $claimsExport | Group-Object -Property Status | ForEach-Object {
+            Write-Host "  $($_.Name): $($_.Count)"
+        }
+    } else {
+        Write-Host "  No claims found in inventory" -ForegroundColor Yellow
+    }
+
+    Write-Host "`n[PASS] Control 2.21 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.21](../../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

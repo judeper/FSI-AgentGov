@@ -210,6 +210,75 @@ New-SecurityPostureReport
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 3.7 - PPAC Security Posture Assessment
+
+.DESCRIPTION
+    This script performs security posture assessment:
+    1. Analyzes environment security configuration
+    2. Checks DLP policy coverage
+    3. Generates security posture report
+
+.PARAMETER OutputPath
+    Path for the generated security posture report
+
+.EXAMPLE
+    .\Configure-Control-3.7.ps1 -OutputPath "C:\Reports"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 3.7 - PPAC Security Posture Assessment
+#>
+
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$OutputPath = ".\SecurityPostureReport-$(Get-Date -Format 'yyyyMMdd').html"
+)
+
+try {
+    # Connect to Power Platform
+    Write-Host "Connecting to Power Platform..." -ForegroundColor Cyan
+    Add-PowerAppsAccount
+
+    Write-Host "Executing Control 3.7 Security Posture Assessment" -ForegroundColor Cyan
+
+    # Get environment security posture
+    Write-Host "`nAnalyzing environment security..." -ForegroundColor Yellow
+    $posture = Get-EnvironmentSecurityPosture
+
+    # Check DLP coverage
+    Write-Host "Checking DLP policy coverage..." -ForegroundColor Yellow
+    $dlpCoverage = Test-DlpPolicyCoverage
+
+    # Calculate summary metrics
+    $avgScore = ($posture | Measure-Object -Property SecurityScore -Average).Average
+    $managedCount = ($posture | Where-Object { $_.IsManaged }).Count
+    $dlpCoveredCount = ($dlpCoverage | Where-Object { $_.HasCoverage }).Count
+
+    Write-Host "`nSecurity Posture Summary:" -ForegroundColor Cyan
+    Write-Host "  Average Security Score: $([math]::Round($avgScore))%" -ForegroundColor $(if ($avgScore -ge 70) { "Green" } elseif ($avgScore -ge 40) { "Yellow" } else { "Red" })
+    Write-Host "  Managed Environments: $managedCount / $($posture.Count)" -ForegroundColor Green
+    Write-Host "  DLP Covered: $dlpCoveredCount / $($dlpCoverage.Count)" -ForegroundColor Green
+
+    # Generate report
+    Write-Host "`nGenerating security posture report..." -ForegroundColor Yellow
+    New-SecurityPostureReport -OutputPath $OutputPath
+
+    Write-Host "`n[PASS] Control 3.7 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+```
+
+---
+
 ## Next Steps
 
 - [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration

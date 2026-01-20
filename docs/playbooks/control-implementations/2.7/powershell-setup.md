@@ -227,6 +227,108 @@ function Get-DynamicToolUsage {
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete vendor and third-party risk assessment for Control 2.7
+
+.DESCRIPTION
+    Executes end-to-end vendor risk assessment including:
+    - Connector inventory collection
+    - DLP policy analysis
+    - Third-party risk identification
+    - Compliance report generation
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.7.ps1 -OutputPath ".\VendorRisk"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.7 - Vendor and Third-Party Risk Management
+#>
+
+param(
+    [string]$OutputPath = ".\VendorRisk-Report"
+)
+
+try {
+    Write-Host "=== Control 2.7: Vendor and Third-Party Risk Configuration ===" -ForegroundColor Cyan
+
+    # Connect to Power Platform
+    Add-PowerAppsAccount
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Get all environments
+    $environments = Get-AdminPowerAppEnvironment
+    Write-Host "[INFO] Found $($environments.Count) environments" -ForegroundColor Cyan
+
+    # Collect connector inventory
+    $connectorInventory = @()
+    foreach ($env in $environments) {
+        Write-Host "  Scanning: $($env.DisplayName)" -ForegroundColor Yellow
+        $connectors = Get-AdminPowerAppConnector -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
+
+        foreach ($connector in $connectors) {
+            $connectorInventory += [PSCustomObject]@{
+                Environment = $env.DisplayName
+                ConnectorName = $connector.displayName
+                Publisher = $connector.properties.publisher
+                IsFirstParty = $connector.properties.publisher -eq "Microsoft"
+                CreatedBy = $connector.properties.createdBy.displayName
+                CreatedTime = $connector.properties.createdTime
+                AssessmentDate = Get-Date -Format "yyyy-MM-dd"
+            }
+        }
+    }
+
+    # Export connector inventory
+    $connectorInventory | Export-Csv -Path "$OutputPath\ConnectorInventory.csv" -NoTypeInformation
+    Write-Host "`n[INFO] Connector inventory exported: $($connectorInventory.Count) connectors" -ForegroundColor Cyan
+
+    # Get DLP policies
+    $dlpPolicies = Get-DlpPolicy -ErrorAction SilentlyContinue
+    if ($dlpPolicies) {
+        Write-Host "[INFO] Found $($dlpPolicies.Count) DLP policies" -ForegroundColor Cyan
+        $dlpPolicies | Select-Object displayName, environmentType, createdTime |
+            Export-Csv -Path "$OutputPath\DLPPolicies.csv" -NoTypeInformation
+    }
+
+    # Identify third-party connectors
+    $thirdParty = $connectorInventory | Where-Object { -not $_.IsFirstParty }
+    if ($thirdParty.Count -gt 0) {
+        Write-Host "[WARN] Third-party connectors found: $($thirdParty.Count)" -ForegroundColor Yellow
+        $thirdParty | Export-Csv -Path "$OutputPath\ThirdPartyConnectors.csv" -NoTypeInformation
+    }
+
+    # Summary
+    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
+    Write-Host "Total Environments: $($environments.Count)"
+    Write-Host "Total Connectors: $($connectorInventory.Count)"
+    Write-Host "First-Party: $(($connectorInventory | Where-Object { $_.IsFirstParty }).Count)"
+    Write-Host "Third-Party: $($thirdParty.Count)"
+
+    Write-Host "`n[PASS] Control 2.7 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections if applicable
+    # Note: Add-PowerAppsAccount does not require explicit disconnect
+}
+```
+
+---
+
 ## Related Playbooks
 
 - [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration

@@ -254,4 +254,155 @@ Write-Host "Document findings and remediate any gaps identified"
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete training and awareness configuration for Control 2.14
+
+.DESCRIPTION
+    Executes end-to-end training setup including:
+    - User identification by role
+    - Training compliance check
+    - Non-compliant user reporting
+
+.PARAMETER RequiredUsersFile
+    CSV file with users requiring training
+
+.PARAMETER CompletionRecordsFile
+    CSV file with training completion records from LMS
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.14.ps1 -OutputPath ".\Training"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.14 - Training and Awareness Program
+#>
+
+param(
+    [string]$RequiredUsersFile,
+    [string]$CompletionRecordsFile,
+    [string]$OutputPath = ".\Training-Report"
+)
+
+try {
+    Write-Host "=== Control 2.14: Training and Awareness Configuration ===" -ForegroundColor Cyan
+
+    # Connect to Microsoft Graph
+    Connect-MgGraph -Scopes "User.Read.All", "RoleManagement.Read.All"
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Define roles that require AI governance training
+    $trainingRequiredRoles = @(
+        "Power Platform Administrator",
+        "Compliance Administrator",
+        "SharePoint Administrator",
+        "Exchange Administrator"
+    )
+
+    Write-Host "`n[Step 1] Identifying users requiring training..." -ForegroundColor Cyan
+
+    # Get all role assignments
+    $roleAssignments = Get-MgDirectoryRole | ForEach-Object {
+        $role = $_
+        $members = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -ErrorAction SilentlyContinue
+
+        foreach ($member in $members) {
+            [PSCustomObject]@{
+                UserId = $member.Id
+                RoleName = $role.DisplayName
+                RoleId = $role.Id
+            }
+        }
+    }
+
+    # Filter to training-required roles
+    $usersNeedingTraining = $roleAssignments | Where-Object {
+        $trainingRequiredRoles -contains $_.RoleName
+    }
+
+    # Get user details
+    $requiredUsers = $usersNeedingTraining | ForEach-Object {
+        $user = Get-MgUser -UserId $_.UserId -ErrorAction SilentlyContinue
+        if ($user) {
+            [PSCustomObject]@{
+                DisplayName = $user.DisplayName
+                Email = $user.Mail
+                Role = $_.RoleName
+                Department = $user.Department
+                TrainingRequired = "AI Governance Framework"
+            }
+        }
+    } | Sort-Object Email -Unique
+
+    Write-Host "  [INFO] Found $($requiredUsers.Count) users requiring training" -ForegroundColor Cyan
+    $requiredUsers | Export-Csv -Path "$OutputPath\Training-Required-Users.csv" -NoTypeInformation
+
+    # Check completions if file provided
+    if ($CompletionRecordsFile -and (Test-Path $CompletionRecordsFile)) {
+        Write-Host "`n[Step 2] Checking training completions..." -ForegroundColor Cyan
+        $completions = Import-Csv $CompletionRecordsFile
+
+        $completionLookup = @{}
+        foreach ($completion in $completions) {
+            $completionLookup[$completion.Email] = $completion.CompletionDate
+        }
+
+        $complianceReport = $requiredUsers | ForEach-Object {
+            $completed = $completionLookup.ContainsKey($_.Email)
+            [PSCustomObject]@{
+                DisplayName = $_.DisplayName
+                Email = $_.Email
+                Role = $_.Role
+                TrainingCompleted = $completed
+                CompletionDate = if ($completed) { $completionLookup[$_.Email] } else { $null }
+                Status = if ($completed) { "Compliant" } else { "Non-Compliant" }
+            }
+        }
+
+        # Calculate statistics
+        $total = $complianceReport.Count
+        $compliant = ($complianceReport | Where-Object { $_.Status -eq "Compliant" }).Count
+        $nonCompliant = $total - $compliant
+        $complianceRate = if ($total -gt 0) { [math]::Round(($compliant / $total) * 100, 1) } else { 0 }
+
+        Write-Host "`n=== Training Compliance Summary ===" -ForegroundColor Cyan
+        Write-Host "Total Users: $total"
+        Write-Host "Compliant: $compliant" -ForegroundColor Green
+        Write-Host "Non-Compliant: $nonCompliant" -ForegroundColor $(if ($nonCompliant -gt 0) { "Yellow" } else { "Green" })
+        Write-Host "Compliance Rate: $complianceRate%"
+
+        $complianceReport | Export-Csv -Path "$OutputPath\Training-Compliance-Report.csv" -NoTypeInformation
+
+        # Export non-compliant users
+        $nonCompliantUsers = $complianceReport | Where-Object { $_.Status -eq "Non-Compliant" }
+        if ($nonCompliantUsers) {
+            $nonCompliantUsers | Export-Csv -Path "$OutputPath\Training-Non-Compliant.csv" -NoTypeInformation
+        }
+    } else {
+        Write-Host "`n[INFO] No completion records provided - export required users list for LMS comparison" -ForegroundColor Yellow
+    }
+
+    Write-Host "`n[PASS] Control 2.14 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-MgGraph -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.14](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

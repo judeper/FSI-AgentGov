@@ -256,4 +256,132 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete RAG source integrity validation for Control 2.16
+
+.DESCRIPTION
+    Executes end-to-end RAG source validation including:
+    - Document library audit
+    - Versioning configuration check
+    - Staleness analysis
+    - Compliance report generation
+
+.PARAMETER SiteUrl
+    SharePoint site URL containing knowledge sources
+
+.PARAMETER DaysThreshold
+    Number of days to consider content stale
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.16.ps1 -SiteUrl "https://company.sharepoint.com/sites/research" -OutputPath ".\RAGIntegrity"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.16 - RAG Source Integrity Validation
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SiteUrl,
+    [int]$DaysThreshold = 365,
+    [string]$OutputPath = ".\RAGIntegrity-Report"
+)
+
+try {
+    Write-Host "=== Control 2.16: RAG Source Integrity Configuration ===" -ForegroundColor Cyan
+
+    # Connect to SharePoint
+    Connect-PnPOnline -Url $SiteUrl -Interactive
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Get all document libraries
+    Write-Host "`n[Step 1] Auditing document libraries..." -ForegroundColor Cyan
+    $libraries = Get-PnPList | Where-Object { $_.BaseTemplate -eq 101 -and $_.Hidden -eq $false }
+    Write-Host "[INFO] Found $($libraries.Count) document libraries" -ForegroundColor Cyan
+
+    # Check versioning configuration
+    $versioningReport = $libraries | ForEach-Object {
+        [PSCustomObject]@{
+            LibraryName = $_.Title
+            VersioningEnabled = $_.EnableVersioning
+            MajorVersions = $_.MajorVersionLimit
+            MinorVersionsEnabled = $_.EnableMinorVersions
+            ContentApproval = $_.EnableModeration
+            ItemCount = $_.ItemCount
+        }
+    }
+    $versioningReport | Export-Csv -Path "$OutputPath\VersioningConfig.csv" -NoTypeInformation
+
+    # Check compliance
+    $nonCompliant = $versioningReport | Where-Object { -not $_.VersioningEnabled -or -not $_.ContentApproval }
+    if ($nonCompliant.Count -gt 0) {
+        Write-Host "[WARN] Libraries without versioning or content approval: $($nonCompliant.Count)" -ForegroundColor Yellow
+        $nonCompliant | Export-Csv -Path "$OutputPath\NonCompliantLibraries.csv" -NoTypeInformation
+    } else {
+        Write-Host "[PASS] All libraries have versioning and content approval enabled" -ForegroundColor Green
+    }
+
+    # Analyze staleness
+    Write-Host "`n[Step 2] Analyzing content staleness (threshold: $DaysThreshold days)..." -ForegroundColor Cyan
+    $allStaleItems = @()
+
+    foreach ($library in $libraries) {
+        $items = Get-PnPListItem -List $library.Title -PageSize 500 -ErrorAction SilentlyContinue
+
+        $staleItems = $items | Where-Object {
+            $_.FileSystemObjectType -eq "File" -and
+            ((Get-Date) - [DateTime]$_["Modified"]).TotalDays -gt $DaysThreshold
+        } | ForEach-Object {
+            [PSCustomObject]@{
+                Library = $library.Title
+                FileName = $_["FileLeafRef"]
+                FilePath = $_["FileRef"]
+                LastModified = $_["Modified"]
+                DaysSinceModified = [int]((Get-Date) - [DateTime]$_["Modified"]).TotalDays
+                ModifiedBy = $_["Editor"].LookupValue
+            }
+        }
+
+        $allStaleItems += $staleItems
+    }
+
+    if ($allStaleItems.Count -gt 0) {
+        Write-Host "[WARN] Stale content found: $($allStaleItems.Count) items" -ForegroundColor Yellow
+        $allStaleItems | Export-Csv -Path "$OutputPath\StaleContent.csv" -NoTypeInformation
+    } else {
+        Write-Host "[PASS] No stale content found" -ForegroundColor Green
+    }
+
+    # Summary
+    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
+    Write-Host "Site: $SiteUrl"
+    Write-Host "Libraries Audited: $($libraries.Count)"
+    Write-Host "Non-Compliant Libraries: $($nonCompliant.Count)"
+    Write-Host "Stale Items: $($allStaleItems.Count)"
+    Write-Host "Report Path: $OutputPath"
+
+    Write-Host "`n[PASS] Control 2.16 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

@@ -232,6 +232,81 @@ New-HallucinationTrendReport
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 3.10 - Hallucination Feedback Loop
+
+.DESCRIPTION
+    This script sets up hallucination tracking infrastructure:
+    1. Creates SharePoint tracking list
+    2. Configures hallucination categories
+    3. Generates trend reports
+
+.PARAMETER SiteUrl
+    SharePoint site URL for hallucination tracking
+
+.EXAMPLE
+    .\Configure-Control-3.10.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/AI-Governance"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 3.10 - Hallucination Feedback Loop
+#>
+
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$SiteUrl = "https://[tenant].sharepoint.com/sites/AI-Governance"
+)
+
+try {
+    # Connect to SharePoint
+    Write-Host "Connecting to SharePoint..." -ForegroundColor Cyan
+    Connect-PnPOnline -Url $SiteUrl -Interactive
+
+    Write-Host "Configuring Control 3.10 Hallucination Feedback Loop" -ForegroundColor Cyan
+
+    # Check if list exists
+    $existingList = Get-PnPList -Identity "Hallucination Tracking" -ErrorAction SilentlyContinue
+
+    if (-not $existingList) {
+        Write-Host "Creating Hallucination Tracking List..." -ForegroundColor Yellow
+        New-HallucinationTrackingList -SiteUrl $SiteUrl
+    } else {
+        Write-Host "Hallucination Tracking List already exists" -ForegroundColor Green
+    }
+
+    # Get metrics
+    Write-Host "`nRetrieving hallucination metrics..." -ForegroundColor Yellow
+    $metrics = Get-HallucinationMetrics -DaysBack 30
+
+    # Verify configuration
+    $list = Get-PnPList -Identity "Hallucination Tracking"
+    $fields = Get-PnPField -List "Hallucination Tracking"
+
+    Write-Host "`nHallucination Tracking Configuration:" -ForegroundColor Cyan
+    Write-Host "  List: $($list.Title)" -ForegroundColor Green
+    Write-Host "  Fields configured: $($fields.Count)" -ForegroundColor Green
+    Write-Host "  Total reports (30 days): $($metrics.TotalReports)" -ForegroundColor Green
+    Write-Host "  Open issues: $($metrics.OpenIssues)" -ForegroundColor $(if ($metrics.OpenIssues -gt 0) { "Yellow" } else { "Green" })
+
+    Write-Host "`n[PASS] Control 3.10 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup SharePoint connection
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 ## Next Steps
 
 - [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration

@@ -223,6 +223,118 @@ model_change:
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete MRM configuration and inventory setup for Control 2.6
+
+.DESCRIPTION
+    Executes end-to-end model risk management configuration including:
+    - Model inventory creation/validation
+    - Performance monitoring setup
+    - Compliance report generation
+
+.PARAMETER ModelInventoryPath
+    Path to the model inventory CSV file
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.6.ps1 -ModelInventoryPath ".\ModelInventory.csv" -OutputPath ".\Reports"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.6 - Model Risk Management
+#>
+
+param(
+    [string]$ModelInventoryPath = ".\ModelInventory.csv",
+    [string]$OutputPath = ".\MRM_Reports"
+)
+
+try {
+    Write-Host "=== Control 2.6: Model Risk Management Configuration ===" -ForegroundColor Cyan
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Validate model inventory exists
+    if (Test-Path $ModelInventoryPath) {
+        $models = Import-Csv -Path $ModelInventoryPath
+        Write-Host "[INFO] Loaded $($models.Count) models from inventory" -ForegroundColor Cyan
+    } else {
+        Write-Host "[WARN] Model inventory not found at $ModelInventoryPath - creating template" -ForegroundColor Yellow
+        $template = @(
+            [PSCustomObject]@{
+                ModelID = "AGENT-001"
+                ModelName = "Example Agent"
+                Tier = "2"
+                ModelOwner = "owner@company.com"
+                LastValidation = (Get-Date).AddDays(-30).ToString("yyyy-MM-dd")
+                NextValidationDue = (Get-Date).AddDays(60).ToString("yyyy-MM-dd")
+                PerformanceStatus = "Green"
+            }
+        )
+        $template | Export-Csv -Path $ModelInventoryPath -NoTypeInformation
+        Write-Host "[INFO] Template created at $ModelInventoryPath" -ForegroundColor Green
+        $models = $template
+    }
+
+    # Calculate compliance metrics
+    $totalModels = $models.Count
+    $tier1 = ($models | Where-Object Tier -eq "1").Count
+    $tier2 = ($models | Where-Object Tier -eq "2").Count
+    $tier3 = ($models | Where-Object Tier -eq "3").Count
+
+    $currentDate = Get-Date
+    $validationCurrent = ($models | Where-Object {
+        [datetime]$_.NextValidationDue -gt $currentDate
+    }).Count
+    $validationOverdue = ($models | Where-Object {
+        [datetime]$_.NextValidationDue -le $currentDate
+    }).Count
+
+    # Display summary
+    Write-Host "`n=== Model Inventory Summary ===" -ForegroundColor Cyan
+    Write-Host "Total Models: $totalModels"
+    Write-Host "  Tier 1 (High Risk): $tier1"
+    Write-Host "  Tier 2 (Medium Risk): $tier2"
+    Write-Host "  Tier 3 (Low Risk): $tier3"
+    Write-Host "`nValidation Status:"
+    Write-Host "  Current: $validationCurrent" -ForegroundColor Green
+    Write-Host "  Overdue: $validationOverdue" -ForegroundColor $(if ($validationOverdue -gt 0) { "Red" } else { "Green" })
+
+    # Export summary report
+    $summaryReport = [PSCustomObject]@{
+        ReportDate = Get-Date -Format "yyyy-MM-dd HH:mm"
+        TotalModels = $totalModels
+        Tier1Count = $tier1
+        Tier2Count = $tier2
+        Tier3Count = $tier3
+        ValidationCurrent = $validationCurrent
+        ValidationOverdue = $validationOverdue
+    }
+    $summaryReport | Export-Csv -Path "$OutputPath\MRM-Summary-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+    Write-Host "`nSummary exported to: $OutputPath\MRM-Summary-$(Get-Date -Format 'yyyyMMdd').csv"
+
+    Write-Host "`n[PASS] Control 2.6 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections if applicable
+    # No persistent connections to close for this control
+}
+```
+
+---
+
 ## Related Playbooks
 
 - [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration

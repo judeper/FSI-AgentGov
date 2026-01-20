@@ -221,7 +221,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 | "What does this term mean?" | [Glossary](../reference/glossary.md) |
 | "Common questions?" | [FAQ](../reference/faq.md) |
 | "Tell me about control 1.5" | [1.5 Data Loss Prevention](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
-| "I need a policy" | Check control files for policy guidance |
+| "I need a policy" | [Control Index](../controls/CONTROL-INDEX.md) - browse controls for policy guidance |
 
 ---
 

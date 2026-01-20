@@ -163,4 +163,124 @@ Write-Host "`nPrint events: $($PrintActivity.Count)" -ForegroundColor Yellow
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 1.12 - Insider Risk Detection and Response
+
+.DESCRIPTION
+    This script audits insider risk indicators including bulk downloads,
+    external sharing, USB activity, and generates compliance reports.
+
+.PARAMETER DaysBack
+    Number of days to search back in audit logs (default: 30)
+
+.PARAMETER ExportPath
+    Path for report exports (default: current directory)
+
+.PARAMETER BulkDownloadThreshold
+    Number of downloads to flag as potential exfiltration (default: 100)
+
+.EXAMPLE
+    .\Configure-Control-1.12.ps1 -DaysBack 30 -BulkDownloadThreshold 100
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 1.12 - Insider Risk Detection and Response
+#>
+
+param(
+    [int]$DaysBack = 30,
+    [string]$ExportPath = ".",
+    [int]$BulkDownloadThreshold = 100
+)
+
+try {
+    # Connect to Security & Compliance
+    Write-Host "Connecting to Security & Compliance Center..." -ForegroundColor Cyan
+    Connect-IPPSSession
+
+    Write-Host "Configuring Control 1.12: Insider Risk Detection and Response" -ForegroundColor Cyan
+
+    $StartDate = (Get-Date).AddDays(-$DaysBack)
+    $EndDate = Get-Date
+
+    # Step 1: Check Insider Risk Policies
+    Write-Host "`n[Step 1] Checking Insider Risk Policies..." -ForegroundColor Yellow
+    $policies = Get-InsiderRiskPolicy
+    Write-Host "  Active policies: $($policies.Count)" -ForegroundColor Green
+    $policies | ForEach-Object { Write-Host "    - $($_.Name): $($_.Mode)" }
+
+    # Step 2: Check current alerts
+    Write-Host "`n[Step 2] Checking pending alerts..." -ForegroundColor Yellow
+    $Alerts = Get-InsiderRiskAlert -Filter "Status -eq 'NeedsReview'" -ErrorAction SilentlyContinue
+    if ($Alerts) {
+        Write-Host "  Pending alerts: $($Alerts.Count)" -ForegroundColor Yellow
+    } else {
+        Write-Host "  No pending alerts" -ForegroundColor Green
+    }
+
+    # Step 3: Audit bulk downloads
+    Write-Host "`n[Step 3] Auditing bulk file downloads..." -ForegroundColor Yellow
+    $BulkDownloads = Search-UnifiedAuditLog `
+        -StartDate $StartDate `
+        -EndDate $EndDate `
+        -Operations FileDownloaded, FileSyncDownloadedFull `
+        -ResultSize 5000
+
+    $DownloadByUser = $BulkDownloads | Group-Object UserIds |
+        Sort-Object Count -Descending |
+        Select-Object -First 20 Name, Count
+
+    $PotentialExfiltration = $DownloadByUser | Where-Object { $_.Count -gt $BulkDownloadThreshold }
+    if ($PotentialExfiltration) {
+        Write-Host "  WARNING: Potential exfiltration detected for $($PotentialExfiltration.Count) users" -ForegroundColor Red
+    } else {
+        Write-Host "  No bulk download anomalies detected" -ForegroundColor Green
+    }
+
+    # Step 4: Audit external sharing
+    Write-Host "`n[Step 4] Auditing external sharing..." -ForegroundColor Yellow
+    $ExternalSharing = Search-UnifiedAuditLog `
+        -StartDate $StartDate `
+        -EndDate $EndDate `
+        -Operations SharingSet, AnonymousLinkCreated, SecureLinkCreated `
+        -ResultSize 1000
+
+    Write-Host "  External sharing events: $($ExternalSharing.Count)" -ForegroundColor Green
+
+    # Step 5: Generate report
+    Write-Host "`n[Step 5] Generating compliance report..." -ForegroundColor Yellow
+    $Report = [PSCustomObject]@{
+        ReportDate = Get-Date
+        ReportPeriod = "$StartDate to $EndDate"
+        ActivePolicies = $policies.Count
+        PendingAlerts = if ($Alerts) { $Alerts.Count } else { 0 }
+        BulkDownloadEvents = $BulkDownloads.Count
+        PotentialExfiltrationUsers = if ($PotentialExfiltration) { $PotentialExfiltration.Count } else { 0 }
+        ExternalSharingEvents = $ExternalSharing.Count
+    }
+
+    $reportFile = Join-Path $ExportPath "InsiderRisk-Report-$(Get-Date -Format 'yyyyMMdd').csv"
+    $Report | Export-Csv -Path $reportFile -NoTypeInformation
+    Write-Host "  Report exported to: $reportFile" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.12 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    Write-Host "`nDisconnected from Security & Compliance Center" -ForegroundColor Gray
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

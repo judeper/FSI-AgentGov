@@ -1,0 +1,12 @@
+/* Print-friendly checkboxes */
+@media print {
+  .task-list-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+  }
+  .task-list-item {
+    list-style: none;
+    margin-left: 0;
+  }
+}

@@ -196,6 +196,90 @@ New-CopilotGovernanceReport
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 3.8 - Copilot Hub and Governance Dashboard
+
+.DESCRIPTION
+    This script configures Copilot governance monitoring:
+    1. Retrieves Copilot configuration
+    2. Exports settings for documentation
+    3. Audits configuration changes
+    4. Generates governance report
+
+.PARAMETER OutputPath
+    Path for exported Copilot settings
+
+.PARAMETER DaysBack
+    Number of days to look back for audit events
+
+.EXAMPLE
+    .\Configure-Control-3.8.ps1 -OutputPath "C:\CopilotBackup" -DaysBack 30
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 3.8 - Copilot Hub and Governance Dashboard
+#>
+
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$OutputPath = ".\CopilotExport",
+
+    [Parameter(Mandatory=$false)]
+    [int]$DaysBack = 30
+)
+
+try {
+    # Connect to Microsoft Graph
+    Write-Host "Connecting to Microsoft Graph..." -ForegroundColor Cyan
+    Connect-MgGraph -Scopes @(
+        "Organization.Read.All",
+        "Policy.Read.All",
+        "Reports.Read.All",
+        "User.Read.All"
+    )
+
+    Write-Host "Executing Control 3.8 Copilot Governance Configuration" -ForegroundColor Cyan
+
+    # Get Copilot configuration
+    Write-Host "`nRetrieving Copilot configuration..." -ForegroundColor Yellow
+    $config = Get-CopilotConfiguration
+
+    # Export settings
+    Write-Host "Exporting Copilot settings..." -ForegroundColor Yellow
+    Export-CopilotSettings -OutputPath $OutputPath
+
+    # Get audit events
+    Write-Host "Retrieving audit events (last $DaysBack days)..." -ForegroundColor Yellow
+    $events = Get-CopilotAuditEvents -DaysBack $DaysBack
+
+    # Generate governance report
+    Write-Host "Generating governance report..." -ForegroundColor Yellow
+    New-CopilotGovernanceReport
+
+    Write-Host "`nCopilot Governance Summary:" -ForegroundColor Cyan
+    Write-Host "  Copilot applications found: $($config.Count)" -ForegroundColor Green
+    Write-Host "  Audit events (last $DaysBack days): $($events.Count)" -ForegroundColor Green
+    Write-Host "  Export location: $OutputPath" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 3.8 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup Graph connection
+    Disconnect-MgGraph -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 ## Next Steps
 
 - [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration

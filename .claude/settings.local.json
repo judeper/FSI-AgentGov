@@ -22,7 +22,11 @@
       "WebFetch(domain:www.microsoft.com)",
       "WebFetch(domain:learn.microsoft.com)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:judeper.github.io)"
+      "WebFetch(domain:judeper.github.io)",
+      "Bash(git -C /Users/admin/dev/FSI-AgentGov log --oneline --all)",
+      "Bash(git -C /Users/admin/dev/FSI-AgentGov ls-files)",
+      "Bash(git -C /Users/admin/dev/FSI-AgentGov diff --name-only --diff-filter=D HEAD)",
+      "Bash(gh run list:*)"
     ]
   },
   "hooks": {

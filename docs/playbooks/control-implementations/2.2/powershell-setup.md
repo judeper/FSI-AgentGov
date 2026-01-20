@@ -173,40 +173,53 @@ Write-Host "Exported $(($environments | Measure-Object).Count) environments to $
     Related Control: Control 2.2 - Environment Groups and Tier Classification
 #>
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
 
-$exportPath = "C:\Exports\EnvironmentGroups"
-$timestamp = Get-Date -Format 'yyyyMMdd_HHmm'
-New-Item -ItemType Directory -Path "$exportPath\$timestamp" -Force | Out-Null
+    $exportPath = "C:\Exports\EnvironmentGroups"
+    $timestamp = Get-Date -Format 'yyyyMMdd_HHmm'
+    New-Item -ItemType Directory -Path "$exportPath\$timestamp" -Force | Out-Null
 
-Write-Host "=== Environment Groups Export ===" -ForegroundColor Cyan
-Write-Host "Export Path: $exportPath\$timestamp"
+    Write-Host "=== Environment Groups Export ===" -ForegroundColor Cyan
+    Write-Host "Export Path: $exportPath\$timestamp"
 
-# Export groups
-$groups = Get-AdminPowerAppEnvironmentGroup
-$groups | Select-Object EnvironmentGroupId, DisplayName, Description, CreatedTime |
-    Export-Csv -Path "$exportPath\$timestamp\Groups.csv" -NoTypeInformation
-Write-Host "  Groups: $(($groups | Measure-Object).Count)" -ForegroundColor Green
+    # Export groups
+    $groups = Get-AdminPowerAppEnvironmentGroup
+    $groups | Select-Object EnvironmentGroupId, DisplayName, Description, CreatedTime |
+        Export-Csv -Path "$exportPath\$timestamp\Groups.csv" -NoTypeInformation
+    Write-Host "  Groups: $(($groups | Measure-Object).Count)" -ForegroundColor Green
 
-# Export environments
-$environments = Get-AdminPowerAppEnvironment
-$environments | Select-Object DisplayName, EnvironmentName, EnvironmentGroupId, EnvironmentType, Location,
-    @{ Name = 'IsManaged'; Expression = { $_.Properties.governanceConfiguration.protectionLevel -ne 'Standard' }} |
-    Export-Csv -Path "$exportPath\$timestamp\Environments.csv" -NoTypeInformation
-Write-Host "  Environments: $(($environments | Measure-Object).Count)" -ForegroundColor Green
+    # Export environments
+    $environments = Get-AdminPowerAppEnvironment
+    $environments | Select-Object DisplayName, EnvironmentName, EnvironmentGroupId, EnvironmentType, Location,
+        @{ Name = 'IsManaged'; Expression = { $_.Properties.governanceConfiguration.protectionLevel -ne 'Standard' }} |
+        Export-Csv -Path "$exportPath\$timestamp\Environments.csv" -NoTypeInformation
+    Write-Host "  Environments: $(($environments | Measure-Object).Count)" -ForegroundColor Green
 
-# Summary by group
-$summary = $environments | Group-Object EnvironmentGroupId | Select-Object @{
-    Name = 'GroupId'; Expression = { $_.Name }
-}, @{
-    Name = 'EnvironmentCount'; Expression = { $_.Count }
-}, @{
-    Name = 'Environments'; Expression = { ($_.Group | Select-Object -ExpandProperty DisplayName) -join '; ' }
+    # Summary by group
+    $summary = $environments | Group-Object EnvironmentGroupId | Select-Object @{
+        Name = 'GroupId'; Expression = { $_.Name }
+    }, @{
+        Name = 'EnvironmentCount'; Expression = { $_.Count }
+    }, @{
+        Name = 'Environments'; Expression = { ($_.Group | Select-Object -ExpandProperty DisplayName) -join '; ' }
+    }
+    $summary | Export-Csv -Path "$exportPath\$timestamp\Summary.csv" -NoTypeInformation
+
+    Write-Host "`nExport complete: $exportPath\$timestamp" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 2.2 configuration completed successfully" -ForegroundColor Green
 }
-$summary | Export-Csv -Path "$exportPath\$timestamp\Summary.csv" -NoTypeInformation
-
-Write-Host "`nExport complete: $exportPath\$timestamp" -ForegroundColor Green
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections if applicable
+    # Note: Add-PowerAppsAccount does not require explicit disconnect
+}
 ```
 
 ---

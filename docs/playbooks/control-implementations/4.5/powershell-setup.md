@@ -159,4 +159,115 @@ Get-MgUserMemberOf -UserId "admin@contoso.com" |
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 4.5 - SharePoint Security and Compliance Monitoring
+
+.DESCRIPTION
+    This script configures security monitoring:
+    1. Searches audit logs for SharePoint events
+    2. Exports security configuration
+    3. Generates compliance reports
+
+.PARAMETER AdminUrl
+    SharePoint Admin Center URL
+
+.PARAMETER AdminEmail
+    Email for Purview connection
+
+.PARAMETER DaysBack
+    Number of days to search audit logs
+
+.EXAMPLE
+    .\Configure-Control-4.5.ps1 -AdminUrl "https://contoso-admin.sharepoint.com" -AdminEmail "admin@contoso.com" -DaysBack 30
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 4.5 - SharePoint Security and Compliance Monitoring
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$AdminUrl,
+
+    [Parameter(Mandatory=$true)]
+    [string]$AdminEmail,
+
+    [Parameter(Mandatory=$false)]
+    [int]$DaysBack = 30
+)
+
+try {
+    # Connect to SharePoint Online
+    Write-Host "Connecting to SharePoint Online..." -ForegroundColor Cyan
+    Connect-SPOService -Url $AdminUrl
+
+    # Connect to Security & Compliance
+    Write-Host "Connecting to Security & Compliance..." -ForegroundColor Cyan
+    Connect-IPPSSession -UserPrincipalName $AdminEmail
+
+    Write-Host "Configuring Control 4.5 Security Monitoring" -ForegroundColor Cyan
+
+    # Verify audit logging is enabled
+    Write-Host "`nVerifying audit logging status..." -ForegroundColor Yellow
+    $auditConfig = Get-AdminAuditLogConfig
+    if ($auditConfig.UnifiedAuditLogIngestionEnabled) {
+        Write-Host "  [PASS] Unified audit logging is enabled" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] Unified audit logging is NOT enabled" -ForegroundColor Red
+    }
+
+    # Search audit logs
+    Write-Host "`nSearching audit logs (last $DaysBack days)..." -ForegroundColor Yellow
+    $startDate = (Get-Date).AddDays(-$DaysBack)
+    $endDate = Get-Date
+
+    $auditEvents = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+        -RecordType SharePoint -Operations FileAccessed,FileDownloaded,FileModified `
+        -ResultSize 5000
+
+    Write-Host "  Found $($auditEvents.Count) SharePoint events" -ForegroundColor Green
+
+    # Export audit events
+    $auditEvents | Select-Object CreationDate, UserIds, Operations, AuditData |
+        Export-Csv -Path "SharePoint-Audit-Log-$(Get-Date -Format 'yyyy-MM-dd').csv" -NoTypeInformation
+
+    # Export security configuration
+    Write-Host "`nExporting security configuration..." -ForegroundColor Yellow
+    $securityConfig = Get-SPOTenant | Select-Object SharingCapability, DefaultSharingLinkType,
+        ExternalUserExpirationRequired, ExternalUserExpireInDays, ConditionalAccessPolicy
+
+    $securityConfig | ConvertTo-Json |
+        Out-File "SharePoint-Security-Config-$(Get-Date -Format 'yyyy-MM-dd').json"
+
+    # Get high-risk sites
+    $highRiskSites = Get-SPOSite -Limit All | Where-Object {
+        $_.SensitivityLabel -eq "Highly Confidential" -or $_.LockState -ne "Unlock"
+    }
+
+    Write-Host "`nSecurity Monitoring Summary:" -ForegroundColor Cyan
+    Write-Host "  Audit events (last $DaysBack days): $($auditEvents.Count)" -ForegroundColor Green
+    Write-Host "  High-risk sites: $($highRiskSites.Count)" -ForegroundColor $(if ($highRiskSites.Count -gt 0) { "Yellow" } else { "Green" })
+
+    Write-Host "`n[PASS] Control 4.5 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
+        Disconnect-SPOService -ErrorAction SilentlyContinue
+    }
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

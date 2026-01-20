@@ -219,4 +219,135 @@ Write-Host "Document findings and remediate any gaps identified"
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete multi-agent orchestration limits configuration for Control 2.17
+
+.DESCRIPTION
+    Executes end-to-end orchestration monitoring setup including:
+    - Audit log query for orchestration events
+    - Depth limit validation
+    - Circuit breaker status monitoring
+    - Compliance report generation
+
+.PARAMETER Days
+    Number of days of history to retrieve
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.17.ps1 -Days 7 -OutputPath ".\Orchestration"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.17 - Multi-Agent Orchestration Limits
+#>
+
+param(
+    [int]$Days = 7,
+    [string]$OutputPath = ".\Orchestration-Report"
+)
+
+try {
+    Write-Host "=== Control 2.17: Multi-Agent Orchestration Configuration ===" -ForegroundColor Cyan
+
+    # Connect to Exchange Online for audit log access
+    Connect-ExchangeOnline
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    $startDate = (Get-Date).AddDays(-$Days)
+    $endDate = Get-Date
+
+    Write-Host "[INFO] Querying audit logs from $startDate to $endDate" -ForegroundColor Cyan
+
+    # Search for Copilot/agent events
+    $auditResults = Search-UnifiedAuditLog `
+        -StartDate $startDate `
+        -EndDate $endDate `
+        -RecordType "CopilotInteraction" `
+        -ResultSize 5000 `
+        -ErrorAction SilentlyContinue
+
+    if ($auditResults -and $auditResults.Count -gt 0) {
+        Write-Host "[INFO] Found $($auditResults.Count) orchestration events" -ForegroundColor Cyan
+
+        # Parse events
+        $orchestrationEvents = $auditResults | ForEach-Object {
+            $auditData = $_.AuditData | ConvertFrom-Json
+
+            [PSCustomObject]@{
+                Timestamp = $_.CreationDate
+                User = $_.UserIds
+                Operation = $auditData.Operation
+                AgentName = $auditData.AgentName
+                TargetAgent = $auditData.TargetAgent
+                DelegationDepth = $auditData.DelegationDepth
+                Success = $auditData.ResultStatus -eq "Success"
+            }
+        }
+
+        # Export events
+        $orchestrationEvents | Export-Csv -Path "$OutputPath\OrchestrationEvents.csv" -NoTypeInformation
+
+        # Analyze depth violations
+        $maxDepthByZone = @{
+            "Zone1" = 0
+            "Zone2" = 2
+            "Zone3" = 3
+        }
+
+        $depthViolations = $orchestrationEvents | Where-Object { $_.DelegationDepth -gt 3 }
+        if ($depthViolations.Count -gt 0) {
+            Write-Host "[WARN] Depth violations found: $($depthViolations.Count)" -ForegroundColor Yellow
+            $depthViolations | Export-Csv -Path "$OutputPath\DepthViolations.csv" -NoTypeInformation
+        } else {
+            Write-Host "[PASS] No depth limit violations detected" -ForegroundColor Green
+        }
+
+        # Summary statistics
+        $uniqueAgents = ($orchestrationEvents | Select-Object -ExpandProperty AgentName -Unique).Count
+        $maxObservedDepth = ($orchestrationEvents | Measure-Object -Property DelegationDepth -Maximum).Maximum
+
+        Write-Host "`n=== Orchestration Summary ===" -ForegroundColor Cyan
+        Write-Host "Total Events: $($orchestrationEvents.Count)"
+        Write-Host "Unique Agents: $uniqueAgents"
+        Write-Host "Max Observed Depth: $maxObservedDepth"
+        Write-Host "Depth Violations: $($depthViolations.Count)"
+    } else {
+        Write-Host "[INFO] No orchestration events found in the specified period" -ForegroundColor Yellow
+        Write-Host "[INFO] This is expected if multi-agent orchestration is not yet deployed" -ForegroundColor Cyan
+    }
+
+    # Export configuration summary
+    $config = @{
+        ReportDate = Get-Date -Format "yyyy-MM-dd HH:mm"
+        QueryPeriodDays = $Days
+        MaxAllowedDepthZone1 = 0
+        MaxAllowedDepthZone2 = 2
+        MaxAllowedDepthZone3 = 3
+        EventsFound = if ($auditResults) { $auditResults.Count } else { 0 }
+    }
+    $config | ConvertTo-Json | Out-File -FilePath "$OutputPath\OrchestrationConfig.json"
+
+    Write-Host "`n[PASS] Control 2.17 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

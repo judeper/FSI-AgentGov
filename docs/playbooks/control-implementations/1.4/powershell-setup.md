@@ -253,4 +253,92 @@ byoa_policy:
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 1.4 - Advanced Connector Policies (ACP)
+
+.DESCRIPTION
+    This script:
+    1. Enables Managed Environment on the target environment
+    2. Configures governance settings for FSI
+    3. Validates Managed Environment status
+    4. Exports environment inventory for evidence
+
+.PARAMETER EnvironmentName
+    The GUID of the target Power Platform environment
+
+.EXAMPLE
+    .\Configure-Control-1.4.ps1 -EnvironmentName "abc123..."
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 1.4 - Advanced Connector Policies (ACP)
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$EnvironmentName
+)
+
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
+
+    Write-Host "=== Configuring Control 1.4: Advanced Connector Policies ===" -ForegroundColor Cyan
+
+    # Step 1: Enable Managed Environment
+    Write-Host "`nStep 1: Enabling Managed Environment..." -ForegroundColor White
+    $GovernanceConfiguration = [pscustomobject]@{
+        protectionLevel = "Standard"  # Use "Standard" for FSI
+        settings = [pscustomobject]@{
+            extendedSettings = @{
+                "limitSharingMode" = "excludeSharingToSecurityGroups"
+                "solutionCheckerEnforcement" = "block"
+            }
+        }
+    }
+
+    Set-AdminPowerAppEnvironmentGovernanceConfiguration `
+        -EnvironmentName $EnvironmentName `
+        -UpdatedGovernanceConfiguration $GovernanceConfiguration
+    Write-Host "  [DONE] Managed Environment enabled with FSI settings" -ForegroundColor Green
+
+    # Step 2: Validate Managed Environment status
+    Write-Host "`nStep 2: Validating configuration..." -ForegroundColor White
+    $EnvStatus = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName
+    if ($EnvStatus.Properties.protectionLevel -eq "Standard") {
+        Write-Host "  [PASS] Managed Environment is active" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] Managed Environment may not be fully configured" -ForegroundColor Yellow
+    }
+
+    # Step 3: Export environment inventory for evidence
+    Write-Host "`nStep 3: Exporting environment inventory..." -ForegroundColor White
+    Get-AdminPowerAppEnvironment |
+        Select-Object DisplayName, EnvironmentName, Location, EnvironmentType |
+        Export-Csv -Path "environment-inventory-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+    Write-Host "  [DONE] Environment inventory exported" -ForegroundColor Green
+
+    # Step 4: Export DLP policies for evidence
+    Write-Host "`nStep 4: Exporting DLP policy inventory..." -ForegroundColor White
+    Get-DlpPolicy |
+        Select-Object PolicyName, CreatedTime, LastModifiedTime |
+        Export-Csv -Path "dlp-policy-inventory-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+    Write-Host "  [DONE] DLP policy inventory exported" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.4 configuration completed successfully" -ForegroundColor Green
+    Write-Host "[INFO] Configure Advanced Connector Policies via the portal" -ForegroundColor Yellow
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

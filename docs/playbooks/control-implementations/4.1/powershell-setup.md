@@ -194,37 +194,52 @@ param(
     [string]$EnterpriseSitesFile
 )
 
-# Connect to SharePoint
-Connect-SPOService -Url $AdminUrl
+try {
+    # Connect to SharePoint
+    Connect-SPOService -Url $AdminUrl
 
-Write-Host "Configuring Control 4.1 for tenant: $AdminUrl" -ForegroundColor Cyan
+    Write-Host "Configuring Control 4.1 for tenant: $AdminUrl" -ForegroundColor Cyan
 
-# Get current state
-$AllSites = Get-SPOSite -Limit All
-$CurrentRestricted = ($AllSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
-Write-Host "Current restricted sites: $CurrentRestricted / $($AllSites.Count)" -ForegroundColor Yellow
+    # Get current state
+    $AllSites = Get-SPOSite -Limit All
+    $CurrentRestricted = ($AllSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
+    Write-Host "Current restricted sites: $CurrentRestricted / $($AllSites.Count)" -ForegroundColor Yellow
 
-# If sites file provided, configure those sites
-if ($EnterpriseSitesFile -and (Test-Path $EnterpriseSitesFile)) {
-    $SitesToRestrict = Import-Csv -Path $EnterpriseSitesFile
+    # If sites file provided, configure those sites
+    if ($EnterpriseSitesFile -and (Test-Path $EnterpriseSitesFile)) {
+        $SitesToRestrict = Import-Csv -Path $EnterpriseSitesFile
 
-    foreach ($Site in $SitesToRestrict) {
-        try {
-            Set-SPOSite -Identity $Site.Url -RestrictContentOrgWideSearch $true
-            Write-Host "  [DONE] Restricted: $($Site.Url)" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "  [FAIL] $($Site.Url): $($_.Exception.Message)" -ForegroundColor Red
+        foreach ($Site in $SitesToRestrict) {
+            try {
+                Set-SPOSite -Identity $Site.Url -RestrictContentOrgWideSearch $true
+                Write-Host "  [DONE] Restricted: $($Site.Url)" -ForegroundColor Green
+            }
+            catch {
+                Write-Host "  [FAIL] $($Site.Url): $($_.Exception.Message)" -ForegroundColor Red
+            }
         }
     }
+
+    # Generate summary
+    $UpdatedSites = Get-SPOSite -Limit All
+    $NewRestricted = ($UpdatedSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
+
+    Write-Host "`nControl 4.1 configuration complete!" -ForegroundColor Cyan
+    Write-Host "Restricted sites: $CurrentRestricted -> $NewRestricted" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 4.1 configuration completed successfully" -ForegroundColor Green
 }
-
-# Generate summary
-$UpdatedSites = Get-SPOSite -Limit All
-$NewRestricted = ($UpdatedSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
-
-Write-Host "`nControl 4.1 configuration complete!" -ForegroundColor Cyan
-Write-Host "Restricted sites: $CurrentRestricted -> $NewRestricted" -ForegroundColor Green
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup SharePoint connection
+    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
+        Disconnect-SPOService -ErrorAction SilentlyContinue
+    }
+}
 ```
 
 ---

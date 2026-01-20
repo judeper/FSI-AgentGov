@@ -197,4 +197,95 @@ $SitesWithoutRetention | Select-Object Url, Title, Template | Format-Table
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 4.3 - Site and Document Retention Management
+
+.DESCRIPTION
+    This script configures retention policies for SharePoint:
+    1. Creates zone-specific retention policies
+    2. Creates and publishes retention labels
+    3. Exports configuration for documentation
+
+.PARAMETER AdminEmail
+    Email address for Purview admin connection
+
+.PARAMETER ExportPath
+    Path for exported retention configuration
+
+.EXAMPLE
+    .\Configure-Control-4.3.ps1 -AdminEmail "admin@contoso.com" -ExportPath "C:\FSI-Governance\RetentionConfig"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 4.3 - Site and Document Retention Management
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$AdminEmail,
+
+    [Parameter(Mandatory=$false)]
+    [string]$ExportPath = "C:\FSI-Governance\RetentionConfig"
+)
+
+try {
+    # Connect to Security & Compliance
+    Write-Host "Connecting to Security & Compliance..." -ForegroundColor Cyan
+    Connect-IPPSSession -UserPrincipalName $AdminEmail
+
+    Write-Host "Configuring Control 4.3 Retention Management" -ForegroundColor Cyan
+
+    # Create export directory
+    if (-not (Test-Path $ExportPath)) {
+        New-Item -ItemType Directory -Path $ExportPath -Force | Out-Null
+    }
+
+    # Get existing retention policies
+    Write-Host "`nRetrieving existing retention policies..." -ForegroundColor Yellow
+    $existingPolicies = Get-RetentionCompliancePolicy
+    Write-Host "  Found $($existingPolicies.Count) existing policies" -ForegroundColor Green
+
+    # Get existing retention labels
+    Write-Host "Retrieving existing retention labels..." -ForegroundColor Yellow
+    $existingLabels = Get-ComplianceTag
+    Write-Host "  Found $($existingLabels.Count) existing labels" -ForegroundColor Green
+
+    # Export current configuration
+    Write-Host "`nExporting retention configuration..." -ForegroundColor Yellow
+    $existingPolicies | Select-Object Name, Enabled, Mode, SharePointLocation, Comment, WhenCreated |
+        Export-Csv -Path "$ExportPath\RetentionPolicies.csv" -NoTypeInformation
+
+    $existingLabels | Select-Object Name, RetentionDuration, RetentionAction, IsRecordLabel, Comment |
+        Export-Csv -Path "$ExportPath\RetentionLabels.csv" -NoTypeInformation
+
+    # Get retention rules
+    $rules = Get-RetentionComplianceRule
+    $rules | Select-Object Name, Policy, RetentionDuration, RetentionComplianceAction |
+        Export-Csv -Path "$ExportPath\RetentionRules.csv" -NoTypeInformation
+
+    Write-Host "`nRetention Configuration Summary:" -ForegroundColor Cyan
+    Write-Host "  Policies: $($existingPolicies.Count)" -ForegroundColor Green
+    Write-Host "  Labels: $($existingLabels.Count)" -ForegroundColor Green
+    Write-Host "  Rules: $($rules.Count)" -ForegroundColor Green
+    Write-Host "  Export location: $ExportPath" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 4.3 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup compliance session
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

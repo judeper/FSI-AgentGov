@@ -191,4 +191,117 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 1.17 - Endpoint Data Loss Prevention (Endpoint DLP)
+
+.DESCRIPTION
+    This script creates Endpoint DLP policies for financial data protection,
+    validates existing policies, and generates compliance reports.
+
+.PARAMETER PolicyName
+    Name for the Endpoint DLP policy
+
+.PARAMETER Mode
+    Policy mode: TestWithNotifications, TestWithoutNotifications, or Enable
+
+.PARAMETER ExportPath
+    Path for exports (default: current directory)
+
+.EXAMPLE
+    .\Configure-Control-1.17.ps1 -PolicyName "FSI-Endpoint-Tier3" -Mode "TestWithNotifications"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 1.17 - Endpoint Data Loss Prevention
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$PolicyName,
+
+    [ValidateSet("TestWithNotifications", "TestWithoutNotifications", "Enable")]
+    [string]$Mode = "TestWithNotifications",
+
+    [string]$ExportPath = "."
+)
+
+try {
+    # Connect to Security & Compliance
+    Write-Host "Connecting to Security & Compliance Center..." -ForegroundColor Cyan
+    Connect-IPPSSession
+
+    Write-Host "Configuring Control 1.17: Endpoint Data Loss Prevention" -ForegroundColor Cyan
+
+    # Step 1: Check existing Endpoint DLP policies
+    Write-Host "`n[Step 1] Checking existing Endpoint DLP policies..." -ForegroundColor Yellow
+    $existingPolicies = Get-DlpCompliancePolicy | Where-Object { $_.EndpointDlpLocation -ne $null }
+    Write-Host "  Existing Endpoint DLP policies: $($existingPolicies.Count)" -ForegroundColor Green
+    $existingPolicies | ForEach-Object { Write-Host "    - $($_.Name): $($_.Mode)" }
+
+    # Step 2: Create new policy
+    Write-Host "`n[Step 2] Creating Endpoint DLP policy..." -ForegroundColor Yellow
+    $policy = New-DlpCompliancePolicy -Name $PolicyName `
+        -Mode $Mode `
+        -EndpointDlpLocation "All" `
+        -Comment "FSI Endpoint DLP policy for sensitive financial data protection"
+    Write-Host "  Created policy: $PolicyName" -ForegroundColor Green
+
+    # Step 3: Create rule for financial data
+    Write-Host "`n[Step 3] Creating DLP rule for financial data..." -ForegroundColor Yellow
+    $rule = New-DlpComplianceRule -Name "$PolicyName-FinancialData" `
+        -Policy $PolicyName `
+        -ContentContainsSensitiveInformation @(
+            @{Name="U.S. Social Security Number (SSN)"; minCount=1},
+            @{Name="Credit Card Number"; minCount=1},
+            @{Name="U.S. Bank Account Number"; minCount=1}
+        ) `
+        -BlockAccess $true `
+        -NotifyUser "Owner,LastModifier" `
+        -NotifyPolicyTipCustomText "This content contains sensitive financial information and cannot be transferred to this location."
+    Write-Host "  Created rule: $($rule.Name)" -ForegroundColor Green
+
+    # Step 4: Validate configuration
+    Write-Host "`n[Step 4] Validating configuration..." -ForegroundColor Yellow
+    $validatedPolicy = Get-DlpCompliancePolicy -Identity $PolicyName
+    $validatedRules = Get-DlpComplianceRule -Policy $PolicyName
+    Write-Host "  Policy mode: $($validatedPolicy.Mode)" -ForegroundColor Green
+    Write-Host "  Rules configured: $($validatedRules.Count)" -ForegroundColor Green
+
+    # Step 5: Export configuration
+    Write-Host "`n[Step 5] Exporting configuration for compliance evidence..." -ForegroundColor Yellow
+    $export = @()
+    foreach ($r in $validatedRules) {
+        $export += [PSCustomObject]@{
+            PolicyName = $PolicyName
+            PolicyMode = $validatedPolicy.Mode
+            RuleName = $r.Name
+            RulePriority = $r.Priority
+            BlockAccess = $r.BlockAccess
+            ExportDate = Get-Date
+        }
+    }
+    $exportFile = Join-Path $ExportPath "EndpointDLP-Config-$(Get-Date -Format 'yyyyMMdd').csv"
+    $export | Export-Csv -Path $exportFile -NoTypeInformation
+    Write-Host "  Configuration exported to: $exportFile" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.17 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    Write-Host "`nDisconnected from Security & Compliance Center" -ForegroundColor Gray
+}
+```
+
+---
+
 [Back to Control 1.17](../../../controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

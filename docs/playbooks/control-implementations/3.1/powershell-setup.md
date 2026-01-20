@@ -276,65 +276,74 @@ param(
     [string]$ExportPath = "C:\Governance\AgentInventory"
 )
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
 
-Write-Host "Executing Control 3.1 Agent Inventory Export" -ForegroundColor Cyan
+    Write-Host "Executing Control 3.1 Agent Inventory Export" -ForegroundColor Cyan
 
-# Create export directory
-if (-not (Test-Path $ExportPath)) {
-    New-Item -ItemType Directory -Path $ExportPath -Force | Out-Null
-}
-
-$reportDate = Get-Date -Format "yyyyMMdd_HHmmss"
-$environments = Get-AdminPowerAppEnvironment
-$inventoryReport = @()
-$orphanedAgents = @()
-
-foreach ($env in $environments) {
-    Write-Host "  Processing: $($env.DisplayName)" -ForegroundColor Yellow
-
-    $apps = Get-AdminPowerApp -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
-
-    foreach ($app in $apps) {
-        $isOrphaned = [string]::IsNullOrEmpty($app.Owner.email) -or
-                      $app.Owner.email -like "*system*" -or
-                      $app.Owner.email -like "*deleted*"
-
-        $record = [PSCustomObject]@{
-            ItemName = $app.DisplayName
-            ItemType = "PowerApp"
-            Owner = $app.Owner.displayName
-            OwnerEmail = $app.Owner.email
-            EnvironmentName = $env.DisplayName
-            EnvironmentType = $env.EnvironmentType
-            CreatedDate = $app.CreatedTime
-            ModifiedDate = $app.LastModifiedTime
-            IsOrphaned = $isOrphaned
-            InventoryDate = Get-Date
-        }
-
-        $inventoryReport += $record
-        if ($isOrphaned) { $orphanedAgents += $record }
+    # Create export directory
+    if (-not (Test-Path $ExportPath)) {
+        New-Item -ItemType Directory -Path $ExportPath -Force | Out-Null
     }
+
+    $reportDate = Get-Date -Format "yyyyMMdd_HHmmss"
+    $environments = Get-AdminPowerAppEnvironment
+    $inventoryReport = @()
+    $orphanedAgents = @()
+
+    foreach ($env in $environments) {
+        Write-Host "  Processing: $($env.DisplayName)" -ForegroundColor Yellow
+
+        $apps = Get-AdminPowerApp -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
+
+        foreach ($app in $apps) {
+            $isOrphaned = [string]::IsNullOrEmpty($app.Owner.email) -or
+                          $app.Owner.email -like "*system*" -or
+                          $app.Owner.email -like "*deleted*"
+
+            $record = [PSCustomObject]@{
+                ItemName = $app.DisplayName
+                ItemType = "PowerApp"
+                Owner = $app.Owner.displayName
+                OwnerEmail = $app.Owner.email
+                EnvironmentName = $env.DisplayName
+                EnvironmentType = $env.EnvironmentType
+                CreatedDate = $app.CreatedTime
+                ModifiedDate = $app.LastModifiedTime
+                IsOrphaned = $isOrphaned
+                InventoryDate = Get-Date
+            }
+
+            $inventoryReport += $record
+            if ($isOrphaned) { $orphanedAgents += $record }
+        }
+    }
+
+    # Export full inventory
+    $fullExport = "$ExportPath\AgentInventory_$reportDate.csv"
+    $inventoryReport | Export-Csv -Path $fullExport -NoTypeInformation
+    $hash = (Get-FileHash -Path $fullExport -Algorithm SHA256).Hash
+    "$reportDate,AgentInventory,$fullExport,SHA256,$hash" | Out-File -FilePath "$ExportPath\Hashes.csv" -Append
+
+    # Export orphaned agents
+    if ($orphanedAgents.Count -gt 0) {
+        $orphanedAgents | Export-Csv -Path "$ExportPath\OrphanedAgents_$reportDate.csv" -NoTypeInformation
+        Write-Host "  [ALERT] $($orphanedAgents.Count) orphaned agents found" -ForegroundColor Red
+    }
+
+    Write-Host "`nInventory complete!" -ForegroundColor Cyan
+    Write-Host "  Total items: $($inventoryReport.Count)" -ForegroundColor Green
+    Write-Host "  Export file: $fullExport" -ForegroundColor Green
+    Write-Host "  SHA-256: $hash" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 3.1 configuration completed successfully" -ForegroundColor Green
 }
-
-# Export full inventory
-$fullExport = "$ExportPath\AgentInventory_$reportDate.csv"
-$inventoryReport | Export-Csv -Path $fullExport -NoTypeInformation
-$hash = (Get-FileHash -Path $fullExport -Algorithm SHA256).Hash
-"$reportDate,AgentInventory,$fullExport,SHA256,$hash" | Out-File -FilePath "$ExportPath\Hashes.csv" -Append
-
-# Export orphaned agents
-if ($orphanedAgents.Count -gt 0) {
-    $orphanedAgents | Export-Csv -Path "$ExportPath\OrphanedAgents_$reportDate.csv" -NoTypeInformation
-    Write-Host "  [ALERT] $($orphanedAgents.Count) orphaned agents found" -ForegroundColor Red
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
 }
-
-Write-Host "`nInventory complete!" -ForegroundColor Cyan
-Write-Host "  Total items: $($inventoryReport.Count)" -ForegroundColor Green
-Write-Host "  Export file: $fullExport" -ForegroundColor Green
-Write-Host "  SHA-256: $hash" -ForegroundColor Green
 ```
 
 ---

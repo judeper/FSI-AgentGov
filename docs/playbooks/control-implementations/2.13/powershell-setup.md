@@ -176,4 +176,130 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete documentation and record keeping configuration for Control 2.13
+
+.DESCRIPTION
+    Executes end-to-end documentation setup including:
+    - SharePoint site structure verification/creation
+    - Retention policy validation
+    - Documentation completeness audit
+
+.PARAMETER AdminUrl
+    SharePoint admin URL
+
+.PARAMETER SiteAlias
+    Site alias for AI Governance site
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.13.ps1 -AdminUrl "https://tenant-admin.sharepoint.com" -OutputPath ".\Documentation"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.13 - Documentation and Record Keeping
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$AdminUrl,
+    [string]$SiteAlias = "AI-Governance",
+    [string]$OutputPath = ".\Documentation-Report"
+)
+
+try {
+    Write-Host "=== Control 2.13: Documentation and Record Keeping Configuration ===" -ForegroundColor Cyan
+
+    # Connect to SharePoint Admin
+    Connect-PnPOnline -Url $AdminUrl -Interactive
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Check if site exists
+    $siteUrl = $AdminUrl -replace "-admin", "" -replace "sharepoint.com", "sharepoint.com/sites/$SiteAlias"
+    $site = Get-PnPTenantSite -Url $siteUrl -ErrorAction SilentlyContinue
+
+    if (-not $site) {
+        Write-Host "[INFO] Creating AI Governance site..." -ForegroundColor Cyan
+        New-PnPSite -Type TeamSite -Title "AI Governance" -Alias $SiteAlias
+        Write-Host "[PASS] Site created: $siteUrl" -ForegroundColor Green
+    } else {
+        Write-Host "[INFO] AI Governance site exists: $siteUrl" -ForegroundColor Cyan
+    }
+
+    # Connect to the site
+    Connect-PnPOnline -Url $siteUrl -Interactive
+
+    # Define required libraries
+    $requiredLibraries = @(
+        "AgentConfigurations",
+        "InteractionLogs",
+        "ApprovalRecords",
+        "IncidentReports",
+        "GovernanceDecisions"
+    )
+
+    # Create or verify libraries
+    Write-Host "`n[Step 1] Verifying document libraries..." -ForegroundColor Cyan
+    $libraryReport = @()
+    foreach ($lib in $requiredLibraries) {
+        $existing = Get-PnPList -Identity $lib -ErrorAction SilentlyContinue
+        if (-not $existing) {
+            New-PnPList -Title $lib -Template DocumentLibrary
+            Write-Host "  [CREATED] $lib" -ForegroundColor Green
+            $libraryReport += [PSCustomObject]@{Library=$lib; Status="Created"; ItemCount=0}
+        } else {
+            Write-Host "  [EXISTS] $lib - $($existing.ItemCount) items" -ForegroundColor Yellow
+            $libraryReport += [PSCustomObject]@{Library=$lib; Status="Existing"; ItemCount=$existing.ItemCount}
+        }
+    }
+
+    # Export library report
+    $libraryReport | Export-Csv -Path "$OutputPath\LibraryInventory.csv" -NoTypeInformation
+
+    # Check retention policies
+    Write-Host "`n[Step 2] Checking retention policies..." -ForegroundColor Cyan
+    try {
+        Connect-IPPSSession -ErrorAction SilentlyContinue
+        $retentionPolicies = Get-RetentionCompliancePolicy | Where-Object { $_.Name -like "*Agent*" -or $_.Name -like "*AI*" }
+        if ($retentionPolicies) {
+            Write-Host "  [PASS] Found $($retentionPolicies.Count) retention policies" -ForegroundColor Green
+            $retentionPolicies | Select-Object Name, Mode, Enabled | Export-Csv -Path "$OutputPath\RetentionPolicies.csv" -NoTypeInformation
+        } else {
+            Write-Host "  [WARN] No AI-specific retention policies found" -ForegroundColor Yellow
+        }
+        Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    } catch {
+        Write-Host "  [INFO] Could not check retention policies - verify manually in Purview" -ForegroundColor Yellow
+    }
+
+    # Summary
+    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
+    Write-Host "Site URL: $siteUrl"
+    Write-Host "Libraries Configured: $($libraryReport.Count)"
+    Write-Host "Report Path: $OutputPath"
+
+    Write-Host "`n[PASS] Control 2.13 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

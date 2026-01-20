@@ -181,4 +181,111 @@ $strengths | ConvertTo-Json -Depth 10 | Out-File "AuthStrengths-Export-$(Get-Dat
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 1.11 - Conditional Access and Phishing-Resistant MFA
+
+.DESCRIPTION
+    This script configures Conditional Access policies for AI agent creators,
+    including phishing-resistant MFA requirements and named locations.
+
+.PARAMETER PolicyName
+    The name for the Conditional Access policy
+
+.PARAMETER IncludeGroups
+    Security groups to include in the policy
+
+.PARAMETER ExcludeGroups
+    Security groups to exclude (e.g., emergency access)
+
+.EXAMPLE
+    .\Configure-Control-1.11.ps1 -PolicyName "FSI-Agent-Creators-MFA" -IncludeGroups @("sg-agent-creators")
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 1.11 - Conditional Access and Phishing-Resistant MFA
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$PolicyName,
+
+    [Parameter(Mandatory=$true)]
+    [string[]]$IncludeGroups,
+
+    [string[]]$ExcludeGroups = @("sg-emergency-access")
+)
+
+try {
+    # Connect to Microsoft Graph
+    Write-Host "Connecting to Microsoft Graph..." -ForegroundColor Cyan
+    Connect-MgGraph -Scopes "Policy.Read.All","Policy.ReadWrite.ConditionalAccess","Directory.Read.All"
+
+    Write-Host "Configuring Control 1.11: Conditional Access and Phishing-Resistant MFA" -ForegroundColor Cyan
+
+    # Step 1: Get phishing-resistant authentication strength
+    Write-Host "`n[Step 1] Discovering phishing-resistant authentication strength..." -ForegroundColor Yellow
+    $phishingResistantStrength = Get-MgPolicyAuthenticationStrengthPolicy |
+        Where-Object { $_.DisplayName -match "phishing" -and $_.DisplayName -match "resistant" } |
+        Select-Object -First 1
+
+    if (-not $phishingResistantStrength) {
+        throw "Could not find phishing-resistant Authentication Strength policy."
+    }
+    Write-Host "  Found: $($phishingResistantStrength.DisplayName)" -ForegroundColor Green
+
+    # Step 2: Create Conditional Access policy
+    Write-Host "`n[Step 2] Creating Conditional Access policy..." -ForegroundColor Yellow
+    $params = @{
+        DisplayName = $PolicyName
+        State = "enabledForReportingButNotEnforced"
+        Conditions = @{
+            Users = @{
+                IncludeGroups = $IncludeGroups
+                ExcludeGroups = $ExcludeGroups
+            }
+            Applications = @{
+                IncludeApplications = @("All")
+            }
+            ClientAppTypes = @("all")
+        }
+        GrantControls = @{
+            Operator = "OR"
+            BuiltInControls = @()
+            AuthenticationStrength = @{
+                Id = $phishingResistantStrength.Id
+            }
+        }
+    }
+
+    $policy = New-MgIdentityConditionalAccessPolicy -BodyParameter $params
+    Write-Host "  Created policy: $($policy.DisplayName)" -ForegroundColor Green
+
+    # Step 3: Export configuration for evidence
+    Write-Host "`n[Step 3] Exporting configuration for compliance evidence..." -ForegroundColor Yellow
+    $exportPath = "CA-Policy-Export-$(Get-Date -Format 'yyyyMMdd-HHmmss').json"
+    $policy | ConvertTo-Json -Depth 10 | Out-File $exportPath
+    Write-Host "  Exported to: $exportPath" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.11 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    if (Get-MgContext) {
+        Disconnect-MgGraph -ErrorAction SilentlyContinue
+        Write-Host "`nDisconnected from Microsoft Graph" -ForegroundColor Gray
+    }
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

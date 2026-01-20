@@ -281,6 +281,76 @@ Test-IncidentSlaCompliance
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 3.4 - Incident Reporting and Root Cause Analysis
+
+.DESCRIPTION
+    This script sets up incident tracking infrastructure:
+    1. Creates SharePoint incident tracking list
+    2. Configures incident categories and severity levels
+    3. Sets up SLA monitoring
+
+.PARAMETER SiteUrl
+    SharePoint site URL for incident tracking
+
+.EXAMPLE
+    .\Configure-Control-3.4.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/AI-Governance"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 3.4 - Incident Reporting and Root Cause Analysis
+#>
+
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$SiteUrl = "https://[tenant].sharepoint.com/sites/AI-Governance"
+)
+
+try {
+    # Connect to SharePoint
+    Write-Host "Connecting to SharePoint..." -ForegroundColor Cyan
+    Connect-PnPOnline -Url $SiteUrl -Interactive
+
+    Write-Host "Configuring Control 3.4 Incident Tracking" -ForegroundColor Cyan
+
+    # Check if list exists
+    $existingList = Get-PnPList -Identity "AI Agent Incidents" -ErrorAction SilentlyContinue
+
+    if (-not $existingList) {
+        Write-Host "Creating Incident Tracking List..." -ForegroundColor Yellow
+        New-IncidentTrackingList -SiteUrl $SiteUrl
+    } else {
+        Write-Host "Incident Tracking List already exists" -ForegroundColor Green
+    }
+
+    # Verify configuration
+    $list = Get-PnPList -Identity "AI Agent Incidents"
+    $fields = Get-PnPField -List "AI Agent Incidents"
+
+    Write-Host "`nIncident Tracking Configuration:" -ForegroundColor Cyan
+    Write-Host "  List: $($list.Title)" -ForegroundColor Green
+    Write-Host "  Fields configured: $($fields.Count)" -ForegroundColor Green
+    Write-Host "  URL: $SiteUrl/Lists/AI%20Agent%20Incidents" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 3.4 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup SharePoint connection
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 ## Next Steps
 
 - [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration

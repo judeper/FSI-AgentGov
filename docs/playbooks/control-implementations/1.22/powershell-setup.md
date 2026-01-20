@@ -161,4 +161,125 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 1.22 - Information Barriers
+
+.DESCRIPTION
+    This script creates organization segments and Information Barrier policies
+    for FSI Chinese wall requirements.
+
+.PARAMETER Segments
+    Hashtable array of segments to create with Name and Filter properties
+
+.PARAMETER Barriers
+    Hashtable array of barrier policies to create
+
+.PARAMETER ExportPath
+    Path for exports (default: current directory)
+
+.EXAMPLE
+    .\Configure-Control-1.22.ps1
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 1.22 - Information Barriers
+#>
+
+param(
+    [string]$ExportPath = "."
+)
+
+try {
+    # Connect to Security & Compliance
+    Write-Host "Connecting to Security & Compliance Center..." -ForegroundColor Cyan
+    Connect-IPPSSession
+
+    Write-Host "Configuring Control 1.22: Information Barriers" -ForegroundColor Cyan
+
+    # Step 1: Create organization segments
+    Write-Host "`n[Step 1] Creating organization segments..." -ForegroundColor Yellow
+    $segments = @(
+        @{Name="IB-Research"; Filter="Department -eq 'Research'"},
+        @{Name="IB-Trading"; Filter="Department -eq 'Trading'"},
+        @{Name="IB-InvestmentBanking"; Filter="Department -eq 'Investment Banking'"},
+        @{Name="IB-Sales"; Filter="Department -eq 'Sales'"},
+        @{Name="IB-Compliance"; Filter="Department -eq 'Compliance'"}
+    )
+
+    foreach ($segment in $segments) {
+        $existing = Get-OrganizationSegment -Identity $segment.Name -ErrorAction SilentlyContinue
+        if ($existing) {
+            Write-Host "  [EXISTS] $($segment.Name)" -ForegroundColor Yellow
+        } else {
+            New-OrganizationSegment -Name $segment.Name -UserGroupFilter $segment.Filter
+            Write-Host "  [CREATED] $($segment.Name)" -ForegroundColor Green
+        }
+    }
+
+    # Step 2: Create barrier policies
+    Write-Host "`n[Step 2] Creating Information Barrier policies..." -ForegroundColor Yellow
+    $barriers = @(
+        @{Name="Research-Trading-Barrier"; Assigned="IB-Research"; Blocked="IB-Trading"},
+        @{Name="IB-Sales-Barrier"; Assigned="IB-InvestmentBanking"; Blocked="IB-Sales"}
+    )
+
+    foreach ($barrier in $barriers) {
+        $existing = Get-InformationBarrierPolicy -Identity $barrier.Name -ErrorAction SilentlyContinue
+        if ($existing) {
+            Write-Host "  [EXISTS] $($barrier.Name)" -ForegroundColor Yellow
+        } else {
+            New-InformationBarrierPolicy -Name $barrier.Name `
+                -AssignedSegment $barrier.Assigned `
+                -SegmentsBlocked $barrier.Blocked `
+                -State Active
+            Write-Host "  [CREATED] $($barrier.Name)" -ForegroundColor Green
+        }
+    }
+
+    # Step 3: Apply policies
+    Write-Host "`n[Step 3] Applying Information Barrier policies..." -ForegroundColor Yellow
+    Start-InformationBarrierPoliciesApplication
+    Write-Host "  Policy application started" -ForegroundColor Green
+
+    # Step 4: Check application status
+    Write-Host "`n[Step 4] Checking application status..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 5  # Brief wait for status update
+    $status = Get-InformationBarrierPoliciesApplicationStatus
+    Write-Host "  Status: $($status.Status)" -ForegroundColor Green
+
+    # Step 5: Export configuration
+    Write-Host "`n[Step 5] Exporting configuration for compliance evidence..." -ForegroundColor Yellow
+
+    $allSegments = Get-OrganizationSegment
+    $segmentFile = Join-Path $ExportPath "IB-Segments-$(Get-Date -Format 'yyyyMMdd').csv"
+    $allSegments | Select-Object Name, UserGroupFilter, CreatedDateTime |
+        Export-Csv -Path $segmentFile -NoTypeInformation
+    Write-Host "  Segments exported to: $segmentFile" -ForegroundColor Green
+
+    $allPolicies = Get-InformationBarrierPolicy
+    $policyFile = Join-Path $ExportPath "IB-Policies-$(Get-Date -Format 'yyyyMMdd').csv"
+    $allPolicies | Select-Object Name, AssignedSegment, SegmentsBlocked, State |
+        Export-Csv -Path $policyFile -NoTypeInformation
+    Write-Host "  Policies exported to: $policyFile" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.22 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    Write-Host "`nDisconnected from Security & Compliance Center" -ForegroundColor Gray
+}
+```
+
+---
+
 [Back to Control 1.22](../../../controls/pillar-1-security/1.22-information-barriers.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

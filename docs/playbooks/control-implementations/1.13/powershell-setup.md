@@ -157,4 +157,129 @@ $SchemaXML | Out-File "FSICustomerDataSchema.xml" -Encoding UTF8
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 1.13 - Sensitive Information Types (SITs) and Pattern Recognition
+
+.DESCRIPTION
+    This script inventories existing SITs, creates custom SITs for FSI use cases,
+    and validates detection capabilities.
+
+.PARAMETER CreateCustomSIT
+    Whether to create custom FSI SIT rule package (default: false)
+
+.PARAMETER TestDetection
+    Whether to run detection tests (default: true)
+
+.PARAMETER ExportPath
+    Path for exports (default: current directory)
+
+.EXAMPLE
+    .\Configure-Control-1.13.ps1 -CreateCustomSIT $true -TestDetection $true
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 1.13 - Sensitive Information Types (SITs) and Pattern Recognition
+#>
+
+param(
+    [bool]$CreateCustomSIT = $false,
+    [bool]$TestDetection = $true,
+    [string]$ExportPath = "."
+)
+
+try {
+    # Connect to Security & Compliance
+    Write-Host "Connecting to Security & Compliance Center..." -ForegroundColor Cyan
+    Connect-IPPSSession
+
+    Write-Host "Configuring Control 1.13: Sensitive Information Types (SITs)" -ForegroundColor Cyan
+
+    # Step 1: Inventory existing SITs
+    Write-Host "`n[Step 1] Inventorying Sensitive Information Types..." -ForegroundColor Yellow
+    $AllSITs = Get-DlpSensitiveInformationType
+    Write-Host "  Total SITs available: $($AllSITs.Count)" -ForegroundColor Green
+
+    # Step 2: Identify financial SITs
+    Write-Host "`n[Step 2] Identifying financial-relevant SITs..." -ForegroundColor Yellow
+    $FinancialSITs = $AllSITs | Where-Object {
+        $_.Name -match "credit card|bank account|SSN|social security|ABA|tax|SWIFT|IBAN"
+    }
+    Write-Host "  Financial SITs found: $($FinancialSITs.Count)" -ForegroundColor Green
+    $FinancialSITs | ForEach-Object { Write-Host "    - $($_.Name)" }
+
+    # Step 3: Check custom SITs
+    Write-Host "`n[Step 3] Checking custom SITs..." -ForegroundColor Yellow
+    $CustomSITs = $AllSITs | Where-Object { $_.Publisher -ne "Microsoft Corporation" }
+    Write-Host "  Custom SITs: $($CustomSITs.Count)" -ForegroundColor Green
+    $CustomSITs | ForEach-Object { Write-Host "    - $($_.Name)" }
+
+    # Step 4: Create custom SIT (if requested)
+    if ($CreateCustomSIT) {
+        Write-Host "`n[Step 4] Creating custom FSI SIT rule package..." -ForegroundColor Yellow
+        $RuleXML = @"
+<?xml version="1.0" encoding="utf-8"?>
+<RulePackage xmlns="http://schemas.microsoft.com/office/2011/mce">
+  <RulePack id="$(New-Guid)">
+    <Version build="0" major="1" minor="0" revision="0"/>
+    <Publisher id="$(New-Guid)"/>
+    <Details defaultLangCode="en">
+      <LocalizedDetails langcode="en">
+        <PublisherName>FSI Governance</PublisherName>
+        <Name>FSI Custom Rule Pack</Name>
+        <Description>Custom SITs for financial services compliance</Description>
+      </LocalizedDetails>
+    </Details>
+  </RulePack>
+</RulePackage>
+"@
+        $xmlPath = Join-Path $ExportPath "FSI-Custom-SIT.xml"
+        $RuleXML | Out-File $xmlPath -Encoding UTF8
+        Write-Host "  Custom SIT XML saved to: $xmlPath" -ForegroundColor Green
+        Write-Host "  [INFO] Upload via New-DlpSensitiveInformationTypeRulePackage" -ForegroundColor Gray
+    } else {
+        Write-Host "`n[Step 4] Skipping custom SIT creation (CreateCustomSIT=false)" -ForegroundColor Gray
+    }
+
+    # Step 5: Test detection (if requested)
+    if ($TestDetection) {
+        Write-Host "`n[Step 5] Testing SIT detection..." -ForegroundColor Yellow
+        $TestContent = "Test SSN: 123-45-6789 and Credit Card: 4111-1111-1111-1111"
+        $TestResult = Test-DataClassification -TextToClassify $TestContent
+        if ($TestResult.SensitiveInformation) {
+            Write-Host "  Detection test passed:" -ForegroundColor Green
+            $TestResult.SensitiveInformation | ForEach-Object {
+                Write-Host "    - $($_.SensitiveInformationType): Confidence $($_.Confidence)%"
+            }
+        } else {
+            Write-Host "  WARNING: Detection test returned no results" -ForegroundColor Yellow
+        }
+    }
+
+    # Step 6: Export inventory
+    Write-Host "`n[Step 6] Exporting SIT inventory..." -ForegroundColor Yellow
+    $inventoryFile = Join-Path $ExportPath "SIT-Inventory-$(Get-Date -Format 'yyyyMMdd').csv"
+    $AllSITs | Select-Object Name, Description, Publisher |
+        Export-Csv -Path $inventoryFile -NoTypeInformation
+    Write-Host "  Inventory exported to: $inventoryFile" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.13 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    Write-Host "`nDisconnected from Security & Compliance Center" -ForegroundColor Gray
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

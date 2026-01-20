@@ -228,4 +228,134 @@ Disconnect-MgGraph
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete access control and SoD configuration for Control 2.8
+
+.DESCRIPTION
+    Executes end-to-end access control setup including:
+    - Security group creation
+    - Role membership audit
+    - Segregation of duties validation
+    - Compliance report generation
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.8.ps1 -OutputPath ".\AccessControl"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.8 - Access Control and Segregation of Duties
+#>
+
+param(
+    [string]$OutputPath = ".\AccessControl-Report"
+)
+
+try {
+    Write-Host "=== Control 2.8: Access Control and Segregation of Duties ===" -ForegroundColor Cyan
+
+    # Connect to Microsoft Graph
+    Connect-MgGraph -Scopes "Group.ReadWrite.All", "Directory.ReadWrite.All", "User.Read.All"
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Define required groups
+    $requiredGroups = @(
+        @{DisplayName="SG-Agent-Developers"; Description="Can create and edit agents"; MailNickname="sg-agent-developers"},
+        @{DisplayName="SG-Agent-Reviewers"; Description="Can review agent submissions"; MailNickname="sg-agent-reviewers"},
+        @{DisplayName="SG-Agent-Approvers"; Description="Can approve agent deployments"; MailNickname="sg-agent-approvers"},
+        @{DisplayName="SG-Agent-ReleaseManagers"; Description="Can deploy agents to production"; MailNickname="sg-agent-releasemgrs"},
+        @{DisplayName="SG-Agent-PlatformAdmins"; Description="Can configure platform settings"; MailNickname="sg-agent-platformadmins"}
+    )
+
+    # Create or verify groups
+    Write-Host "`n[Step 1] Verifying security groups..." -ForegroundColor Cyan
+    $groupReport = @()
+    foreach ($group in $requiredGroups) {
+        $existing = Get-MgGroup -Filter "displayName eq '$($group.DisplayName)'" -ErrorAction SilentlyContinue
+        if (-not $existing) {
+            $newGroup = New-MgGroup -DisplayName $group.DisplayName `
+                                    -Description $group.Description `
+                                    -MailNickname $group.MailNickname `
+                                    -MailEnabled:$false `
+                                    -SecurityEnabled:$true
+            Write-Host "  [CREATED] $($group.DisplayName)" -ForegroundColor Green
+            $groupReport += [PSCustomObject]@{Group=$group.DisplayName; Status="Created"; MemberCount=0}
+        } else {
+            $memberCount = (Get-MgGroupMember -GroupId $existing.Id -ErrorAction SilentlyContinue).Count
+            Write-Host "  [EXISTS] $($group.DisplayName) - $memberCount members" -ForegroundColor Yellow
+            $groupReport += [PSCustomObject]@{Group=$group.DisplayName; Status="Existing"; MemberCount=$memberCount}
+        }
+    }
+
+    # Export group report
+    $groupReport | Export-Csv -Path "$OutputPath\SecurityGroups.csv" -NoTypeInformation
+
+    # SoD validation
+    Write-Host "`n[Step 2] Validating Segregation of Duties..." -ForegroundColor Cyan
+    $conflictingPairs = @(
+        @{Role1="SG-Agent-Developers"; Role2="SG-Agent-Approvers"; Reason="Creator cannot approve own work"},
+        @{Role1="SG-Agent-Approvers"; Role2="SG-Agent-ReleaseManagers"; Reason="Approver cannot deploy"},
+        @{Role1="SG-Agent-Developers"; Role2="SG-Agent-ReleaseManagers"; Reason="Creator cannot deploy"}
+    )
+
+    $violations = @()
+    foreach ($pair in $conflictingPairs) {
+        $group1 = Get-MgGroup -Filter "displayName eq '$($pair.Role1)'" -ErrorAction SilentlyContinue
+        $group2 = Get-MgGroup -Filter "displayName eq '$($pair.Role2)'" -ErrorAction SilentlyContinue
+
+        if ($group1 -and $group2) {
+            $members1 = (Get-MgGroupMember -GroupId $group1.Id -ErrorAction SilentlyContinue).Id
+            $members2 = (Get-MgGroupMember -GroupId $group2.Id -ErrorAction SilentlyContinue).Id
+
+            if ($members1 -and $members2) {
+                $overlap = $members1 | Where-Object { $_ -in $members2 }
+                foreach ($userId in $overlap) {
+                    $user = Get-MgUser -UserId $userId -ErrorAction SilentlyContinue
+                    $violations += [PSCustomObject]@{
+                        User = $user.UserPrincipalName
+                        Role1 = $pair.Role1
+                        Role2 = $pair.Role2
+                        Violation = $pair.Reason
+                    }
+                }
+            }
+        }
+    }
+
+    if ($violations.Count -eq 0) {
+        Write-Host "  [PASS] No SoD violations found" -ForegroundColor Green
+    } else {
+        Write-Host "  [FAIL] $($violations.Count) SoD violation(s) found" -ForegroundColor Red
+        $violations | Export-Csv -Path "$OutputPath\SoD-Violations.csv" -NoTypeInformation
+    }
+
+    # Summary
+    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
+    Write-Host "Security Groups: $($groupReport.Count)"
+    Write-Host "SoD Violations: $($violations.Count)"
+    Write-Host "Report Path: $OutputPath"
+
+    Write-Host "`n[PASS] Control 2.8 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-MgGraph -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

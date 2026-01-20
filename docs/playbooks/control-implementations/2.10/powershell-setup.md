@@ -132,4 +132,109 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete patch management configuration for Control 2.10
+
+.DESCRIPTION
+    Executes end-to-end patch management setup including:
+    - Message Center access verification
+    - Recent updates retrieval
+    - Patch history export for compliance
+
+.PARAMETER Days
+    Number of days of history to retrieve
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.10.ps1 -Days 30 -OutputPath ".\PatchManagement"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.10 - Patch Management and System Updates
+#>
+
+param(
+    [int]$Days = 30,
+    [string]$OutputPath = ".\PatchManagement-Report"
+)
+
+try {
+    Write-Host "=== Control 2.10: Patch Management Configuration ===" -ForegroundColor Cyan
+
+    # Connect to Microsoft Graph
+    Connect-MgGraph -Scopes "ServiceMessage.Read.All"
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    $startDate = (Get-Date).AddDays(-$Days)
+    Write-Host "[INFO] Retrieving updates from the last $Days days" -ForegroundColor Cyan
+
+    # Get all service announcements
+    $allMessages = Get-MgServiceAnnouncementMessage
+
+    # Filter for Power Platform and Copilot Studio
+    $relevantMessages = $allMessages | Where-Object {
+        $_.LastModifiedDateTime -gt $startDate -and
+        ($_.Services -contains "Power Platform" -or
+         $_.Services -contains "Microsoft Copilot Studio" -or
+         $_.Services -contains "Dynamics 365")
+    }
+
+    Write-Host "[INFO] Found $($relevantMessages.Count) relevant updates" -ForegroundColor Cyan
+
+    # Build export
+    $export = $relevantMessages | ForEach-Object {
+        [PSCustomObject]@{
+            MessageId = $_.Id
+            Title = $_.Title
+            Services = ($_.Services -join ", ")
+            Category = $_.Category
+            StartDateTime = $_.StartDateTime
+            EndDateTime = $_.EndDateTime
+            LastModified = $_.LastModifiedDateTime
+            IsMajorChange = $_.IsMajorChange
+            ActionRequired = if ($_.ActionRequiredByDateTime) { $_.ActionRequiredByDateTime } else { "N/A" }
+        }
+    }
+
+    # Export to CSV
+    $export | Export-Csv -Path "$OutputPath\PatchHistory-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+    Write-Host "[INFO] Exported to: $OutputPath\PatchHistory-$(Get-Date -Format 'yyyyMMdd').csv" -ForegroundColor Green
+
+    # Identify critical updates requiring action
+    $actionRequired = $relevantMessages | Where-Object { $_.ActionRequiredByDateTime }
+    if ($actionRequired.Count -gt 0) {
+        Write-Host "`n[WARN] Updates requiring action: $($actionRequired.Count)" -ForegroundColor Yellow
+        $actionRequired | Select-Object Title, ActionRequiredByDateTime | Format-Table -AutoSize
+        $actionRequired | Export-Csv -Path "$OutputPath\ActionRequired.csv" -NoTypeInformation
+    }
+
+    # Summary
+    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
+    Write-Host "Total Updates Retrieved: $($relevantMessages.Count)"
+    Write-Host "Major Changes: $(($relevantMessages | Where-Object { $_.IsMajorChange }).Count)"
+    Write-Host "Action Required: $($actionRequired.Count)"
+
+    Write-Host "`n[PASS] Control 2.10 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-MgGraph -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.10](../../../controls/pillar-2-management/2.10-patch-management-and-system-updates.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

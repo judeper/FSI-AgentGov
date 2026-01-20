@@ -177,4 +177,127 @@ foreach ($conn in $connections) {
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Configures Control 4.7 - Microsoft 365 Copilot Data Governance
+
+.DESCRIPTION
+    This script configures Copilot data governance:
+    1. Inventories Copilot licenses
+    2. Audits content exclusions
+    3. Excludes sensitive sites from Copilot
+    4. Generates governance recommendations
+
+.PARAMETER AdminUrl
+    SharePoint Admin Center URL
+
+.PARAMETER SensitiveSites
+    Array of site URLs to exclude from Copilot
+
+.EXAMPLE
+    .\Configure-Control-4.7.ps1 -AdminUrl "https://contoso-admin.sharepoint.com"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 4.7 - Microsoft 365 Copilot Data Governance
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$AdminUrl,
+
+    [Parameter(Mandatory=$false)]
+    [string[]]$SensitiveSites = @()
+)
+
+try {
+    # Connect to Microsoft Graph
+    Write-Host "Connecting to Microsoft Graph..." -ForegroundColor Cyan
+    Connect-MgGraph -Scopes "User.Read.All", "Organization.Read.All", "Application.Read.All"
+
+    # Connect to SharePoint Online
+    Write-Host "Connecting to SharePoint Online..." -ForegroundColor Cyan
+    Connect-SPOService -Url $AdminUrl
+
+    Write-Host "Configuring Control 4.7 Copilot Data Governance" -ForegroundColor Cyan
+
+    # Audit content exclusions
+    Write-Host "`nAuditing Copilot content exclusions..." -ForegroundColor Yellow
+    $allSites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPERS*" }
+
+    $siteAudit = $allSites | ForEach-Object {
+        [PSCustomObject]@{
+            Url = $_.Url
+            Title = $_.Title
+            RestrictedFromCopilot = $_.RestrictContentOrgWideSearchAndCopilot
+            SensitivityLabel = $_.SensitivityLabel
+        }
+    }
+
+    $siteAudit | Export-Csv -Path "Site-Copilot-Status.csv" -NoTypeInformation
+
+    $excludedCount = ($siteAudit | Where-Object { $_.RestrictedFromCopilot -eq $true }).Count
+    $includedCount = ($siteAudit | Where-Object { $_.RestrictedFromCopilot -eq $false }).Count
+
+    Write-Host "  Sites excluded from Copilot: $excludedCount" -ForegroundColor Green
+    Write-Host "  Sites accessible by Copilot: $includedCount" -ForegroundColor Yellow
+
+    # Exclude specified sensitive sites
+    if ($SensitiveSites.Count -gt 0) {
+        Write-Host "`nExcluding sensitive sites from Copilot..." -ForegroundColor Yellow
+        foreach ($siteUrl in $SensitiveSites) {
+            try {
+                Set-SPOSite -Identity $siteUrl -RestrictContentOrgWideSearchAndCopilot $true
+                Write-Host "  [DONE] Excluded: $siteUrl" -ForegroundColor Green
+            }
+            catch {
+                Write-Host "  [FAIL] $siteUrl: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        }
+    }
+
+    # Check for potentially sensitive sites not excluded
+    Write-Host "`nGenerating governance recommendations..." -ForegroundColor Yellow
+    $sensitivePatterns = @("executive", "legal", "hr", "confidential", "board", "merger", "acquisition")
+
+    $potentialSensitive = $siteAudit | Where-Object {
+        $url = $_.Url.ToLower()
+        $title = $_.Title.ToLower()
+        ($sensitivePatterns | Where-Object { $url -like "*$_*" -or $title -like "*$_*" }) -and
+        $_.RestrictedFromCopilot -ne $true
+    }
+
+    if ($potentialSensitive.Count -gt 0) {
+        Write-Host "  [WARN] $($potentialSensitive.Count) potentially sensitive sites not excluded" -ForegroundColor Yellow
+        $potentialSensitive | Select-Object Url, Title | Format-Table
+    } else {
+        Write-Host "  [PASS] No sensitive sites need exclusion" -ForegroundColor Green
+    }
+
+    Write-Host "`nCopilot Governance Summary:" -ForegroundColor Cyan
+    Write-Host "  Total sites: $($allSites.Count)" -ForegroundColor Green
+    Write-Host "  Excluded from Copilot: $excludedCount" -ForegroundColor Green
+    Write-Host "  Recommendations: $($potentialSensitive.Count)" -ForegroundColor $(if ($potentialSensitive.Count -gt 0) { "Yellow" } else { "Green" })
+
+    Write-Host "`n[PASS] Control 4.7 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-MgGraph -ErrorAction SilentlyContinue
+    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
+        Disconnect-SPOService -ErrorAction SilentlyContinue
+    }
+}
+```
+
+---
+
 *Updated: January 2026 | Version: v1.1*

@@ -223,49 +223,62 @@ Write-Host "State: $($env.States.Runtime)"
     Related Control: Control 2.1 - Managed Environments
 #>
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
 
-Write-Host "Generating Managed Environments Report..." -ForegroundColor Cyan
+    Write-Host "Generating Managed Environments Report..." -ForegroundColor Cyan
 
-# Get all environments
-$environments = Get-AdminPowerAppEnvironment
+    # Get all environments
+    $environments = Get-AdminPowerAppEnvironment
 
-# Build report
-$report = $environments | ForEach-Object {
-    [PSCustomObject]@{
-        EnvironmentName = $_.DisplayName
-        EnvironmentId = $_.EnvironmentName
-        Type = $_.EnvironmentType
-        Region = $_.Location
-        State = $_.States.Runtime
-        IsManagedEnv = if ($_.Properties.protectionLevel -eq "Standard") { "No" } else { "Yes" }
-        ProtectionLevel = $_.Properties.protectionLevel
-        HasDataverse = if ($_.Properties.linkedEnvironmentMetadata) { "Yes" } else { "No" }
-        CreatedDate = $_.Properties.createdTime
-        CreatedBy = $_.Properties.createdBy.displayName
-        ReportDate = Get-Date -Format "yyyy-MM-dd HH:mm"
+    # Build report
+    $report = $environments | ForEach-Object {
+        [PSCustomObject]@{
+            EnvironmentName = $_.DisplayName
+            EnvironmentId = $_.EnvironmentName
+            Type = $_.EnvironmentType
+            Region = $_.Location
+            State = $_.States.Runtime
+            IsManagedEnv = if ($_.Properties.protectionLevel -eq "Standard") { "No" } else { "Yes" }
+            ProtectionLevel = $_.Properties.protectionLevel
+            HasDataverse = if ($_.Properties.linkedEnvironmentMetadata) { "Yes" } else { "No" }
+            CreatedDate = $_.Properties.createdTime
+            CreatedBy = $_.Properties.createdBy.displayName
+            ReportDate = Get-Date -Format "yyyy-MM-dd HH:mm"
+        }
     }
+
+    # Display summary
+    Write-Host "`n=== Environment Summary ===" -ForegroundColor Cyan
+    $report | Format-Table EnvironmentName, Type, IsManagedEnv, Region, State -AutoSize
+
+    # Export to CSV
+    $reportPath = "ManagedEnvironments-Report-$(Get-Date -Format 'yyyyMMdd').csv"
+    $report | Export-Csv -Path $reportPath -NoTypeInformation
+    Write-Host "`nReport exported to: $reportPath" -ForegroundColor Green
+
+    # Summary statistics
+    $totalEnvs = $report.Count
+    $managedEnvs = ($report | Where-Object { $_.IsManagedEnv -eq "Yes" }).Count
+    $prodEnvs = ($report | Where-Object { $_.Type -eq "Production" }).Count
+
+    Write-Host "`n=== Statistics ===" -ForegroundColor Cyan
+    Write-Host "Total Environments: $totalEnvs"
+    Write-Host "Managed Environments: $managedEnvs"
+    Write-Host "Production Environments: $prodEnvs"
+
+    Write-Host "`n[PASS] Control 2.1 configuration completed successfully" -ForegroundColor Green
 }
-
-# Display summary
-Write-Host "`n=== Environment Summary ===" -ForegroundColor Cyan
-$report | Format-Table EnvironmentName, Type, IsManagedEnv, Region, State -AutoSize
-
-# Export to CSV
-$reportPath = "ManagedEnvironments-Report-$(Get-Date -Format 'yyyyMMdd').csv"
-$report | Export-Csv -Path $reportPath -NoTypeInformation
-Write-Host "`nReport exported to: $reportPath" -ForegroundColor Green
-
-# Summary statistics
-$totalEnvs = $report.Count
-$managedEnvs = ($report | Where-Object { $_.IsManagedEnv -eq "Yes" }).Count
-$prodEnvs = ($report | Where-Object { $_.Type -eq "Production" }).Count
-
-Write-Host "`n=== Statistics ===" -ForegroundColor Cyan
-Write-Host "Total Environments: $totalEnvs"
-Write-Host "Managed Environments: $managedEnvs"
-Write-Host "Production Environments: $prodEnvs"
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections if applicable
+    # Note: Add-PowerAppsAccount does not require explicit disconnect
+}
 ```
 
 ---

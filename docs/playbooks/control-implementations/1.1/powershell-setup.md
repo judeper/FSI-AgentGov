@@ -137,41 +137,48 @@ param(
     [string]$SecurityGroupId
 )
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
 
-Write-Host "Configuring Control 1.1 for environment: $EnvironmentName" -ForegroundColor Cyan
+    Write-Host "Configuring Control 1.1 for environment: $EnvironmentName" -ForegroundColor Cyan
 
-# Step 1: Remove Environment Maker from All Users
-$envPermissions = Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $EnvironmentName
-$allUsersPermission = $envPermissions | Where-Object {
-    $_.PrincipalType -eq "Tenant" -and $_.RoleType -eq "EnvironmentMaker"
-}
+    # Step 1: Remove Environment Maker from All Users
+    $envPermissions = Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $EnvironmentName
+    $allUsersPermission = $envPermissions | Where-Object {
+        $_.PrincipalType -eq "Tenant" -and $_.RoleType -eq "EnvironmentMaker"
+    }
 
-if ($allUsersPermission) {
-    Remove-AdminPowerAppEnvironmentRoleAssignment `
+    if ($allUsersPermission) {
+        Remove-AdminPowerAppEnvironmentRoleAssignment `
+            -EnvironmentName $EnvironmentName `
+            -RoleId $allUsersPermission.RoleId
+        Write-Host "  [DONE] Removed Environment Maker from All Users" -ForegroundColor Yellow
+    } else {
+        Write-Host "  [SKIP] All Users did not have Environment Maker role" -ForegroundColor Gray
+    }
+
+    # Step 2: Assign Environment Maker to authorized group
+    Set-AdminPowerAppEnvironmentRoleAssignment `
         -EnvironmentName $EnvironmentName `
-        -RoleId $allUsersPermission.RoleId
-    Write-Host "  [DONE] Removed Environment Maker from All Users" -ForegroundColor Yellow
-} else {
-    Write-Host "  [SKIP] All Users did not have Environment Maker role" -ForegroundColor Gray
+        -PrincipalType Group `
+        -PrincipalObjectId $SecurityGroupId `
+        -RoleName EnvironmentMaker
+    Write-Host "  [DONE] Assigned Environment Maker to security group" -ForegroundColor Green
+
+    # Step 3: Disable Share with Everyone
+    $settings = Get-TenantSettings
+    $settings.powerPlatform.powerApps.disableShareWithEveryone = $true
+    Set-TenantSettings -RequestBody $settings
+    Write-Host "  [DONE] Disabled Share with Everyone" -ForegroundColor Green
+
+    Write-Host "`n[PASS] Control 1.1 configuration completed successfully" -ForegroundColor Green
 }
-
-# Step 2: Assign Environment Maker to authorized group
-Set-AdminPowerAppEnvironmentRoleAssignment `
-    -EnvironmentName $EnvironmentName `
-    -PrincipalType Group `
-    -PrincipalObjectId $SecurityGroupId `
-    -RoleName EnvironmentMaker
-Write-Host "  [DONE] Assigned Environment Maker to security group" -ForegroundColor Green
-
-# Step 3: Disable Share with Everyone
-$settings = Get-TenantSettings
-$settings.powerPlatform.powerApps.disableShareWithEveryone = $true
-Set-TenantSettings -RequestBody $settings
-Write-Host "  [DONE] Disabled Share with Everyone" -ForegroundColor Green
-
-Write-Host "`nControl 1.1 configuration complete!" -ForegroundColor Cyan
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
 ```
 
 ---

@@ -145,4 +145,125 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
+## Complete Configuration Script
+
+```powershell
+<#
+.SYNOPSIS
+    Complete supervision and oversight configuration for Control 2.12
+
+.DESCRIPTION
+    Executes end-to-end supervision setup including:
+    - Supervision log extraction
+    - Statistics generation
+    - Compliance report export
+
+.PARAMETER SiteUrl
+    SharePoint site URL for supervision log
+
+.PARAMETER ListName
+    SharePoint list name for supervision log
+
+.PARAMETER OutputPath
+    Path for output reports
+
+.EXAMPLE
+    .\Configure-Control-2.12.ps1 -SiteUrl "https://tenant.sharepoint.com/sites/AIGovernance" -OutputPath ".\Supervision"
+
+.NOTES
+    Last Updated: January 2026
+    Related Control: Control 2.12 - Supervision and Oversight (FINRA Rule 3110)
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SiteUrl,
+    [string]$ListName = "AgentSupervisionLog",
+    [string]$OutputPath = ".\Supervision-Report"
+)
+
+try {
+    Write-Host "=== Control 2.12: Supervision and Oversight Configuration ===" -ForegroundColor Cyan
+
+    # Connect to SharePoint
+    Connect-PnPOnline -Url $SiteUrl -Interactive
+
+    # Ensure output directory exists
+    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+
+    # Check if list exists
+    $list = Get-PnPList -Identity $ListName -ErrorAction SilentlyContinue
+    if (-not $list) {
+        Write-Host "[WARN] Supervision log list '$ListName' not found" -ForegroundColor Yellow
+        Write-Host "[INFO] Creating supervision log list..." -ForegroundColor Cyan
+
+        # Create the list
+        New-PnPList -Title $ListName -Template GenericList
+        Add-PnPField -List $ListName -DisplayName "Agent Name" -InternalName "AgentName" -Type Text
+        Add-PnPField -List $ListName -DisplayName "Conversation ID" -InternalName "ConversationId" -Type Text
+        Add-PnPField -List $ListName -DisplayName "Review Date" -InternalName "ReviewDate" -Type DateTime
+        Add-PnPField -List $ListName -DisplayName "Reviewer" -InternalName "Reviewer" -Type User
+        Add-PnPField -List $ListName -DisplayName "Decision" -InternalName "Decision" -Type Choice -Choices "Approved", "Rejected", "Pending", "Escalated"
+        Add-PnPField -List $ListName -DisplayName "Comments" -InternalName "Comments" -Type Note
+        Add-PnPField -List $ListName -DisplayName "Risk Level" -InternalName "RiskLevel" -Type Choice -Choices "Low", "Medium", "High"
+
+        Write-Host "[PASS] Supervision log list created" -ForegroundColor Green
+    } else {
+        Write-Host "[INFO] Supervision log list found" -ForegroundColor Cyan
+    }
+
+    # Get supervision records
+    $items = Get-PnPListItem -List $ListName -PageSize 1000 -ErrorAction SilentlyContinue
+
+    if ($items -and $items.Count -gt 0) {
+        # Build export
+        $export = $items | ForEach-Object {
+            [PSCustomObject]@{
+                AgentName = $_["AgentName"]
+                ConversationId = $_["ConversationId"]
+                ReviewDate = $_["ReviewDate"]
+                Reviewer = $_["Reviewer"].LookupValue
+                Decision = $_["Decision"]
+                Comments = $_["Comments"]
+                RiskLevel = $_["RiskLevel"]
+            }
+        }
+
+        # Export to CSV
+        $export | Export-Csv -Path "$OutputPath\SupervisionLog-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+        Write-Host "[INFO] Exported $($export.Count) supervision records" -ForegroundColor Cyan
+
+        # Calculate statistics
+        $total = $export.Count
+        $approved = ($export | Where-Object { $_.Decision -eq "Approved" }).Count
+        $rejected = ($export | Where-Object { $_.Decision -eq "Rejected" }).Count
+        $pending = ($export | Where-Object { $_.Decision -eq "Pending" }).Count
+
+        Write-Host "`n=== Supervision Statistics ===" -ForegroundColor Cyan
+        Write-Host "Total Reviews: $total"
+        Write-Host "Approved: $approved"
+        Write-Host "Rejected: $rejected"
+        Write-Host "Pending: $pending"
+        if ($total -gt 0) {
+            Write-Host "Approval Rate: $([math]::Round($approved / $total * 100, 1))%"
+        }
+    } else {
+        Write-Host "[INFO] No supervision records found" -ForegroundColor Yellow
+    }
+
+    Write-Host "`n[PASS] Control 2.12 configuration completed successfully" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    exit 1
+}
+finally {
+    # Cleanup connections
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
+}
+```
+
+---
+
 [Back to Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
