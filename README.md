@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework v1.1
+# FSI Agent Governance Framework v1.1.8
 
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.1.7 (January 2026)
+**Version:** 1.1.8 (January 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -291,12 +291,20 @@ Regulatory mappings and coverage are maintained in a single canonical table:
 
 ### Governance Maturity Levels
 
-Each control is documented with 4 maturity levels:
+Each control supports **three implementation levels** with a **five-point maturity scale**:
 
-- **Level 0:** Not implemented
-- **Level 1:** Baseline (minimal compliance)
-- **Level 2-3:** Recommended (best practices)
-- **Level 4:** Regulated/High-Risk (comprehensive)
+**Implementation Levels:**
+
+- **Baseline:** Minimum required (Zone 1)
+- **Recommended:** Best practice (Zone 2)
+- **Regulated:** Comprehensive controls (Zone 3)
+
+**Maturity Assessment (0-4):**
+
+- **Level 0 (0%):** Not implemented
+- **Level 1 (25%):** Baseline
+- **Level 2-3 (50-75%):** Recommended
+- **Level 4 (100%):** Regulated
 
 ### Control Implementation Approach
 
@@ -406,5 +414,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.1.4 - January 2026*
+*FSI Agent Governance Framework v1.1.8 - January 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

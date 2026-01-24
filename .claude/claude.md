@@ -292,7 +292,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.1.7 (January 2026)
+**Version:** 1.1.8 (January 2026)
 **Status:** All 61 controls complete, all 244 playbooks complete, build passing, Learn monitor active
 
 For detailed release history, see `CHANGELOG.md`.
@@ -300,6 +300,6 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.1.7
+- **Framework Version:** 1.1.8
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov

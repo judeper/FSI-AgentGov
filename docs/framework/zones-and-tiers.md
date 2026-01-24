@@ -230,6 +230,11 @@ Zone 2 is subject to MODERATE regulatory oversight:
 - Runtime Protection: Mandatory
 - DSPM for AI: Recommended
 
+!!! note "Retention Rationale"
+    Zone 3's 10-year retention exceeds maximum regulatory requirements (SEC 17a-3/4: 6+3 years,
+    SOX: 7 years) as a conservative buffer. Organizations may use 7-year minimum with documented
+    risk assessment.
+
 ### Regulatory Considerations
 
 Zone 3 agents handling regulated data may be subject to comprehensive oversight depending on institution type and use case:
@@ -489,4 +494,4 @@ Each zone should have recurring compliance reviews:
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.1.8 - January 2026*

@@ -8,9 +8,9 @@ Core concepts and principles for AI agent governance in financial services.
 
 The FSI Agent Governance Framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.1 (January 2026)
+**Version:** 1.1.8 (January 2026)
 **Target Audience:** US Financial Services Organizations
-**Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve
+**Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
 !!! warning
     This framework is provided for informational purposes only and does not constitute legal,
@@ -41,6 +41,27 @@ This framework provides governance guidance for:
 
 !!! info "Microsoft Agent 365"
     **Microsoft Agent 365** is a new centralized control plane for agent governance announced at Ignite 2025, currently in **Frontier preview**. It provides centralized agent registry, Entra Agent ID, lifecycle management, and observability dashboards. This framework will incorporate Agent 365 capabilities as they reach general availability.
+
+### Microsoft-Built Agent Applicability
+
+Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governance options. Control applicability:
+
+| Control Category | Applicability | Notes |
+|-----------------|---------------|-------|
+| 1.2 Agent Registry | Partial | Visible in M365 Admin Center only |
+| 1.5 DLP/Sensitivity Labels | Full | Tenant-wide policies apply |
+| 1.7 Audit Logging | Full | Logged via OfficeActivity |
+| 2.1 Managed Environments | N/A | Not in Power Platform |
+| 2.3 Change Management | N/A | Managed by Microsoft |
+| 3.1 Agent Inventory | Full | Visible in M365 Admin Center |
+| 3.2 Usage Analytics | Full | Copilot usage reports |
+| 4.1-4.7 SharePoint | Full | Grounding data governance applies |
+
+**Zone Classification:** Based on data access - Zone 1 (personal M365), Zone 2 (team sites), Zone 3 (regulated content).
+
+!!! warning "Limited Customization"
+    Microsoft-built agents cannot be configured. Governance focuses on data access control,
+    usage monitoring, and output supervision.
 
 ### What This Framework Does NOT Cover
 
@@ -151,6 +172,11 @@ Each control supports three implementation levels:
 | **Level 2-3** | Recommended | Best practice implementation | Zone 2, most production agents |
 | **Level 4** | Regulated/High-Risk | Comprehensive controls | Zone 3, customer-facing agents |
 
+!!! info "Maturity Assessment"
+    For compliance tracking, use the 5-point maturity scale: Level 0 (Not implemented),
+    Level 1 (Baseline), Level 2-3 (Recommended), Level 4 (Regulated).
+    See [FAQ](../reference/faq.md#q-how-do-we-measure-compliance) for percentages.
+
 ### Control Implementation Approach
 
 1. **Assess** — Current state vs. required level
@@ -230,4 +256,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.1.8 - January 2026*

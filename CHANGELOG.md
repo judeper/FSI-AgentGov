@@ -6,6 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.8] — January 24, 2026 (Documentation Consistency Fixes)
+
+### Overview
+
+This release addresses documentation inconsistencies identified during a review, including version alignment, regulatory coverage, maturity level clarification, and retention period standardization.
+
+### Fixed
+
+- **Version Alignment** - Updated governance-fundamentals.md, zones-and-tiers.md, CONTROL-INDEX.md to v1.1.8
+- **Regulatory Coverage** - Added FDIC and NCUA to governance-fundamentals.md
+- **Maturity Levels** - Clarified distinction between implementation levels (3) and maturity scale (0-4)
+- **Retention Periods** - Aligned Zone 3 retention across zones and controls (7-10 years); added rationale
+
+### Added
+
+- **Microsoft-Built Agents Applicability** - Control mapping for Researcher, Analyst, Facilitator agents in governance-fundamentals.md
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `README.md` | Version (1.1.7→1.1.8), maturity levels clarification |
+| `docs/framework/governance-fundamentals.md` | Version, regulators (FDIC/NCUA), maturity note, Microsoft-built agents section |
+| `docs/framework/zones-and-tiers.md` | Version, retention rationale note |
+| `docs/controls/CONTROL-INDEX.md` | Version |
+| `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Zone 3 retention (7-10 years) |
+| `docs/controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md` | Zone 3 retention (7-10 years) |
+| `CHANGELOG.md` | This entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: All 61 controls valid
+
+---
+
 ## [1.1.7] — January 23, 2026 (Documentation Accuracy Fixes)
 
 ### Overview
