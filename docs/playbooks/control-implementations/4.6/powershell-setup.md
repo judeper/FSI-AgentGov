@@ -22,6 +22,10 @@ Connect-SPOService -Url "https://tenant-admin.sharepoint.com"
 
 ---
 
+!!! note "Parameter Status"
+    `RestrictContentOrgWideSearch` is the current GA parameter for site-level search/Copilot
+    restrictions. Copilot-specific parameters are in preview and subject to change.
+
 ## Inventory Sites with Copilot Status
 
 ```powershell
@@ -32,7 +36,7 @@ $siteInventory = $sites | ForEach-Object {
     [PSCustomObject]@{
         Url = $_.Url
         Title = $_.Title
-        RestrictedFromCopilot = $_.RestrictContentOrgWideSearchAndCopilot
+        RestrictedFromCopilot = $_.RestrictContentOrgWideSearch
         SensitivityLabel = $_.SensitivityLabel
         LastModified = $_.LastContentModifiedDate
         StorageUsedGB = [math]::Round($_.StorageUsageCurrent / 1024, 2)
@@ -56,11 +60,11 @@ $siteInventory | Export-Csv -Path "Site-Copilot-Inventory.csv" -NoTypeInformatio
 ```powershell
 # Exclude specific site from Copilot/Semantic Index
 Set-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocuments" `
-    -RestrictContentOrgWideSearchAndCopilot $true
+    -RestrictContentOrgWideSearch $true
 
 # Verify configuration
 Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocuments" |
-    Select-Object Url, RestrictContentOrgWideSearchAndCopilot
+    Select-Object Url, RestrictContentOrgWideSearch
 ```
 
 ---
@@ -71,7 +75,7 @@ Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocuments" |
 # Exclude all sites with "Draft" in URL
 $draftSites = Get-SPOSite -Limit All | Where-Object { $_.Url -like "*draft*" }
 foreach ($site in $draftSites) {
-    Set-SPOSite -Identity $site.Url -RestrictContentOrgWideSearchAndCopilot $true
+    Set-SPOSite -Identity $site.Url -RestrictContentOrgWideSearch $true
     Write-Host "Excluded: $($site.Url)" -ForegroundColor Yellow
 }
 ```
@@ -86,7 +90,7 @@ $archiveSites = Get-SPOSite -Limit All | Where-Object {
     $_.Url -like "*archive*" -or $_.Title -like "*Archive*"
 }
 foreach ($site in $archiveSites) {
-    Set-SPOSite -Identity $site.Url -RestrictContentOrgWideSearchAndCopilot $true
+    Set-SPOSite -Identity $site.Url -RestrictContentOrgWideSearch $true
     Write-Host "Excluded archive: $($site.Url)" -ForegroundColor Yellow
 }
 ```
@@ -141,7 +145,7 @@ function Get-CopilotReadySites {
                 SiteUrl = $site.Url
                 Title = $site.Title
                 CopilotReady = if ($copilotReady) { $copilotReady } else { "Not Set" }
-                RestrictedFromCopilot = $site.RestrictContentOrgWideSearchAndCopilot
+                RestrictedFromCopilot = $site.RestrictContentOrgWideSearch
             }
         } catch {
             Write-Warning "Could not check $($site.Url): $_"
@@ -166,8 +170,8 @@ $allSites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPE
 
 $summary = @{
     TotalSites = $allSites.Count
-    IndexedSites = ($allSites | Where-Object { -not $_.RestrictContentOrgWideSearchAndCopilot }).Count
-    ExcludedSites = ($allSites | Where-Object { $_.RestrictContentOrgWideSearchAndCopilot }).Count
+    IndexedSites = ($allSites | Where-Object { -not $_.RestrictContentOrgWideSearch }).Count
+    ExcludedSites = ($allSites | Where-Object { $_.RestrictContentOrgWideSearch }).Count
 }
 
 Write-Host "`nGrounding Scope Summary:" -ForegroundColor Cyan

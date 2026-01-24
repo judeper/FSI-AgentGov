@@ -15,7 +15,7 @@
 1. Verify exclusion setting is applied:
    ```powershell
    Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
-       Select-Object Url, RestrictContentOrgWideSearchAndCopilot
+       Select-Object Url, RestrictContentOrgWideSearch
    ```
 2. Allow up to 24 hours for index to update
 3. Check if content exists in multiple locations (may exist elsewhere)
@@ -60,7 +60,7 @@
 ```powershell
 # Check site exclusion status
 Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
-    Select-Object Url, RestrictContentOrgWideSearchAndCopilot, LockState
+    Select-Object Url, RestrictContentOrgWideSearch, LockState
 
 # Verify property bag access
 Connect-PnPOnline -Url "https://tenant.sharepoint.com/sites/SiteName" -Interactive
@@ -68,7 +68,7 @@ Get-PnPPropertyBag | Where-Object { $_.Key -like "Copilot*" }
 
 # Check for sites with inconsistent state
 Get-SPOSite -Limit All | Where-Object {
-    $_.RestrictContentOrgWideSearchAndCopilot -eq $null
+    $_.RestrictContentOrgWideSearch -eq $null
 } | Select-Object Url
 ```
 

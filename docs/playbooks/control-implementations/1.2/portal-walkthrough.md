@@ -62,6 +62,36 @@ Before building the registry, define the required metadata fields for FSI compli
 2. For FSI environments, set to **Do not allow user consent**
 3. This ensures all agents must go through IT/Governance approval
 
+### Step 2b: Configure Agent Settings in M365 Admin Center
+
+**Portal Path:** [Microsoft 365 Admin Center](https://admin.microsoft.com) > **Settings** > **Agent settings**
+
+!!! note "Agent 365 License Required"
+    Some settings require Agent 365 licenses. Verify licensing before configuration.
+
+1. Navigate to **Settings** > **Agent settings**
+2. Configure **Allowed Agent Types**:
+   - Specify which agent types users can create
+   - For FSI, consider restricting to approved types only
+3. Configure **Sharing Controls**:
+   - Set organization-wide sharing defaults
+   - For Zone 3 environments, restrict sharing to specific security groups
+4. Configure **Templates** (Agent 365 license required):
+   - Enable/disable template availability
+   - Restrict custom template creation if needed
+5. Configure **User Access Controls**:
+   - Specify which users can create agents
+   - Align with your governance zone requirements
+
+**Recommended FSI Settings:**
+
+| Setting | Zone 1 | Zone 2 | Zone 3 |
+|---------|--------|--------|--------|
+| Agent Types | All | Restricted | Highly Restricted |
+| Sharing | Open | Team-only | Explicit approval |
+| Templates | Enabled | Approved only | Admin-controlled |
+| Creation | All users | Licensed users | Designated makers |
+
 ### Step 3: Create SharePoint Registry List
 
 **Portal Path:** [SharePoint Admin Center](https://admin.microsoft.com/sharepoint) or SharePoint site

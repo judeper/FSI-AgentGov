@@ -18,7 +18,7 @@
 
 ### Screenshot 3: PowerShell Verification Output
 **What to capture:**
-- Get-SPOSite command showing RestrictContentOrgWideSearchAndCopilot property
+- Get-SPOSite command showing RestrictContentOrgWideSearch property
 - Multiple sites with varying restriction status
 
 ### Screenshot 4: Grounding Scope Audit Report

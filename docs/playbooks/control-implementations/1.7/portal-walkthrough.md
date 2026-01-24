@@ -113,7 +113,11 @@
 
 ## FINRA 25-07 Compliance
 
-FINRA Notice 25-07 requires complete AI interaction records (not summaries) for customer-facing agents.
+!!! info "FINRA Notice 25-07 Status"
+    FINRA Notice 25-07 is a **Request for Comment (RFC)** with comment period extending to
+    **July 2025**. Requirements described are proposed guidance, not final rules.
+
+FINRA Notice 25-07 proposes complete AI interaction records (not summaries) for customer-facing agents.
 
 ### Required Retention Fields
 
@@ -135,19 +139,26 @@ FINRA Notice 25-07 requires complete AI interaction records (not summaries) for 
 
 ---
 
-## SEC 17a-4 WORM Storage
+## SEC 17a-4 Compliance Options
 
-For broker-dealers requiring WORM compliance:
+For broker-dealers, the October 2022 SEC amendments (effective May 2023) now allow either WORM storage or an audit-trail alternative for records preservation.
 
 ### Options
 
 | Option | Description |
 |--------|-------------|
-| **Azure Immutable Blob Storage** | Export to Azure with immutable policy |
-| **Third-party WORM archive** | Vendor with WORM retention |
-| **Microsoft 365 Audit Premium** | Extended retention (may not meet 17a-4(f) alone) |
+| **WORM Storage** | Traditional non-rewritable, non-erasable storage |
+| **Audit-Trail Alternative** | Maintains complete audit trail of all record modifications, preventing alteration without detectable trace |
+| **Azure Immutable Blob Storage** | Export to Azure with immutable policy (supports WORM) |
+| **Third-party Archive** | Vendor with WORM or audit-trail compliance |
+| **Microsoft 365 Audit Premium** | Extended retention (evaluate with compliance team for 17a-4 sufficiency) |
 
-### Azure Immutable Storage Setup
+!!! info "SEC 17a-4 Amendment (October 2022)"
+    The SEC's October 2022 amendments eliminated the mandatory WORM requirement, allowing
+    broker-dealers to use audit-trail alternatives that achieve the same preservation goals.
+    Consult with compliance and legal counsel to determine the appropriate approach.
+
+### Azure Immutable Storage Setup (If Using WORM)
 
 1. Create Azure Storage account
 2. Enable immutable blob storage

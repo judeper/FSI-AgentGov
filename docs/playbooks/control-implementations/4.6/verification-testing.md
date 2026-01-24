@@ -9,7 +9,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Run grounding scope audit script | Inventory generated |
-| 2 | Verify draft sites are excluded | RestrictContentOrgWideSearchAndCopilot = true |
+| 2 | Verify draft sites are excluded | RestrictContentOrgWideSearch = true |
 | 3 | Test Copilot query against excluded site | Content not returned |
 | 4 | Test Copilot query against included site | Content returned appropriately |
 | 5 | Verify CopilotReady metadata (if implemented) | Property bag values set |
@@ -71,18 +71,18 @@
 ```powershell
 # Verify specific site exclusion
 Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocs" |
-    Select-Object Url, RestrictContentOrgWideSearchAndCopilot
+    Select-Object Url, RestrictContentOrgWideSearch
 
 # Count indexed vs excluded sites
 $sites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPERS*" }
-$indexed = ($sites | Where-Object { -not $_.RestrictContentOrgWideSearchAndCopilot }).Count
-$excluded = ($sites | Where-Object { $_.RestrictContentOrgWideSearchAndCopilot }).Count
+$indexed = ($sites | Where-Object { -not $_.RestrictContentOrgWideSearch }).Count
+$excluded = ($sites | Where-Object { $_.RestrictContentOrgWideSearch }).Count
 
 Write-Host "Indexed: $indexed | Excluded: $excluded"
 
 # Find draft sites that are NOT excluded (potential gap)
 $draftNotExcluded = $sites | Where-Object {
-    $_.Url -like "*draft*" -and -not $_.RestrictContentOrgWideSearchAndCopilot
+    $_.Url -like "*draft*" -and -not $_.RestrictContentOrgWideSearch
 }
 if ($draftNotExcluded.Count -gt 0) {
     Write-Host "WARNING: $($draftNotExcluded.Count) draft sites not excluded!" -ForegroundColor Red

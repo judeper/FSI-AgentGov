@@ -89,7 +89,7 @@
 - Configuration retention: 6 years
 - Audit logs: 10 years
 - Disposition: Compliance review required
-- WORM: Enabled for regulated records
+- SEC 17a-4: WORM or audit-trail alternative for broker-dealer records
 
 ---
 

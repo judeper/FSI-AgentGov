@@ -15,7 +15,7 @@
 1. Verify RCD setting on the site:
    ```powershell
    Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
-       Select-Object Url, RestrictContentOrgWideSearchAndCopilot
+       Select-Object Url, RestrictContentOrgWideSearch
    ```
 2. Allow 24 hours for index propagation
 3. Check if content exists in multiple locations
@@ -71,7 +71,7 @@
 ```powershell
 # Check site exclusion status
 Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
-    Select-Object Url, RestrictContentOrgWideSearchAndCopilot, SensitivityLabel
+    Select-Object Url, RestrictContentOrgWideSearch, SensitivityLabel
 
 # Verify Graph Connector status
 Get-MgExternalConnection | ForEach-Object {
@@ -80,8 +80,8 @@ Get-MgExternalConnection | ForEach-Object {
 
 # Count excluded vs included sites
 $sites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPERS*" }
-$excluded = ($sites | Where-Object { $_.RestrictContentOrgWideSearchAndCopilot -eq $true }).Count
-$included = ($sites | Where-Object { $_.RestrictContentOrgWideSearchAndCopilot -ne $true }).Count
+$excluded = ($sites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
+$included = ($sites | Where-Object { $_.RestrictContentOrgWideSearch -ne $true }).Count
 Write-Host "Excluded: $excluded | Included: $included"
 ```
 

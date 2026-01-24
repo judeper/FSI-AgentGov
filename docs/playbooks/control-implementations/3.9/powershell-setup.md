@@ -47,17 +47,24 @@ OfficeActivity
 
 ```kql
 // Detect DLP violations by AI agents
-DlpAll
+// Note: Use CloudAppEvents or MicrosoftPurviewInformationProtection table
+// DlpAll is not a valid table name in Log Analytics
+CloudAppEvents
 | where TimeGenerated > ago(1h)
-| where Actor contains "agent" or Actor contains "copilot" or Actor contains "bot"
+| where ActionType has_any ("DlpRuleMatch", "DlpPolicyMatch")
+| where AccountDisplayName contains "agent" or AccountDisplayName contains "copilot" or AccountDisplayName contains "bot"
 | summarize
     ViolationCount = count(),
-    Policies = make_set(PolicyName),
-    SensitiveTypes = make_set(SensitiveInfoTypeNames)
-    by Actor, Application
+    Policies = make_set(PolicyMatchInfo),
+    Applications = make_set(Application)
+    by AccountDisplayName
 | where ViolationCount > 0
 | order by ViolationCount desc
 ```
+
+!!! note "Alternative: MicrosoftPurviewInformationProtection Table"
+    If using Microsoft Purview data connector, you can also query
+    `MicrosoftPurviewInformationProtection` for DLP events with richer policy details.
 
 ### After-Hours Agent Activity
 

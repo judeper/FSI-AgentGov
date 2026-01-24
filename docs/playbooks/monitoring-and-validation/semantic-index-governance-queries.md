@@ -13,6 +13,10 @@ This template provides PowerShell and KQL queries for auditing and monitoring co
 
 ## PowerShell Queries
 
+!!! note "Parameter Status"
+    `RestrictContentOrgWideSearch` is the current GA parameter for site-level search/Copilot
+    restrictions. Copilot-specific parameters are in preview and subject to change.
+
 ### Query 1: Audit Site Copilot Restrictions
 
 ```powershell
@@ -40,7 +44,7 @@ function Get-CopilotRestrictionAudit {
             Title = $_.Title
             Template = $_.Template
             Owner = $_.Owner
-            RestrictedFromCopilot = $_.RestrictContentOrgWideSearchAndCopilot
+            RestrictedFromCopilot = $_.RestrictContentOrgWideSearch
             SensitivityLabel = $_.SensitivityLabel
             SharingCapability = $_.SharingCapability
             StorageUsedGB = [math]::Round($_.StorageUsageCurrent / 1024, 2)
@@ -86,7 +90,7 @@ function Get-HighRiskIndexedContent {
 
     $sites = Get-SPOSite -Limit All | Where-Object {
         $_.Template -notlike "*SPSPERS*" -and
-        -not $_.RestrictContentOrgWideSearchAndCopilot
+        -not $_.RestrictContentOrgWideSearch
     }
 
     $highRisk = @()
@@ -175,7 +179,7 @@ function Get-CopilotRestrictionChanges {
         $data = $change.AuditData | ConvertFrom-Json
 
         # Filter for Copilot-related changes
-        if ($data.ModifiedProperty -like "*RestrictContentOrgWideSearchAndCopilot*" -or
+        if ($data.ModifiedProperty -like "*RestrictContentOrgWideSearch*" -or
             $data.ModifiedProperty -like "*Copilot*") {
 
             $restrictionChanges += [PSCustomObject]@{
@@ -247,7 +251,7 @@ function Test-AgentGroundingScopeCompliance {
             $issues = @()
 
             # Check if site is restricted (should NOT be if agent needs access)
-            if ($site.RestrictContentOrgWideSearchAndCopilot) {
+            if ($site.RestrictContentOrgWideSearch) {
                 $compliant = $false
                 $issues += "Site is restricted from Copilot but agent uses it"
             }
@@ -265,7 +269,7 @@ function Test-AgentGroundingScopeCompliance {
                 KnowledgeSourceUrl = $sourceUrl
                 Compliant = $compliant
                 Issues = ($issues -join "; ")
-                SiteRestricted = $site.RestrictContentOrgWideSearchAndCopilot
+                SiteRestricted = $site.RestrictContentOrgWideSearch
                 SensitivityLabel = $site.SensitivityLabel
             }
         }
@@ -309,13 +313,23 @@ function Test-AgentGroundingScopeCompliance {
 
 ## KQL Queries (for Microsoft Sentinel / Log Analytics)
 
+!!! warning "Data Source Limitations"
+    KQL queries in Log Analytics use the **OfficeActivity** table for Microsoft 365 audit data.
+    Tables like `CopilotInteraction`, `SharePointAuditLogs`, `SharePointSiteProperties`, and
+    `SharePointFileProperties` do not exist in Log Analytics. For site/file property data,
+    use PowerShell (`Get-SPOSite`) or Microsoft Graph API, then optionally ingest results
+    into a custom Log Analytics table for correlation.
+
 ### Query 1: Track Copilot Content Access Patterns
 
 ```kql
-// Track which SharePoint sites Copilot is accessing most frequently
-CopilotInteraction
+// Track Copilot interactions with SharePoint sources
+// Uses OfficeActivity table with CopilotInteraction RecordType
+OfficeActivity
 | where TimeGenerated > ago(30d)
-| where SourceType == "SharePoint"
+| where RecordType == "CopilotInteraction"
+| extend SourceSiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SourceSiteUrl)
+| where isnotempty(SourceSiteUrl)
 | summarize
     AccessCount = count(),
     UniqueUsers = dcount(UserId),
@@ -325,104 +339,109 @@ CopilotInteraction
 | take 50
 ```
 
-### Query 2: Detect Unauthorized Source Access Attempts
+### Query 2: Detect Copilot Access to Sensitive Sites
 
 ```kql
-// Detect Copilot attempts to access restricted content
-SharePointAuditLogs
+// Detect Copilot interactions with sites containing sensitive keywords
+// Note: Site restriction status requires PowerShell lookup (Get-SPOSite)
+OfficeActivity
 | where TimeGenerated > ago(7d)
-| where Operation == "SearchQueryPerformed"
-| where AdditionalInfo contains "Copilot"
-| join kind=inner (
-    // Sites that should be restricted
-    SharePointSiteProperties
-    | where RestrictedFromCopilot == true
-) on SiteUrl
-| project TimeGenerated, UserId, SiteUrl, Query
+| where RecordType == "CopilotInteraction" or Operation has "Copilot"
+| extend SiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SiteUrl)
+| where SiteUrl has_any ("confidential", "restricted", "pii", "financial")
+| project TimeGenerated, UserId, SiteUrl, Operation
 | order by TimeGenerated desc
 ```
 
-### Query 3: Monitor Index Scope Changes
+### Query 3: Monitor Site Setting Changes (Copilot Restrictions)
 
 ```kql
-// Alert on changes to Copilot restriction settings
-SharePointAuditLogs
+// Alert on changes to site collection settings affecting Copilot access
+OfficeActivity
 | where TimeGenerated > ago(24h)
 | where Operation == "SiteCollectionSettingsChanged"
-| where ModifiedProperty contains "RestrictContentOrgWideSearchAndCopilot"
+| extend AuditData = parse_json(tostring(AdditionalInfo))
+| extend ModifiedProperty = tostring(AuditData.ModifiedProperty)
+| where ModifiedProperty has_any ("RestrictContentOrgWideSearch", "Copilot", "Search")
 | extend
+    OldValue = tostring(AuditData.OldValue),
+    NewValue = tostring(AuditData.NewValue),
     ChangeDirection = case(
-        NewValue == "True", "Restricted (removed from Copilot)",
-        NewValue == "False", "Unrestricted (added to Copilot)",
+        tostring(AuditData.NewValue) == "True", "Restricted (removed from search/Copilot)",
+        tostring(AuditData.NewValue) == "False", "Unrestricted (added to search/Copilot)",
         "Unknown"
     )
-| project TimeGenerated, UserId, SiteUrl, ChangeDirection, OldValue, NewValue
+| project TimeGenerated, UserId, Site_Url, ChangeDirection, ModifiedProperty, OldValue, NewValue
 | order by TimeGenerated desc
 ```
 
-### Query 4: Copilot Citation Source Analysis
+### Query 4: Copilot Usage by Application
 
 ```kql
-// Analyze which sources Copilot cites most frequently
-CopilotInteraction
+// Analyze Copilot usage patterns by application
+OfficeActivity
 | where TimeGenerated > ago(30d)
-| extend Citations = parse_json(ResponseMetadata).Citations
-| mv-expand Citation = Citations
+| where RecordType == "CopilotInteraction" or RecordType == "CopilotForM365Interaction"
+| extend AppName = tostring(parse_json(tostring(AdditionalInfo)).AppName)
 | summarize
-    CitationCount = count(),
-    AvgConfidence = avg(todouble(Citation.Confidence)),
-    UniqueQueries = dcount(UserQuery)
-    by SourceUrl = tostring(Citation.SourceUrl)
-| order by CitationCount desc
-| take 50
+    InteractionCount = count(),
+    UniqueUsers = dcount(UserId),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by AppName
+| order by InteractionCount desc
 ```
 
-### Query 5: Detect Stale Content Being Cited
+### Query 5: Detect Unusual Copilot Activity Patterns
 
 ```kql
-// Identify stale content being actively cited by Copilot
-CopilotInteraction
+// Identify users with unusually high Copilot activity
+let baseline = OfficeActivity
+| where TimeGenerated > ago(30d) and TimeGenerated < ago(1d)
+| where RecordType has "Copilot"
+| summarize AvgDaily = count() / 30.0 by UserId;
+OfficeActivity
+| where TimeGenerated > ago(1d)
+| where RecordType has "Copilot"
+| summarize TodayCount = count() by UserId
+| join kind=inner baseline on UserId
+| where TodayCount > AvgDaily * 3
+| project UserId, TodayCount, BaselineAvg = round(AvgDaily, 1), Deviation = round(TodayCount / AvgDaily, 1)
+| order by Deviation desc
+```
+
+### Query 6: Copilot Activity Summary Dashboard
+
+```kql
+// Dashboard query for Copilot activity overview
+// Note: Site restriction counts require PowerShell (Get-SPOSite) - this shows activity metrics only
+let TotalInteractions = OfficeActivity
 | where TimeGenerated > ago(7d)
-| extend Citations = parse_json(ResponseMetadata).Citations
-| mv-expand Citation = Citations
-| summarize CitationCount = count() by SourceUrl = tostring(Citation.SourceUrl)
-| join kind=inner (
-    SharePointFileProperties
-    | where LastModified < ago(180d)
-    | project SourceUrl = Url, LastModified, DaysSinceModified = datetime_diff('day', now(), LastModified)
-) on SourceUrl
-| project SourceUrl, CitationCount, LastModified, DaysSinceModified
-| order by CitationCount desc
-```
+| where RecordType has "Copilot"
+| summarize InteractionCount = count();
 
-### Query 6: Grounding Scope Compliance Dashboard
+let UniqueUsers = OfficeActivity
+| where TimeGenerated > ago(7d)
+| where RecordType has "Copilot"
+| summarize UserCount = dcount(UserId);
 
-```kql
-// Dashboard query for grounding scope compliance overview
-let IndexedSites = SharePointSiteProperties
-| where RestrictedFromCopilot == false
-| summarize IndexedCount = count();
-
-let RestrictedSites = SharePointSiteProperties
-| where RestrictedFromCopilot == true
-| summarize RestrictedCount = count();
-
-let HighRiskIndexed = SharePointSiteProperties
-| where RestrictedFromCopilot == false
-| where Url contains "draft" or Url contains "archive" or Url contains "test"
-| summarize HighRiskCount = count();
-
-let RecentChanges = SharePointAuditLogs
+let SettingChanges = OfficeActivity
 | where TimeGenerated > ago(7d)
 | where Operation == "SiteCollectionSettingsChanged"
-| where ModifiedProperty contains "RestrictContentOrgWideSearchAndCopilot"
 | summarize ChangeCount = count();
 
+let SensitiveSiteAccess = OfficeActivity
+| where TimeGenerated > ago(7d)
+| where RecordType has "Copilot"
+| extend SiteUrl = tostring(parse_json(tostring(AdditionalInfo)).SiteUrl)
+| where SiteUrl has_any ("confidential", "restricted", "pii")
+| summarize SensitiveCount = count();
+
 union
-    (IndexedSites | extend Metric = "Sites Available to Copilot", Value = IndexedCount),
-    (RestrictedSites | extend Metric = "Sites Restricted from Copilot", Value = RestrictedCount),
-    (HighRiskIndexed | extend Metric = "High-Risk Sites Indexed", Value = HighRiskCount),
-    (RecentChanges | extend Metric = "Scope Changes (7 days)", Value = ChangeCount)
+    (TotalInteractions | extend Metric = "Copilot Interactions (7 days)", Value = InteractionCount),
+    (UniqueUsers | extend Metric = "Unique Users", Value = UserCount),
+    (SettingChanges | extend Metric = "Site Setting Changes", Value = ChangeCount),
+    (SensitiveSiteAccess | extend Metric = "Sensitive Site Interactions", Value = SensitiveCount)
 | project Metric, Value
 ```
 

@@ -336,7 +336,7 @@ Risk associated with third-party connectors and integrations.
 ## W
 
 **WORM (Write Once, Read Many)**
-Storage principle where data can be written once but not modified or deleted.
+Storage principle where data can be written once but not modified or deleted. Per SEC October 2022 amendments (effective May 2023), WORM is one of two acceptable approaches for SEC 17a-4 compliance; the audit-trail alternative is also permitted.
 
 ---
 

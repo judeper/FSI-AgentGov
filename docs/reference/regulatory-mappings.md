@@ -108,6 +108,11 @@ Framework provides supervision procedure guidance (8/61 controls). Implementatio
 
 ## FINRA Regulatory Notice 25-07 - AI Governance
 
+!!! info "RFC Status"
+    FINRA Regulatory Notice 25-07 is a **Request for Comment (RFC)** with comment period
+    extending to **July 2025**. Topics described are proposed guidance, not final rules.
+    Monitor FINRA communications for final rule adoption.
+
 ### Overview
 Discusses model risk management considerations for AI and algorithmic systems. Topics include validation, monitoring, bias, and governance.
 
@@ -210,7 +215,7 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 **Zone 3:**
 
 - 6-year + 3-year accessible
-- Immutable storage mandatory
+- WORM or audit-trail alternative (per SEC October 2022 amendments)
 - Real-time audit trail
 - Weekly compliance verification
 
@@ -583,7 +588,7 @@ Applies to futures commission merchants (FCMs), introducing brokers, commodity t
 
 1. **Electronic Records**
    - Records must be maintained in electronic format capable of being retrieved and produced
-   - WORM (Write Once Read Many) or equivalent storage requirements
+   - WORM storage or audit-trail alternative (similar to SEC 17a-4 October 2022 amendments)
    - Records must be searchable and accessible for CFTC examination
 
 2. **Retention Period**
@@ -603,7 +608,7 @@ Applies to futures commission merchants (FCMs), introducing brokers, commodity t
 
 - Mandatory comprehensive audit logging
 - 5+ year retention with immediate accessibility
-- WORM-compliant storage
+- WORM or audit-trail compliant storage
 - Complete transaction reconstruction capability
 - Model risk management per SR 11-7 principles
 

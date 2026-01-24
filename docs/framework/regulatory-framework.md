@@ -81,6 +81,10 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 ### FINRA Regulatory Notice 25-07 — AI Governance
 
+!!! info "RFC Status"
+    FINRA Regulatory Notice 25-07 is a **Request for Comment (RFC)** with comment period
+    extending to **July 2025**. Topics described are proposed guidance, not final rules.
+
 **Overview:** Guidance on model risk management considerations for AI and algorithmic systems. Topics include validation, monitoring, bias, and governance.
 
 **Key Topics:**

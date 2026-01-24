@@ -75,7 +75,7 @@
 ```powershell
 # Verify site exclusions
 Get-SPOSite -Limit All | Where-Object {
-    $_.RestrictContentOrgWideSearchAndCopilot -eq $true
+    $_.RestrictContentOrgWideSearch -eq $true
 } | Select-Object Url, Title | Format-Table
 
 # Count licensed users
@@ -87,7 +87,7 @@ $sensitivePatterns = @("executive", "legal", "hr", "confidential")
 Get-SPOSite -Limit All | Where-Object {
     $url = $_.Url.ToLower()
     ($sensitivePatterns | Where-Object { $url -like "*$_*" }) -and
-    $_.RestrictContentOrgWideSearchAndCopilot -ne $true
+    $_.RestrictContentOrgWideSearch -ne $true
 } | Select-Object Url
 ```
 

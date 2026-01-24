@@ -6,6 +6,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.7] — January 23, 2026 (Documentation Accuracy Fixes)
+
+### Overview
+
+This release addresses technical inaccuracies identified during a comprehensive deep review, including invalid KQL queries, incorrect PowerShell parameters, outdated regulatory references, and missing admin settings documentation.
+
+### Fixed
+
+- **KQL Queries** - Corrected 6 queries using non-existent tables (`CopilotInteraction`, `SharePointAuditLogs`, `SharePointSiteProperties`, `SharePointFileProperties`, `DlpAll`). Now use correct `OfficeActivity` and `CloudAppEvents` tables with appropriate RecordType filtering.
+
+- **PowerShell Parameter** - Replaced `RestrictContentOrgWideSearchAndCopilot` with correct GA parameter `RestrictContentOrgWideSearch` across 9 files (4.6/4.7 playbooks, semantic-index-governance-queries.md, control 4.6).
+
+- **SEC 17a-4 References** - Updated ~15 files to reflect October 2022 amendments (effective May 2023) that made WORM optional. Broker-dealers can now use either WORM storage or audit-trail alternative.
+
+- **FINRA Notice 25-07 Status** - Added RFC disclaimer to key files clarifying that Notice 25-07 is a Request for Comment with comment period extending to July 2025 (not final requirements). Changed language from "requires" to "proposes" where applicable.
+
+### Added
+
+- **Data Source Limitations** - Added explanatory notes in KQL query documentation explaining hybrid PowerShell/KQL approach needed for site/file property data not available in Log Analytics.
+
+- **Agent 365 Admin Settings** - Added reference to Microsoft 365 Admin Center "Agent settings" page in Control 1.2 and its portal walkthrough, including:
+  - Allowed Agent Types configuration
+  - Sharing controls
+  - Templates (Agent 365 license)
+  - User Access controls
+  - FSI zone-specific recommended settings table
+
+- **Parameter Status Notes** - Added admonitions clarifying GA vs. preview status for PowerShell parameters.
+
+### Files Modified
+
+| Area | Files Updated |
+|------|---------------|
+| KQL Queries | `semantic-index-governance-queries.md`, `3.9/powershell-setup.md`, `1.7` control |
+| PowerShell Parameter | 9 files in 4.6, 4.7 playbooks and control docs |
+| SEC 17a-4 | ~15 files including controls 1.7, 1.9, 2.13 and playbooks |
+| FINRA 25-07 | ~6 key files including control 2.11, regulatory-mappings.md |
+| Agent 365 | Control 1.2 and `1.2/portal-walkthrough.md` |
+
+### Validation
+
+- `python scripts/verify_controls.py`: ✅ All 61 controls valid
+- Control structure: ✅ Pass
+
+---
+
 ## [1.1.6] — January 20, 2026 (Microsoft Learn Documentation Monitor)
 
 ### Overview

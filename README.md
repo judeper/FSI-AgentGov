@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.1.4 (January 2026)
+**Version:** 1.1.7 (January 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 

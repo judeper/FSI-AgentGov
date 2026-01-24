@@ -26,6 +26,10 @@ Connect-SPOService -Url "https://tenant-admin.sharepoint.com"
 
 ---
 
+!!! note "Parameter Status"
+    `RestrictContentOrgWideSearch` is the current GA parameter for site-level search/Copilot
+    restrictions. Copilot-specific parameters are in preview and subject to change.
+
 ## Inventory Copilot Licenses
 
 ```powershell
@@ -57,7 +61,7 @@ $siteAudit = $allSites | ForEach-Object {
     [PSCustomObject]@{
         Url = $_.Url
         Title = $_.Title
-        RestrictedFromCopilot = $_.RestrictContentOrgWideSearchAndCopilot
+        RestrictedFromCopilot = $_.RestrictContentOrgWideSearch
         SensitivityLabel = $_.SensitivityLabel
         StorageUsedGB = [math]::Round($_.StorageUsageCurrent / 1024, 2)
     }
@@ -87,14 +91,14 @@ $sensitiveSites = @(
 )
 
 foreach ($siteUrl in $sensitiveSites) {
-    Set-SPOSite -Identity $siteUrl -RestrictContentOrgWideSearchAndCopilot $true
+    Set-SPOSite -Identity $siteUrl -RestrictContentOrgWideSearch $true
     Write-Host "Excluded from Copilot: $siteUrl" -ForegroundColor Yellow
 }
 
 # Verify exclusions
 foreach ($siteUrl in $sensitiveSites) {
     $site = Get-SPOSite -Identity $siteUrl
-    Write-Host "$siteUrl - RCD Enabled: $($site.RestrictContentOrgWideSearchAndCopilot)"
+    Write-Host "$siteUrl - RCD Enabled: $($site.RestrictContentOrgWideSearch)"
 }
 ```
 
@@ -232,7 +236,7 @@ try {
         [PSCustomObject]@{
             Url = $_.Url
             Title = $_.Title
-            RestrictedFromCopilot = $_.RestrictContentOrgWideSearchAndCopilot
+            RestrictedFromCopilot = $_.RestrictContentOrgWideSearch
             SensitivityLabel = $_.SensitivityLabel
         }
     }
@@ -250,7 +254,7 @@ try {
         Write-Host "`nExcluding sensitive sites from Copilot..." -ForegroundColor Yellow
         foreach ($siteUrl in $SensitiveSites) {
             try {
-                Set-SPOSite -Identity $siteUrl -RestrictContentOrgWideSearchAndCopilot $true
+                Set-SPOSite -Identity $siteUrl -RestrictContentOrgWideSearch $true
                 Write-Host "  [DONE] Excluded: $siteUrl" -ForegroundColor Green
             }
             catch {
