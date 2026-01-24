@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.1.9] — January 24, 2026 (Learn Monitor Documentation)
+
+### Overview
+
+Added comprehensive documentation explaining how the Microsoft Learn Documentation Monitor works, including verification that the system is operating correctly.
+
+### Added
+
+- **Learn Monitor Guide** (`docs/reference/learn-monitor-guide.md`) - Detailed documentation covering:
+  - When the monitor runs (daily at 6 AM UTC)
+  - When PRs are created (Sundays or when changes detected)
+  - Change classification (CRITICAL/HIGH/MEDIUM/NOISE)
+  - Local testing commands
+  - Troubleshooting guide
+- **Navigation updates** - Added guide to mkdocs.yml and reference index
+
+### Verified
+
+- Learn monitor script syntax valid
+- Dependencies installed (requests, beautifulsoup4)
+- Dry-run mode working correctly
+- Single URL debug mode operational
+- GitHub Actions workflow running successfully (5 consecutive daily passes)
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `docs/reference/learn-monitor-guide.md` | New file - comprehensive monitor documentation |
+| `docs/reference/index.md` | Added Learn Monitor Guide to Technical Reference section |
+| `mkdocs.yml` | Added navigation entry for Learn Monitor Guide |
+| `.claude/CLAUDE.md` | Added guide to Key Files and Quick Navigation |
+| `CHANGELOG.md` | This entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/learn_monitor.py --dry-run --limit 3`: Pass
+
+---
+
 ## [1.1.8] — January 24, 2026 (Documentation Consistency Fixes)
 
 ### Overview

@@ -31,6 +31,7 @@ This section provides technical reference materials, standards, and supporting d
 |----------|-------------|
 | [Portal Paths Quick Reference](portal-paths-quick-reference.md) | Consolidated portal navigation paths |
 | [Microsoft Learn URLs](microsoft-learn-urls.md) | Official documentation links |
+| [Learn Monitor Guide](learn-monitor-guide.md) | How the documentation monitor works |
 | [FSI Configuration Examples](fsi-configuration-examples.md) | Financial services-specific configurations |
 
 ### General Reference
