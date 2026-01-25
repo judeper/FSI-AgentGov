@@ -49,12 +49,14 @@ jobs:
       - name: Determine if PR should be created
         id: should_create_pr
         run: |
-          # Create PR if it's Sunday (weekly baseline) OR if changes were detected (exit code 1)
-          if [ "${{ steps.check_day.outputs.is_sunday }}" = "true" ] || [ "${{ steps.monitor.outputs.exit_code }}" = "1" ]; then
-            echo "create_pr=true" >> $GITHUB_OUTPUT
-          else
-            echo "create_pr=false" >> $GITHUB_OUTPUT
-          fi
+          # TEMPORARY: Always create PR for testing (revert after verification)
+          echo "create_pr=true" >> $GITHUB_OUTPUT
+          # Original logic (restore after testing):
+          # if [ "${{ steps.check_day.outputs.is_sunday }}" = "true" ] || [ "${{ steps.monitor.outputs.exit_code }}" = "1" ]; then
+          #   echo "create_pr=true" >> $GITHUB_OUTPUT
+          # else
+          #   echo "create_pr=false" >> $GITHUB_OUTPUT
+          # fi
 
       - name: Create Pull Request
         if: steps.should_create_pr.outputs.create_pr == 'true'
