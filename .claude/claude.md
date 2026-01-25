@@ -2,15 +2,22 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.1** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **61 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
+- **1 advanced implementation** (Platform Change Governance with Dataverse)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
 - **Audience:** M365 administrators in US financial services
+
+### Companion Repository
+
+**FSI-AgentGov-Solutions** (`/Users/admin/dev/FSI-AgentGov-Solutions`) contains deployable solution artifacts:
+- `platform-change-governance/` - Dataverse deployment script and solution files
+- See `docs/playbooks/advanced-implementations/` for implementation guides
 
 ---
 
@@ -40,8 +47,9 @@ FSI-AgentGov/
 │   │   ├── pillar-2-management/   # 2.1-2.21 (21 controls)
 │   │   ├── pillar-3-reporting/    # 3.1-3.10 (10 controls)
 │   │   └── pillar-4-sharepoint/   # 4.1-4.7 (7 controls)
-│   ├── playbooks/             # Layer 3: Implementation guides (244 files)
-│   │   └── control-implementations/  # 4 playbooks per control
+│   ├── playbooks/             # Layer 3: Implementation guides (250 files)
+│   │   ├── control-implementations/  # 4 playbooks per control (244 files)
+│   │   └── advanced-implementations/ # Complex multi-control solutions (6 files)
 │   ├── reference/             # Supporting materials
 │   ├── downloads/             # Excel templates
 │   └── images/                # Screenshot specs
@@ -78,11 +86,14 @@ FSI-AgentGov/
 
 ### Playbook Structure
 
-Each control has 4 playbooks in `docs/playbooks/control-implementations/{control-id}/`:
+**Control Implementations** - Each control has 4 playbooks in `docs/playbooks/control-implementations/{control-id}/`:
 - `portal-walkthrough.md` - Step-by-step portal configuration
 - `powershell-setup.md` - PowerShell automation
 - `verification-testing.md` - Test cases, evidence collection
 - `troubleshooting.md` - Common issues, resolutions
+
+**Advanced Implementations** - Complex multi-control solutions in `docs/playbooks/advanced-implementations/`:
+- `platform-change-governance/` - Message Center governance with Dataverse (6 docs)
 
 ---
 
@@ -154,6 +165,7 @@ Use canonical short names from `docs/reference/role-catalog.md`:
 | `docs/reference/role-catalog.md` | Canonical role names |
 | `docs/reference/regulatory-mappings.md` | Regulation-to-control mapping |
 | `docs/reference/learn-monitor-guide.md` | How the Learn monitor works |
+| `docs/playbooks/advanced-implementations/platform-change-governance/` | Platform Change Governance playbook |
 | `mkdocs.yml` | Site navigation |
 | `CHANGELOG.md` | Release history |
 
@@ -252,6 +264,7 @@ python scripts/learn_monitor.py --verbose
 | See role names | `docs/reference/role-catalog.md` |
 | Understand zones | `docs/framework/zones-and-tiers.md` |
 | Learn about the doc monitor | `docs/reference/learn-monitor-guide.md` |
+| Implement Platform Change Governance | `docs/playbooks/advanced-implementations/platform-change-governance/` |
 | Review language rules | `CONTRIBUTING.md` |
 | View release history | `CHANGELOG.md` |
 
@@ -294,14 +307,17 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.1.9 (January 2026)
-**Status:** All 61 controls complete, all 244 playbooks complete, build passing, Learn monitor active
+**Version:** 1.2.0 (January 2026)
+**Status:** All 61 controls complete, 244 control playbooks + 6 advanced implementation docs, build passing, Learn monitor active
+
+**Recent Addition:** Platform Change Governance playbook - Dataverse-based Message Center governance with regulatory-aligned evidence standards.
 
 For detailed release history, see `CHANGELOG.md`.
 
 ---
 
 ## Version Info
-- **Framework Version:** 1.1.9
+- **Framework Version:** 1.2.0
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
+- **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

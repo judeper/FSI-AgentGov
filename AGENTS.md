@@ -79,6 +79,22 @@ python scripts/verify_controls.py   # Validates control files
 - `SECURITY.md` - Security policy
 - `CODE_OF_CONDUCT.md` - Community standards
 
+## Advanced Implementations
+
+Advanced implementations are complex multi-control solutions in `docs/playbooks/advanced-implementations/`.
+
+### Platform Change Governance
+
+Location: `docs/playbooks/advanced-implementations/platform-change-governance/`
+
+A Dataverse-based solution for operationalizing Microsoft Message Center changes with regulatory-aligned audit trails. Includes:
+- Architecture documentation (Dataverse schema, security model)
+- Two implementation paths (Dataverse-only vs. Dataverse + Azure DevOps)
+- Hands-on labs
+- Evidence standards for regulatory examinations
+
+**Companion Repository:** FSI-AgentGov-Solutions contains deployment scripts and solution files.
+
 ## Error Handling
 
 If you encounter:
