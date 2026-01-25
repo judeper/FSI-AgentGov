@@ -118,6 +118,7 @@ Complex governance scenarios and specialized configurations.
 | [Confidence and Routing](advanced-implementations/confidence-and-routing.md) | Confidence-based workflows |
 | [Zone 1 Minimum Explainability](advanced-implementations/zone1-min-explainability.md) | Transparency requirements |
 | [DSPM for AI Policy Pack](advanced-implementations/dspm-for-ai-policy-pack.md) | Data security policies |
+| [Platform Change Governance](advanced-implementations/platform-change-governance/index.md) | Message Center change operationalization |
 
 ---
 

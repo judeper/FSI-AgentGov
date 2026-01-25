@@ -6,6 +6,81 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.0] — January 25, 2026 (Platform Change Governance)
+
+### Overview
+
+Added Platform Change Governance advanced implementation playbook providing canonical reference architecture for operationalizing Microsoft Message Center changes in regulated environments with Dataverse as the governance system-of-record.
+
+**The Problem:** Financial services organizations receive 100+ Message Center posts monthly, creating alert fatigue while regulatory requirements (FINRA 4511, SEC 17a-3/4, SOX 302/404) mandate documented change management with audit trails.
+
+**The Solution:** Dataverse-based governance workflow with structured triage, assessment, decision logging, and immutable audit trails. Two implementation paths support different organizational needs.
+
+### Added
+
+- **Platform Change Governance Playbook** (`docs/playbooks/advanced-implementations/platform-change-governance/`)
+  - `index.md` - Overview, problem statement, and path selection decision framework
+  - `architecture.md` - Canonical reference architecture with Dataverse schema, security model, and state machine
+  - `implementation-path-a.md` - Dataverse-only implementation (baseline governance)
+  - `implementation-path-b.md` - Dataverse + Azure DevOps bi-directional integration
+  - `labs.md` - Hands-on labs 1-3 (ingestion, model-driven app, ADO integration)
+  - `evidence-and-audit.md` - Evidence standards mapping, retention requirements, examination response
+
+- **Implementation Paths**
+  - **Path A:** Dataverse-only baseline for most organizations
+  - **Path B:** Dataverse + Azure DevOps for engineering teams with ALM requirements
+
+- **Dataverse Schema**
+  - MessageCenterPost table with 15+ fields for complete post tracking
+  - AssessmentLog table for impact assessment history
+  - DecisionLog table (organization-owned/immutable) for governance decisions
+  - Security roles: MC Admin, MC Owner, MC Compliance Reviewer, MC Auditor
+
+- **Power Automate Flows**
+  - Message Center ingestion via Graph API polling
+  - Dataverse → ADO work item creation (Path B)
+  - ADO → Dataverse webhook handler (Path B)
+
+### Enhanced
+
+- **Control 2.3 (Change Management)** - Added cross-reference to Platform Change Governance playbook
+- **Control 2.10 (Patch Management)** - Added link to Platform Change Governance in Additional Resources
+- **Control 2.13 (Documentation)** - Added cross-reference to Platform Change Governance evidence standards
+- **Playbooks Overview** - Added Platform Change Governance to Advanced Implementations table
+
+### Regulatory Alignment
+
+Supports compliance with:
+- **FINRA 4511** - Books and records via DecisionLog immutable records
+- **SEC 17a-4** - Audit-trail alternative via Dataverse change tracking
+- **SOX 302/404** - Documented approval workflows with segregation of duties
+- **GLBA 501(b)** - Administrative safeguards for customer-impacting changes
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `docs/playbooks/advanced-implementations/platform-change-governance/index.md` | Created |
+| `docs/playbooks/advanced-implementations/platform-change-governance/architecture.md` | Created |
+| `docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md` | Created |
+| `docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-b.md` | Created |
+| `docs/playbooks/advanced-implementations/platform-change-governance/labs.md` | Created |
+| `docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md` | Created |
+| `mkdocs.yml` | Added navigation entries for Platform Change Governance |
+| `docs/playbooks/index.md` | Added to Advanced Implementations table |
+| `docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.10-patch-management-and-system-updates.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md` | Added cross-reference |
+| `CHANGELOG.md` | This entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- All internal links resolve
+- Navigation renders correctly
+
+---
+
 ## [1.1.9] — January 24, 2026 (Learn Monitor Documentation)
 
 ### Overview

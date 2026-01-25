@@ -518,6 +518,13 @@ nav:
       - Zone 1 Minimum Explainability: playbooks/advanced-implementations/zone1-min-explainability.md
       - DSPM for AI Policy Pack: playbooks/advanced-implementations/dspm-for-ai-policy-pack.md
       - Microsoft Audit Reporting Tools: playbooks/advanced-implementations/microsoft-audit-reporting-tools.md
+      - Platform Change Governance:
+        - Overview: playbooks/advanced-implementations/platform-change-governance/index.md
+        - Architecture: playbooks/advanced-implementations/platform-change-governance/architecture.md
+        - Path A (Dataverse Only): playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md
+        - Path B (Dataverse + ADO): playbooks/advanced-implementations/platform-change-governance/implementation-path-b.md
+        - Labs: playbooks/advanced-implementations/platform-change-governance/labs.md
+        - Evidence and Audit: playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md

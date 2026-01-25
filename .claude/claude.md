@@ -153,6 +153,7 @@ Use canonical short names from `docs/reference/role-catalog.md`:
 | `docs/templates/control-setup-template.md` | 10-section control template |
 | `docs/reference/role-catalog.md` | Canonical role names |
 | `docs/reference/regulatory-mappings.md` | Regulation-to-control mapping |
+| `docs/reference/learn-monitor-guide.md` | How the Learn monitor works |
 | `mkdocs.yml` | Site navigation |
 | `CHANGELOG.md` | Release history |
 
@@ -250,6 +251,7 @@ python scripts/learn_monitor.py --verbose
 | Check all controls | `docs/controls/CONTROL-INDEX.md` |
 | See role names | `docs/reference/role-catalog.md` |
 | Understand zones | `docs/framework/zones-and-tiers.md` |
+| Learn about the doc monitor | `docs/reference/learn-monitor-guide.md` |
 | Review language rules | `CONTRIBUTING.md` |
 | View release history | `CHANGELOG.md` |
 
@@ -292,7 +294,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.1.8 (January 2026)
+**Version:** 1.1.9 (January 2026)
 **Status:** All 61 controls complete, all 244 playbooks complete, build passing, Learn monitor active
 
 For detailed release history, see `CHANGELOG.md`.
@@ -300,6 +302,6 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.1.8
+- **Framework Version:** 1.1.9
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
