@@ -34,6 +34,12 @@ jobs:
         id: monitor
         continue-on-error: true
         run: |
+          # Check if this is a baseline run (no prior state file)
+          if [ ! -f "data/learn-monitor-state.json" ]; then
+            echo "is_baseline=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_baseline=false" >> $GITHUB_OUTPUT
+          fi
           python scripts/learn_monitor.py
           echo "exit_code=$?" >> $GITHUB_OUTPUT
 
@@ -73,27 +79,28 @@ jobs:
           body: |
             ## Microsoft Learn Documentation Monitor
 
-            This PR contains updates to Microsoft Learn documentation tracking.
+            ${{ steps.monitor.outputs.is_baseline == 'true' && '> **BASELINE RUN:** This is the first successful run. The state file establishes content hashes for all monitored URLs. No change reports are generated on baseline runs - future runs will compare against this baseline.' || 'This PR contains updates to Microsoft Learn documentation tracking.' }}
 
             ### What Changed
 
-            - **Baseline Updated:** ${{ steps.check_day.outputs.is_sunday == 'true' && 'Yes (Weekly Sunday update)' || 'No' }}
+            - **Run Type:** ${{ steps.monitor.outputs.is_baseline == 'true' && 'Baseline (first run)' || (steps.monitor.outputs.exit_code == '1' && 'Changes detected' || 'Weekly update') }}
             - **Changes Detected:** ${{ steps.monitor.outputs.exit_code == '1' && 'Yes' || 'No' }}
             - **Run Number:** ${{ github.run_number }}
             - **Run Date:** ${{ github.event.repository.updated_at }}
 
             ### Review Instructions
 
-            1. Check `reports/learn-changes/` for detailed change reports
+            ${{ steps.monitor.outputs.is_baseline == 'true' && '1. Review `data/learn-monitor-state.json` to verify URLs are being tracked
+            2. Merge to establish baseline for future change detection' || '1. Check `reports/learn-changes/` for detailed change reports (if changes detected)
             2. Review `data/learn-monitor-state.json` for updated URLs and content hashes
             3. Verify changes are relevant to FSI-AgentGov documentation
             4. Update affected controls/playbooks if needed
-            5. Merge to update baseline
+            5. Merge to update baseline' }}
 
             ### Files Modified
 
-            - `data/learn-monitor-state.json` - Updated content hashes and metadata
-            - `reports/learn-changes/*.md` - Change detection reports (if any)
+            - `data/learn-monitor-state.json` - ${{ steps.monitor.outputs.is_baseline == 'true' && 'Initial baseline with content hashes' || 'Updated content hashes and metadata' }}
+            ${{ steps.monitor.outputs.exit_code == '1' && '- `reports/learn-changes/*.md` - Change detection reports' || '' }}
 
             ---
 
