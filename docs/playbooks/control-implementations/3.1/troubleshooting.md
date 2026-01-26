@@ -7,7 +7,7 @@
 | Issue | Cause | Resolution |
 |-------|-------|------------|
 | PPAC Inventory shows 0 items | Preview feature not enabled or data not synced | Wait 24-48 hours for initial sync; verify feature is enabled |
-| Missing agents from inventory | Agents in environments without proper access | Verify Power Platform Administrator role |
+| Missing agents from inventory | Agents in environments without proper access | Verify Power Platform Admin role |
 | Owner shows as "System Account" | Agent created by deleted user or service principal | Follow orphaned agent remediation process |
 | Cannot export inventory to CSV | Browser permissions or popup blocker | Disable popup blocker for PPAC; try different browser |
 | PowerShell commands timeout | Large number of environments or items | Process environments in batches; increase timeout values |
@@ -29,7 +29,7 @@
    ```
    Entra Admin Center > Identity > Users > [Your user] > Assigned roles
    ```
-4. Confirm you have Power Platform Administrator role
+4. Confirm you have Power Platform Admin role
 
 **Resolution:**
 - Wait 24-48 hours for initial sync
@@ -182,8 +182,8 @@
 4. Verify environment is not in a restricted security group
 
 **Resolution:**
-- Request environment access from Environment Administrator
-- Contact Global Administrator for visibility issues
+- Request environment access from Environment Admin
+- Contact Entra Global Admin for visibility issues
 - Check if environment requires special permissions
 
 ---

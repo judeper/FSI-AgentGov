@@ -41,6 +41,32 @@
 
 ---
 
+### Issue: Evidence Retention Requirements Not Met
+
+**Symptoms:** Audit requests for historical supervision records cannot be fulfilled
+
+**Resolution:**
+
+1. Verify SharePoint retention policies applied to supervision logs
+2. Check Power Automate flow is writing to correct location
+3. Ensure immutable storage configured for regulatory retention
+4. Implement FINRA 4511 retention label (6 years minimum)
+
+---
+
+### Issue: Supervisor Review Audit Trail Incomplete
+
+**Symptoms:** Unable to demonstrate who approved specific agent responses
+
+**Resolution:**
+
+1. Verify Power Automate captures reviewer identity (UPN) on each approval
+2. Check that timestamp includes timezone information
+3. Ensure approval metadata includes agent ID and conversation ID
+4. Cross-reference with Unified Audit Log for completeness
+
+---
+
 ## Escalation Path
 
 1. **Compliance Officer** - WSP requirements

@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Power Platform Administrator role assigned
+- [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] Governance tier definitions documented (Tier 1/2/3)
 - [ ] Inventory of existing environments and classifications

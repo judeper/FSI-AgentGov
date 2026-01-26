@@ -22,7 +22,7 @@
 
 **If you don't see Audit:**
 
-- Confirm your account has Compliance Administrator role
+- Confirm your account has Purview Compliance Admin role
 - Confirm audit logging is enabled at tenant level
 - Allow for ingestion latency (30 min to 24 hours)
 
@@ -178,6 +178,10 @@ For broker-dealers, the October 2022 SEC amendments (effective May 2023) now all
 | Management Activity API | Automated export |
 | Azure Monitor | Real-time streaming |
 | Microsoft Sentinel | Native integration |
+
+---
+
+[Back to Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

@@ -92,7 +92,7 @@
    - Verify network access rules
 
 4. **Validate solution export permissions:**
-   - Confirm service principal has System Administrator role
+   - Confirm service principal has Dataverse System Admin role
    - Check solution is not locked or in use
 
 5. **Test manual backup:**

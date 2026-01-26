@@ -8,7 +8,7 @@
 
 Before starting, ensure you have:
 
-- SharePoint Administrator role assigned
+- SharePoint Admin role assigned
 - Microsoft 365 E5 or E5 Compliance license
 - SharePoint Advanced Management enabled for tenant
 - Retention requirements documented by regulation and content type
@@ -117,6 +117,23 @@ For comprehensive document-level retention:
 | Manual deletion | Disabled for regulated content |
 | Deletion logs | Immutable and non-editable |
 | Legal hold integration | Coordinated with eDiscovery |
+
+---
+
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] Inactive site policy enabled with 90+ day threshold in SharePoint Admin Center
+2. [ ] Site ownership policy configured to identify and remediate orphaned sites
+3. [ ] OneDrive retention set to 365 days minimum in SharePoint Admin Center settings
+4. [ ] Retention labels created for FINRA (6-year), SEC (6-year), and SOX (7-year) content in Microsoft Purview
+
+**Expected Result:** Inactive sites are identified and managed, orphaned sites have remediation workflow, and retention policies apply to regulated content.
+
+---
+
+[Back to Control 4.3](../../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

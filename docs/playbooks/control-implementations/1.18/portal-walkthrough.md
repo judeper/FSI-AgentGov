@@ -8,7 +8,7 @@
 
 - [ ] Power Platform Admin role
 - [ ] Entra Global Admin or Privileged Role Admin
-- [ ] Dataverse System Administrator for security role creation
+- [ ] Dataverse System Admin for security role creation
 
 ---
 

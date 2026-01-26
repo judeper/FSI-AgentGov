@@ -116,4 +116,8 @@ Weekly:
 - Zone 1 evidence records exist and can be produced for any date range via audit export.
 - Escalation triggers are documented and route correctly.
 - Privacy sign-off exists for the logging scope (especially if any content capture is enabled).
-- Governance can demonstrate it is “monitoring and supervising” AI usage at a baseline level consistent with SEC 2026 priorities language. [page:18]
+- Governance can demonstrate it is "monitoring and supervising" AI usage at a baseline level consistent with SEC 2026 priorities language. [page:18]
+
+---
+
+*FSI Agent Governance Framework v1.2 - January 2026*

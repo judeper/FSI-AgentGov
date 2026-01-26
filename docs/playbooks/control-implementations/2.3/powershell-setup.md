@@ -56,6 +56,8 @@ Import-CrmSolution -conn $targetConn -SolutionFilePath $solutionPath -OverwriteU
 Write-Host "Solution imported successfully"
 
 # Import with async processing for large solutions
+# Note: Import-CrmSolutionAsync requires Microsoft.Xrm.Tooling.CrmConnector.PowerShell v3.3+
+# Verify module version: Get-Module Microsoft.Xrm.Tooling.CrmConnector.PowerShell -ListAvailable
 $importJob = Import-CrmSolutionAsync -conn $targetConn -SolutionFilePath $solutionPath
 Write-Host "Import job started: $($importJob.ImportJobId)"
 ```

@@ -169,4 +169,24 @@ For each agent:
 
 ---
 
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] Managed Environments enabled for target environments
+2. [ ] Runtime protection settings configured with appropriate sensitivity levels
+3. [ ] Prompt injection detection enabled and set to block
+4. [ ] Content safety thresholds configured to strict
+5. [ ] Alert policies created for prompt injection and jailbreak attempts
+6. [ ] SIEM integration configured and receiving events
+7. [ ] Test prompt injection attempt is blocked and logged
+
+**Expected Result:** Adversarial inputs are detected and blocked at runtime, security alerts fire within defined SLAs, and all events flow to SIEM for correlation.
+
+---
+
+[Back to Control 1.8](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

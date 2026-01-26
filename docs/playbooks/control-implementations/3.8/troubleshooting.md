@@ -13,7 +13,7 @@
 **Resolution:**
 
 1. Verify M365 Copilot licenses assigned in tenant
-2. Ensure user has Global Admin or M365 Admin role
+2. Ensure user has Entra Global Admin role
 3. Clear browser cache and refresh
 4. Check for tenant-level service issues
 

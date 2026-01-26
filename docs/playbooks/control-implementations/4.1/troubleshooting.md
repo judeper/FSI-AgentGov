@@ -53,7 +53,7 @@
    Get-SPOTenant | Select-Object EnableAIPIntegration, AIBuilderEnabled
    ```
 
-2. Check your admin role assignment (must be SharePoint Administrator or Global Administrator)
+2. Check your admin role assignment (must be SharePoint Admin or Entra Global Admin)
 
 3. Verify you're accessing SharePoint Admin Center (not classic site settings)
 
@@ -115,7 +115,7 @@
 - Enable Unified Audit Log if disabled
 - Expand search date range
 - Wait 24-48 hours for new events to appear
-- Verify search permissions (Compliance Administrator or equivalent)
+- Verify search permissions (Purview Compliance Admin or equivalent)
 
 ---
 
@@ -177,7 +177,7 @@ Get-SPOSearchSiteConfiguration | ForEach-Object {
 
 ## Escalation Path
 
-1. **Level 1:** SharePoint Administrator - Basic configuration issues
+1. **Level 1:** SharePoint Admin - Basic configuration issues
 2. **Level 2:** Microsoft 365 Admin - License and tenant-level settings
 3. **Level 3:** Microsoft Support - Product bugs or feature limitations
 4. **Level 4:** AI Governance Committee - Policy exceptions

@@ -22,7 +22,7 @@ Path A implements the complete Platform Change Governance solution using Dataver
 ## Prerequisites
 
 - [ ] Power Platform environment (Developer, Sandbox, or Production)
-- [ ] System Administrator or Power Platform Admin role
+- [ ] Dataverse System Admin or Power Platform Admin role
 - [ ] Azure AD app registration created (for Graph API access)
 - [ ] `ServiceMessage.Read.All` application permission granted with admin consent
 - [ ] Microsoft 365 E3/E5 licenses

@@ -110,7 +110,7 @@
 **Diagnostic Steps:**
 
 1. Verify admin permissions:
-   - Requires Power Platform Administrator role
+   - Requires Power Platform Admin role
 
 2. Check rule syntax:
    - Security group must be valid Azure AD group
@@ -122,7 +122,7 @@
 
 **Resolution:**
 
-- Verify Power Platform Administrator role is assigned
+- Verify Power Platform Admin role is assigned
 - Correct any invalid rule conditions
 - Try creating a new simple rule to test
 - Contact Microsoft Support if persists

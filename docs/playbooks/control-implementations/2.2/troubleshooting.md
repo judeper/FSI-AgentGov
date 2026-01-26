@@ -105,7 +105,7 @@
 
 **Diagnostic Steps:**
 
-1. Verify Power Platform Admin role:
+1. Verify you have Power Platform Admin role:
    ```
    M365 Admin Center > Users > [Your account] > Roles
    ```
@@ -116,7 +116,7 @@
 
 **Resolution:**
 
-- Request Power Platform Administrator role if missing
+- Request Power Platform Admin role if missing
 - Check audit logs for group deletion events
 - Contact Microsoft Support if feature appears unavailable
 

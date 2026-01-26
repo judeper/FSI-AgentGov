@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- Compliance Administrator role in Microsoft Purview
+- Purview Compliance Admin role in Microsoft Purview
 - SharePoint Site Owner permissions for report archiving
 - Power BI Pro or Premium license for dashboards
 - Power Automate license for automated workflows
@@ -139,11 +139,9 @@ Track examination schedules and filing deadlines:
 
 ---
 
-## Next Steps
+---
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+[Back to Control 3.3](../../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

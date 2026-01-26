@@ -494,4 +494,4 @@ Each zone should have recurring compliance reviews:
 
 ---
 
-*FSI Agent Governance Framework v1.1.8 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

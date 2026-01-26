@@ -37,7 +37,7 @@
 **Resolution:**
 - Enable Managed Environments for usage insights
 - Wait 24-48 hours for initial data population
-- Verify Power Platform Administrator role assignment
+- Verify Power Platform Admin role assignment
 
 ---
 
@@ -117,7 +117,7 @@
 - Wait 24-48 hours for recent events to appear
 - Expand search date range
 - Use correct RecordType (PowerApps, CopilotStudio)
-- Request Compliance Administrator role if needed
+- Request Purview Compliance Admin role if needed
 
 ---
 

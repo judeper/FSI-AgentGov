@@ -63,7 +63,7 @@
 4. Some agent types may require different API calls
 
 **Resolution:**
-- Request Power Platform Administrator role in Entra ID
+- Request Power Platform Admin role in Entra ID
 - Check if tenant isolation is blocking access to some environments
 - Use Graph API for Copilot Studio-specific discovery
 
@@ -144,11 +144,11 @@
        -Operations "Published bot" -ResultSize 100
    ```
 
-3. Check if user has System Administrator role (bypasses restrictions)
+3. Check if user has Dataverse System Admin role (bypasses restrictions)
 
 **Resolution:**
 - Enable "Require admin approval" in environment settings
-- Remove System Administrator role from non-admin users
+- Remove Dataverse System Admin role from non-admin users
 - Implement DLP policies to block channel connectors until approved
 
 ---

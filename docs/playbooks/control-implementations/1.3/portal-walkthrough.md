@@ -6,10 +6,10 @@
 
 ## Prerequisites
 
-- [ ] SharePoint Administrator role assigned
+- [ ] SharePoint Admin role assigned
 - [ ] Access to [SharePoint Admin Center](https://admin.microsoft.com/sharepoint)
 - [ ] Access to [Microsoft Purview](https://purview.microsoft.com)
-- [ ] Purview Compliance Administrator role (for sensitivity labels)
+- [ ] Purview Compliance Admin role (for sensitivity labels)
 - [ ] [Control 1.5: DLP & Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) configured
 - [ ] Audit of existing SharePoint sites with sensitive data completed
 

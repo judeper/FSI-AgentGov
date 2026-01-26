@@ -6,8 +6,8 @@
 
 ## Prerequisites
 
-- [ ] Microsoft 365 Global Administrator or Application Administrator role
-- [ ] Power Platform System Administrator role
+- [ ] Entra Global Admin or Entra App Admin role
+- [ ] Dataverse System Admin role
 - [ ] Access to [Microsoft 365 Admin Center](https://admin.microsoft.com)
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] SharePoint Site Owner permissions for registry site

@@ -135,4 +135,24 @@ Publish acceptable use policy covering:
 
 ---
 
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] M365 Copilot settings configured in Admin Center
+2. [ ] Sensitive sites excluded via Restricted Content Discovery
+3. [ ] Plugin governance workflow established
+4. [ ] Usage monitoring reports accessible
+5. [ ] Acceptable use policy published and communicated
+6. [ ] Test query against excluded content returns no results
+7. [ ] Usage analytics showing Copilot adoption metrics
+
+**Expected Result:** M365 Copilot respects content exclusions, plugins are governed through approval workflow, and usage is tracked for governance reporting.
+
+---
+
+[Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

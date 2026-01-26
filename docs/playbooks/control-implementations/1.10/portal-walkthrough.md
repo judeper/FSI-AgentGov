@@ -169,4 +169,21 @@
 
 ---
 
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] Communication Compliance roles assigned to appropriate users (Admin, Analyst, Investigator, Viewer)
+2. [ ] At least one policy created and enabled (Inappropriate Content, Regulatory Violations, or Customer Data)
+3. [ ] Trainable classifiers enabled in Settings > Classifiers
+4. [ ] Priority user groups configured with alert routing rules
+
+**Expected Result:** Communication Compliance policies monitor agent interactions and generate alerts for review in the Alerts queue.
+
+---
+
+[Back to Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

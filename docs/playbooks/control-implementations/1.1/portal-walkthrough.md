@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Power Platform Administrator role assigned
+- [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] Access to [Microsoft Entra Admin Center](https://entra.microsoft.com)
 - [ ] Security groups configured in Microsoft Entra ID for maker management
@@ -57,16 +57,16 @@ Create additional security groups to support segregation of duties and release g
 5. Review and configure roles:
    - **Environment Maker**: Can create apps and flows (assign to authorized makers only)
    - **Basic User**: Can run apps but not create (for end users)
-   - **System Administrator**: Full control (limit to admins only)
+   - **Dataverse System Admin**: Full control (limit to admins only)
 6. Remove Environment Maker role from unauthorized users
 
 **Recommended minimum assignments by environment:**
 
 | Environment | FSI-Agent-Makers-* | FSI-Agent-Publishers-Prod | FSI-Agent-Admins-Platform | All Other Users |
 |-------------|-------------------|---------------------------|---------------------------|-----------------|
-| DEV | Environment Maker | - | System Administrator | - |
-| UAT | (optional) Environment Maker | - | System Administrator | - |
-| PROD | - | Environment Maker | System Administrator | Basic User only |
+| DEV | Environment Maker | - | Dataverse System Admin | - |
+| UAT | (optional) Environment Maker | - | Dataverse System Admin | - |
+| PROD | - | Environment Maker | Dataverse System Admin | Basic User only |
 
 ### Step 3: Restrict Copilot Studio Access
 

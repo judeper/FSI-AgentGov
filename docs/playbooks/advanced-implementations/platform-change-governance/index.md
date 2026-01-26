@@ -156,7 +156,7 @@ The FSI-AgentGov-Solutions repository provides deployable Power Platform compone
 - Power Platform environment (Developer, Sandbox, or Production)
 - Microsoft 365 E3/E5 licenses
 - Azure AD app registration with `ServiceMessage.Read.All` permission
-- Power Platform Admin or System Administrator role
+- Power Platform Admin or Dataverse System Admin role
 
 ### Path B Additional
 

@@ -41,3 +41,7 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 - [1.21 Adversarial Input Logging](1.21-adversarial-input-logging.md)
 - [1.22 Information Barriers for AI Agents](1.22-information-barriers.md)
 - [1.23 Step-Up Authentication for AI Agent Operations](1.23-step-up-authentication-for-agent-operations.md)
+
+---
+
+*FSI Agent Governance Framework v1.2 - January 2026*

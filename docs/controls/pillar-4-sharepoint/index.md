@@ -28,3 +28,7 @@ Pillar 4 addresses SharePoint-specific governance requirements when SharePoint s
 - [4.5 SharePoint Security and Compliance Monitoring](4.5-sharepoint-security-and-compliance-monitoring.md)
 - [4.6 Grounding Scope Governance](4.6-grounding-scope-governance.md)
 - [4.7 Microsoft 365 Copilot Data Governance](4.7-microsoft-365-copilot-data-governance.md)
+
+---
+
+*FSI Agent Governance Framework v1.2 - January 2026*

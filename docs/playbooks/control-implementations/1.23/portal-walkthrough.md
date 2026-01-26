@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Entra Security Administrator or Conditional Access Admin role
+- [ ] Entra Security Admin or Conditional Access Admin role
 - [ ] Phishing-resistant MFA deployed (FIDO2, Windows Hello)
 - [ ] Authentication contexts feature enabled
 

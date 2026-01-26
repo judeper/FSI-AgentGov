@@ -12,7 +12,7 @@
 | "Environment not in a group" | Must create environment group first | Create environment group and add environment |
 | "Policy not applying to existing connections" | Existing connections may persist even after policy changes | Perform an immediate connection inventory; remove non-compliant connections via **Data** > **Connections** and require re-creation under policy; document remediation |
 | "Users report legitimate connectors are blocked" | Connector not in allowlist | Submit connector request through change management; security team approval required |
-| "Cannot publish rules" | Insufficient permissions | Verify Power Platform Administrator role in Entra ID |
+| "Cannot publish rules" | Insufficient permissions | Verify Power Platform Admin role in Entra ID |
 | "Connector is allowed but flow fails with policy error" | DLP boundary blocks cross-connector data movement | Review DLP grouping (Business/Non-Business/Blocked) and ensure the intended connector combination is permitted; prefer redesign over loosening policy |
 | "Third-party connector cannot meet US-only requirements" | Service processes/stores data outside US | Block connector for regulated environments; document vendor decision and use an approved internal integration instead |
 

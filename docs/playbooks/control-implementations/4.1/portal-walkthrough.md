@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] SharePoint Administrator role assigned
+- [ ] SharePoint Admin role assigned
 - [ ] Access to [SharePoint Admin Center](https://admin.sharepoint.com)
 - [ ] SharePoint Advanced Management Plan 1 license assigned to tenant
 - [ ] Governance tier classification completed for all SharePoint sites

@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- Entra Security Admin or Compliance Administrator role
+- Entra Security Admin or Purview Compliance Admin role
 - SharePoint Site Owner permissions for incident tracking
 - Power Automate license for workflow automation
 - Microsoft Sentinel workspace (for Level 4 implementations)
@@ -207,11 +207,9 @@ Create analytics rules for agent-related incidents:
 
 ---
 
-## Next Steps
+---
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+[Back to Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

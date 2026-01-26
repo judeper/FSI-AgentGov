@@ -175,11 +175,9 @@ Dynamic tool loading creates unique risks:
 
 ---
 
-## Related Playbooks
+---
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Assessment procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+[Back to Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

@@ -44,7 +44,7 @@
 ## Escalation Path
 
 1. **Security Operations** - Detection rules
-2. **Security Administrator** - Sentinel configuration
+2. **Entra Security Admin** - Sentinel configuration
 3. **Compliance** - Evidence retention
 4. **Microsoft Support** - Audit logging issues
 

@@ -77,7 +77,7 @@
 **Resolution:**
 
 - Wait 24-48 hours for propagation
-- Verify Purview Information Protection Admin role
+- Verify Purview Info Protection Admin role
 - Review SIT definition for syntax errors
 - Re-publish the SIT
 
@@ -150,4 +150,4 @@ If issues persist after troubleshooting:
 
 ---
 
-[Back to Control 1.13](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+*Updated: January 2026 | Version: v1.2*

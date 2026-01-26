@@ -15,7 +15,7 @@
 1. Verify unified audit logging is enabled (Set-AdminAuditLogConfig)
 2. Confirm you are searching **UTC** time range
 3. Check date range and ingestion latency (30 min to 24 hours)
-4. Verify you have appropriate permissions (Compliance Administrator)
+4. Verify you have appropriate permissions (Purview Compliance Admin)
 5. Try a broad search (no filters) to confirm any audit data exists
 6. Validate via PowerShell using `Search-UnifiedAuditLog`
 

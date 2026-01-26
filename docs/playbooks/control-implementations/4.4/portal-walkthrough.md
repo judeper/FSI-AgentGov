@@ -8,7 +8,7 @@
 
 Before starting, ensure you have:
 
-- SharePoint Administrator role assigned
+- SharePoint Admin role assigned
 - Microsoft 365 E3/E5 license
 - Current sharing settings documented
 - Site inventory with governance classifications available
@@ -121,6 +121,26 @@ Establish ongoing monitoring:
 | Regulated sites | External sharing disabled |
 | Conditional Access | MFA required for guests |
 | Guest access reviews | Quarterly certification |
+
+---
+
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] Organization-level sharing settings configured appropriately
+2. [ ] Zone 3 sites have external sharing disabled
+3. [ ] Guest access expiration enabled with appropriate timeframes
+4. [ ] Default link type set to Internal
+5. [ ] Domain restrictions configured (if applicable)
+6. [ ] Sharing reports accessible and showing expected data
+7. [ ] Test external sharing attempt blocked on regulated site
+
+**Expected Result:** External sharing is appropriately restricted based on site classification, guest access expires automatically, and sharing activity is visible in governance reports.
+
+---
+
+[Back to Control 4.4](../../../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

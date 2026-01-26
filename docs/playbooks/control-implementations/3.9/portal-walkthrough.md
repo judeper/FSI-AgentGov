@@ -146,11 +146,25 @@ Configure incident workflow:
 
 ---
 
-## Next Steps
+## Validation
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+After completing the configuration, verify:
+
+1. [ ] Microsoft Sentinel workspace deployed and accessible
+2. [ ] Required data connectors enabled and ingesting data
+3. [ ] Analytics rules created and enabled for agent monitoring
+4. [ ] Agent activity workbook displaying data correctly
+5. [ ] Automation rules triggering on test alerts
+6. [ ] Hunting queries saved and returning expected results
+7. [ ] Incident assignment workflow functioning
+
+**Expected Result:** Agent security events flow to Sentinel, analytics rules generate alerts for suspicious activity, and automated responses execute as configured.
+
+---
+
+---
+
+[Back to Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

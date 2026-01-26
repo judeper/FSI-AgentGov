@@ -108,7 +108,7 @@
 
 If issues persist:
 
-1. **First tier**: Power Platform Administrator - verify configuration
+1. **First tier**: Power Platform Admin - verify configuration
 2. **Second tier**: Security Operations - check alert/SIEM issues
 3. **Third tier**: Microsoft Support - platform-level issues
 

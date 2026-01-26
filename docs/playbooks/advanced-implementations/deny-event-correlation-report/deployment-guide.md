@@ -56,7 +56,7 @@ flowchart TB
 
 | Task | Required Role |
 |------|---------------|
-| Search-UnifiedAuditLog | Purview Audit Reader or Compliance Administrator |
+| Search-UnifiedAuditLog | Purview Audit Reader or Purview Compliance Admin |
 | Application Insights API | Reader role on App Insights resource |
 | Azure Automation | Automation Contributor |
 | Power BI publish | Workspace Contributor or Admin |

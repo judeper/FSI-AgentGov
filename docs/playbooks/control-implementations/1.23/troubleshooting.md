@@ -43,7 +43,7 @@
 
 ## Escalation Path
 
-1. **Security Administrator** - CA policy configuration
+1. **Entra Security Admin** - CA policy configuration
 2. **Entra Admin** - Authentication methods
 3. **Help Desk** - User enrollment assistance
 4. **Microsoft Support** - Platform issues

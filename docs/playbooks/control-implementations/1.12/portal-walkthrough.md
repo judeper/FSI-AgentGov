@@ -172,4 +172,8 @@
 
 ---
 
+[Back to Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

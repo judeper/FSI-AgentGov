@@ -87,7 +87,7 @@ Collect and store the following artifacts for audit readiness:
 
 ### Environment Configuration (PPAC)
 
-- [ ] Screenshot of environment **Security roles** showing Environment Maker/System Administrator assignments
+- [ ] Screenshot of environment **Security roles** showing Environment Maker/Dataverse System Admin assignments
 - [ ] Screenshot of Copilot Studio restriction: "Who can create and edit Copilots: Only specific security groups"
 - [ ] Screenshot of Managed Environments "Limit sharing" configuration
 - [ ] Screenshot of environment region confirmation showing US region

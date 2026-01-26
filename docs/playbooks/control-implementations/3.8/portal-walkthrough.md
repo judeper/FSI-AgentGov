@@ -6,8 +6,8 @@
 
 ## Prerequisites
 
-- Global Administrator or Microsoft 365 Administrator role
-- Power Platform Administrator role
+- Entra Global Admin role
+- Power Platform Admin role
 - Microsoft 365 Copilot licenses assigned
 
 ---
@@ -170,11 +170,20 @@ Review MCP Server availability:
 
 ---
 
-## Next Steps
+## Validation
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+After completing the configuration, verify:
+
+1. [ ] M365 Admin Center Copilot Settings configured (User Access, Data Access, Copilot Actions)
+2. [ ] Agent registry displays all deployed agents with accurate metadata
+3. [ ] PPAC Copilot Settings configured with FSI recommendations applied
+4. [ ] Ownerless agents identified and assigned owners
+
+**Expected Result:** Copilot and Agent governance dashboards provide visibility into agent deployments, and settings enforce organizational policies.
+
+---
+
+[Back to Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

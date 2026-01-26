@@ -50,9 +50,9 @@ Each Excel checklist includes:
 | If you are responsible for... | Download this checklist |
 |------------------------------|------------------------|
 | Microsoft Entra | Entra Administrator |
-| Power Platform Admin Center | Power Platform Administrator |
+| Power Platform Admin Center | Power Platform Admin |
 | Microsoft Purview | Purview Administrator |
-| SharePoint Online | SharePoint Administrator |
+| SharePoint Online | SharePoint Admin |
 | Regulatory compliance / Audits | Compliance Officer |
 | Overall governance program | Governance Maturity Dashboard |
 
@@ -62,13 +62,13 @@ Each Excel checklist includes:
 
 ## Control Assignments by Role
 
-### Entra ID Administrator
+### Entra Global Admin
 - 1.11 Conditional Access and Phishing-Resistant MFA
 - 1.12 Insider Risk Detection and Response
 - 1.18 Application-Level Authorization and RBAC
 - 3.1 Agent Inventory and Metadata Management (Agent ID section)
 
-### Power Platform Administrator
+### Power Platform Admin
 - 2.1 Managed Environments
 - 2.2 Environment Groups and Tier Classification
 - 2.15 Environment Routing and Auto-Provisioning
@@ -86,7 +86,7 @@ Each Excel checklist includes:
 - 1.19 eDiscovery for Agent Interactions
 - 1.22 Information Barriers for AI Agents
 
-### SharePoint Administrator
+### SharePoint Admin
 - 4.1 SharePoint Information Access Governance (IAG)
 - 4.2 Site Access Reviews and Certification
 - 4.3 Site and Document Retention Management

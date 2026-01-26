@@ -177,4 +177,21 @@ Actions:
 
 ---
 
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] DLP policy `FSI-AI-DLP-Data-Protection` is created and enabled in Microsoft Purview
+2. [ ] Sensitivity labels are published and visible to users in Office applications
+3. [ ] DLP policy locations include Microsoft 365 Copilot and Copilot Studio
+4. [ ] Oversharing assessment completed in DSPM for AI with remediation items documented
+
+**Expected Result:** DLP policies detect and act on sensitive information in AI interactions, and sensitivity labels are available for content classification.
+
+---
+
+[Back to Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - Power Platform Admin role
-- Microsoft 365 Admin or Global Admin role (for Copilot billing)
+- Entra Global Admin role (for Copilot billing)
 - Azure Subscription Owner role (for Azure-based services)
 - Cost Management Reader role
 
@@ -168,11 +168,20 @@ Create budget alerts for each business unit:
 
 ---
 
-## Next Steps
+## Validation
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+After completing the configuration, verify:
+
+1. [ ] Environment naming convention applied consistently across Power Platform environments
+2. [ ] M365 Admin Center billing policies created for each business unit
+3. [ ] Azure Cost Management budgets configured with alert thresholds (50%, 75%, 90%, 100%)
+4. [ ] Cost allocation tags (CostCenter, BusinessUnit, Zone, Owner) applied to Azure resources
+
+**Expected Result:** Cost data is trackable by business unit, budgets are monitored with alerts, and chargeback reporting can be generated monthly.
+
+---
+
+[Back to Control 3.5](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

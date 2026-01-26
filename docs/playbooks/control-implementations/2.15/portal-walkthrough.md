@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Power Platform Administrator role assigned
+- [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] Environment groups defined and created
 - [ ] Routing rules documented and approved

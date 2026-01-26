@@ -237,11 +237,9 @@ Agent Cards provide standardized documentation for each AI agent, capturing capa
 
 ---
 
-## Related Playbooks
+---
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Validation procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+[Back to Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Power Platform Administrator role assigned
+- [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] Access to [Microsoft 365 Admin Center](https://admin.microsoft.com)
 - [ ] Global Reader role for compliance review access

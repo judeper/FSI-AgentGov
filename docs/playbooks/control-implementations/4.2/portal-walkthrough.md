@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] SharePoint Administrator role assigned
+- [ ] SharePoint Admin role assigned
 - [ ] Access to [SharePoint Admin Center](https://admin.sharepoint.com)
 - [ ] Access to [Microsoft Entra Admin Center](https://entra.microsoft.com)
 - [ ] SharePoint Advanced Management Plan 1 license assigned to tenant

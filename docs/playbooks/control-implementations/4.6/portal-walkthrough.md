@@ -8,7 +8,7 @@
 
 Before starting, ensure you have:
 
-- SharePoint Administrator role assigned
+- SharePoint Admin role assigned
 - SharePoint Advanced Management license
 - Site inventory completed with content classification
 - Sensitivity labels deployed (if using label-based exclusion)
@@ -111,6 +111,10 @@ For positive governance (explicit approval for indexing):
 | Label integration | Sensitivity labels control index inclusion |
 | Real-time monitoring | Continuous audit of indexed content |
 | Change control | Formal approval for grounding scope changes |
+
+---
+
+[Back to Control 4.6](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

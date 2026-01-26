@@ -199,7 +199,7 @@ if ($BroadAccess) {
 
 If issues persist after troubleshooting:
 
-1. **SharePoint Administrator** - Site configuration and permissions
+1. **SharePoint Admin** - Site configuration and permissions
 2. **Information Protection Team** - Sensitivity labels and DLP
 3. **Compliance Officer** - Regulatory requirements and evidence
 4. **AI Governance Lead** - Agent data source approval

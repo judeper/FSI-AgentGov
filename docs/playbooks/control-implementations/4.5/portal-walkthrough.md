@@ -8,7 +8,7 @@
 
 Before starting, ensure you have:
 
-- SharePoint Administrator role assigned
+- SharePoint Admin role assigned
 - SharePoint Advanced Management license (for Agent insights)
 - Unified audit logging enabled in Microsoft Purview
 
@@ -18,7 +18,7 @@ Before starting, ensure you have:
 
 Ensure appropriate access for monitoring personnel:
 
-1. Assign **SharePoint Administrator** role for full admin center access
+1. Assign **SharePoint Admin** role for full admin center access
 2. For read-only access: Assign **Reports Reader** role
 3. Verify access to SharePoint Admin Center at [admin.sharepoint.com](https://admin.sharepoint.com)
 
@@ -125,6 +125,23 @@ Create monitoring schedule:
 | SOC integration | Alert SOC on security events |
 | Automated response | Containment actions configured |
 | Audit trail | Per-regulation retention |
+
+---
+
+## Validation
+
+After completing the configuration, verify:
+
+1. [ ] SharePoint Admin and Reports Reader roles assigned to monitoring personnel
+2. [ ] Agent insights reports accessible in SharePoint Admin Center > Reports
+3. [ ] Data Access Governance baseline reports generated and exported
+4. [ ] Monitoring cadence documented with responsible roles assigned
+
+**Expected Result:** SharePoint monitoring dashboards provide visibility into agent access patterns, oversharing risks, and security posture.
+
+---
+
+[Back to Control 4.5](../../../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

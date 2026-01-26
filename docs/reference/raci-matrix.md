@@ -179,7 +179,7 @@ The following RACI assignments apply to additional controls:
 
 ---
 
-### 4. Power Platform Administrator
+### 4. Power Platform Admin
 **Accountability:** Technical implementation and platform governance
 
 **Responsibilities:**
@@ -196,7 +196,7 @@ The following RACI assignments apply to additional controls:
 
 ---
 
-### 5. Compliance Administrator
+### 5. Purview Compliance Admin
 **Accountability:** Compliance monitoring and audit support
 
 **Responsibilities:**
@@ -213,7 +213,7 @@ The following RACI assignments apply to additional controls:
 
 ---
 
-### 6. Security Administrator
+### 6. Entra Security Admin
 **Accountability:** Identity and access security
 
 **Responsibilities:**
@@ -229,7 +229,7 @@ The following RACI assignments apply to additional controls:
 
 ---
 
-### 7. SharePoint Administrator
+### 7. SharePoint Admin
 **Accountability:** SharePoint governance for agents
 
 **Responsibilities:**

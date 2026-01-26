@@ -6,7 +6,7 @@
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| Cannot enable Managed Environment | Missing admin role or pending operations | Verify Power Platform Administrator role; check for pending environment operations |
+| Cannot enable Managed Environment | Missing admin role or pending operations | Verify Power Platform Admin role; check for pending environment operations |
 | Solution checker blocking valid solutions | False positives or strict rules | Review findings; use Warn mode while addressing; create documented exceptions |
 | Usage insights not arriving | Email config or empty environment | Verify recipients; check spam; wait one week; confirm environment has activity |
 | Sharing limits not enforcing | Settings not saved or admin bypass | Reopen panel to verify; check if user is admin (admins bypass limits) |
@@ -23,7 +23,7 @@
 
 **Diagnostic Steps:**
 
-1. Verify you have Power Platform Administrator role:
+1. Verify you have Power Platform Admin role:
    ```
    Microsoft 365 Admin Center > Users > [Your account] > Roles
    ```
@@ -45,7 +45,7 @@
 
 **Resolution:**
 
-- Assign Power Platform Administrator role if missing
+- Assign Power Platform Admin role if missing
 - Wait for pending operations to complete
 - Add Dataverse capacity if needed for specific features
 - Contact Microsoft Support if environment is locked
@@ -139,7 +139,7 @@
 **Resolution:**
 
 - Save settings again if not persisted
-- Note that Environment Admins and System Administrators bypass sharing limits
+- Note that Environment Admins and Dataverse System Admins bypass sharing limits
 - Verify limits for correct resource type
 - Check environment group rules (more restrictive wins)
 - Wait up to 1 hour for propagation

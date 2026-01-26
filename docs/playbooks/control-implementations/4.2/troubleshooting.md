@@ -32,7 +32,7 @@
    - Large tenants may take longer
 
 3. Verify admin permissions:
-   - Must have SharePoint Administrator or Global Administrator role
+   - Must have SharePoint Admin or Entra Global Admin role
 
 **Resolution:**
 - Confirm license assignment
@@ -187,7 +187,7 @@ $instances | ForEach-Object {
 
 ## Escalation Path
 
-1. **Level 1:** SharePoint Administrator - Report generation and policy configuration
+1. **Level 1:** SharePoint Admin - Report generation and policy configuration
 2. **Level 2:** Identity Governance Administrator - Access review workflows in Entra ID
 3. **Level 3:** Microsoft Support - Product issues or feature limitations
 4. **Level 4:** AI Governance Committee - Policy exceptions and review scope decisions

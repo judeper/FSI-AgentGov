@@ -1,6 +1,6 @@
 # Semantic Index Governance Queries
 
-**Status:** January 2026 - FSI-AgentGov v1.1
+**Status:** January 2026 - FSI-AgentGov v1.2
 **Related Controls:** 4.6 (Grounding Scope), 4.1 (IAG/RCD), 1.7 (Audit Logging)
 
 ---

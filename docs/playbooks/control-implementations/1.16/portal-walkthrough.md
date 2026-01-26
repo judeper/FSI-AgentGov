@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Purview Information Protection Admin role
+- [ ] Purview Info Protection Admin role
 - [ ] SharePoint Admin role
 - [ ] Azure RMS activated for tenant
 

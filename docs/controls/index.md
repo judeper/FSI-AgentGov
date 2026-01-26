@@ -23,13 +23,13 @@ The Control Catalog provides detailed requirements for each governance control. 
 - Review [Regulatory Framework](../framework/regulatory-framework.md) for mappings
 - Focus on: Controls 2.6, 2.11, 2.12, 2.13, 3.3
 
-**I'm a Power Platform Administrator...**
+**I'm a Power Platform Admin...**
 
 - Start with [Pillar 1: Security Controls](pillar-1-security/index.md) for DLP and access
 - Review [Pillar 2: Management Controls](pillar-2-management/index.md) for environments
 - Focus on: Controls 1.1, 1.5, 2.1, 2.3, 2.15
 
-**I'm a SharePoint Administrator...**
+**I'm a SharePoint Admin...**
 
 - Start with [Pillar 4: SharePoint Controls](pillar-4-sharepoint/index.md)
 - Focus on: Controls 4.1-4.7

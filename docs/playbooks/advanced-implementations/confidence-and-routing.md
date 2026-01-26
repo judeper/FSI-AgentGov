@@ -132,3 +132,7 @@ FINRA underscores governance/testing/monitoring expectations for GenAI use and t
 - Routing matrix enforced (no bypass without logged override).
 - Mandatory escalation triggers implemented and tested.
 - Monthly calibration report exists and is reviewed by governance stakeholders.
+
+---
+
+*FSI Agent Governance Framework v1.2 - January 2026*

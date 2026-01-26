@@ -20,6 +20,48 @@ Connect-PnPOnline -Url "https://[tenant].sharepoint.com/sites/AI-Compliance-Repo
 
 ---
 
+## Helper Function: HTML Report Generator
+
+```powershell
+# Helper function to generate HTML compliance reports
+function New-ComplianceHtmlReport {
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]$ControlStatus
+    )
+
+    $html = @"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FSI Agent Governance - Compliance Report</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; }
+        h1 { color: #0078d4; }
+        .compliant { color: green; }
+        .needs-attention { color: orange; }
+        .non-compliant { color: red; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #0078d4; color: white; }
+        .score { font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>FSI Agent Governance Framework</h1>
+    <h2>Compliance Status Report</h2>
+    <p>Report Date: $($ControlStatus.ReportDate)</p>
+    <p>Report Type: $($ControlStatus.ReportType)</p>
+    <p class="score">Overall Score: $($ControlStatus.OverallComplianceScore)%</p>
+</body>
+</html>
+"@
+    return $html
+}
+```
+
+---
+
 ## Control Status Report Generation
 
 ```powershell
@@ -83,7 +125,7 @@ function New-ControlStatusReport {
 
     $controlStatus.OverallComplianceScore = [math]::Round($overallScore, 1)
 
-    # Generate HTML report
+    # Generate HTML report (uses helper function defined above)
     $htmlReport = New-ComplianceHtmlReport -ControlStatus $controlStatus
 
     $htmlReport | Out-File -FilePath $OutputPath -Encoding UTF8

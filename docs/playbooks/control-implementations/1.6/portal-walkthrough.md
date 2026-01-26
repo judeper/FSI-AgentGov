@@ -12,7 +12,7 @@ Before starting, confirm:
 - Purview portal access verified
 - Unified audit logging enabled
 - Microsoft 365 Copilot deployed to users
-- Compliance Administrator role assigned
+- Purview Compliance Admin role assigned
 - Agent inventory available (from Control 3.1)
 
 ---
@@ -211,6 +211,10 @@ Steps 2-4 expand coverage to other AI apps. Complete as appropriate for your sco
 | **Zone 1** | No label enforcement | N/A |
 | **Zone 2** | Label inheritance; warn on Confidential | Highly Confidential |
 | **Zone 3** | Strict enforcement; block restricted | Highly Confidential, Restricted, MNPI |
+
+---
+
+[Back to Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

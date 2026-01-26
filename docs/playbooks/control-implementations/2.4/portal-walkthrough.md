@@ -236,11 +236,9 @@ Phase 3: Failback (Target: <2 hours)
 
 ---
 
-## Related Playbooks
+---
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+[Back to Control 2.4](../../../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

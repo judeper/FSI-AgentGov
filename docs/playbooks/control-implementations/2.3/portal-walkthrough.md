@@ -4,6 +4,18 @@
 
 ---
 
+## Prerequisites
+
+Before starting, ensure you have:
+
+- Power Platform Admin role or Environment Admin role for target environments
+- Managed Environments enabled for Zone 2 and Zone 3 environments
+- Solution publisher configured in development environment
+- Access to all pipeline stage environments (dev, test, prod)
+- Approval workflow recipients identified
+
+---
+
 ## Overview
 
 This walkthrough guides you through configuring ALM pipelines and change management workflows in the Power Platform Admin Center and Power Apps maker portal.
@@ -152,11 +164,25 @@ See [Run pipelines](https://learn.microsoft.com/en-us/power-platform/alm/run-pip
 
 ---
 
-## Related Playbooks
+## Validation
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+After completing the configuration, verify:
+
+1. [ ] Pipeline environments created and accessible
+2. [ ] Pipeline stages defined (Dev > Test > Prod for Zone 3)
+3. [ ] Approval gates configured for each stage requiring review
+4. [ ] Target environments enabled as Managed Environments
+5. [ ] Test deployment completes successfully through all stages
+6. [ ] Approval notifications delivered to designated approvers
+7. [ ] Deployment history visible in PPAC
+
+**Expected Result:** Solutions deploy through governed pipelines with appropriate approval gates, and all deployment activity is logged for audit purposes.
+
+---
+
+---
+
+[Back to Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

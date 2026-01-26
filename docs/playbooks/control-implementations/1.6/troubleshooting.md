@@ -83,7 +83,7 @@
 **Solutions:**
 
 1. Verify E5 or E5 Compliance license is assigned
-2. Check Compliance Administrator role is assigned
+2. Check Purview Compliance Admin role is assigned
 3. Clear browser cache and refresh
 4. Try a different browser
 5. Verify tenant region supports DSPM for AI

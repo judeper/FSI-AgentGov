@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - Microsoft 365 E5 or E5 Compliance (full functionality)
-- Compliance Administrator or Information Protection Admin role
+- Purview Compliance Admin or Purview Info Protection Admin role
 - Inventory of sensitive data types handled by organization
 - Sample data patterns for custom SITs (sanitized)
 - Test environment for SIT validation
@@ -152,6 +152,10 @@
 2. Add pattern variations
 3. Lower confidence threshold (carefully)
 4. Add alternative keyword groups
+
+---
+
+[Back to Control 1.13](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

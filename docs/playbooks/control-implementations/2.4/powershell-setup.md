@@ -18,7 +18,7 @@ param(
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
 # Connect to Power Platform
-Connect-PowerApps
+Add-PowerAppsAccount
 
 # Create backup folder
 $backupDate = Get-Date -Format "yyyyMMdd_HHmm"
@@ -125,7 +125,7 @@ catch {
 
 # Get Power Platform environment status
 Write-Host "`nChecking Power Platform status..." -ForegroundColor Yellow
-Connect-PowerApps
+Add-PowerAppsAccount
 
 $environments = Get-AdminPowerAppEnvironment | Where-Object {
     $_.DisplayName -like "*-DR"

@@ -157,11 +157,20 @@ Actions:
 
 ---
 
-## Next Steps
+## Validation
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+After completing the configuration, verify:
+
+1. [ ] User feedback collection enabled in Copilot Studio agent settings
+2. [ ] SharePoint Hallucination Tracking list created with all required columns
+3. [ ] Power Automate workflows created for new report intake and trend alerts
+4. [ ] Power BI dashboard configured with hallucination rate metrics
+
+**Expected Result:** Users can report hallucinations through agent feedback, reports are tracked in SharePoint, and trends are monitored with automated alerts.
+
+---
+
+[Back to Control 3.10](../../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

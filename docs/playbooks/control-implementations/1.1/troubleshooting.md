@@ -12,7 +12,7 @@
 | Cannot restrict Copilot Studio | Feature not available | Enable Managed Environments first ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)) |
 | Sharing still works | Limit sharing not enabled | Enable in Managed Environment settings |
 | Group membership not reflected | Entra ID sync delay | Wait up to 60 minutes for directory sync |
-| Role assignment fails | Insufficient permissions | Verify you have Power Platform Administrator role |
+| Role assignment fails | Insufficient permissions | Verify you have Power Platform Admin role |
 
 ---
 
@@ -40,7 +40,7 @@
    PPAC > Environments > [env] > Settings > Features
    ```
 
-4. Check if the user has System Administrator role (bypasses restrictions):
+4. Check if the user has Dataverse System Admin role (bypasses restrictions):
    ```powershell
    Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $EnvironmentName |
        Where-Object { $_.RoleType -eq "SystemAdministrator" }
@@ -107,7 +107,7 @@
 
 2. Check if Copilot Studio is enabled for the environment
 
-3. Verify you have Power Platform Administrator role
+3. Verify you have Power Platform Admin role
 
 **Resolution:**
 - Enable Managed Environments first (see [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md))

@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - Power Platform Admin role
-- Security Administrator role for Defender integration
+- Entra Security Admin role for Defender integration
 - Power BI Pro license for advanced reporting
 
 ---
@@ -125,11 +125,9 @@ For enhanced security visibility:
 
 ---
 
-## Next Steps
+---
 
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+[Back to Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

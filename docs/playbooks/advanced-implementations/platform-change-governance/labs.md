@@ -26,7 +26,7 @@ These hands-on labs guide you through building the Platform Change Governance so
 ### Prerequisites
 
 - Power Platform environment (Developer or Sandbox)
-- Azure AD tenant with Global Administrator or Application Administrator role
+- Azure AD tenant with Entra Global Admin or Entra App Admin role
 - Microsoft 365 E3/E5 licenses
 
 ---

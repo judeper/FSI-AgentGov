@@ -117,3 +117,7 @@ This means governance evidence should not depend exclusively on “full transcri
 - **Effective date:**
 - **Review cadence:** quarterly
 - **Change record (ticket/PR):**
+
+---
+
+*FSI Agent Governance Framework v1.2 - January 2026*

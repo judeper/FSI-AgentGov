@@ -20,7 +20,7 @@ Start here to understand the governance framework and regulatory alignment.
 3. **Then:** [Regulatory Framework](framework/regulatory-framework.md) — Control-to-regulation mappings
 4. **Action:** [Adoption Roadmap](framework/adoption-roadmap.md) — Phased implementation
 
-### I'm a Power Platform Administrator
+### I'm a Power Platform Admin
 
 Start here for technical implementation guidance.
 

@@ -8,7 +8,7 @@
 
 | Issue | Symptoms | Root Cause | Solution |
 |-------|----------|------------|----------|
-| Pipeline deployment fails | "Access denied" error during import | Missing permissions on target environment | Verify user has System Administrator or Environment Admin role on target |
+| Pipeline deployment fails | "Access denied" error during import | Missing permissions on target environment | Verify user has Dataverse System Admin or Environment Admin role on target |
 | Solution import conflicts | "Component already exists" warning | Unmanaged customizations in target | Enable "Overwrite Unmanaged Customizations" in import settings |
 | Approval stuck in pending | Deployment blocked, no timeout | Approver hasn't received notification | Check Power Automate flow runs, verify approver email, check spam folder |
 | Version mismatch after deploy | Deployed version differs from expected | Multiple solutions with same name | Use unique solution publisher prefix, verify solution uniquename |

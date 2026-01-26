@@ -135,7 +135,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 ---
 
-### 4. Power Platform Administrator
+### 4. Power Platform Admin
 
 **Accountability:** Technical implementation and platform governance
 
@@ -153,7 +153,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 ---
 
-### 5. Compliance Administrator
+### 5. Purview Compliance Admin
 
 **Accountability:** Compliance monitoring and audit support
 
@@ -171,7 +171,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 ---
 
-### 6. Security Administrator
+### 6. Entra Security Admin
 
 **Accountability:** Identity and access security
 
@@ -188,7 +188,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 ---
 
-### 7. SharePoint Administrator
+### 7. SharePoint Admin
 
 **Accountability:** SharePoint governance for agents
 

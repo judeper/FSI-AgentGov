@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - [ ] Copilot Studio Environment Admin or Maker role
-- [ ] SharePoint Administrator role (for site-based knowledge sources)
+- [ ] SharePoint Admin role (for site-based knowledge sources)
 - [ ] Knowledge source inventory documented
 - [ ] Approval workflow defined for new knowledge sources
 - [ ] Content versioning strategy established

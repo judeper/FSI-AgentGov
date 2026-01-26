@@ -8,7 +8,7 @@
 
 - [ ] Purview Audit enabled (Control 1.7)
 - [ ] Microsoft Sentinel workspace (optional but recommended)
-- [ ] Security Administrator role
+- [ ] Entra Security Admin role
 
 ---
 
