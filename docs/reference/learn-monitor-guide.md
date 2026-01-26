@@ -113,6 +113,28 @@ ELSE:
     No PR (just update state)
 ```
 
+### Baseline vs. Change Detection Runs
+
+The workflow detects whether this is a **baseline run** (first successful execution) or a **change detection run** (subsequent executions):
+
+| Run Type | Condition | PR Body Content |
+|----------|-----------|-----------------|
+| **Baseline** | State file doesn't exist before script runs | Explains this establishes the baseline; no change reports expected; simplified 2-step review |
+| **Change Detection** | State file exists | Full instructions to check reports and update affected documentation |
+
+**How it works:**
+
+```bash
+# Before running the monitor script:
+if [ ! -f "data/learn-monitor-state.json" ]; then
+    echo "is_baseline=true"  # First run
+else
+    echo "is_baseline=false"  # Subsequent run
+fi
+```
+
+This ensures PR reviewers see appropriate instructions based on the run type.
+
 **Exit Codes:**
 
 | Code | Meaning | Action |

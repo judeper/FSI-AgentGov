@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.1] — January 25, 2026 (Learn Monitor PR Body Fix)
+
+### Overview
+
+Fixed misleading PR body messaging in the Learn Monitor workflow for baseline runs. When the monitor runs for the first time (no prior state file), the PR body now correctly indicates this is a baseline run rather than suggesting users check for change reports that don't exist.
+
+### Fixed
+
+- **Learn Monitor workflow** (`.github/workflows/learn-monitor.yml`)
+  - Added baseline run detection (checks if state file exists before running)
+  - Updated PR body with contextual messaging based on run type
+  - Baseline runs now show: "BASELINE RUN" callout, simplified 2-step review instructions, accurate file descriptions
+  - Change detection runs continue to show full 5-step review instructions
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `.github/workflows/learn-monitor.yml` | Added baseline detection, contextual PR body |
+| `docs/reference/learn-monitor-guide.md` | Documented baseline vs. change detection runs |
+| `CHANGELOG.md` | This entry |
+
+### Validation
+
+- Workflow YAML syntax valid
+- Conditional expressions tested
+
+---
+
 ## [1.2.0] — January 25, 2026 (Platform Change Governance)
 
 ### Overview
