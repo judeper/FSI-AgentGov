@@ -6,6 +6,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.2] — January 26, 2026 (Learn Monitor End-to-End Verification)
+
+### Overview
+
+Verified the Microsoft Learn Documentation Monitor works end-to-end. PR #2 merged successfully, establishing the production baseline with 191 monitored URLs. Local verification confirmed change detection and report generation function correctly.
+
+### Verified
+
+- **Baseline establishment**: First run correctly creates state file with SHA-256 hashes for all 191 URLs
+- **No-change detection**: Subsequent runs correctly detect "Meaningful changes: 0" when content hasn't changed
+- **Change detection**: Content modifications trigger "CHANGED: meaningful" classification
+- **Report generation**: Reports include diff, affected controls, priority classification (HIGH/MEDIUM/NOISE)
+- **Exit codes**: Exit code 1 triggers CI/GitHub workflow for PR creation
+
+### Merged
+
+- **PR #2**: "Learn Monitor: Microsoft Learn Documentation Update (7)"
+  - Contains: `data/learn-monitor-state.json` (1733 lines, 191 URLs)
+  - Baseline captured: 2026-01-25T23:12:28Z
+  - No reports generated (correct for baseline run)
+
+### Current State
+
+- **State file**: `data/learn-monitor-state.json` in main branch
+- **URLs monitored**: 191 Microsoft Learn pages
+- **Next run**: Daily at 6:00 AM UTC via GitHub Actions
+- **Workflow behavior**: Creates PR when changes detected or on Sundays
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `data/learn-monitor-state.json` | Merged from PR #2 (production baseline) |
+| `docs/reference/learn-monitor-guide.md` | Added verification procedure section |
+| `CHANGELOG.md` | This entry |
+
+---
+
 ## [1.2.1] — January 25, 2026 (Learn Monitor PR Body Fix)
 
 ### Overview

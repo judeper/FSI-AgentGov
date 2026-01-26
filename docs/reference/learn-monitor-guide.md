@@ -245,6 +245,73 @@ When the monitor detects changes and creates a PR:
 
 ---
 
+## End-to-End Verification Procedure
+
+To verify the Learn Monitor works correctly, follow these steps:
+
+### Step 1: Establish Baseline (or use existing)
+
+```bash
+# If no state file exists, create baseline
+python3 scripts/learn_monitor.py --limit 5
+
+# Expected: "Baseline established. No report generated on first run."
+```
+
+### Step 2: Run Again (No Changes Expected)
+
+```bash
+python3 scripts/learn_monitor.py --limit 5
+
+# Expected: "Meaningful changes: 0" - No report generated
+```
+
+### Step 3: Simulate a Content Change
+
+```bash
+# Inject fake old content to trigger change detection
+python3 -c "
+import json
+with open('data/learn-monitor-state.json', 'r') as f:
+    state = json.load(f)
+first_url = list(state['urls'].keys())[0]
+state['urls'][first_url]['normalized_content'] = 'OLD CONTENT'
+state['urls'][first_url]['content_hash'] = 'sha256:fake_hash'
+with open('data/learn-monitor-state.json', 'w') as f:
+    json.dump(state, f, indent=2)
+"
+
+# Run monitor - should detect change
+python3 scripts/learn_monitor.py --limit 5
+
+# Expected: "CHANGED: meaningful" and report generated
+```
+
+### Step 4: Verify Report Created
+
+```bash
+ls -la reports/learn-changes/
+cat reports/learn-changes/learn-changes-*.md
+```
+
+### Step 5: Restore State File
+
+```bash
+git checkout data/learn-monitor-state.json
+rm reports/learn-changes/learn-changes-*.md
+```
+
+### Verification Summary
+
+| Step | Expected Result |
+|------|-----------------|
+| Baseline run | "Baseline established. No report generated." |
+| No-change run | "Meaningful changes: 0" |
+| Simulated change | "CHANGED: meaningful" + report generated |
+| Report content | Shows diff, affected controls, priority |
+
+---
+
 ## Troubleshooting
 
 | Issue | Cause | Resolution |
@@ -263,4 +330,4 @@ When the monitor detects changes and creates a PR:
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*
