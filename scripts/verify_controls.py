@@ -14,7 +14,7 @@ REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
 PILLARS_DIR = DOCS_DIR / "controls"
 
 CANON_UPDATED = "Updated: January 2026"
-CANON_VERSION = "Version: v1.1"
+CANON_VERSION = "Version: v1.2"
 CANON_UI_STATUS_PREFIX = "UI Verification Status:"
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"

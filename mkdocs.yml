@@ -525,6 +525,13 @@ nav:
         - Path B (Dataverse + ADO): playbooks/advanced-implementations/platform-change-governance/implementation-path-b.md
         - Labs: playbooks/advanced-implementations/platform-change-governance/labs.md
         - Evidence and Audit: playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md
+      - Deny Event Correlation Report:
+        - Overview: playbooks/advanced-implementations/deny-event-correlation-report/index.md
+        - Purview Audit Extraction: playbooks/advanced-implementations/deny-event-correlation-report/purview-audit-extraction.md
+        - DLP Event Extraction: playbooks/advanced-implementations/deny-event-correlation-report/dlp-event-extraction.md
+        - App Insights RAI Telemetry: playbooks/advanced-implementations/deny-event-correlation-report/app-insights-rai-telemetry.md
+        - Power BI Correlation: playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md
+        - Deployment Guide: playbooks/advanced-implementations/deny-event-correlation-report/deployment-guide.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md

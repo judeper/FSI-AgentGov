@@ -125,16 +125,119 @@ Microsoft notes you can identify if Copilot referenced the public web by checkin
 
 ---
 
-## 8) Export + retention procedure
+## 8) DLP correlation queries (Copilot policy location)
 
-- Export cadence: weekly (Zone 3), monthly (Zone 2)
+Microsoft Purview DLP supports a dedicated **Microsoft 365 Copilot and Copilot Chat** policy location. DLP events for this location appear in the Unified Audit Log with RecordType `DlpRuleMatch`.
+
+### 8.1 DLP events for Copilot location
+
+- **Operation:** Various DLP operations (`DlpRuleMatch`, `DlpPolicyMatch`)
+- **RecordType:** `DlpRuleMatch` (55)
+- **Workload:** `MicrosoftCopilot` or `Exchange` (depending on channel)
+- **Time window:** (e.g., last 24 hours for daily operational report)
+- **Export:** Yes (CSV/JSON)
+
+**PowerShell Example:**
+
+```powershell
+# Export DLP events for Copilot policy location (last 24 hours)
+$startDate = (Get-Date).AddDays(-1)
+$endDate = Get-Date
+
+$dlpEvents = Search-UnifiedAuditLog `
+    -RecordType DlpRuleMatch `
+    -StartDate $startDate `
+    -EndDate $endDate `
+    -ResultSize 5000
+
+# Filter for Copilot-related DLP matches
+$copilotDlp = $dlpEvents | Where-Object {
+    $auditData = $_.AuditData | ConvertFrom-Json
+    $auditData.PolicyDetails.PolicyName -match "Copilot" -or
+    $auditData.Workload -eq "MicrosoftCopilot"
+}
+
+$copilotDlp | Export-Csv "DLP-Copilot-$(Get-Date -Format 'yyyy-MM-dd').csv" -NoTypeInformation
+```
+
+### 8.2 Daily deny event correlation query
+
+To correlate CopilotInteraction deny events with DLP matches:
+
+```powershell
+# Step 1: Get CopilotInteraction events with blocks
+$copilotBlocks = Search-UnifiedAuditLog `
+    -RecordType CopilotInteraction `
+    -StartDate $startDate `
+    -EndDate $endDate `
+    -ResultSize 5000 | Where-Object {
+        $data = $_.AuditData | ConvertFrom-Json
+        $data.AccessedResources | Where-Object {
+            $_.Status -eq "failure" -or $_.PolicyDetails -ne $null
+        }
+    }
+
+# Step 2: Get DLP events
+$dlpMatches = Search-UnifiedAuditLog `
+    -RecordType DlpRuleMatch `
+    -StartDate $startDate `
+    -EndDate $endDate `
+    -ResultSize 5000
+
+# Step 3: Correlate by UserId and timestamp window (±5 minutes)
+# (Implement correlation logic in Power BI or offline processing)
+```
+
+### 8.3 Key DLP event fields
+
+When exporting DLP events, confirm the export includes:
+
+- `PolicyDetails.PolicyName`, `PolicyDetails.PolicyId`
+- `SensitiveInfoTypesMatched` array
+- `SensitivityLabelId` (if label-based rule)
+- `Actions` (Block, Warn, Override)
+- `UserId`, `Workload`, `CreationTime`
+
+---
+
+## 9) Daily operational export procedure
+
+For organizations requiring daily deny event monitoring (Zone 2/3), implement scheduled exports:
+
+### 9.1 Recommended export cadence
+
+| Zone | CopilotInteraction | DLP Events | RAI Telemetry |
+|------|-------------------|------------|---------------|
+| **Zone 1** | Monthly | Monthly | Optional |
+| **Zone 2** | Weekly | Weekly | Weekly |
+| **Zone 3** | **Daily** | **Daily** | **Daily** |
+
+### 9.2 Daily export automation
+
+See the [Deny Event Correlation Report Playbook](../advanced-implementations/deny-event-correlation-report/index.md) for:
+
+- PowerShell scripts for automated daily extraction
+- KQL queries for Application Insights RAI telemetry
+- Power BI template for multi-source correlation
+
+### 9.3 Export storage recommendations
+
+- **Azure Blob Storage** with immutable retention policy (SEC 17a-4 compatible)
+- **SharePoint Compliance Library** with preservation hold
+- **Azure Data Lake** for large-scale analytics
+
+---
+
+## 10) Export + retention procedure
+
+- Export cadence: daily (Zone 3), weekly (Zone 2), monthly (Zone 1)
 - Export storage: immutable evidence bucket / restricted SharePoint library
 - Access: Compliance + Audit only
 - Retention: align to your records policy
 
 ---
 
-## 9) Approvals and changes
+## 11) Approvals and changes
 
 - **Owner:**
 - **Approved by (Compliance):**

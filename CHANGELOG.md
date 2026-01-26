@@ -6,6 +6,80 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.3] — January 26, 2026 (Deny Event Correlation Report)
+
+### Overview
+
+Added a new advanced implementation playbook for daily operational reporting of "deny/no content returned" events across Microsoft Copilot and Copilot Studio agents. The solution correlates events from three data sources: Purview CopilotInteraction audit, Purview DLP events, and Application Insights RAI telemetry.
+
+**Problem Solved:** FSI organizations need to demonstrate that AI governance controls are actively working by producing daily evidence of policy blocks, RAI filters, and DLP enforcement. These events are logged in three separate systems with no native correlation.
+
+### Added
+
+- **Deny Event Correlation Report Playbook** (`docs/playbooks/advanced-implementations/deny-event-correlation-report/`)
+  - `index.md` - Overview, architecture diagram, and quick start
+  - `purview-audit-extraction.md` - CopilotInteraction deny event extraction with PowerShell
+  - `dlp-event-extraction.md` - DLP signal correlation for Copilot location
+  - `app-insights-rai-telemetry.md` - Copilot Studio RAI telemetry setup
+  - `power-bi-correlation.md` - Dashboard correlation model and DAX measures
+  - `deployment-guide.md` - End-to-end Azure Automation deployment
+
+- **FSI-AgentGov-Solutions Repository Addition** (`deny-event-correlation-report/`)
+  - 4 PowerShell scripts for automated extraction
+  - 4 KQL query files for all data sources
+  - Solution documentation (architecture, prerequisites, troubleshooting)
+
+### Enhanced
+
+- **Control 3.2 (Usage Analytics)** - Added "Daily Operational Monitoring" section with deny event categories, cadence by zone, and playbook reference
+- **Control 1.8 (Runtime Protection)** - Added "RAI Telemetry Capture" section with Application Insights setup, KQL queries, and zone requirements
+- **Purview Audit Query Pack** - Added DLP correlation queries (Section 8), daily export procedures (Section 9), and storage recommendations
+
+### Regulatory Alignment
+
+Supports compliance evidence for:
+- **FINRA 25-07** - Daily evidence of AI governance controls
+- **FINRA 4511** - Records retention for deny events
+- **SEC 17a-3/4** - Supervision evidence for AI agents
+- **GLBA 501(b)** - Safeguards evidence via DLP blocking
+- **OCC 2011-12** - Model risk controls via RAI telemetry
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | Added Daily Operational Monitoring section |
+| `docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md` | Added RAI Telemetry Capture section |
+| `docs/playbooks/monitoring-and-validation/purview-audit-query-pack.md` | Added DLP correlation and daily export sections |
+| `docs/playbooks/advanced-implementations/deny-event-correlation-report/*.md` | Created (6 files) |
+| `mkdocs.yml` | Added navigation for new playbook |
+| `CHANGELOG.md` | This entry |
+
+### FSI-AgentGov-Solutions Files Created
+
+| File | Purpose |
+|------|---------|
+| `deny-event-correlation-report/README.md` | Solution overview and quick start |
+| `deny-event-correlation-report/scripts/Export-CopilotDenyEvents.ps1` | Purview audit extraction |
+| `deny-event-correlation-report/scripts/Export-DlpCopilotEvents.ps1` | DLP event extraction |
+| `deny-event-correlation-report/scripts/Export-RaiTelemetry.ps1` | App Insights extraction |
+| `deny-event-correlation-report/scripts/Invoke-DailyDenyReport.ps1` | Orchestration script |
+| `deny-event-correlation-report/kql-queries/*.kql` | KQL queries (4 files) |
+| `deny-event-correlation-report/docs/*.md` | Documentation (3 files) |
+
+### Fixed
+
+- **`scripts/verify_controls.py`** - Updated `CANON_VERSION` from "v1.1" to "v1.2" to match current framework version
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: Pass (61 controls valid)
+- All internal links resolve
+- Navigation renders correctly
+
+---
+
 ## [1.2.2] — January 26, 2026 (Learn Monitor End-to-End Verification)
 
 ### Overview
