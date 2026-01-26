@@ -1,6 +1,6 @@
 # Regulatory Mappings
 
-Complete mapping of framework controls to regulatory requirements.
+Mapping of framework controls to regulatory requirements.
 
 ---
 
@@ -998,4 +998,4 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

@@ -290,4 +290,4 @@ After Phase 2, governance enters steady-state with focus on:
 ---
 
 *Last Updated: January 2026*
-*FSI Agent Governance Framework v1.1*
+*FSI Agent Governance Framework v1.2*

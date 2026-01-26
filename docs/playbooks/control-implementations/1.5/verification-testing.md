@@ -71,4 +71,4 @@ Run only if Devices/Endpoint DLP is in scope.
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

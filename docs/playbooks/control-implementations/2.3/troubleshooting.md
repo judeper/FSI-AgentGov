@@ -174,4 +174,4 @@ If issues cannot be resolved using this guide:
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

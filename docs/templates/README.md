@@ -6,7 +6,7 @@ This folder contains templates for creating consistent documentation.
 
 | Template | Purpose |
 |----------|---------|
-| `control-setup-template.md` | Standard structure for all 60 governance controls |
+| `control-setup-template.md` | Standard structure for all 61 governance controls |
 
 ## Using the Control Template
 

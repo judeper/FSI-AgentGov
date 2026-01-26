@@ -94,4 +94,4 @@ Get-AdminFlow -EnvironmentName "Default" | Where-Object { $_.DisplayName -like "
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

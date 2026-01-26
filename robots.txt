@@ -1,0 +1,19 @@
+# robots.txt for FSI-AgentGov
+# Discourages indexing of internal/historical folders
+
+User-agent: *
+
+# Allow main documentation
+Allow: /docs/
+
+# Discourage indexing of internal folders
+Disallow: /review/
+Disallow: /releases/
+Disallow: /maintainers-local/
+Disallow: /templates/
+Disallow: /scripts/
+Disallow: /data/
+Disallow: /reports/
+
+# Note: This file is advisory only. Search engines may still index these paths.
+# For GitHub Pages deployment, the published site uses the docs/ folder as root.

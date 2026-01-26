@@ -92,4 +92,4 @@ Get-AdminPowerAppEnvironment | Select-Object DisplayName, @{N='IsManaged';E={$_.
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

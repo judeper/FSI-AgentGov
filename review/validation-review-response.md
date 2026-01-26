@@ -1,5 +1,7 @@
 # FSI Agent Governance Framework - Validation Review Response
 
+> **Historical Document Notice:** This document was created during the v1.0 Beta review cycle (January 2026) and reflects the framework state at that time. Many findings have since been addressed in v1.1 and v1.2. This document is retained for audit trail purposes only. For current framework content, see the published documentation.
+
 **Document Type:** Review Response and Recommendations
 **Validation Date:** January 6, 2026
 **Sources Reviewed:** `validation-findings.md`, `Copilot Studio Governance Review.docx`

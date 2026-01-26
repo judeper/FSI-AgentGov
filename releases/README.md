@@ -25,7 +25,7 @@ PDFs are generated from the MkDocs documentation using GitHub Actions on tagged 
 
 **Planned PDFs:**
 - `FSI-AgentGov-v{version}-FrameworkBook.pdf` — Framework layer only
-- `FSI-AgentGov-v{version}-ControlCatalog.pdf` — All 60 controls
+- `FSI-AgentGov-v{version}-ControlCatalog.pdf` — All 61 controls
 - `FSI-AgentGov-v{version}-QuickReference.pdf` — Reference materials
 
 ## For Examiners
@@ -46,4 +46,4 @@ If you received a PDF version of this framework, note:
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

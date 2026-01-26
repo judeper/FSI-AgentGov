@@ -128,4 +128,4 @@ Create monitoring schedule:
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

@@ -170,4 +170,4 @@ Use this table to track implementation progress:
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

@@ -342,4 +342,4 @@ These controls should be implemented first as they enable other governance capab
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

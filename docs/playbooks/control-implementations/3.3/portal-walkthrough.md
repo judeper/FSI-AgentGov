@@ -147,4 +147,4 @@ Track examination schedules and filing deadlines:
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

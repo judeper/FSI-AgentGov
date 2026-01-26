@@ -182,4 +182,4 @@ Write-Host "  Excluded (Copilot cannot access): $($summary.ExcludedSites)" -Fore
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

@@ -160,4 +160,4 @@ See [Run pipelines](https://learn.microsoft.com/en-us/power-platform/alm/run-pip
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

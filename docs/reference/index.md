@@ -71,4 +71,4 @@ This section provides technical reference materials, standards, and supporting d
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

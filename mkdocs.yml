@@ -2,7 +2,7 @@ site_name: FSI Agent Governance Framework
 site_description: "Governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in Financial Services"
 site_author: "FSI Agent Governance Team"
 site_url: "https://judeper.github.io/FSI-AgentGov/"
-copyright: "*FSI Agent Governance Framework v1.1 - January 2026*"
+copyright: "*FSI Agent Governance Framework v1.2 - January 2026*"
 
 extra:
   generator: false

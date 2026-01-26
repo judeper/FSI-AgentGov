@@ -214,4 +214,4 @@ Steps 2-4 expand coverage to other AI apps. Complete as appropriate for your sco
 
 ---
 
-*Updated: January 2026 | Version: v1.1*
+*Updated: January 2026 | Version: v1.2*

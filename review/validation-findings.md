@@ -1,4 +1,7 @@
 # FSI Agent Governance Framework - Validation Findings
+
+> **Historical Document Notice:** This document was created during the v1.0 Beta review cycle (December 2025) and reflects the framework state at that time. Many findings have since been addressed in v1.1 and v1.2. This document is retained for audit trail purposes only. For current framework content, see the published documentation.
+
 ## Comprehensive Review Against Microsoft Learn Documentation
 
 ---
