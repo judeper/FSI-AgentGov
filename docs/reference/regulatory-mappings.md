@@ -13,7 +13,7 @@ Requires firms to maintain records of all agent activities and communications.
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention + 1 year accessible |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years in easily accessible place |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per FINRA timeline |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure network architecture for records systems |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Record security incidents and attacks |
@@ -37,7 +37,7 @@ Requires firms to maintain records of all agent activities and communications.
 
 **Zone 3 Requirements:**
 
-- Maintain 6-year + 1 year accessible audit logs
+- Maintain 6-year audit logs, first 2 years in easily accessible place
 - Comprehensive real-time monitoring
 - Immediate incident escalation
 - Weekly executive reporting
@@ -164,13 +164,13 @@ Framework addresses Notice 25-07 topics (11/61 controls). Implementation and val
 ## SEC Rule 17a-3/4 - Recordkeeping
 
 ### Overview
-Requires SEC-registered firms to maintain records of all transactions and communications for 6 years + 3 years accessible.
+Requires SEC-registered firms to maintain records of all transactions and communications for 6 years, with the first 2 years in an easily accessible place.
 
 ### Applicable Controls
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year + 3-year accessible retention |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years in easily accessible place |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure storage network architecture |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Security event records |
@@ -187,14 +187,14 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 - All user interactions with agents
 - All agent outputs and decisions
 - All approvals and rejections
-- Retention: 6 years + 3 years accessible
+- Retention: 6 years, first 2 years in easily accessible place
 
 **Transaction Records:**
 
 - If agent processes transactions
 - If agent provides investment advice
 - If agent executes trades
-- Retention: 6 years + 3 years accessible
+- Retention: 6 years, first 2 years in easily accessible place
 
 **Governance Records:**
 
@@ -214,7 +214,7 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 
 **Zone 3:**
 
-- 6-year + 3-year accessible
+- 6-year retention, first 2 years in easily accessible place
 - WORM or audit-trail alternative (per SEC October 2022 amendments)
 - Real-time audit trail
 - Weekly compliance verification
@@ -334,17 +334,71 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 
 ### Applicable Controls
 
-| Control | Requirement | Mapping |
-|---------|-------------|---------|
-| [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Security control for IT infrastructure |
+**Pillar 1 - Security Controls (19 controls):**
+
+| Control | Requirement | SOX Mapping |
+|---------|-------------|-------------|
+| [1.1](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Restrict Agent Publishing | Authorization controls over system changes |
+| [1.2](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Agent Registry | Inventory of IT systems |
+| [1.3](../controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | SharePoint Governance | Access controls over financial data |
+| [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Data protection controls |
+| [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data governance and classification |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Audit trail for transactions |
+| [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Security monitoring controls |
+| [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Record retention policies |
+| [1.10](../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Communication Compliance | Monitoring controls |
+| [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access and MFA | Authentication controls |
+| [1.12](../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md) | Insider Risk Detection | Fraud detection controls |
+| [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Scope limitation controls |
+| [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Data protection controls |
+| [1.16](../controls/pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | IRM | Document protection controls |
+| [1.17](../controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) | Endpoint DLP | Endpoint data protection |
+| [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | RBAC | Access control matrix |
+| [1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | eDiscovery | Audit and investigation capability |
+| [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | IT infrastructure security |
+| [1.22](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers | Segregation of information |
+
+**Pillar 2 - Management Controls (14 controls):**
+
+| Control | Requirement | SOX Mapping |
+|---------|-------------|-------------|
+| [2.1](../controls/pillar-2-management/2.1-managed-environments.md) | Managed Environments | Environment controls |
+| [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment Groups | Classification controls |
+| [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control procedures |
+| [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | BC/DR | Continuity controls |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Control testing documented |
-| [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control | Segregation of duties enforced |
+| [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Third-party controls |
+| [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Segregation of duties enforced |
+| [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Operational controls |
 | [2.10](../controls/pillar-2-management/2.10-patch-management-and-system-updates.md) | Patch Management | Security control maintenance |
-| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Control procedures documented |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Management oversight |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Evidence for control effectiveness |
-| [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Control over complex agent systems |
+| [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md) | Training | Control awareness |
+| [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Control over complex systems |
+| [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Security testing |
+
+**Pillar 3 - Reporting Controls (7 controls):**
+
+| Control | Requirement | SOX Mapping |
+|---------|-------------|-------------|
+| [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | System inventory |
+| [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Activity monitoring |
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Control effectiveness reports |
+| [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Incident response |
+| [3.5](../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) | Cost Allocation | Financial controls |
+| [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Security Posture | Control assessment |
+| [3.9](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Sentinel Integration | Security monitoring |
+
+**Pillar 4 - SharePoint Controls (4 controls):**
+
+| Control | Requirement | SOX Mapping |
+|---------|-------------|-------------|
+| [4.2](../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | Site Access Reviews | Access certification |
+| [4.3](../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md) | Retention Management | Record retention |
+| [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
+
+**Total: 44 controls (72% of 61)**
 
 ### Management Assessment Requirements
 
@@ -393,17 +447,78 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 
 ### Applicable Controls
 
-| Control | Requirement | Mapping |
-|---------|-------------|---------|
-| [1.3](../controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | SharePoint Governance | Permission management |
-| [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Data loss prevention |
-| [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access and MFA | Strong authentication |
-| [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Data protection in transit and at rest |
-| [1.16](../controls/pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Information Rights Management | Document-level protection |
-| [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | RBAC | Access control |
-| [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Network-level safeguards |
-| [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Data source governance |
-| [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot access controls |
+**Pillar 1 - Security Controls (22 controls):**
+
+| Control | Requirement | GLBA Mapping |
+|---------|-------------|--------------|
+| [1.1](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Restrict Agent Publishing | Administrative safeguard - authorization |
+| [1.2](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Agent Registry | Administrative safeguard - inventory |
+| [1.3](../controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | SharePoint Governance | Technical safeguard - permission management |
+| [1.4](../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Advanced Connector Policies | Technical safeguard - data flow control |
+| [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Technical safeguard - data loss prevention |
+| [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Technical safeguard - data governance |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Technical safeguard - audit trail |
+| [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Technical safeguard - threat detection |
+| [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Administrative safeguard - records |
+| [1.10](../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Communication Compliance | Technical safeguard - monitoring |
+| [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access and MFA | Technical safeguard - authentication |
+| [1.12](../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md) | Insider Risk Detection | Technical safeguard - threat detection |
+| [1.13](../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) | Sensitive Information Types | Technical safeguard - data classification |
+| [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Technical safeguard - scope control |
+| [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | Technical safeguard - data protection |
+| [1.16](../controls/pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Information Rights Management | Technical safeguard - document protection |
+| [1.17](../controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) | Endpoint DLP | Technical safeguard - endpoint protection |
+| [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | RBAC | Technical safeguard - access control |
+| [1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | eDiscovery | Administrative safeguard - investigation |
+| [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Technical safeguard - network security |
+| [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Technical safeguard - threat logging |
+| [1.22](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers | Technical safeguard - information segregation |
+
+**Pillar 2 - Management Controls (17 controls):**
+
+| Control | Requirement | GLBA Mapping |
+|---------|-------------|--------------|
+| [2.1](../controls/pillar-2-management/2.1-managed-environments.md) | Managed Environments | Administrative safeguard - governance |
+| [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment Groups | Administrative safeguard - classification |
+| [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Administrative safeguard - change control |
+| [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | BC/DR | Administrative safeguard - continuity |
+| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Administrative safeguard - validation |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Administrative safeguard - risk management |
+| [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Administrative safeguard - third-party oversight |
+| [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Technical safeguard - access management |
+| [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Technical safeguard - monitoring |
+| [2.10](../controls/pillar-2-management/2.10-patch-management-and-system-updates.md) | Patch Management | Technical safeguard - security updates |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Administrative safeguard - oversight |
+| [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Administrative safeguard - records |
+| [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md) | Training | Administrative safeguard - training program |
+| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Technical safeguard - data integrity |
+| [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Technical safeguard - system controls |
+| [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Administrative safeguard - customer notice |
+| [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Technical safeguard - security testing |
+
+**Pillar 3 - Reporting Controls (7 controls):**
+
+| Control | Requirement | GLBA Mapping |
+|---------|-------------|--------------|
+| [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Administrative safeguard - asset inventory |
+| [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Technical safeguard - monitoring |
+| [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Administrative safeguard - reporting |
+| [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Administrative safeguard - incident response |
+| [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Security Posture | Technical safeguard - assessment |
+| [3.9](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Sentinel Integration | Technical safeguard - security monitoring |
+| [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback | Technical safeguard - quality monitoring |
+
+**Pillar 4 - SharePoint Controls (5 controls):**
+
+| Control | Requirement | GLBA Mapping |
+|---------|-------------|--------------|
+| [4.1](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | Information Access Governance | Technical safeguard - access control |
+| [4.2](../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | Site Access Reviews | Administrative safeguard - access review |
+| [4.4](../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) | Guest Access Controls | Technical safeguard - third-party access |
+| [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Technical safeguard - data source governance |
+| [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
+
+**Total: 51 controls (84% of 61)**
 
 ### Key Safeguard Areas
 
@@ -453,17 +568,60 @@ Applies to national banks and federal savings associations. Requires governance 
 
 ### Applicable Controls
 
-| Control | Requirement | Mapping |
-|---------|-------------|---------|
-| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent validation |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal SR 11-7 framework |
+**Pillar 1 - Security Controls (7 controls):**
+
+| Control | Requirement | SR 11-7 Mapping |
+|---------|-------------|-----------------|
+| [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Model data governance |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Model audit trail |
+| [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Model monitoring |
+| [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Model input controls |
+| [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Model attack detection |
+| [1.22](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers | Model information segregation |
+| [1.23](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Step-Up Authentication | Model access controls |
+
+**Pillar 2 - Management Controls (15 controls):**
+
+| Control | Requirement | SR 11-7 Mapping |
+|---------|-------------|-----------------|
+| [2.1](../controls/pillar-2-management/2.1-managed-environments.md) | Managed Environments | Model environment controls |
+| [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment Groups | Model tier classification |
+| [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Model change control |
+| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent model validation |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Primary SR 11-7 framework |
+| [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Third-party model governance |
+| [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Model development controls |
+| [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Model performance tracking |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness and discrimination testing |
-| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance committee oversight |
-| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Data source validation |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Model governance oversight |
+| [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Model documentation |
+| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Model data source validation |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Complex model governance |
-| [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Performance Monitoring | Ongoing performance tracking |
+| [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Model bias detection |
+| [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Model robustness testing |
+
+**Pillar 3 - Reporting Controls (8 controls):**
+
+| Control | Requirement | SR 11-7 Mapping |
+|---------|-------------|-----------------|
+| [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Model inventory |
+| [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Model performance monitoring |
+| [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Model risk reporting |
+| [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Model incident management |
+| [3.6](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Orphaned Agent Detection | Model lifecycle management |
+| [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Security Posture | Model security assessment |
+| [3.8](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Copilot Hub | Model governance dashboard |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Model output accuracy monitoring |
-| [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot output governance |
+
+**Pillar 4 - SharePoint Controls (3 controls):**
+
+| Control | Requirement | SR 11-7 Mapping |
+|---------|-------------|-----------------|
+| [4.1](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | Information Access Governance | Model data access controls |
+| [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Model data source governance |
+| [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
+
+**Total: 33 controls (54% of 61)**
 
 ### Model Risk Framework (SR 11-7)
 

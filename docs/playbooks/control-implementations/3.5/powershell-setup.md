@@ -15,7 +15,15 @@ Install-Module -Name Microsoft.Graph -Force -AllowClobber
 # Connect to services
 Connect-AzAccount
 Connect-MgGraph -Scopes "Reports.Read.All", "Directory.Read.All"
+
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
 
 ---

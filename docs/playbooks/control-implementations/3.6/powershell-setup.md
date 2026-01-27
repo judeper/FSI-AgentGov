@@ -11,8 +11,15 @@
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
 Install-Module -Name Microsoft.Graph -Force -AllowClobber
 
-# Connect to services
+# Connect to services (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
+
 Connect-MgGraph -Scopes "User.Read.All", "Application.Read.All"
 ```
 

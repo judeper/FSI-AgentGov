@@ -335,6 +335,17 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 ---
 
+## Release Plans and Roadmaps
+
+| Topic | URL | Last Verified |
+|-------|-----|---------------|
+| **Power Platform Release Wave** | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Jan 2026 |
+| **Microsoft 365 Roadmap** | https://www.microsoft.com/en-us/microsoft-365/roadmap | Jan 2026 |
+| **Copilot Studio What's New** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Jan 2026 |
+| **Purview What's New** | https://learn.microsoft.com/en-us/purview/whats-new | Jan 2026 |
+
+---
+
 ## Licensing
 
 | Topic | URL | Last Verified |

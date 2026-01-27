@@ -133,8 +133,14 @@ param(
 
 Write-Host "=== Control 2.2 Validation ===" -ForegroundColor Cyan
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Check 1: Verify environment groups exist
 $groups = Get-AdminPowerAppEnvironmentGroup

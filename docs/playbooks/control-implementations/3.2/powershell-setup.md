@@ -10,8 +10,14 @@
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
 Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser -Force
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Connect to Exchange Online (for audit logs)
 Connect-ExchangeOnline
@@ -309,8 +315,14 @@ param(
     [int]$DaysBack = 30
 )
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 Write-Host "Executing Control 3.2 Usage Analytics Export" -ForegroundColor Cyan
 

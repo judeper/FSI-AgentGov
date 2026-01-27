@@ -12,8 +12,14 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Allow
 Install-Module -Name Microsoft.PowerApps.PowerShell -Force -AllowClobber
 Install-Module -Name Microsoft.Xrm.Tooling.CrmConnector.PowerShell -Force -AllowClobber
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
 
 ---

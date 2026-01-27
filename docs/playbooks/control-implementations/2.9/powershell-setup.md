@@ -27,7 +27,14 @@ Install-Module -Name MicrosoftPowerBIMgmt -Force -Scope CurrentUser
 
 Write-Host "=== Agent Analytics Export ===" -ForegroundColor Cyan
 
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Get all environments
 $environments = Get-AdminPowerAppEnvironment

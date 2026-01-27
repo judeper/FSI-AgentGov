@@ -37,8 +37,14 @@ param(
 
 Write-Host "=== Agent Data Source Inventory ===" -ForegroundColor Cyan
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Get all apps (agents) in environment
 $apps = Get-AdminPowerApp -EnvironmentName $EnvironmentId

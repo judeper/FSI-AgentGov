@@ -17,8 +17,14 @@ param(
 # Install/Import modules
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Create backup folder
 $backupDate = Get-Date -Format "yyyyMMdd_HHmm"

@@ -10,8 +10,14 @@
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
 Install-Module -Name Microsoft.PowerApps.PowerShell -Scope CurrentUser -Force
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
 
 ---

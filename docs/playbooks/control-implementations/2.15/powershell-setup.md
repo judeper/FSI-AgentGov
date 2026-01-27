@@ -9,8 +9,14 @@
 # Install Power Platform admin module
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Scope CurrentUser
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
 
 ---
@@ -57,8 +63,14 @@ $envReport | Format-Table
     .\Validate-EnvironmentRouting.ps1
 #>
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 Write-Host "=== Environment Routing Validation ===" -ForegroundColor Cyan
 
@@ -113,8 +125,14 @@ if ($notReady) {
     .\Export-EnvironmentConfig.ps1
 #>
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Get all environments
 $environments = Get-AdminPowerAppEnvironment
@@ -163,8 +181,14 @@ Write-Host "Configuration exported to Environment-Config-$(Get-Date -Format 'yyy
 
 Write-Host "=== Control 2.15 Validation ===" -ForegroundColor Cyan
 
-# Connect to Power Platform
+# Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 
 # Check 1: Verify environments exist for routing
 Write-Host "`n[Check 1] Production Environments Available" -ForegroundColor Cyan
