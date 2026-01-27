@@ -6,6 +6,102 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.4] — January 27, 2026 (Microsoft 365 Agent Governance Integration)
+
+### Overview
+
+Integrated Microsoft's new Agent 365 governance documentation into the FSI-AgentGov framework. This includes new conceptual documentation explaining the Agent ID vs Blueprint architecture, 5 new Microsoft Learn URLs for monitoring, and updates to 15 controls with Agent 365 references.
+
+**Problem Solved:** Microsoft released new "Agent Essentials" and "Agent 365 SDK" preview documentation introducing the Blueprint concept for enterprise agent governance. The framework lacked guidance on when to use Agent ID vs. Blueprint approaches, and the Learn monitor wasn't tracking these new URLs.
+
+### Added
+
+- **Agent Identity Architecture Document** (`docs/framework/agent-identity-architecture.md`)
+  - Explains layered relationship between Agent 365 Blueprints and Microsoft Entra Agent ID
+  - Layer 1: Blueprints (governance foundation) - registration, permission inheritance, multi-tenant support
+  - Layer 2: Agent ID (identity management) - Conditional Access, lifecycle governance, sponsorship
+  - Layer 3: Conditional Access (policy enforcement) - risk-based access control
+  - Decision matrix for when to use Agent ID only vs. Agent ID + Blueprint
+  - Implementation approach (Foundation → Scale → Governance phases)
+
+- **5 New Microsoft Learn URLs** added to Learn monitor (`data/learn-monitor-state.json`)
+  - `m365-agents-visual-map` - Visual governance guide
+  - `m365-agents-checklist` - 8-category deployment checklist
+  - `m365-agents-blueprint` - 3-phase deployment framework
+  - `microsoft-agent-365/developer/registration` - Blueprint registration
+  - `microsoft-agent-365/developer/` - Agent 365 SDK overview
+
+- **Agent Essentials & Agent 365 SDK Section** (`docs/reference/microsoft-learn-urls.md`)
+  - Preview documentation note
+  - 5 new URL entries with cross-reference to Agent Identity Architecture
+
+### Enhanced (15 Controls)
+
+| Control | Enhancement |
+|---------|-------------|
+| **1.1** | Added Agent Essentials checklist and visual guide references |
+| **1.2** | Added Blueprint registration and Agent ID identity references |
+| **1.5** | Added Agent Essentials Category 7 data security reference |
+| **1.6** | Added Agent Essentials data security alignment reference |
+| **1.7** | Added Agent 365 audit event types (BlueprintRegistration, BlueprintPromotion, AgentIdentityCreated) |
+| **1.11** | **Added Agent ID vs Blueprint decision matrix** with zone-specific guidance |
+| **1.18** | Added Agent-level RBAC via Entra Agent ID references |
+| **2.1** | Added Blueprint 3-phase lifecycle reference |
+| **2.3** | Added Blueprint deployment framework reference |
+| **2.5** | Added Agent 365 SDK testing capabilities reference |
+| **3.1** | Added Agent Essentials Category 6 inventory guidance |
+| **3.2** | Added Agent 365 OpenTelemetry observability reference |
+| **3.5** | Added Agent Essentials Category 8 billing reference |
+| **3.6** | Added Agent ID lifecycle governance for orphan detection |
+| **3.8** | Added Agent Essentials visual governance map reference |
+
+### Changed
+
+- **mkdocs.yml** - Added Agent Identity Architecture to Framework navigation
+- **Learn monitor URL count** - Increased from 191 to 196 tracked URLs
+- **microsoft-learn-urls.md** - Updated total URL count from 159 to 164
+
+### Microsoft Checklist Category Mapping
+
+Maps Microsoft's 8 Agent Essentials categories to FSI controls:
+
+| MS Category | FSI Controls |
+|-------------|--------------|
+| 1. Access & Availability | 1.1, 1.11, 2.8 |
+| 2. Copilot Studio Experience | 2.1, 3.8 |
+| 3. Agent Builder | 1.1, 1.2, 2.1 |
+| 4. Application Lifecycle | 2.3, 2.5 |
+| 5. Copilot Studio Creation | 1.1, 2.1, 2.5, 3.8 |
+| 6. Inventory & Lifecycle | 3.1, 3.6 |
+| 7. Data Security/Compliance | 1.5, 1.6, 1.7, 1.14 |
+| 8. Billing & Capacity | 3.5, 3.2 |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| **NEW:** `docs/framework/agent-identity-architecture.md` | Agent ID vs Blueprint conceptual guide |
+| `data/learn-monitor-state.json` | Added 5 new URL entries |
+| `docs/reference/microsoft-learn-urls.md` | Added Agent Essentials section |
+| `mkdocs.yml` | Added framework navigation entry |
+| 15 control files | Added Agent 365 preview references |
+| `CHANGELOG.md` | This entry |
+| `.claude/CLAUDE.md` | Updated key files and framework doc count |
+
+### Notes
+
+- All Agent 365 URLs are preview documentation (Frontier preview program)
+- Learn monitor will track changes daily
+- Preview references include admonitions noting content may change
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: Pass (61 controls valid)
+- All internal links resolve
+
+---
+
 ## [1.2.3] — January 26, 2026 (Deny Event Correlation Report)
 
 ### Overview

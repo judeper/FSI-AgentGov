@@ -90,6 +90,7 @@ nav:
     - Governance Fundamentals: framework/governance-fundamentals.md
     - Zones and Tiers: framework/zones-and-tiers.md
     - Agent Lifecycle: framework/agent-lifecycle.md
+    - Agent Identity Architecture: framework/agent-identity-architecture.md
     - Regulatory Framework: framework/regulatory-framework.md
     - Operating Model: framework/operating-model.md
     - Governance Cadence: framework/governance-cadence.md

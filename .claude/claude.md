@@ -41,7 +41,7 @@ FSI-AgentGov/
 │   ├── settings.local.json    # Local overrides (not committed)
 │   └── skills/                # On-demand workflow guides (YAML frontmatter)
 ├── docs/
-│   ├── framework/             # Layer 1: Governance principles (9 docs)
+│   ├── framework/             # Layer 1: Governance principles (10 docs)
 │   ├── controls/              # Layer 2: Control catalog (61 controls)
 │   │   ├── pillar-1-security/     # 1.1-1.23 (23 controls)
 │   │   ├── pillar-2-management/   # 2.1-2.21 (21 controls)
@@ -165,6 +165,7 @@ Use canonical short names from `docs/reference/role-catalog.md`:
 | `docs/reference/role-catalog.md` | Canonical role names |
 | `docs/reference/regulatory-mappings.md` | Regulation-to-control mapping |
 | `docs/reference/learn-monitor-guide.md` | How the Learn monitor works |
+| `docs/framework/agent-identity-architecture.md` | Agent ID vs Blueprint architecture guide |
 | `docs/playbooks/advanced-implementations/platform-change-governance/` | Platform Change Governance playbook |
 | `mkdocs.yml` | Site navigation |
 | `CHANGELOG.md` | Release history |
@@ -263,6 +264,7 @@ python scripts/learn_monitor.py --verbose
 | Check all controls | `docs/controls/CONTROL-INDEX.md` |
 | See role names | `docs/reference/role-catalog.md` |
 | Understand zones | `docs/framework/zones-and-tiers.md` |
+| Understand Agent ID vs Blueprint | `docs/framework/agent-identity-architecture.md` |
 | Learn about the doc monitor | `docs/reference/learn-monitor-guide.md` |
 | Implement Platform Change Governance | `docs/playbooks/advanced-implementations/platform-change-governance/` |
 | Review language rules | `CONTRIBUTING.md` |
@@ -307,10 +309,12 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.0 (January 2026)
-**Status:** All 61 controls complete, 244 control playbooks + 6 advanced implementation docs, build passing, Learn monitor active
+**Version:** 1.2.4 (January 2026)
+**Status:** All 61 controls complete, 244 control playbooks + 6 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Addition:** Platform Change Governance playbook - Dataverse-based Message Center governance with regulatory-aligned evidence standards.
+**Recent Additions:**
+- **Agent Identity Architecture** - New framework document explaining Agent ID vs Blueprint architecture with decision matrix
+- **Agent 365 Integration** - 15 controls updated with Microsoft Agent Essentials and Agent 365 SDK preview references
 
 For detailed release history, see `CHANGELOG.md`.
 
