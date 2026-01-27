@@ -183,6 +183,7 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/1.2/powershell-setup.md
           - Verification: playbooks/control-implementations/1.2/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/1.2/troubleshooting.md
+          - Sponsorship Lifecycle Workflows: playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md
         - 1.3 SharePoint Content Governance:
           - Portal Walkthrough: playbooks/control-implementations/1.3/portal-walkthrough.md
           - PowerShell Setup: playbooks/control-implementations/1.3/powershell-setup.md
@@ -228,6 +229,7 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/1.11/powershell-setup.md
           - Verification: playbooks/control-implementations/1.11/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/1.11/troubleshooting.md
+          - CA Agent Templates: playbooks/control-implementations/1.11/conditional-access-agent-templates.md
         - 1.12 Insider Risk Detection:
           - Portal Walkthrough: playbooks/control-implementations/1.12/portal-walkthrough.md
           - PowerShell Setup: playbooks/control-implementations/1.12/powershell-setup.md
@@ -533,6 +535,15 @@ nav:
         - App Insights RAI Telemetry: playbooks/advanced-implementations/deny-event-correlation-report/app-insights-rai-telemetry.md
         - Power BI Correlation: playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md
         - Deployment Guide: playbooks/advanced-implementations/deny-event-correlation-report/deployment-guide.md
+      - Agent Blueprint Promotion Gates:
+        - Overview: playbooks/advanced-implementations/agent-blueprint-promotion-gates/index.md
+        - Gate Definitions: playbooks/advanced-implementations/agent-blueprint-promotion-gates/gate-definitions.md
+        - Implementation Guide: playbooks/advanced-implementations/agent-blueprint-promotion-gates/implementation-guide.md
+      - Agent 365 Observability:
+        - Overview: playbooks/advanced-implementations/agent-365-observability/index.md
+        - OpenTelemetry Setup: playbooks/advanced-implementations/agent-365-observability/opentelemetry-setup.md
+        - Application Insights Workbooks: playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks.md
+        - Alerting Configuration: playbooks/advanced-implementations/agent-365-observability/alerting-configuration.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md
@@ -548,6 +559,8 @@ nav:
     - Learn Monitor Guide: reference/learn-monitor-guide.md
     - FSI Examples: reference/fsi-configuration-examples.md
     - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
+    - Agent Audit Event Taxonomy: reference/agent-audit-event-taxonomy.md
+    - Agent Essentials Control Mapping: reference/agent-essentials-control-mapping.md
     - Glossary: reference/glossary.md
     - FAQ: reference/faq.md
 

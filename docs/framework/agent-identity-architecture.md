@@ -226,6 +226,8 @@ When a sponsor leaves the organization or changes roles:
 | [Control 1.11 - Conditional Access](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Agent ID Conditional Access configuration |
 | [Control 2.1 - Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) | Blueprint lifecycle phases align with environment promotion |
 | [Control 3.6 - Orphaned Agent Detection](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Agent ID lifecycle governance supports orphan detection |
+| [Agent Essentials Control Mapping](../reference/agent-essentials-control-mapping.md) | Microsoft Agent Essentials categories mapped to FSI controls |
+| [Sponsorship Lifecycle Workflows](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md) | Entra ID Lifecycle Workflows for sponsor governance |
 
 ---
 

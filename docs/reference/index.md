@@ -33,6 +33,8 @@ This section provides technical reference materials, standards, and supporting d
 | [Microsoft Learn URLs](microsoft-learn-urls.md) | Official documentation links |
 | [Learn Monitor Guide](learn-monitor-guide.md) | How the documentation monitor works |
 | [FSI Configuration Examples](fsi-configuration-examples.md) | Financial services-specific configurations |
+| [Agent Audit Event Taxonomy](agent-audit-event-taxonomy.md) | Consolidated audit event reference with KQL queries |
+| [Agent Essentials Control Mapping](agent-essentials-control-mapping.md) | Microsoft Agent Essentials to FSI control mapping |
 
 ### General Reference
 

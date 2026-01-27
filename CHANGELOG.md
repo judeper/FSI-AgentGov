@@ -6,6 +6,80 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.6] — January 27, 2026 (Agent 365 Operational Depth Enhancements)
+
+### Overview
+
+Addresses 6 enhancement opportunities identified in external advisory reviews (Manus AI v1/v2, January 2026). These are "operational deepening" items—the framework already has correct conceptual alignment; these add implementer-ready artifacts.
+
+### Added
+
+- **Conditional Access Agent Identity Templates** (`docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md`)
+  - 5 CA policy recipes for agent identity targeting across zones
+  - Zone 1 baseline MFA, Zone 2 phishing-resistant + device compliance, Zone 3 maximum security with PIM
+  - Break-glass emergency access patterns
+  - CI/CD service principal policies
+  - Agentic User CA policies (preview)
+  - Complete PowerShell implementations and evidence queries
+
+- **Agent Audit Event Taxonomy Reference** (`docs/reference/agent-audit-event-taxonomy.md`)
+  - Consolidated event table with 25+ event types
+  - Category organization: Identity Lifecycle, Blueprint Lifecycle, Agent Interaction, Configuration, Security
+  - Event-to-control mapping for evidence purposes
+  - Key field schemas for all event types
+  - Alert severity recommendations by zone
+  - KQL query pack with 5 production-ready queries
+  - UAL PowerShell equivalents for non-Sentinel environments
+
+- **Blueprint Promotion Gates Playbook** (`docs/playbooks/advanced-implementations/agent-blueprint-promotion-gates/`)
+  - `index.md` - Overview, gate model summary, quick start
+  - `gate-definitions.md` - Detailed criteria for Gates 1-4, evidence artifacts, approval templates
+  - `implementation-guide.md` - SharePoint setup, Dataverse tables, Power Automate workflows, ALM integration
+
+- **Agent Essentials Control Mapping Reference** (`docs/reference/agent-essentials-control-mapping.md`)
+  - Microsoft's 8 Agent Essentials categories mapped to FSI controls
+  - Implementation notes and checklist items per category
+  - Quick reference matrix by zone
+  - Implementation priority phasing
+
+- **Sponsorship Lifecycle Workflows Playbook** (`docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md`)
+  - Zone 2 quarterly and Zone 3 monthly review workflows
+  - Sponsor departure handling with automated reassignment
+  - Zone 3 immediate suspension on sponsor loss
+  - Evidence collection and attestation reporting
+  - Integration with Control 3.6 orphan detection
+
+- **Agent 365 Observability Implementation Guide** (`docs/playbooks/advanced-implementations/agent-365-observability/`)
+  - `index.md` - Architecture overview, telemetry signal categories, zone requirements
+  - `opentelemetry-setup.md` - Collector configuration, zone-specific settings, SDK integration
+  - `application-insights-workbooks.md` - 5 workbook templates (Performance, Interaction, Security, Sponsor, Incident)
+  - `alerting-configuration.md` - Zone-based thresholds, 13 alert definitions, escalation matrix
+
+### Enhanced
+
+- **mkdocs.yml** - Added navigation for all new playbooks and reference documents
+- **docs/reference/index.md** - Added links to new reference documents
+
+### Files Summary
+
+| Action | Count | Files |
+|--------|-------|-------|
+| CREATE | 11 | New playbooks and reference documents |
+| UPDATE | 3 | mkdocs.yml, reference/index.md, CHANGELOG.md |
+
+### Gap Source
+
+- Manus AI Advisory Review v1 (January 27, 2026) - Gaps 1-6
+- Agent 365 & Copilot Studio Enhancement Plan
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: Pass (61 controls valid)
+- All internal links resolve
+
+---
+
 ## [1.2.5] — January 27, 2026 (Agent 365 v2 Review Minor Gap Remediation)
 
 ### Overview
