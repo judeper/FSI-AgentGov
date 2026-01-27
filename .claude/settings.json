@@ -6,6 +6,10 @@
       "Bash(python3:*)",
       "Bash(python:*)",
       "Bash(pip:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
       "Read",
       "Glob",
       "Grep"

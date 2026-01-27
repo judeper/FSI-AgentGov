@@ -13,6 +13,7 @@ import json
 import os
 import re
 import platform
+import shlex
 
 # Project root - detect dynamically based on script location
 # Script is at: {PROJECT_ROOT}/scripts/hooks/boundary-check.py
@@ -111,15 +112,22 @@ def check_command(command):
     # (relative paths are fine - they operate from current directory)
     # On Unix, check for paths starting with / that aren't the project or ~/.claude/
     if not IS_WINDOWS:
-        # Check if command has absolute paths
-        command_parts = command_lower.split()
+        # Use shlex.split for proper quote handling
+        try:
+            command_parts = shlex.split(command_lower)
+        except ValueError:
+            # Malformed quotes - fall back to simple split
+            command_parts = command_lower.split()
+
         has_disallowed_absolute_path = False
         if command_parts:
             # Check first part and any arguments for absolute paths
             for part in command_parts:
-                if part.startswith('/'):
+                # Strip any remaining quotes
+                part_clean = part.strip('"\'')
+                if part_clean.startswith('/'):
                     # Allow if within project or Claude global directory
-                    if part.startswith(project_lower) or part.startswith(claude_global_lower):
+                    if part_clean.startswith(project_lower) or part_clean.startswith(claude_global_lower):
                         continue
                     has_disallowed_absolute_path = True
                     break
