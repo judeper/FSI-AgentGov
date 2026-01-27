@@ -50,6 +50,37 @@ Microsoft Entra Agent ID provides identity and access management for AI agents, 
 - **Anomaly Detection** - Identify unusual agent behavior patterns
 - **Human Sponsorship** - Require human accountability for agent lifecycle
 
+#### Agentic Users: Identity Characteristics
+
+Agentic User is a distinct identity type in Microsoft Entra ID, purpose-built for AI agents. Unlike traditional service principals or managed identities, Agentic Users are designed to represent autonomous agents that act on behalf of the organization while maintaining clear human accountability.
+
+| Characteristic | Description |
+|----------------|-------------|
+| **Identity Type** | First-class identity in Entra directory (not a service principal) |
+| **Credentials** | Cannot have traditional credentials (no password, no MFA prompts) |
+| **Authentication** | Uses certificate-based or managed identity authentication |
+| **Licensing** | Can be assigned licenses (e.g., Copilot Studio, Microsoft 365) |
+| **Directory Visibility** | Appears in organization directory alongside users |
+| **Sponsorship** | Requires human sponsor for accountability and lifecycle governance |
+| **Group Membership** | Can be added to security groups for access management |
+| **Conditional Access** | Subject to Conditional Access policies like human users |
+
+**Why Agentic Users Matter for FSI:**
+
+- **Audit Trail** - Agentic Users provide distinct identity records in audit logs, separating agent actions from human actions
+- **Access Governance** - License assignment and group membership enable granular access control
+- **Regulatory Visibility** - Examiners can query the directory to see all agents with organizational access
+- **Accountability Chain** - Sponsor requirement creates clear human accountability for agent behavior
+
+**Directory Representation:**
+
+Agentic Users appear in Entra ID with the following attributes:
+
+- `userType`: "AgenticUser"
+- `accountEnabled`: true/false (for lifecycle management)
+- `sponsorId`: Reference to human sponsor's Entra ID
+- `agentMetadata`: Custom attributes for classification and governance
+
 ### Layer 3: Conditional Access (Policy Enforcement)
 
 Conditional Access policies control how agents access organizational resources based on risk signals and compliance requirements.
@@ -98,6 +129,70 @@ Conditional Access policies control how agents access organizational resources b
 
 ---
 
+## Agent Sponsorship Governance
+
+Human sponsorship is a foundational requirement for Agentic Users, creating clear accountability chains for agent behavior and lifecycle management.
+
+### Sponsor Requirements
+
+| Requirement | Description |
+|-------------|-------------|
+| **Eligibility** | Must be a licensed user with appropriate role (varies by zone) |
+| **Approval Chain** | Zone 1: Self-sponsor; Zone 2: Manager approval; Zone 3: Director + Compliance approval |
+| **Sponsor Limits** | Recommended maximum of 10 agents per sponsor (configurable by policy) |
+| **Documentation** | Business justification required for Zone 2+ agents |
+
+### Lifecycle Workflows with Entra ID Governance
+
+Microsoft Entra ID Lifecycle Workflows automate sponsor-related governance activities:
+
+**Periodic Sponsor Reviews:**
+
+| Zone | Review Frequency | Review Scope |
+|------|------------------|--------------|
+| Zone 1 | Semi-annual | Sponsor confirms continued need |
+| Zone 2 | Quarterly | Sponsor + manager attestation |
+| Zone 3 | Monthly | Sponsor + compliance review of agent activity |
+
+**Re-Attestation Workflow:**
+
+1. Lifecycle Workflow triggers review task based on zone schedule
+2. Sponsor receives attestation request via email/Teams
+3. Sponsor reviews agent activity summary and confirms continued need
+4. If not attested within 14 days, agent is automatically suspended
+5. Compliance team notified of suspensions for regulatory tracking
+
+**Sponsor Departure Handling:**
+
+When a sponsor leaves the organization or changes roles:
+
+| Trigger | Action | Timeline |
+|---------|--------|----------|
+| Sponsor termination detected | Workflow triggers reassignment task | Immediate |
+| No replacement assigned | Agent suspended (not deleted) | 14 days |
+| Replacement sponsor assigned | Agent reactivated with new sponsor | Upon assignment |
+| Agent in Zone 3 | Auto-suspend immediately; compliance notification | Immediate |
+
+**Configuration in Entra ID:**
+
+1. Navigate to **Entra ID** > **Identity Governance** > **Lifecycle Workflows**
+2. Create workflow with trigger: "Employee leaves organization"
+3. Add condition: User is sponsor of Agentic User(s)
+4. Configure tasks:
+   - Send notification to backup sponsor (if defined)
+   - Send escalation to manager after 7 days
+   - Suspend agent if no action after 14 days
+5. Enable workflow and monitor in Lifecycle Workflows dashboard
+
+### Sponsorship Best Practices
+
+- **Backup Sponsors** - Designate secondary sponsors for Zone 3 agents to prevent disruption
+- **Sponsor Training** - Require sponsors to complete agent governance training before assignment
+- **Activity Visibility** - Ensure sponsors have access to agent activity dashboards
+- **Escalation Paths** - Define clear escalation when sponsors are unresponsive to attestation requests
+
+---
+
 ## Implementation Approach
 
 ### Phase 1: Foundation (Agent ID)
@@ -139,8 +234,11 @@ Conditional Access policies control how agents access organizational resources b
 - [Microsoft Learn: Agent ID Overview](https://learn.microsoft.com/en-us/entra/agent-id/)
 - [Microsoft Learn: Agent Identities for AI Agents](https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents)
 - [Microsoft Learn: Governing Agent Identities](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
+- [Microsoft Learn: Entra ID Lifecycle Workflows](https://learn.microsoft.com/en-us/entra/id-governance/what-are-lifecycle-workflows)
 - [Microsoft Learn: Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-blueprint)
 - [Microsoft Learn: Agent 365 Deployment Checklist (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-checklist)
+- [Microsoft Learn: Agent 365 Identity (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity)
+- [Microsoft Learn: Agent 365 Observability (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability)
 
 ---
 
