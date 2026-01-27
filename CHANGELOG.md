@@ -6,6 +6,68 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.5] — January 27, 2026 (Agent 365 v2 Review Minor Gap Remediation)
+
+### Overview
+
+Addresses 3 minor gaps identified in the Manus AI v2 advisory review. The v2 review confirmed that all major gaps from the v1 remediation were successfully addressed; these are minor enhancements to provide additional depth.
+
+### Added
+
+- **Agentic User Identity Characteristics** (`docs/framework/agent-identity-architecture.md`)
+  - New subsection explaining Agentic User as a distinct identity type in Entra ID
+  - Characteristics table: no credentials, can have licenses, directory visibility, sponsorship required
+  - FSI relevance: audit trail separation, access governance, regulatory visibility, accountability chain
+  - Directory representation attributes (userType, accountEnabled, sponsorId, agentMetadata)
+
+- **Agent Sponsorship Governance** (`docs/framework/agent-identity-architecture.md`)
+  - Sponsor requirements table (eligibility, approval chain, limits, documentation)
+  - Lifecycle Workflows integration with Entra ID Governance
+  - Periodic sponsor reviews by zone (semi-annual/quarterly/monthly)
+  - Re-attestation workflow with auto-suspend after 14 days
+  - Sponsor departure handling with automatic reassignment triggers
+  - Entra ID configuration steps for lifecycle workflows
+  - Sponsorship best practices (backup sponsors, training, activity visibility)
+
+- **Shadow Agent Detection** (`docs/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`)
+  - New orphan category: "Shadow Agent (Unmanaged)" with Critical risk and 7-day SLA
+  - Definition: Agents in tenant but not in registry (vs. orphaned = known agents losing owners)
+  - FSI regulatory importance (audit gaps, data exposure, compliance failures)
+  - Discovery methods table (PowerShell, Defender for Cloud Apps, Entra, M365 Admin)
+  - 4-step discovery process with PowerShell examples
+  - Risk assessment factors and remediation decision matrix
+  - Zone-specific scanning requirements (monthly/weekly/daily by zone)
+  - Integration with Control 3.1 (Agent Inventory)
+  - Defender for Cloud Apps integration steps
+
+### Enhanced
+
+- **Microsoft Learn URLs** - Added 4 new URLs:
+  - Agent 365 Identity (Preview): `https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity`
+  - Agent 365 Observability (Preview): `https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability`
+  - Entra ID Lifecycle Workflows: `https://learn.microsoft.com/en-us/entra/id-governance/what-are-lifecycle-workflows`
+  - Defender for Cloud Apps Shadow IT: `https://learn.microsoft.com/en-us/defender-cloud-apps/tutorial-shadow-it`
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `docs/framework/agent-identity-architecture.md` | Added Agentic User characteristics + Sponsorship Governance sections (+98 lines) |
+| `docs/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md` | Added Shadow Agent Detection section (+106 lines) |
+| `CHANGELOG.md` | This entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: Pass (61 controls valid)
+- Researcher package regenerated
+
+### Gap Source
+
+Manus AI Advisory Review v2 (January 27, 2026) - Minor gaps 4.1, 4.2, 4.3
+
+---
+
 ## [1.2.4] — January 27, 2026 (Microsoft 365 Agent Governance Integration)
 
 ### Overview
