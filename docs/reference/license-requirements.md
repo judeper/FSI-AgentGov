@@ -155,4 +155,56 @@ To verify current license assignments:
 
 ---
 
+## Agent 365 SDK Licensing (Preview)
+
+> **Note:** Agent 365 SDK licensing is in preview and subject to change. Check Microsoft documentation for current requirements.
+
+### Agent 365 Feature Tiers
+
+| Tier | Included Features | Licensing Basis |
+|------|-------------------|-----------------|
+| **Standard** | Blueprint registration, basic SDK features, M365 Admin Center visibility | Included with Copilot Studio Premium |
+| **Premium** | Observability SDK, advanced telemetry, compliance export | Additional capacity or per-agent |
+| **Enterprise** | Multi-tenant deployment, cross-tenant agent sharing, advanced governance | Enterprise agreement |
+
+### Blueprint Registration Requirements
+
+| Capability | License Required | Notes |
+|------------|------------------|-------|
+| Blueprint registration | Copilot Studio Premium | Required for Zone 3 agents |
+| Agent identity (Entra) | Microsoft Entra ID P1+ | P2 for PIM/Access Reviews |
+| Observability SDK telemetry | Application Insights (Azure) | Pay-per-use or commitment tier |
+| DSPM integration | Microsoft 365 E5 or E5 Compliance | Activity Explorer ingestion |
+
+### Observability SDK Premium Features
+
+| Feature | Tier | Description |
+|---------|------|-------------|
+| Basic telemetry | Standard | Metrics and basic traces |
+| Prompt/response logging | Premium | Full conversation capture |
+| Compliance export | Premium | WORM-ready export formats |
+| Real-time alerting | Premium | Azure Monitor integration |
+| Custom instrumentation | Enterprise | SDK extensibility APIs |
+
+### Multi-Tenant Licensing Considerations
+
+For FSI organizations with multiple tenants (e.g., separate tenants for different business units or regulatory jurisdictions):
+
+| Scenario | Licensing Approach |
+|----------|-------------------|
+| **Single tenant, multiple environments** | Standard per-environment licensing |
+| **Multi-tenant, centralized governance** | Enterprise agreement with cross-tenant licensing |
+| **ISV/white-label agents** | Per-customer deployment licensing |
+
+### Cost Planning for Agent 365
+
+| Component | Cost Driver | Optimization |
+|-----------|------------|--------------|
+| Blueprint registration | Per-agent registration | Consolidate agents where appropriate |
+| Observability telemetry | Data ingestion volume | Configure sampling for Zone 1 |
+| Application Insights | Retention duration | Align retention with regulatory minimums |
+| DSPM integration | Activity Explorer storage | Archive older data to cold storage |
+
+---
+
 *Last Updated: January 2026*

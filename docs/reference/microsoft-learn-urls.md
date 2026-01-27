@@ -122,6 +122,12 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Agent 365 SDK Overview** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/ | Jan 2026 |
 | **Blueprint Registration** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/registration | Jan 2026 |
 
+### Agent 365 Security
+
+| Topic | URL | Last Verified |
+|-------|-----|---------------|
+| **Agent 365 Security Overview** | https://learn.microsoft.com/en-us/security/security-for-ai/agent-365-security | Jan 2026 |
+
 For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Identity Architecture](../framework/agent-identity-architecture.md).
 
 ---
@@ -429,5 +435,5 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 ---
 
 *Last Updated: January 2026*
-*Total URLs Tracked: 164*
+*Total URLs Tracked: 165*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*
