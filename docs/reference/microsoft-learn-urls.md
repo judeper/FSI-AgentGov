@@ -5,7 +5,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 - **Organization:** by topic area (admin teams typically search by product)
 - **Automated Monitoring:** `scripts/learn_monitor.py` checks these URLs daily for content changes
 - **Last Verified:** last time this specific URL was checked for accuracy
-- **Total URLs Tracked:** ~190 (Learn URLs only, excludes admin portals and regulatory references)
+- **Total URLs Tracked:** ~175 (Learn URLs only, excludes admin portals and regulatory references)
 
 ---
 
@@ -40,8 +40,15 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Analytics** | https://learn.microsoft.com/en-us/power-platform/admin/analytics-common-data-service | Jan 2026 |
 | Export Analytics to Azure | https://learn.microsoft.com/en-us/power-platform/admin/self-service-analytics | Jan 2026 |
 | **Agent Inventory** | https://learn.microsoft.com/en-us/power-platform/admin/tenant-wide-agent-inventory | Jan 2026 |
+| Power Platform Inventory | https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory | Jan 2026 |
 | Monitor Copilot Studio | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio | Jan 2026 |
+| **Monitoring Hub** | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitoring-overview | Jan 2026 |
+| Monitor Alerts | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts | Jan 2026 |
 | Admin Activity Logging | https://learn.microsoft.com/en-us/power-platform/admin/admin-activity-logging | Jan 2026 |
+| **Copilot Hub** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Jan 2026 |
+| **Maker Onboarding (Welcome Content)** | https://learn.microsoft.com/en-us/power-platform/admin/welcome-content | Jan 2026 |
+| **Agent Access Points** | https://learn.microsoft.com/en-us/power-platform/admin/security/identity-access-management#agent-access-points-preview | Jan 2026 |
+| **Copilot Studio Message Capacity** | https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-messages-capacity | Jan 2026 |
 | **Business Continuity** | https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery | Jan 2026 |
 | Backup and Restore | https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments | Jan 2026 |
 | Regions Overview | https://learn.microsoft.com/en-us/power-platform/admin/regions-overview | Jan 2026 |
@@ -62,6 +69,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Pipelines Overview** | https://learn.microsoft.com/en-us/power-platform/alm/pipelines | Jan 2026 |
 | Set Up Pipelines | https://learn.microsoft.com/en-us/power-platform/alm/set-up-pipelines | Jan 2026 |
 | Run Pipelines | https://learn.microsoft.com/en-us/power-platform/alm/run-pipeline | Jan 2026 |
+| **Default Deployment Pipeline** | https://learn.microsoft.com/en-us/power-platform/alm/default-deployment-pipeline-rule-for-environment-groups | Jan 2026 |
 | Solution Concepts | https://learn.microsoft.com/en-us/power-platform/alm/solution-concepts-alm | Jan 2026 |
 | Admin Deployment Hub | https://learn.microsoft.com/en-us/power-platform/alm/admin-deployment-hub | Jan 2026 |
 
@@ -73,6 +81,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Copilot Studio Overview** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio | Jan 2026 |
 | **Security and Governance** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance | Jan 2026 |
+| **Sensitivity Labels in Copilot Studio** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio | Jan 2026 |
 | **Agent Publishing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels | Jan 2026 |
 | Share and Manage Agents | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots | Jan 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview | Jan 2026 |
@@ -435,5 +444,5 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 ---
 
 *Last Updated: January 2026*
-*Total URLs Tracked: 165*
+*Total URLs Tracked: 174*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*
