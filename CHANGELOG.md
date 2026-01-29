@@ -6,6 +6,300 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.10] — January 29, 2026 (AI-SPM and DLP Updates)
+
+### Overview
+
+Addresses verified findings from external feedback review (Manus AI analysis). This release adds Defender AI-SPM as a new control and updates DLP and DSPM documentation with current Microsoft capabilities.
+
+### Feedback Review Summary
+
+| Finding | Feedback Claim | Validity | Action |
+|---------|---------------|----------|--------|
+| Entra Agent ID | "Complete rewrite needed" | **INVALID** | None - already comprehensive in agent-identity-architecture.md |
+| Runtime Protection | "Lacks webhook detail" | **PARTIALLY VALID** | Enhanced Security Webhooks API section |
+| AI-SPM | "Missing AI-SPM" | **VALID** | New Control 1.24 created |
+| Foundry Control Plane | "No mention" | **OUT OF SCOPE** | Azure AI Foundry outside Power Platform focus |
+| DLP Mandatory | "Needs update" | **VALID** | Updated Control 1.5 |
+| DSPM Expansion | "Needs expansion" | **PARTIALLY VALID** | Updated Control 1.6 |
+
+### Added
+
+- **Control 1.24: Defender AI Security Posture Management (AI-SPM)** (`docs/controls/pillar-1-security/1.24-defender-ai-security-posture-management.md`)
+  - Multi-cloud AI security posture for Azure, AWS Bedrock, GCP Vertex AI
+  - Agent discovery and AI Bill of Materials (AI BOM)
+  - Attack path analysis for AI workloads
+  - Risk factor assessment (prompt injection, data exfiltration)
+  - Relationship to DSPM for AI (complementary controls)
+  - Zone-specific requirements (monthly/weekly/daily reviews)
+
+- **Control 1.24 Playbooks** (`docs/playbooks/control-implementations/1.24/`)
+  - `portal-walkthrough.md` - Defender for Cloud AI-SPM configuration
+  - `powershell-setup.md` - Az.Security and Resource Graph scripts
+  - `verification-testing.md` - Test cases and attestation template
+  - `troubleshooting.md` - Common issues and resolutions
+
+### Enhanced
+
+- **Control 1.5 (DLP and Sensitivity Labels)**
+  - Added mandatory DLP enforcement notice (since early 2025, no opt-out)
+  - Added Copilot Studio DLP Connector Categories table (Knowledge Sources, Channels, Actions, AI Services)
+  - Added HTTP Endpoint Filtering section with allow/block list examples
+
+- **Control 1.6 (DSPM for AI)**
+  - Added Supported AI Workloads table (M365 Copilot, Copilot Studio, ChatGPT Enterprise, Gemini, Purview SDK apps)
+  - Added Extended Insights configuration note for third-party AI monitoring
+
+- **Control 1.8 (Runtime Protection)**
+  - Expanded Security Webhooks API section with provider types and integration patterns
+  - Added configuration requirements (Entra app, webhook endpoint, response format, SLA)
+  - Added vendor assessment checklist for third-party security providers
+
+### Changed
+
+- **Control count:** 61 → 62 controls
+- **Pillar 1 count:** 23 → 24 controls
+- Updated `CONTROL-INDEX.md` with Control 1.24
+- Updated `pillar-1-security/index.md` with Control 1.24 and category updates
+- Updated `mkdocs.yml` navigation for Control 1.24 and playbooks
+
+### Files Summary
+
+| Action | Count | Key Files |
+|--------|-------|-----------|
+| CREATE | 5 | Control 1.24 + 4 playbooks |
+| UPDATE | 7 | Controls 1.5, 1.6, 1.8, CONTROL-INDEX, pillar index, mkdocs.yml, CHANGELOG |
+
+### Cross-Reference Enhancements
+
+Minor additions to improve control interconnection based on verification report review:
+
+- **Control 3.9 (Sentinel Integration)** - Added XDR detection scenario row and Control 1.24 (AI-SPM) cross-reference
+- **Control 2.17 (Multi-Agent Orchestration)** - Added Control 1.24 (AI-SPM) cross-reference for coordinator agent visibility
+- **Control 4.1 (SharePoint IAG)** - Added Control 1.6 (DSPM for AI) cross-reference for oversharing assessment
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: Pass (62 controls valid)
+- All internal links resolve
+
+---
+
+## [1.2.9] — January 29, 2026 (Environment Lifecycle Management)
+
+### Overview
+
+Added Environment Lifecycle Management advanced implementation playbook for automated, governed Power Platform environment provisioning.
+
+**Problem:** Manual environment provisioning creates governance gaps. Inconsistent security controls (auditing, DLP, session timeouts) applied post-creation. No structured audit trail of who requested what environment, why, and who approved it.
+
+**Solution:** Copilot Studio intake agent with zone classification, Power Automate provisioning via Service Principal, Dataverse tracking with immutable ProvisioningLog, automated baseline configuration applied at creation.
+
+### Added
+
+- **Environment Lifecycle Management Playbook** (6 docs)
+  - `index.md` - Overview, regulatory alignment, framework integration
+  - `architecture.md` - Dataverse schema, Service Principal lifecycle, security model, fault tolerance patterns
+  - `implementation-copilot-intake.md` - Copilot Studio intake agent with zone classification
+  - `implementation-provisioning.md` - Power Automate flows with async polling, baseline config
+  - `labs.md` - Hands-on labs 1-4
+  - `evidence-and-audit.md` - ProvisioningLog immutability, evidence standards
+
+### Enhanced
+
+- **Control 2.1** - Added Environment Lifecycle Management cross-reference (creates environments as Managed from start)
+- **Control 2.2** - Added Environment Lifecycle Management cross-reference (auto-assigns to Environment Groups)
+- **Control 2.3** - Added Environment Lifecycle Management cross-reference (treats provisioning as controlled change)
+- **Control 2.8** - Added Environment Lifecycle Management cross-reference (requester ≠ approver enforcement)
+- **Control 2.13** - Added Environment Lifecycle Management cross-reference (immutable provisioning audit trail)
+- **Control 2.15** - Added Environment Lifecycle Management cross-reference (zone-based request routing)
+- **Control 1.7** - Added Environment Lifecycle Management cross-reference (provisioning audit logging)
+- **Control 3.1** - Added Environment Lifecycle Management cross-reference (automatic inventory registration)
+- **Control 3.2** - Added Environment Lifecycle Management cross-reference (usage insights from creation)
+- **Control 3.6** - Added Environment Lifecycle Management cross-reference (prevents orphaned environments)
+
+### Regulatory Alignment
+
+| Regulation | Requirement | How This Solution Helps |
+|------------|-------------|------------------------|
+| **FINRA 4511** | Records of business activities (6+ years) | ProvisioningLog provides immutable request/approval/action audit trail |
+| **SEC 17a-3/4** | Records preservation with audit trail | Dataverse change tracking, quarterly export to compliant storage |
+| **SOX 302/404** | Internal control assessment and certification | Documented approval workflows, segregation of duties |
+| **GLBA 501(b)** | Administrative safeguards for customer information | Baseline configuration applies consistent security controls at creation |
+| **OCC 2011-12** | Model risk documentation | Zone classification documents risk tier for agent workloads |
+
+### Key Architecture Features
+
+- **Service Principal Identity** - Decouples provisioning from human credential lifecycle
+- **Immutable ProvisioningLog** - Organization-owned table with no update/delete privileges
+- **Async Polling Pattern** - Handles non-deterministic environment creation (1-30+ minutes)
+- **Fault Tolerance** - Error handling, timeout definitions, rollback procedures
+- **Zone Classification Review** - Auto-triggers flag for Compliance review, not auto-approve
+- **DLP Policy Inheritance** - Environment Group assignment ensures no policy gap
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md` | Created - Overview and regulatory alignment |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` | Created - Schema, security model, fault tolerance |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md` | Created - Intake agent configuration |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md` | Created - Provisioning flow implementation |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/labs.md` | Created - Hands-on labs 1-4 |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md` | Created - Evidence standards and audit |
+| `mkdocs.yml` | Added Environment Lifecycle Management navigation |
+| `docs/controls/pillar-2-management/2.1-managed-environments.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md` | Added cross-reference |
+| `docs/controls/pillar-2-management/2.15-environment-routing.md` | Added cross-reference |
+| `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Added cross-reference |
+| `docs/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md` | Added cross-reference |
+| `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | Added cross-reference |
+| `docs/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md` | Added cross-reference |
+| `CHANGELOG.md` | This entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- All cross-references resolve
+- Navigation renders correctly
+
+---
+
+## [1.2.8] — January 28, 2026 (Pipeline Governance Cleanup Cross-Reference)
+
+### Overview
+
+Added documentation cross-references to the new Pipeline Governance Cleanup Solution in FSI-AgentGov-Solutions repository.
+
+### Added
+
+- **Control 2.3 Cross-Reference** - Added tip admonition referencing Pipeline Governance Cleanup Solution for organizations needing to clean up personal pipelines before enforcing centralized ALM governance
+- **Troubleshooting Entry** - Added pre-existing personal pipelines cleanup guidance to Control 2.3 troubleshooting playbook
+
+### Changed
+
+- **Boundary Check Hook** - Updated `scripts/hooks/boundary-check.py` to allow commands targeting the companion FSI-AgentGov-Solutions repository
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md` | Added Pipeline Governance Cleanup tip admonition |
+| `docs/playbooks/control-implementations/2.3/troubleshooting.md` | Added pre-existing personal pipelines section |
+| `scripts/hooks/boundary-check.py` | Added FSI-AgentGov-Solutions to allowed directories |
+| `CHANGELOG.md` | This entry |
+
+### Related
+
+- [Pipeline Governance Cleanup Solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) (new in FSI-AgentGov-Solutions v1.0.0)
+
+### Validation
+
+- `mkdocs build --strict`: Pass
+- All cross-references resolve
+
+---
+
+## [1.2.7] — January 28, 2026 (Regulatory Accuracy Remediation)
+
+### Overview
+
+Addresses findings from consolidated technical and regulatory review (Feedback01). This release focuses on regulatory citation accuracy, language precision, and framework enhancements.
+
+### Critical Fixes
+
+- **FINRA Notice 25-07 Citation Correction** (35+ files)
+  - Corrected misattribution of FINRA Notice 25-07 as AI governance guidance
+  - FINRA 25-07 (April 2025) addresses workplace modernization rules, NOT AI governance
+  - AI supervision citations now reference FINRA Rule 3110 (Supervision) and Rule 2111 (Suitability)
+  - AI communications recordkeeping references retained with proper context
+  - Control 2.11 renamed from `2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md` to `2.11-bias-testing-and-fairness-assessment.md`
+
+- **GLBA 72-Hour Claim Removal** (Control 3.4, ai-incident-response-playbook.md)
+  - Removed unsupported 72-hour GLBA notification claim
+  - Replaced with accurate guidance: notification timelines vary by regulator and incident type
+
+- **SEC Reg S-P Notification Precision** (Control 3.4)
+  - Updated to reflect 2024 amendments (effective December 3, 2025)
+  - Specifies ≤30 days notification requirement after awareness of unauthorized access
+
+- **NYDFS Part 500.13 RPO Clarification** (Control 3.1)
+  - Separated minimum NYDFS required fields from FSI recommended fields
+  - RPO, criticality tier, and backup compliance status now identified as recommended enhancements
+
+- **Zone 3 Retention Period Clarification** (zones-and-tiers.md)
+  - Clarified 10-year retention as conservative buffer exceeding SEC 17a-3/4 (6+3 years)
+
+- **Zone 1 Regulatory Exemption Language** (zones-and-tiers.md)
+  - Changed from absolute exemption to conditional guidance
+  - Added recommendation to confirm applicability with compliance/legal
+
+### High Priority Fixes
+
+- **GLBA Section Standardization** (Controls 1.6, 2.14, 4.1, 4.4)
+  - Standardized GLBA 501(a) references to 501(b) where appropriate
+  - Added 504(b) pretexting footnote where retained
+
+- **Control 1.22 Information Barriers** - Expanded regulatory citations to include SEC Rules 14e-5, Regulation M; FINRA Rules 2241, 5270
+
+- **Agent 365 Preview Disclaimers** (6 controls) - Added prominent warning admonitions for preview status
+
+- **OWASP Citation Correction** (Control 2.7) - Changed unverified "OWASP Agentic AI Top 10" to "OWASP LLM Top 10 (2023)" with LLM05 reference
+
+- **MCP Governance Clarification** (Controls 1.4, 2.7) - Clarified MCP as open protocol requiring vendor risk management
+
+- **Pricing Examples** (Control 3.5) - Marked as illustrative with links to Microsoft pricing portal
+
+- **Agent 365 Code Examples** (observability playbook) - Marked as illustrative pseudocode with verification note
+
+### Medium Priority Fixes
+
+- **Observability Guidance Separation** (Controls 1.7, 3.2) - Added agent type-specific guidance (Copilot Studio vs Agent 365 SDK)
+
+- **Conflict of Interest Types** (Control 2.18) - Added table specifying conflict types to test
+
+- **SharePoint RSS Limit Note** (Control 4.1) - Added verification note for 100-site limit
+
+### Low Priority Fixes
+
+- **Character Encoding** (pillar-4 index) - Fixed em-dash encoding artifact
+
+- **Licensing Prerequisites** (Control 4.1) - Added SharePoint Advanced Management licensing section
+
+- **DSPM for AI Evolving Feature** (Controls 1.5, 1.6) - Added note about actively developing feature set
+
+### Framework Enhancements
+
+- **AML/KYC/OFAC Awareness** (Control 3.3) - Added assessment questions and scope note
+
+- **SEC Reg S-ID Reference** (regulatory-mappings.md) - Acknowledged Red Flags Rule with related controls
+
+- **AI RIA Scoring Rubrics** (ai-risk-assessment-template.md) - Added detailed scoring criteria and simplified assessment path
+
+- **Exception Criteria** (Control 2.2) - Added risk-based exception criteria for simplified classification
+
+- **Emergency Change Procedures** (Control 2.3) - Added CAB emergency path with rollback authority
+
+### Files Summary
+
+| Action | Count | Key Files |
+|--------|-------|-----------|
+| RENAME | 1 | Control 2.11 (removed FINRA 25-07 from filename) |
+| UPDATE | 60+ | Controls, playbooks, framework, reference documents |
+
+### Validation
+
+- `python scripts/verify_controls.py`: Pass (61 controls valid)
+- FINRA 25-07 grep validation: Only recordkeeping context remains
+- GLBA 72-hour grep validation: No claims remain
+- Old Control 2.11 filename: No references remain
+
+---
+
 ## [1.2.6] — January 27, 2026 (Agent 365 Operational Depth Enhancements)
 
 ### Overview

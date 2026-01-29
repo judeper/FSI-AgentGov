@@ -1,12 +1,12 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (61 Controls)
+## Complete Control Reference (62 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
 ---
 
-## Pillar 1: Security Controls (23 Controls)
+## Pillar 1: Security Controls (24 Controls)
 
 | Control ID | Control Name |
 |-----------|----------|
@@ -33,6 +33,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) |
 | 1.22 | [Information Barriers for AI Agents](pillar-1-security/1.22-information-barriers.md) |
 | 1.23 | [Step-Up Authentication for AI Agent Operations](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) |
+| 1.24 | [Defender AI Security Posture Management (AI-SPM)](pillar-1-security/1.24-defender-ai-security-posture-management.md) |
 
 ## Pillar 2: Management Controls (21 Controls)
 
@@ -48,7 +49,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.8 | [Access Control and Segregation of Duties](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) |
 | 2.9 | [Agent Performance Monitoring and Optimization](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) |
 | 2.10 | [Patch Management and System Updates](pillar-2-management/2.10-patch-management-and-system-updates.md) |
-| 2.11 | [Bias Testing and Fairness Assessment (FINRA Notice 25-07 / SR 11-7 Alignment)](pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) |
+| 2.11 | [Bias Testing and Fairness Assessment](pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
 | 2.12 | [Supervision and Oversight (FINRA Rule 3110)](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | 2.13 | [Documentation and Record Keeping](pillar-2-management/2.13-documentation-and-record-keeping.md) |
 | 2.14 | [Training and Awareness Program](pillar-2-management/2.14-training-and-awareness-program.md) |
@@ -111,7 +112,7 @@ Each control is documented with three governance levels:
 
 ## Pillar Descriptions
 
-### Pillar 1: Security Controls (23 Controls)
+### Pillar 1: Security Controls (24 Controls)
 Focus: Protect data and systems from unauthorized access, misuse, and exploitation.
 - Authentication and Authorization
 - Data Loss Prevention
@@ -169,7 +170,7 @@ Focus: Govern SharePoint content accessed by agents with specific access, retent
 
 The framework covers compliance requirements for:
 
-- **FINRA**: Rules 3110, 4511, 4512 + Regulatory Notice 25-07
+- **FINRA**: Rules 3110, 4511, 4512, 2111 (Suitability)
 - **SEC**: Rules 17a-3/4, 10b-5, Reg BI, Reg S-P
 - **SOX**: Sections 302, 404 (internal controls and reporting)
 - **GLBA**: Sections 501, 504, 505 (safeguards and privacy)
