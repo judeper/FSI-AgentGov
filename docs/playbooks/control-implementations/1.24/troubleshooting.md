@@ -127,7 +127,7 @@ Get-AzResource | Where-Object {
 ## Related Documentation
 
 - [Defender for Cloud Troubleshooting](https://learn.microsoft.com/en-us/azure/defender-for-cloud/troubleshooting-guide)
-- [Attack Path Analysis FAQ](https://learn.microsoft.com/en-us/azure/defender-for-cloud/attack-path-faq)
+- [Attack Path Analysis](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-attack-path)
 - [Multi-cloud Connector Setup](https://learn.microsoft.com/en-us/azure/defender-for-cloud/quickstart-onboard-aws)
 
 ---
