@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.6** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.10** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
-- **61 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
-- **1 advanced implementation** (Platform Change Governance with Dataverse)
+- **6 advanced implementations** (Platform Change Governance, Environment Lifecycle Management, Agent 365 Observability, etc.)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
 - **Audience:** M365 administrators in US financial services
@@ -42,13 +42,13 @@ FSI-AgentGov/
 │   └── skills/                # On-demand workflow guides (YAML frontmatter)
 ├── docs/
 │   ├── framework/             # Layer 1: Governance principles (10 docs)
-│   ├── controls/              # Layer 2: Control catalog (61 controls)
-│   │   ├── pillar-1-security/     # 1.1-1.23 (23 controls)
+│   ├── controls/              # Layer 2: Control catalog (62 controls)
+│   │   ├── pillar-1-security/     # 1.1-1.24 (24 controls)
 │   │   ├── pillar-2-management/   # 2.1-2.21 (21 controls)
 │   │   ├── pillar-3-reporting/    # 3.1-3.10 (10 controls)
 │   │   └── pillar-4-sharepoint/   # 4.1-4.7 (7 controls)
-│   ├── playbooks/             # Layer 3: Implementation guides (250 files)
-│   │   ├── control-implementations/  # 4 playbooks per control (244 files)
+│   ├── playbooks/             # Layer 3: Implementation guides (254 files)
+│   │   ├── control-implementations/  # 4 playbooks per control (248 files)
 │   │   └── advanced-implementations/ # Complex multi-control solutions (6 files)
 │   ├── reference/             # Supporting materials
 │   ├── downloads/             # Excel templates
@@ -79,7 +79,7 @@ FSI-AgentGov/
 
 | Pillar | Controls | Focus |
 |--------|----------|-------|
-| Pillar 1 - Security | 1.1-1.23 (23) | Data protection, access, audit |
+| Pillar 1 - Security | 1.1-1.24 (24) | Data protection, access, audit |
 | Pillar 2 - Management | 2.1-2.21 (21) | Lifecycle, risk, operations |
 | Pillar 3 - Reporting | 3.1-3.10 (10) | Visibility, metrics, dashboards |
 | Pillar 4 - SharePoint | 4.1-4.7 (7) | Content governance, grounding |
@@ -94,6 +94,7 @@ FSI-AgentGov/
 
 **Advanced Implementations** - Complex multi-control solutions in `docs/playbooks/advanced-implementations/`:
 - `platform-change-governance/` - Message Center governance with Dataverse (6 docs)
+- `environment-lifecycle-management/` - Automated environment provisioning (6 docs)
 
 ---
 
@@ -196,7 +197,7 @@ python scripts/compile_researcher_package.py
 
 ### What "Pass" Means
 - `mkdocs build --strict` produces zero errors/warnings
-- `verify_controls.py` reports all 61 controls valid
+- `verify_controls.py` reports all 62 controls valid
 - No broken internal links
 
 ---
@@ -267,6 +268,7 @@ python scripts/learn_monitor.py --verbose
 | Understand Agent ID vs Blueprint | `docs/framework/agent-identity-architecture.md` |
 | Learn about the doc monitor | `docs/reference/learn-monitor-guide.md` |
 | Implement Platform Change Governance | `docs/playbooks/advanced-implementations/platform-change-governance/` |
+| Implement Environment Lifecycle Management | `docs/playbooks/advanced-implementations/environment-lifecycle-management/` |
 | Review language rules | `CONTRIBUTING.md` |
 | View release history | `CHANGELOG.md` |
 
@@ -309,26 +311,36 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.6 (January 2026)
-**Status:** All 61 controls complete, 244 control playbooks + 17 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+**Version:** 1.2.10 (January 2026)
+**Status:** All 62 controls complete, 248 control playbooks + 23 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.5-v1.2.6):**
+**Recent Additions (v1.2.10):**
+- **Control 1.24: Defender AI-SPM** - Multi-cloud AI security posture management (Azure, AWS, GCP) with agent discovery, attack path analysis, and AI Bill of Materials
+- **Control 1.5 Update** - Mandatory DLP enforcement notice (since early 2025), Copilot Studio DLP connector categories, HTTP endpoint filtering
+- **Control 1.6 Update** - Expanded workload coverage (ChatGPT Enterprise, Gemini, Purview SDK apps)
+- **Control 1.8 Update** - Enhanced Security Webhooks API section with vendor assessment guidance
+
+**Previous Additions (v1.2.8-v1.2.9):**
+- **Environment Lifecycle Management** - Automated environment provisioning playbook with Copilot Studio intake agent
+- **Pipeline Governance Cleanup Cross-Reference** - Added cross-references to new FSI-AgentGov-Solutions tool
+
+**Previous Additions (v1.2.7):**
+- **Regulatory Accuracy Remediation** - FINRA Notice 25-07 citation corrections (35+ files), GLBA 72-hour claim removal, SEC Reg S-P precision
+- **Framework Enhancements** - AML/KYC/OFAC awareness, SEC Reg S-ID reference, AI RIA scoring rubrics, exception criteria
+
+**Previous Additions (v1.2.5-v1.2.6):**
 - **Agent 365 Operational Depth** - Conditional Access agent templates, audit event taxonomy, Blueprint promotion gates playbook
 - **Agent Essentials Mapping** - Microsoft's 8-category framework mapped to FSI controls
 - **Sponsorship Lifecycle** - Workflows for sponsor reviews and departure handling
 - **Observability Implementation** - OpenTelemetry setup, Application Insights workbooks, alerting configuration
 - **Control 2.21** - AI Marketing Claims and Substantiation (SEC Marketing Rule, FINRA 2210)
 
-**Previous Additions (v1.2.0-v1.2.4):**
-- **Agent Identity Architecture** - Framework document explaining Agent ID vs Blueprint architecture with decision matrix
-- **Agent 365 Integration** - 15 controls updated with Microsoft Agent Essentials and Agent 365 SDK preview references
-
 For detailed release history, see `CHANGELOG.md`.
 
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.6
+- **Framework Version:** 1.2.10
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

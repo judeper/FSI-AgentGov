@@ -123,6 +123,7 @@ nav:
       - 1.21 Adversarial Input Logging: controls/pillar-1-security/1.21-adversarial-input-logging.md
       - 1.22 Information Barriers: controls/pillar-1-security/1.22-information-barriers.md
       - 1.23 Step-Up Authentication: controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md
+      - 1.24 Defender AI-SPM: controls/pillar-1-security/1.24-defender-ai-security-posture-management.md
     - Pillar 2 - Management:
       - Overview: controls/pillar-2-management/index.md
       - 2.1 Managed Environments: controls/pillar-2-management/2.1-managed-environments.md
@@ -135,7 +136,7 @@ nav:
       - 2.8 Segregation of Duties: controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md
       - 2.9 Performance Monitoring: controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md
       - 2.10 Patch Management: controls/pillar-2-management/2.10-patch-management-and-system-updates.md
-      - 2.11 Bias Testing: controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md
+      - 2.11 Bias Testing: controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md
       - 2.12 Supervision and Oversight: controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
       - 2.13 Documentation: controls/pillar-2-management/2.13-documentation-and-record-keeping.md
       - 2.14 Training Program: controls/pillar-2-management/2.14-training-and-awareness-program.md
@@ -290,6 +291,11 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/1.23/powershell-setup.md
           - Verification: playbooks/control-implementations/1.23/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/1.23/troubleshooting.md
+        - 1.24 Defender AI-SPM:
+          - Portal Walkthrough: playbooks/control-implementations/1.24/portal-walkthrough.md
+          - PowerShell Setup: playbooks/control-implementations/1.24/powershell-setup.md
+          - Verification: playbooks/control-implementations/1.24/verification-testing.md
+          - Troubleshooting: playbooks/control-implementations/1.24/troubleshooting.md
       - Pillar 2 - Management:
         - 2.1 Managed Environments:
           - Portal Walkthrough: playbooks/control-implementations/2.1/portal-walkthrough.md
@@ -544,6 +550,13 @@ nav:
         - OpenTelemetry Setup: playbooks/advanced-implementations/agent-365-observability/opentelemetry-setup.md
         - Application Insights Workbooks: playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks.md
         - Alerting Configuration: playbooks/advanced-implementations/agent-365-observability/alerting-configuration.md
+      - Environment Lifecycle Management:
+        - Overview: playbooks/advanced-implementations/environment-lifecycle-management/index.md
+        - Architecture: playbooks/advanced-implementations/environment-lifecycle-management/architecture.md
+        - Copilot Intake Agent: playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md
+        - Provisioning Flows: playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md
+        - Labs: playbooks/advanced-implementations/environment-lifecycle-management/labs.md
+        - Evidence and Audit: playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md

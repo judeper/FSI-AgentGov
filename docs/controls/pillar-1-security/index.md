@@ -4,7 +4,7 @@ Protect data and systems from unauthorized access, misuse, and exploitation.
 
 ## Overview
 
-Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 23 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
+Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 24 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
 
 **Primary Regulatory Alignment:** FINRA 4511 (recordkeeping), SEC 17a-3/4 (records retention), GLBA 501(b) (safeguards), SOX 302/404 (internal controls)
 
@@ -15,7 +15,8 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 | Access Management | 1.1-1.4 | Agent publishing, connectors, permissions |
 | Data Protection | 1.5-1.9 | DLP, sensitivity labels, retention, encryption |
 | Monitoring & Detection | 1.10-1.14 | Compliance monitoring, insider risk, threat detection |
-| Advanced Security | 1.15-1.22 | IRM, endpoint DLP, RBAC, eDiscovery, network isolation, adversarial input detection, information barriers |
+| Advanced Security | 1.15-1.23 | IRM, endpoint DLP, RBAC, eDiscovery, network isolation, adversarial input, information barriers, step-up auth |
+| Security Posture | 1.24 | Multi-cloud AI security posture management |
 
 ## Controls
 - [1.1 Restrict Agent Publishing by Authorization](1.1-restrict-agent-publishing-by-authorization.md)
@@ -41,6 +42,7 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 - [1.21 Adversarial Input Logging](1.21-adversarial-input-logging.md)
 - [1.22 Information Barriers for AI Agents](1.22-information-barriers.md)
 - [1.23 Step-Up Authentication for AI Agent Operations](1.23-step-up-authentication-for-agent-operations.md)
+- [1.24 Defender AI Security Posture Management (AI-SPM)](1.24-defender-ai-security-posture-management.md)
 
 ---
 
