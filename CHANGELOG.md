@@ -70,6 +70,14 @@ Addresses verified findings from external feedback review (Manus AI analysis). T
 | CREATE | 5 | Control 1.24 + 4 playbooks |
 | UPDATE | 7 | Controls 1.5, 1.6, 1.8, CONTROL-INDEX, pillar index, mkdocs.yml, CHANGELOG |
 
+### Cross-Reference Enhancements
+
+Minor additions to improve control interconnection based on verification report review:
+
+- **Control 3.9 (Sentinel Integration)** - Added XDR detection scenario row and Control 1.24 (AI-SPM) cross-reference
+- **Control 2.17 (Multi-Agent Orchestration)** - Added Control 1.24 (AI-SPM) cross-reference for coordinator agent visibility
+- **Control 4.1 (SharePoint IAG)** - Added Control 1.6 (DSPM for AI) cross-reference for oversharing assessment
+
 ### Validation
 
 - `mkdocs build --strict`: Pass
