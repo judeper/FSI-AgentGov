@@ -2,8 +2,8 @@
 
 **Purpose:** Provide near-real-time governance visibility for Copilot/agent usage, data access, and policy enforcement—so compliance can evidence continuous monitoring rather than periodic reviews.  
 **Applies to:** Zone 3 (required), Zone 2 (recommended for medium/high impact), Zone 1 (optional summary view).  
-**Evidence grounding:** Microsoft Purview audit logs for Copilot and AI interactions include `AccessedResources` (including sensitivity labels and policy restriction details), plus `AgentId`, `AgentName`, and `AgentVersion`, enabling dashboards to summarize what data was accessed and which agents were involved. [page:16]  
-**Control grounding:** Microsoft Purview supports auditing, retention, eDiscovery, and compliance controls for AI interactions, and emphasizes using these capabilities to manage the risks of AI usage across supported Copilots and agents. [page:17]
+**Evidence grounding:** Microsoft Purview audit logs for Copilot and AI interactions include `AccessedResources` (including sensitivity labels and policy restriction details), plus `AgentId`, `AgentName`, and `AgentVersion`, enabling dashboards to summarize what data was accessed and which agents were involved. <sup>[16]</sup>  
+**Control grounding:** Microsoft Purview supports auditing, retention, eDiscovery, and compliance controls for AI interactions, and emphasizes using these capabilities to manage the risks of AI usage across supported Copilots and agents. <sup>[17]</sup>
 
 ---
 
@@ -27,7 +27,7 @@ Use for:
 - policy blocks/restrictions
 - agent identity (AgentId/Name/Version)
 
-Purview audit records include `AccessedResources` (with `SensitivityLabelId`, `PolicyDetails`, and `XPIADetected` flags) and agent identifiers like `AgentId`, `AgentName`, and `AgentVersion`. [page:16]
+Purview audit records include `AccessedResources` (with `SensitivityLabelId`, `PolicyDetails`, and `XPIADetected` flags) and agent identifiers like `AgentId`, `AgentName`, and `AgentVersion`. <sup>[16]</sup>
 
 ### S2) Decision logs (Gap 2)
 Use for:
@@ -56,7 +56,7 @@ Use for:
 - **Business owner view:** only their agents + remediation tasks
 - **Auditor view:** read-only evidence pack exports (time-boxed)
 
-Dashboards should avoid exposing prompt content by default; rely on IDs and metadata unless explicitly authorized and supported. [page:17]
+Dashboards should avoid exposing prompt content by default; rely on IDs and metadata unless explicitly authorized and supported. <sup>[17]</sup>
 
 ---
 
@@ -65,17 +65,17 @@ Dashboards should avoid exposing prompt content by default; rely on IDs and meta
 ### 4.1 Inventory & lifecycle
 - Total agents (by zone)
 - Agents with missing required artifacts (AAM/PDHP/EDM links)
-- Agents with unapproved versions observed in audit logs (`AgentVersion` drift) [page:16]
+- Agents with unapproved versions observed in audit logs (`AgentVersion` drift) <sup>[16]</sup>
 
 ### 4.2 Audit and evidence completeness
 - % interactions with valid `AgentId`
-- % interactions with non-empty `AccessedResources` [page:16]
+- % interactions with non-empty `AccessedResources` <sup>[16]</sup>
 - Decision-log coverage rate (decision logs per material interaction)
 - Exportable evidence pack readiness (Yes/No per Zone 3 agent)
 
 ### 4.3 Data boundary and policy enforcement
-- Count of interactions accessing Confidential vs Restricted labels (via `SensitivityLabelId`) [page:16]
-- Count of policy restricted/blocked resources (via `PolicyDetails`) [page:16]
+- Count of interactions accessing Confidential vs Restricted labels (via `SensitivityLabelId`) <sup>[16]</sup>
+- Count of policy restricted/blocked resources (via `PolicyDetails`) <sup>[16]</sup>
 - DLP rule match counts (if integrated via DSPM/Activity Explorer—optional)
 
 ### 4.4 Scope creep / drift (Gap 3)
@@ -85,8 +85,8 @@ Dashboards should avoid exposing prompt content by default; rely on IDs and meta
 - Time-to-detect (MTTD)
 
 ### 4.5 Prompt-injection / attack surface (optional but recommended)
-- XPIA detections count (`XPIADetected == true`) [page:16]
-- JailbreakDetected counts if captured via message metadata (where available) [page:16]
+- XPIA detections count (`XPIADetected == true`) <sup>[16]</sup>
+- JailbreakDetected counts if captured via message metadata (where available) <sup>[16]</sup>
 
 ### 4.6 Escalation and incident operations
 - Escalations by severity per week
@@ -107,9 +107,9 @@ Dashboards should avoid exposing prompt content by default; rely on IDs and meta
 Show:
 - identity + owners + zone/level
 - last 7/30/90 day activity counts (from audit)
-- top accessed resources (SiteUrl/type) [page:16]
-- label distribution (SensitivityLabelId) [page:16]
-- policy blocks summary (PolicyDetails) [page:16]
+- top accessed resources (SiteUrl/type) <sup>[16]</sup>
+- label distribution (SensitivityLabelId) <sup>[16]</sup>
+- policy blocks summary (PolicyDetails) <sup>[16]</sup>
 - drift events summary
 - escalation + SLA summary
 - links to:
@@ -140,13 +140,13 @@ Provide a one-click path (or documented runbook) to export:
 - **Retention:** align with your records policy; maintain long enough to support exams/investigations.
 - **Immutability:** evidence exports should be stored append-only (or immutable storage).
 
-Microsoft Purview highlights auditing, retention, and eDiscovery as mechanisms to manage AI interaction compliance obligations. [page:17]
+Microsoft Purview highlights auditing, retention, and eDiscovery as mechanisms to manage AI interaction compliance obligations. <sup>[17]</sup>
 
 ---
 
 ## 7) Implementation approach (pragmatic MVP)
 
-1. **Phase 0:** define metric computation logic + field mappings (especially from `AccessedResources`, `SensitivityLabelId`, `PolicyDetails`, `AgentId`, `AgentVersion`). [page:16]
+1. **Phase 0:** define metric computation logic + field mappings (especially from `AccessedResources`, `SensitivityLabelId`, `PolicyDetails`, `AgentId`, `AgentVersion`). <sup>[16]</sup>
 2. **Phase 1:** implement dashboard with 10–15 core metrics for Zone 3.
 3. **Phase 2:** add drill-downs + evidence export runbook.
 4. **Phase 3:** add automated weekly compliance summary + anomaly detection.
@@ -166,5 +166,5 @@ Microsoft Purview highlights auditing, retention, and eDiscovery as mechanisms t
 
 ## 9) Appendix: Key Purview audit fields used
 
-Purview Copilot audit logs include `AccessedResources` with `SensitivityLabelId`, `PolicyDetails`, and `XPIADetected`, and include agent identity fields like `AgentId`, `AgentName`, and `AgentVersion`. [page:16]  
-Purview also supports compliance operations for AI interactions including auditing and eDiscovery/retention, which should be referenced as part of the governance evidence approach. [page:17]
+Purview Copilot audit logs include `AccessedResources` with `SensitivityLabelId`, `PolicyDetails`, and `XPIADetected`, and include agent identity fields like `AgentId`, `AgentName`, and `AgentVersion`. <sup>[16]</sup>  
+Purview also supports compliance operations for AI interactions including auditing and eDiscovery/retention, which should be referenced as part of the governance evidence approach. <sup>[17]</sup>

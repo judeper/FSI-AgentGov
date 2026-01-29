@@ -330,6 +330,9 @@ exporters:
 Configure the Agent 365 SDK to export telemetry:
 
 ```javascript
+// ILLUSTRATIVE PSEUDOCODE - Verify against current Microsoft documentation
+// Last verified: January 2026 | Status: Preview
+
 // agent-telemetry-config.js
 const { NodeSDK } = require('@opentelemetry/sdk-node');
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
@@ -396,6 +399,9 @@ module.exports = { sdk, instrumentAgentInteraction };
 For PowerShell-based agents:
 
 ```powershell
+# ILLUSTRATIVE PSEUDOCODE - Verify against current Microsoft documentation
+# Last verified: January 2026 | Status: Preview
+
 # Agent telemetry helper functions
 function Initialize-AgentTelemetry {
     param(

@@ -2,9 +2,9 @@
 
 **Purpose:** Define, per agent, what data it can access, how it can use it, and what protections apply (labels, DLP, retention, eDiscovery posture).  
 **Applies to:** All zones (Zone 1–3), with the strictest requirements in Zone 3.  
-**Microsoft grounding:** Microsoft Purview provides data security/compliance controls for Copilot and agents, including sensitivity labels, DLP, auditing, eDiscovery, and retention for AI interactions. [page:9]  
-**Audit grounding:** Purview audit logs for Copilot/AI interactions include references to accessed resources and their sensitivity labels (SensitivityLabelId) and policy block details (PolicyDetails). [page:10]  
-**Related controls (examples):** 1.5 DLP & sensitivity labels, 1.6 Purview DSPM for AI, 1.9 retention, 4.1 SharePoint IAG, 3.3 compliance reporting. [page:3]
+**Microsoft grounding:** Microsoft Purview provides data security/compliance controls for Copilot and agents, including sensitivity labels, DLP, auditing, eDiscovery, and retention for AI interactions. <sup>[9]</sup>  
+**Audit grounding:** Purview audit logs for Copilot/AI interactions include references to accessed resources and their sensitivity labels (SensitivityLabelId) and policy block details (PolicyDetails). <sup>[10]</sup>  
+**Related controls (examples):** 1.5 DLP & sensitivity labels, 1.6 Purview DSPM for AI, 1.9 retention, 4.1 SharePoint IAG, 3.3 compliance reporting. <sup>[3]</sup>
 
 ---
 
@@ -34,7 +34,7 @@ List your org’s labels (example only):
 - Restricted / Highly Confidential
 - Regulated (GLBA/PII), etc.
 
-> Microsoft Purview integrates with sensitivity labels and enforces access controls such that AI apps won’t return data a user doesn’t have access to, with additional protections when encryption/labels are used. [page:9]
+> Microsoft Purview integrates with sensitivity labels and enforces access controls such that AI apps won’t return data a user doesn’t have access to, with additional protections when encryption/labels are used. <sup>[9]</sup>
 
 ### Sensitive information types (SITs) / classifiers in scope
 - (e.g., SSN, account numbers, credit card, taxpayer ID, etc.)
@@ -66,7 +66,7 @@ Only list the sources the agent may use.
 
 ## 5) Label handling rules (what the agent may do with labeled content)
 
-> Purview audit logs can include AccessedResources with SensitivityLabelId and PolicyDetails when access is restricted/blocked, which supports evidencing policy enforcement. [page:10]
+> Purview audit logs can include AccessedResources with SensitivityLabelId and PolicyDetails when access is restricted/blocked, which supports evidencing policy enforcement. <sup>[10]</sup>
 
 ### 5.1 Read rules (retrieval)
 | Label | Agent may retrieve? | Conditions |
@@ -91,7 +91,7 @@ Only list the sources the agent may use.
 
 ## 6) DLP policy requirements
 
-> Microsoft Purview DLP can monitor and help protect against leakage of sensitive information, and can also apply to AI interactions depending on configuration and supported apps. [page:9]
+> Microsoft Purview DLP can monitor and help protect against leakage of sensitive information, and can also apply to AI interactions depending on configuration and supported apps. <sup>[9]</sup>
 
 - **DLP policies required for this agent:** (names/IDs)
 - **Block vs warn vs allow-override:** (per DLP rule)
@@ -101,7 +101,7 @@ Only list the sources the agent may use.
 
 ## 7) AI interaction logging requirements
 
-> Microsoft Purview auditing captures user interactions with Copilot/AI apps and includes references to resources Copilot accessed, including sensitivity labels. [page:10]
+> Microsoft Purview auditing captures user interactions with Copilot/AI apps and includes references to resources Copilot accessed, including sensitivity labels. <sup>[10]</sup>
 
 ### Minimum logging (all zones)
 - agent_id / agent_version
@@ -120,7 +120,7 @@ Only list the sources the agent may use.
 
 ## 8) Retention, eDiscovery, and records posture
 
-> Microsoft Purview supports auditing, eDiscovery, and retention for AI interactions, including prompts/responses stored and searchable for compliance and investigations. [page:9]
+> Microsoft Purview supports auditing, eDiscovery, and retention for AI interactions, including prompts/responses stored and searchable for compliance and investigations. <sup>[9]</sup>
 
 - **Decision log retention period:** (e.g., 7 years / per SEC 17a-4-like policy if applicable)
 - **AI interaction retention period:** (per org policy)

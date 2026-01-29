@@ -2,8 +2,8 @@
 
 **Purpose:** Detect and contain “agent drift” where an agent’s *effective scope* expands over time (new data sources, connectors, permissions, actions, or emergent behaviors) beyond the approved baseline.  
 **Applies to:** Zone 3 (required), and Zone 2 agents that access Confidential/Restricted data or initiate workflows/actions.  
-**Regulatory driver:** FINRA’s 2026 oversight report highlights that AI agents may act beyond intended “scope and authority” and calls for monitoring agent system access and data handling, tracking agent actions and decisions, and establishing guardrails to limit agent behavior. [page:16]  
-**Evidence driver:** Microsoft Purview “CopilotInteraction” audit records include `AccessedResources` (including sensitivity label IDs and policy restriction details), and agent identifiers such as `AgentId`, `AgentName`, and `AgentVersion`, enabling drift detection and correlation to specific agents/versions. [page:16]
+**Regulatory driver:** FINRA’s 2026 oversight report highlights that AI agents may act beyond intended “scope and authority” and calls for monitoring agent system access and data handling, tracking agent actions and decisions, and establishing guardrails to limit agent behavior. <sup>[16]</sup>  
+**Evidence driver:** Microsoft Purview “CopilotInteraction” audit records include `AccessedResources` (including sensitivity label IDs and policy restriction details), and agent identifiers such as `AgentId`, `AgentName`, and `AgentVersion`, enabling drift detection and correlation to specific agents/versions. <sup>[16]</sup>
 
 ---
 
@@ -24,9 +24,9 @@
 
 ### T2) Audit telemetry
 - Purview Copilot audit logs:
-  - `AgentId`, `AgentName`, `AgentVersion` [page:16]
-  - `AccessedResources` including `SiteUrl`, `ID`, `Type`, `Action`, `Status`, `SensitivityLabelId`, and `PolicyDetails` [page:16]
-  - Optional: `XPIADetected` for cross prompt injection detection [page:16]
+  - `AgentId`, `AgentName`, `AgentVersion` <sup>[16]</sup>
+  - `AccessedResources` including `SiteUrl`, `ID`, `Type`, `Action`, `Status`, `SensitivityLabelId`, and `PolicyDetails` <sup>[16]</sup>
+  - Optional: `XPIADetected` for cross prompt injection detection <sup>[16]</sup>
 
 ### T3) Decision logs (Gap 2)
 - decision_id, confidence band, routing, action_result, policy IDs invoked, tool calls
@@ -73,11 +73,11 @@ For each governed agent, define baseline as:
 **Action:** Block (where possible) + create S1 escalation + log decision + open ticket.
 
 ### D2) New data scope access (hard signal)
-**Trigger:** `AccessedResources.SiteUrl` (or resource identifiers) fall outside baseline allowlist. [page:16]  
+**Trigger:** `AccessedResources.SiteUrl` (or resource identifiers) fall outside baseline allowlist. <sup>[16]</sup>  
 **Action:** Alert + optionally block; create escalation ticket.
 
 ### D3) Label boundary breach (hard signal)
-**Trigger:** `AccessedResources.SensitivityLabelId` indicates prohibited class OR `PolicyDetails` indicates block/restriction. [page:16]  
+**Trigger:** `AccessedResources.SensitivityLabelId` indicates prohibited class OR `PolicyDetails` indicates block/restriction. <sup>[16]</sup>  
 **Action:** Escalate; treat as S1 if prohibited label boundary is crossed.
 
 ### D4) Abnormal volume / anomalous behavior (soft signal with thresholds)
@@ -85,11 +85,11 @@ For each governed agent, define baseline as:
 **Action:** Throttle + escalate to owner for review; tune threshold to reduce false positives.
 
 ### D5) Rising policy hit rate (soft signal)
-**Trigger:** Increasing frequency of `PolicyDetails` blocks or DLP matches (week-over-week). [page:16]  
+**Trigger:** Increasing frequency of `PolicyDetails` blocks or DLP matches (week-over-week). <sup>[16]</sup>  
 **Action:** Review prompt patterns, data sources, and update controls.
 
 ### D6) Agent version change without governance review (hard signal)
-**Trigger:** New `AgentVersion` observed in audit logs without corresponding change ticket approval. [page:16]  
+**Trigger:** New `AgentVersion` observed in audit logs without corresponding change ticket approval. <sup>[16]</sup>  
 **Action:** Escalate; optionally disable agent until approved.
 
 ---
@@ -102,7 +102,7 @@ Order of preference:
 3. **Throttle**: rate-limits to stop runaway automation.
 4. **Disable**: temporarily block the agent (admin center controls) for severe/unknown drift.
 
-FINRA highlights autonomy and scope/authority risks in agents and calls for guardrails to limit agent behavior, actions, or decisions. [page:16]
+FINRA highlights autonomy and scope/authority risks in agents and calls for guardrails to limit agent behavior, actions, or decisions. <sup>[16]</sup>
 
 ---
 
@@ -130,9 +130,9 @@ Minimum metrics per agent (weekly):
 ## Testing plan (required)
 
 ### Negative tests (must pass)
-- Attempt to access non-allowlisted SharePoint site ⇒ alert/block + logged. [page:16]
+- Attempt to access non-allowlisted SharePoint site ⇒ alert/block + logged. <sup>[16]</sup>
 - Attempt to invoke prohibited connector ⇒ blocked + logged.
-- Attempt to access prohibited label class ⇒ blocked or policy restricted + escalated. [page:16]
+- Attempt to access prohibited label class ⇒ blocked or policy restricted + escalated. <sup>[16]</sup>
 
 ### Regression tests
 - New approved scope change should not generate drift alerts after baseline update.
@@ -144,13 +144,13 @@ Minimum metrics per agent (weekly):
 - Baseline exists for every Zone 3 agent (AAM + PDHP + baseline config record).
 - Drift signals are detected from audit logs and/or platform telemetry.
 - Alerts are routed and tracked (ticket IDs).
-- Evidence is reproducible from Purview export (operation filter + offline filtering by AgentId/version). [page:16]
+- Evidence is reproducible from Purview export (operation filter + offline filtering by AgentId/version). <sup>[16]</sup>
 - Quarterly governance review includes drift summary and remediation actions.
 
 ---
 
 ## Implementation notes (pragmatic)
 
-- Use Purview audit logs as the canonical “what resources were accessed” signal for Copilot/agent interactions, because records include `AccessedResources` and label IDs. [page:16]
+- Use Purview audit logs as the canonical “what resources were accessed” signal for Copilot/agent interactions, because records include `AccessedResources` and label IDs. <sup>[16]</sup>
 - Decision logs provide the “why” and “what was attempted,” which complements audit metadata.
 - Keep false positives low by separating “hard” drift (policy boundary crossings) from “soft” drift (anomalies) and requiring human review before enforcement escalation for soft signals.

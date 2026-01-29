@@ -183,7 +183,7 @@ Compliance Officer
 
 | Regulation | Review Focus | Action Required |
 |------------|--------------|-----------------|
-| **FINRA 25-07** | AI supervision guidance updates | Update supervision procedures |
+| **FINRA 3110** | AI supervision requirements | Update supervision procedures |
 | **SEC AI Priorities** | Examination focus areas | Align documentation |
 | **OCC 2011-12 / SR 11-7** | Model risk guidance | Review validation procedures |
 | **State Regulations** | NYDFS, state-specific requirements | Verify compliance |
@@ -212,7 +212,7 @@ EXECUTIVE SUMMARY
 2. REGULATORY ALIGNMENT
    | Regulation | Status | Gaps | Remediation |
    |------------|--------|------|-------------|
-   | FINRA 25-07 | [Status] | [Gaps] | [Plan] |
+   | FINRA 3110 | [Status] | [Gaps] | [Plan] |
    | SEC 17a-3/4 | [Status] | [Gaps] | [Plan] |
    | OCC 2011-12 | [Status] | [Gaps] | [Plan] |
    | SOX 302/404 | [Status] | [Gaps] | [Plan] |

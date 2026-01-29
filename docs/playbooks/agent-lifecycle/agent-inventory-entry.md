@@ -4,7 +4,7 @@
 **Applies to:** All zones (Zone 1–3).  
 **Microsoft grounding:** Microsoft 365 admins can manage Copilot agents (deploy/assign/block/remove) through the Microsoft 365 admin center, treating agents as manageable assets at tenant scope. [web:119]  
 **Audit grounding:** Microsoft Purview audit logs for Copilot/AI interactions include details like accessed resources (including sensitivity label IDs) and policy restriction details, which can be correlated back to an agent inventory. [web:118]  
-**Related controls (examples):** 3.1 Agent Inventory and Registration, 2.3 Change management, 2.12 Supervision/oversight, 1.7 Audit logging. [page:3]
+**Related controls (examples):** 3.1 Agent Inventory and Registration, 2.3 Change management, 2.12 Supervision/oversight, 1.7 Audit logging. <sup>[3]</sup>
 
 ---
 

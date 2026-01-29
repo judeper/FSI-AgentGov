@@ -138,4 +138,4 @@ I attest that:
 
 ---
 
-[Back to Control 2.11](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 2.11](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)

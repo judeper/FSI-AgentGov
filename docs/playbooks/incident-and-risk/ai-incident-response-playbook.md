@@ -177,7 +177,7 @@ T+0:30 - Scope Assessment
 ├── Check for ongoing exposure
 
 T+2:00 - Regulatory Assessment
-├── GLBA notification requirements (72 hours)
+├── GLBA notification requirements (varies by regulator)
 ├── State breach notification laws
 ├── FINRA/SEC notification if applicable
 ├── Document assessment and decisions
@@ -243,7 +243,7 @@ T+4:00 - Statistical Analysis
 T+24:00 - Compliance Assessment
 ├── Evaluate against fair lending requirements
 ├── Check for Reg BI compliance
-├── Review FINRA 25-07 alignment
+├── Review FINRA Rule 3110 (Supervision) requirements
 └── Document findings
 
 If bias confirmed:
@@ -276,10 +276,10 @@ If bias not confirmed:
 
 | Regulation | Trigger | Timeline | Recipient |
 |------------|---------|----------|-----------|
-| **GLBA 501(b)** | Customer NPI breach | 72 hours | Affected customers |
+| **GLBA 501(b)** | Customer NPI breach | Varies by regulator; map applicable requirements | Primary regulator, affected customers |
 | **State Breach Laws** | PII exposure | Varies (24-72 hours) | State AG, affected individuals |
 | **FINRA 4530** | Significant security incident | Prompt | FINRA |
-| **SEC Reg S-P** | Customer information breach | Reasonable time | SEC |
+| **SEC Reg S-P (2024)** | Customer information breach | ≤30 days after awareness | Affected customers |
 | **OCC** | Significant incident (banks) | Prompt | Primary regulator |
 
 ### Notification Decision Matrix

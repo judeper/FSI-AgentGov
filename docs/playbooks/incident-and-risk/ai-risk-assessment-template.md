@@ -175,6 +175,37 @@ Use this template to assess risks before deploying new agents or promoting exist
 
 ---
 
+## Scoring Rubrics
+
+### Data Risk (1-3)
+
+| Score | Criteria |
+|-------|----------|
+| 1 (Low) | Public data only, no PII, no customer information |
+| 2 (Medium) | Internal data, employee PII, non-regulated business data |
+| 3 (High) | Customer PII, financial data, regulated information (NPI, PHI) |
+
+### Regulatory Risk (1-3)
+
+| Score | Criteria |
+|-------|----------|
+| 1 (Low) | No regulatory applicability, internal productivity only |
+| 2 (Medium) | FINRA 3110 supervision applies, internal recordkeeping |
+| 3 (High) | SEC 17a-3/4, GLBA 501(b), customer-facing, examination scope |
+
+### Simplified Assessment Path
+
+Agents may qualify for a simplified 1-page checklist assessment if ALL of the following apply:
+
+- Total weighted score ≤ 1.5
+- User count ≤ 10
+- Not customer-facing
+- No regulated data access
+
+Otherwise, use the comprehensive assessment template.
+
+---
+
 ## Residual Risk Assessment
 
 After applying mitigating controls, assess residual risk:

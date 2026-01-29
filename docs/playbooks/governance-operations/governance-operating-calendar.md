@@ -161,7 +161,7 @@ AI Governance Lead approval: _________________ Date: _________
 
 | Task | Control Reference | Owner | Duration |
 |------|-------------------|-------|----------|
-| Bias/fairness regression testing | [2.11](../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | QA/Compliance | 6 hours |
+| Bias/fairness regression testing | [2.11](../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | QA/Compliance | 6 hours |
 | Model risk review (Zone 3 agents) | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Risk | 4 hours |
 | Adversarial red team exercise | [2.20](../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Security | 8 hours |
 | Information barrier validation | [1.22](../../controls/pillar-1-security/1.22-information-barriers.md) | Compliance | 2 hours |

@@ -85,7 +85,7 @@ The framework is organized into three layers:
 
 Controls map to major US financial regulations:
 
-- **FINRA 4511/3110/25-07** — Books and records, supervision, AI governance
+- **FINRA 4511/3110** — Books and records, supervision
 - **SEC 17a-3/4** — Recordkeeping requirements
 - **SOX 302/404** — Internal controls
 - **GLBA 501(b)** — Safeguards rule

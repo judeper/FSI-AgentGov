@@ -2,26 +2,26 @@
 
 **Purpose:** Standardize the DSPM for AI “baseline” posture (prereqs + one-click policies + evidence) so you can consistently monitor and protect AI interactions across Copilot and agents.  
 **Applies to:** Zone 2/3 by default; optionally scoped to high-risk users/groups first, then expanded.  
-**Microsoft grounding:** DSPM for AI requires appropriate permissions, Purview auditing enabled (needed for monitoring Copilot and agents), and (for some scenarios) collection policies to capture prompts/responses. [page:15]  
-**Policy grounding:** DSPM for AI can create default policies (DLP, insider risk, communication compliance, collection policies) including “Protect items with sensitivity labels from Microsoft 365 Copilot and agent processing.” [page:15]  
-**Implementation note:** The “AI interaction” event may not always display prompt/response text, and for collection policies prompt/response isn’t displayed unless content capture is enabled. [page:15]
+**Microsoft grounding:** DSPM for AI requires appropriate permissions, Purview auditing enabled (needed for monitoring Copilot and agents), and (for some scenarios) collection policies to capture prompts/responses. <sup>[15]</sup>  
+**Policy grounding:** DSPM for AI can create default policies (DLP, insider risk, communication compliance, collection policies) including “Protect items with sensitivity labels from Microsoft 365 Copilot and agent processing.” <sup>[15]</sup>  
+**Implementation note:** The “AI interaction” event may not always display prompt/response text, and for collection policies prompt/response isn’t displayed unless content capture is enabled. <sup>[15]</sup>
 
 ---
 
 ## 1) Prerequisites checklist (must be true before “policy pack” rollout)
 
 ### 1.1 Permissions
-- [ ] Required Purview roles/permissions are assigned to the DSPM for AI operators. [page:15]
+- [ ] Required Purview roles/permissions are assigned to the DSPM for AI operators. <sup>[15]</sup>
 
 ### 1.2 Auditing (required for Copilot + agents monitoring)
-- [ ] Microsoft Purview auditing is enabled for the organization (verify). [page:15]
+- [ ] Microsoft Purview auditing is enabled for the organization (verify). <sup>[15]</sup>
 
 ### 1.3 Licensing
-- [ ] Users who will be monitored for Microsoft 365 Copilot and agents are assigned a Microsoft 365 Copilot license. [page:15]
+- [ ] Users who will be monitored for Microsoft 365 Copilot and agents are assigned a Microsoft 365 Copilot license. <sup>[15]</sup>
 
 ### 1.4 Device/browser requirements (if monitoring third-party AI usage)
-- [ ] Devices onboarded to Microsoft Purview (for visibility and endpoint DLP enforcement). [page:15]
-- [ ] Browser extension deployed where required (Edge/Chrome scenarios). [page:15]
+- [ ] Devices onboarded to Microsoft Purview (for visibility and endpoint DLP enforcement). <sup>[15]</sup>
+- [ ] Browser extension deployed where required (Edge/Chrome scenarios). <sup>[15]</sup>
 
 ---
 
@@ -43,28 +43,28 @@
 
 ## 3) Default “one-click” policies to enable (baseline pack)
 
-> DSPM for AI lists default policies for data discovery and data security, including DLP, insider risk, communication compliance, and collection policies. [page:15]
+> DSPM for AI lists default policies for data discovery and data security, including DLP, insider risk, communication compliance, and collection policies. <sup>[15]</sup>
 
 ### 3.1 Data discovery / visibility (baseline)
 Enable (or equivalent):
-- **DLP (audit mode):** “Detect sensitive info added to AI sites.” [page:15]
-- **Insider risk:** “Detect when users visit AI sites.” [page:15]
-- **Insider risk:** “Detect risky AI usage.” [page:15]
-- **Communication compliance:** “Unethical behavior in AI apps.” [page:15]
+- **DLP (audit mode):** “Detect sensitive info added to AI sites.” <sup>[15]</sup>
+- **Insider risk:** “Detect when users visit AI sites.” <sup>[15]</sup>
+- **Insider risk:** “Detect risky AI usage.” <sup>[15]</sup>
+- **Communication compliance:** “Unethical behavior in AI apps.” <sup>[15]</sup>
 
 ### 3.2 Protection controls (enforcement)
 Enable (or equivalent):
-- **DLP:** “Block sensitive info from AI sites.” [page:15]
-- **DLP:** “Block elevated risk users from submitting prompts to AI apps in Microsoft Edge.” [page:15]
-- **DLP:** “Block sensitive info from AI apps in Edge.” [page:15]
-- **DLP:** “Protect items with sensitivity labels from Microsoft 365 Copilot and agent processing.” [page:15]
-- **Information protection:** sensitivity labels and label policies (if not already configured). [page:15]
+- **DLP:** “Block sensitive info from AI sites.” <sup>[15]</sup>
+- **DLP:** “Block elevated risk users from submitting prompts to AI apps in Microsoft Edge.” <sup>[15]</sup>
+- **DLP:** “Block sensitive info from AI apps in Edge.” <sup>[15]</sup>
+- **DLP:** “Protect items with sensitivity labels from Microsoft 365 Copilot and agent processing.” <sup>[15]</sup>
+- **Information protection:** sensitivity labels and label policies (if not already configured). <sup>[15]</sup>
 
 ### 3.3 Collection policies (content capture where justified)
 Enable only where required and approved:
-- “Capture interactions for Copilot experiences.” [page:15]
-- “Capture interactions for enterprise AI apps.” [page:15]
-- “Detect sensitive info shared with AI via network” (note: content capture is not selected by default and must be enabled manually if required). [page:15]
+- “Capture interactions for Copilot experiences.” <sup>[15]</sup>
+- “Capture interactions for enterprise AI apps.” <sup>[15]</sup>
+- “Detect sensitive info shared with AI via network” (note: content capture is not selected by default and must be enabled manually if required). <sup>[15]</sup>
 
 ---
 
@@ -90,7 +90,7 @@ DSPM for AI’s Activity explorer events include:
 - “AI interaction”
 - “AI website visit”
 - “DLP rule match”
-- “Sensitive info types” [page:15]
+- “Sensitive info types” <sup>[15]</sup>
 
 For monthly governance reporting, capture:
 - counts of AI interactions by app/agent category
@@ -103,8 +103,8 @@ For monthly governance reporting, capture:
 
 ## 6) Known issues and operational cautions
 
-DSPM for AI notes that “AI interaction” doesn’t always display prompt/response text, and for collection policies prompt/response won’t display unless content capture is enabled. [page:15]  
-This means governance evidence should not depend exclusively on “full transcript visibility”; instead, treat DSPM content capture as an approved, scoped capability and rely on structured decision logs + audit event metadata for core evidence. [page:15]
+DSPM for AI notes that “AI interaction” doesn’t always display prompt/response text, and for collection policies prompt/response won’t display unless content capture is enabled. <sup>[15]</sup>  
+This means governance evidence should not depend exclusively on “full transcript visibility”; instead, treat DSPM content capture as an approved, scoped capability and rely on structured decision logs + audit event metadata for core evidence. <sup>[15]</sup>
 
 ---
 

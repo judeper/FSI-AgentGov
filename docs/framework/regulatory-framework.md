@@ -65,7 +65,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness assessment |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Define supervisory procedures |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
@@ -79,37 +79,32 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 ---
 
-### FINRA Regulatory Notice 25-07 — AI Governance
+### FINRA AI Supervision Requirements
 
-!!! info "RFC Status"
-    FINRA Regulatory Notice 25-07 is a **Request for Comment (RFC)** with comment period
-    extending to **July 2025**. Topics described are proposed guidance, not final rules.
+!!! warning "FINRA Notice 25-07 Clarification"
+    FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. For AI supervision requirements, refer to **FINRA Rule 3110** (Supervision), **FINRA Rule 2111** (Suitability), and **FINRA's Annual Regulatory Oversight Report** for current AI examination priorities.
 
-**Overview:** Guidance on model risk management considerations for AI and algorithmic systems. Topics include validation, monitoring, bias, and governance.
+**Overview:** FINRA's AI supervision requirements derive from existing rules that apply to associated persons' use of AI tools for customer communications and recommendations.
 
-**Key Topics:**
+**Key Requirements:**
 
-1. **Model Validation** — Independent testing, performance baseline, bias testing
-2. **Ongoing Monitoring** — Performance tracking, anomaly detection, executive escalation
-3. **Model Governance** — Committee oversight, change control, incident response
+1. **Written Supervisory Procedures (Rule 3110)** — Document AI tool approval, supervisory review, escalation paths
+2. **Suitability (Rule 2111)** — Validate AI recommendations meet suitability standards
+3. **Recordkeeping (Rule 4511)** — Retain AI-generated communications and agent logs
 
 **Applicable Controls:**
 
 | Control | Topic | Mapping |
 |---------|-------|---------|
-| [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data handling governance |
-| [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Ongoing monitoring and alerting |
-| [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Monitor for manipulation attempts |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Records retention for AI communications |
+| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Agent accuracy testing |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Quarterly fairness assessment |
-| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance procedures |
-| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Validate knowledge source quality |
-| [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Govern agent interactions |
-| [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Red team framework |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 11-7 |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Written supervisory procedures |
 | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Monitor output accuracy |
 
-**Framework Approach:** The framework treats agents as models requiring governance aligned with SR 11-7 principles.
+**Framework Approach:** The framework applies FINRA's existing supervision principles to AI agents, treating them as tools requiring documented procedures, ongoing monitoring, and supervisory oversight.
 
 ---
 
@@ -209,7 +204,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 |---------|-------------|---------|
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Model testing |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Comprehensive MRM framework |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness validation |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness validation |
 | [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Input data validation |
 | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback | Output quality monitoring |
@@ -230,7 +225,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 |------|-------------|--------------|-------------------|
 | Zone 1 | None | N/A | None |
 | Zone 2 | Supervisory controls | Rule 3110 | Moderate |
-| Zone 3 | Complete oversight | Rules 3110, 4511, Notice 25-07 | Comprehensive |
+| Zone 3 | Complete oversight | Rules 3110, 4511 | Comprehensive |
 
 ### SEC Examination Focus by Zone
 
@@ -258,7 +253,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 1. Control 2.12 (Supervision) — FINRA 3110
 2. Control 1.7 (Audit Logging) — FINRA 4511, SEC 17a-4
-3. Control 2.11 (Bias Testing) — FINRA 25-07
+3. Control 2.11 (Bias Testing) — FINRA 3110 (supervision of AI tools)
 4. Control 3.3 (Compliance Reporting) — Examination readiness
 
 ### Banks (OCC/Fed)
@@ -334,7 +329,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 |------------|-----------------|-------------------|
 | FINRA 4511 | 9 controls | Books and records |
 | FINRA 3110 | 8 controls | Supervision |
-| FINRA 25-07 | 11 controls | AI governance |
+| FINRA 3110/2111 | 11 controls | AI supervision |
 | SEC 17a-3/4 | 8 controls | Recordkeeping |
 | SOX 302/404 | 6 controls | Internal controls |
 | GLBA 501(b) | 6 controls | Safeguards |

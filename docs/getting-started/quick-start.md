@@ -97,30 +97,35 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 ### Quick Implementation Checklist
 
 **Week 1: Assessment**
+
 - [ ] Classify all existing agents to zones
 - [ ] Create agent inventory
 - [ ] Identify primary regulations
 - [ ] Assign governance roles
 
 **Week 2: Security Baseline**
+
 - [ ] Enable MFA for all agent creators
 - [ ] Implement basic DLP policy
 - [ ] Configure audit logging (1-year)
 - [ ] Document security procedures
 
 **Week 3: Governance**
+
 - [ ] Establish approval workflow for Zone 2+
 - [ ] Create agent registry
 - [ ] Document change control process
 - [ ] Assign Compliance Officer oversight
 
 **Week 4: Monitoring**
+
 - [ ] Set up compliance dashboard
 - [ ] Configure incident alerts
 - [ ] Schedule quarterly reviews
 - [ ] Document governance procedures
 
 **Week 5+: Continuous**
+
 - [ ] Monthly compliance reviews
 - [ ] Quarterly control assessments
 - [ ] Annual regulatory updates

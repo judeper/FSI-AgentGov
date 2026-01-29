@@ -423,7 +423,7 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 |------------|-----------|-----|
 | FINRA Rule 3110 | Supervision | https://www.finra.org/rules-guidance/rulebooks/finra-rules/3110 |
 | FINRA Rule 4511 | Books and Records | https://www.finra.org/rules-guidance/rulebooks/finra-rules/4511 |
-| FINRA Notice 25-07 | AI Governance | https://www.finra.org/rules-guidance/notices/25-07 |
+| FINRA Annual Regulatory Oversight Report | Examination Priorities | https://www.finra.org/rules-guidance/guidance/reports/annual-regulatory-oversight-report |
 | SEC Rule 17a-3 | Records Requirements | https://www.sec.gov/rules/final/34-44992.htm |
 | SEC Rule 17a-4 | Record Preservation | https://www.sec.gov/rules/final/34-38245.txt |
 | SOX Section 302 | Corporate Responsibility | https://www.soxlaw.com/s302.htm |

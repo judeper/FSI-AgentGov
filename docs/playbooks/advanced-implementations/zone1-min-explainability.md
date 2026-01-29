@@ -2,8 +2,8 @@
 
 **Purpose:** Establish a lightweight, privacy-aware “minimum explainability” baseline for **Zone 1 (Personal Productivity)** agents so the organization can evidence supervision/monitoring without treating low-risk chat like a regulated autonomous system.  
 **Applies to:** Zone 1 agents (required baseline), and optionally Zone 2 where informational-only assistants exist.  
-**Regulatory driver (SEC priorities):** SEC 2026 priorities explicitly expand attention to firms’ use of AI and other automated technologies and emphasize evaluating procedures to monitor and/or supervise AI technologies, including for automation of internal processes. [page:18]  
-**Telemetry grounding:** Microsoft Purview audit logs for Copilot/AI interactions include “who/when/where” metadata and references to resources accessed to generate responses, including sensitivity label IDs and policy restriction details. [page:19]
+**Regulatory driver (SEC priorities):** SEC 2026 priorities explicitly expand attention to firms’ use of AI and other automated technologies and emphasize evaluating procedures to monitor and/or supervise AI technologies, including for automation of internal processes. <sup>[18]</sup>  
+**Telemetry grounding:** Microsoft Purview audit logs for Copilot/AI interactions include “who/when/where” metadata and references to resources accessed to generate responses, including sensitivity label IDs and policy restriction details. <sup>[19]</sup>
 
 ---
 
@@ -37,7 +37,7 @@ For each interaction (prompt-response pair or “session”):
 - `policy_block_count` (count of blocked/restricted resources)
 - `escalation_flag` (true/false)
 
-Purview Copilot audit records contain `AccessedResources` with `SensitivityLabelId`, `PolicyDetails`, and `Status`, enabling a Zone 1 evidence record to summarize “what data was accessed” and “was anything blocked.” [page:19]
+Purview Copilot audit records contain `AccessedResources` with `SensitivityLabelId`, `PolicyDetails`, and `Status`, enabling a Zone 1 evidence record to summarize “what data was accessed” and “was anything blocked.” <sup>[19]</sup>
 
 ### 2.2 Explicitly excluded by default (privacy guardrail)
 Do **not** log:
@@ -46,7 +46,7 @@ Do **not** log:
 - full filenames or message contents,
 unless there is an approved collection policy and a clear purpose/need with privacy sign-off.
 
-Microsoft notes audit records reference resources accessed and include metadata rather than requiring you to store full content in custom logs. [page:19]
+Microsoft notes audit records reference resources accessed and include metadata rather than requiring you to store full content in custom logs. <sup>[19]</sup>
 
 ---
 
@@ -55,7 +55,7 @@ Microsoft notes audit records reference resources accessed and include metadata 
 Zone 1 explainability is “traceability,” not model introspection:
 - **What was requested (category):** classify the request type (e.g., summarize, draft, search).
 - **What sources were used:** count and references to resource types (SharePoint/Email/Teams).
-- **What boundaries applied:** whether any policy restricted access (PolicyDetails present). [page:19]
+- **What boundaries applied:** whether any policy restricted access (PolicyDetails present). <sup>[19]</sup>
 - **What confidence was assigned:** band + reason codes (optional).
 - **What happened next:** allow vs escalate.
 
@@ -67,9 +67,9 @@ Even in Zone 1, certain events should escalate to Zone 2/3 processes:
 
 ### 4.1 Mandatory escalation triggers
 - Any attempt to access Restricted/Highly Confidential label classes (if observable)
-- Any policy restriction/block in `PolicyDetails` for sensitive content [page:19]
-- Any prompt jailbreak attempt flagged via `Messages[].JailbreakDetected == true` [page:19]
-- Any cross prompt injection flag via `AccessedResources[].XPIADetected == true` [page:19]
+- Any policy restriction/block in `PolicyDetails` for sensitive content <sup>[19]</sup>
+- Any prompt jailbreak attempt flagged via `Messages[].JailbreakDetected == true` <sup>[19]</sup>
+- Any cross prompt injection flag via `AccessedResources[].XPIADetected == true` <sup>[19]</sup>
 - Repeated low-confidence outcomes for the same user/session (pattern)
 
 ### 4.2 Routing
@@ -80,7 +80,7 @@ Even in Zone 1, certain events should escalate to Zone 2/3 processes:
 
 ## 5) Audit query standard (how to retrieve evidence)
 
-Microsoft states you can access Copilot audit logs in the Purview portal (Audit) and filter using **Activities – operation names** (Operation/RecordType/Workload), and if you need to filter by AppIdentity you export and filter offline. [page:19]
+Microsoft states you can access Copilot audit logs in the Purview portal (Audit) and filter using **Activities – operation names** (Operation/RecordType/Workload), and if you need to filter by AppIdentity you export and filter offline. <sup>[19]</sup>
 
 Minimum saved query:
 - Operation = `CopilotInteraction`
@@ -104,9 +104,9 @@ Weekly:
 
 ## 7) Testing plan (minimum)
 
-- Verify CopilotInteraction audit events are visible for Zone 1 users. [page:19]
-- Verify `AccessedResources` appears for interactions that use internal content. [page:19]
-- Trigger a known DLP/policy block scenario and verify PolicyDetails is logged. [page:19]
+- Verify CopilotInteraction audit events are visible for Zone 1 users. <sup>[19]</sup>
+- Verify `AccessedResources` appears for interactions that use internal content. <sup>[19]</sup>
+- Trigger a known DLP/policy block scenario and verify PolicyDetails is logged. <sup>[19]</sup>
 - Confirm that Zone 1 custom logging does not store prompt/response content by default.
 
 ---
@@ -116,7 +116,7 @@ Weekly:
 - Zone 1 evidence records exist and can be produced for any date range via audit export.
 - Escalation triggers are documented and route correctly.
 - Privacy sign-off exists for the logging scope (especially if any content capture is enabled).
-- Governance can demonstrate it is "monitoring and supervising" AI usage at a baseline level consistent with SEC 2026 priorities language. [page:18]
+- Governance can demonstrate it is "monitoring and supervising" AI usage at a baseline level consistent with SEC 2026 priorities language. <sup>[18]</sup>
 
 ---
 

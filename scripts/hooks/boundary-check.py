@@ -20,12 +20,16 @@ import shlex
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 
+# Companion repository - allow access to Solutions repo
+SOLUTIONS_ROOT = os.path.join(os.path.dirname(PROJECT_ROOT), "FSI-AgentGov-Solutions")
+
 # Claude Code global directory - needed for plans, tasks, session data, etc.
 CLAUDE_GLOBAL_DIR = os.path.expanduser("~/.claude")
 
 # Also define platform-specific patterns for detection
 IS_WINDOWS = platform.system() == "Windows"
 PROJECT_ROOT_UNIX = PROJECT_ROOT.replace("\\", "/")  # Unix-style path
+SOLUTIONS_ROOT_UNIX = SOLUTIONS_ROOT.replace("\\", "/")  # Unix-style path
 CLAUDE_GLOBAL_DIR_UNIX = CLAUDE_GLOBAL_DIR.replace("\\", "/")  # Unix-style path
 
 
@@ -98,6 +102,11 @@ def check_command(command):
     if project_lower in command_lower or PROJECT_ROOT_UNIX.lower() in command_lower:
         return True, "Command explicitly targets project directory"
 
+    # Allow commands targeting companion Solutions repository
+    solutions_lower = SOLUTIONS_ROOT.lower()
+    if solutions_lower in command_lower or SOLUTIONS_ROOT_UNIX.lower() in command_lower:
+        return True, "Command targets companion Solutions repository"
+
     # Allow commands targeting Claude Code global directory (~/.claude/)
     claude_global_lower = CLAUDE_GLOBAL_DIR.lower()
     if claude_global_lower in command_lower or CLAUDE_GLOBAL_DIR_UNIX.lower() in command_lower:
@@ -126,8 +135,10 @@ def check_command(command):
                 # Strip any remaining quotes
                 part_clean = part.strip('"\'')
                 if part_clean.startswith('/'):
-                    # Allow if within project or Claude global directory
-                    if part_clean.startswith(project_lower) or part_clean.startswith(claude_global_lower):
+                    # Allow if within project, Solutions repo, or Claude global directory
+                    if (part_clean.startswith(project_lower) or
+                        part_clean.startswith(solutions_lower) or
+                        part_clean.startswith(claude_global_lower)):
                         continue
                     has_disallowed_absolute_path = True
                     break
@@ -135,8 +146,8 @@ def check_command(command):
         if not has_disallowed_absolute_path:
             return True, "No disallowed absolute paths detected"
 
-        # Check if any absolute path in command is within project or Claude global
-        if project_lower in command_lower or claude_global_lower in command_lower:
+        # Check if any absolute path in command is within project, Solutions, or Claude global
+        if project_lower in command_lower or solutions_lower in command_lower or claude_global_lower in command_lower:
             return True, "Command targets allowed directory"
     else:
         if not re.search(r'(?<![a-z])[a-z]:\\|^/', command_lower):

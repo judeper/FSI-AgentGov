@@ -117,11 +117,11 @@ Evidence of authorization:
 ### 4.4 AUDIT LOGS (04-AUDIT-LOGS/)
 Purview Copilot audit export for the date range:
 - Export metadata: query used, date range, export date, who ran it
-- CSV/JSON of `CopilotInteraction` events filtered by `AgentId` (if available) [page:19]
-- Include fields: `AgentId`, `AgentName`, `AgentVersion`, `AccessedResources`, `SensitivityLabelId`, `PolicyDetails`, `JailbreakDetected`, `XPIADetected` [page:19]
+- CSV/JSON of `CopilotInteraction` events filtered by `AgentId` (if available) <sup>[19]</sup>
+- Include fields: `AgentId`, `AgentName`, `AgentVersion`, `AccessedResources`, `SensitivityLabelId`, `PolicyDetails`, `JailbreakDetected`, `XPIADetected` <sup>[19]</sup>
 - Redacted sample rows (3–5 examples) for quick review
 
-Microsoft Purview audit logs for Copilot/AI interactions include `AccessedResources` with sensitivity label IDs and policy restriction details, making them the canonical "what happened" source. [page:19]
+Microsoft Purview audit logs for Copilot/AI interactions include `AccessedResources` with sensitivity label IDs and policy restriction details, making them the canonical "what happened" source. <sup>[19]</sup>
 
 ### 4.5 DECISION LOGS (05-DECISION-LOGS/)
 Structured reasoning logs (from `templates/decision-log-schema.md`):
@@ -147,14 +147,14 @@ Continuous controls evidence:
 ### 4.8 INCIDENTS (08-INCIDENTS/)
 If any S1/S2 events occurred:
 - Incident summaries
-- Root cause analysis (from control 3.4) [page:3]
+- Root cause analysis (from control 3.4) <sup>[3]</sup>
 - Remediation/CAPA tickets
 - Lessons learned
 
 ### 4.9 RISK ASSESSMENTS (09-RISK-ASSESSMENTS/)
 Supporting risk artifacts:
 - Supply chain risk register entry (from `templates/supply-chain-risk-register-entry.md`)
-- Bias/fairness assessment (from control 2.11) [page:3]
+- Bias/fairness assessment (from control 2.11) <sup>[3]</sup>
 - Threat model / security review
 - BC/DR assessment
 

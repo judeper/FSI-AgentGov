@@ -155,6 +155,23 @@
 
 ---
 
+## Pre-Existing Personal Pipelines
+
+**Symptom:** Organization has personal pipelines created outside centrally governed hosts that need cleanup before enforcing ALM governance policies.
+
+**Background:** When Power Platform pipelines were first enabled, users may have created personal pipelines in various environments. Enforcing a centralized pipelines host policy requires identifying and cleaning up these legacy pipelines.
+
+**Resolution:**
+
+1. **Assess Scope** - Identify all existing pipelines using the DeploymentPipeline Dataverse table
+2. **Notify Owners** - Give pipeline owners 30-60 days notice before deactivation
+3. **Execute Cleanup** - Deactivate non-compliant pipelines after deadline
+4. **Enforce Policy** - Force-link environments to designated pipelines host
+
+For detailed implementation, see the [Pipeline Governance Cleanup Solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) in the FSI-AgentGov-Solutions repository.
+
+---
+
 ## Escalation Path
 
 If issues cannot be resolved using this guide:

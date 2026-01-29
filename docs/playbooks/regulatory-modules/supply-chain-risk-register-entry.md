@@ -4,7 +4,7 @@
 **Applies to:** Zone 3 agents (required); Zone 2 where third-party components process sensitive data or influence consequential decisions.  
 **Regulatory driver (FINRA):** FINRA’s 2026 oversight messaging on GenAI highlights that firms remain responsible for regulatory obligations even when GenAI is sourced via third-party vendors and emphasizes governance/testing/monitoring expectations, including for AI agents. [web:21]  
 **Regulatory driver (SEC):** SEC 2026 priorities emphasize AI as a cross-cutting risk area and highlight third-party vendor management as part of operational resiliency and cybersecurity expectations. [web:92]  
-**Related controls (examples):** 2.7 Vendor and Third-Party Risk Management, 2.4 BC/DR, 2.3 Change management, 1.7 Audit logging, 3.3 Compliance reporting. [page:3]
+**Related controls (examples):** 2.7 Vendor and Third-Party Risk Management, 2.4 BC/DR, 2.3 Change management, 1.7 Audit logging, 3.3 Compliance reporting. <sup>[3]</sup>
 
 ---
 

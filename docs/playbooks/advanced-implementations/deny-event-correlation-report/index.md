@@ -116,7 +116,7 @@ Copilot Studio agents configured with Application Insights log `ContentFiltered`
 
 | Regulation | Requirement | How This Solution Helps |
 |------------|-------------|------------------------|
-| **FINRA 25-07** | AI governance evidence | Daily evidence of controls actively blocking inappropriate content |
+| **FINRA 3110** | AI supervision evidence | Daily evidence of controls actively blocking inappropriate content |
 | **FINRA 4511** | Records retention | Deny events exported to compliant storage |
 | **SEC 17a-3/4** | Supervision evidence | Shows AI agent behavior is monitored and controlled |
 | **GLBA 501(b)** | Safeguards evidence | DLP blocking demonstrates NPI protection |

@@ -60,7 +60,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness assessment |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Supervision documentation |
@@ -106,58 +106,57 @@ Framework provides supervision procedure guidance (8/61 controls). Implementatio
 
 ---
 
-## FINRA Regulatory Notice 25-07 - AI Governance
+## FINRA AI Supervision and Governance
 
-!!! info "RFC Status"
-    FINRA Regulatory Notice 25-07 is a **Request for Comment (RFC)** with comment period
-    extending to **July 2025**. Topics described are proposed guidance, not final rules.
-    Monitor FINRA communications for final rule adoption.
+!!! warning "FINRA Notice 25-07 Clarification"
+    FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. It discusses AI only in the limited context of recordkeeping for AI-generated communications. For AI supervision requirements, refer to **FINRA Rule 3110** (Supervision), **FINRA Rule 2111** (Suitability), and **FINRA's Annual Regulatory Oversight Report** for current AI examination priorities.
 
 ### Overview
-Discusses model risk management considerations for AI and algorithmic systems. Topics include validation, monitoring, bias, and governance.
+
+FINRA's supervisory requirements for AI systems derive primarily from existing rules rather than AI-specific guidance:
+
+- **FINRA Rule 3110 (Supervision):** Requires supervision of associated persons' activities, including use of AI tools for customer communications and recommendations
+- **FINRA Rule 2111 (Suitability):** Requires reasonable basis for recommendations, including those assisted by AI
+- **FINRA Rule 4511 (Books and Records):** Requires retention of AI-generated communications and agent interaction logs
+- **Annual Regulatory Oversight Report:** Identifies AI-related examination priorities annually
 
 ### Applicable Controls
 
 | Control | Topic | Mapping |
 |---------|-------|---------|
-| [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data handling governance |
-| [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Ongoing monitoring and alerting |
-| [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Monitor for manipulation attempts |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Records retention for AI communications |
+| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Agent accuracy and reliability testing |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Quarterly fairness assessment |
-| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Governance procedures |
-| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Validate knowledge source quality |
-| [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Govern agent interactions |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 11-7 |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Written supervisory procedures |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
 | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Monitor output accuracy |
 
-### Key Topics
+### Key Requirements
 
-1. **Model Validation**
-   - Independent testing required
-   - Performance baseline established
-   - Bias testing documented
-   - Results retained for audit
+1. **Written Supervisory Procedures (Rule 3110)**
+   - Document AI tool approval process
+   - Define supervisory review procedures
+   - Establish escalation paths for AI-related issues
+   - Train supervisors on AI capabilities and limitations
 
-2. **Ongoing Monitoring**
-   - Performance vs. baseline tracked
-   - Anomalies detected and investigated
-   - Monthly monitoring reports
-   - Executive escalation procedures
+2. **Suitability Requirements (Rule 2111)**
+   - Validate AI recommendations meet suitability standards
+   - Document basis for AI-assisted recommendations
+   - Ensure human review for material decisions
 
-3. **Model Governance**
-   - Governance committee oversight
-   - Change control procedures
-   - Incident response procedures
-   - Annual validation recommended
+3. **Recordkeeping (Rule 4511)**
+   - Retain AI-generated customer communications
+   - Log agent interactions and outputs
+   - Maintain audit trail for AI-assisted decisions
 
 ### Governance Framework Alignment
 
-The framework treats agents as models requiring comprehensive governance per SR 11-7 principles.
+The framework applies FINRA's existing supervision principles to AI agents, treating them as tools requiring documented procedures, ongoing monitoring, and supervisory oversight.
 
 ### Framework Coverage
-Framework addresses Notice 25-07 topics (11/61 controls). Implementation and validation required.
+Framework addresses FINRA supervision requirements through 8/61 controls. Implementation and validation required.
 
 ---
 
@@ -236,7 +235,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 | [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data governance and privacy |
 | [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Use only necessary data |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Agent accuracy and reliability |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fair treatment across demographics |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fair treatment across demographics |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Best interest standard compliance |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | AI transparency and disclosure |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Ensure advice accuracy |
@@ -592,7 +591,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Third-party model governance |
 | [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Model development controls |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Model performance tracking |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Fairness and discrimination testing |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness and discrimination testing |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Model governance oversight |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Model documentation |
 | [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Model data source validation |
@@ -686,7 +685,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | ECOA discrimination testing |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | ECOA discrimination testing |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Credit model governance |
 | [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Fair treatment in data usage |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Compliance oversight |
@@ -786,7 +785,7 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 |---------|-------------|---------|
 | [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Consumer data protection |
 | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime Protection | Anomaly detection |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Bias Testing | Algorithmic bias assessment |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Algorithmic bias assessment |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Algorithmic governance |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Prevent unfair recommendations |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Prevent deceptive omissions |
@@ -842,6 +841,20 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 
 ### Framework Coverage
 Framework addresses consumer protection topics (6/61 controls). CFPB-specific implementation required.
+
+---
+
+## SEC Regulation S-ID (Red Flags Rule)
+
+### Overview
+Identity theft prevention programs for covered accounts under 16 CFR Part 314.
+
+### Framework Coverage
+SEC Regulation S-ID is not directly addressed by this framework. Organizations deploying agents that handle customer identity verification should implement red flags detection procedures per 16 CFR Part 314.
+
+**Related Controls:**
+- [1.8 - Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) - Synthetic identity detection
+- [2.7 - Vendor Risk Management](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) - Identity verification service providers
 
 ---
 
@@ -1022,8 +1035,8 @@ Several states have enacted or are developing AI-specific legislation that may a
 
 | Requirement | Description | Framework Alignment |
 |-------------|-------------|---------------------|
-| Algorithmic Discrimination Prevention | Prevent discriminatory outcomes | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) |
-| Annual Bias Audits | Regular fairness assessments | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Algorithmic Discrimination Prevention | Prevent discriminatory outcomes | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
+| Annual Bias Audits | Regular fairness assessments | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
 | Consumer Opt-Out Rights | Right to opt out of AI processing | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
 | Risk Management Policy | Document AI risk management | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
 | Impact Assessments | Conduct and document impact assessments | See [Colorado AI Impact Assessment Template](../playbooks/regulatory-modules/colorado-ai-impact-assessment.md) |
@@ -1039,7 +1052,7 @@ Several states have enacted or are developing AI-specific legislation that may a
 
 | Requirement | Description | Framework Alignment |
 |-------------|-------------|---------------------|
-| Bias Audits | Annual third-party bias audits | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) |
+| Bias Audits | Annual third-party bias audits | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
 | Public Disclosure | Publish audit results summary | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
 | Notice to Candidates | Notify affected individuals of AI use | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
 | Alternative Procedures | Offer non-AI alternatives | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
@@ -1125,7 +1138,7 @@ Insurers should consult their primary state insurance regulator and legal counse
 |-----------|---------------------|----------|----------------------|
 | FINRA 4511 | 61/61 | 100% | Full coverage - implementation required |
 | FINRA 3110 | 8/61 | 13% | Partial - supervision focus |
-| FINRA Notice 25-07 | 11/61 | 18% | Partial - model risk focus |
+| FINRA 3110/2111 (AI) | 11/61 | 18% | Partial - supervision/suitability focus |
 | SEC 17a-3/4 | 49/61 | 80% | Substantial coverage |
 | SEC Rule 10b-5 / Reg BI | 7/61 | 11% | Limited - fairness + disclosure focus |
 | SEC Marketing Rule (206(4)-1) | 5/61 | 8% | AI marketing claims - Control 2.21 |

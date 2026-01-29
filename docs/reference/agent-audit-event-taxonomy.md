@@ -20,7 +20,7 @@ This reference provides a consolidated taxonomy of audit events for Microsoft 36
 |----------|-------------|------------------|
 | **Identity Lifecycle** | Agent identity creation, modification, deletion | Regulatory audit trail, access governance |
 | **Blueprint Lifecycle** | Blueprint registration, promotion, demotion | Change management evidence |
-| **Agent Interaction** | User-agent conversations, tool invocations | FINRA 25-07 compliance, supervision |
+| **Agent Interaction** | User-agent conversations, tool invocations | FINRA 3110 supervision, FINRA 4511 recordkeeping |
 | **Configuration** | Settings changes, permission updates | SOX 404 controls, change tracking |
 | **Security** | Authentication events, policy applications | Security investigations, CA monitoring |
 
@@ -240,12 +240,12 @@ OfficeActivity
 | order by EventCount desc
 ```
 
-### Query 3: Agent Interaction Audit for FINRA 25-07
+### Query 3: Agent Interaction Audit for FINRA 3110/4511
 
 Capture agent interactions with prompt/response tracking for regulatory compliance.
 
 ```kql
-// FINRA 25-07 Agent Interaction Audit
+// FINRA 3110/4511 Agent Interaction Audit
 OfficeActivity
 | where TimeGenerated > ago(24h)
 | where RecordType in ("CopilotInteraction", "AgentInteraction", "CopilotForM365Interaction")
@@ -361,7 +361,7 @@ $results | ForEach-Object {
 } | Export-Csv -Path "AgentLifecycleAudit.csv" -NoTypeInformation
 ```
 
-### PowerShell: Agent Interactions (FINRA 25-07)
+### PowerShell: Agent Interactions (FINRA 3110/4511)
 
 ```powershell
 # Search for agent interactions (regulatory evidence)
@@ -419,7 +419,7 @@ $results | ForEach-Object {
 |----------------|--------|--------|--------|-------------------|
 | Identity Lifecycle | 180 days | 1 year | 7-10 years | FINRA 4511, SEC 17a-4 |
 | Blueprint Lifecycle | N/A | 1 year | 7-10 years | SOX 404, SEC 17a-4 |
-| Agent Interaction | 180 days | 1 year | 7-10 years | FINRA 25-07, SEC 17a-3 |
+| Agent Interaction | 180 days | 1 year | 7-10 years | FINRA 4511, SEC 17a-3 |
 | Configuration | 180 days | 1 year | 7-10 years | SOX 404 |
 | Security | 180 days | 1 year | 7-10 years | GLBA 501(b) |
 

@@ -267,7 +267,7 @@ These controls should be implemented first as they enable other governance capab
 
 1. Control 2.12 (Supervision) — FINRA 3110
 2. Control 1.7 (Audit Logging) — FINRA 4511, SEC 17a-4
-3. Control 2.11 (Bias Testing) — FINRA 25-07
+3. Control 2.11 (Bias Testing) — SR 11-7, FINRA's Annual Regulatory Oversight Report
 4. Control 3.3 (Compliance Reporting) — Examination readiness
 
 **Banks (OCC/Fed):**

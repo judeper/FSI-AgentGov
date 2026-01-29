@@ -114,7 +114,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 
 | NIST AI RMF Category | FSI Controls | Coverage |
 |---------------------|--------------|----------|
-| **MAP 5.1:** Benefits and harms to individuals characterized | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md), [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Full |
+| **MAP 5.1:** Benefits and harms to individuals characterized | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Full |
 | **MAP 5.2:** Environmental impact considered | Out of scope (not primary FSI concern) | N/A |
 
 ---
@@ -140,7 +140,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 | **MEASURE 2.3:** Security and resilience evaluated | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), Pillar 1 Security | Full |
 | **MEASURE 2.4:** Explainability evaluated | [Zone 1 Explainability](../playbooks/advanced-implementations/zone1-min-explainability.md) | Partial |
 | **MEASURE 2.5:** Privacy evaluated | [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md), [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Full |
-| **MEASURE 2.6:** Fairness evaluated | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment-finra-notice-25-07-sr-11-7-alignment.md) | Full |
+| **MEASURE 2.6:** Fairness evaluated | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Full |
 | **MEASURE 2.7:** Human-AI interaction evaluated | [Human-in-the-Loop](../playbooks/advanced-implementations/human-in-the-loop-triggers.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Full |
 | **MEASURE 2.8:** Transparency claims verified | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Full |
 | **MEASURE 2.9:** Environmental impact evaluated | Out of scope (not primary FSI concern) | N/A |

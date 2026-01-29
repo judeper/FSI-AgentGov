@@ -1,4 +1,4 @@
-# Control 2.11: Bias Testing and Fairness Assessment (FINRA 25-07/SR 11-7)
+# Control 2.11: Bias Testing and Fairness Assessment
 
 ## Expected Screenshots
 

@@ -111,13 +111,12 @@
 
 ---
 
-## FINRA 25-07 Compliance
+## AI Communications Recordkeeping (FINRA 4511/3110)
 
-!!! info "FINRA Notice 25-07 Status"
-    FINRA Notice 25-07 is a **Request for Comment (RFC)** with comment period extending to
-    **July 2025**. Requirements described are proposed guidance, not final rules.
+!!! warning "FINRA Notice 25-07 Clarification"
+    FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. It references AI only in the context of recordkeeping for AI-generated communications. For AI supervision requirements, refer to **FINRA Rule 3110** (Supervision).
 
-FINRA Notice 25-07 proposes complete AI interaction records (not summaries) for customer-facing agents.
+FINRA Rule 4511 requires complete records of AI-generated customer communications. Best practice guidance recommends complete interaction records (not summaries) for customer-facing agents.
 
 ### Required Retention Fields
 

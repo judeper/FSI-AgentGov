@@ -97,9 +97,9 @@ PAX includes three specialized processors for different data sources:
 
 ### FSI Use Cases
 
-#### FINRA 25-07: Prompt/Response Capture
+#### FINRA 3110/4511: Prompt/Response Capture
 
-For firms requiring complete AI interaction records per FINRA Notice 25-07:
+For firms requiring complete AI interaction records per FINRA Rule 3110 (Supervision) and Rule 4511 (Books and Records):
 
 1. Use the **Copilot Interactions Content Processor** to capture full prompts and responses
 2. Export to WORM-compliant storage (Control 1.7)

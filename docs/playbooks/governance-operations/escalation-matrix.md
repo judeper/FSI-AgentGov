@@ -2,8 +2,8 @@
 
 **Purpose:** Define auditable escalation triggers, routing, SLAs, and approval authority for agent behaviors—especially where agents may touch sensitive data or take actions.  
 **Applies to:** Zone 2 (recommended) and Zone 3 (required).  
-**Regulatory driver:** FINRA emphasizes that GenAI can implicate supervision and recordkeeping and highlights the need for governance, testing, and ongoing monitoring (including prompt/output logs, model version tracking, and human-in-the-loop review). [page:8]  
-**Related controls (examples):** 2.12 Supervision & Oversight, 3.4 Incident Reporting/RCA, 1.7 Audit logging, 3.3 Compliance reporting. [page:3]
+**Regulatory driver:** FINRA emphasizes that GenAI can implicate supervision and recordkeeping and highlights the need for governance, testing, and ongoing monitoring (including prompt/output logs, model version tracking, and human-in-the-loop review). <sup>[8]</sup>  
+**Related controls (examples):** 2.12 Supervision & Oversight, 3.4 Incident Reporting/RCA, 1.7 Audit logging, 3.3 Compliance reporting. <sup>[3]</sup>
 
 ---
 
@@ -78,7 +78,7 @@ Pick one model for the entire program to ensure reporting consistency.
 
 ## 5) Override policy (how exceptions are handled)
 
-FINRA notes that supervisory systems must be tailored and that firms should consider integrity/reliability/accuracy where AI is used, with ongoing monitoring and human-in-the-loop review. [page:8]  
+FINRA notes that supervisory systems must be tailored and that firms should consider integrity/reliability/accuracy where AI is used, with ongoing monitoring and human-in-the-loop review. <sup>[8]</sup>  
 Overrides must therefore be rare, explicit, and auditable.
 
 - **What can be overridden?** (e.g., throttling, non-critical blocks)
@@ -110,7 +110,7 @@ For each S1/S2 escalation:
 - Repeat event rate (“recurrence”)
 - Mean time to detect (MTTD) and mean time to respond (MTTR)
 
-These feed the “Real-time Compliance Dashboard” spec (Gap 7) and compliance reporting controls in your Reporting pillar. [page:3]
+These feed the “Real-time Compliance Dashboard” spec (Gap 7) and compliance reporting controls in your Reporting pillar. <sup>[3]</sup>
 
 ---
 

@@ -96,12 +96,12 @@ This matrix provides a board-level summary for executive reporting and oversight
 
 ### Regulatory Status
 
-Zone 1 agents are intended for unregulated personal productivity scenarios and are generally not the focus of FINRA, SEC, or GLBA examination, provided their use remains restricted to unregulated activities. Any spillover into customer or trading data would move such agents into Zone 2 or 3.
+Zone 1 is intended for personal productivity with no production customer data. Regulatory obligations may still apply depending on firm status, use case, and records created. Confirm applicability with compliance/legal before assuming no regulatory scope applies.
 
-- No books and records requirements
-- No formal supervision required
-- No model risk management needed
-- Sandbox environment for innovation
+- Books and records requirements: Not typically applicable if no customer/business records created
+- Formal supervision: Not typically required for personal productivity
+- Model risk management: Not typically required
+- Environment: Sandbox for innovation, but spillover into customer or trading data would move agents to Zone 2 or 3
 
 ### Compliance Requirements
 
@@ -207,7 +207,7 @@ Zone 2 is subject to MODERATE regulatory oversight:
 - **Approval:** Governance Committee + Legal review
 - **Publishing:** Change control process
 - **Data:** All regulated and sensitive data
-- **Retention:** 10 years minimum (per SEC 17a-3/4)
+- **Retention:** 10 years minimum (conservative buffer exceeding SEC 17a-3/4: 6 years + 3 years accessible)
 - **Audit:** Real-time monitoring
 - **Access Reviews:** Monthly with attestation
 
