@@ -1,6 +1,6 @@
 # Environment Lifecycle Management - Labs
 
-**Status:** January 2026 - FSI-AgentGov v1.2.10
+**Status:** January 2026 - FSI-AgentGov v1.2.12
 **Estimated Time:** 4-6 hours total
 
 ---
@@ -43,6 +43,54 @@ Deploy the EnvironmentRequest and ProvisioningLog tables with security roles.
 - Power Platform environment with Dataverse
 - System Administrator or System Customizer role
 - Access to make.powerapps.com
+- Python 3.10+ (for automated deployment option)
+
+### Option A: Automated Deployment (Recommended for Lab/Dev)
+
+Use the Python deployment scripts from FSI-AgentGov-Solutions for quick setup:
+
+```bash
+# Clone the solutions repository
+git clone https://github.com/judeper/FSI-AgentGov-Solutions.git
+cd FSI-AgentGov-Solutions/environment-lifecycle-management/scripts
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Dry run first to preview changes
+python deploy.py \
+  --environment-url https://<your-org>.crm.dynamics.com \
+  --tenant-id <your-tenant-id> \
+  --interactive \
+  --dry-run
+
+# Full deployment
+python deploy.py \
+  --environment-url https://<your-org>.crm.dynamics.com \
+  --tenant-id <your-tenant-id> \
+  --interactive
+```
+
+This creates:
+
+- 8 global option sets (State, Zone, Region, etc.)
+- EnvironmentRequest table (22 columns, user-owned, auditing enabled)
+- ProvisioningLog table (11 columns, org-owned, auditing enabled)
+- 4 security roles (Requester, Approver, Admin, Auditor)
+- 3 business rules (conditional required fields)
+- 8 model-driven app views
+- Field security profile for approvers
+
+After automated deployment, **skip to [Verification](#verification)** below, then continue to Lab 2.
+
+!!! note "Production Deployment"
+    For production environments, use the manual process below to ensure full audit trail of who created each component.
+
+---
+
+### Option B: Manual Deployment (Production)
+
+Follow the steps below for manual deployment with full audit trail.
 
 ### Step 1.1: Create EnvironmentRequest Table
 
@@ -755,4 +803,4 @@ After completing labs:
 
 ---
 
-*FSI Agent Governance Framework v1.2.10 - January 2026*
+*FSI Agent Governance Framework v1.2.12 - January 2026*

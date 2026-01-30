@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.12] — January 30, 2026 (ELM Automation Documentation)
+
+### Overview
+
+Documentation updates to reflect the new automated deployment capabilities in FSI-AgentGov-Solutions Environment Lifecycle Management v1.1.0.
+
+### Enhanced
+
+- **Environment Lifecycle Management Playbook**
+  - `index.md` - Added automated deployment quick start with `deploy.py` usage examples
+  - `labs.md` - Added "Option A: Automated Deployment" as alternative to manual Lab 1 setup
+  - Updated all playbook file versions to v1.2.12
+
+### Related
+
+- FSI-AgentGov-Solutions Environment Lifecycle Management v1.1.0
+- New automation scripts: `deploy.py`, `create_dataverse_schema.py`, `create_security_roles.py`, `create_business_rules.py`, `create_views.py`, `create_field_security.py`
+
+---
+
 ## [1.2.11] — January 29, 2026 (Solutions Cross-Reference)
 
 ### Overview

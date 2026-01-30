@@ -1,6 +1,6 @@
 # Environment Lifecycle Management - Copilot Intake Agent
 
-**Status:** January 2026 - FSI-AgentGov v1.2.10
+**Status:** January 2026 - FSI-AgentGov v1.2.12
 **Related Controls:** 2.2 (Environment Groups), 2.15 (Environment Routing)
 
 ---

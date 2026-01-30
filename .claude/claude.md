@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.10** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.12** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -17,6 +17,7 @@
 
 **FSI-AgentGov-Solutions** (`/Users/admin/dev/FSI-AgentGov-Solutions`) contains deployable solution artifacts:
 - `platform-change-governance/` - Dataverse deployment script and solution files
+- `environment-lifecycle-management/` - Automated ELM deployment scripts (`deploy.py`, schema, roles, rules, views)
 - See `docs/playbooks/advanced-implementations/` for implementation guides
 
 ### Cross-Repository Workflow
@@ -361,10 +362,14 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.11 (January 2026)
+**Version:** 1.2.12 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 23 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.11):**
+**Recent Additions (v1.2.12):**
+- **ELM Automation Documentation** - Updated ELM playbook with automated deployment quick start using FSI-AgentGov-Solutions v1.1.0 scripts
+- **Labs Option A** - Added automated deployment path as alternative to manual Lab 1 setup
+
+**Previous Additions (v1.2.11):**
 - **Solutions Cross-Reference** - Added cross-references to FSI-AgentGov-Solutions automated export scripts in ELM playbook
 - **Hook API Update** - Updated boundary-check.py response format for Claude Code compatibility
 
@@ -394,7 +399,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.11
+- **Framework Version:** 1.2.12
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

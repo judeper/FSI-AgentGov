@@ -1,6 +1,6 @@
 # Environment Lifecycle Management
 
-**Status:** January 2026 - FSI-AgentGov v1.2.10
+**Status:** January 2026 - FSI-AgentGov v1.2.12
 **Related Controls:** 2.1 (Managed Environments), 2.2 (Environment Groups), 2.3 (Change Management), 2.8 (Access Control & SoD), 2.13 (Documentation), 2.15 (Environment Routing), 1.7 (Audit Logging), 3.1 (Agent Inventory), 3.2 (Usage Analytics), 3.6 (Orphaned Agent Detection)
 
 ---
@@ -162,11 +162,27 @@ The FSI-AgentGov-Solutions repository provides deployable artifacts:
 | Component | Description | Location |
 |-----------|-------------|----------|
 | **Documentation** | Prerequisites, schema, security roles, flow configuration, Copilot setup, troubleshooting | `docs/` |
-| **Python Scripts** | Service Principal registration, evidence export, role verification, immutability validation | `scripts/` |
+| **Deployment Scripts** | Automated Dataverse schema, roles, rules, views, field security | `scripts/deploy.py` |
+| **Operational Scripts** | Service Principal registration, evidence export, role verification, immutability validation | `scripts/` |
 | **Templates** | Sample EnvironmentRequest JSON, Copilot Studio output schema | `templates/` |
 | **Setup Guide** | Phased deployment checklist with automation status markers | `SETUP_CHECKLIST.md` |
 
-**Note:** Copilot Studio agents and Power Automate flows must be created manually (no deployment API). The scripts automate Service Principal registration and evidence collection.
+**Automated Deployment (Lab/Dev):**
+
+```bash
+# Install dependencies
+pip install -r scripts/requirements.txt
+
+# Full deployment with interactive auth
+python scripts/deploy.py \
+    --environment-url https://org.crm.dynamics.com \
+    --tenant-id <tenant-id> \
+    --interactive
+```
+
+This creates tables, columns, security roles, business rules, views, and field security profiles. For production, use the manual setup process for full audit trail.
+
+**Note:** Copilot Studio agents and Power Automate flows must be created manually (no deployment API).
 
 **Repository:** [FSI-AgentGov-Solutions/environment-lifecycle-management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
 
@@ -212,4 +228,4 @@ The FSI-AgentGov-Solutions repository provides deployable artifacts:
 
 ---
 
-*FSI Agent Governance Framework v1.2.10 - January 2026*
+*FSI Agent Governance Framework v1.2.12 - January 2026*
