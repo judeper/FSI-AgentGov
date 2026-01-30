@@ -19,6 +19,56 @@
 - `platform-change-governance/` - Dataverse deployment script and solution files
 - See `docs/playbooks/advanced-implementations/` for implementation guides
 
+### Cross-Repository Workflow
+
+When working with both repositories:
+
+**Primary Working Directory:** FSI-AgentGov (this repo)
+- Has MkDocs, comprehensive CLAUDE.md, and skills
+- Boundary hooks allow access to FSI-AgentGov-Solutions
+
+**Hook Scope:**
+- `boundary-check.py` only intercepts Bash commands
+- Read/Write/Edit/Glob/Grep tools work cross-repo without restriction
+
+**When to Start From Each Repo:**
+
+| Task | Start From | Reason |
+|------|-----------|--------|
+| Documentation updates | FSI-AgentGov | MkDocs, skills, comprehensive context |
+| Solution script development | FSI-AgentGov-Solutions | Focused context |
+| Cross-repo feature work | FSI-AgentGov | Better tooling, access to both |
+| Quick solution fix | FSI-AgentGov-Solutions | Faster context loading |
+
+**Git Operations:**
+
+Each repo has separate git history. Git commands must run from within the target repo.
+
+```bash
+# Verify which repo you're in before committing
+pwd
+git rev-parse --show-toplevel
+
+# To commit to FSI-AgentGov-Solutions while working in FSI-AgentGov:
+cd /Users/admin/dev/FSI-AgentGov-Solutions
+git add <specific-files>
+git commit -m "message"
+cd -  # return to previous directory
+```
+
+**Committing Changes That Span Both Repos:**
+
+1. Commit FSI-AgentGov-Solutions changes first (scripts/implementations)
+2. Commit FSI-AgentGov changes second (documentation)
+3. Use cross-references in commit messages when related
+
+**PostToolUse Hook Limitation:**
+The `researcher-package-reminder.py` hook only fires when:
+- Working directory is FSI-AgentGov AND
+- A pillar control file is edited via Edit or Write tool
+
+When working from FSI-AgentGov-Solutions, the reminder will NOT fire even if you edit framework files.
+
 ---
 
 ## Before Starting Any Task
