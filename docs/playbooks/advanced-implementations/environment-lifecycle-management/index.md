@@ -157,16 +157,18 @@ This playbook supports multiple framework controls:
 
 ## Implementation Kit
 
-The FSI-AgentGov-Solutions repository provides deployable Power Platform components:
+The FSI-AgentGov-Solutions repository provides deployable artifacts:
 
-| Component | Description |
-|-----------|-------------|
-| **Dataverse Solution** | EnvironmentRequest, ProvisioningLog tables; security roles; views |
-| **Power Automate Flows** | Provisioning orchestration, baseline configuration |
-| **Service Principal Scripts** | App registration, permission configuration |
-| **Copilot Studio Export** | Intake agent configuration (if exportable; verify before use) |
+| Component | Description | Location |
+|-----------|-------------|----------|
+| **Documentation** | Prerequisites, schema, security roles, flow configuration, Copilot setup, troubleshooting | `docs/` |
+| **Python Scripts** | Service Principal registration, evidence export, role verification, immutability validation | `scripts/` |
+| **Templates** | Sample EnvironmentRequest JSON, Copilot Studio output schema | `templates/` |
+| **Setup Guide** | Phased deployment checklist with automation status markers | `SETUP_CHECKLIST.md` |
 
-**Repository:** [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) (separate repository for deployable solutions)
+**Note:** Copilot Studio agents and Power Automate flows must be created manually (no deployment API). The scripts automate Service Principal registration and evidence collection.
+
+**Repository:** [FSI-AgentGov-Solutions/environment-lifecycle-management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
 
 ---
 

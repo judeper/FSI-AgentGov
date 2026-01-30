@@ -237,6 +237,14 @@ finally {
 
 ## Quarterly Export Procedure
 
+!!! tip "Automated Export Available"
+    The FSI-AgentGov-Solutions repository includes Python scripts that automate quarterly evidence export with SHA-256 integrity hashing. See [environment-lifecycle-management/scripts](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management/scripts):
+
+    - `export_quarterly_evidence.py` - Export EnvironmentRequest and ProvisioningLog with manifest
+    - `validate_immutability.py` - Verify no unauthorized modifications
+
+    These scripts use MSAL Confidential Client authentication suitable for scheduled automation.
+
 ### Step 1: Export ProvisioningLog
 
 !!! note "Prerequisites"

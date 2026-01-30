@@ -361,10 +361,14 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.10 (January 2026)
+**Version:** 1.2.11 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 23 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.10):**
+**Recent Additions (v1.2.11):**
+- **Solutions Cross-Reference** - Added cross-references to FSI-AgentGov-Solutions automated export scripts in ELM playbook
+- **Hook API Update** - Updated boundary-check.py response format for Claude Code compatibility
+
+**Previous Additions (v1.2.10):**
 - **Control 1.24: Defender AI-SPM** - Multi-cloud AI security posture management (Azure, AWS, GCP) with agent discovery, attack path analysis, and AI Bill of Materials
 - **Control 1.5 Update** - Mandatory DLP enforcement notice (since early 2025), Copilot Studio DLP connector categories, HTTP endpoint filtering
 - **Control 1.6 Update** - Expanded workload coverage (ChatGPT Enterprise, Gemini, Purview SDK apps)
@@ -390,7 +394,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.10
+- **Framework Version:** 1.2.11
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.11] — January 29, 2026 (Solutions Cross-Reference)
+
+### Overview
+
+Documentation updates to add cross-references between the FSI-AgentGov framework and the new Environment Lifecycle Management solution scripts in FSI-AgentGov-Solutions.
+
+### Enhanced
+
+- **Environment Lifecycle Management Playbook**
+  - `evidence-and-audit.md` - Added tip box cross-referencing automated export scripts (`export_quarterly_evidence.py`, `validate_immutability.py`) in FSI-AgentGov-Solutions
+  - `index.md` - Updated Implementation Kit table to reflect actual solution structure (docs, scripts, templates, setup checklist) with direct repository links
+
+### Changed
+
+- **boundary-check.py** - Updated hook response from `"allow"` to `"approve"` (Claude Code hook API alignment)
+
+### Files Summary
+
+| Action | Count | Key Files |
+|--------|-------|-----------|
+| UPDATE | 3 | evidence-and-audit.md, index.md, boundary-check.py |
+
+### Related
+
+- FSI-AgentGov-Solutions Environment Lifecycle Management v1.0.1
+
+---
+
 ## [1.2.10] — January 29, 2026 (AI-SPM and DLP Updates)
 
 ### Overview

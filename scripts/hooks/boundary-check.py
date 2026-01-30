@@ -164,7 +164,7 @@ def main():
         stdin_data = sys.stdin.read()
         if not stdin_data.strip():
             # No input - allow by default
-            print(json.dumps({"decision": "allow"}))
+            print(json.dumps({"decision": "approve"}))
             return
 
         input_data = json.loads(stdin_data)
@@ -174,13 +174,13 @@ def main():
 
         if not command:
             # No command to check
-            print(json.dumps({"decision": "allow"}))
+            print(json.dumps({"decision": "approve"}))
             return
 
         allowed, reason = check_command(command)
 
         if allowed:
-            print(json.dumps({"decision": "allow"}))
+            print(json.dumps({"decision": "approve"}))
         else:
             print(json.dumps({
                 "decision": "block",
@@ -191,11 +191,11 @@ def main():
 
     except json.JSONDecodeError:
         # Invalid JSON input - allow by default
-        print(json.dumps({"decision": "allow"}))
+        print(json.dumps({"decision": "approve"}))
     except Exception as e:
         # On any error, allow the command (fail open)
         print(json.dumps({
-            "decision": "allow",
+            "decision": "approve",
             "message": f"Boundary check error (allowing): {str(e)}"
         }))
 
