@@ -6,6 +6,92 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.18] — January 31, 2026 (Banking Regulator Citation Remediation)
+
+### Overview
+
+Regulatory citation accuracy improvements based on research validation of OCC, Fed, FDIC, and GLBA references. Corrects erroneous FDIC FIL citation and clarifies AI guidance status.
+
+### Fixed
+
+- **Control 2.16 (RAG Source Integrity):** Replaced incorrect `FDIC FIL-15-2025` citation (which addresses deposits surveys) with `Interagency Third-Party Guidance (2023)` for third-party knowledge source governance
+- **Control 2.6 (Model Risk Management):** Replaced incorrect `OCC 2021-18: AI/ML-specific risk management guidance` with `Interagency RFI on AI (2021): Confirmed OCC 2011-12 applies to AI/ML systems` - no standalone AI-specific OCC guidance exists
+- **Control 2.6:** Added clarification that Fed SR 11-7 is identical to OCC 2011-12 (jointly issued)
+
+### Validated (No Changes Needed)
+
+The following citations were validated as accurate:
+
+- OCC Bulletin 2011-12 - Technology-neutral, applies to AI via broad model definition
+- Fed SR 11-7 - Identical to OCC 2011-12 (joint issuance)
+- SOX Sections 302, 404, 802 - All correctly characterized
+- GLBA Section 501(b) - Correctly describes safeguards (72-hour claim removal in v1.2.7 validated)
+- OCC Heightened Standards - Correctly described
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/controls/pillar-2-management/2.16-rag-source-integrity-validation.md` | Replaced FDIC FIL-15-2025 with Interagency Third-Party Guidance (2023) |
+| `docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md` | Fixed OCC 2021-18 reference, added SR 11-7 joint issuance note |
+| `CHANGELOG.md` | Added v1.2.18 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+
+### Research Reference
+
+Research report: `prompts/01-regulatory/03-banking-regulator-citations/`
+
+---
+
+## [1.2.17] — January 31, 2026 (FINRA Citation Remediation)
+
+### Overview
+
+Regulatory citation accuracy improvements based on research validation of FINRA references. Corrects retention period errors, adds official FINRA guidance references, and clarifies Notice 25-07 status.
+
+### Fixed
+
+- **FINRA Rule 4511 retention period:** Corrected from "6 years + 1 year readily accessible" to "6 years, first 2 years in easily accessible place" across 5 files:
+  - `docs/framework/regulatory-framework.md` (3 instances)
+  - `docs/reference/faq.md`
+  - `docs/playbooks/agent-lifecycle/agent-decommissioning.md`
+- **FINRA Notice 25-07 link text:** Changed from "AI Communications Recordkeeping" to "Workplace Modernization (RFC - Request for Comment)" to accurately reflect document purpose (Control 2.12)
+
+### Added
+
+- **FINRA Regulatory Notice 24-09 (June 2024):** Official Gen AI and LLM guidance added to:
+  - `docs/framework/regulatory-framework.md` (new info callout)
+  - `docs/reference/regulatory-mappings.md` (new info callout and overview list)
+  - `docs/controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md` (Additional Resources)
+- **FINRA Rule 3120 (Supervisory Control System):** Added cross-reference in Control 2.12 Related Controls section
+- **FINRA FAQ D.8 citation:** Added firm responsibility quote for AI-generated communications to regulatory-mappings.md
+- **FINRA Rule 2210 (Communications):** Added to regulatory-mappings.md FINRA AI overview
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/framework/regulatory-framework.md` | Fixed 4511 retention (3 places), added Notice 24-09 callout |
+| `docs/reference/regulatory-mappings.md` | Added Notice 24-09 callout, FAQ D.8 quote, Rule 3120/2210 |
+| `docs/controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md` | Fixed 25-07 link text, added 24-09/3120/FAQ D.8 resources |
+| `docs/reference/faq.md` | Fixed 4511 retention |
+| `docs/playbooks/agent-lifecycle/agent-decommissioning.md` | Fixed 4511 retention |
+| `CHANGELOG.md` | Added v1.2.17 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- All FINRA URLs verified against official FINRA website
+
+### Research Reference
+
+Research report: `prompts/01-regulatory/01-finra-citations/`
+
+---
+
 ## [1.2.16] — January 31, 2026 (Cross-Repository Documentation Parity)
 
 ### Overview

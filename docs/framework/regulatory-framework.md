@@ -21,7 +21,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 **Key Requirements:**
 
-- 6-year retention + 1 year readily accessible
+- 6-year retention, first 2 years in easily accessible place
 - All communications with customers
 - All agent outputs and decisions
 - Approval and supervisory records
@@ -30,7 +30,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention + 1 year accessible |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years in easily accessible place |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per FINRA timeline |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Record security incidents and attacks |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Compliance Officer oversight |
@@ -43,7 +43,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 **Zone Requirements:**
 
 - **Zone 2:** Maintain 1-year audit logs, document approval process, monthly compliance reviews
-- **Zone 3:** Maintain 6-year + 1 year accessible audit logs, comprehensive real-time monitoring, immediate incident escalation
+- **Zone 3:** Maintain 6-year audit logs (first 2 years in easily accessible place), comprehensive real-time monitoring, immediate incident escalation
 
 ---
 
@@ -82,7 +82,17 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 ### FINRA AI Supervision Requirements
 
 !!! warning "FINRA Notice 25-07 Clarification"
-    FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. For AI supervision requirements, refer to **FINRA Rule 3110** (Supervision), **FINRA Rule 2111** (Suitability), and **FINRA's Annual Regulatory Oversight Report** for current AI examination priorities.
+    FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. For AI supervision requirements, refer to **FINRA Regulatory Notice 24-09** (Gen AI guidance), **FINRA Rule 3110** (Supervision), **FINRA Rule 2111** (Suitability), and **FINRA's Annual Regulatory Oversight Report** for current AI examination priorities.
+
+!!! info "FINRA Regulatory Notice 24-09 (June 2024)"
+    FINRA Notice 24-09 provides official guidance on generative AI and large language model (LLM) obligations. Key points:
+
+    - **Technology-neutral principle:** Existing FINRA rules apply equally to AI-generated content
+    - **Rule 3110 supervision:** Firms must establish supervisory procedures for AI tools
+    - **Rule 2210 communications:** AI-generated customer communications must meet content standards
+    - **Model risk management:** Firms should apply appropriate governance to AI systems
+
+    See: [FINRA Regulatory Notice 24-09](https://www.finra.org/rules-guidance/notices/24-09)
 
 **Overview:** FINRA's AI supervision requirements derive from existing rules that apply to associated persons' use of AI tools for customer communications and recommendations.
 

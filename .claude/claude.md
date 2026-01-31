@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.16** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.18** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,8 +379,20 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.16 (January 2026)
+**Version:** 1.2.18 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+
+**Recent Additions (v1.2.18):**
+- **Banking Regulator Citation Remediation** - Corrected erroneous FDIC FIL-15-2025 citation, fixed OCC 2021-18 AI guidance claim
+- **Control 2.16 fix** - Replaced incorrect FDIC FIL-15-2025 with Interagency Third-Party Guidance (2023)
+- **Control 2.6 fix** - Replaced incorrect OCC 2021-18 with Interagency RFI on AI (2021), added SR 11-7 joint issuance note
+- **Validated citations** - OCC 2011-12, Fed SR 11-7, SOX 302/404/802, GLBA 501(b), OCC Heightened Standards confirmed accurate
+
+**Recent Additions (v1.2.17):**
+- **FINRA Citation Remediation** - Corrected FINRA Rule 4511 retention period errors (5 files), fixed Notice 25-07 link text
+- **FINRA Regulatory Notice 24-09** - Added official Gen AI/LLM guidance references to regulatory-framework.md, regulatory-mappings.md, Control 2.12
+- **FINRA Rule 3120** - Added supervisory control system cross-reference in Control 2.12
+- **FINRA FAQ D.8** - Added firm responsibility citation for AI-generated communications
 
 **Recent Additions (v1.2.16):**
 - **Cross-Repository Documentation Parity** - Bidirectional cross-references between FSI-AgentGov and FSI-AgentGov-Solutions
@@ -445,7 +457,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.16
+- **Framework Version:** 1.2.18
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
