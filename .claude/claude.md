@@ -380,7 +380,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 ## Current State
 
 **Version:** 1.2.24 (January 2026)
-**Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+**Status:** All 62 controls complete, 248 control playbooks + 26 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
 **Recent Additions (v1.2.24):**
 - **Pillar 2 Management Controls Technical Accuracy Clarifications** - Distinguishes built-in platform capabilities from custom implementation requirements
@@ -393,9 +393,18 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 **Previous Additions (v1.2.23):**
 - **Pillar 4 SharePoint Controls Technical Accuracy Updates** - Research-validated updates to all 7 controls (4.1-4.7)
+- **SharePoint Advanced Management Licensing Guide** - New reference documenting SAM features included with Copilot license
+- **SharePoint Governance Pre-Flight Checklist** - New playbook for Copilot pre-deployment preparation
+
+**Previous Additions (v1.2.22):**
+- **Industry Framework Alignment References** - Added FINOS AI Governance Framework and Sardine Agentic Oversight Framework references
+- **FINOS alignment** - Risk mapping table for authorization bypass, privilege escalation, workflow circumvention
+- **Sardine alignment** - 5-component oversight model mapped to HITL triggers playbook
 
 **Previous Additions (v1.2.21):**
 - **Pillar 3 Reporting Controls Technical Accuracy Updates** - Research-validated updates to Controls 3.1, 3.2, 3.3, 3.6, 3.7, 3.8, 3.9, 3.10
+- **Control 3.9 Clarification** - No dedicated Copilot Studio connector exists for Sentinel; use Power Platform Admin Activity connector
+- **Control 3.10 Clarification** - No automated hallucination detection exists; all detection relies on manual feedback
 
 **Previous Additions (v1.2.20):**
 - **Colorado SB24-205 Date Fix** - Effective date changed from February 1, 2026 to June 30, 2026 (extended via SB 25B-004)

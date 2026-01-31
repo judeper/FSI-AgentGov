@@ -1194,4 +1194,41 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ---
 
+## FINOS AI Governance Framework
+
+### Overview
+
+The [FINOS AI Governance Framework](https://air-governance-framework.finos.org) is an open-source governance framework developed by the Fintech Open Source Foundation specifically for AI systems in financial services. It provides risk classifications and mitigation guidance for agentic AI deployments.
+
+### Key Risk: Agent Action Authorization Bypass
+
+FINOS identifies that agentic AI systems may:
+
+- Bypass intended authorization controls
+- Perform actions beyond designated scope
+- Execute unauthorized financial transactions
+- Access restricted data
+- Violate business logic constraints
+- Exploit API vulnerabilities
+- Escalate privileges through tool chains
+- Circumvent approval workflows
+
+### FSI-AgentGov Alignment
+
+| FINOS Risk Category | FSI-AgentGov Controls | Coverage |
+|---------------------|----------------------|----------|
+| Authorization Bypass | 1.14 (Scope Control), 1.18 (RBAC), [AAM Template](../playbooks/governance-operations/action-authorization-matrix.md) | Full |
+| Privilege Escalation | 1.4 (ACP), 2.17 (Orchestration Limits) | Full |
+| Data Access Violations | 1.5 (DLP), 4.1-4.7 (SharePoint Controls) | Full |
+| Audit Trail Gaps | 1.7 (Audit Logging), 3.2 (Usage Analytics) | Full |
+| Workflow Circumvention | [HITL Triggers](../playbooks/advanced-implementations/human-in-the-loop-triggers.md), 2.12 (Supervision) | Full |
+
+### Framework Coverage
+
+The FSI-AgentGov framework addresses FINOS AI governance risks through defense-in-depth controls across all four pillars. The Agent Action Authorization Matrix (AAM) template specifically addresses authorization bypass risks.
+
+**Reference:** [FINOS AI & Readiness Governance Framework](https://air-governance-framework.finos.org)
+
+---
+
 *FSI Agent Governance Framework v1.2 - January 2026*
