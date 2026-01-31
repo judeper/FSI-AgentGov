@@ -135,6 +135,15 @@ The FSI-AgentGov-Solutions repository provides deployable Power Platform compone
 
 **Repository:** [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) (separate repository for deployable solutions)
 
+!!! tip "Message Center Monitor Solution"
+    The **message-center-monitor** folder in FSI-AgentGov-Solutions contains the ready-to-deploy implementation of this playbook. It includes:
+
+    - Power Automate flow templates for Message Center polling
+    - Teams notification configuration
+    - Azure AD app registration guidance
+
+    **Direct link:** [message-center-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) (v2.0.0)
+
 ---
 
 ## Playbook Structure

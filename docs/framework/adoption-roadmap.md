@@ -66,6 +66,9 @@ This roadmap provides a structured approach to implementing AI agent governance.
 - [ ] Enable sensitivity labels for agent content
 - [ ] Document environment architecture
 
+!!! tip "Automation Option"
+    Use [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) from FSI-AgentGov-Solutions to automate environment provisioning with built-in zone classification.
+
 **Weeks 7-8: Operational Readiness**
 
 - [ ] Establish agent inventory process (Control 3.1)
@@ -73,6 +76,9 @@ This roadmap provides a structured approach to implementing AI agent governance.
 - [ ] Document SharePoint sites approved for agent grounding (Control 4.1)
 - [ ] Complete baseline training for Power Platform Admin
 - [ ] Conduct first governance review meeting
+
+!!! tip "Automation Option"
+    Deploy [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) to track Microsoft platform changes affecting agent governance. This supports Control 2.3 (Change Management) and Control 2.10 (Patch Management).
 
 ### Phase 0 Success Criteria
 
@@ -145,6 +151,9 @@ This roadmap provides a structured approach to implementing AI agent governance.
 - [ ] Implement supervision controls (Control 2.12)
 - [ ] Create Zone 3 agent deployment checklist
 
+!!! tip "Automation Option"
+    Use [Pipeline Governance Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) to transition from personal to centralized ALM pipelines before enforcing Zone 3 deployment standards.
+
 **Month 5: Testing and Validation**
 
 - [ ] Implement testing procedures (Control 2.5)
@@ -215,6 +224,9 @@ This roadmap provides a structured approach to implementing AI agent governance.
 - [ ] Implement eDiscovery procedures (Control 1.19)
 - [ ] Enable information barriers if required (Control 1.22)
 - [ ] Conduct security assessment of agent infrastructure
+
+!!! tip "Automation Option"
+    Deploy [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) to aggregate block events from Purview Audit, DLP, and Application Insights into a unified compliance view.
 
 **Quarter 4 (Months 10-12): Advanced Monitoring and Testing**
 
@@ -329,6 +341,21 @@ These controls should be implemented first as they enable other governance capab
 | Phase 1 Review | Month 6 | Production readiness | Governance Committee, Executive Sponsor |
 | Phase 2 Midpoint | Month 9 | Advanced controls | Governance Committee |
 | Annual Review | Month 12 | Full assessment | Governance Committee, Board |
+
+---
+
+## Automation Solutions
+
+The [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository provides ready-to-deploy automation for key controls:
+
+| Solution | Phase | Controls Supported |
+|----------|-------|-------------------|
+| [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) | Phase 0 | 2.1, 2.2, 2.15 |
+| [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) | Phase 0 | 2.3, 2.10 |
+| [Pipeline Governance Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) | Phase 1 | 2.3 |
+| [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) | Phase 2 | 1.5, 1.7, 3.4 |
+
+For detailed solution documentation, see [Solutions Integration](solutions-integration.md) and [Solutions Index](../reference/solutions-index.md).
 
 ---
 

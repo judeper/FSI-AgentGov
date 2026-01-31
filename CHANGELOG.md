@@ -6,6 +6,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.15] — January 31, 2026 (Solutions Documentation and Cross-References)
+
+### Overview
+
+Comprehensive documentation update to improve discoverability and traceability between the FSI-AgentGov framework and FSI-AgentGov-Solutions deployable automation. Addresses P4 audit backlog tasks (P4-006, P4-009, P4-011, P4-012, P4-013, P4-014, P4-015).
+
+### Added
+
+- **Solutions Index (`docs/reference/solutions-index.md`):** Complete catalog of all FSI-AgentGov-Solutions with versions, descriptions, and control mappings
+- **Solutions Integration (`docs/framework/solutions-integration.md`):** Architecture document mapping solutions to pillars (1-4) and zones (1-3) with Mermaid diagrams
+- **FSI-AgentGov-Solutions Documentation:**
+  - `scripts/README.md` - Documents hooks folder (boundary-check.py, researcher-package-reminder.py)
+  - `.claude/README.md` - Documents Claude Code configuration and cross-repo workflow
+
+### Enhanced
+
+- **CONTROL-INDEX.md:** Added "Implementation" column for all 62 controls showing Portal/PowerShell and solution links
+- **Platform Change Governance (`index.md`):** Added explicit cross-reference to message-center-monitor solution
+- **Adoption Roadmap (`adoption-roadmap.md`):**
+  - Added automation tips with solution links to Phase 0, Phase 1, and Phase 2
+  - Added "Automation Solutions" summary table mapping solutions to phases
+- **mkdocs.yml:** Added navigation entries for Solutions Integration and Solutions Index
+
+### Files Updated
+
+| Repository | File | Changes |
+|------------|------|---------|
+| FSI-AgentGov | `docs/reference/solutions-index.md` | Created - complete solutions catalog |
+| FSI-AgentGov | `docs/framework/solutions-integration.md` | Created - solutions-to-framework mapping |
+| FSI-AgentGov | `docs/controls/CONTROL-INDEX.md` | Added Implementation column with solution links |
+| FSI-AgentGov | `docs/framework/adoption-roadmap.md` | Added solution references and automation tips |
+| FSI-AgentGov | `docs/playbooks/advanced-implementations/platform-change-governance/index.md` | Added message-center-monitor cross-reference |
+| FSI-AgentGov | `mkdocs.yml` | Added nav entries for new docs |
+| FSI-AgentGov | `.claude/CLAUDE.md` | Updated to v1.2.15 with new file references |
+| FSI-AgentGov-Solutions | `scripts/README.md` | Created - hooks documentation |
+| FSI-AgentGov-Solutions | `.claude/README.md` | Created - Claude configuration guide |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: Pass (62 controls valid)
+
+---
+
 ## [1.2.14] — January 31, 2026 (Technical Review Validation Fixes)
 
 ### Overview

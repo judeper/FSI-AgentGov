@@ -8,85 +8,99 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 
 ## Pillar 1: Security Controls (24 Controls)
 
-| Control ID | Control Name |
-|-----------|----------|
-| 1.1 | [Restrict Agent Publishing by Authorization](pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) |
-| 1.2 | [Agent Registry and Integrated Apps Management](pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
-| 1.3 | [SharePoint Content Governance and Permissions](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) |
-| 1.4 | [Advanced Connector Policies (ACP)](pillar-1-security/1.4-advanced-connector-policies-acp.md) |
-| 1.5 | [Data Loss Prevention (DLP) and Sensitivity Labels](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
-| 1.6 | [Microsoft Purview: DSPM for AI](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) |
-| 1.7 | [Comprehensive Audit Logging and Compliance](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
-| 1.8 | [Runtime Protection and External Threat Detection](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) |
-| 1.9 | [Data Retention and Deletion Policies](pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
-| 1.10 | [Communication Compliance Monitoring](pillar-1-security/1.10-communication-compliance-monitoring.md) |
-| 1.11 | [Conditional Access and Phishing-Resistant MFA](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) |
-| 1.12 | [Insider Risk Detection and Response](pillar-1-security/1.12-insider-risk-detection-and-response.md) |
-| 1.13 | [Sensitive Information Types (SITs) and Pattern Recognition](pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) |
-| 1.14 | [Data Minimization and Agent Scope Control](pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) |
-| 1.15 | [Encryption: Data in Transit and at Rest](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) |
-| 1.16 | [Information Rights Management (IRM) for Documents](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) |
-| 1.17 | [Endpoint Data Loss Prevention (Endpoint DLP)](pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) |
-| 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) |
-| 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
-| 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) |
-| 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) |
-| 1.22 | [Information Barriers for AI Agents](pillar-1-security/1.22-information-barriers.md) |
-| 1.23 | [Step-Up Authentication for AI Agent Operations](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) |
-| 1.24 | [Defender AI Security Posture Management (AI-SPM)](pillar-1-security/1.24-defender-ai-security-posture-management.md) |
+| Control ID | Control Name | Implementation |
+|-----------|----------|----------------|
+| 1.1 | [Restrict Agent Publishing by Authorization](pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Portal / PowerShell |
+| 1.2 | [Agent Registry and Integrated Apps Management](pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Portal / PowerShell |
+| 1.3 | [SharePoint Content Governance and Permissions](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | Portal / PowerShell |
+| 1.4 | [Advanced Connector Policies (ACP)](pillar-1-security/1.4-advanced-connector-policies-acp.md) | Portal / PowerShell |
+| 1.5 | [Data Loss Prevention (DLP) and Sensitivity Labels](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Portal / PowerShell, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
+| 1.6 | [Microsoft Purview: DSPM for AI](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | Portal |
+| 1.7 | [Comprehensive Audit Logging and Compliance](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Portal / PowerShell, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
+| 1.8 | [Runtime Protection and External Threat Detection](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Portal |
+| 1.9 | [Data Retention and Deletion Policies](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Portal / PowerShell |
+| 1.10 | [Communication Compliance Monitoring](pillar-1-security/1.10-communication-compliance-monitoring.md) | Portal |
+| 1.11 | [Conditional Access and Phishing-Resistant MFA](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Portal / PowerShell |
+| 1.12 | [Insider Risk Detection and Response](pillar-1-security/1.12-insider-risk-detection-and-response.md) | Portal |
+| 1.13 | [Sensitive Information Types (SITs) and Pattern Recognition](pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) | Portal / PowerShell |
+| 1.14 | [Data Minimization and Agent Scope Control](pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Portal |
+| 1.15 | [Encryption: Data in Transit and at Rest](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Portal |
+| 1.16 | [Information Rights Management (IRM) for Documents](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Portal / PowerShell |
+| 1.17 | [Endpoint Data Loss Prevention (Endpoint DLP)](pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) | Portal |
+| 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Portal / PowerShell |
+| 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | Portal / PowerShell |
+| 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Portal |
+| 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) | Portal |
+| 1.22 | [Information Barriers for AI Agents](pillar-1-security/1.22-information-barriers.md) | Portal / PowerShell |
+| 1.23 | [Step-Up Authentication for AI Agent Operations](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Portal |
+| 1.24 | [Defender AI Security Posture Management (AI-SPM)](pillar-1-security/1.24-defender-ai-security-posture-management.md) | Portal |
 
 ## Pillar 2: Management Controls (21 Controls)
 
-| Control ID | Control Name |
-|-----------|----------|
-| 2.1 | [Managed Environments](pillar-2-management/2.1-managed-environments.md) |
-| 2.2 | [Environment Groups and Tier Classification](pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-| 2.3 | [Change Management and Release Planning](pillar-2-management/2.3-change-management-and-release-planning.md) |
-| 2.4 | [Business Continuity and Disaster Recovery](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) |
-| 2.5 | [Testing, Validation, and Quality Assurance](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
-| 2.6 | [Model Risk Management (Alignment with OCC 2011-12/SR 11-7)](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
-| 2.7 | [Vendor and Third-Party Risk Management](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) |
-| 2.8 | [Access Control and Segregation of Duties](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) |
-| 2.9 | [Agent Performance Monitoring and Optimization](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) |
-| 2.10 | [Patch Management and System Updates](pillar-2-management/2.10-patch-management-and-system-updates.md) |
-| 2.11 | [Bias Testing and Fairness Assessment](pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
-| 2.12 | [Supervision and Oversight (FINRA Rule 3110)](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
-| 2.13 | [Documentation and Record Keeping](pillar-2-management/2.13-documentation-and-record-keeping.md) |
-| 2.14 | [Training and Awareness Program](pillar-2-management/2.14-training-and-awareness-program.md) |
-| 2.15 | [Environment Routing and Auto-Provisioning](pillar-2-management/2.15-environment-routing.md) |
-| 2.16 | [RAG Source Integrity Validation](pillar-2-management/2.16-rag-source-integrity-validation.md) |
-| 2.17 | [Multi-Agent Orchestration Limits](pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
-| 2.18 | [Automated Conflict of Interest Testing](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) |
-| 2.19 | [Customer AI Disclosure and Transparency](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
-| 2.20 | [Adversarial Testing and Red Team Framework](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) |
-| 2.21 | [AI Marketing Claims and Substantiation](pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) |
+| Control ID | Control Name | Implementation |
+|-----------|----------|----------------|
+| 2.1 | [Managed Environments](pillar-2-management/2.1-managed-environments.md) | Portal / PowerShell, [ELM](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
+| 2.2 | [Environment Groups and Tier Classification](pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Portal / PowerShell, [ELM](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
+| 2.3 | [Change Management and Release Planning](pillar-2-management/2.3-change-management-and-release-planning.md) | Portal / PowerShell, [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) |
+| 2.4 | [Business Continuity and Disaster Recovery](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | Portal / PowerShell |
+| 2.5 | [Testing, Validation, and Quality Assurance](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Portal / PowerShell |
+| 2.6 | [Model Risk Management (Alignment with OCC 2011-12/SR 11-7)](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Portal |
+| 2.7 | [Vendor and Third-Party Risk Management](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Portal |
+| 2.8 | [Access Control and Segregation of Duties](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Portal / PowerShell |
+| 2.9 | [Agent Performance Monitoring and Optimization](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Portal |
+| 2.10 | [Patch Management and System Updates](pillar-2-management/2.10-patch-management-and-system-updates.md) | Portal, [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) |
+| 2.11 | [Bias Testing and Fairness Assessment](pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Portal |
+| 2.12 | [Supervision and Oversight (FINRA Rule 3110)](pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Portal |
+| 2.13 | [Documentation and Record Keeping](pillar-2-management/2.13-documentation-and-record-keeping.md) | Portal |
+| 2.14 | [Training and Awareness Program](pillar-2-management/2.14-training-and-awareness-program.md) | Portal |
+| 2.15 | [Environment Routing and Auto-Provisioning](pillar-2-management/2.15-environment-routing.md) | Portal / PowerShell, [ELM](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
+| 2.16 | [RAG Source Integrity Validation](pillar-2-management/2.16-rag-source-integrity-validation.md) | Portal |
+| 2.17 | [Multi-Agent Orchestration Limits](pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Portal |
+| 2.18 | [Automated Conflict of Interest Testing](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Portal |
+| 2.19 | [Customer AI Disclosure and Transparency](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Portal |
+| 2.20 | [Adversarial Testing and Red Team Framework](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Portal |
+| 2.21 | [AI Marketing Claims and Substantiation](pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Portal |
 
 ## Pillar 3: Agent Reporting (10 Controls)
 
-| Control ID | Control Name |
-|-----------|----------|
-| 3.1 | [Agent Inventory and Metadata Management](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) |
-| 3.2 | [Usage Analytics and Activity Monitoring](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) |
-| 3.3 | [Compliance and Regulatory Reporting](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
-| 3.4 | [Incident Reporting and Root Cause Analysis](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
-| 3.5 | [Cost Allocation and Budget Tracking](pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) |
-| 3.6 | [Orphaned Agent Detection and Remediation](pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
-| 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) |
-| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
-| 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
-| 3.10 | [Hallucination Feedback Loop](pillar-3-reporting/3.10-hallucination-feedback-loop.md) |
+| Control ID | Control Name | Implementation |
+|-----------|----------|----------------|
+| 3.1 | [Agent Inventory and Metadata Management](pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Portal / PowerShell |
+| 3.2 | [Usage Analytics and Activity Monitoring](pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Portal |
+| 3.3 | [Compliance and Regulatory Reporting](pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Portal |
+| 3.4 | [Incident Reporting and Root Cause Analysis](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Portal, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
+| 3.5 | [Cost Allocation and Budget Tracking](pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) | Portal |
+| 3.6 | [Orphaned Agent Detection and Remediation](pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Portal / PowerShell |
+| 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Portal |
+| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Portal |
+| 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Portal / PowerShell |
+| 3.10 | [Hallucination Feedback Loop](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Portal |
 
 ## Pillar 4: SharePoint Advanced Management (7 Controls)
 
-| Control ID | Control Name |
-|-----------|----------|
-| 4.1 | [SharePoint Information Access Governance (IAG) / Restricted Content Discovery](pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) |
-| 4.2 | [Site Access Reviews and Certification](pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) |
-| 4.3 | [Site and Document Retention Management](pillar-4-sharepoint/4.3-site-and-document-retention-management.md) |
-| 4.4 | [Guest and External User Access Controls](pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) |
-| 4.5 | [SharePoint Security and Compliance Monitoring](pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) |
-| 4.6 | [Grounding Scope Governance](pillar-4-sharepoint/4.6-grounding-scope-governance.md) |
-| 4.7 | [Microsoft 365 Copilot Data Governance](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) |
+| Control ID | Control Name | Implementation |
+|-----------|----------|----------------|
+| 4.1 | [SharePoint Information Access Governance (IAG) / Restricted Content Discovery](pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | Portal / PowerShell |
+| 4.2 | [Site Access Reviews and Certification](pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | Portal |
+| 4.3 | [Site and Document Retention Management](pillar-4-sharepoint/4.3-site-and-document-retention-management.md) | Portal / PowerShell |
+| 4.4 | [Guest and External User Access Controls](pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) | Portal / PowerShell |
+| 4.5 | [SharePoint Security and Compliance Monitoring](pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Portal |
+| 4.6 | [Grounding Scope Governance](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Portal |
+| 4.7 | [Microsoft 365 Copilot Data Governance](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | Portal |
+
+---
+
+## Implementation Reference Legend
+
+The **Implementation** column indicates how each control is implemented:
+
+| Reference | Meaning |
+|-----------|---------|
+| **Portal** | Configured through Microsoft admin portals (PPAC, Purview, Entra, etc.) |
+| **PowerShell** | Automated via PowerShell cmdlets |
+| **Solution Link** | Deployable automation from [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) |
+
+Solutions provide ready-to-deploy Power Platform components that operationalize controls at scale. See [Solutions Index](../reference/solutions-index.md) for the complete catalog.
 
 ---
 

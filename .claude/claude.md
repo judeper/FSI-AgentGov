@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.12** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.15** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -16,9 +16,19 @@
 ### Companion Repository
 
 **FSI-AgentGov-Solutions** (`/Users/admin/dev/FSI-AgentGov-Solutions`) contains deployable solution artifacts:
-- `platform-change-governance/` - Dataverse deployment script and solution files
-- `environment-lifecycle-management/` - Automated ELM deployment scripts (`deploy.py`, schema, roles, rules, views)
-- See `docs/playbooks/advanced-implementations/` for implementation guides
+
+| Solution | Version | Description |
+|----------|---------|-------------|
+| `environment-lifecycle-management/` | v1.0.1 | Automated environment provisioning with zone classification |
+| `message-center-monitor/` | v2.0.0 | M365 Message Center polling and Teams notifications |
+| `pipeline-governance-cleanup/` | v1.0.8 | Personal pipeline discovery and cleanup automation |
+| `deny-event-correlation-report/` | v1.0.0 | Unified deny event reporting across Purview/DLP/App Insights |
+
+**Documentation:**
+- `scripts/README.md` - Shared hooks documentation
+- `.claude/README.md` - Claude Code configuration guide
+- See `docs/framework/solutions-integration.md` for framework mapping
+- See `docs/reference/solutions-index.md` for complete catalog
 
 ### Cross-Repository Workflow
 
@@ -212,13 +222,17 @@ Use canonical short names from `docs/reference/role-catalog.md`:
 
 | File | Purpose |
 |------|---------|
-| `docs/controls/CONTROL-INDEX.md` | Master control list |
+| `docs/controls/CONTROL-INDEX.md` | Master control list with implementation references |
 | `docs/templates/control-setup-template.md` | 10-section control template |
 | `docs/reference/role-catalog.md` | Canonical role names |
 | `docs/reference/regulatory-mappings.md` | Regulation-to-control mapping |
+| `docs/reference/solutions-index.md` | Complete FSI-AgentGov-Solutions catalog |
 | `docs/reference/learn-monitor-guide.md` | How the Learn monitor works |
 | `docs/framework/agent-identity-architecture.md` | Agent ID vs Blueprint architecture guide |
+| `docs/framework/solutions-integration.md` | Solutions-to-framework mapping |
+| `docs/framework/adoption-roadmap.md` | Phased implementation with solution references |
 | `docs/playbooks/advanced-implementations/platform-change-governance/` | Platform Change Governance playbook |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/` | Environment Lifecycle Management playbook |
 | `mkdocs.yml` | Site navigation |
 | `CHANGELOG.md` | Release history |
 
@@ -318,8 +332,11 @@ python scripts/learn_monitor.py --verbose
 | Understand zones | `docs/framework/zones-and-tiers.md` |
 | Understand Agent ID vs Blueprint | `docs/framework/agent-identity-architecture.md` |
 | Learn about the doc monitor | `docs/reference/learn-monitor-guide.md` |
+| View all solutions | `docs/reference/solutions-index.md` |
+| Understand solutions-to-framework mapping | `docs/framework/solutions-integration.md` |
 | Implement Platform Change Governance | `docs/playbooks/advanced-implementations/platform-change-governance/` |
 | Implement Environment Lifecycle Management | `docs/playbooks/advanced-implementations/environment-lifecycle-management/` |
+| Plan adoption phases | `docs/framework/adoption-roadmap.md` |
 | Review language rules | `CONTRIBUTING.md` |
 | View release history | `CHANGELOG.md` |
 
@@ -362,8 +379,16 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.14 (January 2026)
-**Status:** All 62 controls complete, 248 control playbooks + 23 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+**Version:** 1.2.15 (January 2026)
+**Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+
+**Recent Additions (v1.2.15):**
+- **Solutions Index** - New `docs/reference/solutions-index.md` cataloging all FSI-AgentGov-Solutions with versions and control mappings
+- **Solutions Integration** - New `docs/framework/solutions-integration.md` mapping solutions to pillars and zones with architecture diagrams
+- **CONTROL-INDEX.md Enhancement** - Added Implementation Reference column for all 62 controls linking to solutions where applicable
+- **Adoption Roadmap Updates** - Added automation tips and solution references to implementation phases
+- **Platform Change Governance Cross-Link** - Added explicit message-center-monitor reference to PCG playbook
+- **FSI-AgentGov-Solutions Documentation** - Added `scripts/README.md` and `.claude/README.md` for hooks and configuration guidance
 
 **Recent Additions (v1.2.14):**
 - **SECURITY.md version fix** - Updated outdated version footer from v1.1 to v1.2.14
@@ -409,7 +434,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.14
+- **Framework Version:** 1.2.15
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

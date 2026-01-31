@@ -95,6 +95,7 @@ nav:
     - Operating Model: framework/operating-model.md
     - Governance Cadence: framework/governance-cadence.md
     - Adoption Roadmap: framework/adoption-roadmap.md
+    - Solutions Integration: framework/solutions-integration.md
 
   - Control Catalog:
     - Control Index: controls/index.md
@@ -564,6 +565,7 @@ nav:
 
   - Reference:
     - Overview: reference/index.md
+    - Solutions Index: reference/solutions-index.md
     - Evidence Standards: reference/evidence-standards.md
     - Administrator Role Catalog: reference/role-catalog.md
     - License Requirements: reference/license-requirements.md
