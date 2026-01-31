@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.14] — January 31, 2026 (Technical Review Validation Fixes)
+
+### Overview
+
+Documentation accuracy fixes addressing validated items from technical review (P3-001, P3-005). The review validated 15 items, finding 10 invalid (false claims), 3 partially valid, and 2 requiring action.
+
+### Fixed
+
+- **SECURITY.md version (P3-001):** Updated framework version in footer from `v1.1` to `v1.2.14`
+- **Control 2.1 licensing prerequisites (P3-005):** Added explicit "Prerequisites" section documenting Power Platform Premium capacity requirements and licensing details for Managed Environments
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `SECURITY.md` | Updated version footer to v1.2.14 |
+| `docs/controls/pillar-2-management/2.1-managed-environments.md` | Added Prerequisites section with licensing requirements |
+| `.claude/CLAUDE.md` | Updated version to 1.2.14, added recent additions |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: Pass (62 controls valid)
+- Researcher package regenerated
+
+---
+
 ## [1.2.13] — January 31, 2026 (Documentation Parity Fix)
 
 ### Overview

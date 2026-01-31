@@ -362,10 +362,17 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.12 (January 2026)
+**Version:** 1.2.14 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 23 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.12):**
+**Recent Additions (v1.2.14):**
+- **SECURITY.md version fix** - Updated outdated version footer from v1.1 to v1.2.14
+- **Control 2.1 licensing prerequisites** - Added explicit Prerequisites section documenting Power Platform Premium capacity requirements
+
+**Recent Additions (v1.2.13):**
+- **Control count parity fix** - Updated all documentation files from 61 to 62 controls after v1.2.10 addition of Control 1.24
+
+**Previous Additions (v1.2.12):**
 - **ELM Automation Documentation** - Updated ELM playbook with automated deployment quick start using FSI-AgentGov-Solutions v1.1.0 scripts
 - **Labs Option A** - Added automated deployment path as alternative to manual Lab 1 setup
 
@@ -402,7 +409,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.12
+- **Framework Version:** 1.2.14
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
