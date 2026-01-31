@@ -6,6 +6,94 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.23] — January 31, 2026 (Pillar 4 SharePoint Controls Technical Accuracy Updates)
+
+### Overview
+
+Technical accuracy enhancements for all 7 Pillar 4 SharePoint Controls (4.1-4.7) based on comprehensive validation research. All controls validated as technically accurate; updates add 2025-2026 feature documentation, technical depth, and risk contextualization.
+
+### Added
+
+**Control Updates:**
+
+- **Control 4.1 (RCD):** RCD reindexing latency notes, site admin control (January 2026), recent interaction discovery exception
+- **Control 4.2 (Site Access Reviews):** SharePoint vs. Entra ID Access Reviews comparison table, DAG report integration details, email template customization (December 2025)
+- **Control 4.3 (Retention):** Dual retention strategy guidance (policies + labels), Site Lifecycle Policy clarification, Copilot interaction retention (Exchange Online mailbox), ROT content quality impact
+- **Control 4.4 (Guest Access):** Domain allow/block list details, access expiration automation, B2B integration changes (July 2025), link type recommendations table
+- **Control 4.5 (Security Monitoring):** Agent Insights metrics table (November 2025), SharePoint Admin Agent (November-December 2025), Site Permissions for Users Report (December 2025), DSPM item-level remediation
+- **Control 4.6 (Grounding Scope):** DLP policy enforcement via "Knowledge source with SharePoint and OneDrive in Copilot Studio" connector, endpoint filtering configuration, technical limits table (1,000 files, 512 MB, 4-6 hour sync), supported content types
+- **Control 4.7 (Copilot Data Governance):** Permission hygiene prerequisite section, EEEU risk documentation, discovery amplification explanation, no elevated access clarification
+
+**New Reference Documentation:**
+
+- **SharePoint Advanced Management Licensing Guide** (`docs/reference/sharepoint-advanced-management-licensing.md`) - Documents 11 of 12 SAM features included free with Microsoft 365 Copilot license, standalone pricing ($3/user/month), activation requirements
+
+**New Playbook:**
+
+- **SharePoint Governance Pre-Flight Checklist** (`docs/playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md`) - Comprehensive 5-phase pre-deployment checklist for Copilot: Permission Audit, Grounding Scope Configuration, External Access Controls, Security/Monitoring, Access Review Cadence
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/controls/pillar-4-sharepoint/4.1-*.md` | Technical Implementation Notes section |
+| `docs/controls/pillar-4-sharepoint/4.2-*.md` | Technical Implementation Notes section |
+| `docs/controls/pillar-4-sharepoint/4.3-*.md` | Technical Implementation Notes section |
+| `docs/controls/pillar-4-sharepoint/4.4-*.md` | Technical Implementation Notes section |
+| `docs/controls/pillar-4-sharepoint/4.5-*.md` | Technical Implementation Notes section |
+| `docs/controls/pillar-4-sharepoint/4.6-*.md` | Technical Implementation Notes section |
+| `docs/controls/pillar-4-sharepoint/4.7-*.md` | Technical Implementation Notes section |
+| `docs/reference/sharepoint-advanced-management-licensing.md` | **NEW** - SAM licensing guide |
+| `docs/playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md` | **NEW** - Pre-flight checklist |
+| `mkdocs.yml` | Navigation entries for new files |
+| `CHANGELOG.md` | Added v1.2.23 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+### Research Reference
+
+Research report: `prompts/02-documentation-technical/04-pillar-4-sharepoint/Pillar 4 SharePoint Controls Technical Accuracy Va.md`
+
+---
+
+## [1.2.22] — January 31, 2026 (Industry Framework Alignment References)
+
+### Overview
+
+Added external industry framework references to strengthen FSI-AgentGov's alignment with financial services AI governance standards. These additions were identified through external research validation (Perplexity AI analysis of 150+ industry sources).
+
+### Added
+
+- **FINOS AI Governance Framework Reference** - Added alignment section to `docs/reference/regulatory-mappings.md` documenting how FSI-AgentGov controls address FINOS-identified agentic AI risks (authorization bypass, privilege escalation, workflow circumvention)
+- **Sardine Agentic Oversight Framework Reference** - Added industry context section to HITL triggers playbook mapping the 5-component oversight model (Access, Agent Operation, Decision and Presentation, Comprehensive Audit Trail, Board Governance) to framework controls
+
+### Research Validation
+
+External research analysis (Perplexity AI, 150+ industry sources) validated framework architecture:
+
+- Three-layer architecture rated "industry-standard"
+- 10-section control template exceeds industry norms
+- 4 playbooks per control rated "exceptional implementation depth"
+- Overall framework grade: A- (industry-leading for specialized domain)
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/reference/regulatory-mappings.md` | Added FINOS AI Governance Framework section with risk mapping table |
+| `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` | Added Industry Context section with Sardine framework mapping |
+| `CHANGELOG.md` | Added v1.2.22 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: Pass
+
+---
+
 ## [1.2.21] — January 31, 2026 (Pillar 3 Reporting Controls Technical Accuracy Updates)
 
 ### Overview

@@ -558,6 +558,8 @@ nav:
         - Provisioning Flows: playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md
         - Labs: playbooks/advanced-implementations/environment-lifecycle-management/labs.md
         - Evidence and Audit: playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md
+      - SharePoint Copilot Pre-Flight:
+        - Overview: playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md
@@ -566,6 +568,7 @@ nav:
   - Reference:
     - Overview: reference/index.md
     - Solutions Index: reference/solutions-index.md
+    - SharePoint Advanced Management Licensing: reference/sharepoint-advanced-management-licensing.md
     - Evidence Standards: reference/evidence-standards.md
     - Administrator Role Catalog: reference/role-catalog.md
     - License Requirements: reference/license-requirements.md
