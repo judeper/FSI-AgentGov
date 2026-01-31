@@ -59,6 +59,9 @@ Polls Microsoft 365 Message Center for platform announcements and delivers struc
 
 ### Pipeline Governance Cleanup
 
+!!! warning "February 2026 Deadline"
+    Microsoft will automatically enable Managed Environments for pipeline target environments starting February 2026. Use this solution to audit and remediate personal pipelines before enforcement. See [Control 2.1](../controls/pillar-2-management/2.1-managed-environments.md#critical-deadline-february-2026-pipeline-requirement) for details.
+
 Discovers personal deployment pipelines across environments and notifies owners before enforcing centralized ALM governance. Supports transition from ad-hoc to governed deployment patterns.
 
 **Components:**

@@ -379,10 +379,15 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.24 (January 2026)
+**Version:** 1.2.25 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 26 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.24):**
+**Recent Additions (v1.2.25):**
+- **February 2026 Pipeline Deadline Documentation** - Added critical compliance deadline for pipeline Managed Environment enforcement
+- **Control 2.1 Critical Warning** - Added danger callout documenting automatic Managed Environment enablement for pipeline targets starting February 2026, licensing implications, and required actions
+- **Solutions Index Urgency** - Added warning to Pipeline Governance Cleanup section highlighting February 2026 deadline
+
+**Previous Additions (v1.2.24):**
 - **Pillar 2 Management Controls Technical Accuracy Clarifications** - Distinguishes built-in platform capabilities from custom implementation requirements
 - **Control 2.3** - Clarified approval gates require Power Automate integration (OnApprovalStarted trigger)
 - **Control 2.6** - Added info box: Microsoft provides infrastructure, not pre-built MRM solution
@@ -493,7 +498,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.24
+- **Framework Version:** 1.2.25
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

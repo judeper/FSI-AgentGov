@@ -6,6 +6,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.25] — January 31, 2026 (February 2026 Pipeline Deadline Documentation)
+
+### Overview
+
+Added critical compliance deadline documentation based on Pipeline Governance Cleanup technical validation research. The February 2026 Managed Environment enforcement for pipeline targets is a Microsoft-enforced deadline with automatic enablement and licensing implications.
+
+### Added
+
+- **Control 2.1 Critical Warning Section** - Added "Critical Deadline: February 2026 Pipeline Requirement" section with danger callout box documenting automatic Managed Environment enablement for pipeline targets, licensing implications, and required actions
+- **Solutions Index Urgency Context** - Added warning callout to Pipeline Governance Cleanup section highlighting the February 2026 deadline and linking to Control 2.1
+
+### Research Validation
+
+Pipeline Governance Cleanup solution technical accuracy validation (87.5% of claims validated):
+
+- February 2026 Managed Environment deadline: ✅ CONFIRMED (Microsoft Learn: Admin Deployment Hub)
+- PAC CLI `pac admin list --json` command: ✅ ACCURATE
+- `pac pipeline list` no JSON support: ✅ ACCURATE
+- Microsoft Graph integration (Mail.Send, Send-MgUserMail): ✅ ACCURATE
+- PAC CLI authentication methods: ✅ ACCURATE
+- Pipeline detection directionality: ⚠️ CLARIFIED (Dataverse API access available with host authentication)
+- DeploymentPipeline table API access: ⚠️ CLARIFIED (Dataverse Web API available, not public REST API)
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/controls/pillar-2-management/2.1-managed-environments.md` | Added February 2026 pipeline deadline critical warning section |
+| `docs/reference/solutions-index.md` | Added urgency warning to Pipeline Governance Cleanup section |
+| `.claude/CLAUDE.md` | Updated version and recent additions |
+| `CHANGELOG.md` | Added v1.2.25 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+### Research Reference
+
+Research report: `prompts/04-solutions-technical/02-pipeline-governance-cleanup/`
+
+---
+
 ## [1.2.24] — January 31, 2026 (Pillar 2 Management Controls Technical Accuracy Clarifications)
 
 ### Overview
