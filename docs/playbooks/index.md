@@ -120,6 +120,9 @@ Complex governance scenarios and specialized configurations.
 | [DSPM for AI Policy Pack](advanced-implementations/dspm-for-ai-policy-pack.md) | Data security policies |
 | [Platform Change Governance](advanced-implementations/platform-change-governance/index.md) | Message Center change operationalization |
 
+!!! info "Deployable Solutions"
+    Ready-to-deploy Power Platform solutions are available in [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions). See the [Solutions Index](../reference/solutions-index.md) for the complete catalog with control mappings.
+
 ---
 
 ### Regulatory Modules

@@ -295,4 +295,10 @@ finally {
 
 ---
 
+## Deployable Solution
+
+For automated Dataverse schema creation, security roles, and evidence export scripts, see the [Environment Lifecycle Management Solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management).
+
+---
+
 [Back to Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

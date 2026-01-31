@@ -148,7 +148,7 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 | **Power BI Template** | Correlation dashboard with daily refresh |
 | **Documentation** | Prerequisites, deployment, troubleshooting |
 
-**Repository:** [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) → `deny-event-correlation-report/`
+**Repository:** [deny-event-correlation-report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) (v1.0.0)
 
 ---
 

@@ -349,4 +349,10 @@ finally {
 
 ---
 
+## Deployable Solution
+
+For automated daily deny event extraction and correlation across Purview Audit, DLP, and Application Insights, see the [Deny Event Correlation Report Solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report).
+
+---
+
 *Updated: January 2026 | Version: v1.2*
