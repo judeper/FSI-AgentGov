@@ -1,6 +1,6 @@
 # Control Catalog
 
-Complete catalog of 60 governance controls for Microsoft 365 AI agents.
+Complete catalog of 62 governance controls for Microsoft 365 AI agents.
 
 ---
 
@@ -43,7 +43,7 @@ The Control Catalog provides detailed requirements for each governance control. 
 
 ## Control Summary by Pillar
 
-### Pillar 1: Security Controls (23)
+### Pillar 1: Security Controls (24)
 
 Protect data and systems from unauthorized access and misuse.
 
@@ -77,7 +77,7 @@ Protect data and systems from unauthorized access and misuse.
 
 ---
 
-### Pillar 2: Management Controls (20)
+### Pillar 2: Management Controls (21)
 
 Govern agent lifecycle, risk, and operational processes.
 

@@ -138,7 +138,7 @@ Regulation-specific implementation guidance.
 
 Per-control implementation guides extracted from control documentation.
 
-**244 playbooks** (61 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
+**248 playbooks** (62 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
 
 Each control has a dedicated folder with:
 
