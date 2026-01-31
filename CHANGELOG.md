@@ -6,6 +6,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.19] — January 31, 2026 (SEC Rule 17a-4 Citation Correction)
+
+### Overview
+
+Regulatory citation accuracy improvement correcting SEC Rule 17a-4 retention period from "6 years + 3 years accessible" to "6 years, first 2 years readily accessible" per 17 CFR § 240.17a-4.
+
+### Fixed
+
+- **SEC Rule 17a-4 retention period:** Corrected across 5 files (8 instances) from "6 years + 3 years accessible" to "6 years, first 2 years readily accessible":
+  - `docs/framework/regulatory-framework.md` (4 instances)
+  - `docs/framework/zones-and-tiers.md` (1 instance)
+  - `docs/playbooks/agent-lifecycle/agent-decommissioning.md` (1 instance)
+  - `docs/reference/faq.md` (1 instance)
+  - `docs/playbooks/advanced-implementations/platform-change-governance/architecture.md` (1 instance - also fixed 3+3 to 2+4 split)
+
+### Validated (No Changes Needed)
+
+The following SEC citations were validated as accurate:
+
+- SEC Marketing Rule 206(4)-1 - AI disclosure requirements correctly characterized
+- SEC Regulation S-P - Privacy safeguards correctly described
+- SEC Regulation BI - Best interest standard correctly referenced
+- SEC Regulation S-ID - Identity theft prevention correctly referenced
+- SEC Rule 10b-5 - Anti-fraud provisions correctly cited
+- SEC 2026 Examination Priorities - AI risk focus correctly characterized
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/framework/regulatory-framework.md` | Fixed 17a-4 retention (4 places) |
+| `docs/framework/zones-and-tiers.md` | Fixed 17a-4 retention (1 place) |
+| `docs/playbooks/agent-lifecycle/agent-decommissioning.md` | Fixed 17a-4 retention |
+| `docs/reference/faq.md` | Fixed 17a-4 retention |
+| `docs/playbooks/advanced-implementations/platform-change-governance/architecture.md` | Fixed audit trail retention split |
+| `CHANGELOG.md` | Added v1.2.19 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- SEC Rule 17a-4 verified against 17 CFR § 240.17a-4(f)
+
+### Research Reference
+
+Research report: `prompts/01-regulatory/02-sec-citations/`
+
+---
+
 ## [1.2.18] — January 31, 2026 (Banking Regulator Citation Remediation)
 
 ### Overview

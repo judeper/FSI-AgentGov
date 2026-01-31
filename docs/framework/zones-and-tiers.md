@@ -207,7 +207,7 @@ Zone 2 is subject to MODERATE regulatory oversight:
 - **Approval:** Governance Committee + Legal review
 - **Publishing:** Change control process
 - **Data:** All regulated and sensitive data
-- **Retention:** 10 years minimum (conservative buffer exceeding SEC 17a-3/4: 6 years + 3 years accessible)
+- **Retention:** 10 years minimum (conservative buffer exceeding SEC 17a-3/4: 6 years, first 2 years readily accessible)
 - **Audit:** Real-time monitoring
 - **Access Reviews:** Monthly with attestation
 

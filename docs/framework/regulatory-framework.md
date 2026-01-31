@@ -120,19 +120,19 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 ### SEC Rule 17a-3/4 — Recordkeeping
 
-**Overview:** Requires SEC-registered firms to maintain records of all transactions and communications for 6 years + 3 years accessible.
+**Overview:** Requires SEC-registered firms to maintain records of all transactions and communications for 6 years, first 2 years readily accessible.
 
 **Record Categories:**
 
-- **Agent Communications:** All user interactions, outputs, decisions (6 years + 3 years accessible)
-- **Transaction Records:** If agent processes transactions, provides advice, executes trades (6 years + 3 years accessible)
+- **Agent Communications:** All user interactions, outputs, decisions (6 years, first 2 years readily accessible)
+- **Transaction Records:** If agent processes transactions, provides advice, executes trades (6 years, first 2 years readily accessible)
 - **Governance Records:** Approvals, change logs, incident reports, validation results (6 years minimum)
 
 **Applicable Controls:**
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year + 3-year accessible retention |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years readily accessible |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
 | [1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | eDiscovery for Agent Interactions | Search and export for regulators |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | All records documented |

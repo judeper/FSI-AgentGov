@@ -486,7 +486,7 @@ Important: Ensure integration and audit trail.
 A: Depends on regulation:
 
 - **FINRA 4511:** 6 years, first 2 years in easily accessible place
-- **SEC 17a-3/4:** 6 years + 3 years accessible
+- **SEC 17a-3/4:** 6 years, first 2 years readily accessible
 - **SOX 404:** 7 years minimum
 - **GLBA:** 5-7 years
 - **OCC/SR 11-7:** Per model (typically 3+ years)

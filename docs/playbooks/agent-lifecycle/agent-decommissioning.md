@@ -111,7 +111,7 @@ When an agent is no longer needed, it must be decommissioned following a control
 | Regulation | Requirement | Applies To |
 |------------|-------------|------------|
 | FINRA 4511 | 6 years, first 2 years in easily accessible place | Broker-dealers |
-| SEC 17a-4 | 6 years + 3 years accessible | SEC registrants |
+| SEC 17a-4 | 6 years, first 2 years readily accessible | SEC registrants |
 | SOX 802 | 7 years | Public companies |
 | GLBA | Per institution policy | All FSI |
 

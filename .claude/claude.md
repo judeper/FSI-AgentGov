@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.18** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.19** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,8 +379,13 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.18 (January 2026)
+**Version:** 1.2.19 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+
+**Recent Additions (v1.2.19):**
+- **SEC Rule 17a-4 Citation Correction** - Fixed retention period from "6 years + 3 years accessible" to "6 years, first 2 years readily accessible" per 17 CFR § 240.17a-4
+- **5 files corrected** - regulatory-framework.md (4), zones-and-tiers.md (1), agent-decommissioning.md (1), faq.md (1), PCG architecture.md (1)
+- **Validated SEC citations** - Marketing Rule 206(4)-1, Reg S-P, Reg BI, Reg S-ID, Rule 10b-5, 2026 Examination Priorities confirmed accurate
 
 **Recent Additions (v1.2.18):**
 - **Banking Regulator Citation Remediation** - Corrected erroneous FDIC FIL-15-2025 citation, fixed OCC 2021-18 AI guidance claim
@@ -457,7 +462,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.18
+- **Framework Version:** 1.2.19
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

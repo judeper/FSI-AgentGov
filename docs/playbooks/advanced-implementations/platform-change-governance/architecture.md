@@ -310,7 +310,7 @@ stateDiagram-v2
 | Evidence Type | Artifact | Retention Period | Storage Location |
 |---------------|----------|------------------|------------------|
 | Governance Decisions | DecisionLog table records | 6 years (FINRA 4511) | Dataverse (3 years), SharePoint archive (additional 3) |
-| Audit Trail | Dataverse audit logs | 3 years readily accessible + 3 archived (SEC 17a-3/4) | Dataverse → quarterly export to SharePoint |
+| Audit Trail | Dataverse audit logs | 2 years readily accessible + 4 years archived (SEC 17a-3/4) | Dataverse → quarterly export to SharePoint |
 | Execution Evidence (Path B) | Azure DevOps work item history | Per Azure DevOps retention policy | Azure DevOps (linked via `dl_ado_workitem_url`) |
 | Integration Logs | Power Automate flow run history | 28 days (Power Automate default) | Power Automate portal + optional export |
 
