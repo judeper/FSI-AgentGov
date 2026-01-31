@@ -379,21 +379,25 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.21 (January 2026)
-**Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+**Version:** 1.2.23 (January 2026)
+**Status:** All 62 controls complete, 248 control playbooks + 26 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.21):**
+**Recent Additions (v1.2.23):**
+- **Pillar 4 SharePoint Controls Technical Accuracy Updates** - Research-validated updates to all 7 controls (4.1-4.7)
+- **SharePoint Advanced Management Licensing Guide** - New reference documenting SAM features included with Copilot license
+- **SharePoint Governance Pre-Flight Checklist** - New playbook for Copilot pre-deployment preparation
+
+**Recent Additions (v1.2.22):**
+- **Industry Framework Alignment References** - Added FINOS AI Governance Framework and Sardine Agentic Oversight Framework references
+- **FINOS alignment** - Risk mapping table for authorization bypass, privilege escalation, workflow circumvention
+- **Sardine alignment** - 5-component oversight model mapped to HITL triggers playbook
+
+**Previous Additions (v1.2.21):**
 - **Pillar 3 Reporting Controls Technical Accuracy Updates** - Research-validated updates to Controls 3.1, 3.2, 3.3, 3.6, 3.7, 3.8, 3.9, 3.10
 - **Control 3.9 Clarification** - No dedicated Copilot Studio connector exists for Sentinel; use Power Platform Admin Activity connector
 - **Control 3.10 Clarification** - No automated hallucination detection exists; all detection relies on manual feedback
-- **Control 3.1 Enhancement** - Power Platform Inventory preview status, 24-hour refresh, 500-agent limit, programmatic access examples
-- **Control 3.2 Enhancement** - New 2025-2026 analytics features (Agent Dashboard, Action Usage Analytics, Copilot Benchmarks)
-- **Control 3.7 Enhancement** - Security posture scoring scale (Low/Medium/High), recommendation trigger conditions
-- **Control 3.8 Enhancement** - Preview status designation, Microsoft Agent 365 strategic context from Ignite 2025
-- **Control 3.3 Enhancement** - AI regulatory assessment templates in Compliance Manager (EU AI Act, NIST AI RMF, ISO 42001/23894)
-- **Control 3.6 Enhancement** - Agent Ownership Reassignment GA (October 2025) with PPAC and PowerShell methods
 
-**Recent Additions (v1.2.20):**
+**Previous Additions (v1.2.20):**
 - **Colorado SB24-205 Date Fix** - Effective date changed from February 1, 2026 to June 30, 2026 (extended via SB 25B-004)
 - **OWASP LLM Top 10 Update** - Updated from 2023 to 2025 version in Controls 2.7 and 2.20
 - **Treasury NIST AI RMF Correction** - Changed "endorsed by" to "recommended by" in crosswalk
@@ -480,7 +484,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.21
+- **Framework Version:** 1.2.23
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
