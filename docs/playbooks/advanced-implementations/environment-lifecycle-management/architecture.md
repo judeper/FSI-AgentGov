@@ -18,7 +18,7 @@ This document defines the canonical reference architecture for Environment Lifec
 | **Managed from Creation** | Environments created as Managed Environments | No post-creation conversion required |
 | **Environment Group Binding** | Environments auto-join zone-appropriate group | Rules apply immediately, no policy gap |
 | **Service Principal Identity** | Automation uses dedicated app identity | Decoupled from human lifecycle |
-| **Immutable Audit Trail** | ProvisioningLog records cannot be modified | Organization-owned table, no update permissions |
+| **Append-Only Audit Trail** | ProvisioningLog records protected from standard modification | Organization-owned table with access controls |
 | **Async Provisioning** | Environment creation is non-deterministic (1-30+ min) | Polling pattern with defined timeouts |
 
 ---
@@ -166,7 +166,7 @@ When creating Choice columns in Dataverse, you must specify both the label and i
 
 ### Table 2: ProvisioningLog (1:N from EnvironmentRequest)
 
-Immutable audit trail of all provisioning actions. Organization-owned to prevent user modification.
+Append-only audit trail of all provisioning actions with access controls. Organization-owned with restricted privileges to prevent standard user modification.
 
 | Field Name | Data Type | Description |
 |------------|-----------|-------------|
@@ -184,10 +184,13 @@ Immutable audit trail of all provisioning actions. Organization-owned to prevent
 
 **Table Settings:**
 
-- **Ownership:** Organization-owned (read-only after creation)
+- **Ownership:** Organization-owned (read-only after creation for standard users)
 - **Auditing:** Enabled (provides secondary audit trail via Dataverse audit)
 - **Relationship:** Restrict delete (cannot delete request with logs)
-- **Security:** No Update or Delete privileges for any role (immutability enforcement)
+- **Security:** No Update or Delete privileges for any role (access control enforcement)
+
+!!! warning "Access Control Limitations"
+    These controls are **defense-in-depth measures**, not true immutability. System Administrators retain full Dataverse access regardless of role configuration. For compliance-grade immutability (e.g., SEC 17a-4 WORM requirement), see [Evidence and Audit](evidence-and-audit.md#worm-export-option) for export to immutable storage.
 
 ### Relationship Definition
 
@@ -258,15 +261,27 @@ Per Control 2.8 requirements:
 | `er_environmentid` | Read | Read | Read/Write | Read |
 | `pl_*` (all log fields) | Read (own request) | Read (BU) | Create only | Read |
 
-### ProvisioningLog Immutability Enforcement
+### ProvisioningLog Access Controls
 
-The ProvisioningLog table achieves immutability through multiple mechanisms:
+The ProvisioningLog table uses layered access controls to protect audit data:
 
 1. **Organization Ownership:** Table owned by organization, not individual users
 2. **No Update Privilege:** No security role grants Update permission
 3. **No Delete Privilege:** No security role grants Delete permission
 4. **Create-Only Access:** ELM Admin role has Create privilege only
-5. **Dataverse Auditing:** Secondary audit trail captures any bypass attempts
+5. **Dataverse Auditing:** Secondary audit trail captures any access attempts
+
+!!! info "What These Controls Prevent vs. Allow"
+
+    | Threat | Prevented? | Notes |
+    |--------|------------|-------|
+    | Standard user modification | ✅ Yes | Role-based security blocks |
+    | ELM Admin modification | ✅ Yes | Only Create privilege granted |
+    | System Administrator modification | ❌ No | Full Dataverse access retained |
+    | Direct API modification by privileged users | ❌ No | Requires additional monitoring |
+    | Forensic evidence of any access | ✅ Yes | Dataverse audit captures attempts |
+
+    For organizations requiring true immutability (e.g., SEC 17a-4 WORM), export to Azure Blob Storage with immutability policies. See [Evidence and Audit](evidence-and-audit.md#worm-export-option).
 
 **Validation for Examiners:**
 

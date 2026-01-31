@@ -6,6 +6,67 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.27] — January 31, 2026 (ELM Technical Accuracy Remediation)
+
+### Overview
+
+Technical accuracy corrections for Environment Lifecycle Management playbook based on research validation. Clarifies that ProvisioningLog access controls are defense-in-depth measures, not true cryptographic immutability.
+
+### Changed
+
+- **architecture.md:** Changed "Immutable Audit Trail" to "Append-Only Audit Trail" with access control limitations table
+- **evidence-and-audit.md:** Added "What These Controls Prevent vs. Allow" table distinguishing protected vs. unprotected threat scenarios
+- **evidence-and-audit.md:** Added transparency guidance for examiner discussions recommending honest acknowledgment of System Administrator access
+- **index.md:** Updated terminology from "immutable" to "append-only" in 4 locations
+
+### Research Validation Summary
+
+Environment Lifecycle Management v1.1.1 technical accuracy validation (71% accurate, 29% updated):
+
+| Finding | Status | Action |
+|---------|--------|--------|
+| Dataverse Web API (v9.2, OData 4.0) | ✅ Accurate | No change |
+| Security Roles (4-role structure) | ✅ Accurate | No change |
+| Business Rules (conditional validation) | ✅ Accurate | No change |
+| Immutability claims | ⚠️ Overclaimed | Corrected to "access controls" |
+| Environment Groups API claim | ⚠️ Incorrect | API exists, corrected |
+| Python dependency versions | ⚠️ Outdated | Updated in FSI-AgentGov-Solutions |
+
+### Key Correction
+
+The ProvisioningLog table uses role-based access controls that prevent standard users from modifying records. However:
+
+- System Administrators retain full Dataverse access regardless of role configuration
+- Direct API access could bypass role-based security for privileged users
+- For SEC 17a-4 WORM compliance, export to Azure Blob Storage with immutability policies is required
+
+### FSI-AgentGov-Solutions Updates
+
+- Environment Lifecycle Management bumped to v1.1.2
+- Updated Python dependencies (msal>=1.30.0, requests>=2.32.0, azure-identity>=1.18.0)
+- Corrected Environment Groups API documentation
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` | Immutability → access controls |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md` | Added limitations table, examiner guidance |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md` | Terminology updates |
+| `.claude/CLAUDE.md` | Updated version and recent additions |
+| `CHANGELOG.md` | Added v1.2.27 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+### Research Reference
+
+Research report: `prompts/04-solutions-technical/01-environment-lifecycle-management/`
+
+---
+
 ## [1.2.24] — January 31, 2026 (Pillar 2 Management Controls Technical Accuracy Clarifications)
 
 ### Overview

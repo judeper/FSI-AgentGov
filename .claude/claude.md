@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.21** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.27** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -19,7 +19,7 @@
 
 | Solution | Version | Description |
 |----------|---------|-------------|
-| `environment-lifecycle-management/` | v1.1.1 | Automated environment provisioning with zone classification |
+| `environment-lifecycle-management/` | v1.1.2 | Automated environment provisioning with zone classification |
 | `message-center-monitor/` | v2.1.1 | M365 Message Center polling and Teams notifications |
 | `pipeline-governance-cleanup/` | v1.0.8 | Personal pipeline discovery and cleanup automation |
 | `deny-event-correlation-report/` | v1.0.0 | Unified deny event reporting across Purview/DLP/App Insights |
@@ -379,10 +379,32 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.24 (January 2026)
-**Status:** All 62 controls complete, 248 control playbooks + 26 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+**Version:** 1.2.27 (January 2026)
+**Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.24):**
+**Recent Additions (v1.2.27):**
+- **ELM Technical Accuracy Remediation** - Corrected immutability claims in Environment Lifecycle Management playbook
+- **architecture.md** - Changed "Immutable Audit Trail" to "Append-Only Audit Trail" with access control limitations table
+- **evidence-and-audit.md** - Added "What These Controls Prevent vs. Allow" table and examiner transparency guidance
+- **index.md** - Updated terminology from "immutable" to "append-only" in 4 locations
+- **Key Clarification** - ProvisioningLog access controls are defense-in-depth, not true immutability; System Administrators retain full Dataverse access
+- **FSI-AgentGov-Solutions** - ELM v1.1.2 with updated Python dependencies (msal>=1.30.0, requests>=2.32.0, azure-identity>=1.18.0) and corrected Environment Groups API claim
+
+**Previous Additions (v1.2.26):**
+- **Solutions Architecture Guide** - New `docs/reference/solutions-architecture-guide.md` with enterprise scalability guidance
+- **Platform selection guide** - Power Automate vs Logic Apps vs Azure Functions comparison
+- **Scalability limits** - Power Platform requests, Graph API throttling, Dataverse capacity, Power BI refresh limits
+- **Secret management** - Azure Key Vault integration patterns and rotation best practices
+- **Compliance storage** - Azure Immutable Blob Storage for SEC 17a-4/FINRA 4511 validated WORM compliance
+- **CoE Starter Kit alignment** - Integration guidance for existing CoE deployments
+- **Cross-references** - Updated Solutions Index, Solutions Integration, DEC playbook with architecture links
+
+**Previous Additions (v1.2.25):**
+- **February 2026 Pipeline Deadline Documentation** - Added critical compliance deadline for pipeline Managed Environment enforcement
+- **Control 2.1 Critical Warning** - Added danger callout documenting automatic Managed Environment enablement for pipeline targets starting February 2026, licensing implications, and required actions
+- **Solutions Index Urgency** - Added warning to Pipeline Governance Cleanup section highlighting February 2026 deadline
+
+**Previous Additions (v1.2.24):**
 - **Pillar 2 Management Controls Technical Accuracy Clarifications** - Distinguishes built-in platform capabilities from custom implementation requirements
 - **Control 2.3** - Clarified approval gates require Power Automate integration (OnApprovalStarted trigger)
 - **Control 2.6** - Added info box: Microsoft provides infrastructure, not pre-built MRM solution
@@ -493,7 +515,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.24
+- **Framework Version:** 1.2.27
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

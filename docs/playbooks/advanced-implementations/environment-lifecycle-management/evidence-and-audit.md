@@ -7,7 +7,10 @@
 
 ## Overview
 
-This document defines evidence standards, retention requirements, and examination response procedures for Environment Lifecycle Management. The ProvisioningLog table serves as the immutable audit trail for all provisioning activities.
+This document defines evidence standards, retention requirements, and examination response procedures for Environment Lifecycle Management. The ProvisioningLog table serves as an append-only audit trail with access controls for all provisioning activities.
+
+!!! info "Audit Trail vs. True Immutability"
+    The ProvisioningLog provides strong access controls that prevent standard users from modifying records. However, for organizations requiring compliance-grade immutability (e.g., SEC 17a-4 WORM storage), additional export to immutable storage is recommended. See [WORM Export Option](#worm-export-option) below.
 
 ---
 
@@ -16,7 +19,7 @@ This document defines evidence standards, retention requirements, and examinatio
 ```mermaid
 flowchart TB
     subgraph Primary Evidence
-        PL[(ProvisioningLog<br/>Immutable)]
+        PL[(ProvisioningLog<br/>Append-Only)]
         ER[(EnvironmentRequest<br/>Audited)]
     end
 
@@ -39,11 +42,11 @@ flowchart TB
 
 ---
 
-## ProvisioningLog Immutability
+## ProvisioningLog Access Controls
 
-### Enforcement Mechanism
+### Protection Mechanism
 
-The ProvisioningLog achieves immutability through layered controls:
+The ProvisioningLog uses layered access controls to protect audit data:
 
 | Layer | Mechanism | Verification |
 |-------|-----------|--------------|
@@ -51,6 +54,20 @@ The ProvisioningLog achieves immutability through layered controls:
 | **2. Security Role Privileges** | No Update or Delete privileges granted | Role privilege audit |
 | **3. Dataverse Auditing** | Secondary audit trail of any access | Audit log query |
 | **4. Application Logic** | No update/delete actions in flows | Flow definition review |
+
+### What These Controls Prevent vs. Allow
+
+| Threat | Mitigated? | Notes |
+|--------|------------|-------|
+| Standard user creating false records | ✅ Yes | Only ELM Admin role has Create |
+| Standard user modifying existing records | ✅ Yes | No Update privileges granted |
+| Standard user deleting records | ✅ Yes | No Delete privileges granted |
+| System Administrator modification | ❌ No | Full Dataverse access bypasses roles |
+| Direct Dataverse Web API by privileged users | ❌ No | API access respects privileges but not for sysadmin |
+| Forensic detection of unauthorized access | ✅ Yes | Dataverse audit captures all operations |
+
+!!! warning "Defense-in-Depth, Not True Immutability"
+    These controls provide strong protection against standard users but do not achieve cryptographic immutability. System Administrators retain full access to Dataverse regardless of security role configuration. For SEC 17a-4 compliance or similar requirements, export to WORM storage is required.
 
 ### Security Role Configuration
 
@@ -103,7 +120,7 @@ catch {
 
 ### Examiner Demonstration
 
-When examiners question immutability:
+When examiners question audit trail integrity:
 
 1. **Show table ownership:** Settings > Table > Ownership = Organization
 2. **Show security roles:** No role has Write/Delete privileges
@@ -115,6 +132,15 @@ When examiners question immutability:
 ```
 Error: Principal user does not have prvWritefsi_provisioninglog privilege
 ```
+
+!!! tip "Transparency with Examiners"
+    Be transparent that these are access controls, not cryptographic immutability:
+
+    - **What you can demonstrate:** Role-based controls prevent standard users from modification, and Dataverse audit captures any access attempts including by privileged users.
+    - **What you should acknowledge:** System Administrators retain full platform access. If true immutability is required, explain your WORM export process (see below).
+    - **Compensating control:** Point to Dataverse audit as forensic evidence layer that would detect any unauthorized modification by privileged users.
+
+    This transparency builds examiner confidence rather than overclaiming capabilities.
 
 ---
 
@@ -181,7 +207,7 @@ Organizations subject to SEC 17a-4 may require WORM storage:
     2. Audit trail captures all access and modification attempts
     3. Records are indexed and retrievable
 
-**WORM Export Option:**
+#### WORM Export Option
 
 For organizations electing WORM storage:
 

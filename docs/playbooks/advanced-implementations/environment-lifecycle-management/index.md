@@ -65,7 +65,7 @@ flowchart LR
 | Component | Purpose |
 |-----------|---------|
 | **Copilot Studio Agent** | Conversational intake with slot validation and zone classification |
-| **Dataverse Tables** | EnvironmentRequest (requests), ProvisioningLog (immutable audit trail) |
+| **Dataverse Tables** | EnvironmentRequest (requests), ProvisioningLog (append-only audit trail) |
 | **Power Automate Flows** | Provisioning orchestration with Service Principal identity |
 | **Service Principal** | Decoupled admin identity for automation (no human credential dependencies) |
 | **Environment Groups** | Zone rule inheritance ensures consistent governance from creation |
@@ -128,7 +128,7 @@ Automatic zone triggers (PII, financial data, external access) **flag for Compli
 
 | Regulation | Requirement | How This Solution Helps |
 |------------|-------------|------------------------|
-| **FINRA 4511** | Records of business activities (6+ years) | ProvisioningLog provides immutable request/approval/action audit trail |
+| **FINRA 4511** | Records of business activities (6+ years) | ProvisioningLog provides append-only request/approval/action audit trail with access controls |
 | **SEC 17a-3/4** | Records preservation with audit trail | Dataverse change tracking, quarterly export to compliant storage |
 | **SOX 302/404** | Internal control assessment and certification | Documented approval workflows, segregation of duties (requester ≠ approver) |
 | **GLBA 501(b)** | Administrative safeguards for customer information | Baseline configuration applies consistent security controls at creation |
@@ -148,7 +148,7 @@ This playbook supports multiple framework controls:
 | [2.8 - Access Control & SoD](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Requester cannot approve own environment request |
 | [2.13 - Documentation](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | ProvisioningLog provides governance records |
 | [2.15 - Environment Routing](../../../controls/pillar-2-management/2.15-environment-routing.md) | Intake agent routes requests to appropriate zone |
-| [1.7 - Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | All provisioning actions logged to immutable ProvisioningLog |
+| [1.7 - Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | All provisioning actions logged to append-only ProvisioningLog |
 | [3.1 - Agent Inventory](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | New environments registered in inventory automatically |
 | [3.2 - Usage Analytics](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Baseline config enables usage insights from day one |
 | [3.6 - Orphaned Agent Detection](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Unapproved/rejected requests don't create orphaned environments |
@@ -196,7 +196,7 @@ This creates tables, columns, security roles, business rules, views, and field s
 | [Copilot Intake Agent](implementation-copilot-intake.md) | Conversational intake configuration and zone classification |
 | [Provisioning Flows](implementation-provisioning.md) | Power Automate provisioning with baseline configuration |
 | [Labs](labs.md) | Hands-on exercises (Labs 1-4) |
-| [Evidence and Audit](evidence-and-audit.md) | Evidence standards mapping, ProvisioningLog immutability, examination response |
+| [Evidence and Audit](evidence-and-audit.md) | Evidence standards mapping, ProvisioningLog access controls, examination response |
 
 ---
 
