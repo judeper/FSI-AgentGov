@@ -102,7 +102,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (8/61 controls). Implementation required.
+Framework provides supervision procedure guidance (8/62 controls). Implementation required.
 
 ---
 
@@ -156,7 +156,7 @@ FINRA's supervisory requirements for AI systems derive primarily from existing r
 The framework applies FINRA's existing supervision principles to AI agents, treating them as tools requiring documented procedures, ongoing monitoring, and supervisory oversight.
 
 ### Framework Coverage
-Framework addresses FINRA supervision requirements through 8/61 controls. Implementation and validation required.
+Framework addresses FINRA supervision requirements through 8/62 controls. Implementation and validation required.
 
 ---
 
@@ -270,7 +270,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (6/61 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (6/62 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -435,7 +435,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 72% control coverage (44/61 controls). SOX-specific testing required. Implementation required.
+Framework provides 72% control coverage (44/62 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -556,7 +556,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 84% control coverage (51/61 controls). Implementation validation required.
+Framework provides 84% control coverage (51/62 controls). Implementation validation required.
 
 ---
 
@@ -672,7 +672,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 54% control coverage (33/61 controls). OCC-specific model validation required for full compliance.
+Framework provides 54% control coverage (33/62 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -718,7 +718,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/61 controls applicable). ECOA-specific testing and validation required.
+Framework provides bias testing controls (2/62 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -840,7 +840,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (6/61 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (6/62 controls). CFPB-specific implementation required.
 
 ---
 
@@ -909,7 +909,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 61 controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All 62 controls applicable.
 
 ---
 

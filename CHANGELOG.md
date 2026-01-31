@@ -6,6 +6,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.13] — January 31, 2026 (Documentation Parity Fix)
+
+### Overview
+
+Documentation parity update to correct control counts across all documentation files. Control 1.24 (Defender AI-SPM) was added in v1.2.10 but several documentation files were not updated to reflect the new total of 62 controls.
+
+### Fixed
+
+- **Control count parity:** Updated all references from 61 to 62 controls
+- **Pillar 1 range:** Corrected "1.1-1.23" to "1.1-1.24" (24 security controls)
+- **Playbook count:** Updated from 244 to 248 playbooks (62 controls × 4)
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `README.md` | Control counts, pillar range, playbook counts (9 changes) |
+| `docs/reference/faq.md` | Control counts, pillar breakdown |
+| `docs/reference/regulatory-mappings.md` | Updated all X/61 ratios to X/62 |
+| `docs/framework/governance-fundamentals.md` | Control count and pillar table |
+| `docs/downloads/index.md` | Dashboard description |
+| `docs/getting-started/quick-start.md` | Zone 3 control count |
+| `docs/playbooks/getting-started/phase-2-hardening.md` | Annual review checklist |
+| `docs/playbooks/governance-operations/governance-operating-calendar.md` | Calendar description |
+| `docs/playbooks/control-implementations/3.3/verification-testing.md` | Verification step |
+| `releases/README.md` | PDF description |
+| `scripts/README.md` | Script description |
+| `scripts/update_excel_templates.py` | Control dictionary comment |
+| `scripts/normalize_controls.py` | Module docstring |
+| `docs/framework/executive-summary.md` | Total controls count |
+| `maintainers-local/researcher-package/00-*.md` | Summary guide counts and ranges |
+
+### Audit Trail
+
+Identified via automated audit task execution (P2-001 through P2-015). P2-001 confirmed as false positive; actual issue was stale control counts in README.md and propagated to other files.
+
+### Validation
+
+- `python scripts/verify_controls.py`: Pass (62 controls valid)
+- No remaining references to "61 controls" or "1.1-1.23" in updated files
+
+---
+
 ## [1.2.12] — January 30, 2026 (ELM Automation Documentation)
 
 ### Overview

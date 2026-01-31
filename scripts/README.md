@@ -117,7 +117,7 @@ Checks control files for required metadata fields and footer format.
 ```bash
 python scripts/normalize_controls.py
 ```
-Standardizes control file formatting across all 61 controls.
+Standardizes control file formatting across all 62 controls.
 
 **Compile researcher package:**
 ```bash

@@ -200,7 +200,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 **Controls Required (comprehensive):**
 
-- All 61 controls apply
+- All 62 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 

@@ -20,9 +20,9 @@ from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
-# All 61 controls in the framework
+# All 62 controls in the framework
 ALL_CONTROLS = {
-    # Pillar 1 - Security (23 controls)
+    # Pillar 1 - Security (24 controls)
     "1.1": "Restrict Agent Publishing by Authorization",
     "1.2": "Agent Registry and Integrated Apps Management",
     "1.3": "SharePoint Content Governance and Permissions",
@@ -374,7 +374,7 @@ def main():
                         print(f"\n[CONTROLS] Added {len(added)} control(s) to spreadsheet")
                         file_changes["added_controls"] = added
             else:
-                print(f"\n[CONTROLS] All 61 controls present")
+                print(f"\n[CONTROLS] All 62 controls present")
 
             if extra:
                 print(f"\n[WARN] Found {len(extra)} unexpected control ID(s): {extra}")
