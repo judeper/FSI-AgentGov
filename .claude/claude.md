@@ -369,6 +369,9 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - **ELM Automation Documentation** - Updated ELM playbook with automated deployment quick start using FSI-AgentGov-Solutions v1.1.0 scripts
 - **Labs Option A** - Added automated deployment path as alternative to manual Lab 1 setup
 
+**FSI-AgentGov-Solutions Updates:**
+- **Pipeline Governance Cleanup v1.0.8** - Documentation accuracy fixes: corrected misleading "deployment configurations preserved" language, added directional-only warning for `-ProbePipelines`, added manual verification requirement for greenfield detection
+
 **Previous Additions (v1.2.11):**
 - **Solutions Cross-Reference** - Added cross-references to FSI-AgentGov-Solutions automated export scripts in ELM playbook
 - **Hook API Update** - Updated boundary-check.py response format for Claude Code compatibility
