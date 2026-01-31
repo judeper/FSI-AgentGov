@@ -379,15 +379,24 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.23 (January 2026)
+**Version:** 1.2.24 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 26 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.23):**
+**Recent Additions (v1.2.24):**
+- **Pillar 2 Management Controls Technical Accuracy Clarifications** - Distinguishes built-in platform capabilities from custom implementation requirements
+- **Control 2.3** - Clarified approval gates require Power Automate integration (OnApprovalStarted trigger)
+- **Control 2.6** - Added info box: Microsoft provides infrastructure, not pre-built MRM solution
+- **Control 2.9** - Added RAI telemetry table distinguishing native analytics from custom hallucination tracking
+- **Control 2.16** - Added built-in vs custom capabilities table for integrity validation features
+- **Control 2.17** - Clarified orchestration limits are design patterns, not platform-enforced constraints
+- **Control 2.21** - Reframed as process/policy control; no FINRA/SEC-specific tools exist
+
+**Previous Additions (v1.2.23):**
 - **Pillar 4 SharePoint Controls Technical Accuracy Updates** - Research-validated updates to all 7 controls (4.1-4.7)
 - **SharePoint Advanced Management Licensing Guide** - New reference documenting SAM features included with Copilot license
 - **SharePoint Governance Pre-Flight Checklist** - New playbook for Copilot pre-deployment preparation
 
-**Recent Additions (v1.2.22):**
+**Previous Additions (v1.2.22):**
 - **Industry Framework Alignment References** - Added FINOS AI Governance Framework and Sardine Agentic Oversight Framework references
 - **FINOS alignment** - Risk mapping table for authorization bypass, privilege escalation, workflow circumvention
 - **Sardine alignment** - 5-component oversight model mapped to HITL triggers playbook
@@ -484,7 +493,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.23
+- **Framework Version:** 1.2.24
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

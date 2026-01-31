@@ -6,6 +6,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.24] — January 31, 2026 (Pillar 2 Management Controls Technical Accuracy Clarifications)
+
+### Overview
+
+Technical accuracy improvements for 6 Pillar 2 Management Controls based on research validation. Clarifies distinction between built-in platform capabilities and custom implementation requirements.
+
+### Changed
+
+- **Control 2.3 (Change Management):** Clarified that approval gates require Power Automate integration rather than being built-in ALM pipeline feature. Added info box explaining OnApprovalStarted trigger requirement. Added Implementation column to capability table.
+- **Control 2.6 (Model Risk Management):** Clarified Microsoft provides infrastructure platforms that can support MRM but organizations must design their own MRM frameworks. Added info box distinguishing infrastructure vs MRM solution. Split Key Configuration Points into organization-designed and platform-enabled sections.
+- **Control 2.9 (Performance Monitoring):** Added explicit "Built-In vs Custom Monitoring Capabilities" table distinguishing native Copilot Studio analytics from custom RAI telemetry implementation. Added warning that hallucination tracking and RAI metrics require Azure AI Evaluation SDK or custom Application Insights events.
+- **Control 2.16 (RAG Source Integrity):** Clarified SharePoint provides basic features (sync, permissions, versioning) but comprehensive integrity validation (checksums, drift detection) requires custom implementation. Added built-in vs custom capabilities table.
+- **Control 2.17 (Multi-Agent Orchestration):** Clarified orchestration limits are design patterns requiring custom implementation, not platform-enforced constraints. Added warning that Copilot Studio does not provide built-in circuit breakers, depth limits, or financial stop-loss controls.
+- **Control 2.21 (AI Marketing Claims):** Reframed as process/policy control using general-purpose tools rather than specialized compliance system configuration. Added note that no FINRA/SEC-specific compliance tools exist in Microsoft 365.
+
+### Validated (No Changes Needed)
+
+All regulatory citations in these controls were previously validated:
+- OCC 2011-12, Fed SR 11-7 (Control 2.6)
+- FINRA 4511, SOX 404, GLBA 501(b), SEC 17a-4 (Control 2.3)
+- SEC Marketing Rule 206(4)-1, FINRA 2210 (Control 2.21)
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md` | Clarified approval gates implementation |
+| `docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md` | Clarified infrastructure vs MRM framework |
+| `docs/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md` | Added RAI telemetry distinction |
+| `docs/controls/pillar-2-management/2.16-rag-source-integrity-validation.md` | Clarified built-in vs custom integrity features |
+| `docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md` | Clarified design patterns vs platform enforcement |
+| `docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md` | Reframed as process/policy control |
+| `CHANGELOG.md` | Added v1.2.24 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+### Research Reference
+
+Research report: `prompts/02-documentation-technical/02-pillar-2-management/`
+
+---
+
 ## [1.2.23] — January 31, 2026 (Pillar 4 SharePoint Controls Technical Accuracy Updates)
 
 ### Overview
