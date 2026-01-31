@@ -181,6 +181,35 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 
 ---
 
+## Scalability Considerations
+
+### Power BI Refresh Limits
+
+| License | Scheduled Refreshes/Day | Refresh Latency |
+|---------|------------------------:|-----------------|
+| Power BI Pro | 8 | Every 3 hours max |
+| Power BI Premium Per User | 48 | Every 30 minutes max |
+| Power BI Premium Capacity | 48+ (unlimited via XMLA) | Near real-time possible |
+
+!!! warning "Pro License Limitation"
+    With Power BI Pro, deny event reports can only refresh 8 times daily. For near-real-time monitoring of deny events, Premium capacity is required.
+
+### Audit Log Query Limits
+
+| Parameter | Limit | Mitigation |
+|-----------|------:|------------|
+| Records per query | 50,000 | Use `-SessionId` for pagination |
+| Date range | 90 days | Audit Premium extends to 1 year |
+| Concurrent sessions | 3 per user | Use dedicated service account |
+
+### Compliance Storage
+
+For long-term retention meeting SEC 17a-4 and FINRA 4511, use Azure Immutable Blob Storage with time-based retention policies. This storage option has been validated by Cohasset Associates for regulatory compliance.
+
+For complete scalability guidance, see the [Solutions Architecture Guide](../../../reference/solutions-architecture-guide.md).
+
+---
+
 ## Quick Start
 
 1. **Read [Purview Audit Extraction](purview-audit-extraction.md)** to understand CopilotInteraction deny events

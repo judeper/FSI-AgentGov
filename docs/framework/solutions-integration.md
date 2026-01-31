@@ -155,9 +155,37 @@ FSI-AgentGov-Solutions/
 
 ---
 
+## CoE Starter Kit Alignment
+
+Microsoft's Power Platform Center of Excellence (CoE) Starter Kit provides comprehensive governance patterns. FSI-AgentGov-Solutions complements the CoE Starter Kit for financial services-specific requirements.
+
+### Comparison
+
+| Capability | CoE Starter Kit | FSI-AgentGov-Solutions |
+|------------|:---------------:|:----------------------:|
+| Environment inventory | ✓ | — |
+| Environment provisioning | Basic | Zone-based with approvals |
+| Pipeline discovery | ✓ | ✓ (cleanup focused) |
+| Message Center monitoring | ✓ | ✓ (simpler setup) |
+| Deny event correlation | — | ✓ |
+| Power BI governance reports | ✓ | Limited |
+
+### Integration Recommendations
+
+| Scenario | Recommendation |
+|----------|----------------|
+| **Existing CoE deployment** | Add ELM for zone-based provisioning, DEC for deny visibility |
+| **Greenfield FSI deployment** | Deploy FSI solutions first, consider CoE for broader inventory |
+| **Enterprise hybrid** | CoE for platform-wide governance, FSI solutions for AI agent-specific controls |
+
+For detailed architecture guidance including scalability limits and alternative patterns, see the [Solutions Architecture Guide](../reference/solutions-architecture-guide.md).
+
+---
+
 ## Related Documentation
 
 - [Solutions Index](../reference/solutions-index.md) — Complete solution catalog with version history
+- [Solutions Architecture Guide](../reference/solutions-architecture-guide.md) — Enterprise scalability and platform limits
 - [Adoption Roadmap](adoption-roadmap.md) — Phased implementation guidance
 - [FSI-AgentGov-Solutions Repository](https://github.com/judeper/FSI-AgentGov-Solutions) — Source code and deployment scripts
 

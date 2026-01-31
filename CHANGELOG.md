@@ -6,6 +6,118 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.27] — January 31, 2026 (ELM Technical Accuracy Remediation)
+
+### Overview
+
+Technical accuracy corrections for Environment Lifecycle Management playbook based on research validation. Clarifies that ProvisioningLog access controls are defense-in-depth measures, not true cryptographic immutability.
+
+### Changed
+
+- **architecture.md:** Changed "Immutable Audit Trail" to "Append-Only Audit Trail" with access control limitations table
+- **evidence-and-audit.md:** Added "What These Controls Prevent vs. Allow" table distinguishing protected vs. unprotected threat scenarios
+- **evidence-and-audit.md:** Added transparency guidance for examiner discussions recommending honest acknowledgment of System Administrator access
+- **index.md:** Updated terminology from "immutable" to "append-only" in 4 locations
+
+### Research Validation Summary
+
+Environment Lifecycle Management v1.1.1 technical accuracy validation (71% accurate, 29% updated):
+
+| Finding | Status | Action |
+|---------|--------|--------|
+| Dataverse Web API (v9.2, OData 4.0) | ✅ Accurate | No change |
+| Security Roles (4-role structure) | ✅ Accurate | No change |
+| Business Rules (conditional validation) | ✅ Accurate | No change |
+| Immutability claims | ⚠️ Overclaimed | Corrected to "access controls" |
+| Environment Groups API claim | ⚠️ Incorrect | API exists, corrected |
+| Python dependency versions | ⚠️ Outdated | Updated in FSI-AgentGov-Solutions |
+
+### Key Correction
+
+The ProvisioningLog table uses role-based access controls that prevent standard users from modifying records. However:
+
+- System Administrators retain full Dataverse access regardless of role configuration
+- Direct API access could bypass role-based security for privileged users
+- For SEC 17a-4 WORM compliance, export to Azure Blob Storage with immutability policies is required
+
+### FSI-AgentGov-Solutions Updates
+
+- Environment Lifecycle Management bumped to v1.1.2
+- Updated Python dependencies (msal>=1.30.0, requests>=2.32.0, azure-identity>=1.18.0)
+- Corrected Environment Groups API documentation
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` | Immutability → access controls |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md` | Added limitations table, examiner guidance |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md` | Terminology updates |
+| `.claude/CLAUDE.md` | Updated version and recent additions |
+| `CHANGELOG.md` | Added v1.2.27 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+### Research Reference
+
+Research report: `prompts/04-solutions-technical/01-environment-lifecycle-management/`
+
+---
+
+## [1.2.26] — January 31, 2026 (Solutions Architecture Guide)
+
+### Overview
+
+New enterprise scalability and architecture reference documentation for FSI-AgentGov-Solutions. Documents platform limits, alternative architectures, CoE Starter Kit alignment, and operational best practices based on Microsoft Learn research.
+
+### Added
+
+**New Reference Documentation:**
+
+- **Solutions Architecture Guide** (`docs/reference/solutions-architecture-guide.md`) - Comprehensive architecture reference including:
+  - Platform selection guide (Power Automate vs Logic Apps vs Azure Functions)
+  - Power Platform request limits by license tier
+  - Microsoft Graph API throttling guidance
+  - Dataverse capacity limits (December 2025 updates)
+  - Power BI refresh limits for reporting solutions
+  - Secret management best practices with Azure Key Vault
+  - Compliance storage patterns (Azure Immutable Blob Storage for SEC 17a-4/FINRA 4511)
+  - CoE Starter Kit alignment and integration guidance
+  - Alternative architecture patterns (VNet isolation, streaming)
+
+**Documentation Cross-References:**
+
+- Added Architecture and Scalability section to Solutions Index
+- Added CoE Starter Kit Alignment section to Solutions Integration
+- Added Scalability Considerations section to Deny Event Correlation Report playbook
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/reference/solutions-architecture-guide.md` | New architecture reference document |
+| `docs/reference/solutions-index.md` | Added Architecture and Scalability section |
+| `docs/framework/solutions-integration.md` | Added CoE Starter Kit alignment, architecture guide link |
+| `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` | Added scalability considerations section |
+| `mkdocs.yml` | Added solutions-architecture-guide to navigation |
+| `CHANGELOG.md` | Added v1.2.26 entry |
+
+### Research Sources
+
+- [Integration platform options in Azure](https://learn.microsoft.com/en-us/azure/azure-functions/functions-compare-logic-apps-ms-flow-webjobs)
+- [Microsoft Graph throttling limits](https://learn.microsoft.com/en-us/graph/throttling-limits)
+- [Power Automate limits](https://learn.microsoft.com/en-us/power-automate/limits-and-config)
+- [Dataverse capacity-based storage](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage)
+- [Power BI data refresh](https://learn.microsoft.com/en-us/power-bi/connect-data/refresh-data)
+- [Azure Immutable Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview)
+- [Key Vault secret rotation](https://learn.microsoft.com/en-us/azure/key-vault/secrets/tutorial-rotation)
+- [CoE Starter Kit overview](https://learn.microsoft.com/en-us/power-platform/guidance/coe/overview)
+
+---
+
 ## [1.2.25] — January 31, 2026 (February 2026 Pipeline Deadline Documentation)
 
 ### Overview
