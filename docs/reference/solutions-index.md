@@ -106,27 +106,13 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 
 ---
 
-## Architecture and Scalability
-
-For enterprise deployment guidance including platform limits, alternative architectures, and operational best practices, see the **[Solutions Architecture Guide](solutions-architecture-guide.md)**.
-
-Key topics covered:
-
-- Power Platform request limits by license tier
-- Microsoft Graph API throttling guidance
-- Power BI refresh limits for reporting
-- Secret management best practices
-- CoE Starter Kit alignment
-
----
-
 ## Version History
 
 Solutions follow semantic versioning. See each solution's README for detailed changelog.
 
 | Solution | Current | Last Updated |
 |----------|---------|--------------|
-| Environment Lifecycle Management | v1.1.1 | January 2026 |
+| Environment Lifecycle Management | v1.1.2 | January 2026 |
 | Message Center Monitor | v2.1.1 | January 2026 |
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
 | Deny Event Correlation Report | v1.0.0 | January 2026 |
