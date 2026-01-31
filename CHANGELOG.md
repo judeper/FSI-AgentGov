@@ -6,6 +6,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.21] — January 31, 2026 (Pillar 3 Reporting Controls Technical Accuracy Updates)
+
+### Overview
+
+Technical accuracy improvements for Pillar 3 Reporting Controls (3.1-3.10) based on research validation. Critical clarifications added for Controls 3.9 and 3.10, plus feature and capability updates across 6 additional controls reflecting 2025-2026 Microsoft platform changes.
+
+### Fixed (Critical Clarifications)
+
+- **Control 3.9 (Sentinel Integration):** Added explicit warning that no dedicated Copilot Studio connector exists for Microsoft Sentinel. Clarified that Copilot Studio events are captured via Power Platform Admin Activity connector (`PowerPlatformAdminActivity` table). Documented custom integration path: Application Insights → Log Analytics → Sentinel.
+- **Control 3.10 (Hallucination Feedback):** Added explicit warning that no automated hallucination detection exists in Copilot Studio. Clarified all detection relies on manual user feedback (CSAT, explicit flagging). Added industry context on 3-10% hallucination rates as inherent LLM limitation. Added mitigation strategies table.
+
+### Added (Feature Updates)
+
+- **Control 3.1 (Agent Inventory):** Added Power Platform Inventory preview status (October 2025), documented 24-hour refresh cycle, 500-agent display limit, and 48-hour deleted agent visibility. Added Azure Resource Graph query and PowerShell examples for programmatic access.
+- **Control 3.2 (Usage Analytics):** Added new 2025-2026 features table: Agent Dashboard (Ignite 2025), Action Usage Analytics (GA November 2025), Copilot Benchmarks, Copilot Chat Insights expansion (February 2026), New Usage Page in PPAC (preview January 2026). Added data availability notes for DAU/MAU metrics and 28-day native retention.
+- **Control 3.3 (Compliance Reporting):** Added Microsoft Compliance Manager AI assessment templates section (EU AI Act, NIST AI RMF, ISO/IEC 42001, ISO/IEC 23894). Added Azure AI Foundry integration for automated compliance evaluations. Noted 320+ regulatory framework templates and AI-powered regulatory intelligence (GA January 2026).
+- **Control 3.6 (Orphaned Agent Detection):** Added Agent Ownership Reassignment (GA October 2025) section with PPAC portal, PowerShell, and Power Automate methods. Documented new owner requirements and PowerShell reassignment command.
+- **Control 3.7 (Security Posture):** Added qualitative scoring scale (Low/Medium/High) with FSI actions. Added recommendation trigger conditions table (10+ admins, auditing off, no DLP policy, etc.). Added three proactive policy categories (Data Protection, IAM, Compliance).
+- **Control 3.8 (Copilot Hub):** Added explicit preview status designation. Added terminology clarification (admin Copilot Hub vs. user portal copilot.cloud.microsoft). Added Microsoft Agent 365 strategic context from Ignite 2025. Added 8-hour settings propagation note.
+
+### Validated (No Changes Needed)
+
+The following controls were validated as accurate:
+- Control 3.4 (Incident Reporting) - Reviewed, no updates required
+- Control 3.5 (Cost Tracking) - Reviewed, no updates required
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md` | Connector availability warning, data sources table, custom integration guidance |
+| `docs/controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md` | Detection limitations warning, mitigation strategies, feedback mechanisms table |
+| `docs/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md` | Preview status, limitations, programmatic access examples |
+| `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | 2025-2026 features table, data availability notes |
+| `docs/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md` | AI assessment templates, Azure AI Foundry integration |
+| `docs/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md` | Ownership reassignment GA section |
+| `docs/controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md` | Scoring scale, trigger conditions, policy categories |
+| `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` | Preview status, terminology, Agent 365 context |
+| `CHANGELOG.md` | Added v1.2.21 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: Pass
+
+### Research Reference
+
+Research report: `prompts/02-technical/pillar-3-reporting-controls/`
+
+---
+
 ## [1.2.20] — January 31, 2026 (State Regulations and Framework Standards Citation Updates)
 
 ### Overview

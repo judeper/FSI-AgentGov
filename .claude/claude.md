@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.20** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.21** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,8 +379,19 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.20 (January 2026)
+**Version:** 1.2.21 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+
+**Recent Additions (v1.2.21):**
+- **Pillar 3 Reporting Controls Technical Accuracy Updates** - Research-validated updates to Controls 3.1, 3.2, 3.3, 3.6, 3.7, 3.8, 3.9, 3.10
+- **Control 3.9 Clarification** - No dedicated Copilot Studio connector exists for Sentinel; use Power Platform Admin Activity connector
+- **Control 3.10 Clarification** - No automated hallucination detection exists; all detection relies on manual feedback
+- **Control 3.1 Enhancement** - Power Platform Inventory preview status, 24-hour refresh, 500-agent limit, programmatic access examples
+- **Control 3.2 Enhancement** - New 2025-2026 analytics features (Agent Dashboard, Action Usage Analytics, Copilot Benchmarks)
+- **Control 3.7 Enhancement** - Security posture scoring scale (Low/Medium/High), recommendation trigger conditions
+- **Control 3.8 Enhancement** - Preview status designation, Microsoft Agent 365 strategic context from Ignite 2025
+- **Control 3.3 Enhancement** - AI regulatory assessment templates in Compliance Manager (EU AI Act, NIST AI RMF, ISO 42001/23894)
+- **Control 3.6 Enhancement** - Agent Ownership Reassignment GA (October 2025) with PPAC and PowerShell methods
 
 **Recent Additions (v1.2.20):**
 - **Colorado SB24-205 Date Fix** - Effective date changed from February 1, 2026 to June 30, 2026 (extended via SB 25B-004)
@@ -469,7 +480,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.20
+- **Framework Version:** 1.2.21
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
