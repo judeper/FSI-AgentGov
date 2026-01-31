@@ -19,7 +19,7 @@
 
 | Solution | Version | Description |
 |----------|---------|-------------|
-| `environment-lifecycle-management/` | v1.0.1 | Automated environment provisioning with zone classification |
+| `environment-lifecycle-management/` | v1.1.1 | Automated environment provisioning with zone classification |
 | `message-center-monitor/` | v2.0.0 | M365 Message Center polling and Teams notifications |
 | `pipeline-governance-cleanup/` | v1.0.8 | Personal pipeline discovery and cleanup automation |
 | `deny-event-correlation-report/` | v1.0.0 | Unified deny event reporting across Purview/DLP/App Insights |
