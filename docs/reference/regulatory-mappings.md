@@ -1044,7 +1044,7 @@ Several states have enacted or are developing AI-specific legislation that may a
 
 #### Colorado AI Act (SB 24-205)
 
-**Applicability:** Organizations deploying "high-risk AI systems" that make consequential decisions affecting consumers in Colorado. Effective February 1, 2026.
+**Applicability:** Organizations deploying "high-risk AI systems" that make consequential decisions affecting consumers in Colorado. Effective June 30, 2026 (extended from February 1, 2026 via SB 25B-004).
 
 | Requirement | Description | Framework Alignment |
 |-------------|-------------|---------------------|
@@ -1090,6 +1090,18 @@ The state AI regulatory landscape is evolving rapidly. Organizations should:
 - Assess new laws for applicability to AI agent deployments
 - Update governance procedures as requirements change
 - Consult legal counsel for state-specific compliance strategies
+
+**Other State AI Laws Effective 2026:**
+
+Several additional state AI laws take effect in 2026. Organizations should monitor these for applicability:
+
+| State | Law | Effective Date | Focus |
+|-------|-----|---------------|-------|
+| Texas | TRAIGA (Texas Responsible AI Governance Act) | January 1, 2026 | High-risk AI systems, discrimination prevention |
+| Illinois | HB 3773 | January 1, 2026 | Employment AI restrictions |
+| California | TFAIA (Transparency in Frontier AI Act) | Varies | AI model transparency and safety reporting |
+
+> **Note:** Federal preemption proposals (January 2026 Executive Order) may affect state AI law enforcement. Consult legal counsel for current applicability.
 
 ### Other State Regulations
 

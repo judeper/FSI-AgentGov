@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.19** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.20** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,15 +379,22 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.19 (January 2026)
+**Version:** 1.2.20 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+
+**Recent Additions (v1.2.20):**
+- **Colorado SB24-205 Date Fix** - Effective date changed from February 1, 2026 to June 30, 2026 (extended via SB 25B-004)
+- **OWASP LLM Top 10 Update** - Updated from 2023 to 2025 version in Controls 2.7 and 2.20
+- **Treasury NIST AI RMF Correction** - Changed "endorsed by" to "recommended by" in crosswalk
+- **MITRE ATLAS Context** - Added technique count (15 tactics, 66 techniques) to Control 2.20
+- **State AI Law Monitoring** - Added table of other 2026 state AI laws (Texas TRAIGA, Illinois HB 3773, California TFAIA)
 
 **Recent Additions (v1.2.19):**
 - **SEC Rule 17a-4 Citation Correction** - Fixed retention period from "6 years + 3 years accessible" to "6 years, first 2 years readily accessible" per 17 CFR § 240.17a-4
 - **5 files corrected** - regulatory-framework.md (4), zones-and-tiers.md (1), agent-decommissioning.md (1), faq.md (1), PCG architecture.md (1)
 - **Validated SEC citations** - Marketing Rule 206(4)-1, Reg S-P, Reg BI, Reg S-ID, Rule 10b-5, 2026 Examination Priorities confirmed accurate
 
-**Recent Additions (v1.2.18):**
+**Previous Additions (v1.2.18):**
 - **Banking Regulator Citation Remediation** - Corrected erroneous FDIC FIL-15-2025 citation, fixed OCC 2021-18 AI guidance claim
 - **Control 2.16 fix** - Replaced incorrect FDIC FIL-15-2025 with Interagency Third-Party Guidance (2023)
 - **Control 2.6 fix** - Replaced incorrect OCC 2021-18 with Interagency RFI on AI (2021), added SR 11-7 joint issuance note
@@ -462,7 +469,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.19
+- **Framework Version:** 1.2.20
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

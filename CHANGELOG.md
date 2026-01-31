@@ -6,6 +6,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.20] — January 31, 2026 (State Regulations and Framework Standards Citation Updates)
+
+### Overview
+
+Regulatory citation accuracy improvements based on research validation of state AI laws, OWASP LLM Top 10, NIST AI RMF references, and MITRE ATLAS framework.
+
+### Fixed
+
+- **Colorado SB24-205 Effective Date:** Changed from February 1, 2026 to June 30, 2026 (extended via SB 25B-004 signed August 28, 2025)
+  - `docs/reference/regulatory-mappings.md`
+  - `docs/playbooks/regulatory-modules/colorado-ai-impact-assessment.md`
+- **OWASP LLM Top 10 Version:** Updated from 2023 to 2025 version (released November 2024)
+  - `docs/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md` - Updated version and LLM05→LLM03 (Supply Chain moved in 2025)
+  - `docs/controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md` - Added (2025) to references
+- **Treasury NIST AI RMF Claim:** Changed "endorsed by the U.S. Treasury" to "recommended by U.S. Treasury" in crosswalk
+  - `docs/reference/nist-ai-rmf-crosswalk.md`
+
+### Added
+
+- **MITRE ATLAS Context:** Added technique count (15 tactics, 66 techniques as of October 2025) to Control 2.20
+- **State AI Law Monitoring Section:** Added table of other state AI laws effective 2026 (Texas TRAIGA, Illinois HB 3773, California TFAIA) with federal preemption note
+
+### Validated (No Changes Needed)
+
+The following were validated as accurate:
+- NIST AI RMF 1.0 core function descriptions
+- MITRE ATLAS framework purpose and URL
+- OWASP LLM Top 10 project URL
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/reference/regulatory-mappings.md` | Colorado date fix, state AI law monitoring section |
+| `docs/playbooks/regulatory-modules/colorado-ai-impact-assessment.md` | Colorado date fix |
+| `docs/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md` | OWASP 2023→2025, LLM05→LLM03 |
+| `docs/controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md` | OWASP (2025) refs, MITRE ATLAS stats |
+| `docs/reference/nist-ai-rmf-crosswalk.md` | Treasury "endorsed"→"recommended" |
+| `CHANGELOG.md` | Added v1.2.20 entry |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- `python scripts/verify_controls.py`: Pass
+
+### Research Reference
+
+Research report: `prompts/01-regulatory/04-state-and-framework-citations/`
+
+---
+
 ## [1.2.19] — January 31, 2026 (SEC Rule 17a-4 Citation Correction)
 
 ### Overview

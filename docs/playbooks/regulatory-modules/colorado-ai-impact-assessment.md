@@ -2,7 +2,7 @@
 
 **Purpose:** Provide a repeatable “impact assessment” document for any AI system that is or may be a **high-risk artificial intelligence system** under Colorado law.  
 **Who uses this:** The **deployer** (a person doing business in Colorado that deploys a high-risk AI system). <sup>[11]</sup>  
-**Effective trigger date:** Colorado’s bill summary states deployer obligations apply “on and after **February 1, 2026**,” including completing an impact assessment and annual review. <sup>[11]</sup>  
+**Effective trigger date:** Deployer obligations apply on and after **June 30, 2026** (extended from February 1, 2026 via SB 25B-004), including completing an impact assessment and annual review. <sup>[11]</sup>  
 **FSI relevance:** The statute defines “consequential decision” to include decisions affecting “a financial or lending service,” and defines “high-risk AI system” as one that makes or is a substantial factor in making a consequential decision. <sup>[12]</sup>
 
 > Important: This is a governance template, not legal advice. Legal counsel should confirm applicability to your specific footprint and use case.
