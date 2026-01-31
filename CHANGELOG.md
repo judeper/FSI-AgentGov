@@ -6,6 +6,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.16] — January 31, 2026 (Cross-Repository Documentation Parity)
+
+### Overview
+
+Bidirectional cross-references between FSI-AgentGov (framework) and FSI-AgentGov-Solutions (deployable artifacts) to enable seamless navigation between documentation and implementation.
+
+### Added
+
+- **Control tip boxes:** Deployable solution links added to Controls 2.1, 2.10, and 1.7
+- **Playbook solution links:** Added "Deployable Solution" sections to PowerShell playbooks for Controls 2.1 and 1.7
+- **Playbooks index callout:** Info box linking to Solutions Index and FSI-AgentGov-Solutions
+
+### Enhanced (FSI-AgentGov-Solutions)
+
+- **deny-event-correlation-report/README.md:** Fixed broken playbook URL, standardized Related Controls format
+- **message-center-monitor/README.md:** Added Related Controls (2.3, 2.10) and Playbook Reference sections
+- **README.md:** Added Controls column to solutions table with control mappings
+- **CLAUDE.md:** Added Control Implementations table with solution-to-control mappings
+
+### Files Updated
+
+| Repository | File | Changes |
+|------------|------|---------|
+| FSI-AgentGov | `docs/controls/pillar-2-management/2.1-managed-environments.md` | Added ELM solution link |
+| FSI-AgentGov | `docs/controls/pillar-2-management/2.10-patch-management-and-system-updates.md` | Added message-center-monitor tip |
+| FSI-AgentGov | `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Added deny-event tip |
+| FSI-AgentGov | `docs/playbooks/control-implementations/2.1/powershell-setup.md` | Added Deployable Solution section |
+| FSI-AgentGov | `docs/playbooks/control-implementations/1.7/powershell-setup.md` | Added Deployable Solution section |
+| FSI-AgentGov | `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` | Added direct solution link |
+| FSI-AgentGov | `docs/playbooks/index.md` | Added Solutions callout |
+| FSI-AgentGov-Solutions | `deny-event-correlation-report/README.md` | Fixed URL, added Related Controls |
+| FSI-AgentGov-Solutions | `message-center-monitor/README.md` | Added Related Controls, Playbook Reference |
+| FSI-AgentGov-Solutions | `README.md` | Added Controls column |
+| FSI-AgentGov-Solutions | `CLAUDE.md` | Added Control Implementations table |
+
+### Validation
+
+- `mkdocs build --strict`: Pass (no errors)
+- All GitHub URLs use `/blob/main/` format for direct file links
+
+---
+
 ## [1.2.15] — January 31, 2026 (Solutions Documentation and Cross-References)
 
 ### Overview

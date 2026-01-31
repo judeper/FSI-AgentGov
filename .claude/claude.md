@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.15** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.16** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,8 +379,19 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.15 (January 2026)
+**Version:** 1.2.16 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 25 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+
+**Recent Additions (v1.2.16):**
+- **Cross-Repository Documentation Parity** - Bidirectional cross-references between FSI-AgentGov and FSI-AgentGov-Solutions
+- **Control tip boxes** - Added deployable solution links to Controls 2.1, 2.10, and 1.7
+- **Playbook solution links** - Added Deployable Solution sections to 2.1 and 1.7 PowerShell playbooks
+- **Playbooks index callout** - Added info box linking to Solutions Index
+- **FSI-AgentGov-Solutions updates:**
+  - Fixed broken URL in deny-event-correlation-report README
+  - Added Related Controls sections to message-center-monitor and deny-event READMEs
+  - Added Controls column to root README solutions table
+  - Added Control Implementations table to CLAUDE.md
 
 **Recent Additions (v1.2.15):**
 - **Solutions Index** - New `docs/reference/solutions-index.md` cataloging all FSI-AgentGov-Solutions with versions and control mappings
@@ -434,7 +445,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.15
+- **Framework Version:** 1.2.16
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
