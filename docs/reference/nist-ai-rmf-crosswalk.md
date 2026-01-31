@@ -286,11 +286,35 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
 
 ---
 
+## Alternative Framework: ISO/IEC 42001
+
+!!! info "ISO/IEC 42001 AI Management System Standard"
+    Organizations seeking certification-based AI governance may consider **ISO/IEC 42001:2023**, the international standard for AI management systems. While this framework uses NIST AI RMF as the primary reference (per U.S. Treasury recommendations), ISO/IEC 42001 provides an alternative for organizations that:
+
+    - Require third-party certification of AI governance
+    - Operate in jurisdictions where ISO certification is expected
+    - Already maintain ISO 27001 or other ISO management systems
+
+    **Key differences:**
+
+    | Aspect | NIST AI RMF | ISO/IEC 42001 |
+    |--------|-------------|---------------|
+    | Nature | Framework (voluntary) | Standard (certifiable) |
+    | Structure | 4 functions, 72 subcategories | PDCA management system |
+    | Certification | Not certifiable | Third-party certifiable |
+    | Geography | U.S.-focused | International |
+    | Alignment | Treasury-recommended for FSI | Maps to NIST AI RMF |
+
+    This crosswalk can be adapted for ISO/IEC 42001 alignment by mapping FSI controls to ISO 42001 clauses (Annex A controls). Contact your compliance officer for guidance on framework selection.
+
+---
+
 ## References
 
 - [NIST AI Risk Management Framework 1.0](https://www.nist.gov/itl/ai-risk-management-framework)
 - [NIST AI RMF Playbook](https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook)
 - [Treasury AI in Financial Services Report (March 2024)](https://home.treasury.gov/news/press-releases/jy2212)
+- [ISO/IEC 42001:2023 AI Management Systems](https://www.iso.org/standard/81230.html)
 
 ---
 

@@ -6,6 +6,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.28] — January 31, 2026 (Research Report Remediation)
+
+### Overview
+
+Comprehensive remediation of outstanding items from 15 research reports across 5 categories. Key focus areas: DEC solution deprecation warnings, security control clarifications, and API deprecation timeline documentation.
+
+### Critical Updates
+
+**Deny Event Correlation Report Solution (FSI-AgentGov-Solutions v1.1.0):**
+
+| Issue | Fix |
+|-------|-----|
+| x-api-key authentication deprecated March 31, 2026 | Added deprecation warnings to README, architecture.md, prerequisites.md, and PowerShell script |
+| XPIADetected/JailbreakDetected fields incorrect | Corrected: fields not in CopilotInteraction schema; UPIA/XPIA in Defender CloudAppEvents |
+| Missing CloudAppEvents integration | Added CloudAppEvents section with KQL query for prompt injection detection |
+| Authentication migration path | Added complete Entra ID OAuth 2.0 migration guide in prerequisites.md |
+
+### Security Control Updates
+
+- **Control 1.8:** Corrected RAI telemetry table - UPIA/XPIA detections are in Defender CloudAppEvents, not Purview CopilotInteraction audit schema
+- **Control 1.22:** Added warning that Information Barriers are NOT supported for Channel Agent in Teams; added compensating controls guidance
+
+### Framework Documentation
+
+- **FAQ:** Added new "API Deprecations and Platform Changes" section with deprecation timeline table:
+  - March 31, 2026: App Insights x-api-key, Office 365 Connectors
+  - April 6, 2026: Reporting Webservice
+  - December 2026: Connect-ExchangeOnline Basic Auth
+- **NIST AI RMF Crosswalk:** Added ISO/IEC 42001 alternative framework reference with comparison table
+- **License Requirements:** Updated control count from 61 to 62
+
+### Minor Updates
+
+- **MCM Solution:** Added Office 365 Connectors deprecation context (informational - solution unaffected)
+- **.gitignore:** Added prompts/ directory for local research prompts
+
+### FSI-AgentGov-Solutions Updates
+
+| Solution | Version | Changes |
+|----------|---------|---------|
+| `deny-event-correlation-report/` | v1.1.0 | Deprecation warnings, schema corrections, auth migration guide |
+| `message-center-monitor/` | v2.1.1 | O365 Connectors deprecation context note |
+
+### Verification
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+---
+
 ## [1.2.27] — January 31, 2026 (ELM Technical Accuracy Remediation)
 
 ### Overview

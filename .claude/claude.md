@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.27** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.28** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -22,7 +22,7 @@
 | `environment-lifecycle-management/` | v1.1.2 | Automated environment provisioning with zone classification |
 | `message-center-monitor/` | v2.1.1 | M365 Message Center polling and Teams notifications |
 | `pipeline-governance-cleanup/` | v1.0.8 | Personal pipeline discovery and cleanup automation |
-| `deny-event-correlation-report/` | v1.0.0 | Unified deny event reporting across Purview/DLP/App Insights |
+| `deny-event-correlation-report/` | v1.1.0 | Unified deny event reporting across Purview/DLP/App Insights |
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
@@ -379,10 +379,19 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.27 (January 2026)
+**Version:** 1.2.28 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.27):**
+**Recent Additions (v1.2.28):**
+- **Research Report Remediation** - Addressed outstanding items from 15 research reports across 5 categories
+- **DEC Solution Critical Updates** - Added x-api-key deprecation warnings (March 31, 2026), corrected schema documentation (XPIADetected/JailbreakDetected fields), added CloudAppEvents integration guidance
+- **Control 1.8 Correction** - Clarified UPIA/XPIA detections are in Defender CloudAppEvents, not Purview CopilotInteraction audit schema
+- **Control 1.22 Scope Limitation** - Added warning that Information Barriers are NOT supported for Channel Agent in Teams
+- **API Deprecation Timeline** - New FAQ section documenting March 2026 (App Insights x-api-key, O365 Connectors), April 2026 (Reporting Webservice), December 2026 (Exchange Basic Auth) deprecations
+- **ISO/IEC 42001 Reference** - Added alternative AI management system standard reference to NIST AI RMF crosswalk
+- **FSI-AgentGov-Solutions** - DEC v1.1.0 with deprecation warnings, MCM deprecation context note
+
+**Previous Additions (v1.2.27):**
 - **ELM Technical Accuracy Remediation** - Corrected immutability claims in Environment Lifecycle Management playbook
 - **architecture.md** - Changed "Immutable Audit Trail" to "Append-Only Audit Trail" with access control limitations table
 - **evidence-and-audit.md** - Added "What These Controls Prevent vs. Allow" table and examiner transparency guidance
@@ -515,7 +524,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.27
+- **Framework Version:** 1.2.28
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

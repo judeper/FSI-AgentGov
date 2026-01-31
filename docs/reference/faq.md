@@ -479,6 +479,56 @@ Important: Ensure integration and audit trail.
 
 ---
 
+## API Deprecations and Platform Changes
+
+### Q: What Microsoft APIs are being deprecated in 2026?
+
+A: Key deprecation dates affecting this framework:
+
+| API/Feature | Deprecation Date | Replacement | Impact |
+|-------------|------------------|-------------|--------|
+| **Application Insights x-api-key** | March 31, 2026 | Entra ID OAuth 2.0 | RAI telemetry scripts in DEC solution |
+| **Office 365 Connectors (incoming webhooks)** | March 31, 2026 | Power Automate Workflows connector | Teams notifications; MCM solution uses native connector (unaffected) |
+| **Reporting Webservice** | April 6, 2026 | Microsoft Graph APIs | Usage reporting scripts |
+| **Connect-ExchangeOnline Basic Auth** | December 2026 | Certificate-based auth / managed identity | Audit log extraction scripts |
+
+!!! warning "Action Required"
+    Organizations using custom scripts for audit extraction, RAI telemetry, or reporting should plan migration to replacement APIs before the deprecation dates.
+
+### Q: What licensing changes should we plan for?
+
+A: Key licensing updates to track:
+
+| Change | Effective | Impact |
+|--------|-----------|--------|
+| **Copilot Credits model** | September 2025 (transitioned) | Capacity-based billing for Copilot Studio message capacity |
+| **Managed Environments for pipelines** | February 2026 | Pipeline targets must be Managed Environments; requires Premium licensing |
+
+See [Control 2.1](../controls/pillar-2-management/2.1-managed-environments.md) for Managed Environment licensing requirements.
+
+### Q: How do we migrate from x-api-key to Entra ID authentication?
+
+A: For Application Insights queries:
+
+1. Create a service principal (App Registration) with **Monitoring Reader** role
+2. Replace API key header with OAuth 2.0 bearer token
+3. Use `Connect-AzAccount` with service principal for automation
+
+**Old (deprecated):**
+```powershell
+$headers = @{ "x-api-key" = $ApiKey }
+```
+
+**New (Entra ID):**
+```powershell
+$token = (Get-AzAccessToken -ResourceUrl "https://api.applicationinsights.io").Token
+$headers = @{ "Authorization" = "Bearer $token" }
+```
+
+See [Deny Event Correlation Report](../playbooks/advanced-implementations/deny-event-correlation-report/index.md) prerequisites for detailed migration steps.
+
+---
+
 ## Audit & Compliance
 
 ### Q: How long do we keep records?

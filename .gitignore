@@ -37,3 +37,6 @@ nul
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Research prompts (local only)
+prompts/
