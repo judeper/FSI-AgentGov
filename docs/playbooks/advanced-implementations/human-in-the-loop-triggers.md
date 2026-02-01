@@ -25,6 +25,53 @@ This specification aligns with the **Agentic Oversight Framework** published by 
 
 ---
 
+## AI Agent Autonomy Levels (FINRA 2026 Report)
+
+The FINRA 2026 Annual Regulatory Oversight Report defines autonomy levels that determine appropriate HITL patterns:
+
+| Autonomy Level | Description | Recommended HITL Pattern | Zone |
+|---------------|-------------|-------------------------|------|
+| **Assisted** | AI suggests, human decides | Sampled Review | Zone 1-2 |
+| **Augmented** | AI recommends, human approves | Pre-Approval for material actions | Zone 2-3 |
+| **Automated** | AI executes pre-approved actions | Escalation-on-Threshold | Zone 3 restricted |
+| **Autonomous** | AI self-directs | **Not Recommended** | Avoid for Zone 3 |
+
+!!! danger "Autonomous Agents and Financial Services"
+    FINRA expects human oversight of AI-assisted customer interactions. Fully autonomous agents without pre-approval or escalation mechanisms are not appropriate for Zone 3 customer-facing deployments.
+
+### Mapping Autonomy to HITL Triggers
+
+```yaml
+# Autonomy-based HITL Configuration
+autonomy_hitl_mapping:
+  assisted:
+    pattern: "sampled_review"
+    sample_rate: 0.05  # 5%
+    real_time_approval: false
+
+  augmented:
+    pattern: "pre_approval"
+    approval_required_for:
+      - "recommendations"
+      - "account_changes"
+      - "financial_transactions"
+    sample_rate: 0.10  # 10% for non-approval items
+
+  automated:
+    pattern: "escalation_on_threshold"
+    thresholds:
+      confidence_minimum: 0.85
+      transaction_maximum: 1000
+      escalation_mandatory: true
+    post_audit_rate: 1.0  # 100% post-execution review
+
+  autonomous:
+    pattern: "not_recommended"
+    warning: "Zone 3 customer-facing agents should not operate autonomously"
+```
+
+---
+
 ## HITL Pattern Definitions
 
 Three primary patterns for human oversight in AI agent workflows:

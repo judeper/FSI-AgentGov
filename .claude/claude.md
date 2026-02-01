@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.28** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.30** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,10 +379,36 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.28 (January 2026)
+**Version:** 1.2.31 (January 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.28):**
+**Recent Additions (v1.2.31):**
+- **State AI Laws Research Remediation** - Corrected Texas TRAIGA scope, NYC LL 144 effective date, NYDFS Part 500 2024 updates
+- **Texas TRAIGA Scope Correction** - Clarified enacted law (HB 149) is narrower than presented; substantive requirements apply to state agencies only, private sector has intent-based prohibitions only
+- **NYC Local Law 144** - Added effective date (January 1, 2023; enforcement July 5, 2023)
+- **NYDFS Part 500 Updates** - Added dual-signature certification (April 2024), October 2024 AI cybersecurity guidance, 24-hour extortion reporting
+- **Illinois HB 3773 Clarification** - Noted law requires notice but not bias audits (unlike Colorado/NYC)
+- **Colorado SB24-205 Note** - Added that proposed small business exemptions (HB 25B-1009) were not enacted
+
+**Previous Additions (v1.2.30):**
+- **FINRA Research Report Remediation** - Communications retention corrected to 3 years (SEC 17a-4(b)(4)), Notice 25-07 RFI clarification, Rule 3120 testing requirements, 2026 Report integration
+- **Retention Period Corrections** - Agent conversation logs are communications (3-year retention), not financial records (6-year); added retention matrix to framework docs
+- **FINRA 2026 Annual Regulatory Oversight Report** - Added comprehensive references to December 2025 report with AI agent supervision guidance
+- **Rule 3120 Annual Testing** - Added testing checklist and attestation template to Control 2.12 and verification playbook
+- **Rule 2210 Communication Classifications** - Added correspondence vs. retail communication supervision requirements
+- **AI Agent Autonomy Levels** - Added autonomy definitions (Assisted, Augmented, Automated, Autonomous) with HITL mapping
+- **Notice 15-09 Testing Precedent** - Added algorithmic trading testing principles to Control 2.5
+- **Storage Tier Guidance** - Added "readily accessible" compliance tiers to Control 1.9
+
+**Previous Additions (v1.2.29):**
+- **SEC Rules Research Report Remediation** - Corrected CFTC WORM misattribution and enhanced CFPB regulatory clarity
+- **CFTC Rule 1.31 Fix** - Removed incorrect WORM references; CFTC uses principles-based "authenticity and reliability" standard (WORM eliminated May 2017)
+- **Dual-Registrant Guidance** - Added warning clarifying SEC maintains WORM while CFTC uses principles-based approach
+- **CFPB ECOA/UDAAP Distinction** - Added table clarifying ECOA is primary for credit decisions, UDAAP for all consumer products
+- **Control 2.19 Update** - Clarified CFPB Chatbots report is research, not binding regulation
+- **SOX AI Coverage Note** - Added clarification that SOX governs AI implicitly through ICFR; PCAOB researching new standards
+
+**Previous Additions (v1.2.28):**
 - **Research Report Remediation** - Addressed outstanding items from 15 research reports across 5 categories
 - **DEC Solution Critical Updates** - Added x-api-key deprecation warnings (March 31, 2026), corrected schema documentation (XPIADetected/JailbreakDetected fields), added CloudAppEvents integration guidance
 - **Control 1.8 Correction** - Clarified UPIA/XPIA detections are in Defender CloudAppEvents, not Purview CopilotInteraction audit schema
@@ -524,7 +550,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.28
+- **Framework Version:** 1.2.31
 - **Last Updated:** January 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

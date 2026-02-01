@@ -6,6 +6,201 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.31] — January 31, 2026 (State AI Laws Research Remediation)
+
+### Overview
+
+Remediation of findings from 5 state AI law research validation reports. Key corrections: Texas TRAIGA scope, NYC LL 144 effective date, NYDFS Part 500 2024 updates, and clarifications for Illinois HB 3773 and Colorado SB24-205.
+
+### Critical Fixes
+
+**Texas TRAIGA Scope Correction:**
+
+- Corrected description from "High-risk AI systems, discrimination prevention" to accurately reflect narrower enacted law (HB 149)
+- TRAIGA imposes substantive requirements on **state agencies only**; private sector has intent-based prohibitions only
+- Added scope note clarifying TRAIGA does not require private sector impact assessments, bias audits, or consumer disclosure (unlike Colorado)
+
+**NYC Local Law 144 Effective Date:**
+
+- Added missing effective date: January 1, 2023 (enforcement began July 5, 2023)
+- Prior documentation did not specify effective date
+
+### Enhancements
+
+**NYDFS Part 500 2024 Updates:**
+
+- Added dual-signature certification requirement (April 15, 2024): Must be signed by BOTH highest-ranking executive AND CISO
+- Added October 16, 2024 AI Cybersecurity Guidance reference (industry letter on AI-related risks)
+- Added 24-hour extortion/ransomware payment reporting requirement
+
+**Illinois HB 3773 Clarification:**
+
+- Updated description to "Employment AI notice requirements (no audit mandates)"
+- Clarifies Illinois requires notice but not bias audits (unlike Colorado/NYC)
+
+**Colorado SB24-205 Clarification:**
+
+- Added note that proposed small business exemptions (HB 25B-1009, August 2025) were not enacted
+- Added note that no implementing regulations have been issued as of January 2026
+
+### Files Changed
+
+| File | Changes |
+|------|---------|
+| `docs/reference/regulatory-mappings.md` | TRAIGA scope correction, LL 144 date, NYDFS 2024 updates, IL/CO clarifications |
+
+---
+
+## [1.2.30] — January 31, 2026 (FINRA Research Report Remediation)
+
+### Overview
+
+Remediation of findings from FINRA research reports. Key corrections: communications retention period (3 years, not 6), Notice 25-07 RFI clarification, Rule 3120 testing requirements, and 2026 Annual Regulatory Oversight Report integration.
+
+### Critical Fixes
+
+**Retention Period Corrections (Priority 1):**
+
+| Record Type | Previous | Corrected | Regulation |
+|-------------|----------|-----------|------------|
+| Communications (agent logs, chat) | 6 years | 3 years | SEC 17a-4(b)(4) |
+| Financial/Accounting Records | 6 years | 6 years (unchanged) | SEC 17a-4(a) |
+| Customer Account Records | 6 years | 6 years after close | SEC 17a-4(c)(e)(5) |
+
+- Added retention period matrix to `regulatory-framework.md` and `regulatory-mappings.md`
+- Updated Controls 1.7, 2.13, 4.3 with correct retention periods
+- Fixed PowerShell playbook: `FSI-Communications-6Y` → `FSI-Communications-3Y` (1095 days)
+
+**Notice 25-07 Clarification (Control 1.7):**
+
+- Clarified FINRA Notice 25-07 is a **Request for Comment (RFI)**, not final guidance
+- Updated all references to indicate "anticipated" requirements pending final rule
+
+### New Content
+
+**FINRA 2026 Annual Regulatory Oversight Report:**
+
+- Added comprehensive references to December 2025 report across framework
+- Integrated AI agent supervision guidance (audit trail completeness, decision reconstruction, autonomy limits)
+- Updated Controls 1.7, 2.12, and regulatory mappings with 2026 Report citations
+
+**Rule 3120 Annual Testing Requirements (Control 2.12):**
+
+- Added new section with annual testing checklist for AI supervisory controls
+- Added testing attestation template to verification-testing playbook
+- Mapped testing requirements to 2026 Report examination focus
+
+**Rule 2210 Communication Classifications:**
+
+- Added classification table (Correspondence vs. Retail Communication vs. Institutional)
+- Added Zone 3 pre-approval guidance based on communication type
+- Updated Controls 2.12 and 2.21 with classification requirements
+
+**AI Agent Autonomy Levels:**
+
+- Added autonomy level definitions from 2026 Report (Assisted, Augmented, Automated, Autonomous)
+- Added supervision requirements per autonomy level
+- Updated HITL triggers playbook with autonomy-to-HITL mapping
+
+### Enhancements
+
+**Control 2.5 — Testing and Validation:**
+
+- Added FINRA Notice 15-09 (algorithmic trading) as testing precedent
+- Mapped algorithmic supervision principles to AI agent testing
+
+**Control 1.9 — Data Retention:**
+
+- Added storage tier requirements for "readily accessible" compliance
+- Defined Hot/Cool/Archive storage with access time expectations
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/framework/regulatory-framework.md` | Retention matrix, Rule 3120 section, 2026 Report reference |
+| `docs/reference/regulatory-mappings.md` | Retention matrix, Rule 2210 classifications, Notice 15-09, 2026 Report |
+| `docs/controls/pillar-1-security/1.7-*.md` | Retention clarification, Notice 25-07 RFI status, 2026 Report reference |
+| `docs/controls/pillar-1-security/1.9-*.md` | Storage tier guidance |
+| `docs/controls/pillar-2-management/2.5-*.md` | Notice 15-09 precedent |
+| `docs/controls/pillar-2-management/2.12-*.md` | Autonomy levels, Rule 2210, Rule 3120 testing |
+| `docs/controls/pillar-2-management/2.13-*.md` | Retention period corrections |
+| `docs/controls/pillar-2-management/2.21-*.md` | Rule 2210 classifications |
+| `docs/controls/pillar-4-sharepoint/4.3-*.md` | Retention period corrections |
+| `docs/playbooks/control-implementations/4.3/powershell-setup.md` | Label name correction |
+| `docs/playbooks/control-implementations/2.12/verification-testing.md` | Rule 3120 testing checklist |
+| `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` | Autonomy level mapping |
+| `.claude/CLAUDE.md` | Version update to 1.2.30 |
+| `CHANGELOG.md` | Added v1.2.30 entry |
+
+### Verification
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+---
+
+## [1.2.29] — January 31, 2026 (SEC Rules Research Report Remediation)
+
+### Overview
+
+Remediation of findings from SEC rules research reports. Corrects CFTC WORM misattribution and enhances CFPB regulatory clarity.
+
+### Critical Fix
+
+**CFTC Rule 1.31 WORM Correction (`docs/reference/regulatory-mappings.md`):**
+
+| Issue | Correction |
+|-------|------------|
+| CFTC WORM requirement misattributed | CFTC eliminated WORM requirement in May 2017; updated to principles-based "authenticity and reliability" standard per 17 CFR § 1.31(c) |
+| Dual-registrant guidance missing | Added warning box clarifying SEC maintains WORM while CFTC uses principles-based approach |
+
+### Enhancements
+
+**CFPB Section Clarity (`docs/reference/regulatory-mappings.md`):**
+
+- Added ECOA vs. UDAAP distinction table clarifying primary framework for AI credit decisions
+- ECOA (Regulation B) is primary for credit decisions; UDAAP applies broadly to all consumer products
+- Referenced CFPB Circulars 2022-03 and 2023-03 for adverse action notification requirements
+
+**Control 2.19 Update:**
+
+- Clarified CFPB Chatbots in Consumer Finance is a research report, not binding regulation
+- Added note that binding chatbot regulations are pending
+
+**SOX AI Coverage (`docs/framework/regulatory-framework.md`):**
+
+- Added info box clarifying SOX does not explicitly address AI
+- AI agents governed implicitly through existing ICFR frameworks
+- Referenced PCAOB July 2024 Spotlight on GenAI research
+
+### Research Report Findings Summary
+
+| Report | Framework Status | Action Taken |
+|--------|-----------------|--------------|
+| CFTC Rule 1.31 | WORM misattributed | Critical fix - removed WORM references |
+| CFPB UDAAP/ECOA | Accurate but unclear | Added distinction table |
+| CFPB Chatbots | Reference lacked context | Added non-binding status note |
+| SOX 302/404/802 | Accurate | Added AI coverage clarification |
+| GLBA Section 501(b) | Accurate | No changes needed |
+
+### Files Updated
+
+| File | Changes |
+|------|---------|
+| `docs/reference/regulatory-mappings.md` | CFTC WORM fix, dual-registrant warning, ECOA/UDAAP distinction |
+| `docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md` | CFPB chatbot reference clarification |
+| `docs/framework/regulatory-framework.md` | SOX AI coverage note |
+| `.claude/CLAUDE.md` | Version update |
+| `CHANGELOG.md` | Added v1.2.29 entry |
+
+### Verification
+
+- `mkdocs build --strict`: Pass
+- `python scripts/verify_controls.py`: All 62 controls valid
+
+---
+
 ## [1.2.28] — January 31, 2026 (Research Report Remediation)
 
 ### Overview

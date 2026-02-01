@@ -82,8 +82,9 @@ foreach ($Zone in $Zones) {
 ```powershell
 # Create retention labels for different content types
 $Labels = @(
-    @{Name="FSI-Financial-Records-7Y"; Duration=2555; Action="KeepAndDelete"; Description="7-year retention for financial records (SOX 802)"},
-    @{Name="FSI-Communications-6Y"; Duration=2190; Action="KeepAndDelete"; Description="6-year retention for communications (FINRA 4511)"},
+    @{Name="FSI-Financial-Records-6Y"; Duration=2190; Action="KeepAndDelete"; Description="6-year retention for financial/accounting records (SEC 17a-4(a))"},
+    @{Name="FSI-Communications-3Y"; Duration=1095; Action="KeepAndDelete"; Description="3-year retention for communications (SEC 17a-4(b)(4))"},
+    @{Name="FSI-Audit-Workpapers-7Y"; Duration=2555; Action="KeepAndDelete"; Description="7-year retention for audit workpapers (SOX 802)"},
     @{Name="FSI-Customer-Data-5Y"; Duration=1825; Action="KeepAndDelete"; Description="5-year retention for customer information (GLBA)"},
     @{Name="FSI-Regulatory-Immutable"; Duration=2555; Action="Keep"; Description="7-year immutable retention for regulatory records"}
 )
@@ -101,7 +102,7 @@ foreach ($Label in $Labels) {
 
 # Publish retention labels via label policy
 New-RetentionCompliancePolicy -Name "FSI-Retention-Labels-Policy" `
-    -PublishComplianceTag "FSI-Financial-Records-7Y","FSI-Communications-6Y","FSI-Customer-Data-5Y","FSI-Regulatory-Immutable" `
+    -PublishComplianceTag "FSI-Financial-Records-6Y","FSI-Communications-3Y","FSI-Audit-Workpapers-7Y","FSI-Customer-Data-5Y","FSI-Regulatory-Immutable" `
     -SharePointLocation All `
     -Enabled $true
 

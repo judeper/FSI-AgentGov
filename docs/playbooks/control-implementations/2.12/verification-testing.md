@@ -53,6 +53,47 @@
 
 ---
 
+## Rule 3120 Annual Testing Checklist
+
+Per FINRA Rule 3120, firms must test and verify supervisory control systems annually. For AI agent supervision, complete the following:
+
+| Test Area | Test Procedure | Pass Criteria | Date Tested | Result |
+|-----------|---------------|---------------|-------------|--------|
+| **WSP Adherence** | Review sample of agent approvals against documented WSP | All samples follow documented procedures | | |
+| **HITL Functionality** | Trigger high-risk response, verify review prompt | Review queue receives item within 1 minute | | |
+| **Escalation Procedures** | Simulate escalation scenario, trace routing | Escalation reaches designated principal within SLA | | |
+| **Review Queue SLA** | Audit queue for reviews completed within SLA | >95% reviews completed within defined SLA | | |
+| **Sampling Protocol** | Verify sampling rate matches policy | Actual rate within 10% of target | | |
+| **Supervisor Qualifications** | Verify principal registrations current | All designees hold required Series licenses | | |
+
+### Annual Testing Attestation
+
+```markdown
+## Rule 3120 Annual Testing Attestation - AI Agent Supervision
+
+**Organization:** [Organization Name]
+**Testing Period:** [Start Date] to [End Date]
+**Tester:** [Name/Role]
+**Date Completed:** [Date]
+
+I attest that:
+
+1. All test areas above have been tested per documented procedures
+2. Test results have been documented and retained
+3. Exceptions identified have been escalated per policy
+4. Remediation plans are in place for any failed tests
+
+**Test Summary:**
+- Tests Passed: [X] / 6
+- Exceptions Identified: [X]
+- Remediation Required: [Yes/No]
+
+**Signature:** _______________________
+**Date:** _______________________
+```
+
+---
+
 ## Attestation Statement Template
 
 ```markdown

@@ -9,12 +9,24 @@ Mapping of framework controls to regulatory requirements.
 ### Overview
 Requires firms to maintain records of all agent activities and communications.
 
+### Retention Period Matrix
+
+| Record Type | Retention | Regulation | Access Requirement |
+|-------------|-----------|------------|--------------------|
+| **Communications** (agent logs, chat, email) | 3 years | SEC 17a-4(b)(4) | First 2 years readily accessible |
+| **Accounting/Financial Records** | 6 years | SEC 17a-4(a) | First 2 years readily accessible |
+| **Customer Account Records** | 6 years after account close | SEC 17a-4(c)(e)(5) | First 2 years readily accessible |
+| **FINRA-Specific Records** (no SEC period) | 6 years | FINRA 4511(b) | First 2 years easily accessible |
+
+!!! warning "Agent Logs as Communications"
+    Agent conversation logs typically fall under the 3-year communications retention (SEC 17a-4(b)(4)), not the 6-year financial records period. If agent interactions generate or modify financial records, those outputs follow the 6-year period.
+
 ### Applicable Controls
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years in easily accessible place |
-| [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per FINRA timeline |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Retention per record type (3 years for communications, 6 years for financial records) |
+| [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per record type matrix |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure network architecture for records systems |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Record security incidents and attacks |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Agent Performance Monitoring | Track all agent activity |
@@ -37,7 +49,7 @@ Requires firms to maintain records of all agent activities and communications.
 
 **Zone 3 Requirements:**
 
-- Maintain 6-year audit logs, first 2 years in easily accessible place
+- Maintain audit logs per retention matrix (3 years for communications, 6 years for financial records; first 2 years readily accessible)
 - Comprehensive real-time monitoring
 - Immediate incident escalation
 - Weekly executive reporting
@@ -121,6 +133,18 @@ Framework provides supervision procedure guidance (8/62 controls). Implementatio
 
     See: [FINRA Regulatory Notice 24-09](https://www.finra.org/rules-guidance/notices/24-09)
 
+!!! tip "FINRA 2026 Annual Regulatory Oversight Report (December 2025)"
+    The 2026 Report contains FINRA's most detailed AI agent supervision guidance, with a dedicated GenAI section:
+
+    | Topic | Requirement | Framework Control |
+    |-------|-------------|-------------------|
+    | **AI as Supervisory Function** | Document WSPs for AI supervision substitution | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+    | **Audit Trail Completeness** | Retain prompts, model state, reasoning—not just outputs | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
+    | **Decision Reconstruction** | Demonstrate how agents reached conclusions | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) |
+    | **Agent Autonomy Limits** | Dedicated supervisory procedures for AI agents | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+
+    See: [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-annual-regulatory-oversight-report)
+
 ### Overview
 
 FINRA's supervisory requirements for AI systems derive primarily from existing rules rather than AI-specific guidance:
@@ -131,7 +155,30 @@ FINRA's supervisory requirements for AI systems derive primarily from existing r
 - **FINRA Rule 2111 (Suitability):** Requires reasonable basis for recommendations, including those assisted by AI
 - **FINRA Rule 2210 (Communications):** AI-generated customer communications must meet content standards; firms are responsible regardless of AI involvement
 - **FINRA Rule 4511 (Books and Records):** Requires retention of AI-generated communications and agent interaction logs
-- **Annual Regulatory Oversight Report:** Identifies AI-related examination priorities annually (2026 report includes dedicated GenAI section)
+
+### FINRA Rule 2210 Communication Classifications
+
+| Communication Type | Definition | Supervision Requirement | AI Agent Impact |
+|-------------------|------------|------------------------|-----------------|
+| **Correspondence** | To ≤25 retail investors in 30 days | Post-use review acceptable | Zone 2 agents may qualify |
+| **Retail Communication** | To >25 retail investors in 30 days | Pre-use principal approval required | Zone 3 agents typically require |
+| **Institutional** | Institutional investors only | Internal procedures | Reduced supervision |
+
+!!! warning "Zone 3 Agent Classification"
+    If agent output could reach >25 retail investors in any 30-day period, configure HITL pre-approval per Retail Communication requirements.
+
+### FINRA Notice 15-09 — Algorithmic Trading Precedent
+
+FINRA Regulatory Notice 15-09 (March 2015) addresses supervision of algorithmic trading strategies and provides a useful precedent for AI agent testing:
+
+| Principle | Application to AI Agents | Framework Control |
+|-----------|-------------------------|-------------------|
+| **Pre-deployment testing** | Test agents in controlled environments before production | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
+| **Ongoing monitoring** | Continuously monitor agent performance | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) |
+| **Kill switch capability** | Ability to halt agent operation quickly | [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) |
+| **Change testing** | Re-test after any modification | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) |
+
+See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notices/15-09)
 
 ### Applicable Controls
 
@@ -758,7 +805,7 @@ Applies to futures commission merchants (FCMs), introducing brokers, commodity t
 
 1. **Electronic Records**
    - Records must be maintained in electronic format capable of being retrieved and produced
-   - WORM storage or audit-trail alternative (similar to SEC 17a-4 October 2022 amendments)
+   - Principles-based standard requiring systems ensuring "authenticity and reliability" of records (17 CFR § 1.31(c))
    - Records must be searchable and accessible for CFTC examination
 
 2. **Retention Period**
@@ -778,12 +825,20 @@ Applies to futures commission merchants (FCMs), introducing brokers, commodity t
 
 - Mandatory comprehensive audit logging
 - 5+ year retention with immediate accessibility
-- WORM or audit-trail compliant storage
+- Systems ensuring authenticity and reliability per 17 CFR § 1.31(c)
 - Complete transaction reconstruction capability
 - Model risk management per SR 11-7 principles
 
 ### Framework Coverage
 Framework provides audit and recordkeeping controls. Organizations with CFTC-regulated entities should map these controls to specific Rule 1.31 requirements. Implementation and validation required.
+
+!!! warning "Dual-Registrant Compliance"
+    Organizations registered with both SEC and CFTC must comply with both standards:
+
+    - **SEC Rule 17a-4(f):** WORM storage or audit-trail alternative required for securities records
+    - **CFTC Rule 1.31:** Principles-based "authenticity and reliability" standard for commodities records (WORM eliminated May 2017)
+
+    CFTC eliminated the WORM requirement in 2017; SEC maintains it. Dual-registrants need separate compliance approaches for each regulatory regime.
 
 ---
 
@@ -803,6 +858,17 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Prevent unfair recommendations |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Prevent deceptive omissions |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Prevent deceptive outputs |
+
+### ECOA vs. UDAAP for Credit Decisions
+
+For AI systems making **credit decisions**, the regulatory framework involves two distinct authorities:
+
+| Authority | Primary Use | Key Requirement |
+|-----------|-------------|-----------------|
+| **ECOA (Regulation B)** | Credit decisions | Adverse action notification specificity (Circulars 2022-03, 2023-03) |
+| **UDAAP** | All consumer products | Prohibition on unfair, deceptive, or abusive practices |
+
+CFPB Circulars 2022-03 (May 2022) and 2023-03 (September 2023) address ECOA requirements for AI-driven credit decisions, requiring creditors to disclose specific principal reasons for adverse action even when using complex algorithms.
 
 ### UDAAP Considerations for AI Agents
 
@@ -1015,6 +1081,12 @@ The framework's controls align with NYDFS Part 500 cybersecurity requirements:
 
 **Note:** NYDFS Part 500 underwent significant amendments effective November 2023. Institutions should verify current requirements with legal counsel.
 
+**2024 Updates:**
+
+- **Dual-Signature Certification (April 15, 2024):** Annual certification must now be signed by BOTH the highest-ranking executive AND the CISO
+- **AI Cybersecurity Guidance (October 16, 2024):** NYDFS issued an industry letter clarifying that existing Part 500 requirements apply to AI-related cybersecurity risks, including covered entity's use of AI, vendor AI dependencies, and AI-enabled threats (deepfakes, enhanced phishing)
+- **24-Hour Extortion Reporting:** Covered entities must notify NYDFS within 24 hours of making any extortion/ransomware payment (in addition to 72-hour incident reporting)
+
 ### CCPA/CPRA (California)
 
 **Applicability:** Institutions with California customers may be subject to CCPA/CPRA for certain data processing activities.
@@ -1059,9 +1131,11 @@ Several states have enacted or are developing AI-specific legislation that may a
 - Systems making consequential decisions in education, employment, financial services, government services, healthcare, housing, insurance, or legal services
 - Financial services organizations should assess whether customer-facing agents qualify as high-risk
 
+> **Note:** Proposed small business exemptions (HB 25B-1009, August 2025) were not enacted. The law applies to all developers and deployers meeting definitional thresholds, with no small business carve-outs. No implementing regulations have been issued by the Attorney General as of January 2026.
+
 #### NYC Local Law 144 - Automated Employment Decision Tools
 
-**Applicability:** Employers using automated decision tools for employment decisions in New York City. While primarily focused on employment, similar principles may extend to other consequential AI decisions.
+**Applicability:** Employers using automated decision tools for employment decisions in New York City. Effective January 1, 2023 (enforcement began July 5, 2023). While primarily focused on employment, similar principles may extend to other consequential AI decisions.
 
 | Requirement | Description | Framework Alignment |
 |-------------|-------------|---------------------|
@@ -1097,9 +1171,11 @@ Several additional state AI laws take effect in 2026. Organizations should monit
 
 | State | Law | Effective Date | Focus |
 |-------|-----|---------------|-------|
-| Texas | TRAIGA (Texas Responsible AI Governance Act) | January 1, 2026 | High-risk AI systems, discrimination prevention |
-| Illinois | HB 3773 | January 1, 2026 | Employment AI restrictions |
+| Texas | TRAIGA (HB 149) | January 1, 2026 | Prohibits specific AI harms (intent-based); state agency governance |
+| Illinois | HB 3773 | January 1, 2026 | Employment AI notice requirements (no audit mandates) |
 | California | TFAIA (Transparency in Frontier AI Act) | Varies | AI model transparency and safety reporting |
+
+> **Scope Note - Texas TRAIGA:** TRAIGA is substantially narrower than Colorado's AI Act. TRAIGA imposes substantive governance requirements (disclosure, social scoring prohibition) on **state agencies only**. Private sector obligations are limited to intent-based prohibitions on manipulation, discrimination, and constitutional rights violations. Unlike Colorado, TRAIGA does not require private sector impact assessments, bias audits, or consumer disclosure.
 
 > **Note:** Federal preemption proposals (January 2026 Executive Order) may affect state AI law enforcement. Consult legal counsel for current applicability.
 

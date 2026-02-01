@@ -21,16 +21,33 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 
 **Key Requirements:**
 
-- 6-year retention, first 2 years in easily accessible place
+- Retention periods vary by record type (see matrix below)
 - All communications with customers
 - All agent outputs and decisions
 - Approval and supervisory records
+
+!!! warning "Record Type Matters for Retention"
+    Retention periods vary by record type. Agent conversation logs typically qualify as "communications" with 3-year retention under SEC 17a-4(b)(4), not the 6-year period for financial/customer records.
+
+### Retention Period Matrix
+
+| Record Type | Retention | Regulation | Access Requirement |
+|-------------|-----------|------------|--------------------|
+| **Communications** (agent logs, chat, email) | 3 years | SEC 17a-4(b)(4) | First 2 years readily accessible |
+| **Accounting/Financial Records** | 6 years | SEC 17a-4(a) | First 2 years readily accessible |
+| **Customer Account Records** | 6 years after account close | SEC 17a-4(c)(e)(5) | First 2 years readily accessible |
+| **FINRA-Specific Records** (no SEC period) | 6 years | FINRA 4511(b) | First 2 years easily accessible |
+| **Partnership/Corporate Records** | Life of enterprise + 3 years | SEC 17a-4(d) | Readily accessible |
+| **Audit Workpapers** | 7 years | SOX 802 | Accessible for examination |
+
+!!! info "Agent Logs as Communications"
+    Agent conversation logs (prompts, responses, interaction history) typically fall under the 3-year **communications** retention period per SEC 17a-4(b)(4), not the 6-year financial records period. However, if agent interactions generate or modify financial records, those outputs follow the applicable 6-year period.
 
 **Applicable Controls:**
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years in easily accessible place |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Retention per record type (3 years for communications, 6 years for financial records) |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per FINRA timeline |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Record security incidents and attacks |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Compliance Officer oversight |
@@ -43,7 +60,7 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 **Zone Requirements:**
 
 - **Zone 2:** Maintain 1-year audit logs, document approval process, monthly compliance reviews
-- **Zone 3:** Maintain 6-year audit logs (first 2 years in easily accessible place), comprehensive real-time monitoring, immediate incident escalation
+- **Zone 3:** Maintain audit logs per retention matrix (3 years for communications, 6+ years for financial records; first 2 years readily accessible), comprehensive real-time monitoring, immediate incident escalation
 
 ---
 
@@ -57,6 +74,29 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 2. Qualified supervisor assignment
 3. Ongoing supervision and review
 4. Documentation of supervisory activities
+
+### FINRA Rule 3120 — Supervisory Control System
+
+**Overview:** Requires annual testing and verification of supervisory procedures established under Rule 3110.
+
+**Key Requirements:**
+
+1. Annual testing of supervisory control systems
+2. Documented testing procedures and results
+3. Escalation of identified exceptions
+4. Remediation of control deficiencies
+
+**AI Agent Governance Application:**
+
+| Test Area | Annual Testing Requirement |
+|-----------|---------------------------|
+| WSP Adherence | Verify AI agent supervision procedures are followed |
+| HITL Functionality | Test that human review triggers function correctly |
+| Escalation Procedures | Verify escalation routing works as designed |
+| Review Queue SLA | Audit that reviews complete within target timeframes |
+| Sampling Protocol | Confirm sampling rates match policy |
+
+See: [FINRA Rule 3120](https://www.finra.org/rules-guidance/rulebooks/finra-rules/3120)
 
 **Applicable Controls:**
 
@@ -93,6 +133,21 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
     - **Model risk management:** Firms should apply appropriate governance to AI systems
 
     See: [FINRA Regulatory Notice 24-09](https://www.finra.org/rules-guidance/notices/24-09)
+
+### FINRA 2026 Annual Regulatory Oversight Report (December 2025)
+
+The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI agent supervision guidance to date, with a dedicated section on generative AI and agentic systems.
+
+!!! tip "Key AI Agent Guidance from 2026 Report"
+    | Topic | Requirement | Framework Control |
+    |-------|-------------|-------------------|
+    | **AI as Supervisory Function** | Document WSPs for AI supervision substitution; define boundaries for AI vs. human oversight | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+    | **Audit Trail Completeness** | Retain prompts, model state, and reasoning chain—not just outputs | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
+    | **Decision Reconstruction** | Demonstrate how agents reached conclusions for examination | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) |
+    | **Agent Autonomy Limits** | Dedicated supervisory procedures for autonomous AI agents | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
+    | **Rule 3120 Testing** | Annual testing of AI supervisory controls per Rule 3120 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+
+    See: [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-annual-regulatory-oversight-report)
 
 **Overview:** FINRA's AI supervision requirements derive from existing rules that apply to associated persons' use of AI tools for customer communications and recommendations.
 
@@ -170,6 +225,9 @@ This document maps the FSI Agent Governance Framework controls to applicable US 
 - **Zone 1:** Not applicable
 - **Zone 2:** Limited scope if agent touches financial data
 - **Zone 3:** Full SOX compliance for agents affecting financial reporting
+
+!!! info "AI System Coverage"
+    SOX does not explicitly address AI or automated systems. AI agents affecting financial reporting are governed implicitly through existing ICFR frameworks. The PCAOB is conducting research to determine whether new standards are needed for AI in audits and financial reporting (July 2024 Spotlight on GenAI).
 
 ---
 
