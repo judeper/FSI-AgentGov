@@ -504,6 +504,37 @@ Framework provides 72% control coverage (44/62 controls). SOX-specific testing r
 ### Overview
 Requires financial institutions to maintain appropriate safeguards for customer information.
 
+!!! warning "FTC Safeguards Rule Amendments (2021/2023)"
+    The FTC significantly strengthened the GLBA Safeguards Rule through amendments effective June 9, 2023 (16 CFR Part 314). Financial institutions must implement **10 specific elements** in their information security programs. AI agents handling customer NPI must be governed within this framework.
+
+### Required Safeguards Rule Elements (16 CFR 314.4)
+
+| # | Required Element | AI Agent Application | FSI-AgentGov Control |
+|---|-----------------|---------------------|---------------------|
+| 1 | **Qualified Individual** to oversee program | AI Governance Lead accountable for agent security | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+| 2 | **Risk Assessment** - written, updated | Include AI agents in annual risk assessment | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| 3 | **Safeguards** - implement and test controls | DLP, access controls, encryption for agent data | Pillar 1 controls (1.1-1.24) |
+| 4 | **Service Provider Oversight** | Due diligence for Microsoft, AI model providers | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) |
+| 5 | **Evaluate and Adjust** - continuous monitoring | Monitor agent performance and security posture | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) |
+| 6 | **Staff Training** | Train staff on AI agent security and governance | [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md) |
+| 7 | **Qualified Individual Reports** to board/senior management | Include AI agent governance in board reporting | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
+| 8 | **Encryption** of customer information | TLS for transit, encryption at rest | [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) |
+| 9 | **Multi-Factor Authentication** | MFA for agent developers and administrators | [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) |
+| 10 | **Incident Response Plan** | Include AI agent incidents in IR plan | [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md), [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) |
+
+### Breach Notification Requirement
+
+!!! danger "30-Day Notification Deadline"
+    The amended Safeguards Rule requires notification to the FTC **within 30 days** of discovering a breach affecting 500+ customers. AI agent security incidents that result in unauthorized access to customer NPI trigger this requirement.
+
+    **Notification Requirements:**
+
+    - Report via FTC's online portal (BreachNotification.ftc.gov)
+    - Include description of the event, types of information involved, estimated number of affected customers
+    - AI-specific incidents: Document whether the breach resulted from agent misconfiguration, prompt injection, data exfiltration, or other AI-specific vectors
+
+    **Source:** [FTC Safeguards Rule](https://www.ftc.gov/business-guidance/resources/ftc-safeguards-rule-what-your-business-needs-know)
+
 ### Applicable Controls
 
 **Pillar 1 - Security Controls (22 controls):**
@@ -1270,11 +1301,20 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ---
 
-## FINOS AI Governance Framework
+## FINOS AI Governance Framework (AIGF v2.0)
 
 ### Overview
 
-The [FINOS AI Governance Framework](https://air-governance-framework.finos.org) is an open-source governance framework developed by the Fintech Open Source Foundation specifically for AI systems in financial services. It provides risk classifications and mitigation guidance for agentic AI deployments.
+The [FINOS AI Governance Framework v2.0](https://air-governance-framework.finos.org) (released November 11, 2025) is an open-source governance framework developed by the Fintech Open Source Foundation specifically for AI systems in financial services. Version 2.0 introduces **46 agentic AI-specific risks** with enhanced mitigation guidance.
+
+!!! info "AIGF v2.0 Update (November 2025)"
+    Version 2.0 expanded the framework from traditional AI governance to include comprehensive agentic AI risk categories:
+
+    - **Action Autonomy Risks** (12 risks) - Uncontrolled agent actions, scope creep, unauthorized transactions
+    - **Tool Integration Risks** (8 risks) - API vulnerabilities, tool chain exploitation, connector abuse
+    - **Multi-Agent Risks** (9 risks) - Orchestration failures, agent collusion, coordination gaps
+    - **Data Access Risks** (10 risks) - Overprivileged access, data exfiltration, cross-boundary violations
+    - **Governance Gaps** (7 risks) - Audit trail incompleteness, supervision blindspots, compliance drift
 
 ### Key Risk: Agent Action Authorization Bypass
 
@@ -1291,19 +1331,21 @@ FINOS identifies that agentic AI systems may:
 
 ### FSI-AgentGov Alignment
 
-| FINOS Risk Category | FSI-AgentGov Controls | Coverage |
-|---------------------|----------------------|----------|
+| FINOS AIGF v2.0 Risk Category | FSI-AgentGov Controls | Coverage |
+|-------------------------------|----------------------|----------|
 | Authorization Bypass | 1.14 (Scope Control), 1.18 (RBAC), [AAM Template](../playbooks/governance-operations/action-authorization-matrix.md) | Full |
 | Privilege Escalation | 1.4 (ACP), 2.17 (Orchestration Limits) | Full |
 | Data Access Violations | 1.5 (DLP), 4.1-4.7 (SharePoint Controls) | Full |
 | Audit Trail Gaps | 1.7 (Audit Logging), 3.2 (Usage Analytics) | Full |
 | Workflow Circumvention | [HITL Triggers](../playbooks/advanced-implementations/human-in-the-loop-triggers.md), 2.12 (Supervision) | Full |
+| Multi-Agent Coordination | 2.17 (Orchestration Limits), 2.12 (Supervision) | Full |
+| Tool Chain Exploitation | 1.4 (ACP), 1.8 (Runtime Protection) | Full |
 
 ### Framework Coverage
 
-The FSI-AgentGov framework addresses FINOS AI governance risks through defense-in-depth controls across all four pillars. The Agent Action Authorization Matrix (AAM) template specifically addresses authorization bypass risks.
+The FSI-AgentGov framework addresses FINOS AIGF v2.0 risks through defense-in-depth controls across all four pillars. The Agent Action Authorization Matrix (AAM) template specifically addresses authorization bypass risks.
 
-**Reference:** [FINOS AI & Readiness Governance Framework](https://air-governance-framework.finos.org)
+**Reference:** [FINOS AI & Readiness Governance Framework v2.0](https://air-governance-framework.finos.org)
 
 ---
 

@@ -19,6 +19,34 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 
 ---
 
+## E5 License Distinction: E5 vs E5 Compliance vs E5 Security
+
+!!! warning "These Are Three Distinct Products"
+    Microsoft 365 E5, E5 Compliance, and E5 Security are separate products with different feature sets. Documentation must be precise about which is required.
+
+| License | What It Includes | Typical Use Case |
+|---------|------------------|------------------|
+| **Microsoft 365 E5** | Full suite: E3 + E5 Compliance + E5 Security + additional services | Enterprise with comprehensive needs |
+| **Microsoft 365 E5 Compliance** | Microsoft Purview suite (DLP, IRM, eDiscovery, Insider Risk, etc.) | Organizations with E3 needing compliance |
+| **Microsoft 365 E5 Security** | Microsoft Defender suite (Defender for Office 365 P2, Defender for Endpoint P2, etc.) | Organizations with E3 needing security |
+
+**Key Distinctions:**
+
+| Capability | E5 | E5 Compliance | E5 Security |
+|------------|:--:|:-------------:|:-----------:|
+| Microsoft Purview DLP | ✅ | ✅ | ❌ |
+| Microsoft Purview DSPM for AI | ✅ | ✅ | ❌ |
+| Microsoft Purview Insider Risk | ✅ | ✅ | ❌ |
+| Microsoft Purview eDiscovery | ✅ | ✅ | ❌ |
+| Microsoft Defender for Office 365 P2 | ✅ | ❌ | ✅ |
+| Microsoft Defender for Endpoint P2 | ✅ | ❌ | ✅ |
+| Microsoft Defender for Cloud Apps | ✅ | ❌ | ✅ |
+| Microsoft Sentinel (50 MB/user/month) | ✅ | ❌ | ✅ |
+
+**Documentation Guidance:** When referencing E5 requirements, specify whether E5 Compliance is sufficient (Purview features) or full E5/E5 Security is required (Defender features).
+
+---
+
 ## Pillar 1: Security Controls
 
 | Control | Control Name | Required License | Notes |
@@ -107,6 +135,23 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 - Microsoft Entra ID P2
 - SharePoint Advanced Management
 - Copilot Studio (per-user or capacity-based)
+
+---
+
+## Premium Connector Licensing by Product
+
+!!! info "Copilot Studio Includes All Premium Connectors"
+    Premium connector licensing varies by product. This distinction is critical for cost planning.
+
+| Product | Premium Connectors | Dataverse Access | Notes |
+|---------|-------------------|------------------|-------|
+| **Copilot Studio** | ✅ Included | ✅ Included (5 GB default) | No additional connector licensing required |
+| **Power Apps** | Requires Premium license | Requires Premium license | Per-user or per-app licensing |
+| **Power Automate** | Requires Premium license | Requires Premium license | Per-user or per-flow licensing |
+
+**Common Misconception:** Teams building Copilot Studio agents do NOT need separate premium connector licenses. All premium connectors and Dataverse access (5 GB default capacity) are included with the Copilot Studio license at no additional cost.
+
+**Power Apps/Power Automate Context:** Premium connector and Dataverse access require Power Apps Premium, Power Apps per app, Power Automate Premium, or Power Automate per flow licenses for all accessing users.
 
 ---
 
@@ -207,4 +252,4 @@ For FSI organizations with multiple tenants (e.g., separate tenants for differen
 
 ---
 
-*Last Updated: January 2026*
+*Last Updated: January 2026 | Framework Version: v1.2.32*

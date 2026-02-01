@@ -383,6 +383,23 @@ Once registered as a Management Application, the Service Principal can:
 
 ### Permission Scope
 
+!!! warning "Service Principal Security Group Bypass"
+    Service Principals registered as Power Platform Management Applications **bypass environment-level Security Group restrictions**. When you configure an environment to restrict access to a specific Entra Security Group, users in that group are limited—but the Service Principal retains full access regardless of group membership.
+
+    **Risk:** A compromised or misconfigured Service Principal can access any environment in the tenant, even those restricted by Security Groups.
+
+    **Mitigations:**
+
+    | Control | Implementation | Frequency |
+    |---------|----------------|-----------|
+    | **Row-Level Security (RLS)** | Configure Dataverse RLS to limit data visibility | At deployment |
+    | **Column-Level Security** | Protect sensitive columns from Service Principal access | At deployment |
+    | **Service Principal Audit** | Monitor SP actions via ProvisioningLog and Dataverse audit | Continuous |
+    | **Credential Rotation** | Rotate SP credentials every 90 days | Quarterly |
+    | **Privilege Review** | Audit SP permissions and registered Management Applications | Quarterly |
+
+    **Source:** Zenity research on Power Platform Service Principal permissions (June 2025)
+
 !!! note "Permissions via Management Application Registration"
     When registered as a Power Platform Management Application (Step 3 above), the Service Principal receives implicit permissions without requiring Entra ID API permissions. The table below documents what operations are available.
 

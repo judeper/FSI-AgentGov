@@ -6,6 +6,272 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.32] — February 1, 2026 (Research Report Remediation - Phase 1-6)
+
+### Overview
+
+Phases 1-6 of comprehensive research report remediation addressing regulatory citation corrections, technical architecture fixes, licensing & prerequisites updates, implementation guidance corrections, industry framework alignment, and documentation enhancements. Key fixes: NIST AI RMF Treasury position, ISO 42001 positioning, CopilotInteraction schema clarification, UPIA/XPIA detection locations, Sentinel MCP Server integration, SEC 17a-4 audit trail alternative, PAYG licensing limitation, E5 license distinctions, premium connector clarification, Azure Key Vault API retirement, approval gates architecture distinction, Service Principal security group bypass warning, Information Barriers channel agent scope, DLP enforcement phased timeline, FINOS AIGF v2.0, SR 11-7 vendor model governance, GLBA Safeguards Rule 10 elements.
+
+### Critical Fixes
+
+**NIST AI RMF Treasury Position Correction:**
+
+| Location | Previous | Corrected |
+|----------|----------|-----------|
+| `nist-ai-rmf-crosswalk.md` | "recommended by U.S. Treasury for financial services" | "Stakeholders have expressed support for voluntary adoption; Treasury committed to clarifying applicability" |
+
+- Treasury's December 2024 report references NIST AI RMF only when summarizing stakeholder feedback, not as a Treasury recommendation
+- Updated language to accurately reflect Treasury's cautious, clarification-focused approach
+
+**ISO/IEC 42001 Positioning Correction:**
+
+| Aspect | Previous | Corrected |
+|--------|----------|-----------|
+| Relationship to NIST AI RMF | "alternative" | "complementary" |
+| Section title | "Alternative Framework" | "Complementary Framework" |
+
+- ISO 42001 and NIST AI RMF serve different purposes: ISO provides certifiable governance structures; NIST provides flexible risk identification
+- Added recommended implementation approach: Begin with NIST AI RMF, formalize into ISO 42001, pursue certification
+
+**API Deprecation Timeline Correction:**
+
+| API | Previous Date | Corrected Date | Notes |
+|-----|---------------|----------------|-------|
+| Exchange Online Basic Auth (SMTP AUTH) | December 2026 | March 1 – April 30, 2026 | Applies to SMTP AUTH only; other protocols deprecated 2021-2023 |
+
+### Phase 2: Technical Architecture Fixes
+
+**CopilotInteraction Audit Schema Clarification (Control 1.7):**
+
+- Added warning box clarifying audit schema captures **metadata only** (message IDs, timestamps, model info, detection flags)
+- Full prompt/response content requires eDiscovery, DSPM for AI, or Communication Compliance
+- Critical distinction for compliance design: audit logs provide evidence trail; eDiscovery provides content
+
+**UPIA/XPIA Detection Location Correction (Control 1.8):**
+
+| Location | What It Provides |
+|----------|------------------|
+| **Purview CopilotInteraction** | `JailbreakDetected` and `XPIADetected` boolean flags (audit trail) |
+| **Defender CloudAppEvents** | Threat analysis context, attack patterns (security operations) |
+
+- Corrected from "not in Purview" to "available in BOTH locations"
+- Clarified Purview provides audit trail; Defender provides investigation context
+
+**Sentinel MCP Server Integration (Control 3.9):**
+
+- Updated from "No dedicated connector exists" to document Sentinel MCP Server (GA November 2025)
+- Added configuration steps for MCP Server integration via Copilot Studio Tools
+- Documented natural language query capabilities against Sentinel data lake
+- Added requirements note: Entra authentication, AI model costs, data residency
+
+**SEC 17a-4 Audit Trail Alternative (solutions-architecture-guide.md):**
+
+- Added October 2022 SEC amendments (effective May 2023) documentation
+- Documented two compliance approaches: WORM storage OR audit trail alternative
+- Added Azure implementation options for each approach
+- Clarified CFTC does not require WORM (principles-based standard)
+
+### Phase 3: Licensing & Prerequisites Fixes
+
+**Pay-As-You-Go (PAYG) Licensing Limitation (Control 2.1):**
+
+- Added critical warning: PAYG does NOT satisfy Managed Environment licensing for active users
+- Users without standalone Power Apps/Power Automate licenses in PAYG environments do not meet licensing requirements
+- Added Microsoft Learn source citation
+
+**E5 License Distinction (license-requirements.md):**
+
+| License | Includes |
+|---------|----------|
+| Microsoft 365 E5 | Full suite: E3 + E5 Compliance + E5 Security + additional |
+| Microsoft 365 E5 Compliance | Microsoft Purview suite (DLP, IRM, eDiscovery, etc.) |
+| Microsoft 365 E5 Security | Microsoft Defender suite (Defender for Office 365, Endpoint, etc.) |
+
+- Added capability matrix showing which features require which E5 variant
+- Added documentation guidance for precise E5 requirement references
+
+**Premium Connector Clarification (license-requirements.md):**
+
+- Clarified Copilot Studio includes ALL premium connectors and Dataverse (5 GB) at no additional cost
+- Power Apps/Power Automate require separate premium licensing for connectors
+- Added product-specific licensing table to prevent common misconception
+
+**Azure Key Vault API Retirement (solutions-architecture-guide.md):**
+
+- Added warning: Pre-February 2026 APIs retire February 27, 2027
+- New instances enforce Azure RBAC as default permission model
+- Added migration guidance: Access Policy → RBAC transition
+
+### Phase 4: Implementation Guidance Fixes
+
+**Approval Gates Architecture Distinction (Control 2.3):**
+
+- Added distinction table: Native Copilot Studio approvals vs. ALM pipeline approvals
+- Copilot Studio has built-in publishing approval workflow (no custom development required)
+- ALM pipeline approvals require custom Power Automate (OnApprovalStarted trigger)
+- FSI recommendation: Native approvals for Zone 2, pipeline approvals for Zone 3
+
+**Service Principal Security Group Bypass (ELM architecture.md):**
+
+- Added critical warning: Service Principals bypass environment-level Security Group restrictions
+- Service Principal can access ANY environment regardless of Security Group configuration
+- Added mitigation table: RLS, column-level security, audit, credential rotation, privilege review
+- Added quarterly audit requirement for Service Principal permissions
+- Source citation: Zenity research on Power Platform SP permissions (June 2025)
+
+**Information Barriers Channel Agent Scope (Control 1.22):**
+
+| Agent Type | IB Supported |
+|------------|--------------|
+| M365 Copilot | ✅ Yes |
+| Copilot Studio agents in Teams | ✅ Yes |
+| Channel Agent | ❌ No |
+
+- Clarified: Copilot Studio agents in Teams DO support IB; Channel Agents do NOT
+- Added testing note for verifying barrier enforcement before deployment
+
+**DLP Enforcement Phased Timeline (Control 1.5):**
+
+| Phase | Date | Status |
+|-------|------|--------|
+| Soft-Enabled | January 2025 | Complete |
+| Enabled | February 2025 | Complete |
+| Complete | March 2025 | Complete |
+
+- Added MC973179 reference with three-phase rollout timeline
+- Documented 11 virtual governance connectors for AI capabilities
+
+**February 2026 Pipeline Deadline (Verified):**
+
+- Control 2.1 already has danger callout (Phase 3 verification confirmed)
+- solutions-index.md already has warning
+- FAQ.md already documents deadline
+- No additional changes needed
+
+### Phase 5: Industry Framework Alignment
+
+**FINOS AIGF v2.0 Update (regulatory-mappings.md):**
+
+- Updated from generic FINOS reference to AIGF v2.0 (released November 11, 2025)
+- Added 46 agentic AI-specific risk categories:
+  - Action Autonomy Risks (12 risks)
+  - Tool Integration Risks (8 risks)
+  - Multi-Agent Risks (9 risks)
+  - Data Access Risks (10 risks)
+  - Governance Gaps (7 risks)
+- Added multi-agent coordination and tool chain exploitation to control mapping table
+
+**Sardine AOF Interpretation Layer (human-in-the-loop-triggers.md):**
+
+- Added note clarifying FSI-AgentGov mapping is an interpretation of Sardine's framework
+- Original Sardine whitepaper addresses general agentic AI; specific control mappings are FSI-AgentGov extensions
+
+**SR 11-7 Vendor Model Governance (Control 2.6):**
+
+- Added Section V requirements: vendor models must be validated with equal rigor as internal models
+- Added vendor model governance table with documentation, validation, monitoring, change assessment requirements
+- Added cross-reference to SR 13-19 for third-party relationship supervision
+
+**SOX AI Governance Framework (Control 2.6):**
+
+- Added SOX applies implicitly through ICFR for AI systems affecting financial data
+- Added PCAOB AI audit standards note (AS 1105/AS 2301 under review, July 2024 statement)
+- Added AI system documentation table for SOX compliance (Agent Card, validation, change log, monitoring)
+
+**GLBA Safeguards Rule 10 Elements (regulatory-mappings.md):**
+
+| # | Required Element | FSI-AgentGov Control |
+|---|-----------------|---------------------|
+| 1 | Qualified Individual | 2.12 |
+| 2 | Risk Assessment | 2.6 |
+| 3 | Safeguards | Pillar 1 (1.1-1.24) |
+| 4 | Service Provider Oversight | 2.7 |
+| 5 | Continuous Monitoring | 3.2, 3.7 |
+| 6 | Staff Training | 2.14 |
+| 7 | Board Reporting | 3.3 |
+| 8 | Encryption | 1.15 |
+| 9 | MFA | 1.11 |
+| 10 | Incident Response | 3.4, 2.4 |
+
+- Added 30-day FTC breach notification requirement for incidents affecting 500+ customers
+
+### Phase 6: Enhancements & Documentation
+
+**Defender AI-SPM Updates (Control 1.24):**
+
+- Added "Recent Enhancements" table documenting November 2025-January 2026 capabilities
+- GCP Vertex AI support now GA (November 2025)
+- Agent-specific security recommendations (January 2026)
+- Attack path expansion for AI-specific scenarios
+- Agent 365 SDK discovery (Preview)
+
+**Sentinel Data Pathways Documentation (Control 3.9):**
+
+- Added "Three Data Ingestion Pathways" section documenting all three primary paths:
+  - Power Platform Admin Activity (administrative oversight)
+  - Purview Unified Audit Log (compliance and interaction monitoring)
+  - Defender CloudAppEvents (security operations)
+- Added pathway selection guidance for FSI organizations
+- Expanded data sources table to include Purview UAL with CopilotInteraction events
+
+**Custom Power BI Analytics Infrastructure (Control 3.2):**
+
+- Added custom pipeline documentation: Dataverse → Synapse Link → Data Lake → Power BI
+- Added infrastructure components table with FSI considerations
+- Added decision matrix: when to use native PPAC vs. custom pipeline
+- Added licensing warning for Synapse Link and Power BI Premium requirements
+
+**SharePoint Admin Agent vs. Content Governance Agent (Control 4.5):**
+
+- Added distinction table differentiating the two agents:
+  - SharePoint Admin Agent (GA November 2025): Administrative queries
+  - Content Governance Agent (Preview): Content lifecycle management
+- Added capability descriptions for each agent
+- Added access locations
+
+**Verified Items (Already Complete):**
+
+- **6.4 OWASP LLM Top 10 2025** — Controls 2.7 and 2.20 already reference 2025 version (verified)
+- **6.6 Agent 365 Observability SDK** — Control 3.2 already has comprehensive section (lines 175-269)
+- **6.7 Schema Field Path Documentation** — DEC playbook (purview-audit-extraction.md) already documents XPIADetected and JailbreakDetected field paths
+- **6.3 Channel Controls** — Plan referenced non-existent file; channel controls documented in Controls 1.5 and 2.2
+
+### Verified Fixes (Already Applied)
+
+The following items from Phase 1 were already correctly remediated in previous versions:
+
+- **OCC 2021-18 Reference** — Removed in v1.2.18 (no references remain in docs/)
+- **CFTC Rule 1.31 WORM** — Correctly documents WORM elimination in 2017 (v1.2.29)
+- **FINRA Notice 25-07** — Correctly characterized as workplace modernization, not AI governance (v1.2.30)
+- **CFPB ECOA/UDAAP Distinction** — Correctly documented with distinction table (v1.2.29)
+
+### Files Changed
+
+| File | Changes |
+|------|---------|
+| `docs/reference/nist-ai-rmf-crosswalk.md` | Treasury position correction, ISO 42001 positioning fix |
+| `docs/reference/faq.md` | Exchange Basic Auth deprecation date correction |
+| `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Added audit schema metadata clarification |
+| `docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md` | Corrected UPIA/XPIA detection locations |
+| `docs/controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md` | Added Sentinel MCP Server integration path, three data pathways documentation |
+| `docs/reference/solutions-architecture-guide.md` | Added SEC 17a-4 audit trail alternative, Azure Key Vault API retirement warning |
+| `docs/controls/pillar-2-management/2.1-managed-environments.md` | Added PAYG licensing limitation warning |
+| `docs/reference/license-requirements.md` | Added E5 license distinction table, premium connector clarification |
+| `docs/reference/sharepoint-advanced-management-licensing.md` | Updated version footer |
+| `docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md` | Added native vs. pipeline approval workflow distinction |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` | Added Service Principal security group bypass warning |
+| `docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md` | Added quarterly Service Principal audit requirement |
+| `docs/controls/pillar-1-security/1.22-information-barriers.md` | Clarified Channel Agent vs. Copilot Studio IB support |
+| `docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md` | Added DLP enforcement phased timeline |
+| `docs/reference/regulatory-mappings.md` | FINOS AIGF v2.0 update, GLBA Safeguards Rule 10 elements |
+| `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` | Added Sardine AOF interpretation layer note |
+| `docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md` | SR 11-7 vendor model governance, SOX AI governance |
+| `docs/controls/pillar-1-security/1.24-defender-ai-security-posture-management.md` | Added recent enhancements table (GCP Vertex AI GA, January 2026 updates) |
+| `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | Added custom Power BI analytics infrastructure section |
+| `docs/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md` | Added SharePoint Admin Agent vs. Content Governance Agent distinction |
+
+---
+
 ## [1.2.31] — January 31, 2026 (State AI Laws Research Remediation)
 
 ### Overview

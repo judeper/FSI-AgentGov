@@ -1,6 +1,6 @@
 # NIST AI Risk Management Framework Crosswalk
 
-This document maps the FSI Agent Governance Framework controls to the NIST AI Risk Management Framework (AI RMF 1.0). The crosswalk demonstrates alignment with federal AI risk management guidance recommended by U.S. Treasury for financial services (December 2024 report recommends expanding AI RMF for financial sector use).
+This document maps the FSI Agent Governance Framework controls to the NIST AI Risk Management Framework (AI RMF 1.0). Financial services stakeholders have expressed support for voluntary NIST AI RMF adoption, and Treasury has committed to working with financial regulators to clarify its applicability and develop financial sector-specific guidance (December 2024 AI in Financial Services report).
 
 ---
 
@@ -286,16 +286,16 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
 
 ---
 
-## Alternative Framework: ISO/IEC 42001
+## Complementary Framework: ISO/IEC 42001
 
 !!! info "ISO/IEC 42001 AI Management System Standard"
-    Organizations seeking certification-based AI governance may consider **ISO/IEC 42001:2023**, the international standard for AI management systems. While this framework uses NIST AI RMF as the primary reference (per U.S. Treasury recommendations), ISO/IEC 42001 provides an alternative for organizations that:
+    Organizations seeking certification-based AI governance may consider **ISO/IEC 42001:2023**, the international standard for AI management systems. ISO/IEC 42001 is **complementary to NIST AI RMF**, not an alternative—the frameworks serve different purposes and can be implemented together for comprehensive AI governance. ISO/IEC 42001 is particularly valuable for organizations that:
 
     - Require third-party certification of AI governance
     - Operate in jurisdictions where ISO certification is expected
     - Already maintain ISO 27001 or other ISO management systems
 
-    **Key differences:**
+    **How they complement each other:**
 
     | Aspect | NIST AI RMF | ISO/IEC 42001 |
     |--------|-------------|---------------|
@@ -303,9 +303,11 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
     | Structure | 4 functions, 72 subcategories | PDCA management system |
     | Certification | Not certifiable | Third-party certifiable |
     | Geography | U.S.-focused | International |
-    | Alignment | Treasury-recommended for FSI | Maps to NIST AI RMF |
+    | Primary Role | Risk identification and measurement | Formal governance structures |
 
-    This crosswalk can be adapted for ISO/IEC 42001 alignment by mapping FSI controls to ISO 42001 clauses (Annex A controls). Contact your compliance officer for guidance on framework selection.
+    **Recommended approach:** Begin with NIST AI RMF risk assessments (lower implementation barrier), formalize findings into ISO 42001 AIMS policies and controls, then pursue ISO 42001 certification. Use NIST for continuous risk monitoring between annual ISO 42001 surveillance audits.
+
+    This crosswalk can be adapted for ISO/IEC 42001 alignment by mapping FSI controls to ISO 42001 clauses (Annex A controls). Contact your compliance officer for guidance on implementing both frameworks together.
 
 ---
 

@@ -490,7 +490,7 @@ A: Key deprecation dates affecting this framework:
 | **Application Insights x-api-key** | March 31, 2026 | Entra ID OAuth 2.0 | RAI telemetry scripts in DEC solution |
 | **Office 365 Connectors (incoming webhooks)** | March 31, 2026 | Power Automate Workflows connector | Teams notifications; MCM solution uses native connector (unaffected) |
 | **Reporting Webservice** | April 6, 2026 | Microsoft Graph APIs | Usage reporting scripts |
-| **Connect-ExchangeOnline Basic Auth** | December 2026 | Certificate-based auth / managed identity | Audit log extraction scripts |
+| **Connect-ExchangeOnline Basic Auth (SMTP AUTH)** | March 1 – April 30, 2026 | OAuth 2.0 for SMTP AUTH | Audit log extraction scripts (SMTP only; other protocols deprecated 2021-2023) |
 
 !!! warning "Action Required"
     Organizations using custom scripts for audit extraction, RAI telemetry, or reporting should plan migration to replacement APIs before the deprecation dates.

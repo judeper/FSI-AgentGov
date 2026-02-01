@@ -572,6 +572,32 @@ Configure alerts for:
 | Direct table modification attempt | Dataverse audit: failed update | Investigate, document |
 | Export to unauthorized location | DLP policy violation | Block, investigate |
 | Unusual query volume | Activity anomaly | Review access logs |
+| Service Principal accessing unexpected environment | SP audit: environment access | Investigate, document |
+
+### Quarterly Service Principal Audit
+
+!!! warning "Required Quarterly Review"
+    Service Principals bypass environment-level Security Group restrictions. Conduct quarterly audits to verify SP permissions remain appropriate.
+
+**Quarterly Audit Checklist:**
+
+- [ ] Verify SP credentials have been rotated within 90 days
+- [ ] Review Management Application registrations in PPAC
+- [ ] Audit SP actions in ProvisioningLog for unexpected activity
+- [ ] Verify SP cannot access environments outside ELM scope
+- [ ] Document review findings and any remediation actions
+- [ ] Report findings to AI Governance Lead
+
+**Audit Query (KQL):**
+
+```kql
+// Service Principal activity in last 90 days
+OfficeActivity
+| where TimeGenerated > ago(90d)
+| where UserId == "<Service-Principal-AppId>"
+| summarize ActionCount = count() by Operation, bin(TimeGenerated, 1d)
+| order by TimeGenerated desc
+```
 
 ### Weekly Integrity Check
 

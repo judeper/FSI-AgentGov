@@ -98,4 +98,4 @@ Get-SPOTenant | Select-Object -Property *AdvancedManagement*
 
 ---
 
-*Updated: January 2026 | Framework Version: v1.2.21*
+*Updated: January 2026 | Framework Version: v1.2.32*

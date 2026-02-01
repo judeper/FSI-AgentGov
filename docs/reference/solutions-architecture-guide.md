@@ -254,6 +254,18 @@ flowchart LR
 4. Revoke old credential after verification
 5. Log rotation event for audit
 
+!!! warning "Azure Key Vault API Retirement: February 27, 2027"
+    Azure Key Vault APIs created before February 1, 2026 will be retired on **February 27, 2027**. New Key Vault instances created after this date enforce Azure RBAC as the default permission model.
+
+    **Required Actions:**
+
+    1. Audit existing Key Vault instances using Access Policy permission model
+    2. Migrate to Azure RBAC permission model before retirement date
+    3. Update automation scripts to use RBAC-based authentication
+    4. Test credential rotation workflows after migration
+
+    **Source:** [Azure Key Vault API retirement](https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-migration)
+
 **Sources:**
 - [Rotation tutorial for resources with two sets of credentials](https://learn.microsoft.com/en-us/azure/key-vault/secrets/tutorial-rotation-dual)
 - [Best practices for secrets management in Key Vault](https://learn.microsoft.com/en-us/azure/key-vault/secrets/secrets-best-practices)
@@ -264,14 +276,26 @@ flowchart LR
 
 ### Azure Immutable Blob Storage
 
-For Deny Event Correlation Report storage, Azure Immutable Blob Storage provides SEC 17a-4 and FINRA 4511 validated WORM compliance.
+For Deny Event Correlation Report storage, Azure Immutable Blob Storage provides SEC 17a-4 and FINRA 4511 validated compliance.
+
+**SEC 17a-4 Compliance Options (Post-May 2023):**
+
+Following the October 2022 SEC amendments (effective May 3, 2023), broker-dealers may satisfy 17a-4(f) through **either** of two approaches:
+
+| Approach | Description | Azure Implementation |
+|----------|-------------|---------------------|
+| **WORM Storage** | Non-rewritable, non-erasable format (traditional) | Immutable Blob with time-based retention policy |
+| **Audit Trail Alternative** | Time-stamped modification history for all changes | Blob versioning + change feed + access logging |
+
+!!! tip "Choosing an Approach"
+    Most organizations continue with WORM for simplicity and Cohasset validation. The audit-trail alternative is suitable for organizations requiring occasional record amendments with full modification history.
 
 **Regulatory Validation:**
 
 Cohasset Associates validated Azure Immutable Blob Storage for:
 
-- SEC Rule 17a-4(f)
-- CFTC Rule 1.31(c)-(d)
+- SEC Rule 17a-4(f) (WORM approach)
+- CFTC Rule 1.31(c)-(d) (principles-based; WORM not required by CFTC)
 - FINRA Rule 4511
 
 **Configuration for DEC:**
@@ -411,4 +435,4 @@ flowchart TB
 
 ---
 
-*FSI Agent Governance Framework v1.2.25 - January 2026*
+*FSI Agent Governance Framework v1.2.32 - January 2026*

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.31** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.32** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,10 +379,38 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.31 (January 2026)
+**Version:** 1.2.32 (February 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.31):**
+**Recent Additions (v1.2.32):**
+- **Research Report Remediation Phase 1-6** - Regulatory citations, technical architecture, licensing, implementation, industry framework, and documentation enhancements from 76 research reports
+- **NIST AI RMF Treasury Position Fix** - Corrected "Treasury recommended" to "stakeholders expressed support for voluntary adoption; Treasury committed to clarifying applicability"
+- **ISO 42001 Positioning Fix** - Changed from "alternative" to "complementary" framework; ISO provides certifiable governance, NIST provides flexible risk assessment
+- **Exchange Basic Auth Date Fix** - Corrected from December 2026 to March 1 – April 30, 2026; clarified applies to SMTP AUTH only
+- **CopilotInteraction Schema Clarification** - Added warning that audit schema captures metadata only; full content requires eDiscovery/DSPM
+- **UPIA/XPIA Detection Locations** - Corrected to show detection flags are in BOTH Purview CopilotInteraction AND Defender CloudAppEvents
+- **Sentinel MCP Server Integration** - Added GA November 2025 MCP Server as primary Sentinel integration path for Copilot Studio
+- **SEC 17a-4 Audit Trail Alternative** - Documented post-May 2023 option: WORM storage OR audit trail with modification history
+- **PAYG Licensing Limitation** - Added critical warning to Control 2.1: Pay-as-you-go does NOT satisfy Managed Environment licensing for active users
+- **E5 License Distinction** - Added table distinguishing E5 vs E5 Compliance vs E5 Security with capability matrix
+- **Premium Connector Clarification** - Clarified Copilot Studio includes ALL premium connectors; Power Apps/Automate require separate licensing
+- **Azure Key Vault API Retirement** - Added February 27, 2027 retirement warning for pre-2026-02-01 APIs; RBAC migration guidance
+- **Approval Gates Architecture Distinction** - Added native Copilot Studio approvals vs. ALM pipeline approvals distinction to Control 2.3
+- **Service Principal Security Group Bypass** - Added critical warning to ELM architecture: SPs bypass environment Security Groups; added quarterly audit requirement
+- **Information Barriers Channel Agent Scope** - Clarified: Copilot Studio agents in Teams DO support IB; Channel Agents do NOT
+- **DLP Enforcement Phased Timeline** - Added MC973179 three-phase rollout (Jan-Mar 2025) and 11 virtual governance connectors
+- **FINOS AIGF v2.0 Update** - Updated to November 2025 release with 46 agentic AI-specific risks across 5 categories
+- **SR 11-7 Vendor Model Governance** - Added Section V requirements: vendor models validated with equal rigor; cross-reference to SR 13-19
+- **SOX AI Governance** - Added ICFR applicability note; PCAOB AI audit standards research (July 2024); documentation requirements
+- **GLBA Safeguards Rule 10 Elements** - Added FTC 2021/2023 amendments; mapped 10 required elements to FSI-AgentGov controls
+- **GLBA 30-Day Breach Notification** - Added FTC requirement for incidents affecting 500+ customers
+- **Sardine AOF Interpretation Layer** - Clarified FSI-AgentGov mapping is framework interpretation, not direct Sardine guidance
+- **Defender AI-SPM Updates** - Added GCP Vertex AI GA (November 2025), January 2026 agent-specific recommendations, attack path expansion
+- **Sentinel Three Data Pathways** - Documented Power Platform Admin Activity, Purview UAL, Defender CloudAppEvents ingestion pathways
+- **Custom Power BI Analytics** - Added infrastructure documentation (Dataverse → Synapse Link → Data Lake → Power BI) with decision matrix
+- **SharePoint Admin Agent vs. Content Governance Agent** - Clarified distinction: Admin Agent (GA Nov 2025) for queries, Content Governance (Preview) for lifecycle
+
+**Previous Additions (v1.2.31):**
 - **State AI Laws Research Remediation** - Corrected Texas TRAIGA scope, NYC LL 144 effective date, NYDFS Part 500 2024 updates
 - **Texas TRAIGA Scope Correction** - Clarified enacted law (HB 149) is narrower than presented; substantive requirements apply to state agencies only, private sector has intent-based prohibitions only
 - **NYC Local Law 144** - Added effective date (January 1, 2023; enforcement July 5, 2023)
@@ -413,7 +441,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - **DEC Solution Critical Updates** - Added x-api-key deprecation warnings (March 31, 2026), corrected schema documentation (XPIADetected/JailbreakDetected fields), added CloudAppEvents integration guidance
 - **Control 1.8 Correction** - Clarified UPIA/XPIA detections are in Defender CloudAppEvents, not Purview CopilotInteraction audit schema
 - **Control 1.22 Scope Limitation** - Added warning that Information Barriers are NOT supported for Channel Agent in Teams
-- **API Deprecation Timeline** - New FAQ section documenting March 2026 (App Insights x-api-key, O365 Connectors), April 2026 (Reporting Webservice), December 2026 (Exchange Basic Auth) deprecations
+- **API Deprecation Timeline** - New FAQ section documenting March 2026 (App Insights x-api-key, O365 Connectors), April 2026 (Reporting Webservice), Exchange Basic Auth SMTP (March–April 2026) deprecations
 - **ISO/IEC 42001 Reference** - Added alternative AI management system standard reference to NIST AI RMF crosswalk
 - **FSI-AgentGov-Solutions** - DEC v1.1.0 with deprecation warnings, MCM deprecation context note
 
@@ -550,7 +578,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.31
-- **Last Updated:** January 2026
+- **Framework Version:** 1.2.32
+- **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

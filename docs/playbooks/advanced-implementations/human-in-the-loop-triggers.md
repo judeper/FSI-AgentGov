@@ -23,6 +23,9 @@ This specification aligns with the **Agentic Oversight Framework** published by 
 
 **Reference:** [Sardine Agentic Oversight Framework Whitepaper](https://go.sardine.ai/hubfs/Whitepapers/The%20Agentic%20Oversight%20Framework.pdf)
 
+!!! note "FSI-AgentGov Interpretation Layer"
+    The mapping above reflects FSI-AgentGov's interpretation of Sardine's Agentic Oversight Framework applied to Microsoft 365 Copilot Studio agents. The original Sardine whitepaper addresses general agentic AI governance principles; the specific control mappings (AAM, HITL triggers, etc.) are FSI-AgentGov framework extensions designed for Microsoft Power Platform implementations.
+
 ---
 
 ## AI Agent Autonomy Levels (FINRA 2026 Report)
