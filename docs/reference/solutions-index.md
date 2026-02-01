@@ -20,6 +20,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
+| [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 
 ---
 
@@ -96,6 +97,29 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 
 ---
 
+### FINRA Supervision Workflow
+
+Automates the supervision workflow for AI agent outputs to support FINRA Rule 3110 compliance. Routes flagged content from Communication Compliance to designated supervisory principals with configurable SLAs and escalation.
+
+**Components:**
+- Dataverse tables for supervision queue and audit trail
+- Power Automate flows for ingestion, assignment, and escalation
+- Communication Compliance API integration
+- Power BI supervision dashboard
+- Evidence export with SHA-256 integrity hashing
+
+**Regulatory Alignment:**
+- FINRA Rule 3110 (Supervision)
+- FINRA Rule 3120 (Testing)
+- FINRA Notice 24-09 (Gen AI)
+- SEC 17a-3/4 (Recordkeeping)
+
+**Related Control:** [2.12 - Supervision and Oversight](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
+
+**Repository Link:** [finra-supervision-workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -116,7 +140,8 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Message Center Monitor | v2.1.1 | January 2026 |
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
 | Deny Event Correlation Report | v1.1.0 | January 2026 |
+| FINRA Supervision Workflow | v1.0.0 | February 2026 |
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.35 - February 2026*

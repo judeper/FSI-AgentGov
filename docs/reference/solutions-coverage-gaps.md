@@ -9,9 +9,9 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 | Metric | Value |
 |--------|-------|
 | Total Controls | 62 |
-| Controls with Deployable Solutions | 8 |
-| Controls Without Solutions | 54 |
-| Overall Solution Coverage | 12.9% |
+| Controls with Deployable Solutions | 9 |
+| Controls Without Solutions | 53 |
+| Overall Solution Coverage | 14.5% |
 
 !!! info "Important Context"
     Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
@@ -20,7 +20,7 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 ## Current Solution Coverage
 
-### Covered Controls (8 of 62)
+### Covered Controls (9 of 62)
 
 | Control ID | Control Name | Solution |
 |------------|--------------|----------|
@@ -30,6 +30,7 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 | 2.2 | Environment Groups | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
 | 2.3 | Change Management | [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Governance Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) |
 | 2.10 | Patch Management | [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) |
+| 2.12 | Supervision and Oversight | [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) |
 | 2.15 | Environment Routing | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
 | 3.4 | Incident Reporting | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
 
@@ -38,10 +39,10 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
 | **Pillar 1 - Security** | 24 | 2 | 22 | 8.3% |
-| **Pillar 2 - Management** | 21 | 5 | 16 | 23.8% |
+| **Pillar 2 - Management** | 21 | 6 | 15 | 28.6% |
 | **Pillar 3 - Reporting** | 10 | 1 | 9 | 10.0% |
 | **Pillar 4 - SharePoint** | 7 | 0 | 7 | 0.0% |
-| **Total** | 62 | 8 | 54 | 12.9% |
+| **Total** | 62 | 9 | 53 | 14.5% |
 
 ---
 
@@ -111,7 +112,7 @@ These controls are inherently process-based and cannot be fully automated. They 
 | 2.6 | Model Risk Management | OCC 2011-12 requires human model validation and governance committee oversight |
 | 2.7 | Vendor Risk Management | Third-party assessments require human judgment and negotiation |
 | 2.11 | Bias Testing | Fairness assessment requires domain expertise and ethical judgment |
-| 2.12 | Supervision and Oversight | FINRA 3110 requires designated supervisory principals |
+| 2.12 | Supervision and Oversight | ~~FINRA 3110 requires designated supervisory principals~~ **Now has [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** - Automates routing and tracking while human review remains required |
 | 2.13 | Documentation | Record-keeping is a process discipline |
 | 2.14 | Training Program | Human learning and awareness |
 | 2.19 | AI Disclosure | Customer communication decisions |
@@ -150,7 +151,6 @@ These 32 controls apply to Zone 3 (Enterprise Managed) agents and Tier 1 (Critic
 | 2.8 | Segregation of Duties | Custom Recommended | SOX 404 |
 | 2.9 | Performance Monitoring | Custom Recommended | SLA compliance |
 | 2.11 | Bias Testing | Process Control | ECOA, CFPB |
-| 2.12 | Supervision and Oversight | Process Control | FINRA 3110 |
 | 2.13 | Documentation | Process Control | SEC 17a-3 |
 | 2.16 | RAG Source Integrity | Custom Recommended | Data accuracy |
 | 2.17 | Multi-Agent Orchestration | Custom Recommended | Complexity risk |
@@ -165,21 +165,29 @@ These 32 controls apply to Zone 3 (Enterprise Managed) agents and Tier 1 (Critic
 
 ## Critical Regulatory Gaps
 
-Two controls have significant regulatory implications and no native Microsoft feature fully addresses them.
+One control has significant regulatory implications with no native Microsoft feature fully addressing it.
 
-### FINRA Rule 3110 - Supervision (Control 2.12)
+### FINRA Rule 3110 - Supervision (Control 2.12) - ADDRESSED
+
+!!! success "Solution Available"
+    The [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) solution provides automated routing and tracking for supervisory review while maintaining human oversight as required by regulation.
 
 **Regulation:** FINRA Rule 3110 requires member firms to establish and maintain a system to supervise the activities of each associated person that is reasonably designed to achieve compliance.
 
-**Gap:** No automated supervision workflow exists for AI agent outputs. Supervision is inherently a human responsibility.
+**Solution:** The [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) solution automates:
 
-**Mitigation:**
+- Queue management for flagged AI agent outputs
+- Routing to designated supervisory principals based on zone/tier
+- SLA monitoring with automatic escalation
+- Evidence collection with SHA-256 integrity hashing
+- Integration with Communication Compliance for content detection
 
-1. Implement Communication Compliance policies (Control 1.10) for automated scanning
-2. Establish designated supervisory principals with AI agent oversight responsibilities
-3. Document supervision procedures in your Written Supervisory Procedures (WSP)
-4. Configure audit logging (Control 1.7) to capture agent interactions for review
-5. Use the [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) to surface policy violations
+**Remaining Human Requirements:**
+
+1. Designate supervisory principals with AI agent oversight responsibilities
+2. Document supervision procedures in Written Supervisory Procedures (WSP)
+3. Perform actual content review and approval decisions
+4. Configure zone/tier-specific review percentages and SLAs
 
 **See:** [Control 2.12 Playbooks](../playbooks/control-implementations/2.12/portal-walkthrough.md)
 
@@ -212,7 +220,7 @@ Focus on controls with highest regulatory impact and broadest applicability.
 
 | Priority | Control | Action | Approach | Effort |
 |----------|---------|--------|----------|--------|
-| 1 | 2.12 | Document AI agent supervision in WSP; configure Communication Compliance | Process + Portal | 2 weeks |
+| 1 | 2.12 | ~~Configure supervision workflow~~ **DONE** - Deploy [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) | Solution Available | - |
 | 2 | 2.6 | Establish MRM governance for AI agents; create model inventory | Process + Documentation | 3 weeks |
 | 3 | 1.22 | Configure Information Barriers for research/trading separation | Portal Configuration | 1 week |
 | 4 | 1.11 | Deploy Conditional Access policies for AI app access | Portal + Automation | 2 weeks |
@@ -262,11 +270,11 @@ Priority solutions for FSI-AgentGov-Solutions repository development, addressing
 
 ### P0 - Critical (Q1-Q2 2026)
 
-| Solution | Target Control | Description | Regulatory Driver |
-|----------|---------------|-------------|-------------------|
-| **finra-supervision-workflow** | 2.12 | Automated supervision queue for AI agent outputs with principal review workflows | FINRA Rule 3110 |
-| **conditional-access-automation** | 1.11 | Entra ID Conditional Access policy templates and deployment automation for AI workloads | Zero Trust |
-| **compliance-dashboard** | 3.3 | Aggregated compliance reporting across all 62 controls with zone-based filtering | Audit Readiness |
+| Solution | Target Control | Description | Status |
+|----------|---------------|-------------|--------|
+| ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
+| **conditional-access-automation** | 1.11 | Entra ID Conditional Access policy templates and deployment automation for AI workloads | Planned |
+| **compliance-dashboard** | 3.3 | Aggregated compliance reporting across all 62 controls with zone-based filtering | Planned |
 
 ### P1 - High (Q2-Q3 2026)
 
