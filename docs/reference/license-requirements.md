@@ -16,6 +16,32 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 | **Microsoft Entra ID P2** | 1.11, 1.12, 4.2 | PIM, Access Reviews |
 | **SharePoint Advanced Management** | 4.1, 4.2, 4.3, 4.4, 4.5 | SharePoint governance |
 | **Copilot Studio** | All | Agent development |
+| **Microsoft 365 Copilot Business** | N/A | SMB Copilot access |
+
+---
+
+## Microsoft 365 Copilot Business
+
+!!! info "SMB-Focused Copilot License (GA December 2025)"
+    Microsoft 365 Copilot Business is designed for smaller organizations (up to 300 users) and became generally available December 1, 2025.
+
+| Aspect | Details |
+|--------|---------|
+| **Price** | $21/user/month |
+| **User Limit** | Up to 300 users per tenant |
+| **GA Date** | December 1, 2025 |
+| **Prerequisites** | Microsoft 365 Business Basic, Standard, or Premium |
+
+**Key Differences from Enterprise Copilot:**
+
+| Capability | Copilot Business | Copilot for Enterprise |
+|------------|------------------|----------------------|
+| **User limit** | 300 maximum | Unlimited |
+| **Base license** | M365 Business SKUs | M365 E3/E5 |
+| **Copilot Studio** | Included (limited) | Full Copilot Studio |
+| **Advanced compliance** | Basic | Full Purview integration |
+
+**FSI Applicability:** Smaller broker-dealers, RIAs, or credit unions with under 300 users may find this SKU more cost-effective than enterprise licensing. However, organizations with significant regulatory compliance requirements (FINRA 4511 long-term retention, comprehensive audit) should evaluate whether E5 Compliance features are necessary before selecting the Business SKU.
 
 ---
 
@@ -252,4 +278,4 @@ For FSI organizations with multiple tenants (e.g., separate tenants for differen
 
 ---
 
-*Last Updated: January 2026 | Framework Version: v1.2.32*
+*Last Updated: February 2026 | Framework Version: v1.2.33*

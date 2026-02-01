@@ -568,6 +568,7 @@ nav:
   - Reference:
     - Overview: reference/index.md
     - Solutions Index: reference/solutions-index.md
+    - Solutions Coverage Gaps: reference/solutions-coverage-gaps.md
     - Solutions Architecture Guide: reference/solutions-architecture-guide.md
     - SharePoint Advanced Management Licensing: reference/sharepoint-advanced-management-licensing.md
     - Evidence Standards: reference/evidence-standards.md

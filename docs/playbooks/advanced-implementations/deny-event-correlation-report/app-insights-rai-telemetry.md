@@ -158,7 +158,26 @@ customEvents
 
 ## PowerShell Extraction via REST API
 
+!!! danger "x-api-key Deprecation - March 31, 2026"
+    The Application Insights API key (`x-api-key`) authentication method is deprecated and will stop working on **March 31, 2026**. After this date, the `Export-RaiTelemetry.ps1` script below will fail.
+
+    **Required Migration:**
+
+    - Switch to **Entra ID (Azure AD) authentication** using service principals or managed identities
+    - Use `Connect-AzAccount` and bearer token authentication instead of API keys
+    - See [FSI-AgentGov-Solutions DEC v1.1.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) for updated scripts with Entra ID authentication
+
+    **Timeline:**
+
+    | Date | Impact |
+    |------|--------|
+    | Now | Begin migration planning |
+    | March 31, 2026 | API keys stop working |
+
 ### Export-RaiTelemetry.ps1
+
+!!! warning "Legacy Script"
+    This script uses the deprecated x-api-key authentication. Use for reference only. See the deprecation warning above for migration guidance.
 
 ```powershell
 <#
@@ -167,7 +186,7 @@ customEvents
 .PARAMETER AppInsightsAppId
     Application Insights Application ID
 .PARAMETER ApiKey
-    Application Insights API key (read access)
+    Application Insights API key (read access) - DEPRECATED March 31, 2026
 .PARAMETER StartDate
     Start of time window
 .PARAMETER OutputPath
@@ -185,6 +204,7 @@ param(
     [string]$OutputPath = ".\RaiTelemetry-$(Get-Date -Format 'yyyy-MM-dd').csv"
 )
 
+# WARNING: x-api-key authentication deprecated - migrate to Entra ID before March 31, 2026
 $headers = @{
     "x-api-key" = $ApiKey
 }
@@ -296,4 +316,4 @@ The exported CSV includes:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.33 - February 2026*

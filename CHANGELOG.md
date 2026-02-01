@@ -6,6 +6,149 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.35] — February 1, 2026 (Phase 4 Technical Review Integration)
+
+### Overview
+
+Integration of Phase 4 comprehensive technical review deliverables, enhancing implementation roadmap with effort estimates, adding solution development backlog, and documenting DSPM for AI naming history.
+
+### Added
+
+**Control 1.6 - DSPM for AI Rebranding Note:**
+
+- Added info callout documenting naming history: "AI Hub DSPM" → "DSPM for AI" (November 2024)
+- Provides historical context for customers familiar with prior terminology
+
+**Solutions Coverage Gaps - Enhanced Roadmap:**
+
+| Enhancement | Description |
+|-------------|-------------|
+| **Effort Estimates** | Added effort column (weeks) to all roadmap phases |
+| **Approach Column** | Added implementation approach classification (Portal, Process, Custom Development) |
+| **Phase 4 (Q4 2026)** | New maturity phase with 5 additional controls |
+| **Solution Development Backlog** | Priority-ranked (P0/P1/P2) solution development queue with regulatory drivers |
+
+New solution backlog includes:
+- P0: finra-supervision-workflow, conditional-access-automation, compliance-dashboard
+- P1: segregation-detector, scope-drift-monitor, rag-source-validator
+- P2: coi-testing-automation, hallucination-tracker, dr-testing-framework
+
+**GitHub Issues Created:**
+
+| Issue | Repository | Description |
+|-------|------------|-------------|
+| FINRA 3110 Supervision Solution | FSI-AgentGov-Solutions | Develop automated supervision workflow for Control 2.12 |
+| Conditional Access MFA Solution | FSI-AgentGov-Solutions | Develop CA policy automation for Control 1.11 |
+
+### Verified (No Changes Needed)
+
+Phase 4 review validated 97% framework alignment with existing documentation:
+
+| Item | Status | Version |
+|------|--------|---------|
+| Control 1.5 - DLP for Copilot Prompts | Already documented | v1.2.33 |
+| Control 2.6 - OCC 2011-12 Clarification | Already documented | v1.2.24 |
+| Control 3.8 - Copilot Hub Security Pivot | Already documented | v1.2.33 |
+| DEC - x-api-key Deprecation | Already documented | v1.2.33 |
+| License - M365 Copilot Business | Already documented | v1.2.33 |
+| Solutions Coverage Gaps | Already documented | v1.2.34 |
+
+---
+
+## [1.2.34] — February 1, 2026 (Solutions Coverage Gap Analysis)
+
+### Overview
+
+New reference document analyzing FSI-AgentGov-Solutions coverage against the 62-control framework. Documents coverage metrics, gap classification, high-risk gaps, and implementation prioritization guidance.
+
+### Added
+
+**Solutions Coverage Gap Analysis (`docs/reference/solutions-coverage-gaps.md`):**
+
+| Metric | Value |
+|--------|-------|
+| Total Controls | 62 |
+| Controls with Deployable Solutions | 8 |
+| Coverage Percentage | 12.9% |
+
+Key sections:
+
+- **Coverage by Pillar** - Pillar 1: 8.3%, Pillar 2: 23.8%, Pillar 3: 10.0%, Pillar 4: 0.0%
+- **Gap Classification** - Three categories: Native Microsoft Features, Custom Solution Recommended, Process/Documentation Controls
+- **High-Risk Gaps (Zone 3)** - 32 controls applicable to enterprise-managed agents requiring attention
+- **Critical Regulatory Gaps** - FINRA 3110 supervision and OCC 2011-12 model risk management mitigation guidance
+- **Implementation Roadmap** - Q1-Q3 2026 prioritization for addressing gaps
+
+**Important Clarification:**
+
+Many "gaps" are addressed by native Microsoft 365 and Power Platform features configured through admin portals. The gap analysis focuses specifically on deployable automation from FSI-AgentGov-Solutions. A control without a custom solution is not necessarily unimplemented.
+
+---
+
+## [1.2.33] — February 1, 2026 (Phase 2 Technical Accuracy Remediation)
+
+### Overview
+
+Phase 2 technical accuracy remediation addressing 4 items identified during research report verification. The Phase 2 report verified 45 items as accurate and identified 4 documentation gaps requiring updates.
+
+### Added
+
+**Control 1.5 - DLP for Copilot Prompts (Public Preview):**
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | DLP for Copilot prompts (blocks sensitive data in user prompts) |
+| **Status** | Public Preview (November 2025) |
+| **License** | Included with M365 Copilot/Copilot Chat (no additional cost) |
+| **Distinction** | Separate from DLP for files/email which requires A5/E5 |
+
+- Prevents sensitive data (SSN, account numbers) from being submitted in AI prompts
+- Uses existing SITs from DLP configuration
+- Available to ALL Microsoft 365 Copilot and Copilot Chat users
+
+**Control 3.8 - January 2026 Copilot Hub Enhancements (MC1187780):**
+
+| Enhancement | Description |
+|-------------|-------------|
+| **Security Pivot** | New Security pivot on Copilot overview page in M365 Admin Center |
+| **Readiness Page** | Organizes settings into Deployment Essentials, End-User Experience, Data Security |
+| **Success Metrics** | Chat Active Users, Assisted Hours, Satisfaction Rate |
+
+- Consolidates governance visibility previously spread across multiple admin center locations
+
+**Microsoft 365 Copilot Business License (license-requirements.md):**
+
+| Aspect | Details |
+|--------|---------|
+| **Price** | $21/user/month |
+| **User Limit** | Up to 300 users per tenant |
+| **GA Date** | December 1, 2025 |
+| **Target** | SMB organizations with M365 Business SKUs |
+
+- Added FSI applicability guidance for smaller broker-dealers, RIAs, credit unions
+- Noted E5 Compliance may still be needed for comprehensive audit/retention
+
+**DEC Playbook - x-api-key Deprecation Warning (app-insights-rai-telemetry.md):**
+
+| Aspect | Details |
+|--------|---------|
+| **Deprecation Date** | March 31, 2026 |
+| **Impact** | Export-RaiTelemetry.ps1 will fail after this date |
+| **Migration Path** | Entra ID authentication (service principals/managed identities) |
+| **Reference** | FSI-AgentGov-Solutions DEC v1.1.0 for updated scripts |
+
+- Added danger callout with deprecation timeline
+- Cross-referenced solutions repo for migration guidance
+
+### Verified (No Changes Needed)
+
+**Control 2.6 - OCC 2011-12 Customer Implementation:**
+
+- Already contains explicit info box (lines 49-50) clarifying Microsoft provides infrastructure, not pre-built MRM solutions
+- No update required
+
+---
+
 ## [1.2.32] — February 1, 2026 (Research Report Remediation - Phase 1-6)
 
 ### Overview

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.32** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.35** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -379,10 +379,32 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.32 (February 2026)
+**Version:** 1.2.35 (February 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.32):**
+**Recent Additions (v1.2.35):**
+- **Phase 4 Technical Review Integration** - Integrated comprehensive technical review deliverables with 97% framework alignment validation
+- **Control 1.6 DSPM Rebranding Note** - Added naming history callout: "AI Hub DSPM" → "DSPM for AI" (November 2024)
+- **Enhanced Implementation Roadmap** - Added effort estimates, approach classification, and Phase 4 (Q4 2026) to solutions-coverage-gaps.md
+- **Solution Development Backlog** - New section with P0/P1/P2 prioritized solution development queue including FINRA supervision workflow, CA automation, compliance dashboard
+- **GitHub Issues** - Created issues for FINRA 3110 supervision solution and Conditional Access MFA automation in FSI-AgentGov-Solutions
+
+**Previous Additions (v1.2.34):**
+- **Solutions Coverage Gap Analysis** - New reference document (`docs/reference/solutions-coverage-gaps.md`) analyzing FSI-AgentGov-Solutions coverage against 62-control framework
+- **Coverage Metrics** - 8 controls with deployable solutions (12.9% coverage); Pillar 1: 8.3%, Pillar 2: 23.8%, Pillar 3: 10.0%, Pillar 4: 0.0%
+- **Gap Classification** - Three categories: Native Microsoft Features (portal configuration), Custom Solution Recommended, Process/Documentation Controls
+- **High-Risk Gaps** - 32 Zone 3 controls identified with regulatory impact assessment
+- **Critical Regulatory Gaps** - FINRA 3110 supervision and OCC 2011-12 model risk management mitigation guidance
+- **Implementation Roadmap** - Q1-Q3 2026 prioritization for addressing solution gaps
+
+**Previous Additions (v1.2.33):**
+- **Phase 2 Technical Accuracy Remediation** - Four updates from Phase 2 technical accuracy research report verification
+- **Control 1.5 DLP for Copilot Prompts** - Added new Public Preview capability (November 2025) for blocking sensitive data in M365 Copilot prompts; available to all Copilot users at no additional license cost
+- **Control 3.8 Security Pivot and Readiness Page** - Added January 2026 Copilot Hub enhancements (MC1187780): Security pivot on overview page, Readiness page with three categories, success metrics (Chat Active Users, Assisted Hours, Satisfaction Rate)
+- **Microsoft 365 Copilot Business License** - Added SMB SKU ($21/user/month, up to 300 users, GA December 2025) to license requirements with FSI applicability guidance
+- **DEC Playbook x-api-key Deprecation Warning** - Added critical deprecation callout for March 31, 2026 App Insights API key retirement; migration guidance to Entra ID authentication
+
+**Previous Additions (v1.2.32):**
 - **Research Report Remediation Phase 1-6** - Regulatory citations, technical architecture, licensing, implementation, industry framework, and documentation enhancements from 76 research reports
 - **NIST AI RMF Treasury Position Fix** - Corrected "Treasury recommended" to "stakeholders expressed support for voluntary adoption; Treasury committed to clarifying applicability"
 - **ISO 42001 Positioning Fix** - Changed from "alternative" to "complementary" framework; ISO provides certifiable governance, NIST provides flexible risk assessment
@@ -578,7 +600,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.32
+- **Framework Version:** 1.2.35
 - **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

@@ -27,7 +27,7 @@ PILLARS = {
     1: {
         "name": "Security",
         "folder": "pillar-1-security",
-        "controls": list(range(1, 24)),  # 1.1 to 1.23
+        "controls": list(range(1, 25)),  # 1.1 to 1.24
         "description": "Protect data, manage access, and maintain audit trails for AI agents."
     },
     2: {
@@ -156,7 +156,7 @@ def compile_pillar(pillar_num: int) -> str:
 
     # Footer
     lines.append("")
-    lines.append("*Generated: January 2026*")
+    lines.append("*Generated: February 2026*")
     lines.append(f"*Source: {DOCS_DIR / pillar['folder']}/*")
     lines.append("")
 
