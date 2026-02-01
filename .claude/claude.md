@@ -23,6 +23,8 @@
 | `message-center-monitor/` | v2.1.1 | M365 Message Center polling and Teams notifications |
 | `pipeline-governance-cleanup/` | v1.0.8 | Personal pipeline discovery and cleanup automation |
 | `deny-event-correlation-report/` | v1.1.0 | Unified deny event reporting across Purview/DLP/App Insights |
+| `finra-supervision-workflow/` | v1.0.0 | FINRA 3110 supervision queue for AI agent outputs |
+| `conditional-access-automation/` | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads |
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
@@ -386,8 +388,10 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - **Phase 4 Technical Review Integration** - Integrated comprehensive technical review deliverables with 97% framework alignment validation
 - **Control 1.6 DSPM Rebranding Note** - Added naming history callout: "AI Hub DSPM" → "DSPM for AI" (November 2024)
 - **Enhanced Implementation Roadmap** - Added effort estimates, approach classification, and Phase 4 (Q4 2026) to solutions-coverage-gaps.md
-- **Solution Development Backlog** - New section with P0/P1/P2 prioritized solution development queue including FINRA supervision workflow, CA automation, compliance dashboard
-- **GitHub Issues** - Created issues for FINRA 3110 supervision solution and Conditional Access MFA automation in FSI-AgentGov-Solutions
+- **Solution Development Backlog** - New section with P0/P1/P2 prioritized solution development queue
+- **FINRA Supervision Workflow v1.0.0** - New FSI-AgentGov-Solutions component: Dataverse schema, security roles, Power Automate flows, Python scripts, Power BI dashboard for FINRA 3110 compliance (Control 2.12)
+- **Conditional Access Automation v1.0.0** - New FSI-AgentGov-Solutions component: 8 CA policy templates, PowerShell deployment scripts, zone-based requirements, drift detection for AI workloads (Controls 1.11, 1.23, 1.18)
+- **Coverage Improvements** - Solutions coverage increased from 12.9% to 16.1% (8 → 10 controls); Pillar 1: 8.3% → 12.5%, Pillar 2: 23.8% → 28.6%
 
 **Previous Additions (v1.2.34):**
 - **Solutions Coverage Gap Analysis** - New reference document (`docs/reference/solutions-coverage-gaps.md`) analyzing FSI-AgentGov-Solutions coverage against 62-control framework

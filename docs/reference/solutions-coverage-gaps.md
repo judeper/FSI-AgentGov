@@ -9,9 +9,9 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 | Metric | Value |
 |--------|-------|
 | Total Controls | 62 |
-| Controls with Deployable Solutions | 9 |
-| Controls Without Solutions | 53 |
-| Overall Solution Coverage | 14.5% |
+| Controls with Deployable Solutions | 10 |
+| Controls Without Solutions | 52 |
+| Overall Solution Coverage | 16.1% |
 
 !!! info "Important Context"
     Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
@@ -20,12 +20,13 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 ## Current Solution Coverage
 
-### Covered Controls (9 of 62)
+### Covered Controls (10 of 62)
 
 | Control ID | Control Name | Solution |
 |------------|--------------|----------|
 | 1.5 | DLP and Sensitivity Labels | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
 | 1.7 | Comprehensive Audit Logging | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
+| 1.11 | Conditional Access and MFA | [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) |
 | 2.1 | Managed Environments | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
 | 2.2 | Environment Groups | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
 | 2.3 | Change Management | [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Governance Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) |
@@ -38,11 +39,11 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
-| **Pillar 1 - Security** | 24 | 2 | 22 | 8.3% |
+| **Pillar 1 - Security** | 24 | 3 | 21 | 12.5% |
 | **Pillar 2 - Management** | 21 | 6 | 15 | 28.6% |
 | **Pillar 3 - Reporting** | 10 | 1 | 9 | 10.0% |
 | **Pillar 4 - SharePoint** | 7 | 0 | 7 | 0.0% |
-| **Total** | 62 | 9 | 53 | 14.5% |
+| **Total** | 62 | 10 | 52 | 16.1% |
 
 ---
 
@@ -63,7 +64,7 @@ These controls are fully addressed through Microsoft admin portal configuration.
 | 1.8 | Runtime Protection | Defender for Cloud Apps |
 | 1.9 | Data Retention | Purview retention policies |
 | 1.10 | Communication Compliance | Purview Communication Compliance |
-| 1.11 | Conditional Access | Entra ID Conditional Access policies |
+| ~~1.11~~ | ~~Conditional Access~~ | ~~Entra ID Conditional Access policies~~ **Now has [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
 | 1.12 | Insider Risk Detection | Purview Insider Risk Management |
 | 1.13 | Sensitive Information Types | Purview SIT configuration |
 | 1.15 | Encryption | Microsoft-managed encryption (default) |
@@ -135,7 +136,7 @@ These 32 controls apply to Zone 3 (Enterprise Managed) agents and Tier 1 (Critic
 | 1.8 | Runtime Protection | Native Feature | - |
 | 1.9 | Data Retention | Native Feature | SEC 17a-4, FINRA 4511 |
 | 1.10 | Communication Compliance | Native Feature | FINRA 3110 |
-| 1.11 | Conditional Access | Native Feature | - |
+| ~~1.11~~ | ~~Conditional Access~~ | ~~Native Feature~~ | **Now has [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
 | 1.12 | Insider Risk Detection | Native Feature | - |
 | 1.14 | Data Minimization | Custom Recommended | Data exposure risk |
 | 1.19 | eDiscovery | Native Feature | SEC 17a-4, FINRA 4511 |
@@ -223,7 +224,7 @@ Focus on controls with highest regulatory impact and broadest applicability.
 | 1 | 2.12 | ~~Configure supervision workflow~~ **DONE** - Deploy [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) | Solution Available | - |
 | 2 | 2.6 | Establish MRM governance for AI agents; create model inventory | Process + Documentation | 3 weeks |
 | 3 | 1.22 | Configure Information Barriers for research/trading separation | Portal Configuration | 1 week |
-| 4 | 1.11 | Deploy Conditional Access policies for AI app access | Portal + Automation | 2 weeks |
+| 4 | 1.11 | ~~Deploy Conditional Access policies for AI app access~~ **DONE** - Deploy [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) | Solution Available | - |
 | 5 | 3.3 | Build compliance reporting dashboard using existing audit data | Custom Development | 4 weeks |
 
 ### Phase 2: Q2 2026 (Hardening)
@@ -273,7 +274,7 @@ Priority solutions for FSI-AgentGov-Solutions repository development, addressing
 | Solution | Target Control | Description | Status |
 |----------|---------------|-------------|--------|
 | ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
-| **conditional-access-automation** | 1.11 | Entra ID Conditional Access policy templates and deployment automation for AI workloads | Planned |
+| ~~**conditional-access-automation**~~ | 1.11 | ~~Entra ID Conditional Access policy templates and deployment automation for AI workloads~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
 | **compliance-dashboard** | 3.3 | Aggregated compliance reporting across all 62 controls with zone-based filtering | Planned |
 
 ### P1 - High (Q2-Q3 2026)

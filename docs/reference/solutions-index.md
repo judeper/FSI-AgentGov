@@ -21,6 +21,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
+| [Conditional Access Automation](#conditional-access-automation) | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads | 1.11, 1.23, 1.18 |
 
 ---
 
@@ -120,6 +121,31 @@ Automates the supervision workflow for AI agent outputs to support FINRA Rule 31
 
 ---
 
+### Conditional Access Automation
+
+Automates Conditional Access policy deployment and compliance monitoring for AI workloads, implementing Zero Trust access controls across governance zones.
+
+**Components:**
+- 8 CA policy templates for Copilot Studio, Agent Builder, M365 Copilot
+- PowerShell scripts for deployment, compliance testing, drift detection
+- Zone-based policy requirements (risk-based → always MFA → compliant device)
+- Break-glass account exclusion enforcement
+- ELM integration for new environment provisioning
+
+**Security Alignment:**
+- NIST 800-53 AC-2, IA-2
+- Zero Trust architecture
+- SOX 404 IT general controls
+- GLBA 501(b) safeguards
+
+**Related Controls:**
+- [1.11 - Conditional Access and MFA](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
+- [1.23 - Step-Up Authentication](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md)
+
+**Repository Link:** [conditional-access-automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -141,6 +167,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
 | Deny Event Correlation Report | v1.1.0 | January 2026 |
 | FINRA Supervision Workflow | v1.0.0 | February 2026 |
+| Conditional Access Automation | v1.0.0 | February 2026 |
 
 ---
 
