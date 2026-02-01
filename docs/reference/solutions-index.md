@@ -16,7 +16,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 
 | Solution | Version | Description | Related Controls |
 |----------|---------|-------------|------------------|
-| [Environment Lifecycle Management](#environment-lifecycle-management) | v1.1.1 | Automated Power Platform environment provisioning with zone-based governance classification | 2.1, 2.2, 2.15 |
+| [Environment Lifecycle Management](#environment-lifecycle-management) | v1.1.2 | Automated Power Platform environment provisioning with zone-based governance classification | 2.1, 2.2, 2.15 |
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |

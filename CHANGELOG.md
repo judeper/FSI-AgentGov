@@ -269,6 +269,7 @@ The following items from Phase 1 were already correctly remediated in previous v
 | `docs/controls/pillar-1-security/1.24-defender-ai-security-posture-management.md` | Added recent enhancements table (GCP Vertex AI GA, January 2026 updates) |
 | `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` | Added custom Power BI analytics infrastructure section |
 | `docs/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md` | Added SharePoint Admin Agent vs. Content Governance Agent distinction |
+| `docs/reference/solutions-index.md` | Fixed ELM version discrepancy (v1.1.1 → v1.1.2) in Available Solutions table |
 
 ---
 
