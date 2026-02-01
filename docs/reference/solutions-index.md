@@ -22,6 +22,13 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads | 1.11, 1.23, 1.18 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0-beta | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
+| [Scope Drift Monitor](#scope-drift-monitor) | v1.0.0 | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
+| [RAG Source Validator](#rag-source-validator) | v1.0.0 | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
+| [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
+| [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
+| [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 
 ---
 
@@ -146,6 +153,161 @@ Automates Conditional Access policy deployment and compliance monitoring for AI 
 
 ---
 
+### Compliance Dashboard
+
+!!! info "Beta Release"
+    Documentation and Dataverse schemas are complete. Power BI template requires manual creation following the provided specifications.
+
+Provides unified compliance visibility across all 62 framework controls with zone-based filtering and trend analysis for regulatory reporting.
+
+**Components:**
+- Dataverse tables for control assessments, scores, exceptions, and evidence
+- Power Automate flows for score calculation and exception monitoring
+- DAX measure library for Power BI
+- Sample data with all 62 controls
+- Python script for demo data loading
+
+**Regulatory Alignment:**
+- SOX 404 (ICFR documentation)
+- FINRA 3120 (supervisory control testing)
+- OCC 2011-12 (model risk reporting)
+
+**Related Control:** [3.3 - Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)
+
+**Repository Link:** [compliance-dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
+
+---
+
+### Segregation of Duties Detector
+
+Identifies and prevents segregation of duties violations where users have incompatible roles in AI agent development and deployment workflows.
+
+**Components:**
+- Dataverse tables for conflict rules, violations, exceptions, and audit log
+- PowerShell scripts for SoD scanning and rule import
+- 10 predefined conflict rules across 3 categories (Maker/Checker, Segregation, Privileged Access)
+- Exception workflow with multi-level approval
+
+**Regulatory Alignment:**
+- SOX 404 (IT General Controls)
+- COSO Framework (Control Activities)
+- OCC Heightened Standards (Risk Management)
+
+**Related Control:** [2.8 - Segregation of Duties](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
+
+**Repository Link:** [segregation-detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)
+
+---
+
+### Scope Drift Monitor
+
+Tracks agent data access and alerts when access extends beyond declared operational scope, supporting data minimization principles.
+
+**Components:**
+- Dataverse tables for agent scope definitions, violations, and expansion requests
+- PowerShell script for baseline generation
+- Scope expansion workflow with data owner and security approval
+- Integration with Unified Audit Log and Defender CloudAppEvents
+
+**Regulatory Alignment:**
+- GDPR Article 5(1)(c) (Data Minimization)
+- GLBA 501(b) (Customer Information Safeguards)
+- CCPA (Purpose Limitation)
+
+**Related Control:** [1.14 - Data Minimization](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md)
+
+**Repository Link:** [scope-drift-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)
+
+---
+
+### RAG Source Validator
+
+Validates the integrity of Retrieval-Augmented Generation (RAG) knowledge sources, detecting unauthorized changes and content drift.
+
+**Components:**
+- Dataverse tables for knowledge source registry, validation results, and change tracking
+- PowerShell script for SHA-256 hash validation
+- Support for SharePoint, Dataverse, and Azure Blob sources
+- Schema drift detection and freshness monitoring
+
+**Regulatory Alignment:**
+- SEC 17a-4 (Record Integrity)
+- FINRA 4511 (Books and Records Accuracy)
+- SOX 404 (Data Integrity Controls)
+
+**Related Control:** [2.16 - RAG Source Integrity](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md)
+
+**Repository Link:** [rag-source-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)
+
+---
+
+### COI Testing Framework
+
+Automated testing framework for detecting conflicts of interest in AI agent recommendations, addressing FINRA suitability requirements.
+
+**Components:**
+- Python test runner with 10 predefined scenarios
+- Test categories: Proprietary bias, Suitability, Fee transparency, Cross-selling
+- Dataverse integration for result storage
+- Integration with FINRA Supervision Workflow
+
+**Regulatory Alignment:**
+- FINRA Rule 2111 (Suitability)
+- FINRA Rule 2010 (Standards of Commercial Honor)
+- FINRA Rule 2210 (Communications)
+- SEC Regulation Best Interest
+
+**Related Control:** [2.18 - Conflict of Interest Testing](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md)
+
+**Repository Link:** [coi-testing](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)
+
+---
+
+### Hallucination Tracker
+
+Collects and analyzes feedback on AI agent hallucinations to identify patterns and enable targeted improvements.
+
+**Components:**
+- Multi-source feedback collection (user reactions, supervisor rejections, automated checks)
+- Python script for pattern detection and clustering
+- 5 hallucination categories with severity scoring
+- Agent accuracy scoring and rating system
+- Integration with FINRA Supervision Workflow
+
+**Regulatory Alignment:**
+- FINRA 2210 (Communications Accuracy)
+- SEC Marketing Rule (Substantiation)
+- CFPB Chatbot Guidance (Accuracy)
+
+**Related Control:** [3.10 - Hallucination Feedback](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md)
+
+**Repository Link:** [hallucination-tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
+
+---
+
+### DR Testing Framework
+
+Validates AI agent disaster recovery procedures against defined RTO/RPO targets, supporting operational resilience requirements.
+
+**Components:**
+- 4 test scenarios: Agent Restore, Environment Failover, Data Recovery, Full DR
+- PowerShell script with RTO/RPO measurement
+- Validation checks for agent, connector, data, and security
+- Gap identification and tracking
+- Evidence export for compliance
+
+**Regulatory Alignment:**
+- OCC Heightened Standards (Operational Resilience)
+- FFIEC BCP (Business Continuity Planning)
+- SEC Rule 17a-4 (Record Recovery)
+- FINRA Rule 4370 (Business Continuity Plans)
+
+**Related Control:** [2.4 - Business Continuity](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md)
+
+**Repository Link:** [dr-testing-framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -168,7 +330,14 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Deny Event Correlation Report | v1.1.0 | January 2026 |
 | FINRA Supervision Workflow | v1.0.0 | February 2026 |
 | Conditional Access Automation | v1.0.0 | February 2026 |
+| Compliance Dashboard | v1.0.0-beta | February 2026 |
+| Segregation of Duties Detector | v1.0.0 | February 2026 |
+| Scope Drift Monitor | v1.0.0 | February 2026 |
+| RAG Source Validator | v1.0.0 | February 2026 |
+| COI Testing Framework | v1.0.0 | February 2026 |
+| Hallucination Tracker | v1.0.0 | February 2026 |
+| DR Testing Framework | v1.0.0 | February 2026 |
 
 ---
 
-*FSI Agent Governance Framework v1.2.35 - February 2026*
+*FSI Agent Governance Framework v1.2.36 - February 2026*
