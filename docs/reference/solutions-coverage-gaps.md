@@ -345,4 +345,4 @@ Some controls are covered by multiple solutions, providing redundancy.
 
 ---
 
-*FSI Agent Governance Framework v1.2.35 - February 2026*
+*FSI Agent Governance Framework v1.2.36 - February 2026*

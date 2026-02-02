@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.35** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.36** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -25,6 +25,13 @@
 | `deny-event-correlation-report/` | v1.1.0 | Unified deny event reporting across Purview/DLP/App Insights |
 | `finra-supervision-workflow/` | v1.0.0 | FINRA 3110 supervision queue for AI agent outputs |
 | `conditional-access-automation/` | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads |
+| `compliance-dashboard/` | v1.0.0-beta | Aggregated compliance reporting across 62 controls |
+| `segregation-detector/` | v1.0.0 | Role conflict detection for Maker/Checker enforcement |
+| `scope-drift-monitor/` | v1.0.0 | Detect agent data access beyond declared scope |
+| `rag-source-validator/` | v1.0.0 | Integrity validation for RAG knowledge sources |
+| `coi-testing/` | v1.0.0 | Conflict of interest testing for agent recommendations |
+| `hallucination-tracker/` | v1.0.0 | Feedback aggregation for hallucination pattern analysis |
+| `dr-testing-framework/` | v1.0.0 | Automated disaster recovery testing for AI agents |
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
@@ -381,10 +388,23 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.35 (February 2026)
+**Version:** 1.2.36 (February 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.35):**
+**Recent Additions (v1.2.36):**
+- **7 New FSI-AgentGov-Solutions Released** - Complete solution development backlog delivered ahead of schedule
+- **Compliance Dashboard v1.0.0-beta** - Aggregated compliance reporting across 62 controls with zone-based filtering, Dataverse schema, Power Automate flows, DAX measures (Control 3.3)
+- **Segregation of Duties Detector v1.0.0** - Role conflict detection with 10 predefined rules across Maker/Checker, Segregation, Privileged Access categories (Control 2.8)
+- **Scope Drift Monitor v1.0.0** - Automated detection of agent data access beyond declared scope with expansion workflow (Control 1.14)
+- **RAG Source Validator v1.0.0** - SHA-256 hash validation for knowledge sources, schema drift detection, freshness monitoring (Control 2.16)
+- **COI Testing Framework v1.0.0** - 10 predefined conflict of interest test scenarios across 4 categories with Python runner (Control 2.18)
+- **Hallucination Tracker v1.0.0** - Multi-source feedback collection, pattern detection, agent accuracy scoring (Control 3.10)
+- **DR Testing Framework v1.0.0** - 4 DR test scenarios with RTO/RPO measurement and gap tracking (Control 2.4)
+- **Coverage Improvements** - Solutions coverage increased from 16.1% to 27.4% (10 → 17 controls); Pillar 1: 12.5% → 16.7%, Pillar 2: 28.6% → 47.6%, Pillar 3: 10.0% → 30.0%
+- **Solutions Index Updated** - 13 solutions now cataloged with full documentation
+- **Coverage Gaps Updated** - All P0/P1/P2 backlog items marked as RELEASED
+
+**Previous Additions (v1.2.35):**
 - **Phase 4 Technical Review Integration** - Integrated comprehensive technical review deliverables with 97% framework alignment validation
 - **Control 1.6 DSPM Rebranding Note** - Added naming history callout: "AI Hub DSPM" → "DSPM for AI" (November 2024)
 - **Enhanced Implementation Roadmap** - Added effort estimates, approach classification, and Phase 4 (Q4 2026) to solutions-coverage-gaps.md
@@ -604,7 +624,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.35
+- **Framework Version:** 1.2.36
 - **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

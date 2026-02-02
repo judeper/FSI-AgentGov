@@ -6,6 +6,65 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.36] — February 1, 2026 (Solutions Expansion - 7 New Solutions)
+
+### Overview
+
+Major expansion of FSI-AgentGov-Solutions repository with 7 new deployable solutions, completing the entire P0/P1/P2 backlog ahead of schedule. Framework solution coverage increased from 16.1% to 27.4%.
+
+### Added
+
+**New Solutions Released:**
+
+| Solution | Version | Target Control | Description |
+|----------|---------|----------------|-------------|
+| **Compliance Dashboard** | v1.0.0-beta | 3.3 | Aggregated compliance reporting across all 62 controls with zone-based filtering |
+| **Segregation of Duties Detector** | v1.0.0 | 2.8 | Role conflict detection for Maker/Checker enforcement in agent pipelines |
+| **Scope Drift Monitor** | v1.0.0 | 1.14 | Automated detection of agent data access beyond declared operational scope |
+| **RAG Source Validator** | v1.0.0 | 2.16 | Integrity validation for RAG knowledge sources with SHA-256 hash validation |
+| **COI Testing Framework** | v1.0.0 | 2.18 | Automated conflict of interest testing for agent recommendations |
+| **Hallucination Tracker** | v1.0.0 | 3.10 | Feedback aggregation pipeline for hallucination pattern analysis |
+| **DR Testing Framework** | v1.0.0 | 2.4 | Automated disaster recovery testing with RTO/RPO measurement |
+
+**Solution Components:**
+
+Each solution includes:
+- Dataverse schema definitions (tables, columns, relationships)
+- Security roles with least-privilege access
+- PowerShell or Python automation scripts
+- Complete documentation (prerequisites, schema, troubleshooting)
+- Integration guidance for existing solutions
+
+**Coverage Improvements:**
+
+| Metric | Previous | Current | Change |
+|--------|----------|---------|--------|
+| Controls with Solutions | 10 | 17 | +7 |
+| Overall Coverage | 16.1% | 27.4% | +11.3% |
+| Pillar 1 Coverage | 12.5% | 16.7% | +4.2% |
+| Pillar 2 Coverage | 28.6% | 47.6% | +19.0% |
+| Pillar 3 Coverage | 10.0% | 30.0% | +20.0% |
+
+**Documentation Updates:**
+
+- **Solutions Index** - Updated with all 13 solutions, detailed descriptions, and version history
+- **Solutions Coverage Gaps** - Marked all P0/P1/P2 backlog items as RELEASED, updated roadmap phases
+- **CLAUDE.md** - Updated companion repository table with all 13 solutions
+
+**GitHub Issues Closed:**
+
+| Issue | Solution |
+|-------|----------|
+| #3 | Compliance Dashboard |
+| #4 | Segregation of Duties Detector |
+| #5 | Scope Drift Monitor |
+| #6 | RAG Source Validator |
+| #7 | COI Testing Framework |
+| #8 | Hallucination Tracker |
+| #9 | DR Testing Framework |
+
+---
+
 ## [1.2.35] — February 1, 2026 (Phase 4 Technical Review Integration)
 
 ### Overview
