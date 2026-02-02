@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.36** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.37** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -388,10 +388,20 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.36 (February 2026)
+**Version:** 1.2.37 (February 2026)
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
 
-**Recent Additions (v1.2.36):**
+**Recent Additions (v1.2.37):**
+- **Control 1.8 Defender Threat Detection Playbook** - Comprehensive documentation for both native Microsoft Defender integration (Defender for Cloud Apps) and Additional Threat Detection (third-party webhooks)
+- **Native Defender Integration** - AI agent inventory, activity logging, real-time protection through Defender for Cloud Apps; two-portal configuration (Defender + PPAC)
+- **Additional Threat Detection** - Third-party webhook integration with Entra app registration and FIC configuration
+- **Portal Walkthrough Enhancement** - Step 5 (native Defender) and Step 6 (third-party webhook) with detailed configuration steps
+- **PowerShell Automation Scripts** - Create-CopilotWebhookApp.ps1, Verify-CopilotWebhookApp.ps1, Configure-ThreatDetection.ps1 for automated deployment
+- **Verification Testing** - 10 new test cases for Defender integration validation including agent inventory, XDR alerting, advanced hunting
+- **Troubleshooting** - 15 new issue resolutions for native Defender and Additional Threat Detection problems
+- **FSI Zone Guidance** - Native Defender required for Zone 2/3; error behavior "Block the query" for regulated environments
+
+**Previous Additions (v1.2.36):**
 - **7 New FSI-AgentGov-Solutions Released** - Complete solution development backlog delivered ahead of schedule
 - **Compliance Dashboard v1.0.0-beta** - Aggregated compliance reporting across 62 controls with zone-based filtering, Dataverse schema, Power Automate flows, DAX measures (Control 3.3)
 - **Segregation of Duties Detector v1.0.0** - Role conflict detection with 10 predefined rules across Maker/Checker, Segregation, Privileged Access categories (Control 2.8)
@@ -624,7 +634,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.36
+- **Framework Version:** 1.2.37
 - **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
