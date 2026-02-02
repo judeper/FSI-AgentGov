@@ -412,6 +412,14 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 **Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (209 URLs)
 
 **Recent Additions (v1.2.37):**
+- **Control 1.8 Defender Threat Detection Playbook** - Comprehensive documentation for both native Microsoft Defender integration (Defender for Cloud Apps) and Additional Threat Detection (third-party webhooks)
+- **Native Defender Integration** - AI agent inventory, activity logging, real-time protection through Defender for Cloud Apps; two-portal configuration (Defender + PPAC)
+- **Additional Threat Detection** - Third-party webhook integration with Entra app registration and FIC configuration
+- **Portal Walkthrough Enhancement** - Step 5 (native Defender) and Step 6 (third-party webhook) with detailed configuration steps
+- **PowerShell Automation Scripts** - Create-CopilotWebhookApp.ps1, Verify-CopilotWebhookApp.ps1, Configure-ThreatDetection.ps1 for automated deployment
+- **Verification Testing** - 10 new test cases for Defender integration validation including agent inventory, XDR alerting, advanced hunting
+- **Troubleshooting** - 15 new issue resolutions for native Defender and Additional Threat Detection problems
+- **FSI Zone Guidance** - Native Defender required for Zone 2/3; error behavior "Block the query" for regulated environments
 - **Learn Monitor AI Enhancement** - AI-assisted drafts workflow for documentation updates based on Microsoft Learn changes
 - **`/review-learn-changes` Skill** - Claude Code skill that analyzes Learn Monitor change reports, categorizes changes, and drafts documentation updates
 - **Enhanced GitHub Actions Workflow** - Learn monitor now adds `needs-review` label, includes change summary table, and provides AI-assist instructions in PR body

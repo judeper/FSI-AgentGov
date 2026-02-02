@@ -6,13 +6,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [1.2.37] — February 2, 2026 (Learn Monitor AI Enhancement)
+## [1.2.37] — February 2, 2026 (Defender Threat Detection + Learn Monitor AI)
 
 ### Overview
 
-Added AI-assisted workflow for responding to Microsoft Learn documentation changes. When the Learn Monitor detects changes, the new `/review-learn-changes` skill analyzes the change report and drafts documentation updates for human review.
+Two major enhancements: (1) Comprehensive Control 1.8 documentation for **native Microsoft Defender integration** and **Additional Threat Detection**, and (2) AI-assisted workflow for responding to Microsoft Learn documentation changes via the new `/review-learn-changes` skill.
 
 ### Added
+
+**Control 1.8 - Runtime Protection and External Threat Detection:**
+
+- **Native Microsoft Defender Integration Section** - New documentation for Defender for Cloud Apps integration providing AI agent inventory, activity logging, and real-time protection
+- **Additional Threat Detection Section** - Documentation for third-party webhook integration (custom security providers)
+- **Two-Portal Configuration Guide** - Step-by-step for enabling Defender in both Microsoft Defender Portal and Power Platform Admin Center
+- **AI Agents Inventory** - Documentation for agent discovery and security posture visibility in Defender
+- **Defender XDR Integration** - Advanced hunting queries and alert generation for blocked actions
+- **Error Behavior Guidance** - FSI-specific recommendations for "Block the query" vs "Allow the agent to respond" by governance zone
+- **Generative Agent Scope Clarification** - Added note that both features apply to generative orchestration agents only
+- **Regulatory Alignment Table** - Mapping to FINRA 3110, SEC Regulation SCI, NYDFS Cyber, GLBA 501(b)
+
+**Portal Walkthrough Enhancements:**
+
+- **Step 5: Native Microsoft Defender Integration** - Complete two-portal configuration with verification checklist
+- **Step 6: Additional Threat Detection** - Third-party webhook configuration with Entra app registration
+- **Entra App Registration (Option A/B)** - Both PowerShell automated and manual portal configuration paths
+- **Federated Identity Credential Configuration** - Detailed FIC setup with subject identifier encoding
+- **Defender Portal Configuration** - M365 App Connector prerequisites and Copilot Studio AI Agents enablement
+- **Bulk Deployment via Environment Groups** - Guidance for multi-environment deployment
+- **Defender XDR Advanced Hunting Query** - Sample KQL for querying agent activities
+
+**PowerShell Automation:**
+
+- **Create-CopilotWebhookApp.ps1** - Complete script for automated app registration with FIC
+- **Verify-CopilotWebhookApp.ps1** - Validation script for existing configurations
+- **Configure-ThreatDetection.ps1** - API-based configuration for bulk deployment scenarios
+
+**Verification Testing:**
+
+- **10 New Test Cases** - Native Defender configuration, AI agent inventory, Defender XDR alerting, advanced hunting, Purview activity logging, plus Additional Threat Detection tests
+- **13 New Evidence Artifacts** - Screenshots and exports for both native Defender and Additional Threat Detection audit documentation
+- **Zone-Specific Testing Updates** - Native Defender requirements by zone (optional Zone 1, required Zone 2/3)
+
+**Troubleshooting:**
+
+- **15 New Issue Resolutions** - Native Defender issues (toggle not available, inventory not populating, M365 connector, XDR alerts, licensing, performance) plus Additional Threat Detection issues
+- **Enhanced Escalation Path** - Separate escalation matrices for native Defender and Additional Threat Detection issues
 
 **Learn Monitor AI Enhancement:**
 
@@ -40,6 +78,11 @@ Added AI-assisted workflow for responding to Microsoft Learn documentation chang
 
 ### Changed
 
+- Updated Control 1.8 UI verification date to February 2026
+- Updated all playbook dates to February 2026
+- Added Microsoft Learn link for Defender for Cloud Apps - Copilot Studio AI Agents
+- Added Defender XDR Admin to Roles & Responsibilities
+- Updated verification criteria to include native Defender checks
 - Learn Monitor guide updated with AI-assisted review workflow (Option 1: Recommended)
 - Learn Monitor workflow now extracts change statistics from reports
 - Added `needs-review` label to workflow labels
