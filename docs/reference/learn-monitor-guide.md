@@ -234,6 +234,34 @@ ls -la reports/learn-changes/
 
 When the monitor detects changes and creates a PR:
 
+### Option 1: AI-Assisted Review (Recommended)
+
+Use the `/review-learn-changes` Claude Code skill for automated analysis:
+
+```bash
+# 1. Checkout the PR branch
+gh pr checkout {PR_NUMBER}
+
+# 2. Run the review skill in Claude Code
+/review-learn-changes
+
+# 3. Claude will:
+#    - Read and categorize all changes
+#    - Propose specific documentation edits
+#    - Apply edits with your confirmation
+#    - Run validation (mkdocs build --strict)
+
+# 4. Commit and push the documentation updates
+git add .
+git commit -m "docs: Apply Learn Monitor updates"
+git push
+
+# 5. Merge the PR
+gh pr merge {PR_NUMBER} --squash
+```
+
+### Option 2: Manual Review
+
 1. **Review the change report** in `reports/learn-changes/`
 2. **Assess the classification** (CRITICAL, HIGH, MEDIUM, NOISE)
 3. **Update affected documentation:**
@@ -242,6 +270,15 @@ When the monitor detects changes and creates a PR:
    - MEDIUM: Review and update if needed
    - NOISE: No action required
 4. **Merge the PR** to update the baseline state
+
+### PR Labels
+
+| Label | Meaning |
+|-------|---------|
+| `learn-watch` | All Learn Monitor PRs |
+| `needs-review` | Changes detected that may require documentation updates |
+| `documentation` | Documentation-related PR |
+| `automated` | Created by automation |
 
 ---
 
@@ -326,8 +363,10 @@ rm reports/learn-changes/learn-changes-*.md
 ## Related Documentation
 
 - [Microsoft Learn URLs](microsoft-learn-urls.md) - The watchlist of monitored URLs
+- [Learn Monitor AI Enhancement](learn-monitor-ai-enhancement.md) - AI-assisted review design
 - `.claude/CLAUDE.md` - Repository instructions including monitor usage (in project root)
+- `.claude/skills/review-learn-changes.md` - Claude Code skill for reviewing changes
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*

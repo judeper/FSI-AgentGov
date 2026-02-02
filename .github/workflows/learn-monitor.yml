@@ -40,8 +40,35 @@ jobs:
           else
             echo "is_baseline=false" >> $GITHUB_OUTPUT
           fi
+
+          # Run the monitor and capture exit code
           python scripts/learn_monitor.py
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          # If changes were detected, extract summary stats from the report
+          if [ "$EXIT_CODE" -eq 1 ]; then
+            REPORT_FILE=$(ls -t reports/learn-changes/learn-changes-*.md 2>/dev/null | head -1)
+            if [ -n "$REPORT_FILE" ]; then
+              # Extract counts from the report
+              MEANINGFUL=$(grep -oP 'Meaningful Changes:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              MINOR=$(grep -oP 'Minor Changes:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              REDIRECTS=$(grep -oP 'Redirects:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              ERRORS=$(grep -oP 'Errors:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+
+              echo "meaningful_changes=$MEANINGFUL" >> $GITHUB_OUTPUT
+              echo "minor_changes=$MINOR" >> $GITHUB_OUTPUT
+              echo "redirects=$REDIRECTS" >> $GITHUB_OUTPUT
+              echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+              echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+
+              # Extract HIGH priority change titles (first 10)
+              HIGH_CHANGES=$(grep -A1 "^### [0-9]" "$REPORT_FILE" 2>/dev/null | grep -v "^--$" | head -20 || echo "")
+              echo "high_changes<<EOF" >> $GITHUB_OUTPUT
+              echo "$HIGH_CHANGES" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
 
       - name: Check if today is Sunday
         id: check_day
@@ -63,6 +90,7 @@ jobs:
           fi
 
       - name: Create Pull Request
+        id: create_pr
         if: steps.should_create_pr.outputs.create_pr == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
@@ -88,6 +116,15 @@ jobs:
             - **Run Number:** ${{ github.run_number }}
             - **Run Date:** ${{ github.event.repository.updated_at }}
 
+            ${{ steps.monitor.outputs.exit_code == '1' && format('### Change Summary
+
+            | Category | Count |
+            |----------|-------|
+            | **HIGH Priority** | {0} |
+            | **MEDIUM Priority** | {1} |
+            | **URL Redirects** | {2} |
+            | **Errors** | {3} |', steps.monitor.outputs.meaningful_changes, steps.monitor.outputs.minor_changes, steps.monitor.outputs.redirects, steps.monitor.outputs.errors) || '' }}
+
             ### Review Instructions
 
             ${{ steps.monitor.outputs.is_baseline == 'true' && '1. Review `data/learn-monitor-state.json` to verify URLs are being tracked
@@ -96,6 +133,31 @@ jobs:
             3. Verify changes are relevant to FSI-AgentGov documentation
             4. Update affected controls/playbooks if needed
             5. Merge to update baseline' }}
+
+            ${{ steps.monitor.outputs.exit_code == '1' && '### 🤖 AI-Assisted Review Available
+
+            To draft documentation updates based on this change report:
+
+            ```bash
+            # 1. Checkout this PR branch
+            gh pr checkout ' || '' }}${{ steps.monitor.outputs.exit_code == '1' && github.run_number || '' }}${{ steps.monitor.outputs.exit_code == '1' && '
+
+            # 2. Run the review skill in Claude Code
+            /review-learn-changes
+
+            # 3. Claude will analyze the change report and:
+            #    - Categorize changes (update/flag/skip)
+            #    - Propose specific documentation edits
+            #    - Apply edits with your confirmation
+            #    - Run validation (mkdocs build --strict)
+
+            # 4. Commit and push the documentation updates
+            git add .
+            git commit -m "docs: Apply Learn Monitor updates"
+            git push
+            ```
+
+            See [Learn Monitor AI Enhancement](docs/reference/learn-monitor-ai-enhancement.md) for details.' || '' }}
 
             ### Files Modified
 
@@ -109,4 +171,44 @@ jobs:
             documentation
             automated
             learn-watch
+            ${{ steps.monitor.outputs.exit_code == '1' && 'needs-review' || '' }}
           assignees: ${{ github.repository_owner }}
+
+      - name: Add summary comment with HIGH priority changes
+        if: steps.create_pr.outputs.pull-request-number && steps.monitor.outputs.exit_code == '1'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ steps.create_pr.outputs.pull-request-number }}
+          body: |
+            ## 📋 HIGH Priority Changes Detected
+
+            The following Microsoft Learn documentation changes may require updates to FSI-AgentGov controls or playbooks:
+
+            <details>
+            <summary>View ${{ steps.monitor.outputs.meaningful_changes }} HIGH priority changes</summary>
+
+            See the full change report: `${{ steps.monitor.outputs.report_file }}`
+
+            **Change Categories:**
+            - 🔴 **DATE_UPDATE** - Timeline/deadline changed
+            - 🟠 **UI_CHANGE** - Portal navigation or button names changed
+            - 🟡 **FEATURE_GA** - Feature moved to General Availability
+            - 🟣 **DEPRECATION** - Feature deprecated or retired
+            - 🔵 **NEW_DOC** - New documentation page added
+            - ⚪ **URL_REDIRECT** - URL path changed
+
+            </details>
+
+            ---
+
+            ### Quick Actions
+
+            | Action | Command |
+            |--------|---------|
+            | Checkout PR | `gh pr checkout ${{ steps.create_pr.outputs.pull-request-number }}` |
+            | Run AI-assisted review | `/review-learn-changes` |
+            | View change report | Open `${{ steps.monitor.outputs.report_file }}` |
+            | Merge without changes | Approve and merge this PR |
+
+            > 💡 **Tip:** Run `/review-learn-changes` in Claude Code to automatically analyze changes and draft documentation updates.

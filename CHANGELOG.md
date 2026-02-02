@@ -6,6 +6,46 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.37] — February 2, 2026 (Learn Monitor AI Enhancement)
+
+### Overview
+
+Added AI-assisted workflow for responding to Microsoft Learn documentation changes. When the Learn Monitor detects changes, the new `/review-learn-changes` skill analyzes the change report and drafts documentation updates for human review.
+
+### Added
+
+**Learn Monitor AI Enhancement:**
+
+| Component | Description |
+|-----------|-------------|
+| **Design Document** | `docs/reference/learn-monitor-ai-enhancement.md` - Full architecture for AI-assisted drafts workflow |
+| **Claude Code Skill** | `.claude/skills/review-learn-changes.md` - User-invocable skill for analyzing change reports |
+| **Enhanced Workflow** | `.github/workflows/learn-monitor.yml` - Adds `needs-review` label, change summary table, AI-assist instructions |
+
+**Workflow Enhancements:**
+
+- PRs now include change summary table (HIGH/MEDIUM/Redirects/Errors counts)
+- `needs-review` label automatically added when changes detected
+- PR body includes step-by-step instructions for running `/review-learn-changes`
+- Summary comment posted with quick actions and change categories
+
+**Documentation Updates from PR #6 (Learn Monitor Run #14):**
+
+| File | Update |
+|------|--------|
+| Control 3.9 | Sentinel Azure portal deprecation extended to March 31, 2027 (was July 2026) |
+| Control 1.19 | Classic eDiscovery retirement scope clarification (21Vianet only) |
+| `microsoft-learn-urls.md` | 25 URL redirects fixed (Purview consolidation, M365 Copilot path changes, Sentinel paths) |
+| `learn-monitor-guide.md` | Added AI-assisted review instructions and PR label documentation |
+
+### Changed
+
+- Learn Monitor guide updated with AI-assisted review workflow (Option 1: Recommended)
+- Learn Monitor workflow now extracts change statistics from reports
+- Added `needs-review` label to workflow labels
+
+---
+
 ## [1.2.36] — February 1, 2026 (Solutions Expansion - 7 New Solutions)
 
 ### Overview

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.36** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.37** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -237,6 +237,8 @@ Use canonical short names from `docs/reference/role-catalog.md`:
 | `docs/reference/regulatory-mappings.md` | Regulation-to-control mapping |
 | `docs/reference/solutions-index.md` | Complete FSI-AgentGov-Solutions catalog |
 | `docs/reference/learn-monitor-guide.md` | How the Learn monitor works |
+| `docs/reference/learn-monitor-ai-enhancement.md` | AI-assisted drafts design for Learn Monitor |
+| `.claude/skills/review-learn-changes.md` | Skill for AI-assisted Learn Monitor review |
 | `docs/framework/agent-identity-architecture.md` | Agent ID vs Blueprint architecture guide |
 | `docs/framework/solutions-integration.md` | Solutions-to-framework mapping |
 | `docs/framework/adoption-roadmap.md` | Phased implementation with solution references |
@@ -310,6 +312,23 @@ python scripts/learn_monitor.py --verbose
 | MEDIUM | Minor content changes | Review optional |
 | NOISE | Metadata/formatting only | Ignore |
 
+**AI-Assisted Review (v1.2.37+):**
+
+When a Learn Monitor PR is created with changes detected:
+
+```bash
+# 1. Checkout the PR branch
+gh pr checkout {PR_NUMBER}
+
+# 2. Run the AI-assisted review skill
+/review-learn-changes
+
+# 3. Claude will analyze changes and propose documentation updates
+# 4. Commit and push, then merge the PR
+```
+
+See `docs/reference/learn-monitor-ai-enhancement.md` for the full design.
+
 ### GitHub Actions Workflows
 
 | Workflow | Schedule | Purpose |
@@ -341,6 +360,7 @@ python scripts/learn_monitor.py --verbose
 | Understand zones | `docs/framework/zones-and-tiers.md` |
 | Understand Agent ID vs Blueprint | `docs/framework/agent-identity-architecture.md` |
 | Learn about the doc monitor | `docs/reference/learn-monitor-guide.md` |
+| Use AI-assisted Learn Monitor review | `/review-learn-changes` skill |
 | View all solutions | `docs/reference/solutions-index.md` |
 | Understand solutions-to-framework mapping | `docs/framework/solutions-integration.md` |
 | Implement Platform Change Governance | `docs/playbooks/advanced-implementations/platform-change-governance/` |
@@ -388,10 +408,19 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.36 (February 2026)
-**Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (196 URLs)
+**Version:** 1.2.37 (February 2026)
+**Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (209 URLs)
 
-**Recent Additions (v1.2.36):**
+**Recent Additions (v1.2.37):**
+- **Learn Monitor AI Enhancement** - AI-assisted drafts workflow for documentation updates based on Microsoft Learn changes
+- **`/review-learn-changes` Skill** - Claude Code skill that analyzes Learn Monitor change reports, categorizes changes, and drafts documentation updates
+- **Enhanced GitHub Actions Workflow** - Learn monitor now adds `needs-review` label, includes change summary table, and provides AI-assist instructions in PR body
+- **Control 3.9 Update** - Added Sentinel Azure portal deprecation date extension (March 31, 2027)
+- **Control 1.19 Update** - Added classic eDiscovery retirement scope clarification (21Vianet only)
+- **URL Redirects Fixed** - Updated 25 Microsoft Learn URLs that were redirecting to new paths
+- **Learn Monitor Guide Updated** - Added AI-assisted review instructions and PR label documentation
+
+**Previous Additions (v1.2.36):**
 - **7 New FSI-AgentGov-Solutions Released** - Complete solution development backlog delivered ahead of schedule
 - **Compliance Dashboard v1.0.0-beta** - Aggregated compliance reporting across 62 controls with zone-based filtering, Dataverse schema, Power Automate flows, DAX measures (Control 3.3)
 - **Segregation of Duties Detector v1.0.0** - Role conflict detection with 10 predefined rules across Maker/Checker, Segregation, Privileged Access categories (Control 2.8)
@@ -624,7 +653,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.36
+- **Framework Version:** 1.2.37
 - **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
