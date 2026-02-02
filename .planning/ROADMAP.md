@@ -21,6 +21,12 @@ The phases are ordered to prioritize the February 2026 pipeline deadline, establ
 
 **Requirements:** TECH-01, TECH-02, TECH-08
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — FSI-AgentGov-Solutions x-api-key deprecation warnings
+- [ ] 01-02-PLAN.md — Pipeline deadline cross-references and build validation
+
 **Success Criteria:**
 1. February 2026 pipeline deadline is prominently documented in Control 2.1 with licensing implications and required actions
 2. All API deprecation warnings include specific dates (x-api-key March 31 2026, EWS, SharePoint Add-Ins, Key Vault)
@@ -150,7 +156,7 @@ The phases are ordered to prioritize the February 2026 pipeline deadline, establ
 
 | Phase | Requirements | Status | Progress |
 |-------|--------------|--------|----------|
-| 1 - Critical Technical Remediation | 3 | Pending | ░░░░░░░░░░ 0% |
+| 1 - Critical Technical Remediation | 3 | Planned | ░░░░░░░░░░ 0% |
 | 2 - Documentation Audit Foundation | 5 | Pending | ░░░░░░░░░░ 0% |
 | 3 - Agent 365 Strategic Architecture | 2 | Pending | ░░░░░░░░░░ 0% |
 | 4 - Feature Enhancement Updates | 5 | Pending | ░░░░░░░░░░ 0% |
@@ -245,5 +251,5 @@ All 33 v1 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 1.0*
+*Roadmap version: 1.1*
 *Last updated: 2026-02-02*
