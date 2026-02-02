@@ -25,7 +25,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Advanced Connector Policies** | https://learn.microsoft.com/en-us/power-platform/admin/advanced-connector-policies | Jan 2026 |
 | DLP Policies (Power Platform) | https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention | Jan 2026 |
 | Connector Classification | https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification | Jan 2026 |
-| Third-Party Connectors | https://learn.microsoft.com/en-us/power-platform/admin/wp-connectors | Jan 2026 |
+| Third-Party Connectors | https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/connections-list | Feb 2026 |
 | Connector Reference | https://learn.microsoft.com/en-us/connectors/connector-reference/ | Jan 2026 |
 | Custom Connectors | https://learn.microsoft.com/en-us/connectors/custom-connectors/ | Jan 2026 |
 | **Security** | https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview | Jan 2026 |
@@ -44,7 +44,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Monitor Copilot Studio | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio | Jan 2026 |
 | **Monitoring Hub** | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitoring-overview | Jan 2026 |
 | Monitor Alerts | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts | Jan 2026 |
-| Admin Activity Logging | https://learn.microsoft.com/en-us/power-platform/admin/admin-activity-logging | Jan 2026 |
+| Admin Activity Logging | https://learn.microsoft.com/en-us/power-platform/admin/activity-logging-auditing/activity-logs-power-platform-admin | Feb 2026 |
 | **Copilot Hub** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Jan 2026 |
 | **Maker Onboarding (Welcome Content)** | https://learn.microsoft.com/en-us/power-platform/admin/welcome-content | Jan 2026 |
 | **Agent Access Points** | https://learn.microsoft.com/en-us/power-platform/admin/security/identity-access-management#agent-access-points-preview | Jan 2026 |
@@ -85,11 +85,11 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Agent Publishing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels | Jan 2026 |
 | Share and Manage Agents | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots | Jan 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview | Jan 2026 |
-| Customer Satisfaction | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-csat | Jan 2026 |
+| Customer Satisfaction | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness | Feb 2026 |
 | **Connectors** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-connectors | Jan 2026 |
 | **Knowledge Sources** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio | Jan 2026 |
 | **Generative AI** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-gpt-overview | Jan 2026 |
-| Agent Orchestration | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-plugin-actions | Jan 2026 |
+| Agent Orchestration | https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-tools-custom-agent | Feb 2026 |
 | **External Threat Detection** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider | Jan 2026 |
 | Human Agent Handoff | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off | Jan 2026 |
 | Test Your Agent | https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-test-bot | Jan 2026 |
@@ -102,9 +102,9 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **M365 Copilot Overview** | https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-overview | Jan 2026 |
-| Data, Privacy, and Security | https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-privacy | Jan 2026 |
-| Manage Copilot | https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-enable-users | Jan 2026 |
+| **M365 Copilot Overview** | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-overview | Feb 2026 |
+| Data, Privacy, and Security | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy | Feb 2026 |
+| Manage Copilot | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-enable-users | Feb 2026 |
 | **Manage Copilot Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Jan 2026 |
 | Copilot Usage Reports | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage | Jan 2026 |
 
@@ -145,19 +145,19 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Data Loss Prevention** | https://learn.microsoft.com/en-us/microsoft-365/compliance/dlp-learn-about-dlp | Jan 2026 |
-| Create DLP Policies | https://learn.microsoft.com/en-us/microsoft-365/compliance/dlp-create-deploy-policy | Jan 2026 |
+| **Data Loss Prevention** | https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp | Feb 2026 |
+| Create DLP Policies | https://learn.microsoft.com/en-us/purview/dlp-create-deploy-policy | Feb 2026 |
 | DLP Policy Reference | https://learn.microsoft.com/en-us/purview/dlp-policy-reference | Jan 2026 |
 | DLP for M365 Copilot | https://learn.microsoft.com/en-us/purview/dlp-create-deploy-policy | Jan 2026 |
-| **Sensitivity Labels** | https://learn.microsoft.com/en-us/microsoft-365/compliance/sensitivity-labels | Jan 2026 |
+| **Sensitivity Labels** | https://learn.microsoft.com/en-us/purview/sensitivity-labels | Feb 2026 |
 | Sensitivity Labels Overview | https://learn.microsoft.com/en-us/purview/sensitivity-labels | Jan 2026 |
 | Sensitivity Labels for Sites | https://learn.microsoft.com/en-us/purview/sensitivity-labels-teams-groups-sites | Jan 2026 |
 | **Audit Logging** | https://learn.microsoft.com/en-us/purview/audit-solutions-overview | Jan 2026 |
 | Audit Copilot Activities | https://learn.microsoft.com/en-us/purview/audit-copilot | Jan 2026 |
 | Audit Log Retention | https://learn.microsoft.com/en-us/purview/audit-log-retention-policies | Jan 2026 |
-| Search the Audit Log | https://learn.microsoft.com/en-us/purview/audit-log-search | Jan 2026 |
+| Search the Audit Log | https://learn.microsoft.com/en-us/purview/audit-search | Feb 2026 |
 | **DSPM for AI** | https://learn.microsoft.com/en-us/purview/ai-microsoft-purview | Jan 2026 |
-| DSPM Considerations | https://learn.microsoft.com/en-us/purview/ai-microsoft-purview-considerations | Jan 2026 |
+| DSPM Considerations | https://learn.microsoft.com/en-us/purview/dspm-for-ai-considerations | Feb 2026 |
 | **Communication Compliance** | https://learn.microsoft.com/en-us/purview/communication-compliance | Jan 2026 |
 | Create Policies | https://learn.microsoft.com/en-us/purview/communication-compliance-policies | Jan 2026 |
 | Investigate Alerts | https://learn.microsoft.com/en-us/purview/communication-compliance-investigate-remediate | Jan 2026 |
@@ -166,14 +166,14 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Insider Risk Indicators | https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-policy-indicators | Jan 2026 |
 | Investigate Alerts | https://learn.microsoft.com/en-us/purview/insider-risk-management-activities | Jan 2026 |
 | HR Data Connector | https://learn.microsoft.com/en-us/purview/import-hr-data | Jan 2026 |
-| **Sensitive Information Types** | https://learn.microsoft.com/en-us/microsoft-365/compliance/sensitive-information-type-learn-about | Jan 2026 |
-| Custom SITs | https://learn.microsoft.com/en-us/microsoft-365/compliance/create-a-custom-sensitive-information-type | Jan 2026 |
-| Keyword Dictionaries | https://learn.microsoft.com/en-us/microsoft-365/compliance/create-a-keyword-dictionary | Jan 2026 |
-| Exact Data Match | https://learn.microsoft.com/en-us/microsoft-365/compliance/create-custom-sensitive-information-types-with-exact-data-match-based-classification | Jan 2026 |
-| Trainable Classifiers | https://learn.microsoft.com/en-us/purview/classifier-learn-about | Jan 2026 |
-| **Data Retention** | https://learn.microsoft.com/en-us/microsoft-365/compliance/retention | Jan 2026 |
-| Retention Overview | https://learn.microsoft.com/en-us/purview/retention | Jan 2026 |
-| Retention Policies | https://learn.microsoft.com/en-us/microsoft-365/compliance/create-retention-policies | Jan 2026 |
+| **Sensitive Information Types** | https://learn.microsoft.com/en-us/purview/sit-sensitive-information-type-learn-about | Feb 2026 |
+| Custom SITs | https://learn.microsoft.com/en-us/purview/sit-create-a-custom-sensitive-information-type | Feb 2026 |
+| Keyword Dictionaries | https://learn.microsoft.com/en-us/purview/sit-create-a-keyword-dictionary | Feb 2026 |
+| Exact Data Match | https://learn.microsoft.com/en-us/purview/sit-learn-about-exact-data-match-based-sits | Feb 2026 |
+| Trainable Classifiers | https://learn.microsoft.com/en-us/purview/trainable-classifiers-learn-about | Feb 2026 |
+| **Data Retention** | https://learn.microsoft.com/en-us/purview/retention | Feb 2026 |
+| Retention Overview | https://learn.microsoft.com/en-us/purview/retention | Feb 2026 |
+| Retention Policies | https://learn.microsoft.com/en-us/purview/create-retention-policies | Feb 2026 |
 | Retention Labels | https://learn.microsoft.com/en-us/purview/create-retention-labels-data-lifecycle-management | Jan 2026 |
 | Retention for SharePoint | https://learn.microsoft.com/en-us/purview/retention-policies-sharepoint | Jan 2026 |
 | Disposition | https://learn.microsoft.com/en-us/purview/disposition | Jan 2026 |
@@ -184,13 +184,13 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Create Cases | https://learn.microsoft.com/en-us/purview/ediscovery-create-and-manage-cases | Jan 2026 |
 | KeyQL Reference | https://learn.microsoft.com/en-us/purview/ediscovery-keyword-queries-and-search-conditions | Jan 2026 |
 | eDiscovery Holds | https://learn.microsoft.com/en-us/purview/ediscovery-create-holds | Jan 2026 |
-| **Endpoint DLP** | https://learn.microsoft.com/en-us/microsoft-365/compliance/endpoint-dlp-learn-about | Jan 2026 |
+| **Endpoint DLP** | https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about | Feb 2026 |
 | Endpoint DLP Overview | https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about | Jan 2026 |
 | Onboard Devices | https://learn.microsoft.com/en-us/purview/endpoint-dlp-getting-started | Jan 2026 |
 | Configure Settings | https://learn.microsoft.com/en-us/purview/dlp-configure-endpoint-settings | Jan 2026 |
 | **Information Barriers** | https://learn.microsoft.com/en-us/purview/information-barriers | Jan 2026 |
-| **Information Rights Management** | https://learn.microsoft.com/en-us/microsoft-365/compliance/encryption-sensitivity-labels | Jan 2026 |
-| **Encryption** | https://learn.microsoft.com/en-us/microsoft-365/compliance/encryption | Jan 2026 |
+| **Information Rights Management** | https://learn.microsoft.com/en-us/purview/encryption-sensitivity-labels | Feb 2026 |
+| **Encryption** | https://learn.microsoft.com/en-us/purview/encryption | Feb 2026 |
 | Activity Explorer | https://learn.microsoft.com/en-us/purview/data-classification-activity-explorer | Jan 2026 |
 | **Compliance Manager** | https://learn.microsoft.com/purview/compliance-manager | Jan 2026 |
 | Assessments | https://learn.microsoft.com/purview/compliance-manager-assessments | Jan 2026 |
@@ -206,8 +206,8 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Authentication Contexts | https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-cloud-apps#authentication-context | Jan 2026 |
 | Session Controls | https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-session-lifetime | Jan 2026 |
 | **Phishing-Resistant MFA** | https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-strengths | Jan 2026 |
-| Authentication Methods | https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-methods | Jan 2026 |
-| FIDO2 Security Keys | https://learn.microsoft.com/en-us/entra/identity/authentication/howto-authentication-passwordless-security-key | Jan 2026 |
+| Authentication Methods | https://learn.microsoft.com/en-us/entra/identity/authentication/overview-authentication | Feb 2026 |
+| FIDO2 Security Keys | https://learn.microsoft.com/en-us/entra/identity/authentication/how-to-enable-passkey-fido2 | Feb 2026 |
 | **Role-Based Access Control** | https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/custom-overview | Jan 2026 |
 | Admin Roles | https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference | Jan 2026 |
 | **Access Reviews** | https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview | Jan 2026 |
@@ -243,12 +243,12 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Data Access Governance Reports | https://learn.microsoft.com/en-us/sharepoint/data-access-governance-reports | Jan 2026 |
 | Site Lifecycle Management | https://learn.microsoft.com/en-us/sharepoint/site-lifecycle-management | Jan 2026 |
 | Site Attestation | https://learn.microsoft.com/en-us/sharepoint/request-site-attestations | Jan 2026 |
-| **Information Barriers** | https://learn.microsoft.com/en-us/sharepoint/information-barriers | Jan 2026 |
+| **Information Barriers** | https://learn.microsoft.com/en-us/purview/information-barriers-sharepoint | Feb 2026 |
 | **Agent Insights** | https://learn.microsoft.com/en-us/sharepoint/insights-on-sharepoint-agents | Jan 2026 |
 | List Management | https://learn.microsoft.com/en-us/sharepoint/control-lists | Jan 2026 |
 | Training Sites | https://learn.microsoft.com/en-us/sharepoint/create-training-site | Jan 2026 |
 | Versioning | https://learn.microsoft.com/en-us/sharepoint/governance/versioning-content-approval-and-check-out-planning | Jan 2026 |
-| **Retention for SharePoint** | https://learn.microsoft.com/en-us/microsoft-365/compliance/create-retention-policies#retaining-content-thats-in-sharepoint-sites | Jan 2026 |
+| **Retention for SharePoint** | https://learn.microsoft.com/en-us/purview/create-retention-policies#retaining-content-thats-in-sharepoint-sites | Feb 2026 |
 
 ---
 
@@ -268,8 +268,8 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 |-------|-----|---------------|
 | **Microsoft Sentinel** | https://learn.microsoft.com/en-us/azure/sentinel/overview | Jan 2026 |
 | Data Connectors | https://learn.microsoft.com/azure/sentinel/connect-data-sources | Jan 2026 |
-| Custom Analytics Rules | https://learn.microsoft.com/azure/sentinel/detect-threats-custom | Jan 2026 |
-| Built-in Analytics | https://learn.microsoft.com/en-us/azure/sentinel/detect-threats-built-in | Jan 2026 |
+| Custom Analytics Rules | https://learn.microsoft.com/en-us/azure/sentinel/create-analytics-rules | Feb 2026 |
+| Built-in Analytics | https://learn.microsoft.com/en-us/azure/sentinel/threat-detection | Feb 2026 |
 | Workbooks | https://learn.microsoft.com/azure/sentinel/monitor-your-data | Jan 2026 |
 | Automation Rules | https://learn.microsoft.com/azure/sentinel/automate-incident-handling-with-automation-rules | Jan 2026 |
 | Investigate Incidents | https://learn.microsoft.com/azure/sentinel/investigate-cases | Jan 2026 |
@@ -280,8 +280,8 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | **Azure Monitor Alerts** | https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview | Jan 2026 |
 | **Azure Service Health** | https://learn.microsoft.com/en-us/azure/service-health/service-health-overview | Jan 2026 |
 | **Azure Information Protection** | https://learn.microsoft.com/en-us/azure/information-protection/what-is-information-protection | Jan 2026 |
-| Track and Revoke Documents | https://learn.microsoft.com/en-us/azure/information-protection/rms-client/track-and-revoke-admin | Jan 2026 |
-| Apply IRM to SharePoint | https://learn.microsoft.com/en-us/microsoft-365/compliance/apply-irm-to-a-list-or-library | Jan 2026 |
+| Track and Revoke Documents | https://learn.microsoft.com/en-us/purview/track-and-revoke-admin | Feb 2026 |
+| Apply IRM to SharePoint | https://learn.microsoft.com/en-us/purview/apply-irm-to-a-list-or-library | Feb 2026 |
 | **Responsible AI** | https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai | Jan 2026 |
 | AI Content Safety | https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview | Jan 2026 |
 | **Cost Management** | https://learn.microsoft.com/azure/cost-management-billing/costs/overview-cost-management | Jan 2026 |
@@ -294,7 +294,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Device Control** | https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/device-control-overview | Jan 2026 |
+| **Device Control** | https://learn.microsoft.com/en-us/defender-endpoint/device-control-overview | Feb 2026 |
 | **Defender for Cloud Apps - AI Inventory** | https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory | Jan 2026 |
 
 ---
@@ -321,7 +321,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Information Barriers in Teams** | https://learn.microsoft.com/en-us/microsoftteams/information-barriers-in-teams | Jan 2026 |
+| **Information Barriers in Teams** | https://learn.microsoft.com/en-us/purview/information-barriers-teams | Feb 2026 |
 
 ---
 
@@ -338,7 +338,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Governance Adoption** | https://learn.microsoft.com/power-bi/guidance/powerbi-adoption-roadmap-governance | Jan 2026 |
+| **Governance Adoption** | https://learn.microsoft.com/en-us/power-bi/guidance/fabric-adoption-roadmap-governance | Feb 2026 |
 
 ---
 
@@ -392,7 +392,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 |-------|-----|---------------|
 | **Power Platform Licensing** | https://learn.microsoft.com/en-us/power-platform/admin/pricing-billing-skus | Jan 2026 |
 | **Microsoft 365 Licensing** | https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-overview | Jan 2026 |
-| M365 Licensing Guidance | https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance | Jan 2026 |
+| M365 Licensing Guidance | https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-365-security-compliance-licensing-guidance | Feb 2026 |
 | **Purview Licensing** | https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description | Jan 2026 |
 | **Copilot Studio Licensing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions | Jan 2026 |
 
@@ -443,6 +443,6 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 
 ---
 
-*Last Updated: January 2026*
+*Last Updated: February 2026*
 *Total URLs Tracked: 174*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*
