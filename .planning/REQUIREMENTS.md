@@ -98,47 +98,47 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDIT-01 | TBD | Pending |
-| AUDIT-02 | TBD | Pending |
-| AUDIT-03 | TBD | Pending |
-| AUDIT-04 | TBD | Pending |
-| AUDIT-05 | TBD | Pending |
-| FEAT-01 | TBD | Pending |
-| FEAT-02 | TBD | Pending |
-| FEAT-03 | TBD | Pending |
-| FEAT-04 | TBD | Pending |
-| FEAT-05 | TBD | Pending |
-| FEAT-06 | TBD | Pending |
-| FEAT-07 | TBD | Pending |
-| SOL-01 | TBD | Pending |
-| SOL-02 | TBD | Pending |
-| SOL-03 | TBD | Pending |
-| SOL-04 | TBD | Pending |
-| SOL-05 | TBD | Pending |
-| MON-01 | TBD | Pending |
-| MON-02 | TBD | Pending |
-| MON-03 | TBD | Pending |
-| MON-04 | TBD | Pending |
-| MON-05 | TBD | Pending |
-| REG-01 | TBD | Pending |
-| REG-02 | TBD | Pending |
-| REG-03 | TBD | Pending |
-| REG-04 | TBD | Pending |
-| REG-05 | TBD | Pending |
-| TECH-01 | TBD | Pending |
-| TECH-02 | TBD | Pending |
-| TECH-03 | TBD | Pending |
-| TECH-04 | TBD | Pending |
-| TECH-05 | TBD | Pending |
-| TECH-06 | TBD | Pending |
-| TECH-07 | TBD | Pending |
-| TECH-08 | TBD | Pending |
+| TECH-01 | Phase 1 | Pending |
+| TECH-02 | Phase 1 | Pending |
+| TECH-08 | Phase 1 | Pending |
+| AUDIT-01 | Phase 2 | Pending |
+| AUDIT-02 | Phase 2 | Pending |
+| AUDIT-03 | Phase 2 | Pending |
+| AUDIT-04 | Phase 2 | Pending |
+| AUDIT-05 | Phase 2 | Pending |
+| FEAT-01 | Phase 3 | Pending |
+| FEAT-02 | Phase 3 | Pending |
+| FEAT-03 | Phase 4 | Pending |
+| FEAT-04 | Phase 4 | Pending |
+| FEAT-05 | Phase 4 | Pending |
+| FEAT-06 | Phase 4 | Pending |
+| FEAT-07 | Phase 4 | Pending |
+| REG-01 | Phase 5 | Pending |
+| REG-02 | Phase 5 | Pending |
+| REG-03 | Phase 5 | Pending |
+| REG-04 | Phase 5 | Pending |
+| REG-05 | Phase 5 | Pending |
+| SOL-01 | Phase 6 | Pending |
+| SOL-02 | Phase 6 | Pending |
+| SOL-03 | Phase 6 | Pending |
+| SOL-05 | Phase 6 | Pending |
+| TECH-03 | Phase 6 | Pending |
+| TECH-04 | Phase 6 | Pending |
+| TECH-05 | Phase 6 | Pending |
+| TECH-06 | Phase 6 | Pending |
+| TECH-07 | Phase 6 | Pending |
+| SOL-04 | Phase 7 | Pending |
+| MON-01 | Phase 8 | Pending |
+| MON-02 | Phase 8 | Pending |
+| MON-03 | Phase 8 | Pending |
+| MON-04 | Phase 8 | Pending |
+| MON-05 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 33 total
-- Mapped to phases: 0
-- Unmapped: 33 ⚠️
+- Mapped to phases: 33
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after initial definition*
+*Last updated: 2026-02-02 with phase mappings*
