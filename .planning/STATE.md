@@ -84,6 +84,7 @@
 | # | Todo | Area | File |
 |---|------|------|------|
 | 1 | Create MCP server for FSI governance framework | tooling | `2026-02-03-mcp-server-governance-framework.md` |
+| 2 | Build Copilot Studio agent for FSI governance Q&A | tooling | `2026-02-03-copilot-studio-governance-agent.md` |
 
 ### Known Blockers
 
