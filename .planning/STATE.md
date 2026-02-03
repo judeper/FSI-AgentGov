@@ -19,10 +19,10 @@
 ## Current Position
 
 **Phase:** 4 of 8 (Feature Enhancement Updates) — IN PROGRESS
-**Plan:** 2 of 6 complete
+**Plan:** 3 of 6 complete
 **Status:** In progress
-**Progress:** ██████░░░░ 48% (16/33 requirements — Phase 1: 3, Phase 2: 8, Phase 3: 2, Phase 4: 3)
-**Last activity:** 2026-02-03 - Completed 04-02 (DSPM weekly risk assessment documentation)
+**Progress:** ███████░░░ 51% (17/33 requirements — Phase 1: 3, Phase 2: 8, Phase 3: 2, Phase 4: 4)
+**Last activity:** 2026-02-03 - Completed 04-03 (AI Feature Access Control and Role Catalog)
 
 **Next Action:** Continue Phase 4 execution (Plans 04-03 through 04-06).
 
@@ -31,12 +31,12 @@
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 16 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 2)
+- Plans completed: 17 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 3)
 - Plans in progress: 0
-- Average completion time: 13 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 5.1 min avg)
+- Average completion time: 12 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 5.8 min avg)
 
 **Quality:**
-- Requirements completed: 16/33 (48%)
+- Requirements completed: 17/33 (51%)
 - Documentation audits: 4/4 pillars (100%) - All pillar audits complete
 - Correction passes: 4/4 pillars (100%) - All corrections applied
 - Full-framework validation: PASS (62 controls, mkdocs build, verify_controls.py)
@@ -85,6 +85,10 @@
 | 2026-02-03 | Standardized Feature table format for Phase 4 | Consistent table format (Feature \| Status \| Description \| Configuration) | Maintains visual consistency across all Phase 4 control enhancements |
 | 2026-02-03 | Zone-specific remediation SLAs for DSPM | 7-30 day SLAs based on zone risk level | Provides actionable compliance timelines for oversharing remediation |
 | 2026-02-03 | Four-tab dashboard documentation for DSPM | Overview, Identify, Protect, Monitor tabs with FSI actions | Enables administrators to extract value from weekly risk assessments |
+| 2026-02-03 | AI Feature Access Control as Control 3.8 enhancement | Governance capability area within Copilot Hub, not discrete product | Seamless integration with existing Copilot governance documentation |
+| 2026-02-03 | AI Administrator as standalone role catalog entry | Established Entra built-in role deserves standalone entry | Enables FSI least-privilege role assignments for Copilot governance |
+| 2026-02-03 | Defender XDR Admin as informal alias | No built-in "Defender XDR Administrator" role exists in Entra | Clarifies that Security Administrator provides Defender XDR access |
+| 2026-02-03 | Permission matrix with checkmarks for role comparison | Visual comparison across 11 permissions and 3 roles | Enables FSI administrators to justify AI Administrator vs Global Admin assignments |
 
 ### Active TODOs
 
@@ -101,7 +105,7 @@
 **This Phase (Phase 4 IN PROGRESS):**
 - [x] ~~Plan 04-01: Virtual governance connectors (Control 1.5)~~
 - [x] ~~Plan 04-02: DSPM weekly risk assessments (Control 1.6)~~
-- [ ] Plan 04-03: Agent 365 telemetry (Control 3.8)
+- [x] ~~Plan 04-03: AI Feature Access Control and Role Catalog (Control 3.8, role-catalog.md)~~
 - [ ] Plan 04-04: Dataverse long-term retention (Control 3.5)
 - [ ] Plan 04-05: Pay-as-you-go updates (Control 2.1)
 - [ ] Plan 04-06: Consumption analytics (Control 3.9)
@@ -157,6 +161,8 @@
 - Standardized table format (Feature | Status | Description | Configuration) provides clear reference for FSI administrators
 - Plan 04-02 zone-based remediation SLAs provide actionable timelines for FSI compliance teams
 - Plan 04-02 four-tab dashboard documentation enables weekly governance workflows
+- Plan 04-03 permission matrix format enables clear visual comparison for least-privilege role selection
+- Plan 04-03 FSI Least-Privilege guidance provides regulatory alignment (FINRA 3110) for role assignments
 
 ### What to Improve
 
@@ -169,7 +175,7 @@
 1. Phase 1 complete - 2 plans executed successfully
 2. Phase 2 COMPLETE - All 9 plans across 3 waves executed successfully
 3. Phase 3 COMPLETE - 2 plans (Agent 365 architecture + control updates) executed in parallel
-4. Phase 4 IN PROGRESS - Plans 04-01, 04-02 complete (virtual connectors, DSPM weekly risk assessments)
+4. Phase 4 IN PROGRESS - Plans 04-01, 04-02, 04-03 complete (virtual connectors, DSPM assessments, AI Feature Access Control)
 5. Total findings across 62 controls: 2 Critical, 12 Moderate, 24 Minor (38 total)
 6. All 38 findings addressed: 33 corrected, 5 documented as canonical (no change needed)
 7. "Last Verified: 2026-02-03" metadata added to all 62 controls
@@ -180,12 +186,15 @@
 12. FINRA 3110 sponsorship alignment: Control 2.12 enhanced with Entra Agent ID sponsorship mapping table
 13. Virtual connector enhancement: Control 1.5 + 2 playbooks enhanced with 11-connector table and FSI classification guidance
 14. DSPM weekly risk assessments: Control 1.6 + 2 playbooks enhanced with schedule details, four-tab dashboard, zone-specific remediation SLAs
+15. AI Feature Access Control: Control 3.8 + 2 playbooks enhanced with 6 governance capabilities and FSI guidance for Admin Exclusion Groups and deployment groups
+16. Role catalog enhancement: AI Administrator standalone entry with permission matrix (11 permissions × 3 roles), Defender XDR Admin as Security Admin alias
 
 **Commands to run:**
 ```bash
 # Review Phase 4 progress
 cat .planning/phases/04-feature-enhancement-updates/04-01-SUMMARY.md
 cat .planning/phases/04-feature-enhancement-updates/04-02-SUMMARY.md
+cat .planning/phases/04-feature-enhancement-updates/04-03-SUMMARY.md
 
 # Verify framework health
 python3 -m mkdocs build --strict
@@ -198,12 +207,17 @@ cat .planning/ROADMAP.md
 **Files to reference:**
 - `.planning/phases/04-feature-enhancement-updates/04-01-SUMMARY.md` - Phase 4 Plan 01 summary (virtual connectors)
 - `.planning/phases/04-feature-enhancement-updates/04-02-SUMMARY.md` - Phase 4 Plan 02 summary (DSPM weekly risk assessments)
+- `.planning/phases/04-feature-enhancement-updates/04-03-SUMMARY.md` - Phase 4 Plan 03 summary (AI Feature Access Control and Role Catalog)
 - `docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md` - Enhanced with 11-connector table
 - `docs/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md` - Enhanced with weekly risk assessments
+- `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` - Enhanced with AI Feature Access Control (6 capabilities)
+- `docs/reference/role-catalog.md` - Enhanced with AI Administrator entry and permission matrix
 - `docs/playbooks/control-implementations/1.5/portal-walkthrough.md` - Virtual connector configuration steps
 - `docs/playbooks/control-implementations/1.5/verification-testing.md` - Virtual connector test cases
 - `docs/playbooks/control-implementations/1.6/portal-walkthrough.md` - DSPM assessment configuration steps
 - `docs/playbooks/control-implementations/1.6/verification-testing.md` - DSPM assessment test cases
+- `docs/playbooks/control-implementations/3.8/portal-walkthrough.md` - AI Feature Access Control configuration steps
+- `docs/playbooks/control-implementations/3.8/verification-testing.md` - Feature access control test cases
 - `.planning/ROADMAP.md` - Phase 4 scope and requirements
 - `.planning/REQUIREMENTS.md` - All 33 requirements with traceability
 
@@ -216,7 +230,7 @@ cat .planning/ROADMAP.md
 | Phase 1 Complete | 2026-02-02 | Complete | 2/2 plans, 3 requirements |
 | Phase 2 Complete | 2026-02-03 | Complete | 9/9 plans, 38 findings addressed, 62 controls verified |
 | Phase 3 Complete | 2026-02-03 | Complete | 2/2 plans (parallel execution), Agent 365 architecture + control updates |
-| Phase 4 Complete | TBD | In Progress | 2/6 plans complete, feature enhancements |
+| Phase 4 Complete | TBD | In Progress | 3/6 plans complete, feature enhancements |
 | Phase 5 Complete | TBD | Pending | Regulatory validation |
 | Phase 6 Complete | TBD | Pending | Solutions audit |
 | Phase 7 Complete | TBD | Pending | Solutions functional testing |
@@ -226,6 +240,6 @@ cat .planning/ROADMAP.md
 
 ---
 
-*State version: 1.7*
-*Session: 8*
+*State version: 1.8*
+*Session: 9*
 *Last updated: 2026-02-03*
