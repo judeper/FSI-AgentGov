@@ -73,6 +73,13 @@ Plans:
 
 **Requirements:** FEAT-01, FEAT-02
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Create Agent 365 unified governance architecture framework document
+- [ ] 03-02-PLAN.md — Update Controls 1.2, 1.11, 2.12 with Agent 365 cross-references
+- [ ] 03-03-PLAN.md — Validation and cross-reference verification
+
 **Success Criteria:**
 1. New framework document explains Agent 365 unified control plane concept and comparison with current per-platform governance
 2. Microsoft Entra Agent ID architecture documented with sponsorship model and FINRA 3110 alignment
