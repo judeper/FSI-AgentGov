@@ -122,6 +122,14 @@ Plans:
 
 **Requirements:** REG-01, REG-02, REG-03, REG-04, REG-05
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Federal regulatory citation verification audit (7 bodies, 62 controls)
+- [ ] 05-02-PLAN.md — FINRA 2026 Report AI/agent analysis + retention period validation
+- [ ] 05-03-PLAN.md — State AI laws verification and expansion (CO, TX, NYC, IL, CA)
+- [ ] 05-04-PLAN.md — Corrections pass: apply all findings, integrate FINRA Report, validate build
+
 **Success Criteria:**
 1. All US FSI regulation mappings verified (FINRA, SEC, SOX, GLBA, OCC, Fed SR 11-7, CFTC)
 2. 2025-2026 regulatory updates incorporated with specific changes documented
@@ -189,7 +197,7 @@ Plans:
 | 2 - Documentation Audit Foundation | 5 | ✓ Complete | ██████████ 100% |
 | 3 - Agent 365 Strategic Architecture | 2 | ✓ Complete | ██████████ 100% |
 | 4 - Feature Enhancement Updates | 5 | ✓ Complete | ██████████ 100% |
-| 5 - Regulatory Validation | 5 | Pending | ░░░░░░░░░░ 0% |
+| 5 - Regulatory Validation | 5 | Planned | ░░░░░░░░░░ 0% |
 | 6 - Solutions Audit | 9 | Pending | ░░░░░░░░░░ 0% |
 | 7 - Solutions Functional Testing | 1 | Pending | ░░░░░░░░░░ 0% |
 | 8 - Monitoring Systems Review | 5 | Pending | ░░░░░░░░░░ 0% |
