@@ -9,7 +9,6 @@ allowed-tools:
   - Write
   - Bash
   - Task
-  - TodoWrite
 user-invocable: true
 ---
 
@@ -119,8 +118,7 @@ Ask the user: "Do you want me to apply these {N} updates?"
 
 If yes:
 1. Use the Edit tool to make each change
-2. Track progress with TodoWrite
-3. After all edits, run validation:
+2. After all edits, run validation:
 
 ```bash
 mkdocs build --strict 2>&1 | head -50
@@ -188,7 +186,7 @@ Recommendation: Review the changes, then commit with message:
 2. **Never edit FINRA/SEC/OCC language** without explicit approval
 3. **Stop and ask** if unsure about a change
 4. **Preserve existing info boxes** - add new ones, don't remove
-5. **Track all changes** with TodoWrite for audit trail
+5. **Track all changes** for audit trail
 
 ## Related Files
 

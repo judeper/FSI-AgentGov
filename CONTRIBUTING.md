@@ -90,6 +90,7 @@ If you're using AI assistants with this repository:
   - `/add-control` - Adding new controls
   - `/update-excel` - Excel template maintenance
   - `/verify-ui` - Screenshot verification
+  - `/review-learn-changes` - Learn Monitor change report review
 - **`AGENTS.md`** - Instructions for autonomous agent tasks
 - **`docs/templates/README.md`** - Guide to using control templates
 
@@ -120,4 +121,4 @@ Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the m
 
 ---
 
-*FSI Agent Governance Framework v1.1 - January 2026*
+*FSI Agent Governance Framework v1.2.37 - February 2026*

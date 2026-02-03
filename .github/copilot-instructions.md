@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FSI Agent Governance Framework v1.2.21 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+FSI Agent Governance Framework v1.2.37 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
@@ -160,6 +160,7 @@ For Claude Code users, detailed workflows are available as on-demand skills in `
 | `/add-control` | Adding a new control to a pillar |
 | `/update-excel` | Maintaining Excel checklist templates |
 | `/verify-ui` | Verifying portal screenshots match documentation |
+| `/review-learn-changes` | Reviewing Learn Monitor change reports and drafting documentation updates |
 
 These skills provide step-by-step instructions and are loaded only when invoked.
 

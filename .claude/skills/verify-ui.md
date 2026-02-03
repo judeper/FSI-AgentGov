@@ -92,8 +92,8 @@ docs/images/
 
 ## Control Folders That Exist
 
-60 possible folders (one per control):
-- 1.1 through 1.23 (Pillar 1 - Security)
+62 possible folders (one per control):
+- 1.1 through 1.24 (Pillar 1 - Security)
 - 2.1 through 2.21 (Pillar 2 - Management)
 - 3.1 through 3.10 (Pillar 3 - Reporting)
 - 4.1 through 4.7 (Pillar 4 - SharePoint)
@@ -101,7 +101,7 @@ docs/images/
 ## Known Missing Folders (Low Priority)
 
 These are screenshot spec gaps, not control gaps:
-- 1.22, 1.23, 2.19, 2.20, 4.7 (missing folders)
+- 1.22, 1.23, 1.24, 2.19, 2.20, 4.7 (missing folders)
 - 2.17, 2.18, 3.10 (missing EXPECTED.md files)
 
 ## Portal Verification Sources

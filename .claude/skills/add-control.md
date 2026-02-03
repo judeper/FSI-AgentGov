@@ -127,7 +127,7 @@ Same as `/update-control`:
 
 | Pillar | Current Max | Next Available |
 |--------|-------------|----------------|
-| Pillar 1 - Security | 1.23 | 1.24 |
+| Pillar 1 - Security | 1.24 | 1.25 |
 | Pillar 2 - Management | 2.21 | 2.22 |
 | Pillar 3 - Reporting | 3.10 | 3.11 |
 | Pillar 4 - SharePoint | 4.7 | 4.8 |

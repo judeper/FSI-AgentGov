@@ -18,6 +18,7 @@ For Claude Code, detailed workflows are available as on-demand skills in `.claud
 | `/add-control` | Adding a new control to a pillar |
 | `/update-excel` | Maintaining Excel checklist templates |
 | `/verify-ui` | Verifying portal screenshots match documentation |
+| `/review-learn-changes` | Reviewing Learn Monitor change reports and drafting documentation updates |
 
 Use these skills for step-by-step guidance on common tasks.
 
@@ -94,6 +95,18 @@ A Dataverse-based solution for operationalizing Microsoft Message Center changes
 - Evidence standards for regulatory examinations
 
 **Companion Repository:** FSI-AgentGov-Solutions contains deployment scripts and solution files.
+
+### Environment Lifecycle Management
+
+Location: `docs/playbooks/advanced-implementations/environment-lifecycle-management/`
+
+Automated environment provisioning with zone classification, Copilot Studio intake agent, and append-only audit trail. Includes:
+- Architecture documentation (Dataverse schema, zone classification)
+- Automated deployment scripts (via FSI-AgentGov-Solutions)
+- Hands-on labs
+- Evidence and audit standards
+
+**Companion Repository:** FSI-AgentGov-Solutions contains ELM deployment scripts.
 
 ## Error Handling
 
