@@ -44,7 +44,77 @@ As of early 2025, **data policy enforcement for Copilot Studio is enabled by def
 
 ---
 
-## Step 2: Configure Copilot Studio Channel DLP
+## Step 2: Configure Virtual Governance Connectors
+
+Power Platform DLP policies enforce data protection through 11 virtual governance connectors for Copilot Studio agents. These connectors control AI capabilities, knowledge sources, and publishing channels.
+
+### Classify Virtual Governance Connectors
+
+1. Navigate to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
+2. Select **Policies** > **Data policies**
+3. Select an existing DLP policy or create a new one
+4. In the **Connectors** tab, locate the virtual governance connectors:
+   - AI Builder (GPT)
+   - AI Builder (Document Processing)
+   - Copilot Studio Topics
+   - Copilot Studio Skills
+   - Copilot Studio Knowledge
+   - HTTP with Microsoft Entra ID
+   - HTTP Webhook
+   - Direct Line
+   - Microsoft Teams Channel
+   - SharePoint Channel
+   - Custom Website Channel
+
+5. Classify each connector into one of three categories:
+   - **Business** - Allowed for use in environments within policy scope
+   - **Non-Business** - Cannot be used alongside Business connectors in the same agent
+   - **Blocked** - Completely prohibited from use
+
+### FSI-Specific Classification Guidance
+
+For Zone 3 (Enterprise Managed) environments, apply the following classifications:
+
+| Connector | Zone 3 Classification | Rationale |
+|-----------|----------------------|-----------|
+| AI Builder (GPT) | Business | Required for AI functionality; control via usage monitoring |
+| AI Builder (Document Processing) | Business | Required for document understanding; monitor for sensitive content |
+| Copilot Studio Topics | Business | Core agent functionality |
+| Copilot Studio Skills | Business | Required for Power Automate integration |
+| Copilot Studio Knowledge | Business | Allow only after Control 1.3 SharePoint governance implemented |
+| HTTP with Microsoft Entra ID | Business | Allow with endpoint filtering (see below) |
+| HTTP Webhook | **Blocked** | Unauthenticated calls pose data exfiltration risk |
+| Direct Line | Business | Required for web chat deployment |
+| Microsoft Teams Channel | Business | Approved publishing channel |
+| SharePoint Channel | Non-Business or Blocked | Require approval before Business classification |
+| Custom Website Channel | **Blocked** | External publishing requires security review |
+
+### Configure HTTP Endpoint Filtering
+
+For HTTP connectors classified as Business, configure endpoint filtering to restrict external API calls:
+
+1. In the DLP policy, select **HTTP with Microsoft Entra ID** connector
+2. Click **Configure connector** or **Endpoint filtering**
+3. Choose filtering mode:
+   - **Allow list** - Only specified domains/patterns permitted
+   - **Block list** - Specified domains/patterns denied; all others allowed
+4. For Zone 3, use **Allow list** with approved internal APIs only:
+   ```
+   *.internal.yourdomain.com
+   api.yourdomain.com
+   ```
+5. Click **Save** to apply endpoint filters
+
+### Verify Connector Classification
+
+1. In the DLP policy, review the **Connectors** tab
+2. Confirm all 11 virtual governance connectors appear with expected classifications
+3. Note that policies apply to all environments within the policy scope
+4. Allow 1-2 hours for policy propagation before testing
+
+---
+
+## Step 3: Configure Copilot Studio Channel DLP
 
 DLP policies can control which publishing channels Copilot Studio agents can use. Microsoft supports **6 channel connectors**:
 
@@ -61,7 +131,7 @@ DLP policies can control which publishing channels Copilot Studio agents can use
 
 ---
 
-## Step 3: Configure Sensitivity Labels
+## Step 4: Configure Sensitivity Labels
 
 ### Create Labels
 
@@ -85,7 +155,7 @@ DLP policies can control which publishing channels Copilot Studio agents can use
 
 ---
 
-## Step 4: Configure Label-Based DLP Rules
+## Step 5: Configure Label-Based DLP Rules
 
 1. In your DLP policy, add rules with label conditions
 2. Configure actions:
@@ -95,7 +165,7 @@ DLP policies can control which publishing channels Copilot Studio agents can use
 
 ---
 
-## Step 5: Configure DSPM for AI Integration
+## Step 6: Configure DSPM for AI Integration
 
 ### View DLP Policies in DSPM
 
@@ -182,11 +252,13 @@ Actions:
 After completing the configuration, verify:
 
 1. [ ] DLP policy `FSI-AI-DLP-Data-Protection` is created and enabled in Microsoft Purview
-2. [ ] Sensitivity labels are published and visible to users in Office applications
-3. [ ] DLP policy locations include Microsoft 365 Copilot and Copilot Studio
-4. [ ] Oversharing assessment completed in DSPM for AI with remediation items documented
+2. [ ] All 11 virtual governance connectors are classified in Power Platform DLP policy
+3. [ ] HTTP endpoint filtering configured for HTTP with Microsoft Entra ID connector (Zone 3)
+4. [ ] Sensitivity labels are published and visible to users in Office applications
+5. [ ] DLP policy locations include Microsoft 365 Copilot and Copilot Studio
+6. [ ] Oversharing assessment completed in DSPM for AI with remediation items documented
 
-**Expected Result:** DLP policies detect and act on sensitive information in AI interactions, and sensitivity labels are available for content classification.
+**Expected Result:** DLP policies detect and act on sensitive information in AI interactions, virtual governance connectors are appropriately classified for FSI risk posture, and sensitivity labels are available for content classification.
 
 ---
 

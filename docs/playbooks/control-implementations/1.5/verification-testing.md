@@ -33,6 +33,28 @@ Use non-production, sanitized data. Do not use real customer data.
 
 ---
 
+## Test Cases (Virtual Governance Connectors)
+
+Verify that DLP policies enforce virtual governance connector classification rules. Use a non-production environment for testing.
+
+| Test ID | Scenario | Action | Expected Result |
+|---------|----------|--------|-----------------|
+| VC-01 | Agent creation with blocked connector | Create Copilot Studio agent that uses HTTP Webhook connector (if blocked) | Agent creation blocked with DLP policy error; event logged |
+| VC-02 | HTTP call to non-allowlisted endpoint | Configure agent skill to call external API not in HTTP endpoint allow list | Agent skill execution fails with DLP violation; event logged in audit log |
+| VC-03 | Verify all 11 connectors classified | Navigate to PPAC > DLP policy > Connectors tab | All 11 virtual governance connectors appear with correct Business/Non-Business/Blocked classification |
+| VC-04 | Knowledge Source connector with approved SharePoint | Create agent using Copilot Studio Knowledge connector pointing to approved SharePoint site | Access allowed; agent successfully indexes knowledge source |
+| VC-05 | Channel connector enforcement | Attempt to publish agent to Custom Website Channel (if blocked) | Publishing blocked with DLP error; user receives notification |
+| VC-06 | AI Builder GPT connector usage | Create agent using AI Builder GPT connector for text generation | If Business-classified: allowed; if Blocked: creation fails with DLP error |
+
+**Evidence Collection:**
+
+- Screenshot of PPAC DLP policy showing all 11 virtual governance connectors with classifications
+- Screenshot of HTTP endpoint filtering configuration (allow list or block list)
+- Audit log entries showing DLP enforcement events for virtual connectors
+- Test execution results with timestamps and actual vs expected outcomes
+
+---
+
 ## Test Cases (Endpoint DLP; Optional)
 
 Run only if Devices/Endpoint DLP is in scope.
@@ -61,11 +83,14 @@ Run only if Devices/Endpoint DLP is in scope.
 ## Confirmation Checklist
 
 - [ ] DLP policies created with AI locations (Copilot, Copilot Studio)
+- [ ] All 11 virtual governance connectors classified in Power Platform DLP policy
+- [ ] HTTP endpoint filtering configured and tested (Zone 3 requirement)
+- [ ] Virtual connector test cases executed with expected results (VC-01 through VC-06)
 - [ ] Sensitivity labels created and published
 - [ ] Label-based DLP rules configured
 - [ ] SITs validated per Control 1.13
-- [ ] Test cases executed with expected results
-- [ ] Audit logs capture DLP events
+- [ ] Standard AI test cases executed (AI-01 through AI-05)
+- [ ] Audit logs capture DLP events including virtual connector enforcement
 - [ ] DSPM integration verified (if applicable)
 - [ ] Evidence artifacts collected and stored
 
