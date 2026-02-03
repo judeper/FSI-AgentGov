@@ -79,6 +79,12 @@
 - [x] ~~Add API deprecation warnings with dates~~ (DEC solution complete)
 - [x] ~~Update affected playbooks with x-api-key deprecation warnings~~ (DEC solution complete)
 
+### Pending Todos
+
+| # | Todo | Area | File |
+|---|------|------|------|
+| 1 | Create MCP server for FSI governance framework | tooling | `2026-02-03-mcp-server-governance-framework.md` |
+
 ### Known Blockers
 
 **None currently.**
