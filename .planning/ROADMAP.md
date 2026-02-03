@@ -96,6 +96,15 @@ Plans:
 
 **Requirements:** FEAT-03, FEAT-04, FEAT-05, FEAT-06, FEAT-07
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Control 1.5 virtual connectors DLP enhancement + playbooks
+- [ ] 04-02-PLAN.md — Control 1.6 DSPM weekly assessments, observability, remediation + playbooks
+- [ ] 04-03-PLAN.md — Control 3.8 AI Feature Access Control + role catalog updates (AI Administrator, Defender XDR Admin)
+- [ ] 04-04-PLAN.md — Defender for Cloud Apps verification and cross-control consistency
+- [ ] 04-05-PLAN.md — Validation, cross-reference verification, and researcher package regeneration
+
 **Success Criteria:**
 1. Control 1.5 updated with virtual connectors table for Copilot Studio feature-level DLP
 2. Control 1.6 enhanced with weekly risk assessments and AI observability capabilities
