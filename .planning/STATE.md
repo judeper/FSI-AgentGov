@@ -19,26 +19,26 @@
 ## Current Position
 
 **Phase:** 2 of 8 (Documentation Audit Foundation)
-**Plan:** 6 of 10 complete (4 audits + 1 checkpoint + 1 correction pass)
+**Plan:** 7 of 10 complete (4 audits + 1 checkpoint + 2 correction passes)
 **Status:** In progress
-**Progress:** ██████░░░░ 60% (Wave 1 & 2 complete, Wave 3 corrections in progress)
-**Last activity:** 2026-02-03 - Completed 02-06-PLAN.md (Pillar 1 corrections)
+**Progress:** ███████░░░ 70% (Wave 1, 2, and 3a complete)
+**Last activity:** 2026-02-03 - Completed 02-07-PLAN.md (Pillar 2 corrections)
 
-**Next Action:** Continue Phase 2 with Plans 02-07, 02-08, 02-09 (Pillar 2, 3, 4 corrections in parallel).
+**Next Action:** Continue Phase 2 with Plans 02-08, 02-09 (Pillar 3, 4 corrections in parallel).
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 6 (Phase 1: 2, Phase 2: 4)
+- Plans completed: 7 (Phase 1: 2, Phase 2: 5)
 - Plans in progress: 0
-- Average completion time: 26 min (Phase 1: 5.5 min, Phase 2: 22 min avg)
+- Average completion time: 23 min (Phase 1: 5.5 min, Phase 2: 20 min avg)
 
 **Quality:**
 - Requirements completed: 3/33 (9%)
 - Documentation audits: 4/4 pillars (100%) - All pillar audits complete
-- Correction passes: 1/4 pillars (25%) - Pillar 1 complete
+- Correction passes: 2/4 pillars (50%) - Pillar 1, 2 complete
 - Tests passing: N/A
 - Coverage: 100% (all requirements mapped to phases)
 
@@ -72,12 +72,14 @@
 | 2026-02-03 | Playbook counts vary by implementation method | Portal-only or PowerShell-only controls omit non-applicable files | Expected behavior - not a gap |
 | 2026-02-03 | Pillar 1 corrections: zero needed | All 5 Minor findings recommend "no change" | Document existing patterns as canonical |
 | 2026-02-03 | Added "Last Verified" metadata field to controls | Tracks audit completion dates in control headers | Positioned after Governance Levels in metadata block |
+| 2026-02-03 | FINRA Notice 25-07 clarification pattern | Info admonition explains workplace modernization vs AI governance | Prevents user confusion about regulatory scope (Controls 2.12, 2.19) |
 
 ### Active TODOs
 
 **Immediate (Next Session):**
 - [x] ~~Review Pillar 1 audit findings~~ - Complete, 0 corrections needed
-- [ ] Apply Pillar 2, 3, 4 corrections (Plans 02-07, 02-08, 02-09)
+- [x] ~~Apply Pillar 2 corrections (Plan 02-07)~~ - Complete, all findings addressed
+- [ ] Apply Pillar 3, 4 corrections (Plans 02-08, 02-09)
 - [ ] Verify Pillar 4 Critical findings before corrections (RSS limit, Site Access Reviews)
 
 **Near-Term (This Week):**
@@ -145,17 +147,18 @@
 
 **Context to preserve:**
 1. Phase 1 complete - 2 plans executed successfully
-2. Phase 2 in progress - All 4 pillar audits complete, 1 of 4 correction passes complete
+2. Phase 2 in progress - All 4 pillar audits complete, 2 of 4 correction passes complete
 3. Plan 02-06: Pillar 1 corrections complete - zero corrections needed, metadata added to 24 controls
-4. Pillar 1: All 5 Minor findings recommend "no change" - existing patterns are canonical
-5. Pillar 1: "Last Verified: 2026-02-03" metadata added to all 24 controls
-6. Pillar 4 Critical findings require verification before corrections: RSS 100-site limit, Site Access Reviews
-7. Wave 3 (Plans 02-07, 02-08, 02-09) ready to execute in parallel
+4. Plan 02-07: Pillar 2 corrections complete - 1 Moderate, 3 Minor findings addressed, metadata added to 21 controls
+5. Pillar 1: All 5 Minor findings recommend "no change" - existing patterns are canonical
+6. Pillar 2: FINRA Notice 25-07 clarification added (Control 2.19), version numbers standardized
+7. Pillar 4 Critical findings require verification before corrections: RSS 100-site limit, Site Access Reviews
+8. Wave 3 in progress - Plans 02-08, 02-09 (Pillars 3, 4) ready to execute
 
 **Commands to run:**
 ```bash
-# Review Pillar 2 audit findings
-cat .planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-2.md
+# Review Pillar 2 corrections summary
+cat .planning/phases/02-documentation-audit-foundation/02-07-SUMMARY.md
 
 # Review Pillar 3 audit findings
 cat .planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-3.md
@@ -163,8 +166,8 @@ cat .planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-3.md
 # Review Pillar 4 audit findings
 cat .planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-4.md
 
-# Apply corrections in Wave 3
-# Plans 02-07, 02-08, 02-09 (Pillars 2, 3, 4) can run in parallel
+# Apply corrections for remaining pillars
+# Plans 02-08, 02-09 (Pillars 3, 4) can run in parallel
 
 # Review current state anytime
 cat .planning/STATE.md
@@ -172,6 +175,7 @@ cat .planning/STATE.md
 
 **Files to reference:**
 - `.planning/phases/02-documentation-audit-foundation/02-06-SUMMARY.md` - Plan 02-06 summary (Pillar 1 corrections)
+- `.planning/phases/02-documentation-audit-foundation/02-07-SUMMARY.md` - Plan 02-07 summary (Pillar 2 corrections)
 - `.planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-2.md` - Pillar 2 audit report (0 Critical, 1 Moderate, 3 Minor)
 - `.planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-3.md` - Pillar 3 audit report (0 Critical, 4 Moderate, 10 Minor)
 - `.planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-4.md` - Pillar 4 audit report (2 Critical, 7 Moderate, 6 Minor)
