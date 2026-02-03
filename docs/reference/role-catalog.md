@@ -25,9 +25,10 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Entra App Admin** | App registrations and enterprise apps | Application Administrator |
 | **Entra User Admin** | User and group administration | User Administrator |
 | **Entra Identity Governance Admin** | Access reviews, entitlement management | Identity Governance Administrator |
-| **Entra Security Admin** | Security configuration and policy | Security Administrator |
+| **Entra Security Admin** | Security configuration, policy, and Defender XDR access | Security Administrator, Defender XDR Admin (informal) |
 | **Entra Global Reader** | Read-only tenant visibility | Global Reader |
 | **Entra Security Reader** | Read-only security visibility | Security Reader |
+| **AI Administrator** | Manage M365 Copilot settings, AI services, and connector delegation | Microsoft 365 AI Administrator |
 
 ### Purview (Compliance)
 
@@ -62,6 +63,33 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **SharePoint Admin** | SharePoint tenant settings and governance | SharePoint Administrator, SharePoint Admin |
 | **SharePoint Site Collection Admin** | Site collection admin operations | Site Collection Administrator |
 | **SharePoint Site Owner** | Site-level ownership tasks | SharePoint Site Owner, Site Owner |
+
+---
+
+## AI Governance Permission Matrix
+
+| Permission | AI Administrator | Entra Global Admin | Entra Security Admin |
+|------------|------------------|---------------------|----------------------|
+| Manage Copilot settings | ✓ | ✓ | ✗ |
+| Manage Copilot connectors | ✓ | ✓ | ✗ |
+| Register Entra apps (delegated) | ✓* | ✓ | ✗ |
+| Consent to ExternalItem/ExternalConnection APIs | ✓ | ✓ | ✗ |
+| Consent to all Graph APIs | ✗ | ✓ | ✗ |
+| View Copilot usage reports | ✓ | ✓ | ✗ |
+| Create support tickets | ✓ | ✓ | ✓ |
+| Configure Defender XDR | ✗ | ✓ | ✓ |
+| Manage Defender policies | ✗ | ✓ | ✓ |
+| View Defender alerts | ✗ | ✓ | ✓ |
+| Configure DLP policies | ✗ | ✓ | ✗ |
+
+*Requires delegation via Entra admin consent or custom role for app registration and limited API consent scope.
+
+!!! tip "FSI Least-Privilege Role Assignment"
+    - **For agent governance and Copilot management:** Prefer AI Administrator over Global Admin to enforce least-privilege access
+    - **For Copilot connector management:** AI Administrator is sufficient for most connector delegation tasks
+    - **For Defender XDR operations:** Use Entra Security Admin (not Global Admin) for security operations teams
+    - **When Global Admin is required:** Initial tenant setup, broad Graph API consent beyond ExternalItem/ExternalConnection scope, or cross-service configuration
+    - **For FINRA-regulated firms:** Document role assignments in your supervisory procedures per FINRA Rule 3110
 
 ---
 
