@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 scripts/hooks/boundary-check.py"
+            "command": "python3 /Users/admin/dev/FSI-AgentGov/scripts/hooks/boundary-check.py"
           }
         ]
       }
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 scripts/hooks/researcher-package-reminder.py"
+            "command": "python3 /Users/admin/dev/FSI-AgentGov/scripts/hooks/researcher-package-reminder.py"
           }
         ]
       }
