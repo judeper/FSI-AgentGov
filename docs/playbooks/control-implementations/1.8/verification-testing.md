@@ -148,6 +148,32 @@
 4. **Verify:** Agent interaction events appear in audit log
 5. **Verify:** Events include tool invocations and user prompts (metadata)
 
+### Test 16: Defender CloudAppEvents for Agent Activity
+
+1. Navigate to Microsoft Defender Portal > Hunting > Advanced hunting
+2. Run the following query to verify Defender is capturing agent activity:
+   ```kql
+   CloudAppEvents
+   | where Timestamp > ago(24h)
+   | where Application == "Microsoft Copilot Studio"
+   | extend ActionType = tostring(RawEventData.ActionType)
+   | summarize count() by ActionType, bin(Timestamp, 1h)
+   | order by Timestamp desc
+   ```
+3. **Verify:** Results show agent interaction events from the past 24 hours
+4. **Verify:** Activity types include tool invocations, user prompts, and agent responses
+5. **Verify:** Event volume matches expected agent usage patterns
+
+### Test 17: DSPM Activity Explorer Integration with Defender Events
+
+1. Navigate to Microsoft Purview > DSPM for AI > Activity explorer
+2. Filter for Copilot Studio agent activities
+3. **Verify:** Defender-sourced activity events appear in Activity Explorer
+4. **Verify:** Events show security context (UPIA/XPIA detection flags if applicable)
+5. **Verify:** Cross-portal consistency between Defender and Purview audit data
+
+**Expected Result:** Defender activity logging integrates seamlessly with DSPM Activity Explorer for comprehensive compliance monitoring.
+
 ---
 
 ## Evidence Artifacts
@@ -173,6 +199,8 @@
 - [ ] Screenshot: Defender XDR alert for blocked action
 - [ ] Export: Advanced hunting query results
 - [ ] Log: Purview audit log entries for agent interactions
+- [ ] Export: CloudAppEvents query results for agent activity (Test 16)
+- [ ] Screenshot: DSPM Activity Explorer showing Defender-sourced events (Test 17)
 
 ---
 
@@ -226,6 +254,8 @@
 - [ ] AI agent inventory populated in Defender portal
 - [ ] Defender XDR alerts verified for blocked actions
 - [ ] M365 App Connector connected in Defender portal
+- [ ] CloudAppEvents query returns agent activity data (Test 16)
+- [ ] DSPM Activity Explorer shows Defender-sourced events (Test 17)
 
 ---
 

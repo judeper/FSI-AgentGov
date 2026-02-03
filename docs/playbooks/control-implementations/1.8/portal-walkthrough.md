@@ -102,7 +102,7 @@ For each agent:
 | Requirement | Details |
 |-------------|---------|
 | **Licensing** | Microsoft Defender for Cloud Apps (included in Microsoft 365 E5) |
-| **Roles** | Power Platform Administrator + Defender XDR Administrator |
+| **Roles** | Power Platform Administrator + Entra Security Admin (Defender XDR access) |
 | **Connector** | Microsoft 365 App Connector must be configured in Defender portal |
 
 ### Step 5a: Configure Microsoft Defender Portal
@@ -175,6 +175,18 @@ When native Defender integration is enabled:
    - Suspicious tool invocations blocked before execution
    - UPIA/XPIA detection (prompt injection attacks)
    - Defender XDR alerts/incidents for blocked actions
+
+### Post-Configuration Verification
+
+After completing Steps 5a and 5b, verify the integration is working:
+
+1. Return to Microsoft Defender Portal > Cloud Apps > AI Agent Inventory
+2. Verify agents are appearing in inventory (may take up to 24 hours)
+3. Navigate to Advanced Hunting and query CloudAppEvents table for agent activity data
+4. Verify real-time protection is active by checking for policy enforcement events
+
+!!! tip "FSI Compliance Guidance"
+    For regulated environments, enable Defender integration for all Zone 2 and Zone 3 environments. Document the enablement date and configuration state for compliance evidence. Maintain a quarterly audit of AI agent inventory to ensure all production agents are monitored.
 
 ### Defender XDR Advanced Hunting Query
 
