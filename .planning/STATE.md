@@ -178,7 +178,7 @@
 1. Phase 1 complete - 2 plans executed successfully
 2. Phase 2 COMPLETE - All 9 plans across 3 waves executed successfully
 3. Phase 3 COMPLETE - 2 plans (Agent 365 architecture + control updates) executed in parallel
-4. Phase 4 IN PROGRESS - Plans 04-01, 04-02, 04-03, 04-04, 04-05 complete (virtual connectors, DSPM assessments, AI Feature Access Control, Defender verification, validation)
+4. Phase 4 IN PROGRESS - Plans 04-01, 04-02, 04-03, 04-04 complete (virtual connectors, DSPM assessments, AI Feature Access Control, Defender verification)
 5. Total findings across 62 controls: 2 Critical, 12 Moderate, 24 Minor (38 total)
 6. All 38 findings addressed: 33 corrected, 5 documented as canonical (no change needed)
 7. "Last Verified: 2026-02-03" metadata added to all 62 controls
@@ -191,8 +191,7 @@
 14. DSPM weekly risk assessments: Control 1.6 + 2 playbooks enhanced with schedule details, four-tab dashboard, zone-specific remediation SLAs
 15. AI Feature Access Control: Control 3.8 + 2 playbooks enhanced with 6 governance capabilities and FSI guidance for Admin Exclusion Groups and deployment groups
 16. Role catalog enhancement: AI Administrator standalone entry with permission matrix (11 permissions × 3 roles), Defender XDR Admin as Security Admin alias
-17. Defender verification: Control 1.8 + 2 playbooks enhanced with Defender for Cloud Apps enablement, custom connector threat detection, XDR features
-18. Phase 4 validation: Full build passes, regulatory language compliant, cross-references verified, researcher package current
+17. Defender documentation verification: Controls 1.8 and 1.6 verified accurate, consistent role terminology (Entra Security Admin), bidirectional cross-references established, playbooks enhanced with 2 new test cases (CloudAppEvents query + DSPM integration)
 
 **Commands to run:**
 ```bash
@@ -200,6 +199,7 @@
 cat .planning/phases/04-feature-enhancement-updates/04-01-SUMMARY.md
 cat .planning/phases/04-feature-enhancement-updates/04-02-SUMMARY.md
 cat .planning/phases/04-feature-enhancement-updates/04-03-SUMMARY.md
+cat .planning/phases/04-feature-enhancement-updates/04-04-SUMMARY.md
 cat .planning/phases/04-feature-enhancement-updates/04-04-SUMMARY.md
 cat .planning/phases/04-feature-enhancement-updates/04-05-SUMMARY.md
 
@@ -215,8 +215,10 @@ cat .planning/ROADMAP.md
 - `.planning/phases/04-feature-enhancement-updates/04-01-SUMMARY.md` - Phase 4 Plan 01 summary (virtual connectors)
 - `.planning/phases/04-feature-enhancement-updates/04-02-SUMMARY.md` - Phase 4 Plan 02 summary (DSPM weekly risk assessments)
 - `.planning/phases/04-feature-enhancement-updates/04-03-SUMMARY.md` - Phase 4 Plan 03 summary (AI Feature Access Control and Role Catalog)
+- `.planning/phases/04-feature-enhancement-updates/04-04-SUMMARY.md` - Phase 4 Plan 04 summary (Defender documentation verification and enhancement)
 - `docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md` - Enhanced with 11-connector table
-- `docs/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md` - Enhanced with weekly risk assessments
+- `docs/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md` - Enhanced with weekly risk assessments + cross-reference to Control 1.8
+- `docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md` - Enhanced with role terminology consistency + cross-reference to Control 1.6
 - `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` - Enhanced with AI Feature Access Control (6 capabilities)
 - `docs/reference/role-catalog.md` - Enhanced with AI Administrator entry and permission matrix
 - `docs/playbooks/control-implementations/1.5/portal-walkthrough.md` - Virtual connector configuration steps
@@ -225,6 +227,8 @@ cat .planning/ROADMAP.md
 - `docs/playbooks/control-implementations/1.6/verification-testing.md` - DSPM assessment test cases
 - `docs/playbooks/control-implementations/3.8/portal-walkthrough.md` - AI Feature Access Control configuration steps
 - `docs/playbooks/control-implementations/3.8/verification-testing.md` - Feature access control test cases
+- `docs/playbooks/control-implementations/1.8/portal-walkthrough.md` - Defender two-portal configuration with FSI guidance
+- `docs/playbooks/control-implementations/1.8/verification-testing.md` - Defender test cases (CloudAppEvents query + DSPM integration)
 - `.planning/ROADMAP.md` - Phase 4 scope and requirements
 - `.planning/REQUIREMENTS.md` - All 33 requirements with traceability
 
