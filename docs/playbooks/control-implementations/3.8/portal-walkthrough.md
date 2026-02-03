@@ -69,6 +69,49 @@ Navigate through the four settings tabs:
 
 ---
 
+### Step 3A: Configure AI Feature Access Control
+
+**Portal Path:** M365 Admin Center > Copilot > Settings
+
+Configure user-level feature access to manage Copilot availability by user, group, and compliance requirements:
+
+**1. Navigate to M365 Admin Center > Copilot > Settings**
+
+**2. Configure User Access:**
+   - Set license assignments (Licenses > Assign/Remove)
+   - Create Admin Exclusion Groups for compliance-restricted users
+   - Review user access settings
+
+**3. Configure End-User Experience:**
+   - Set Copilot Chat pinning preferences (Teams/Outlook)
+   - Configure user interface defaults
+
+**4. Configure Data Access:**
+   - Disable web search for regulated environments processing MNPI
+   - Set organizational data boundaries
+
+**5. Configure Actions:**
+   - Set agent access controls
+   - Manage connector permissions
+   - Configure allowed agent types
+
+**6. Set up Deployment Groups:**
+   - Navigate to Settings > Deployment
+   - Create deployment groups for staged rollout
+   - Assign user groups to deployment phases
+   - Start with Zone 1 personal productivity users
+   - Expand to Zone 2/3 after validation
+
+**7. Verify settings propagation:**
+   - Allow up to 8 hours for full tenant propagation
+   - Test with users in each deployment group
+   - Confirm Admin Exclusion Groups block access as expected
+
+!!! tip "FSI Governance Best Practice"
+    Create an Admin Exclusion Group for compliance-restricted users BEFORE enabling Copilot organization-wide. This prevents inadvertent access during the propagation window.
+
+---
+
 ## Part 2: M365 Admin Center - Agents Section
 
 ### Step 4: Access Agents Management
@@ -175,9 +218,12 @@ Review MCP Server availability:
 After completing the configuration, verify:
 
 1. [ ] M365 Admin Center Copilot Settings configured (User Access, Data Access, Copilot Actions)
-2. [ ] Agent registry displays all deployed agents with accurate metadata
-3. [ ] PPAC Copilot Settings configured with FSI recommendations applied
-4. [ ] Ownerless agents identified and assigned owners
+2. [ ] Admin Exclusion Groups created and assigned to compliance-restricted users
+3. [ ] Deployment groups configured for staged rollout
+4. [ ] Feature access controls applied and propagated (allow 8 hours)
+5. [ ] Agent registry displays all deployed agents with accurate metadata
+6. [ ] PPAC Copilot Settings configured with FSI recommendations applied
+7. [ ] Ownerless agents identified and assigned owners
 
 **Expected Result:** Copilot and Agent governance dashboards provide visibility into agent deployments, and settings enforce organizational policies.
 
