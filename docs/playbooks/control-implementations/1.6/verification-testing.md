@@ -60,12 +60,63 @@
 
 ## Data Risk Assessment Verification
 
+### Weekly Assessment Functionality
+
+| Test | Action | Expected Result |
+|------|--------|-----------------|
+| 1 | Navigate to DSPM for AI dashboard | All four tabs (Overview, Identify, Protect, Monitor) load with data |
+| 2 | Check default assessment status | Weekly assessment shows recent run date and site count (top 100 sites) |
+| 3 | Review Protect tab for oversharing | Sites with broad permissions are flagged with remediation options |
+| 4 | Create custom assessment for specific site | Assessment queues and produces results within 4 days |
+| 5 | Verify assessment covers sensitivity label detection | Unlabeled content flagged in Identify tab |
+
+### Dashboard Tab Verification
+
+1. **Overview Tab:**
+   - [ ] Sites scanned count displayed
+   - [ ] Sensitive items found summary visible
+   - [ ] Risk score per site/workspace shown
+
+2. **Identify Tab:**
+   - [ ] Coverage percentage displayed (data scanned vs. not scanned)
+   - [ ] Unscanned volumes identified
+   - [ ] Unlabeled content flagged
+
+3. **Protect Tab:**
+   - [ ] Sites with organization-wide sharing flagged
+   - [ ] Sites with external sharing flagged
+   - [ ] Remediation options available
+
+4. **Monitor Tab:**
+   - [ ] Sharing breakdown by access type displayed
+   - [ ] Specific people access shown
+   - [ ] External and organization-wide access tracked
+   - [ ] Group-based access visible
+
+### Assessment Schedule Verification
+
 1. Navigate to **DSPM for AI > Data risk assessments**
 2. Verify default assessment runs successfully
 3. Review results for:
+   - Assessment run date (weekly schedule)
+   - Sites scanned (top 100 by usage)
    - Overshared items count
    - Severity levels
    - Affected sites/users
+4. Confirm timing:
+   - Initial results appeared within 4 days
+   - Subsequent results refresh within 48 hours
+
+### Evidence Collection
+
+**Export DSPM assessment summary as PDF** for compliance documentation. Include:
+
+- Assessment date
+- Sites scanned count
+- Findings count by severity
+- Remediation status
+- Dashboard screenshots showing all four tabs
+- Assessment configuration showing weekly schedule
 
 ---
 

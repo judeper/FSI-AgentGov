@@ -174,11 +174,39 @@ Steps 2-4 expand coverage to other AI apps. Complete as appropriate for your sco
 | **2. Protect** | Apply controls | Limit Copilot access, apply labels and retention |
 | **3. Monitor** | Ongoing review | SharePoint site and access reviews |
 
+### Weekly Assessment Configuration
+
+DSPM for AI automatically runs weekly risk assessments for the top 100 SharePoint sites based on usage. To configure and monitor these assessments:
+
+1. Navigate to **Microsoft Purview > DSPM for AI**
+2. Complete Get Started wizard (if not already done)
+3. Go to **Data risk assessments** in the left navigation
+4. View default weekly assessment status — confirm top 100 sites being scanned
+5. Navigate through dashboard tabs to review risk insights:
+   - **Overview** — Summary insights per site/workspace (sites scanned, sensitive items, risk score)
+   - **Identify** — Data scanned vs. not scanned for SITs (coverage percentage, unscanned volumes)
+   - **Protect** — Oversharing remediation options (org-wide sharing, external sharing)
+   - **Monitor** — Sharing breakdown by access type (specific people, external, organization-wide)
+
+**Timing Guidance:**
+
+- **Initial assessment results** appear after approximately 4 days
+- **Subsequent weekly results** refresh within 48 hours of assessment completion
+- **Custom assessments** for specific sites produce results within 4 days
+
+**FSI-Specific Portal Configuration:**
+
+For regulated environments, prioritize remediation of sites showing "Organization-wide" or "External" sharing classifications in the Monitor tab. Establish monitoring workflows aligned with zone-specific remediation SLAs:
+
+- **Zone 1:** 30-day remediation SLA — review monthly
+- **Zone 2:** 14-day remediation SLA — review weekly
+- **Zone 3:** 7-day remediation SLA — review daily
+
 ### Running Oversharing Assessments
 
 1. Navigate to **DSPM for AI > Data risk assessments**
 2. Run the default assessment for defined scope
-3. Wait for completion
+3. Wait for completion (4 days for initial results, 48 hours for refresh)
 4. Review results and record:
    - Assessment name
    - Scope (sites/users/data sources)
@@ -187,10 +215,13 @@ Steps 2-4 expand coverage to other AI apps. Complete as appropriate for your sco
 
 ### Custom Assessments
 
+For high-priority sites not in the top 100, create custom assessments:
+
 1. Click **+ Create custom assessment**
 2. Define data sources and users to assess
-3. Review results for overshared items
-4. Take remediation actions
+3. Wait for assessment completion (approximately 4 days)
+4. Review results for overshared items
+5. Take remediation actions based on zone-specific SLAs
 
 ---
 
