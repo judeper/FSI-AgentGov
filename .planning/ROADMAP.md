@@ -55,10 +55,10 @@ This roadmap delivers tech debt resolution, documentation architecture improveme
 **Plans:** 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Fix CRITICAL secret exposure and HIGH error handling in CAA solution
-- [ ] 01-02-PLAN.md — Add #Requires to deny-event-correlation and pipeline-governance scripts
-- [ ] 01-03-PLAN.md — Add #Requires to remaining 5 scripts and clean FINRA requirements.txt
-- [ ] 01-04-PLAN.md — Comprehensive regex-based validation across all scripts
+- [x] 01-01-PLAN.md — Fix CRITICAL secret exposure and HIGH error handling in CAA solution
+- [x] 01-02-PLAN.md — Add #Requires to deny-event-correlation and pipeline-governance scripts
+- [x] 01-03-PLAN.md — Add #Requires to remaining 5 scripts and clean FINRA requirements.txt
+- [x] 01-04-PLAN.md — Comprehensive regex-based validation across all scripts
 
 ---
 
@@ -155,7 +155,7 @@ Plans:
 
 | Phase | Requirements | Status | Progress |
 |-------|--------------|--------|----------|
-| 1 - PowerShell Tech Debt Resolution | 4 | Not Started | ░░░░░░░░░░ 0% |
+| 1 - PowerShell Tech Debt Resolution | 4 | ✓ Complete | ██████████ 100% |
 | 2 - Documentation Architecture | 2 | Not Started | ░░░░░░░░░░ 0% |
 | 3 - Monitoring Configuration | 1 | Not Started | ░░░░░░░░░░ 0% |
 | 4 - Compliance Dashboard | 1 | Not Started | ░░░░░░░░░░ 0% |
@@ -220,5 +220,5 @@ All 9 v2 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 2.0*
+*Roadmap version: 2.1*
 *Last updated: 2026-02-04*
