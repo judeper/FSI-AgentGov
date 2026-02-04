@@ -27,7 +27,7 @@ REQUIRED_HEADINGS = [
     "## Zone-Specific Requirements",
     "## Roles & Responsibilities",
     "## Related Controls",
-    "## Implementation Guides",
+    "## Implementation Playbooks",
     "## Verification Criteria",
     "## Additional Resources",
 ]
