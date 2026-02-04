@@ -19,25 +19,25 @@
 ## Current Position
 
 **Milestone:** v2 — Tech Debt, Architecture & Solution Completion
-**Phase:** Phase 1 complete, ready for Phase 2
-**Plan:** 4/4 plans complete in Phase 1
-**Status:** Phase 1 verified and complete
-**Progress:** ██░░░░░░░░ 20%
-**Last activity:** 2026-02-04 — Phase 1 complete, all 4 DEBT items resolved
+**Phase:** 2 of 5 (Documentation Architecture)
+**Plan:** 2 of 3 plans complete in Phase 2
+**Status:** In progress
+**Progress:** ███░░░░░░░ 29%
+**Last activity:** 2026-02-04 — Completed 02-02-PLAN.md (Pillar 2 INFO admonition conversion)
 
-**Next Action:** `/gsd:plan-phase 2` — Plan Phase 2 documentation architecture improvements.
+**Next Action:** Execute Plan 02-03 — Convert Pillar 3 controls to INFO admonition format.
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 4
+- Plans completed: 6
 - Plans in progress: 0
 
 **Quality:**
-- Requirements completed: 4/9
-- Tests passing: N/A
+- Requirements completed: 5/9
+- Tests passing: N/A (mkdocs build pending)
 - Coverage: 9/9 requirements mapped
 
 **Efficiency:**
@@ -61,6 +61,9 @@
 | 2026-02-04 | Defer ARCH-04 (awesome-pages) to v3 | Risk of breaking pedagogical nav structure per research | Avoid regression |
 | 2026-02-04 | Defer ARCH-05 (SQLite) indefinitely | JSON sufficient for 209 URLs per research | Avoid over-engineering |
 | 2026-02-04 | 11 scripts need #Requires, not 12 | Exploration found 3 already have them (CAA solution) | Accurate scope |
+| 2026-02-04 | Use INFO admonition for playbook links | Provides visual hierarchy and improves UX | Consistent pattern across all pillars |
+| 2026-02-04 | Change heading to "Implementation Playbooks" | More accurate descriptor than "Implementation Guides" | Better content labeling |
+| 2026-02-04 | Standardize link descriptions across controls | Consistent user experience; reduces cognitive load | Applied to all 21 Pillar 2 controls |
 
 ### Active TODOs
 
@@ -126,12 +129,13 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 **Context to preserve:**
 1. v1 milestone complete — all 33 requirements, 8 phases, 35 plans
 2. v2 Phase 1 complete — 4/4 plans, all DEBT items resolved
-3. Phase 2 ready for planning — documentation architecture improvements in FSI-AgentGov
+3. v2 Phase 2 in progress — 2/3 plans complete (Pillar 1 and Pillar 2 converted)
 
 **Files to reference:**
 - `.planning/PROJECT.md` — Updated for v2
 - `.planning/ROADMAP.md` — v2 roadmap with 5 phases
 - `.planning/phases/01-powershell-tech-debt/01-VERIFICATION.md` — Phase 1 verification report
+- `.planning/phases/02-documentation-audit-foundation/02-02-SUMMARY.md` — Pillar 2 conversion complete
 
 ---
 
@@ -140,12 +144,12 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 | Milestone | Status | Notes |
 |-----------|--------|-------|
 | v1 Complete | ✓ Complete | 33/33 requirements, 8/8 phases, 35 plans |
-| v2 In Progress | ◆ Phase 1 Complete | 5 phases, 9 requirements, 4/9 complete |
+| v2 In Progress | ◆ Phase 2 In Progress | 5 phases, 9 requirements, 5/9 complete (56%) |
 
 **Overall Project Status:** ON TRACK
 
 ---
 
-*State version: 2.2*
-*Session: 18*
+*State version: 2.3*
+*Session: 19*
 *Last updated: 2026-02-04*

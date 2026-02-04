@@ -1,105 +1,165 @@
 ---
-phase: 02-documentation-audit-foundation
+phase: 02-documentation-architecture
 plan: 02
-subsystem: documentation
-tags: [audit, controls, pillar-2, management, regulatory-citations, finra, occ]
-
-# Dependency graph
-requires:
-  - phase: 01-critical-technical-remediation
-    provides: Pipeline deadline cross-references in Controls 2.1, 2.3, 2.5
+subsystem: controls-pillar-2
+tags: [documentation, admonition, mkdocs, ui-improvement]
+requires: []
 provides:
-  - Comprehensive Pillar 2 audit report with 4 findings (0 Critical, 1 Moderate, 3 Minor)
-  - Verified template compliance across all 21 Management controls
-  - Validated Microsoft Learn URLs against monitoring state
-  - Confirmed accurate regulatory citations (OCC 2011-12, Fed SR 11-7, FINRA 3110, 4511)
-affects: [02-05, 02-07]
-
-# Tech tracking
+  - All 21 Pillar 2 controls use INFO admonition format
+  - Standardized playbook link presentation
+  - Improved visual hierarchy for implementation guidance
+affects:
+  - All future control updates in Pillar 2
+decisions:
+  - Use INFO admonition instead of plain text for playbook links
+  - Standardize link descriptions with em-dash separator
+  - Maintain "Implementation Playbooks" as section heading
 tech-stack:
   added: []
   patterns:
-    - "Audit report structure with severity classification (Critical/Moderate/Minor)"
-    - "Evidence-based findings with regulatory citation cross-verification"
-
+    - MkDocs Material INFO admonition for implementation guidance
 key-files:
-  created:
-    - ".planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-2.md"
-  modified: []
-
-key-decisions:
-  - "Phase 1 pipeline deadline cross-references verified correctly applied to Controls 2.1, 2.3, 2.5"
-  - "FINRA Notice 25-07 clarification identified as Moderate finding for Control 2.19"
-  - "OCC 2011-12 and Fed SR 11-7 citations in Control 2.6 confirmed accurate"
-  - "FINRA 3110 supervision citations in Control 2.12 confirmed specific and correct"
-
-patterns-established:
-  - "Regulatory citation verification includes rule vs guidance distinction"
-  - "Retention period verification (3-year vs 6-year) applied systematically"
-
-# Metrics
-duration: 40min
-completed: 2026-02-03
+  created: []
+  modified:
+    - docs/controls/pillar-2-management/2.1-managed-environments.md
+    - docs/controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md
+    - docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md
+    - docs/controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md
+    - docs/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md
+    - docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md
+    - docs/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md
+    - docs/controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md
+    - docs/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md
+    - docs/controls/pillar-2-management/2.10-patch-management-and-system-updates.md
+    - docs/controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md
+    - docs/controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md
+    - docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md
+    - docs/controls/pillar-2-management/2.14-training-and-awareness-program.md
+    - docs/controls/pillar-2-management/2.15-environment-routing.md
+    - docs/controls/pillar-2-management/2.16-rag-source-integrity-validation.md
+    - docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md
+    - docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md
+    - docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md
+    - docs/controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md
+    - docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md
+metrics:
+  duration: 3min
+  completed: 2026-02-04
 ---
 
-# Phase 02 Plan 02: Pillar 2 Management Audit Summary
+# Phase 02 Plan 02: Pillar 2 INFO Admonition Conversion Summary
 
-**Comprehensive audit of 21 Management controls and 84 playbooks — 0 Critical, 1 Moderate (FINRA Notice 25-07 clarification), 3 Minor findings. Exemplary regulatory citation accuracy across OCC, Fed SR, FINRA, and SEC references.**
+**One-liner:** Converted all 21 Pillar 2 (Management) control pages from plain-text "Implementation Guides" sections to INFO admonition boxes with standardized formatting.
 
-## Performance
+---
 
-- **Duration:** 40 min
-- **Started:** 2026-02-03
-- **Completed:** 2026-02-03
-- **Tasks:** 2
-- **Files created:** 1 (AUDIT-PILLAR-2.md)
+## What Was Built
 
-## Accomplishments
+### Task 1: Controls 2.1-2.11 Conversion
+Converted the first 11 controls to use INFO admonition format:
+- Replaced `## Implementation Guides` heading with `## Implementation Playbooks`
+- Wrapped playbook links in `!!! info "Step-by-Step Implementation"` admonition
+- Standardized link descriptions: "Step-by-step portal configuration", "Automation scripts", "Test cases and evidence collection", "Common issues and resolutions"
+- Used em-dash (—) instead of hyphen (-) as separator
 
-- Audited all 21 Pillar 2 controls (2.1-2.21) for 10-section template compliance — 100% pass
-- Verified all 84 playbooks exist with correct structure (4 per control)
-- Confirmed Phase 1 pipeline deadline updates correctly applied (Controls 2.1, 2.3, 2.5)
-- Validated OCC 2011-12 and Fed SR 11-7 citations in Control 2.6 (Model Risk Management)
-- Confirmed FINRA 3110 supervision citations in Control 2.12 are specific and accurate
-- Verified FINRA 4511 records retention citations in Control 2.13
-- Assessed 44 admonitions across 16 controls for consistency
-- All sampled Microsoft Learn URLs verified against learn-monitor-state.json
+**Commit:** `78c1572` - feat(02-02): convert controls 2.1-2.11 to INFO admonition format
 
-## Task Commits
+### Task 2: Controls 2.12-2.21 Conversion
+Applied identical transformation to remaining 10 controls, completing full Pillar 2 coverage.
 
-1. **Task 1: Structural and formatting audit** — structural findings documented
-2. **Task 2: Content accuracy and citation audit** — regulatory and URL verification complete
+**Commit:** `0552de3` - feat(02-02): convert controls 2.12-2.21 to INFO admonition format
 
-**Note:** Git commits pending due to hook path configuration issue. Files created successfully.
-
-## Files Created/Modified
-
-- `.planning/phases/02-documentation-audit-foundation/AUDIT-PILLAR-2.md` — Complete Pillar 2 audit report
+---
 
 ## Decisions Made
 
-- Phase 1 pipeline deadline cross-references verified as correctly implemented
-- FINRA Notice 25-07 identified as needing clarification in Control 2.19 (Moderate)
-- Version number variance in footer metadata noted as Minor finding
-- All retention periods confirmed accurate (3-year vs 6-year aligned with regulations)
+**Decision 1: Section heading change**
+- **Context:** Original heading was "Implementation Guides" (plural)
+- **Decision:** Changed to "Implementation Playbooks" to align with content type
+- **Rationale:** More accurate descriptor; "playbooks" better conveys step-by-step procedural nature
+- **Scope:** Applied consistently to all 21 controls
+
+**Decision 2: Link description standardization**
+- **Context:** Original descriptions varied slightly between controls
+- **Decision:** Standardized to 4 descriptions across all controls
+- **Rationale:** Consistency improves user experience; users learn pattern once
+- **Descriptions:**
+  - Portal Walkthrough → "Step-by-step portal configuration"
+  - PowerShell Setup → "Automation scripts"
+  - Verification & Testing → "Test cases and evidence collection"
+  - Troubleshooting → "Common issues and resolutions"
+
+**Decision 3: Em-dash separator**
+- **Context:** Original used hyphen-space (` - `)
+- **Decision:** Switched to em-dash (` — `)
+- **Rationale:** Em-dash is typographically correct for this use case; cleaner visual separation
+
+---
 
 ## Deviations from Plan
 
-None — plan executed as written.
+None - plan executed exactly as written.
 
-## Issues Encountered
+---
 
-- Git commit blocked by boundary-check hook path resolution issue (CWD mismatch). Files created successfully, commits pending.
+## Verification Results
 
-## User Setup Required
+All verification criteria met:
 
-None — no external service configuration required.
+1. **INFO admonition count:** All 21 controls contain `!!! info "Step-by-Step Implementation"`
+2. **Old section removal:** Zero instances of `## Implementation Guides` remain
+3. **New section count:** Exactly 21 `## Implementation Playbooks` sections exist
+4. **Link integrity:** All relative paths to playbook files preserved
+
+---
+
+## Performance
+
+- **Duration:** 3 minutes (from 20:39:52 to 20:42:49 UTC)
+- **Files modified:** 21
+- **Lines changed:** +168 insertions, -126 deletions (net +42)
+- **Commits:** 2 (one per task)
+
+---
 
 ## Next Phase Readiness
 
-- Pillar 2 audit report complete and ready for user review (Plan 02-05)
-- Ready for correction phase (Plan 02-07) after review approval
+**Phase 2 Plan 03 Dependencies:**
+
+This plan provides the updated format for Pillar 2. Plan 03 will apply the same transformation to Pillar 3 (Reporting) controls following identical patterns.
+
+**No blockers identified.**
+
+**Ready for:** Plan 02-03 (Pillar 3 conversion)
 
 ---
-*Phase: 02-documentation-audit-foundation*
-*Completed: 2026-02-03*
+
+## Lessons Learned
+
+**What Worked Well:**
+1. Parallel execution - reading multiple files simultaneously sped up pattern identification
+2. Two-task structure (2.1-2.11, then 2.12-2.21) created natural checkpoint for verification
+3. Exact pattern matching from Read tool made Edit operations straightforward
+
+**What Could Be Improved:**
+- Could have read all 21 files in parallel upfront rather than in two batches (minor optimization)
+
+**For Future Plans:**
+- This same approach will work for Pillar 3 (10 controls) and Pillar 4 (7 controls) with minimal adaptation
+
+---
+
+## Repository State
+
+**Branch:** main
+**Last Commit:** 0552de3 - feat(02-02): convert controls 2.12-2.21 to INFO admonition format
+**Build Status:** Not yet validated (will run `mkdocs build --strict` in next verification step)
+
+**Modified Files (21):**
+- All files in `docs/controls/pillar-2-management/` (excluding index.md)
+
+---
+
+*Summary created: 2026-02-04*
+*Plan execution: Complete*
+*Next step: Update STATE.md and create metadata commit*
