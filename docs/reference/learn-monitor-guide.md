@@ -10,24 +10,26 @@ This guide explains how the automated Microsoft Learn documentation monitoring s
 |----------|--------|
 | When does it run? | **Daily at 6:00 AM UTC** via GitHub Actions |
 | When is a PR created? | **Every Sunday** (weekly baseline) OR **when changes are detected** |
-| Where are changes stored? | `data/learn-monitor-state.json` (content hashes), `reports/learn-changes/*.md` (reports) |
+| Where are changes stored? | `data/monitor-state.json` (unified state), `reports/monitoring/learn-changes-*.md` (reports) |
 | How to test locally? | `python scripts/learn_monitor.py --dry-run --limit 5` |
 
 ---
 
 ## System Overview
 
-The Learn monitor tracks **191 Microsoft Learn URLs** from the [Microsoft Learn URLs](microsoft-learn-urls.md) watchlist and detects content changes that may require updates to framework documentation.
+The Learn monitor tracks **209 Microsoft Learn URLs** from the [Microsoft Learn URLs](microsoft-learn-urls.md) watchlist and detects content changes that may require updates to framework documentation.
+
+**Part of Unified Monitoring System:** The Learn Monitor is one source adapter within the broader unified monitoring architecture. See [monitoring-architecture.md](monitoring-architecture.md) for the complete system design.
 
 ```
 +---------------------------------------------------------------------+
-|                      How the Monitor Works                          |
+|                      How the Learn Monitor Works                    |
 +---------------------------------------------------------------------+
 |                                                                     |
 |  1. WATCHLIST                    2. FETCH & HASH                    |
 |  +---------------------+         +---------------------+            |
 |  | microsoft-learn-    |   -->   | For each URL:       |            |
-|  | urls.md (191 URLs)  |         | - Fetch HTML        |            |
+|  | urls.md (209 URLs)  |         | - Fetch HTML        |            |
 |  +---------------------+         | - Extract content   |            |
 |                                  | - Compute SHA-256   |            |
 |                                  +---------------------+            |
@@ -35,17 +37,20 @@ The Learn monitor tracks **191 Microsoft Learn URLs** from the [Microsoft Learn 
 |                                           v                         |
 |  3. COMPARE                      4. CLASSIFY CHANGES                |
 |  +---------------------+         +---------------------+            |
-|  | data/learn-monitor- |   -->   | meaningful/minor/   |            |
-|  | state.json          |         | noise               |            |
+|  | data/monitor-       |   -->   | meaningful/minor/   |            |
+|  | state.json (unified)|         | noise               |            |
 |  | (previous hashes)   |         +---------------------+            |
 |  +---------------------+                  |                         |
 |                                           v                         |
 |  5. OUTPUT                       6. CI TRIGGERS PR                  |
 |  +---------------------+         +---------------------+            |
-|  | reports/learn-      |         | Exit code 1 OR      |            |
-|  | changes/*.md        |         | Sunday = Create PR  |            |
+|  | reports/monitoring/ |         | Exit code 1 OR      |            |
+|  | learn-changes-*.md  |         | Sunday = Create PR  |            |
 |  +---------------------+         +---------------------+            |
 |                                                                     |
++---------------------------------------------------------------------+
+|  Framework: monitoring_shared.py provides state, classification,   |
+|  control mapping, and report generation capabilities               |
 +---------------------------------------------------------------------+
 ```
 
@@ -55,11 +60,14 @@ The Learn monitor tracks **191 Microsoft Learn URLs** from the [Microsoft Learn 
 
 | File | Purpose |
 |------|---------|
-| `scripts/learn_monitor.py` | Main Python script |
-| `.github/workflows/learn-monitor.yml` | GitHub Actions workflow |
-| `docs/reference/microsoft-learn-urls.md` | Watchlist of 191 URLs to monitor |
-| `data/learn-monitor-state.json` | Stores content hashes (created on first run) |
-| `reports/learn-changes/*.md` | Change detection reports |
+| `scripts/learn_monitor.py` | Learn Monitor source adapter |
+| `scripts/monitoring_shared.py` | Unified monitoring framework (state, classification, control mapping) |
+| `scripts/regulatory_monitor.py` | Regulatory source adapter (Federal Register, FINRA) |
+| `.github/workflows/learn-monitor.yml` | GitHub Actions workflow for Learn Monitor |
+| `docs/reference/microsoft-learn-urls.md` | Watchlist of 209 URLs to monitor |
+| `data/monitor-state.json` | Unified state file (content hashes for all sources) |
+| `reports/monitoring/learn-changes-*.md` | Learn change reports |
+| `reports/monitoring/regulatory-changes-*.md` | Regulatory change reports |
 
 ---
 
@@ -179,21 +187,29 @@ python scripts/learn_monitor.py
 
 ## Understanding the Output
 
-### State File (`data/learn-monitor-state.json`)
+### State File (`data/monitor-state.json`)
 
-The state file stores SHA-256 content hashes for each monitored URL:
+The unified state file stores SHA-256 content hashes for all monitored sources (Learn + Regulatory):
 
 ```json
 {
-  "https://learn.microsoft.com/...": {
-    "hash": "abc123...",
-    "last_checked": "2026-01-24T06:00:00Z",
-    "title": "Managed Environments Overview"
+  "last_updated": "2026-02-04T06:00:00Z",
+  "sources": {
+    "learn": {
+      "urls": {
+        "https://learn.microsoft.com/...": {
+          "hash": "sha256:abc123...",
+          "last_checked": "2026-02-04T06:00:00Z",
+          "title": "Managed Environments Overview"
+        }
+      }
+    },
+    "regulatory": { ... }
   }
 }
 ```
 
-### Change Reports (`reports/learn-changes/learn-changes-YYYY-MM-DD.md`)
+### Change Reports (`reports/monitoring/learn-changes-YYYY-MM-DD.md`)
 
 Reports are generated when changes are detected:
 
@@ -225,7 +241,7 @@ python scripts/learn_monitor.py --limit 20
 ### Option 3: Check for Recent Reports
 
 ```bash
-ls -la reports/learn-changes/
+ls -la reports/monitoring/learn-changes-*.md
 ```
 
 ---
@@ -289,10 +305,11 @@ To verify the Learn Monitor works correctly, follow these steps:
 ### Step 1: Establish Baseline (or use existing)
 
 ```bash
-# If no state file exists, create baseline
+# If no state file exists for Learn URLs, create baseline
 python3 scripts/learn_monitor.py --limit 5
 
 # Expected: "Baseline established. No report generated on first run."
+# State saved to: data/monitor-state.json (unified state file)
 ```
 
 ### Step 2: Run Again (No Changes Expected)
@@ -309,12 +326,12 @@ python3 scripts/learn_monitor.py --limit 5
 # Inject fake old content to trigger change detection
 python3 -c "
 import json
-with open('data/learn-monitor-state.json', 'r') as f:
+with open('data/monitor-state.json', 'r') as f:
     state = json.load(f)
-first_url = list(state['urls'].keys())[0]
-state['urls'][first_url]['normalized_content'] = 'OLD CONTENT'
-state['urls'][first_url]['content_hash'] = 'sha256:fake_hash'
-with open('data/learn-monitor-state.json', 'w') as f:
+first_url = list(state['sources']['learn']['urls'].keys())[0]
+state['sources']['learn']['urls'][first_url]['normalized_content'] = 'OLD CONTENT'
+state['sources']['learn']['urls'][first_url]['hash'] = 'sha256:fake_hash'
+with open('data/monitor-state.json', 'w') as f:
     json.dump(state, f, indent=2)
 "
 
@@ -327,15 +344,15 @@ python3 scripts/learn_monitor.py --limit 5
 ### Step 4: Verify Report Created
 
 ```bash
-ls -la reports/learn-changes/
-cat reports/learn-changes/learn-changes-*.md
+ls -la reports/monitoring/learn-changes-*.md
+cat reports/monitoring/learn-changes-*.md
 ```
 
 ### Step 5: Restore State File
 
 ```bash
-git checkout data/learn-monitor-state.json
-rm reports/learn-changes/learn-changes-*.md
+git checkout data/monitor-state.json
+rm reports/monitoring/learn-changes-*.md
 ```
 
 ### Verification Summary
@@ -353,19 +370,21 @@ rm reports/learn-changes/learn-changes-*.md
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| No state file exists | Monitor hasn't run yet | Run `python scripts/learn_monitor.py` to create baseline |
+| No state file exists | Monitor hasn't run yet | Run `python scripts/learn_monitor.py` to create baseline (stored in unified `data/monitor-state.json`) |
 | URL fetch failures | Network issues or URL changed | Check URL validity, retry later |
-| Too many false positives | NOISE detection needs tuning | Review patterns in `learn_monitor.py` |
+| Too many false positives | NOISE detection needs tuning | Review patterns in `monitoring_shared.py` classification logic |
 | Workflow not running | GitHub Actions disabled | Check repository Actions settings |
+| State file corrupted | JSON parsing errors | Restore from backup or delete and re-run monitor (establishes new baseline) |
 
 ---
 
 ## Related Documentation
 
-- [Microsoft Learn URLs](microsoft-learn-urls.md) - The watchlist of monitored URLs
-- [Learn Monitor AI Enhancement](learn-monitor-ai-enhancement.md) - AI-assisted review design
-- `.claude/CLAUDE.md` - Repository instructions including monitor usage (in project root)
-- `.claude/skills/review-learn-changes.md` - Claude Code skill for reviewing changes
+- **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Comprehensive unified monitoring system documentation
+- **AI-Assisted Review:** [learn-monitor-ai-enhancement.md](learn-monitor-ai-enhancement.md) - AI-assisted review implementation guide
+- **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - The watchlist of monitored URLs (209 URLs)
+- **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill for reviewing changes
+- **Repository Instructions:** `.claude/CLAUDE.md` - Complete repository instructions (in project root)
 
 ---
 
