@@ -75,7 +75,7 @@ Active requirements for v2 milestone: Tech Debt, Architecture & Solution Complet
 
 - [x] **ARCH-01**: Enable breadcrumb navigation (`navigation.path`) in MkDocs Material
 - [x] **ARCH-02**: Add playbook discoverability with INFO admonition boxes linking to 4 playbooks per control
-- [ ] **ARCH-03**: Externalize Learn Monitor classification patterns to YAML configuration
+- [x] **ARCH-03**: Externalize Learn Monitor classification patterns to YAML configuration
 
 ### Solution Completion
 
@@ -120,7 +120,7 @@ All 33 v1 requirements satisfied. See v1-MILESTONE-AUDIT.md for full verificatio
 | DEBT-04 | Phase 1 | Complete |
 | ARCH-01 | Phase 2 | Complete |
 | ARCH-02 | Phase 2 | Complete |
-| ARCH-03 | Phase 3 | Pending |
+| ARCH-03 | Phase 3 | Complete |
 | SOL-01 | Phase 4 | Pending |
 | SOL-02 | Phase 5 | Pending |
 
@@ -131,4 +131,4 @@ All 33 v1 requirements satisfied. See v1-MILESTONE-AUDIT.md for full verificatio
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-04 — Phase 2 complete, 6/9 v2 requirements satisfied*
+*Last updated: 2026-02-04 — Phase 3 complete, 7/9 v2 requirements satisfied*
