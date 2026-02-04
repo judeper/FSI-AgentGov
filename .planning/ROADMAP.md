@@ -52,6 +52,14 @@ This roadmap delivers tech debt resolution, documentation architecture improveme
 4. No unused dependencies in any `requirements.txt` file
 5. All scripts pass regex-based validation (reuse Phase 7 validation approach)
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Fix CRITICAL secret exposure and HIGH error handling in CAA solution
+- [ ] 01-02-PLAN.md — Add #Requires to deny-event-correlation and pipeline-governance scripts
+- [ ] 01-03-PLAN.md — Add #Requires to remaining 5 scripts and clean FINRA requirements.txt
+- [ ] 01-04-PLAN.md — Comprehensive regex-based validation across all scripts
+
 ---
 
 ## Phase 2: Documentation Architecture Improvements
