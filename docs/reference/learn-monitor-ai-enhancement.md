@@ -1,145 +1,126 @@
-# Learn Monitor AI-Assisted Drafts Enhancement
+# Unified Monitoring System - AI-Assisted Review Implementation Guide
 
-This document describes the design for enhancing the Learn Monitor workflow with AI-assisted documentation update drafts.
+This document describes the AI-assisted review capability for the unified monitoring system (Microsoft Learn + Regulatory sources).
 
 ---
 
 ## Executive Summary
 
-**Current State:** The Learn Monitor detects Microsoft Learn documentation changes and creates PRs with change reports. Humans must manually review reports and update affected documentation.
+**Implementation Status:** Active and functional as of February 2026.
 
-**Enhanced State:** After detecting changes, Claude Code reviews the change report and drafts specific documentation updates, creating a follow-up PR with proposed edits for human approval.
+**Current State:** The unified monitoring system detects changes from Microsoft Learn documentation and regulatory sources (Federal Register, FINRA). AI-assisted review provides automated drafts for Learn changes and triage analysis for regulatory changes.
 
----
-
-## Design Overview
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           CURRENT WORKFLOW                                  │
-│                                                                             │
-│  Daily 6 AM UTC                                                             │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────────────┐  │
-│  │  Fetch   │───▶│  Hash &  │───▶│ Classify │───▶│ Create Detection PR  │  │
-│  │  URLs    │    │  Compare │    │ Changes  │    │ (state + report)     │  │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────────────────┘  │
-│                                                             │               │
-│                                                             ▼               │
-│                                                   ┌──────────────────────┐  │
-│                                                   │  MANUAL: Review &    │  │
-│                                                   │  Update Docs         │  │
-│                                                   └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          ENHANCED WORKFLOW                                  │
-│                                                                             │
-│  Daily 6 AM UTC                                                             │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────────────────┐  │
-│  │  Fetch   │───▶│  Hash &  │───▶│ Classify │───▶│ Create Detection PR  │  │
-│  │  URLs    │    │  Compare │    │ Changes  │    │ (state + report)     │  │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────────────────┘  │
-│                                                             │               │
-│                                                             ▼               │
-│                                                   ┌──────────────────────┐  │
-│                                            NEW    │  Claude Code         │  │
-│                                           ─────▶  │  Reviews Report      │  │
-│                                                   └──────────────────────┘  │
-│                                                             │               │
-│                                                             ▼               │
-│                                                   ┌──────────────────────┐  │
-│                                            NEW    │  Create Draft PR     │  │
-│                                           ─────▶  │  with Doc Updates    │  │
-│                                                   └──────────────────────┘  │
-│                                                             │               │
-│                                                             ▼               │
-│                                                   ┌──────────────────────┐  │
-│                                                   │  HUMAN: Review &     │  │
-│                                                   │  Approve/Edit        │  │
-│                                                   └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+**How It Works:** The `/review-learn-changes` Claude Code skill analyzes monitoring reports and either drafts specific documentation updates (Learn changes) or provides triage summaries (regulatory changes) for human review.
 
 ---
 
-## Implementation Options
+## System Architecture
 
-### Option A: GitHub Actions Workflow (Recommended)
-
-Add a new workflow that triggers when the detection PR is created, uses Claude Code to analyze and draft updates.
-
-**Pros:**
-- Fully automated, no manual intervention to start
-- Runs in CI environment with proper permissions
-- Creates audit trail in GitHub Actions logs
-
-**Cons:**
-- Requires Claude API key in GitHub Secrets
-- API costs for each run
-- Limited by GitHub Actions runner time limits
-
-### Option B: Manual Claude Code Invocation
-
-Create a skill/script that a human invokes after reviewing the detection PR.
-
-**Pros:**
-- Human decides when to run
-- Lower API costs (only runs when needed)
-- More control over when AI assistance is used
-
-**Cons:**
-- Not fully automated
-- Requires human to remember to run it
-
-### Option C: Hybrid Approach
-
-GitHub Actions creates a comment on the detection PR with instructions to invoke Claude Code locally.
-
-**Pros:**
-- Best of both worlds
-- Human remains in the loop
-- Clear workflow guidance
-
-**Cons:**
-- Slightly more complex
-- Still requires manual step
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       UNIFIED MONITORING SYSTEM                              │
+│                                                                              │
+│  ┌─────────────────────┐         ┌─────────────────────┐                    │
+│  │  Learn Monitor      │         │ Regulatory Monitor  │                    │
+│  │  (Daily 6 AM UTC)   │         │ (Weekly Wed 6 AM)   │                    │
+│  └──────────┬──────────┘         └──────────┬──────────┘                    │
+│             │                               │                                │
+│             └───────────────┬───────────────┘                                │
+│                             │                                                │
+│                             ▼                                                │
+│                  ┌──────────────────────┐                                    │
+│                  │ monitoring_shared.py │ (Unified framework)                │
+│                  │ - Shared state file  │                                    │
+│                  │ - Shared reports dir │                                    │
+│                  │ - Control mapping    │                                    │
+│                  └──────────┬───────────┘                                    │
+│                             │                                                │
+│                             ▼                                                │
+│                  ┌──────────────────────┐                                    │
+│                  │  Create Report in    │                                    │
+│                  │  reports/monitoring/ │                                    │
+│                  └──────────┬───────────┘                                    │
+│                             │                                                │
+│                             ▼                                                │
+│         ┌───────────────────┴───────────────────┐                            │
+│         │                                       │                            │
+│         ▼                                       ▼                            │
+│  ┌──────────────────┐                  ┌──────────────────┐                 │
+│  │ Learn Report     │                  │ Regulatory Report│                 │
+│  │ (learn-changes-) │                  │ (regulatory-    )│                 │
+│  └────────┬─────────┘                  └────────┬─────────┘                 │
+│           │                                     │                            │
+│           └────────────┬────────────────────────┘                            │
+│                        │                                                     │
+│                        ▼                                                     │
+│              ┌─────────────────────┐                                         │
+│              │ /review-learn-      │ (AI-assisted review)                    │
+│              │  changes skill      │                                         │
+│              └─────────┬───────────┘                                         │
+│                        │                                                     │
+│         ┌──────────────┴──────────────┐                                      │
+│         ▼                              ▼                                     │
+│  ┌──────────────┐              ┌──────────────┐                             │
+│  │ Learn: Auto  │              │ Regulatory:  │                             │
+│  │ Draft Edits  │              │ Triage Only  │                             │
+│  └──────┬───────┘              └──────┬───────┘                             │
+│         │                              │                                     │
+│         └──────────────┬───────────────┘                                     │
+│                        │                                                     │
+│                        ▼                                                     │
+│              ┌─────────────────────┐                                         │
+│              │ HUMAN: Review &     │                                         │
+│              │ Approve/Edit        │                                         │
+│              └─────────────────────┘                                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Recommended Implementation: Option A with Guardrails
+## Implementation Approach
 
-### Architecture
+The system uses **Manual Claude Code Invocation** (formerly "Option B") with distinct workflows for different report types:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    learn-monitor-ai-assist.yml                              │
-│                                                                             │
-│  Trigger: PR created with label "learn-watch"                               │
-│                                                                             │
-│  Steps:                                                                     │
-│  1. Checkout repo                                                           │
-│  2. Read change report from PR                                              │
-│  3. Filter for HIGH priority changes only                                   │
-│  4. For each affected control/playbook:                                     │
-│     a. Read current documentation                                           │
-│     b. Analyze what changed in Microsoft Learn                              │
-│     c. Draft specific edits                                                 │
-│  5. Create new branch: learn-monitor/docs-update-{run_number}               │
-│  6. Apply drafted edits                                                     │
-│  7. Run validation (mkdocs build --strict)                                  │
-│  8. Create PR with drafted updates                                          │
-│  9. Link new PR to detection PR                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+### Learn Changes: Auto-Draft with Human Approval
+
+Human invokes `/review-learn-changes` skill after monitoring PR is created:
+
+1. Read Learn change report from `reports/monitoring/`
+2. Filter for HIGH priority changes
+3. For each affected control/playbook:
+   - Read current documentation
+   - Analyze what changed in Microsoft Learn
+   - Draft specific edits
+4. Present summary of proposed updates to human
+5. Apply edits with user confirmation
+6. Run validation (`mkdocs build --strict`)
+7. Human reviews, commits, and pushes changes
+
+### Regulatory Changes: Triage with Human Decision
+
+Human invokes `/review-learn-changes` skill for regulatory reports:
+
+1. Read regulatory change report from `reports/monitoring/`
+2. For each CRITICAL/HIGH item:
+   - Read suggested affected controls
+   - Assess relevance to AI agent governance
+   - Validate keyword-based suggestions
+3. Present triage summary (requires review vs. out-of-scope)
+4. Human conducts detailed analysis and determines if framework updates are needed
+
+**Rationale:** Regulatory language changes require human judgment and cannot be auto-drafted per CONTRIBUTING.md safety rules.
 
 ### Key Design Decisions
 
-#### 1. Scope Limitation
-- Only process HIGH priority changes (not MEDIUM or NOISE)
-- Skip CRITICAL changes (require immediate human attention)
-- Maximum 10 controls per run to limit API costs
+#### 1. Scope Limitation (Learn Changes)
+- Process HIGH priority changes
+- Flag CRITICAL changes for immediate attention
+- Human controls when to run (cost optimization)
 
 #### 2. Change Categories Handled
+
+**Learn Changes (Auto-Draft):**
 
 | Change Type | AI Action |
 |-------------|-----------|
@@ -149,90 +130,81 @@ GitHub Actions creates a comment on the detection PR with instructions to invoke
 | Policy language changes | Flag for human review (don't auto-edit) |
 | New documentation pages | Create cross-reference entries |
 
+**Regulatory Changes (Triage Only):**
+
+| Change Type | AI Action |
+|-------------|-----------|
+| AI governance-related | Validate suggested controls, flag for human review |
+| Recordkeeping/supervision | Validate suggested controls, flag for human review |
+| Data protection/content | Validate suggested controls, flag for human review |
+| Out of scope | Identify as dismissible |
+
 #### 3. Safety Guardrails
 
-- **Never auto-merge:** All drafts require human approval
-- **Validation gate:** mkdocs build must pass before PR creation
-- **Diff size limit:** If changes exceed 500 lines, flag for manual review
-- **Regulatory language check:** Never auto-edit sentences containing regulatory terms
-- **Rollback ready:** Each change is a separate commit for easy revert
+- **Never auto-commit:** All drafts require human review
+- **Validation gate:** mkdocs build must pass after edits
+- **Regulatory language check:** Never auto-edit regulatory content per CONTRIBUTING.md
+- **Human invocation:** User decides when to run the skill
 
 ---
 
-## Implementation Plan
+## Implementation Status
 
-### Phase 1: Script Development (This Session)
+### Phase 1: Unified Framework (Complete ✅)
 
-Create `scripts/learn_monitor_ai_assist.py`:
-
-```python
-#!/usr/bin/env python3
-"""
-Learn Monitor AI Assist - Analyzes change reports and drafts documentation updates.
-
-Usage:
-    python scripts/learn_monitor_ai_assist.py --report reports/learn-changes/learn-changes-2026-02-01.md
-    python scripts/learn_monitor_ai_assist.py --pr 6
-"""
-```
+**Delivered:** `scripts/monitoring_shared.py`
 
 **Capabilities:**
-1. Parse change report markdown
-2. Extract affected controls and playbooks
-3. Analyze each change against current documentation
-4. Generate specific edit recommendations
-5. Output structured update plan (JSON/Markdown)
+- Shared state management (`data/monitor-state.json`)
+- Shared report directory (`reports/monitoring/`)
+- Control mapping and classification
+- Pluggable source adapters (Learn + Regulatory)
 
-### Phase 2: Claude Code Skill
+### Phase 2: Source Adapters (Complete ✅)
 
-Create `.claude/skills/review-learn-changes.md`:
+**Learn Monitor:** `scripts/learn_monitor.py`
+- 209 Microsoft Learn URLs monitored
+- Daily runs via GitHub Actions
+- Produces `reports/monitoring/learn-changes-*.md`
 
-```yaml
----
-name: review-learn-changes
-description: Review Learn Monitor change report and draft documentation updates
-allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
-user-invocable: true
----
-```
+**Regulatory Monitor:** `scripts/regulatory_monitor.py`
+- Federal Register APIs (SEC, CFTC, OCC, Fed Reserve)
+- FINRA regulatory notices
+- Weekly runs via GitHub Actions
+- Produces `reports/monitoring/regulatory-changes-*.md`
+
+### Phase 3: AI-Assisted Review Skill (Complete ✅)
+
+**Delivered:** `.claude/skills/review-learn-changes.md`
 
 **Workflow:**
-1. Read the latest change report
-2. For each HIGH priority change:
-   - Read the affected control/playbook
-   - Analyze the diff from Microsoft Learn
-   - Determine if update is needed
-   - Draft specific edits
-3. Create summary of proposed changes
-4. Apply edits (with user confirmation)
-5. Run validation
+1. User invokes `/review-learn-changes` after monitoring PR created
+2. Skill determines report type (Learn or Regulatory)
+3. For Learn reports:
+   - Analyzes HIGH priority changes
+   - Drafts specific documentation edits
+   - Applies edits with user confirmation
+   - Runs validation
+4. For Regulatory reports:
+   - Validates control mapping suggestions
+   - Assesses relevance to AI agent governance
+   - Creates triage summary (review vs. dismiss)
+   - Human conducts detailed analysis
 
-### Phase 3: GitHub Actions Integration (Future)
+### Future Enhancements (Optional)
 
-Create `.github/workflows/learn-monitor-ai-assist.yml`:
-
-```yaml
-name: Learn Monitor AI Assist
-
-on:
-  pull_request:
-    types: [opened]
-    paths:
-      - 'reports/learn-changes/*.md'
-
-jobs:
-  analyze-changes:
-    if: contains(github.event.pull_request.labels.*.name, 'learn-watch')
-    runs-on: ubuntu-latest
-    steps:
-      # ... implementation
-```
+**GitHub Actions Integration:**
+- Automated invocation of AI review on PR creation
+- Requires Claude API key in GitHub Secrets
+- Cost vs. benefit evaluation needed
 
 ---
 
-## Change Report Analysis Rules
+## Change Classification and Response
 
-### What to Update Automatically
+### Learn Changes
+
+#### Auto-Draft Eligible
 
 | Pattern Detected | Update Action |
 |-----------------|---------------|
@@ -243,7 +215,7 @@ jobs:
 | Feature deprecated | Add deprecation warning box |
 | URL redirect | Update microsoft-learn-urls.md |
 
-### What to Flag for Human Review
+#### Flag for Human Review
 
 | Pattern Detected | Reason |
 |-----------------|--------|
@@ -253,7 +225,7 @@ jobs:
 | Security guidance changes | Risk assessment needed |
 | CRITICAL classification | Immediate attention required |
 
-### What to Skip
+#### Skip
 
 | Pattern Detected | Reason |
 |-----------------|--------|
@@ -262,82 +234,82 @@ jobs:
 | Minor wording tweaks | Low impact |
 | 21Vianet-only changes | Not applicable to US FSI |
 
----
+### Regulatory Changes
 
-## PR #6 Analysis Preview
+#### Triage Categories
 
-Based on the change report in PR #6, here's what the AI assistant would recommend:
+| Category | Pattern | Response |
+|----------|---------|----------|
+| **Requires Review** | AI, supervision, recordkeeping, data protection keywords | Validate suggested controls, flag for human analysis |
+| **Out of Scope** | Trading rules, fee schedules, non-AI topics | Identify as dismissible |
 
-### HIGH Priority Changes Requiring Updates
-
-| # | Change | Affected Docs | Recommended Action |
-|---|--------|---------------|-------------------|
-| 1 | Sentinel Azure portal deprecation date changed (July 2026 → March 31, 2027) | Control 3.9, multiple Sentinel references | Update timeline references |
-| 2 | eDiscovery classic retirement scope clarified (21Vianet only) | Control 1.19, eDiscovery playbooks | Add scope clarification note |
-| 3 | New Agent Essentials documentation pages | Controls 1.1, 1.5, 1.6, 1.11, 2.1, 2.3, 3.1, 3.5, 3.8 | Add cross-references |
-| 4 | Key Vault RBAC now default in CLI | Control 1.20 | Update PowerShell examples |
-| 5 | AI Content Safety documentation expanded | Control 1.8 | Add new capability references |
-| 6 | 54 URL redirects detected | microsoft-learn-urls.md | Batch update URLs |
-
-### Changes to Skip
-
-| # | Change | Reason |
-|---|--------|--------|
-| 1 | Copilot Studio UI text tweaks | Minor wording, no impact |
-| 2 | Sensitivity labels note rewording | Formatting only |
-| 3 | Device Control typo fix ("Portal" → "Portable") | Typo in MS doc, not ours |
+**IMPORTANT:** Regulatory changes are NEVER auto-edited. The skill produces a triage summary only.
 
 ---
 
-## Testing Plan
+## Usage Examples
 
-### Test with PR #6
+### Example 1: Learn Changes with Auto-Draft
 
-1. **Run analysis script** against `reports/learn-changes/learn-changes-2026-02-01.md`
-2. **Review recommendations** for accuracy
-3. **Apply a subset of changes** manually
-4. **Validate** with `mkdocs build --strict`
-5. **Iterate** on script based on results
+```bash
+# User invokes skill
+/review-learn-changes
 
-### Success Criteria
+# Skill analyzes report
+Reading reports/monitoring/learn-changes-2026-02-01.md...
 
-- [ ] Script correctly identifies affected controls
-- [ ] Script correctly categorizes changes (update/flag/skip)
-- [ ] Generated edits are accurate and minimal
-- [ ] No regulatory language violations
-- [ ] mkdocs build passes after changes
+Found 31 HIGH priority changes affecting 15 controls.
+
+Proposed Updates:
+1. Control 3.9: Update Sentinel deadline (July 2026 → March 31, 2027)
+2. Control 1.19: Add 21Vianet scope note for eDiscovery classic
+3. Controls 1.1, 1.5, 1.6: Add Agent Essentials cross-references
+...
+
+Do you want me to apply these 12 updates?
+
+# User approves
+Yes, apply them
+
+# Skill applies edits and validates
+Applied 12 updates across 8 files
+✓ mkdocs build --strict passed
+
+Recommendation: Review changes and commit with:
+"docs: Apply Learn Monitor updates from 2026-02-01 report"
+```
+
+### Example 2: Regulatory Changes with Triage
+
+```bash
+# User invokes skill for regulatory report
+/review-learn-changes
+
+# Skill analyzes report
+Reading reports/monitoring/regulatory-changes-2026-02-04.md...
+
+Found 4 regulatory items. All classified as NOISE.
+
+Triage Summary:
+
+Out of Scope (Dismiss):
+1. SEC - Fixed Income Clearing Corp rule (not AI governance-related)
+2. CBOE Exchange trading rule (not AI governance-related)
+3. NYSE fee schedule update (not AI governance-related)
+4. FINRA trade reporting notice (not AI governance-related)
+
+All items are out of scope. No action needed.
+```
 
 ---
 
-## Cost Considerations
+## Related Documentation
 
-### API Usage Estimate
-
-| Component | Tokens (est.) | Cost (est.) |
-|-----------|---------------|-------------|
-| Read change report | ~5,000 | $0.02 |
-| Read affected docs (10 controls × 2,000 tokens) | ~20,000 | $0.08 |
-| Generate recommendations | ~10,000 | $0.04 |
-| **Total per run** | ~35,000 | **~$0.14** |
-
-*Based on Claude Sonnet pricing. Using Haiku for classification would reduce costs.*
-
-### Optimization Strategies
-
-1. **Pre-filter changes** before calling Claude (skip NOISE/MEDIUM)
-2. **Batch similar changes** (e.g., all Sentinel date updates together)
-3. **Cache control content** across runs
-4. **Use Haiku for classification**, Sonnet for drafting
+- **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Unified monitoring system overview
+- **Learn Monitor Guide:** [learn-monitor-guide.md](learn-monitor-guide.md) - Learn Monitor documentation
+- **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill
+- **Contributing Guide:** `CONTRIBUTING.md` - Language guidelines and safety rules
 
 ---
 
-## Next Steps
-
-1. **Now:** Test the analysis approach manually with PR #6
-2. **This session:** Create the Claude Code skill
-3. **Future:** Implement GitHub Actions automation
-4. **Future:** Add metrics/reporting on AI assist effectiveness
-
----
-
-*Design Document v1.0 - February 2026*
+*Implementation Guide v2.0 - February 2026 (Active implementation)*
