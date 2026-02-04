@@ -47,6 +47,9 @@ from monitoring_shared import (
     generate_executive_summary,
     format_change_summary,
     write_report,
+    load_monitoring_config,
+    validate_config,
+    DEFAULT_CONFIG_PATH,
     CLASSIFICATION_CRITICAL,
     CLASSIFICATION_HIGH,
     CLASSIFICATION_MEDIUM,
@@ -74,46 +77,9 @@ SOURCE_KEY_FINRA = "regulatory-finra"
 
 # Federal Register API configuration
 FEDERAL_REGISTER_API_BASE = "https://www.federalregister.gov/api/v1"
-FEDERAL_REGISTER_AGENCIES = [
-    'securities-and-exchange-commission',  # SEC
-    'commodity-futures-trading-commission',  # CFTC
-    'comptroller-of-the-currency',  # OCC
-    'federal-reserve-system',  # Federal Reserve / Fed SR 11-7
-]
-FEDERAL_REGISTER_DOC_TYPES = ['RULE', 'PRORULE', 'NOTICE']
 
 # FINRA notices page
 FINRA_NOTICES_URL = "https://www.finra.org/rules-guidance/notices"
-
-# Keyword-to-control mapping for actionable suggestions
-KEYWORD_CONTROL_MAP = {
-    'supervision': ['2.12', '2.18'],
-    'recordkeeping': ['1.7', '1.10'],
-    'retention': ['1.7', '1.10'],
-    'data loss prevention': ['1.3', '1.5'],
-    'dlp': ['1.3', '1.5'],
-    'audit': ['1.7', '3.1', '3.2'],
-    'access control': ['1.1', '1.2', '1.11'],
-    'encryption': ['1.14', '1.15'],
-    'risk management': ['2.6', '2.7'],
-    'incident': ['2.14', '2.15'],
-    'disaster recovery': ['2.16', '2.17'],
-    'information barrier': ['1.22', '1.23'],
-    'communication': ['1.10', '2.18', '2.19'],
-    'ai': ['2.6', '2.12', '3.8'],
-    'artificial intelligence': ['2.6', '2.12', '3.8'],
-    'machine learning': ['2.6', '2.12'],
-    'model risk': ['2.6'],
-    'chatbot': ['2.6', '2.12'],
-    'generative': ['2.6', '2.12'],
-    'automated advice': ['2.6', '2.12'],
-    'broker-dealer': ['1.10', '2.18'],
-    'investment adviser': ['1.10', '2.18'],
-    'cybersecurity': ['1.14', '2.6', '2.14'],
-    'data protection': ['1.3', '1.14', '1.15'],
-    'privacy': ['1.3', '1.14', '1.15'],
-    'compliance': ['2.6', '3.1', '3.2'],
-}
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
@@ -158,12 +124,17 @@ class RegulatoryItem:
             self.affected_controls = []
 
 
-def classify_regulatory_relevance(title: str, abstract: str) -> tuple[str, str]:
+def classify_regulatory_relevance(title: str, abstract: str, config: dict) -> tuple[str, str]:
     """
     Classify regulatory item for FSI AI agent governance relevance.
 
     Uses the unified 4-tier system (CRITICAL/HIGH/MEDIUM/NOISE) for consistency
-    with Learn Monitor.
+    with Learn Monitor. Patterns are loaded from config.
+
+    Args:
+        title: Document title
+        abstract: Document abstract
+        config: Configuration dict with pattern definitions
 
     Returns:
         tuple: (tier, reason)
@@ -173,34 +144,22 @@ def classify_regulatory_relevance(title: str, abstract: str) -> tuple[str, str]:
     abstract = abstract or ""
     combined = f"{title.lower()} {abstract.lower()}"
 
+    # Get regulatory patterns from config
+    regulatory_config = config.get('regulatory', {})
+
     # CRITICAL: Directly mentions AI agents, copilot, or automated advice in FSI context
     critical_patterns = [
-        r'\bai\s+agent',
-        r'\bagent\s+ai',
-        r'\bcopilot',
-        r'\bautomated\s+advice',
-        r'\bautomated\s+investment\s+advice',
-        r'\brobo-advisor',
-        r'\brobo\s+advisor',
+        (p['pattern'], p['reason'])
+        for p in regulatory_config.get('critical_patterns', [])
     ]
-    for pattern in critical_patterns:
+    for pattern, reason in critical_patterns:
         if re.search(pattern, combined):
-            return (CLASSIFICATION_CRITICAL, f"Directly mentions AI agents/copilot in regulatory context")
+            return (CLASSIFICATION_CRITICAL, reason)
 
     # HIGH: AI, ML, automation terms + FSI-specific requirements
     high_patterns = [
-        (r'\bartificial\s+intelligence', "References artificial intelligence"),
-        (r'\bmachine\s+learning', "References machine learning"),
-        (r'\bllm\b', "References large language models"),
-        (r'\bgenerative\s+ai', "References generative AI"),
-        (r'\bchatbot', "References chatbots"),
-        (r'\bautomation', "References automation in FSI context"),
-        (r'\bsupervision.*(?:electronic|automated|technology)', "References supervision of automated systems"),
-        (r'\bfinra\s+3110', "References FINRA 3110 (supervision)"),
-        (r'\bfinra\s+4511', "References FINRA 4511 (recordkeeping)"),
-        (r'\bsec\s+17a-[34]', "References SEC 17a-3 or 17a-4 (recordkeeping)"),
-        (r'\brecordkeeping.*(?:electronic|automated)', "References electronic recordkeeping"),
-        (r'\bmodel\s+risk\s+management', "References model risk management"),
+        (p['pattern'], p['reason'])
+        for p in regulatory_config.get('high_patterns', [])
     ]
     for pattern, reason in high_patterns:
         if re.search(pattern, combined):
@@ -208,15 +167,8 @@ def classify_regulatory_relevance(title: str, abstract: str) -> tuple[str, str]:
 
     # MEDIUM: General FSI regulations that may indirectly affect AI agents
     medium_patterns = [
-        (r'\bbroker-dealer', "Broker-dealer regulation (may affect AI agent deployments)"),
-        (r'\binvestment\s+adviser', "Investment adviser regulation (may affect AI agent deployments)"),
-        (r'\bcustomer\s+communication', "Customer communication rules (affects AI agent outputs)"),
-        (r'\bcybersecurity', "Cybersecurity requirements (affects AI agent security)"),
-        (r'\bdata\s+protection', "Data protection requirements"),
-        (r'\bprivacy', "Privacy requirements"),
-        (r'\bcompliance\s+program', "Compliance program requirements"),
-        (r'\baudit\s+trail', "Audit trail requirements"),
-        (r'\binformation\s+barrier', "Information barriers (affects AI agent data access)"),
+        (p['pattern'], p['reason'])
+        for p in regulatory_config.get('medium_patterns', [])
     ]
     for pattern, reason in medium_patterns:
         if re.search(pattern, combined):
@@ -226,9 +178,14 @@ def classify_regulatory_relevance(title: str, abstract: str) -> tuple[str, str]:
     return (CLASSIFICATION_NOISE, "No FSI AI agent governance relevance detected")
 
 
-def find_affected_controls_by_keywords(title: str, abstract: str) -> list[str]:
+def find_affected_controls_by_keywords(title: str, abstract: str, config: dict) -> list[str]:
     """
     Find potentially affected controls based on keyword matching.
+
+    Args:
+        title: Document title
+        abstract: Document abstract
+        config: Configuration dict with keyword_control_map
 
     Returns:
         list: Control IDs (e.g., ['1.3', '1.5', '2.6'])
@@ -239,7 +196,13 @@ def find_affected_controls_by_keywords(title: str, abstract: str) -> list[str]:
     combined = f"{title.lower()} {abstract.lower()}"
     affected = set()
 
-    for keyword, controls in KEYWORD_CONTROL_MAP.items():
+    # Build keyword map from config
+    keyword_map = {
+        entry['keyword']: [c['id'] for c in entry['controls']]
+        for entry in config.get('keyword_control_map', [])
+    }
+
+    for keyword, controls in keyword_map.items():
         # Use word boundary matching to avoid partial matches
         pattern = rf'\b{re.escape(keyword)}\b'
         if re.search(pattern, combined, re.IGNORECASE):
@@ -248,13 +211,14 @@ def find_affected_controls_by_keywords(title: str, abstract: str) -> list[str]:
     return sorted(list(affected))
 
 
-def fetch_federal_register_documents(session: requests.Session, since_date: str, limit: Optional[int] = None) -> list[RegulatoryItem]:
+def fetch_federal_register_documents(session: requests.Session, since_date: str, config: dict, limit: Optional[int] = None) -> list[RegulatoryItem]:
     """
     Fetch documents from Federal Register API.
 
     Args:
         session: requests.Session instance
         since_date: ISO date string (YYYY-MM-DD) - fetch documents published on or after this date
+        config: Configuration dict with federal_register settings
         limit: Maximum documents to fetch (for testing)
 
     Returns:
@@ -262,10 +226,21 @@ def fetch_federal_register_documents(session: requests.Session, since_date: str,
     """
     items = []
 
+    # Get agencies and doc types from config
+    fed_config = config.get('federal_register', {})
+    agencies = [a['slug'] for a in fed_config.get('agencies', [])]
+    doc_types = fed_config.get('document_types', ['RULE', 'PRORULE', 'NOTICE'])
+
+    # Build agency short name map from config
+    agency_short_map = {
+        a['slug']: a.get('short_name', a['slug'])
+        for a in fed_config.get('agencies', [])
+    }
+
     # Build query parameters
     params = {
-        'conditions[agencies][]': FEDERAL_REGISTER_AGENCIES,
-        'conditions[type][]': FEDERAL_REGISTER_DOC_TYPES,
+        'conditions[agencies][]': agencies,
+        'conditions[type][]': doc_types,
         'conditions[publication_date][gte]': since_date,
         'per_page': 100,  # API max is 1000
         'order': 'newest',
@@ -292,29 +267,28 @@ def fetch_federal_register_documents(session: requests.Session, since_date: str,
 
         for doc in documents:
             # Extract agency names
-            agencies = [agency.get('name', 'Unknown') for agency in doc.get('agencies', [])]
-            agency_name = ', '.join(agencies) if agencies else 'Unknown'
+            doc_agencies = doc.get('agencies', [])
+            agency_slugs = [agency.get('slug', '') for agency in doc_agencies]
+            agency_names = [agency.get('name', 'Unknown') for agency in doc_agencies]
+            agency_name = ', '.join(agency_names) if agency_names else 'Unknown'
 
-            # Map to canonical short names
-            if 'Securities and Exchange Commission' in agency_name:
-                agency_short = 'SEC'
-            elif 'Commodity Futures Trading Commission' in agency_name:
-                agency_short = 'CFTC'
-            elif 'Comptroller of the Currency' in agency_name:
-                agency_short = 'OCC'
-            elif 'Federal Reserve' in agency_name:
-                agency_short = 'Federal Reserve'
-            else:
+            # Map to canonical short names using config
+            agency_short = 'Unknown'
+            for slug in agency_slugs:
+                if slug in agency_short_map:
+                    agency_short = agency_short_map[slug]
+                    break
+            if agency_short == 'Unknown':
                 agency_short = agency_name
 
             title = doc.get('title', 'Untitled')
             abstract = doc.get('abstract', '')
 
             # Classify for FSI AI agent governance relevance
-            tier, reason = classify_regulatory_relevance(title, abstract)
+            tier, reason = classify_regulatory_relevance(title, abstract, config)
 
             # Find affected controls by keywords
-            affected_controls = find_affected_controls_by_keywords(title, abstract)
+            affected_controls = find_affected_controls_by_keywords(title, abstract, config)
 
             item = RegulatoryItem(
                 source='Federal Register',
@@ -339,12 +313,13 @@ def fetch_federal_register_documents(session: requests.Session, since_date: str,
     return items
 
 
-def fetch_finra_notices(session: requests.Session, limit: Optional[int] = None) -> list[RegulatoryItem]:
+def fetch_finra_notices(session: requests.Session, config: dict, limit: Optional[int] = None) -> list[RegulatoryItem]:
     """
     Scrape FINRA regulatory notices page.
 
     Args:
         session: requests.Session instance
+        config: Configuration dict for classification
         limit: Maximum notices to fetch (for testing)
 
     Returns:
@@ -407,10 +382,10 @@ def fetch_finra_notices(session: requests.Session, limit: Optional[int] = None) 
 
             # Classify for FSI AI agent governance relevance
             # For FINRA notices, we don't have abstracts without fetching individual pages
-            tier, reason = classify_regulatory_relevance(title, "")
+            tier, reason = classify_regulatory_relevance(title, "", config)
 
             # Find affected controls by keywords
-            affected_controls = find_affected_controls_by_keywords(title, "")
+            affected_controls = find_affected_controls_by_keywords(title, "", config)
 
             item = RegulatoryItem(
                 source='FINRA',
@@ -643,6 +618,17 @@ def main():
         default='all',
         help="Which source(s) to monitor"
     )
+    parser.add_argument(
+        '--config',
+        type=str,
+        default=None,
+        help='Path to config file (default: scripts/config/monitoring-config.yaml)'
+    )
+    parser.add_argument(
+        '--validate',
+        action='store_true',
+        help='Validate config file and exit without running'
+    )
 
     args = parser.parse_args()
 
@@ -650,9 +636,25 @@ def main():
     global logger
     logger = setup_logging(verbose=args.verbose)
 
+    # Load and validate config
+    config_path = args.config or DEFAULT_CONFIG_PATH
+    config = load_monitoring_config(config_path)
+
+    if args.validate:
+        is_valid, errors = validate_config(config)
+        if is_valid:
+            print(f"Config valid: {config_path}")
+            sys.exit(0)
+        else:
+            print(f"Config errors in {config_path}:")
+            for err in errors:
+                print(f"  - {err}")
+            sys.exit(2)
+
     logger.info("=== Regulatory Monitor ===")
     logger.info(f"Source: {args.source}")
     logger.info(f"Dry run: {args.dry_run}")
+    logger.info(f"Config: {config_path}")
     if args.limit:
         logger.info(f"Limit: {args.limit} items per source")
 
@@ -684,7 +686,7 @@ def main():
         else:
             logger.info(f"Fetching documents since {since_date}")
 
-        fed_items = fetch_federal_register_documents(session, since_date, limit=args.limit)
+        fed_items = fetch_federal_register_documents(session, since_date, config, limit=args.limit)
         new_fed_items = check_for_new_items(SOURCE_KEY_FEDERAL_REGISTER, fed_items, fed_state)
 
         logger.info(f"Federal Register: {len(new_fed_items)} new items")
@@ -703,7 +705,7 @@ def main():
         logger.info("\n--- FINRA Notices ---")
         finra_state = get_source_state(state, SOURCE_KEY_FINRA)
 
-        finra_items = fetch_finra_notices(session, limit=args.limit)
+        finra_items = fetch_finra_notices(session, config, limit=args.limit)
         new_finra_items = check_for_new_items(SOURCE_KEY_FINRA, finra_items, finra_state)
 
         logger.info(f"FINRA: {len(new_finra_items)} new items")
