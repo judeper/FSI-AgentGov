@@ -19,27 +19,28 @@
 ## Current Position
 
 **Phase:** 5 of 8 (Regulatory Validation) — IN PROGRESS
-**Plan:** 3 of 5 complete (Plans 05-01, 05-02, 05-03 complete - parallel execution)
+**Plan:** 4 of 5 complete (Plans 05-01, 05-02, 05-03, 05-04 complete)
 **Status:** Phase in progress
-**Progress:** ██████░░░░ 64% (21/33 requirements — Phase 1: 3, Phase 2: 5, Phase 3: 2, Phase 4: 5, Phase 5: 3, Phase 6-8: 3 implicit)
-**Last activity:** 2026-02-03 - Completed Plans 05-01, 05-02, 05-03 (State AI Law Verification)
+**Progress:** ██████░░░░ 67% (22/33 requirements — Phase 1: 3, Phase 2: 5, Phase 3: 2, Phase 4: 5, Phase 5: 4, Phase 6-8: 3 implicit)
+**Last activity:** 2026-02-04 - Completed Plan 05-04 (Regulatory Corrections Application)
 
-**Next Action:** Execute Plan 05-04 (Apply Regulatory Corrections).
+**Next Action:** Execute Plan 05-05 (Final Regulatory Validation).
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 21 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 5, Phase 5: 3)
+- Plans completed: 22 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 5, Phase 5: 4)
 - Plans in progress: 0
-- Average completion time: 10.2 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 4.2 min, Phase 5: 3.4 min avg)
+- Average completion time: 10.0 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 4.2 min, Phase 5: 3.6 min avg)
 
 **Quality:**
-- Requirements completed: 21/33 (64%)
+- Requirements completed: 22/33 (67%)
 - Documentation audits: 4/4 pillars (100%) - All pillar audits complete
 - Correction passes: 4/4 pillars (100%) - All corrections applied
-- Regulatory audits: 2/2 complete (7 regulatory bodies verified, 5 state AI laws verified)
+- Regulatory audits: 3/3 complete (regulatory-mappings.md corrected)
+- Regulatory corrections: 15 corrections applied (retention periods, control counts, state AI laws)
 - Full-framework validation: PASS (62 controls, mkdocs build, verify_controls.py)
 - Tests passing: N/A
 - Coverage: 100% (all requirements mapped to phases)
@@ -101,12 +102,20 @@
 | 2026-02-03 | California SB 1047 vetoed but incorrectly listed as "Effective 2025+" | Bill vetoed September 2024 by Governor Newsom | Critical finding requiring removal from regulatory-mappings.md |
 | 2026-02-03 | Texas TRAIGA and Illinois HB 3773 require expansion | Current table-entry coverage insufficient for FSI compliance understanding | High-priority expansions to match Colorado AI Act detail level |
 | 2026-02-03 | No additional FSI-applicable state AI laws through Feb 2026 | Scanned 12+ states including Utah, Tennessee, Virginia - none with comprehensive FSI applicability | Framework state AI law coverage is complete and current |
+| 2026-02-04 | Use official SEC terminology "easily accessible place" not "readily accessible" | Matches 17 CFR § 240.17a-4 official language for audit compliance | Critical for SEC audit evidence documentation |
+| 2026-02-04 | Separate CFTC "readily accessible" from SEC "easily accessible place" with note | Both terms are functionally equivalent but use different official language | Clarifies dual-registrant compliance approach |
+| 2026-02-04 | Remove California SB 1047 entirely (not historical retention) | Bill vetoed 1.5 years ago - minimal historical value, creates confusion | Reduces reader confusion about California AI law status |
+| 2026-02-04 | Expand Texas and Illinois from table entries to full subsections | Matches Colorado AI Act detail level for comprehensive FSI understanding | Provides FSI organizations actionable compliance guidance |
+| 2026-02-04 | Add Agent Governance Records to Retention Period Matrix | Missing critical agent-specific record type (validations, incidents, bias testing) | Clarifies 6-year retention for governance documentation |
 
 ### Active TODOs
 
 **Immediate (Next Session):**
 - [x] ~~Execute Phase 5 Plan 05-01 (Regulatory Citation Verification Audit)~~ - Complete
-- [ ] Execute Phase 5 Plan 05-02 (FINRA 2026 Report Integration)
+- [x] ~~Execute Phase 5 Plan 05-02 (FINRA 2026 Report Integration)~~ - Complete
+- [x] ~~Execute Phase 5 Plan 05-03 (State AI Laws Expansion)~~ - Complete
+- [x] ~~Execute Phase 5 Plan 05-04 (Regulatory Corrections Application)~~ - Complete
+- [ ] Execute Phase 5 Plan 05-05 (Final Regulatory Validation)
 
 **Near-Term (This Week):**
 - [x] ~~Complete Phase 1 (Critical Technical Remediation)~~ - All plans complete
@@ -117,9 +126,9 @@
 
 **This Phase (Phase 5 IN PROGRESS):**
 - [x] ~~Plan 05-01: Regulatory Citation Verification Audit~~
-- [ ] Plan 05-02: FINRA 2026 Report Integration
-- [ ] Plan 05-03: State AI Laws Expansion
-- [ ] Plan 05-04: Regulatory Corrections Pass
+- [x] ~~Plan 05-02: FINRA 2026 Report Integration~~
+- [x] ~~Plan 05-03: State AI Laws Expansion~~
+- [x] ~~Plan 05-04: Regulatory Corrections Pass~~
 - [ ] Plan 05-05: Final Regulatory Validation
 
 ### Pending Todos
@@ -188,7 +197,7 @@
 2. Phase 2 COMPLETE - All 9 plans across 3 waves executed successfully
 3. Phase 3 COMPLETE - 2 plans (Agent 365 architecture + control updates) executed in parallel
 4. Phase 4 COMPLETE - All 5 plans complete (virtual connectors, DSPM assessments, AI Feature Access Control, Defender verification, final validation)
-5. Phase 5 IN PROGRESS - Plan 05-01 complete (regulatory citation verification audit)
+5. Phase 5 IN PROGRESS - Plans 05-01, 05-02, 05-03, 05-04 complete (regulatory validation + corrections)
 5. Total findings across 62 controls: 2 Critical, 12 Moderate, 24 Minor (38 total)
 6. All 38 findings addressed: 33 corrected, 5 documented as canonical (no change needed)
 7. "Last Verified: 2026-02-03" metadata added to all 62 controls
@@ -206,11 +215,15 @@
 19. Phase 5 regulatory audit findings: 1 Critical (SEC terminology), 3 Moderate (FINRA 2026 verification, retention clarity, Colorado date), 4 Minor (control count discrepancies)
 20. Language compliance verified: ZERO prohibited phrases found across all 62 controls and regulatory-mappings.md
 21. 2025-2026 regulatory updates: FINRA 2026 Report (Dec 2025) highest priority, Colorado AI Act extended to June 30, 2026, all other regulations current
+22. Regulatory corrections applied: 15 corrections to regulatory-mappings.md (retention periods, control counts, state AI laws)
+23. Retention Period Matrix corrected: Fixed invalid SEC 17a-4(c)(e)(5) citation, added 3 missing record types (Agent Governance, Derivatives/Commodities, AI Marketing Substantiation)
+24. State AI law coverage expanded: Texas TRAIGA and Illinois HB 3773 from table entries to full subsections, California SB 1047 removed (vetoed)
+25. Control count accuracy: All "61" references updated to "62" throughout regulatory-mappings.md (9 instances + Control Coverage Summary table)
 
 **Commands to run:**
 ```bash
 # Review Phase 5 progress
-cat .planning/phases/05-regulatory-validation/05-01-SUMMARY.md
+cat .planning/phases/05-regulatory-validation/05-04-SUMMARY.md
 cat .planning/phases/05-regulatory-validation/REGULATORY-VERIFICATION-AUDIT.md
 
 # Verify framework health
@@ -222,8 +235,10 @@ cat .planning/ROADMAP.md
 ```
 
 **Files to reference:**
+- `.planning/phases/05-regulatory-validation/05-04-SUMMARY.md` - Phase 5 Plan 04 summary (regulatory corrections application)
 - `.planning/phases/05-regulatory-validation/05-01-SUMMARY.md` - Phase 5 Plan 01 summary (regulatory citation verification)
 - `.planning/phases/05-regulatory-validation/REGULATORY-VERIFICATION-AUDIT.md` - Comprehensive audit report (712 lines)
+- `docs/reference/regulatory-mappings.md` - Corrected centralized regulatory reference
 - `.planning/phases/04-feature-enhancement-updates/04-05-SUMMARY.md` - Phase 4 Plan 05 summary (final validation)
 - `docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md` - Enhanced with 11-connector table
 - `docs/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md` - Enhanced with weekly risk assessments + cross-reference to Control 1.8
@@ -251,7 +266,7 @@ cat .planning/ROADMAP.md
 | Phase 2 Complete | 2026-02-03 | Complete | 9/9 plans, 38 findings addressed, 62 controls verified |
 | Phase 3 Complete | 2026-02-03 | Complete | 2/2 plans (parallel execution), Agent 365 architecture + control updates |
 | Phase 4 Complete | 2026-02-03 | Complete | 5/5 plans (2-wave parallel execution), feature enhancements verified |
-| Phase 5 Complete | TBD | In Progress | 1/5 plans complete - regulatory citation verification audit |
+| Phase 5 Complete | TBD | In Progress | 4/5 plans complete - regulatory validation + corrections applied |
 | Phase 6 Complete | TBD | Pending | Solutions audit |
 | Phase 7 Complete | TBD | Pending | Solutions functional testing |
 | Phase 8 Complete | TBD | Pending | Monitoring systems review |
@@ -260,6 +275,6 @@ cat .planning/ROADMAP.md
 
 ---
 
-*State version: 1.9*
-*Session: 10*
-*Last updated: 2026-02-03*
+*State version: 1.10*
+*Session: 11*
+*Last updated: 2026-02-04*
