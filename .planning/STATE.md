@@ -83,6 +83,7 @@
 | 1 | Create MCP server for FSI governance framework | tooling | `2026-02-03-mcp-server-governance-framework.md` |
 | 2 | Build Copilot Studio agent for FSI governance Q&A | tooling | `2026-02-03-copilot-studio-governance-agent.md` |
 | 3 | Review Agent 365 meeting notes against framework | docs | `2026-02-04-review-agent-365-meeting-notes-against-framework.md` |
+| 4 | Review AI agent evaluation blog for framework applicability | docs | `2026-02-04-review-agent-evaluation-blog-for-framework.md` |
 
 ### Known Blockers
 
