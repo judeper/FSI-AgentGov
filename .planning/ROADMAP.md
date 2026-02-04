@@ -96,7 +96,7 @@ Plans:
 
 ## Phase 3: Monitoring Configuration Externalization
 
-**Goal:** Learn Monitor classification patterns are configurable via YAML without code changes.
+**Goal:** Learn Monitor and Regulatory Monitor classification patterns are configurable via YAML without code changes.
 
 **Dependencies:** Phase 1 (tech debt clean before adding features)
 
@@ -108,13 +108,19 @@ Plans:
 
 | Item | Description |
 |------|-------------|
-| ARCH-03 | Extract hardcoded classification patterns from `monitoring_shared.py` into `config/monitoring-sources.yaml`; add YAML loader; maintain backward compatibility |
+| ARCH-03 | Extract hardcoded classification patterns from `monitoring_shared.py` and `regulatory_monitor.py` into `scripts/config/monitoring-config.yaml`; add YAML loader with validation; add `--config` and `--validate` CLI flags |
 
 **Success Criteria:**
 1. Classification patterns defined in YAML configuration file
 2. `learn_monitor.py --dry-run --limit 5` works with externalized config
-3. Existing behavior unchanged (backward compatible)
+3. Both monitors support `--config` and `--validate` CLI flags
 4. Non-developers can adjust monitoring sensitivity by editing YAML
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Create YAML config file and add config loading infrastructure
+- [ ] 03-02-PLAN.md — Update monitors to use config-driven classification
 
 ---
 
@@ -164,7 +170,7 @@ Plans:
 |-------|--------------|--------|----------|
 | 1 - PowerShell Tech Debt Resolution | 4 | ✓ Complete | ██████████ 100% |
 | 2 - Documentation Architecture | 2 | ✓ Complete | ██████████ 100% |
-| 3 - Monitoring Configuration | 1 | Not Started | ░░░░░░░░░░ 0% |
+| 3 - Monitoring Configuration | 1 | Planned | ░░░░░░░░░░ 0% |
 | 4 - Compliance Dashboard | 1 | Not Started | ░░░░░░░░░░ 0% |
 | 5 - Scope Drift Monitor | 1 | Not Started | ░░░░░░░░░░ 0% |
 
@@ -227,5 +233,5 @@ All 9 v2 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 2.2*
+*Roadmap version: 2.3*
 *Last updated: 2026-02-04*
