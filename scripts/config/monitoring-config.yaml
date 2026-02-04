@@ -1,0 +1,390 @@
+# FSI-AgentGov Monitoring Configuration
+# =======================================
+#
+# This file controls classification patterns for the Learn Monitor and Regulatory Monitor.
+# Non-developers can adjust monitoring sensitivity by editing patterns in this file.
+#
+# PATTERN SYNTAX: All patterns use Python regex syntax.
+# - \b matches a word boundary (start/end of word)
+# - \s matches whitespace (spaces, tabs)
+# - | means OR (matches either pattern)
+# - (?:...) groups patterns without capturing
+# - [34] matches either 3 or 4
+#
+# CLASSIFICATION ORDER: Patterns are checked in order:
+#   CRITICAL -> HIGH -> NOISE -> MEDIUM (default)
+#
+# The first matching pattern determines classification. If no patterns match,
+# the item is classified as MEDIUM by default.
+#
+# ==========================================================================
+
+# === LEARN MONITOR CLASSIFICATION PATTERNS ===
+# These patterns are used to classify changes detected in Microsoft Learn documentation.
+# The Learn Monitor checks for documentation changes that may require updates to
+# FSI-AgentGov playbooks and controls.
+learn:
+  # CRITICAL patterns require immediate action.
+  # These indicate UI navigation steps changed, deprecation notices, or breaking changes.
+  # If a CRITICAL change is detected, the portal-walkthrough.md playbooks may need updating.
+  critical_patterns:
+    - pattern: '\d+\.\s+(click|select|go to|navigate)'
+      reason: "UI navigation steps changed"
+    - pattern: '(deprecated|removed|no longer|retired)'
+      reason: "Deprecation notice"
+    - pattern: '(breaking change|migration required)'
+      reason: "Breaking changes"
+
+  # HIGH patterns require review.
+  # These indicate portal references, UI elements, or policy language changes.
+  high_patterns:
+    - pattern: '(Admin center|portal|Power Platform|Purview)'
+      reason: "Portal references"
+    - pattern: '(button|menu|tab|panel|dialog|blade)'
+      reason: "UI element names"
+    - pattern: '(Important|Warning|Note|Caution):'
+      reason: "Policy callout blocks"
+    - pattern: '(required|must|should not|prohibited)'
+      reason: "Policy language"
+    - pattern: '(compliance|audit|retention|DLP)'
+      reason: "Compliance features"
+    - pattern: '(preview|GA|generally available)'
+      reason: "Feature availability"
+
+  # NOISE patterns are metadata/formatting changes (skip).
+  # These are typically not relevant to FSI-AgentGov documentation updates.
+  noise_patterns:
+    - pattern: '^[-+]\s*$'
+      reason: "Empty diff lines"
+    - pattern: 'ms\.(date|author|reviewer|topic)'
+      reason: "Metadata fields"
+    - pattern: '(Article|Contributor|Feedback)'
+      reason: "Page chrome elements"
+
+
+# === REGULATORY MONITOR CLASSIFICATION PATTERNS ===
+# These patterns are used to classify regulatory items from Federal Register and FINRA.
+# The Regulatory Monitor checks for new regulations that may require framework updates.
+regulatory:
+  # CRITICAL patterns: Direct AI agent/copilot mentions in regulatory context.
+  # These regulatory items directly mention AI agents, copilot, or automated advice
+  # and require immediate review for framework impact.
+  critical_patterns:
+    - pattern: '\bai\s+agent'
+      reason: "Directly mentions AI agents"
+    - pattern: '\bagent\s+ai'
+      reason: "Directly mentions agent AI"
+    - pattern: '\bcopilot'
+      reason: "Directly mentions copilot"
+    - pattern: '\bautomated\s+advice'
+      reason: "Automated advice regulation"
+    - pattern: '\bautomated\s+investment\s+advice'
+      reason: "Automated investment advice"
+    - pattern: '\brobo-advisor'
+      reason: "Robo-advisor regulation"
+    - pattern: '\brobo\s+advisor'
+      reason: "Robo advisor regulation"
+
+  # HIGH patterns: AI/ML terms + FSI-specific requirements.
+  # These reference AI, machine learning, or automation in FSI regulatory context.
+  high_patterns:
+    - pattern: '\bartificial\s+intelligence'
+      reason: "References artificial intelligence"
+    - pattern: '\bmachine\s+learning'
+      reason: "References machine learning"
+    - pattern: '\bllm\b'
+      reason: "References large language models"
+    - pattern: '\bgenerative\s+ai'
+      reason: "References generative AI"
+    - pattern: '\bchatbot'
+      reason: "References chatbots"
+    - pattern: '\bautomation'
+      reason: "References automation in FSI context"
+    - pattern: '\bsupervision.*(?:electronic|automated|technology)'
+      reason: "Supervision of automated systems"
+    - pattern: '\bfinra\s+3110'
+      reason: "FINRA 3110 (supervision)"
+    - pattern: '\bfinra\s+4511'
+      reason: "FINRA 4511 (recordkeeping)"
+    - pattern: '\bsec\s+17a-[34]'
+      reason: "SEC 17a-3 or 17a-4 (recordkeeping)"
+    - pattern: '\brecordkeeping.*(?:electronic|automated)'
+      reason: "Electronic recordkeeping"
+    - pattern: '\bmodel\s+risk\s+management'
+      reason: "Model risk management"
+
+  # MEDIUM patterns: General FSI regulations that may indirectly affect AI agents.
+  # These are general FSI regulations that could have indirect impact on AI agent deployments.
+  medium_patterns:
+    - pattern: '\bbroker-dealer'
+      reason: "Broker-dealer regulation"
+    - pattern: '\binvestment\s+adviser'
+      reason: "Investment adviser regulation"
+    - pattern: '\bcustomer\s+communication'
+      reason: "Customer communication rules"
+    - pattern: '\bcybersecurity'
+      reason: "Cybersecurity requirements"
+    - pattern: '\bdata\s+protection'
+      reason: "Data protection requirements"
+    - pattern: '\bprivacy'
+      reason: "Privacy requirements"
+    - pattern: '\bcompliance\s+program'
+      reason: "Compliance program requirements"
+    - pattern: '\baudit\s+trail'
+      reason: "Audit trail requirements"
+    - pattern: '\binformation\s+barrier'
+      reason: "Information barriers"
+
+
+# === KEYWORD-TO-CONTROL MAPPING ===
+# Maps regulatory keywords to affected FSI-AgentGov controls.
+# When a regulatory item contains a keyword, the listed controls may need review.
+#
+# Format:
+#   - keyword: "keyword phrase"
+#     controls:
+#       - id: "X.Y"           # Control ID (e.g., "1.3", "2.12")
+#         name: "Control Name" # Human-readable control name
+#
+# To add a new keyword mapping:
+#   1. Add a new entry with the keyword phrase (lowercase)
+#   2. List all controls that might be affected by changes related to that keyword
+#   3. Refer to docs/controls/CONTROL-INDEX.md for the full control catalog
+keyword_control_map:
+  - keyword: supervision
+    controls:
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+      - id: "2.18"
+        name: "Supervision Queue Integration"
+
+  - keyword: recordkeeping
+    controls:
+      - id: "1.7"
+        name: "Audit Logging Configuration"
+      - id: "1.10"
+        name: "Communication Compliance"
+
+  - keyword: retention
+    controls:
+      - id: "1.7"
+        name: "Audit Logging Configuration"
+      - id: "1.10"
+        name: "Communication Compliance"
+
+  - keyword: data loss prevention
+    controls:
+      - id: "1.3"
+        name: "Data Loss Prevention Policies"
+      - id: "1.5"
+        name: "Sensitivity Labels"
+
+  - keyword: dlp
+    controls:
+      - id: "1.3"
+        name: "Data Loss Prevention Policies"
+      - id: "1.5"
+        name: "Sensitivity Labels"
+
+  - keyword: audit
+    controls:
+      - id: "1.7"
+        name: "Audit Logging Configuration"
+      - id: "3.1"
+        name: "Unified Audit Log Access"
+      - id: "3.2"
+        name: "Activity Reports"
+
+  - keyword: access control
+    controls:
+      - id: "1.1"
+        name: "Maker-Checker Governance"
+      - id: "1.2"
+        name: "Conditional Access Policies"
+      - id: "1.11"
+        name: "SharePoint Site Permissions"
+
+  - keyword: encryption
+    controls:
+      - id: "1.14"
+        name: "Data Encryption Standards"
+      - id: "1.15"
+        name: "Key Management"
+
+  - keyword: risk management
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.7"
+        name: "Risk Monitoring"
+
+  - keyword: incident
+    controls:
+      - id: "2.14"
+        name: "Incident Response Procedures"
+      - id: "2.15"
+        name: "Incident Documentation"
+
+  - keyword: disaster recovery
+    controls:
+      - id: "2.16"
+        name: "Business Continuity Planning"
+      - id: "2.17"
+        name: "Disaster Recovery Testing"
+
+  - keyword: information barrier
+    controls:
+      - id: "1.22"
+        name: "Information Barriers Configuration"
+      - id: "1.23"
+        name: "Information Barrier Compliance"
+
+  - keyword: communication
+    controls:
+      - id: "1.10"
+        name: "Communication Compliance"
+      - id: "2.18"
+        name: "Supervision Queue Integration"
+      - id: "2.19"
+        name: "Communication Monitoring"
+
+  - keyword: ai
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+      - id: "3.8"
+        name: "AI Agent Analytics"
+
+  - keyword: artificial intelligence
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+      - id: "3.8"
+        name: "AI Agent Analytics"
+
+  - keyword: machine learning
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+
+  - keyword: model risk
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+
+  - keyword: chatbot
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+
+  - keyword: generative
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+
+  - keyword: automated advice
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.12"
+        name: "Human-in-the-Loop Approval"
+
+  - keyword: broker-dealer
+    controls:
+      - id: "1.10"
+        name: "Communication Compliance"
+      - id: "2.18"
+        name: "Supervision Queue Integration"
+
+  - keyword: investment adviser
+    controls:
+      - id: "1.10"
+        name: "Communication Compliance"
+      - id: "2.18"
+        name: "Supervision Queue Integration"
+
+  - keyword: cybersecurity
+    controls:
+      - id: "1.14"
+        name: "Data Encryption Standards"
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "2.14"
+        name: "Incident Response Procedures"
+
+  - keyword: data protection
+    controls:
+      - id: "1.3"
+        name: "Data Loss Prevention Policies"
+      - id: "1.14"
+        name: "Data Encryption Standards"
+      - id: "1.15"
+        name: "Key Management"
+
+  - keyword: privacy
+    controls:
+      - id: "1.3"
+        name: "Data Loss Prevention Policies"
+      - id: "1.14"
+        name: "Data Encryption Standards"
+      - id: "1.15"
+        name: "Key Management"
+
+  - keyword: compliance
+    controls:
+      - id: "2.6"
+        name: "Risk Assessment Framework"
+      - id: "3.1"
+        name: "Unified Audit Log Access"
+      - id: "3.2"
+        name: "Activity Reports"
+
+
+# === FEDERAL REGISTER API CONFIGURATION ===
+# Configuration for the Federal Register API source adapter.
+# These settings control which agencies and document types are monitored.
+federal_register:
+  # Agencies to monitor (Federal Register API slug format).
+  # Add new agencies by finding their slug on federalregister.gov.
+  # Common FSI agencies are listed below.
+  agencies:
+    - slug: securities-and-exchange-commission
+      short_name: SEC
+    - slug: commodity-futures-trading-commission
+      short_name: CFTC
+    - slug: comptroller-of-the-currency
+      short_name: OCC
+    - slug: federal-reserve-system
+      short_name: "Federal Reserve"
+
+  # Document types to monitor.
+  # - RULE: Final rules
+  # - PRORULE: Proposed rules
+  # - NOTICE: Notices
+  document_types:
+    - RULE
+    - PRORULE
+    - NOTICE
+
+
+# === OPERATIONAL SETTINGS ===
+# These settings control HTTP request behavior and output formatting.
+# Adjust these if you experience timeouts or rate limiting.
+operational:
+  # HTTP request settings
+  request_timeout: 30          # Timeout in seconds for HTTP requests
+  max_retries: 3               # Number of retry attempts for failed requests
+  request_delay: 1.0           # Seconds between requests (rate limiting)
+
+  # Diff output settings
+  max_diff_lines: 100          # Truncate diffs longer than this many lines
