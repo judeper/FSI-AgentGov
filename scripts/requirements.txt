@@ -8,8 +8,11 @@
 # - validate_docs_anchors.py
 # - normalize_controls.py
 
+# Required for monitoring configuration
+pyyaml>=6.0            # YAML parsing for monitoring-config.yaml
+
 # Optional: Enhanced validation
-# pyyaml>=6.0          # YAML parsing for mkdocs.yml validation
+# pyyaml>=6.0          # (also used for mkdocs.yml validation)
 # markdown>=3.4        # Markdown parsing for content validation
 
 # Optional: Excel template management

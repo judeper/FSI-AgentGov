@@ -21,6 +21,7 @@ import difflib
 import hashlib
 import json
 import re
+import sys
 import tempfile
 import time
 from datetime import datetime, timezone
@@ -36,9 +37,19 @@ except ImportError as e:
     print("Install with: pip install requests beautifulsoup4")
     raise
 
+try:
+    import yaml
+except ImportError as e:
+    print(f"ERROR: Missing dependency: {e}")
+    print("Install with: pip install pyyaml")
+    raise
+
 # === Configuration Constants ===
 REQUEST_TIMEOUT = 30  # seconds
 MAX_RETRIES = 3
+
+# Default path to monitoring configuration file
+DEFAULT_CONFIG_PATH = Path(__file__).parent / "config" / "monitoring-config.yaml"
 
 # Classification tiers (used by all source adapters)
 CLASSIFICATION_CRITICAL = "CRITICAL"
@@ -562,8 +573,146 @@ def write_report(report_content: str, report_dir: Path, filename: str):
     return report_path
 
 
+# === Configuration Loading ===
+def load_monitoring_config(config_path: Optional[Path] = None) -> dict:
+    """
+    Load and validate monitoring configuration from YAML file.
+
+    Performs fail-fast validation:
+    - File must exist
+    - YAML syntax must be valid
+    - All regex patterns must compile
+
+    Args:
+        config_path: Path to config file. Defaults to DEFAULT_CONFIG_PATH.
+
+    Returns:
+        Parsed configuration dict with keys: learn, regulatory, keyword_control_map,
+        federal_register, operational
+
+    Exits:
+        sys.exit(2) on any validation error with clear error message
+    """
+    if config_path is None:
+        config_path = DEFAULT_CONFIG_PATH
+
+    config_path = Path(config_path) if not isinstance(config_path, Path) else config_path
+
+    # Check file exists
+    if not config_path.exists():
+        print(f"ERROR: Configuration file not found")
+        print(f"  Expected: {config_path}")
+        print(f"  Please ensure the monitoring config file exists.")
+        sys.exit(2)
+
+    # Load YAML
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        print(f"ERROR: Invalid YAML syntax in configuration file")
+        print(f"  File: {config_path}")
+        if hasattr(e, 'problem_mark'):
+            mark = e.problem_mark
+            print(f"  Line: {mark.line + 1}, Column: {mark.column + 1}")
+        print(f"  Error: {e}")
+        sys.exit(2)
+
+    # Validate configuration
+    is_valid, errors = validate_config(config)
+    if not is_valid:
+        print(f"ERROR: Invalid configuration in {config_path}")
+        for error in errors:
+            print(f"  {error}")
+        sys.exit(2)
+
+    return config
+
+
+def validate_config(config: dict) -> tuple[bool, list[str]]:
+    """
+    Validate monitoring configuration structure and regex patterns.
+
+    Checks:
+    - Required top-level keys exist
+    - All patterns compile as valid regex
+
+    Args:
+        config: Parsed configuration dict
+
+    Returns:
+        tuple: (is_valid: bool, errors: list[str])
+    """
+    errors = []
+
+    if config is None:
+        return (False, ["Configuration is empty"])
+
+    # Check required sections
+    required_sections = ['learn', 'regulatory']
+    for section in required_sections:
+        if section not in config:
+            errors.append(f"Missing required section: {section}")
+
+    # Validate learn patterns
+    if 'learn' in config:
+        learn = config['learn']
+        for tier in ['critical_patterns', 'high_patterns', 'noise_patterns']:
+            if tier in learn:
+                for i, entry in enumerate(learn[tier]):
+                    if 'pattern' not in entry:
+                        errors.append(f"learn.{tier}[{i}]: missing 'pattern' key")
+                    else:
+                        pattern = entry['pattern']
+                        try:
+                            re.compile(pattern)
+                        except re.error as e:
+                            errors.append(
+                                f"Invalid regex pattern in config\n"
+                                f"    Location: learn.{tier}[{i}].pattern\n"
+                                f"    Value: '{pattern}'\n"
+                                f"    Error: {e}"
+                            )
+
+    # Validate regulatory patterns
+    if 'regulatory' in config:
+        regulatory = config['regulatory']
+        for tier in ['critical_patterns', 'high_patterns', 'medium_patterns']:
+            if tier in regulatory:
+                for i, entry in enumerate(regulatory[tier]):
+                    if 'pattern' not in entry:
+                        errors.append(f"regulatory.{tier}[{i}]: missing 'pattern' key")
+                    else:
+                        pattern = entry['pattern']
+                        try:
+                            re.compile(pattern)
+                        except re.error as e:
+                            errors.append(
+                                f"Invalid regex pattern in config\n"
+                                f"    Location: regulatory.{tier}[{i}].pattern\n"
+                                f"    Value: '{pattern}'\n"
+                                f"    Error: {e}"
+                            )
+
+    # Validate keyword_control_map structure
+    if 'keyword_control_map' in config:
+        for i, entry in enumerate(config['keyword_control_map']):
+            if 'keyword' not in entry:
+                errors.append(f"keyword_control_map[{i}]: missing 'keyword' key")
+            if 'controls' not in entry:
+                errors.append(f"keyword_control_map[{i}]: missing 'controls' key")
+            elif not isinstance(entry['controls'], list):
+                errors.append(f"keyword_control_map[{i}].controls: must be a list")
+
+    return (len(errors) == 0, errors)
+
+
 # === Module Exports ===
 __all__ = [
+    # Configuration loading
+    'load_monitoring_config',
+    'validate_config',
+    'DEFAULT_CONFIG_PATH',
     # HTTP fetching
     'fetch_page',
     # Content processing
