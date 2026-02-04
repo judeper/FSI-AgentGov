@@ -19,24 +19,24 @@
 ## Current Position
 
 **Phase:** 8 of 8 (Monitoring Systems Review) — IN PROGRESS
-**Plan:** 1 of 3 complete (08-01)
-**Status:** Unified monitoring framework created, Learn Monitor refactored as first source adapter
-**Progress:** █████████░ 97% (33/33 requirements — Phase 1: 3, Phase 2: 5, Phase 3: 2, Phase 4: 5, Phase 5: 5, Phase 6: 9, Phase 7: 3, Phase 8: 1)
-**Last activity:** 2026-02-04 - Completed 08-01 (Unified monitoring framework with control-to-URL mapping)
+**Plan:** 2 of 3 complete (08-01, 08-02)
+**Status:** Unified monitoring system operational with Learn documentation + regulatory sources (Federal Register, FINRA)
+**Progress:** █████████░ 98% (34/34 requirements — Phase 1: 3, Phase 2: 5, Phase 3: 2, Phase 4: 5, Phase 5: 5, Phase 6: 9, Phase 7: 3, Phase 8: 2)
+**Last activity:** 2026-02-04 - Completed 08-02 (Regulatory monitoring source adapter with Federal Register API + FINRA notices)
 
-**Next Action:** Continue Phase 8 with Plan 08-02 (Regulatory Monitor) or Plan 08-03 (AI-assisted review).
+**Next Action:** Continue Phase 8 with Plan 08-03 (AI-assisted review workflow optimization).
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 33 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 5, Phase 5: 5, Phase 6: 5, Phase 7: 3, Phase 8: 1)
+- Plans completed: 34 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 5, Phase 5: 5, Phase 6: 5, Phase 7: 3, Phase 8: 2)
 - Plans in progress: 0
-- Average completion time: 7.1 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 4.2 min, Phase 5: 3.7 min, Phase 6: 5.4 min, Phase 7: 4.3 min, Phase 8: 7.0 min avg)
+- Average completion time: 6.8 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 4.2 min, Phase 5: 3.7 min, Phase 6: 5.4 min, Phase 7: 4.3 min, Phase 8: 5.5 min avg)
 
 **Quality:**
-- Requirements completed: 33/33 (100%)
+- Requirements completed: 34/34 (100%)
 - Documentation audits: 4/4 pillars (100%) - All pillar audits complete
 - Correction passes: 4/4 pillars (100%) - All corrections applied
 - Regulatory audits: 5/5 complete (federal + FINRA 2026 + state AI laws)
@@ -65,6 +65,11 @@
 
 | Date | Decision | Rationale | Impact |
 |------|----------|-----------|--------|
+| 2026-02-04 | Unified monitoring approach — combine Learn documentation and regulatory monitoring into one coherent strategy | One system with multiple source adapters vs two separate monitoring systems | Users experience consistent reports, state management, classification |
+| 2026-02-04 | Regulatory monitor as source adapter within unified monitoring framework | Uses shared utilities, state file, report directory from monitoring_shared.py | No duplicate implementations, consistent architecture |
+| 2026-02-04 | Keyword-to-control mapping for regulatory items | Regulatory documents don't reference FSI-AgentGov URLs; keyword matching provides actionable suggestions | Reports show "Potentially Affected Controls" based on keywords (supervision → 2.12, recordkeeping → 1.7/1.10) |
+| 2026-02-04 | Weekly cadence for regulatory monitoring | Regulatory changes occur less frequently than documentation updates | Monday 7 AM UTC schedule balances timeliness with CI load |
+| 2026-02-04 | Unified workflow naming (monitoring/ branch prefix for all monitors) | Both Learn Monitor and Regulatory Monitor use 'monitoring/' prefix and 'monitoring' label | PR naming consistency reinforces unified system |
 | 2026-02-04 | Integrate FINRA 2026 Report as unified regulatory content (no standalone subsections) | Findings interpret existing FINRA rules, not create new obligations | Readers see continuous regulatory narrative, not temporal bolt-ons |
 | 2026-02-04 | Use "Updated February 2026" info admonitions for all FINRA 2026 integrations | Marks content as recently updated, provides temporal context | Enables tracking of when guidance incorporated |
 | Date | Decision | Rationale | Impact |
