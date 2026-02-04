@@ -18,25 +18,25 @@
 
 ## Current Position
 
-**Phase:** 7 of 8 (Solutions Functional Testing) — COMPLETE
-**Plan:** 3 of 3 complete (07-01, 07-02, 07-03)
-**Status:** Phase 7 complete - All validation and aggregation complete (58/59 artifacts PASS, 98.3%)
-**Progress:** █████████░ 97% (32/33 requirements — Phase 1: 3, Phase 2: 5, Phase 3: 2, Phase 4: 5, Phase 5: 5, Phase 6: 9, Phase 7: 3)
-**Last activity:** 2026-02-04 - Completed 07-03 (Documentation-code traceability + results aggregation - 5 README corrections applied)
+**Phase:** 8 of 8 (Monitoring Systems Review) — IN PROGRESS
+**Plan:** 1 of 3 complete (08-01)
+**Status:** Unified monitoring framework created, Learn Monitor refactored as first source adapter
+**Progress:** █████████░ 97% (33/33 requirements — Phase 1: 3, Phase 2: 5, Phase 3: 2, Phase 4: 5, Phase 5: 5, Phase 6: 9, Phase 7: 3, Phase 8: 1)
+**Last activity:** 2026-02-04 - Completed 08-01 (Unified monitoring framework with control-to-URL mapping)
 
-**Next Action:** Execute Phase 8 (Monitoring Systems Review) or final framework validation.
+**Next Action:** Continue Phase 8 with Plan 08-02 (Regulatory Monitor) or Plan 08-03 (AI-assisted review).
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 32 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 5, Phase 5: 5, Phase 6: 5, Phase 7: 3)
+- Plans completed: 33 (Phase 1: 2, Phase 2: 9, Phase 3: 3, Phase 4: 5, Phase 5: 5, Phase 6: 5, Phase 7: 3, Phase 8: 1)
 - Plans in progress: 0
-- Average completion time: 7.1 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 4.2 min, Phase 5: 3.7 min, Phase 6: 5.4 min, Phase 7: 4.3 min avg)
+- Average completion time: 7.1 min (Phase 1: 5.5 min, Phase 2: 20 min, Phase 3: 3.4 min, Phase 4: 4.2 min, Phase 5: 3.7 min, Phase 6: 5.4 min, Phase 7: 4.3 min, Phase 8: 7.0 min avg)
 
 **Quality:**
-- Requirements completed: 32/33 (97%)
+- Requirements completed: 33/33 (100%)
 - Documentation audits: 4/4 pillars (100%) - All pillar audits complete
 - Correction passes: 4/4 pillars (100%) - All corrections applied
 - Regulatory audits: 5/5 complete (federal + FINRA 2026 + state AI laws)
@@ -133,6 +133,10 @@
 | 2026-02-04 | Defer security/error handling fixes | CRITICAL/HIGH issues require code refactoring, not quick fixes | Documented for future remediation |
 | 2026-02-04 | Update status badges to reflect validation | Phase 6/7 validation confirms 3 solutions are "Validated" not "WIP" | Accurate solution maturity representation |
 | 2026-02-04 | Apply corrections to solutions repo, not framework repo | Changes affect FSI-AgentGov-Solutions READMEs | Proper separation of concerns |
+| 2026-02-04 | Unified state file format for all monitoring sources | Single data/monitor-state.json with source-keyed sections enables one monitoring system instead of separate systems | Simplifies state management, enables cross-source reporting, prepares for regulatory monitor |
+| 2026-02-04 | Backward compatibility with state migration | Automatically migrates old learn-monitor-state.json to unified format on first load | Zero disruption for existing deployments, preserves historical baseline |
+| 2026-02-04 | Reports directory unification | All monitoring outputs to reports/monitoring/ with source-specific filenames | Consistent report location across all monitoring sources |
+| 2026-02-04 | Control-to-URL impact mapping | find_affected_controls() shows which framework controls reference each changed URL | Change reports now answer "which controls are affected?" not just "what changed?" |
 
 ### Active TODOs
 
@@ -215,6 +219,10 @@
 - Plan 07-03 documentation-code traceability effective: Caught 6 documentation issues (5 fixed immediately)
 - Cross-repository coordination successful: Applied corrections to FSI-AgentGov-Solutions while tracking in FSI-AgentGov
 - Multi-source aggregation comprehensive: Combined Python, PowerShell, JSON, KQL, and documentation findings in single report
+- Plan 08-01 unified monitoring framework: 590-line shared module provides base for all monitoring source adapters
+- Atomic state file writes with temp file + rename prevents corruption during CI/CD interrupts
+- Control-to-URL impact mapping scans both controls and playbooks directories for affected files
+- Summary table format enables 30-second review of daily/weekly monitor runs
 
 ### What to Improve
 
@@ -234,6 +242,8 @@
    - 07-01: Python validation (16/16 scripts pass syntax, 1 missing requirements.txt FIXED)
    - 07-02: PowerShell/JSON/KQL validation (14+12+4 files, 1 CRITICAL security, 1 HIGH error handling, 12 MEDIUM)
    - 07-03: Documentation-code traceability + results aggregation (13/13 READMEs validated, 5 corrections applied)
+8. Phase 8 IN PROGRESS - 1 of 3 plans complete:
+   - 08-01: Unified monitoring framework (monitoring_shared.py 590 lines, Learn Monitor refactored, control-to-URL mapping, unified state)
 8. Total findings across 62 controls + regulatory-mappings.md: 1 Critical, 3 Moderate, 4 Minor (8 total) - All addressed
 9. All 38 findings addressed: 33 corrected, 5 documented as canonical (no change needed)
 10. "Last Verified: 2026-02-03" metadata added to all 62 controls
@@ -264,28 +274,36 @@
 32. Defender two-portal and IB channel agent: TECH-06 and TECH-07 confirmed resolved in prior phases (Phase 4 and pre-existing respectively)
 33. Phase 7 Python validation: 16/16 scripts pass syntax, 1 missing requirements.txt (hallucination-tracker FIXED), 6 unused dependencies across 2 solutions (ELM: 2, FINRA: 4)
 34. Phase 7 complete: 58/59 artifacts PASS (98.3%), 5 README corrections applied (hallucination-tracker requirements.txt, PGC script paths, 3 status badges)
+35. Phase 8 Plan 08-01: Unified monitoring framework created (590 lines) with shared utilities for all source adapters
+36. Monitoring state migration: Automatically migrates learn-monitor-state.json to unified monitor-state.json on first load (209 URLs preserved)
+37. Control-to-URL impact mapping: find_affected_controls() scans docs/controls/ and docs/playbooks/ to show which framework components are affected by each change
+38. Enhanced report format: Executive summary, change summary table for quick scanning, affected controls/playbooks sections with priority indicators
 
 **Commands to run:**
 ```bash
-# Review Phase 7 completion
-cat .planning/phases/07-solutions-functional-testing/07-03-SUMMARY.md
-cat .planning/phases/07-solutions-functional-testing/07-VALIDATION-RESULTS.md
+# Review Phase 8 Plan 01 completion
+cat .planning/phases/08-monitoring-systems-review/08-01-SUMMARY.md
+
+# Test unified monitoring framework
+python3 scripts/learn_monitor.py --dry-run --limit 2
+
+# Verify monitoring_shared imports
+PYTHONPATH=. python3 -c "from scripts.monitoring_shared import fetch_page, normalize_content, compute_hash, classify_change, find_affected_controls, format_change_summary, load_state, save_state_atomic, get_source_state, set_source_state; print('All imports OK')"
 
 # Verify framework health
 python3 -m mkdocs build --strict
 python3 scripts/verify_controls.py
 
-# Review next phase
-cat .planning/ROADMAP.md
+# Review next steps
+cat .planning/phases/08-monitoring-systems-review/08-ROADMAP.md
 ```
 
 **Files to reference:**
-- `.planning/phases/07-solutions-functional-testing/07-03-SUMMARY.md` - Phase 7 Plan 03 summary (doc-code traceability + aggregation)
-- `.planning/phases/07-solutions-functional-testing/07-VALIDATION-RESULTS.md` - Aggregated validation report (554 lines)
-- `.planning/phases/07-solutions-functional-testing/07-doc-traceability-results.md` - Documentation-code traceability (497 lines)
-- `.planning/phases/06-solutions-audit/06-05-SUMMARY.md` - Phase 6 Plan 05 summary (framework documentation updates)
-- `.planning/ROADMAP.md` - Phase 8 scope (Monitoring Systems Review) or final validation
-- `.planning/REQUIREMENTS.md` - All 33 requirements with traceability (32/33 complete)
+- `.planning/phases/08-monitoring-systems-review/08-01-SUMMARY.md` - Phase 8 Plan 01 summary (unified monitoring framework)
+- `scripts/monitoring_shared.py` - 590-line unified monitoring framework
+- `scripts/learn_monitor.py` - Refactored Learn Monitor (first source adapter)
+- `.github/workflows/learn-monitor.yml` - Updated workflow for unified state/reports
+- `.planning/REQUIREMENTS.md` - All 33 requirements with traceability (33/33 complete)
 
 ---
 
@@ -300,7 +318,7 @@ cat .planning/ROADMAP.md
 | Phase 5 Complete | 2026-02-04 | Complete | All 5 plans complete - regulatory validation complete |
 | Phase 6 Complete | 2026-02-04 | Complete | 5/5 plans, 13 solutions audited, 9 requirements, verification passed |
 | Phase 7 Complete | 2026-02-04 | Complete | 3/3 plans, 58/59 artifacts PASS, 5 corrections applied, 3 requirements |
-| Phase 8 Complete | TBD | Pending | Monitoring systems review |
+| Phase 8 Complete | TBD | In Progress | 1/3 plans complete (unified monitoring framework) |
 
 **Overall Project Status:** ON TRACK
 
