@@ -2,7 +2,7 @@
 
 **Project:** FSI-AgentGov Comprehensive Audit & Enhancement
 **Initialized:** 2026-02-02
-**Last Updated:** 2026-02-04 (Phase 3 plan 1 complete)
+**Last Updated:** 2026-02-04 (Phase 3 plan 2 complete)
 
 ---
 
@@ -20,23 +20,23 @@
 
 **Milestone:** v2 — Tech Debt, Architecture & Solution Completion
 **Phase:** 3 of 5 (Monitoring Configuration)
-**Plan:** 1 of 5 plans complete in Phase 3
-**Status:** In progress
-**Progress:** █████░░░░░ 44%
-**Last activity:** 2026-02-04 — Completed 03-01-PLAN.md (Monitoring config infrastructure)
+**Plan:** 2 of 2 plans complete in Phase 3
+**Status:** Phase complete
+**Progress:** ██████░░░░ 55%
+**Last activity:** 2026-02-04 — Completed 03-02-PLAN.md (Monitor config integration)
 
-**Next Action:** Execute 03-02 (Learn Monitor integration) or plan remaining Phase 3 plans.
+**Next Action:** Execute Phase 4 (Compliance Dashboard) or Phase 5 (Scope Drift Monitor).
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 8
+- Plans completed: 9
 - Plans in progress: 0
 
 **Quality:**
-- Requirements completed: 7/9
+- Requirements completed: 8/9
 - Tests passing: 62/62 controls valid, mkdocs build pass
 - Coverage: 9/9 requirements mapped
 
@@ -68,6 +68,9 @@
 | 2026-02-04 | yaml.safe_load() for security | Prevents arbitrary code execution from config file | Secure config loading |
 | 2026-02-04 | Exit code 2 for config errors | Distinguishes validation failures from runtime errors | Clear error signaling |
 | 2026-02-04 | Include YAML path in regex errors | Enables non-developers to locate errors | Better debugging UX |
+| 2026-02-04 | Pass config explicitly rather than module-level global | Cleaner API, easier testing, explicit dependencies | Config-driven patterns |
+| 2026-02-04 | Backward compatible classify_change() | Loads default config if none provided | Maintains existing call sites |
+| 2026-02-04 | Agency short name mapping via config | Replaced hardcoded conditionals with config-driven lookup | Flexible agency configuration |
 
 ### Active TODOs
 
@@ -77,7 +80,9 @@
 - [x] Plan Phase 2 (`/gsd:plan-phase 2`)
 - [x] Execute Phase 2
 - [x] Plan Phase 3 (`/gsd:plan-phase 3`)
-- [ ] Execute Phase 3 (1/5 plans complete)
+- [x] Execute Phase 3 (2/2 plans complete)
+- [ ] Plan Phase 4 (Compliance Dashboard)
+- [ ] Execute Phase 4
 
 ### Pending Todos (Deferred to v3)
 
@@ -137,14 +142,17 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 1. v1 milestone complete — all 33 requirements, 8 phases, 35 plans
 2. v2 Phase 1 complete — 4/4 plans, all DEBT items resolved
 3. v2 Phase 2 complete — 3/3 plans, all 62 controls converted to INFO admonition
-4. v2 Phase 3 plan 1 complete — monitoring config infrastructure ready
+4. v2 Phase 3 complete — 2/2 plans, monitoring config externalized
 
 **Files to reference:**
 - `.planning/PROJECT.md` — Updated for v2
 - `.planning/ROADMAP.md` — v2 roadmap with 5 phases
 - `.planning/phases/03-monitoring-configuration/03-01-SUMMARY.md` — Config infrastructure complete
-- `scripts/config/monitoring-config.yaml` — New config file (390 lines)
-- `scripts/monitoring_shared.py` — Updated with load_monitoring_config()
+- `.planning/phases/03-monitoring-configuration/03-02-SUMMARY.md` — Monitor integration complete
+- `scripts/config/monitoring-config.yaml` — Config file (391 lines)
+- `scripts/monitoring_shared.py` — classify_change() uses config-driven patterns
+- `scripts/learn_monitor.py` — --config and --validate CLI flags
+- `scripts/regulatory_monitor.py` — --config and --validate CLI flags
 
 ---
 
@@ -153,12 +161,12 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 | Milestone | Status | Notes |
 |-----------|--------|-------|
 | v1 Complete | Complete | 33/33 requirements, 8/8 phases, 35 plans |
-| v2 In Progress | Phase 3 In Progress | 5 phases, 9 requirements, 7/9 complete (78%) |
+| v2 In Progress | Phase 3 Complete | 5 phases, 9 requirements, 8/9 complete (89%) |
 
 **Overall Project Status:** ON TRACK
 
 ---
 
-*State version: 2.5*
-*Session: 21*
+*State version: 2.6*
+*Session: 22*
 *Last updated: 2026-02-04*
