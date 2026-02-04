@@ -148,8 +148,17 @@ Plans:
 
 **Requirements:** SOL-01, SOL-02, SOL-03, SOL-05, TECH-03, TECH-04, TECH-05, TECH-06, TECH-07
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Audit 4 Tier-A solutions (ELM, MCM, PGC, DEC) + TECH-03 + DEC fixes
+- [ ] 06-02-PLAN.md — Audit 5 Tier-B solutions with deeper docs (FINRA, CAA, Compliance, SoD, Scope Drift)
+- [ ] 06-03-PLAN.md — Audit 4 Tier-B minimal-doc solutions (RAG, COI, Hallucination, DR) + keep/cut recommendations
+- [ ] 06-04-PLAN.md — TECH-04, TECH-05, TECH-06, TECH-07 resolution across both repos
+- [ ] 06-05-PLAN.md — Framework doc updates: solutions-integration.md + solutions-index.md + control cross-references
+
 **Success Criteria:**
-1. All 13 solutions audited with completeness status clearly marked (Complete, WIP, Beta)
+1. All 13 solutions audited with completeness status clearly marked (Planned, Work In Progress, Validated, Completed)
 2. Solution-to-control mappings validated with bidirectional cross-references updated
 3. Incomplete solutions flagged with status indicators and missing components documented
 4. Solution prerequisites and dependencies documented for each implementation
