@@ -197,6 +197,13 @@ Plans:
 
 **Requirements:** MON-01, MON-02, MON-03, MON-04, MON-05
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Learn Monitor refactoring: shared utilities extraction + control-to-URL mapping
+- [ ] 08-02-PLAN.md — Regulatory Monitor implementation: Federal Register API + FINRA notices
+- [ ] 08-03-PLAN.md — AI review validation + monitoring architecture documentation
+
 **Success Criteria:**
 1. Learn Monitor implementation reviewed with simplification opportunities identified
 2. Regulatory Monitor implementation assessed for effectiveness with improvement recommendations
