@@ -16,6 +16,7 @@ theme:
     - navigation.instant
     - navigation.tracking
     - navigation.sections
+    - navigation.path
     - search.suggest
     - search.highlight
     - toc.integrate
