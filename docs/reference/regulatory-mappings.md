@@ -13,10 +13,16 @@ Requires firms to maintain records of all agent activities and communications.
 
 | Record Type | Retention | Regulation | Access Requirement |
 |-------------|-----------|------------|--------------------|
-| **Communications** (agent logs, chat, email) | 3 years | SEC 17a-4(b)(4) | First 2 years readily accessible |
-| **Accounting/Financial Records** | 6 years | SEC 17a-4(a) | First 2 years readily accessible |
-| **Customer Account Records** | 6 years after account close | SEC 17a-4(c)(e)(5) | First 2 years readily accessible |
-| **FINRA-Specific Records** (no SEC period) | 6 years | FINRA 4511(b) | First 2 years easily accessible |
+| **Communications** (agent logs, chat, email) | 3 years | SEC 17a-4(b)(4) | First 2 years easily accessible place |
+| **Accounting/Financial Records** | 6 years | SEC 17a-4(a) | First 2 years easily accessible place |
+| **Customer Account Records** | 6 years after account close | SEC 17a-4(c) | First 2 years easily accessible place |
+| **Agent Governance Records** (approvals, validations, incidents, bias testing) | 6 years | SEC 17a-4(a) / SR 11-7 | First 2 years easily accessible place |
+| **Derivatives/Commodities Records** (CFTC-registered entities) | 5 years minimum | CFTC Rule 1.31 | First 2 years readily accessible |
+| **FINRA-Specific Records** (no SEC period applies) | 6 years | FINRA 4511(b) | First 2 years easily accessible place |
+| **AI Marketing Substantiation** (investment advisers) | 7 years | FINRA 4511 / Control 2.21 | First 2 years easily accessible place |
+
+!!! note "Terminology Note"
+    "Readily accessible" (CFTC) and "easily accessible place" (SEC/FINRA) both mean the same compliance standard: records must be available for immediate access and review.
 
 !!! warning "Agent Logs as Communications"
     Agent conversation logs typically fall under the 3-year communications retention (SEC 17a-4(b)(4)), not the 6-year financial records period. If agent interactions generate or modify financial records, those outputs follow the 6-year period.
@@ -223,7 +229,7 @@ Framework addresses FINRA supervision requirements through 8/62 controls. Implem
 ## SEC Rule 17a-3/4 - Recordkeeping
 
 ### Overview
-Requires SEC-registered firms to maintain records of all transactions and communications for 6 years, with the first 2 years in an easily accessible place.
+Requires SEC-registered firms to maintain records for varying periods: 3 years for communications per 17a-4(b)(4), 6 years for accounting/financial records per 17a-4(a), with the first 2 years in an easily accessible place.
 
 ### Applicable Controls
 
@@ -246,7 +252,8 @@ Requires SEC-registered firms to maintain records of all transactions and commun
 - All user interactions with agents
 - All agent outputs and decisions
 - All approvals and rejections
-- Retention: 6 years, first 2 years in easily accessible place
+- Retention: 3 years per SEC 17a-4(b)(4) (communications), first 2 years in easily accessible place
+- Exception: If agent outputs constitute accounting/financial records, apply 6-year retention per SEC 17a-4(a)
 
 **Transaction Records:**
 
@@ -457,7 +464,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
-**Total: 44 controls (72% of 61)**
+**Total: 44 controls (71% of 62)**
 
 ### Management Assessment Requirements
 
@@ -608,7 +615,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Technical safeguard - data source governance |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
 
-**Total: 51 controls (84% of 61)**
+**Total: 51 controls (82% of 62)**
 
 ### Key Safeguard Areas
 
@@ -711,7 +718,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Model data source governance |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
 
-**Total: 33 controls (54% of 61)**
+**Total: 33 controls (53% of 62)**
 
 ### Model Risk Framework (SR 11-7)
 
@@ -1019,7 +1026,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 62 controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All 62 framework controls applicable.
 
 ---
 
@@ -1079,7 +1086,7 @@ Part 748 requires credit unions to maintain a security program. Framework contro
 - Compliance Officer oversight for Zone 2+ agents
 
 ### Framework Coverage
-All 61 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
+All 62 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
 
 ---
 
@@ -1134,17 +1141,6 @@ The framework's data governance controls (1.5, 1.6, 1.9, 1.14) support privacy c
 
 Several states have enacted or are developing AI-specific legislation that may apply to financial services AI agents. Organizations should monitor these developments and assess applicability to their AI agent deployments.
 
-#### California SB 1047 - AI Safety (Effective 2025+)
-
-**Applicability:** AI systems deployed in California, particularly high-risk systems.
-
-| Requirement | Description | Framework Alignment |
-|-------------|-------------|---------------------|
-| AI Transparency | Disclosure of AI decision-making processes | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
-| Human Review | Human review for consequential decisions | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
-| Safety Testing | Pre-deployment safety validation | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
-| Incident Reporting | Report AI safety incidents | [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
-
 #### Colorado AI Act (SB 24-205)
 
 **Applicability:** Organizations deploying "high-risk AI systems" that make consequential decisions affecting consumers in Colorado. Effective June 30, 2026 (extended from February 1, 2026 via SB 25B-004).
@@ -1162,11 +1158,32 @@ Several states have enacted or are developing AI-specific legislation that may a
 - Systems making consequential decisions in education, employment, financial services, government services, healthcare, housing, insurance, or legal services
 - Financial services organizations should assess whether customer-facing agents qualify as high-risk
 
-> **Note:** Proposed small business exemptions (HB 25B-1009, August 2025) were not enacted. The law applies to all developers and deployers meeting definitional thresholds, with no small business carve-outs. No implementing regulations have been issued by the Attorney General as of January 2026.
+!!! info "Updated February 2026"
+    Effective date extended to June 30, 2026 via SB 25B-004. Prudential regulator exemption is limited in scope and does not provide blanket immunity from all Colorado AI Act requirements. Consult legal counsel for applicability to federally regulated financial institutions.
+
+> **Note:** Proposed small business exemptions (HB 25B-1009, August 2025) were not enacted. The law applies to all developers and deployers meeting definitional thresholds, with no small business carve-outs. No implementing regulations have been issued by the Attorney General as of February 2026.
+
+#### Texas TRAIGA (HB 149)
+
+**Applicability:** Texas Responsible AI Governance Act applies to state agencies (comprehensive governance requirements) and private sector including FSI (intent-based prohibitions + biometric consent). Effective January 1, 2026.
+
+**Private Sector Requirements:**
+
+| Requirement | Description | Framework Alignment |
+|-------------|-------------|---------------------|
+| Intent-Based Prohibitions | Prohibited from using AI to intentionally manipulate, discriminate, or violate constitutional rights | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
+| Biometric Consent | Informed consent required for biometric data collection and processing | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+
+!!! info "Updated February 2026"
+    TRAIGA is substantially narrower than Colorado's AI Act. TRAIGA imposes substantive governance requirements (disclosure, social scoring prohibition, risk assessments) on **state agencies only**. Private sector obligations are limited to intent-based prohibitions on manipulation, discrimination, and constitutional rights violations, plus biometric consent. Unlike Colorado, TRAIGA does not require private sector impact assessments or annual bias audits.
+
+> **Consult Legal Counsel:** FSI organizations should consult legal counsel for applicability of TRAIGA's biometric provisions to voiceprint authentication and other AI-enabled identity verification systems.
 
 #### NYC Local Law 144 - Automated Employment Decision Tools
 
-**Applicability:** Employers using automated decision tools for employment decisions in New York City. Effective January 1, 2023 (enforcement began July 5, 2023). While primarily focused on employment, similar principles may extend to other consequential AI decisions.
+**Applicability:** Employers using automated decision tools for employment decisions in New York City. Effective January 1, 2023 (enforcement began July 5, 2023).
+
+**FSI Note:** Applies to FSI HR departments, not customer-facing AI agents.
 
 | Requirement | Description | Framework Alignment |
 |-------------|-------------|---------------------|
@@ -1174,6 +1191,25 @@ Several states have enacted or are developing AI-specific legislation that may a
 | Public Disclosure | Publish audit results summary | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
 | Notice to Candidates | Notify affected individuals of AI use | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
 | Alternative Procedures | Offer non-AI alternatives | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+
+!!! info "Updated February 2026"
+    Enforcement active since July 5, 2023 (2.5+ years). NYC DCWP actively enforcing. Employers must retain audit documentation for 3 years.
+
+#### Illinois HB 3773 - AI Video Interview Act
+
+**Applicability:** Employers using AI to analyze video interviews in Illinois. Effective January 1, 2026.
+
+**FSI Note:** Applies to FSI HR departments conducting video interviews with Illinois candidates. Does NOT apply to customer-facing AI agents.
+
+| Requirement | Description | Framework Alignment |
+|-------------|-------------|---------------------|
+| Notice to Applicants | Notify applicants before interview that AI will be used | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| AI Explanation | Explain how AI works and what characteristics are evaluated | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| Consent | Obtain applicant consent before AI analysis | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
+| Video Sharing Limits | Limit sharing to persons evaluating candidate fitness | [1.2](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
+| Deletion Rights | Delete videos within 30 days of applicant request | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
+
+> **Note:** Unlike NYC Local Law 144, Illinois HB 3773 does NOT require bias audits or public disclosure of audit results. Illinois law focuses on transparency and consent for AI video interview analysis only.
 
 ### Governance Framework Alignment for State AI Laws
 
@@ -1187,6 +1223,17 @@ Organizations should consider the following when deploying AI agents that intera
 4. **Documentation:** Maintain impact assessments and audit documentation per Control 2.6
 5. **Incident Response:** Report AI-related incidents per Control 3.4
 
+#### California AI Laws
+
+**Current Status:** As of February 2026, California has not enacted comprehensive AI-specific legislation beyond CCPA/CPRA consumer privacy requirements.
+
+**SB 1047 (Safe and Secure Innovation for Frontier Artificial Intelligence Models Act):** Vetoed by Governor Gavin Newsom on September 29, 2024. This law is NOT in effect.
+
+**CCPA/CPRA:** Financial institutions should note GLBA preemption for financial data. See CCPA/CPRA section above for details.
+
+!!! info "Updated February 2026"
+    California continues to consider AI safety, transparency, and accountability bills. Organizations should monitor California's active AI legislative agenda. Consult legal counsel for applicability.
+
 **Monitoring Requirement:**
 
 The state AI regulatory landscape is evolving rapidly. Organizations should:
@@ -1195,20 +1242,6 @@ The state AI regulatory landscape is evolving rapidly. Organizations should:
 - Assess new laws for applicability to AI agent deployments
 - Update governance procedures as requirements change
 - Consult legal counsel for state-specific compliance strategies
-
-**Other State AI Laws Effective 2026:**
-
-Several additional state AI laws take effect in 2026. Organizations should monitor these for applicability:
-
-| State | Law | Effective Date | Focus |
-|-------|-----|---------------|-------|
-| Texas | TRAIGA (HB 149) | January 1, 2026 | Prohibits specific AI harms (intent-based); state agency governance |
-| Illinois | HB 3773 | January 1, 2026 | Employment AI notice requirements (no audit mandates) |
-| California | TFAIA (Transparency in Frontier AI Act) | Varies | AI model transparency and safety reporting |
-
-> **Scope Note - Texas TRAIGA:** TRAIGA is substantially narrower than Colorado's AI Act. TRAIGA imposes substantive governance requirements (disclosure, social scoring prohibition) on **state agencies only**. Private sector obligations are limited to intent-based prohibitions on manipulation, discrimination, and constitutional rights violations. Unlike Colorado, TRAIGA does not require private sector impact assessments, bias audits, or consumer disclosure.
-
-> **Note:** Federal preemption proposals (January 2026 Executive Order) may affect state AI law enforcement. Consult legal counsel for current applicability.
 
 ### Other State Regulations
 
@@ -1268,24 +1301,24 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 61/61 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 8/61 | 13% | Partial - supervision focus |
-| FINRA 3110/2111 (AI) | 11/61 | 18% | Partial - supervision/suitability focus |
-| SEC 17a-3/4 | 49/61 | 80% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/61 | 11% | Limited - fairness + disclosure focus |
-| SEC Marketing Rule (206(4)-1) | 5/61 | 8% | AI marketing claims - Control 2.21 |
-| SOX 302/404 | 44/61 | 72% | Substantial coverage |
-| GLBA 501-505 | 51/61 | 84% | Substantial coverage |
-| OCC 2011-12 | 33/61 | 54% | Partial - model risk focus |
-| Fed SR 11-7 | 33/61 | 54% | Partial - model risk focus |
-| Fed ECOA | 3/61 | 5% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/61 | 11% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/61 | 15% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 61/61 | 100% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/61 | 84% | Security program alignment |
-| NYDFS Part 500 | 45/61 | 74% | State-level awareness |
-| NAIC Model Law | 41/61 | 67% | Insurance awareness |
-| State AI Laws | 6/61 | 10% | Emerging - transparency, bias, human review |
+| FINRA 4511 | 62/62 | 100% | Full coverage - implementation required |
+| FINRA 3110 | 8/62 | 13% | Partial - supervision focus |
+| FINRA 3110/2111 (AI) | 11/62 | 18% | Partial - supervision/suitability focus |
+| SEC 17a-3/4 | 49/62 | 79% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 7/62 | 11% | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | 5/62 | 8% | AI marketing claims - Control 2.21 |
+| SOX 302/404 | 44/62 | 71% | Substantial coverage |
+| GLBA 501-505 | 51/62 | 82% | Substantial coverage |
+| OCC 2011-12 | 33/62 | 53% | Partial - model risk focus |
+| Fed SR 11-7 | 33/62 | 53% | Partial - model risk focus |
+| Fed ECOA | 3/62 | 5% | Minimal - bias testing only |
+| CFPB / UDAAP | 7/62 | 11% | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | 9/62 | 15% | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | 62/62 | 100% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 51/62 | 82% | Security program alignment |
+| NYDFS Part 500 | 45/62 | 73% | State-level awareness |
+| NAIC Model Law | 41/62 | 66% | Insurance awareness |
+| State AI Laws | 6/62 | 10% | Emerging - transparency, bias, human review |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
@@ -1349,4 +1382,4 @@ The FSI-AgentGov framework addresses FINOS AIGF v2.0 risks through defense-in-de
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*
