@@ -113,11 +113,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FEAT-05 | Phase 4 | Complete |
 | FEAT-06 | Phase 4 | Complete |
 | FEAT-07 | Phase 4 | Complete |
-| REG-01 | Phase 5 | Pending |
-| REG-02 | Phase 5 | Pending |
-| REG-03 | Phase 5 | Pending |
-| REG-04 | Phase 5 | Pending |
-| REG-05 | Phase 5 | Pending |
+| REG-01 | Phase 5 | Complete |
+| REG-02 | Phase 5 | Complete |
+| REG-03 | Phase 5 | Complete |
+| REG-04 | Phase 5 | Complete |
+| REG-05 | Phase 5 | Complete |
 | SOL-01 | Phase 6 | Pending |
 | SOL-02 | Phase 6 | Pending |
 | SOL-03 | Phase 6 | Pending |
@@ -141,4 +141,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-03 — Phases 1-4 requirements marked Complete*
+*Last updated: 2026-02-04 — Phases 1-5 requirements marked Complete*

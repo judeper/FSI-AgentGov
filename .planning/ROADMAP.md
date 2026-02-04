@@ -114,7 +114,7 @@ Plans:
 
 ---
 
-## Phase 5: Regulatory Validation
+## Phase 5: Regulatory Validation — COMPLETE (2026-02-04)
 
 **Goal:** Users can verify that all US FSI regulatory requirements are accurately mapped and current.
 
@@ -122,13 +122,14 @@ Plans:
 
 **Requirements:** REG-01, REG-02, REG-03, REG-04, REG-05
 
-**Plans:** 4 plans
+**Plans:** 5/5 complete
 
 Plans:
-- [ ] 05-01-PLAN.md — Federal regulatory citation verification audit (7 bodies, 62 controls)
-- [ ] 05-02-PLAN.md — FINRA 2026 Report AI/agent analysis + retention period validation
-- [ ] 05-03-PLAN.md — State AI laws verification and expansion (CO, TX, NYC, IL, CA)
-- [ ] 05-04-PLAN.md — Corrections pass: apply all findings, integrate FINRA Report, validate build
+- [x] 05-01-PLAN.md — Federal regulatory citation verification audit (7 bodies, 62 controls)
+- [x] 05-02-PLAN.md — FINRA 2026 Report AI/agent analysis + retention period validation
+- [x] 05-03-PLAN.md — State AI laws verification and expansion (CO, TX, NYC, IL, CA)
+- [x] 05-04-PLAN.md — Corrections pass: apply all findings to regulatory-mappings.md
+- [x] 05-05-PLAN.md — Control-level integration, final validation, researcher package regeneration
 
 **Success Criteria:**
 1. All US FSI regulation mappings verified (FINRA, SEC, SOX, GLBA, OCC, Fed SR 11-7, CFTC)
@@ -197,7 +198,7 @@ Plans:
 | 2 - Documentation Audit Foundation | 5 | ✓ Complete | ██████████ 100% |
 | 3 - Agent 365 Strategic Architecture | 2 | ✓ Complete | ██████████ 100% |
 | 4 - Feature Enhancement Updates | 5 | ✓ Complete | ██████████ 100% |
-| 5 - Regulatory Validation | 5 | Planned | ░░░░░░░░░░ 0% |
+| 5 - Regulatory Validation | 5 | ✓ Complete | ██████████ 100% |
 | 6 - Solutions Audit | 9 | Pending | ░░░░░░░░░░ 0% |
 | 7 - Solutions Functional Testing | 1 | Pending | ░░░░░░░░░░ 0% |
 | 8 - Monitoring Systems Review | 5 | Pending | ░░░░░░░░░░ 0% |
@@ -288,5 +289,5 @@ All 33 v1 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 1.3*
-*Last updated: 2026-02-03*
+*Roadmap version: 1.4*
+*Last updated: 2026-02-04*
