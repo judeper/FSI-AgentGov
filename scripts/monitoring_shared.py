@@ -167,24 +167,33 @@ def compute_hash(content: str) -> str:
 
 
 # === Change Classification ===
-def classify_change(old_text: str, new_text: str, url: str = "") -> tuple[str, str, str]:
+def classify_change(old_text: str, new_text: str, url: str = "", config: dict = None) -> tuple[str, str, str]:
     """
     Classify change severity and generate diff.
 
     Uses pattern matching to classify changes as CRITICAL/HIGH/MEDIUM/NOISE
     based on FSI-AgentGov priorities (UI steps, policy language, deprecations).
+    Patterns are loaded from the monitoring configuration file.
 
     Args:
         old_text: Previous content
         new_text: Current content
         url: URL being checked (for context in classification)
+        config: Configuration dict with pattern definitions. If None, loads default config.
 
     Returns:
         Tuple of (classification, reason, diff_text)
         - classification: CRITICAL, HIGH, MEDIUM, or NOISE
         - reason: Human-readable explanation
-        - diff_text: Unified diff (truncated to 100 lines)
+        - diff_text: Unified diff (truncated based on config)
     """
+    # Load config if not provided (backward compatible)
+    if config is None:
+        config = load_monitoring_config()
+
+    # Get operational settings
+    max_diff_lines = config.get('operational', {}).get('max_diff_lines', 100)
+
     # Generate unified diff
     old_lines = old_text.splitlines(keepends=True)
     new_lines = new_text.splitlines(keepends=True)
@@ -193,15 +202,27 @@ def classify_change(old_text: str, new_text: str, url: str = "") -> tuple[str, s
     if not diff_lines:
         return (CLASSIFICATION_NOISE, 'No text changes detected', '')
 
-    diff_text = ''.join(diff_lines[:100])  # Limit diff size
+    diff_text = ''.join(diff_lines[:max_diff_lines])
 
-    # CRITICAL patterns (require immediate action)
+    # Build pattern lists from config
+    learn_config = config.get('learn', {})
+
     critical_patterns = [
-        (r'\d+\.\s+(click|select|go to|navigate)', 'UI navigation steps changed'),
-        (r'(deprecated|removed|no longer|retired)', 'Deprecation notice'),
-        (r'(breaking change|migration required)', 'Breaking changes'),
+        (p['pattern'], p['reason'])
+        for p in learn_config.get('critical_patterns', [])
     ]
 
+    high_patterns = [
+        (p['pattern'], p['reason'])
+        for p in learn_config.get('high_patterns', [])
+    ]
+
+    noise_patterns = [
+        p['pattern']
+        for p in learn_config.get('noise_patterns', [])
+    ]
+
+    # CRITICAL patterns (require immediate action)
     for line in diff_lines:
         if line.startswith('+') or line.startswith('-'):
             for pattern, reason in critical_patterns:
@@ -209,15 +230,6 @@ def classify_change(old_text: str, new_text: str, url: str = "") -> tuple[str, s
                     return (CLASSIFICATION_CRITICAL, reason, diff_text)
 
     # HIGH patterns (require review)
-    high_patterns = [
-        (r'(Admin center|portal|Power Platform|Purview)', 'Portal references'),
-        (r'(button|menu|tab|panel|dialog|blade)', 'UI element names'),
-        (r'(Important|Warning|Note|Caution):', 'Policy callout blocks'),
-        (r'(required|must|should not|prohibited)', 'Policy language'),
-        (r'(compliance|audit|retention|DLP)', 'Compliance features'),
-        (r'(preview|GA|generally available)', 'Feature availability'),
-    ]
-
     for line in diff_lines:
         if line.startswith('+') or line.startswith('-'):
             for pattern, reason in high_patterns:
@@ -225,12 +237,6 @@ def classify_change(old_text: str, new_text: str, url: str = "") -> tuple[str, s
                     return (CLASSIFICATION_HIGH, reason, diff_text)
 
     # NOISE patterns
-    noise_patterns = [
-        r'^[-+]\s*$',
-        r'ms\.(date|author|reviewer|topic)',
-        r'(Article|Contributor|Feedback)',
-    ]
-
     noise_only = True
     for line in diff_lines:
         if line.startswith('+') or line.startswith('-'):
