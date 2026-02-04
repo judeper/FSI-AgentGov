@@ -85,6 +85,13 @@ Plans:
 3. `mkdocs build --strict` passes with zero errors
 4. `verify_controls.py` reports all 62 controls valid
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Enable breadcrumb navigation + Pillar 1 INFO admonitions (24 controls)
+- [ ] 02-02-PLAN.md — Pillar 2 INFO admonitions (21 controls)
+- [ ] 02-03-PLAN.md — Pillar 3+4 INFO admonitions (17 controls) + full site verification
+
 ---
 
 ## Phase 3: Monitoring Configuration Externalization
