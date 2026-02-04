@@ -1,755 +1,670 @@
-# Features Research: Microsoft AI Agent Governance (2025-2026)
+# Feature Landscape: Documentation Improvements & Solution Completions
 
-**Domain:** AI Agent Governance for Microsoft 365 and Power Platform
-**Researched:** February 2, 2026
-**Confidence:** HIGH (Official Microsoft Learn and TechCommunity sources)
-
-## Summary
-
-Microsoft released **18+ major governance features** for AI agents between November 2025 and January 2026, primarily announced at Ignite 2025. The platform is rapidly maturing from basic controls to enterprise-grade governance with the introduction of **Microsoft Agent 365** (the control plane for agents), **Microsoft Entra Agent ID** (identity for agents), and comprehensive **Defender for Cloud Apps** real-time protection.
-
-**Key findings:**
-- **Agent 365 Control Plane** - Unified registry, access control, and governance for all agent types (Copilot Studio, Agent Builder, Azure AI Foundry, third-party)
-- **Entra Agent ID** - First-class identity objects for agents with lifecycle governance, sponsorship, and entitlement management
-- **Defender Real-Time Protection** - GA February 2026 for Copilot Studio agents with 1-second response time for threat blocking
-- **Microsoft 365 Admin Center Agent Settings** - Centralized governance controls (allowed types, sharing, templates, user access)
-- **Purview DSPM Enhancements** - AI observability, weekly oversharing risk assessments for top 100 sites, agent-specific insights
-
-**Coverage Status:** FSI-AgentGov v1.2.37 documents most GA features. **Gaps exist for preview features** including Agent 365 control plane, Entra Agent ID governance, and M365 admin center agent settings.
+**Project:** FSI Agent Governance Framework v2 Milestone
+**Domain:** Technical documentation improvements + compliance solution completions
+**Researched:** 2026-02-04
+**Confidence:** HIGH
 
 ---
 
-## New Governance Features (November 2025 - January 2026)
+## Executive Summary
 
-### Security Features
+This research covers six feature domains for the v2 milestone: MkDocs navigation improvements, playbook discoverability patterns, PowerShell security hardening for FSI, and two solution completions (Compliance Dashboard and Scope Drift Monitor). All features have clear industry patterns and expected behaviors documented in official Microsoft and MkDocs Material sources.
 
-#### 1. Defender for Cloud Apps - Copilot Studio AI Agent Protection (GA February 2026)
-
-**Status:** Generally Available
-**Source:** [Protect your Microsoft Copilot Studio AI agents (Preview)](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)
-
-**Capabilities:**
-| Feature | Description | Coverage in v1.2.37 |
-|---------|-------------|---------------------|
-| **AI Agent Inventory** | Automatic discovery of all Copilot Studio agents across tenant with security posture visibility | ✓ Control 1.8 |
-| **AI Agent Activity Logging** | Audit logs via M365 App Connector to Purview | ✓ Control 1.8 |
-| **Real-Time Protection** | Blocks suspicious tool invocations before execution (1-second response) | ✓ Control 1.8 |
-| **Advanced Hunting Integration** | Agent data in Defender XDR advanced hunting queries | ✓ Control 1.8 |
-| **XDR Incidents & Alerts** | Blocked actions create Defender XDR incidents | ✓ Control 1.8 |
-
-**Prerequisites:**
-- Microsoft Defender for Cloud Apps (included in M365 E5)
-- M365 App Connector configured in Defender portal
-- Power Platform Admin + Defender XDR Admin roles
-- Two-portal configuration (Defender portal + PPAC)
-
-**FSI-AgentGov Status:** ✅ **Fully documented** in Control 1.8 as of v1.2.37
+**Key Finding:** Documentation improvements are table stakes for usability at scale (254+ playbooks). Solution security hardening is table stakes for FSI production deployment. Compliance aggregation and scope drift monitoring are differentiators in the AI governance space.
 
 ---
 
-#### 2. Security Webhooks API for Additional Threat Detection (GA November 2025)
+## Table Stakes Features
 
-**Status:** Generally Available (November 28, 2025)
-**Source:** [Build a runtime threat detection system for Copilot Studio agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-webhooks-interface-developers)
+Features users expect. Missing these makes the product feel incomplete or unprofessional.
 
-**Capabilities:**
-- Third-party security provider integration (Palo Alto Prisma AIRS, custom webhooks)
-- POST /analyze-tool-execution endpoint for real-time threat evaluation
-- <1000ms response requirement
-- Entra app registration with Federated Identity Credentials
+### 1. MkDocs Breadcrumb Navigation
 
-**FSI-AgentGov Status:** ✅ **Fully documented** in Control 1.8 as of v1.2.37
+**Feature:** Enable `navigation.path` in Material for MkDocs to display breadcrumb trails above page titles.
 
----
+**Why Expected:**
+- Material for MkDocs v9.7.0+ includes this as a standard navigation feature
+- Users visiting 254+ playbook pages need orientation context
+- Mobile users especially need breadcrumb navigation for smaller screens
+- Industry standard across all major documentation platforms (Docusaurus, ReadTheDocs, etc.)
 
-#### 3. Defender AI Security Posture Management (AI-SPM) Enhancements (2025-2026)
+**Complexity:** Low
 
-**Status:** GA (with preview features)
-**Source:** [What's new - Microsoft Defender for Cloud Apps](https://learn.microsoft.com/en-us/defender-cloud-apps/release-notes)
+**Implementation:**
+```yaml
+theme:
+  features:
+    - navigation.path  # Breadcrumb navigation
+```
 
-**Recent Enhancements:**
-| Enhancement | Release | Description |
-|-------------|---------|-------------|
-| **GCP Vertex AI Support** | GA November 2025 | Full posture management for Google Cloud AI workloads |
-| **Agent-Specific Recommendations** | January 2026 | Targeted security recommendations for Copilot Studio and Agent 365 SDK agents |
-| **Attack Path Expansion** | January 2026 | New AI-specific attack path scenarios including indirect prompt injection chains |
-| **Agent 365 SDK Discovery** | Preview | Blueprint-registered agent inventory and risk assessment |
+**Evidence:**
+- [Material for MkDocs Navigation Guide](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
+- Currently enabled: `navigation.instant`, `navigation.tracking`, `navigation.sections`
+- Missing: `navigation.path` (breadcrumbs)
 
-**FSI-AgentGov Status:** ✅ **Documented** in Control 1.24 (GCP support documented; Agent 365 SDK discovery is preview)
+**Dependencies:** None (configuration-only change)
 
----
-
-#### 4. Microsoft Entra Agent ID (Public Preview)
-
-**Status:** Public Preview (Frontier program)
-**Source:** [Governing Agent Identities (Preview)](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
-
-**New Capabilities:**
-| Feature | Description | FSI Value |
-|---------|-------------|-----------|
-| **Agent Identity Objects** | First-class identity accounts for AI agents in Entra ID | Enables identity-based governance |
-| **Agent Identity Blueprint** | Template definitions for agent identity creation | Standardized agent deployment |
-| **Sponsorship Model** | Human sponsors accountable for agent lifecycle | FINRA 3110 supervision alignment |
-| **Entitlement Management** | Access packages for time-bound resource access | Least privilege enforcement |
-| **Conditional Access** | CA policies applicable to agent identities | Zone-based access control |
-| **Lifecycle Workflows** | Automated sponsor updates and access reviews | Automated compliance |
-
-**Four New Entra Object Types:**
-1. Agent identity blueprint
-2. Agent identity blueprint principal
-3. Agent identity
-4. Agent user
-
-**FSI-AgentGov Status:** ❌ **NOT DOCUMENTED** - Preview feature requiring new control or Control 1.2 enhancement
-
-**Gap Severity:** HIGH - This is a foundational identity architecture change that affects access control, audit logging, and compliance reporting across multiple controls.
+**Notes:** Can be hidden on specific pages using frontmatter `hide` property if needed.
 
 ---
 
-### Management Features
+### 2. Playbook Discoverability via Admonitions
 
-#### 5. Microsoft Agent 365 Control Plane (Frontier Preview)
+**Feature:** Add admonition boxes to control pages surfacing related playbooks.
 
-**Status:** Frontier Preview (early access program)
-**Source:** [Microsoft Agent 365: The control plane for AI agents](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-agent-365-the-control-plane-for-ai-agents/)
+**Why Expected:**
+- 248 control playbooks are "orphaned" - only discoverable via direct navigation or search
+- Technical documentation standard practice: callout boxes for related content
+- Material for MkDocs, Docusaurus, MyST Markdown all implement admonitions as core features
+- "Related Implementation Guides" sections are expected in governance frameworks
 
-**Five Key Capabilities:**
+**Complexity:** Low
 
-**a) Agent Registry**
-- Single source of truth for all agents (Copilot Studio, Agent Builder, SharePoint, M365 Agent SDK, AI Foundry, Data Fabric, Entra-only, Microsoft-provided, third-party)
-- Rich metadata: status, usage, sessions, exception rates, last update dates
-- Sortable/filterable by publisher, channel, platform, availability
-- Lifecycle actions: block, delete, update agents directly from registry
+**Implementation Pattern:**
+```markdown
+!!! info "Implementation Guides"
 
-**b) Access Control**
-- Manage agents and limit resource access
-- Least privilege enforcement
-- Integration with Entra Agent ID
+    - **[Portal Walkthrough](../playbooks/control-implementations/1.1/portal-walkthrough.md)** - Step-by-step UI configuration
+    - **[PowerShell Setup](../playbooks/control-implementations/1.1/powershell-setup.md)** - Automation scripts
+    - **[Verification Testing](../playbooks/control-implementations/1.1/verification-testing.md)** - Test cases and evidence collection
+    - **[Troubleshooting](../playbooks/control-implementations/1.1/troubleshooting.md)** - Common issues and resolutions
+```
 
-**c) Visualization**
-- Unified dashboard showing connections between agents, people, and data
-- Advanced analytics for agent relationships
+**Evidence:**
+- [Material for MkDocs Admonitions](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
+- [MarkdownTools Admonitions Guide](https://blog.markdowntools.com/posts/markdown-admonitions-callouts-complete-guide)
+- Current usage: DANGER admonitions for API deprecations (Phase 1), need INFO admonitions for discoverability
 
-**d) Security**
-- Deep integration with Microsoft Purview, Entra, and Defender
-- Highlights risky agents and outdated configurations
-- Real-time threat protection
+**Dependencies:** None (Markdown extension already enabled)
 
-**e) Agent Policies**
-- Automated governance workflows
-- Policy-based agent management
-
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - Control 1.2 covers agent registry concept but not Agent 365 architecture
-- Control 3.1 covers agent inventory but not unified registry across all agent types
-- Control 3.8 covers Copilot Hub but not Agent 365 control plane
-
-**Gap Severity:** HIGH - Agent 365 is Microsoft's strategic direction for multi-platform agent governance. Framework should document this architecture.
+**Notes:** Avoid overuse - research shows too many callouts reduce effectiveness. Limit to 1-2 per control page.
 
 ---
 
-#### 6. Microsoft 365 Admin Center - Agent Settings (Preview/GA Q1 2026)
+### 3. Navigation Auto-Generation
 
-**Status:** Preview (GA planned Q1 2026)
-**Source:** [Agent Settings in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings?view=o365-worldwide)
+**Feature:** Eliminate manual mkdocs.yml nav maintenance by using directory structure or plugin-based generation.
 
-**Four Configuration Areas:**
+**Why Expected:**
+- 254 playbook files require manual nav entries today
+- MkDocs auto-generates nav when `nav:` section is omitted
+- Sites with 100+ pages use either auto-generation or plugins (mkdocs-awesome-pages, mkdocs-gen-nav)
+- Manual nav maintenance is error-prone and blocks scalability
 
-| Setting | Description | FSI Use Case |
-|---------|-------------|--------------|
-| **Allowed Agent Types** | Specify which agent categories are permitted | Zone-based restrictions (e.g., only verified agents in Zone 3) |
-| **Sharing** | Manage who can share agents and sharing methods | Prevent org-wide sharing in Zone 1/2 |
-| **Templates** | Pre-set policies, rules, and allowlists for new agents | Standardized controls for consistency |
-| **User Access** | Control which users/groups can interact with agents | Role-based access alignment |
+**Complexity:** Medium
 
-**Security Templates:**
-- Default templates with Entra, Purview, and SharePoint controls
-- Automatic license assignment for Frontier/Agent 365 users
+**Implementation Options:**
 
-**FSI-AgentGov Status:** ❌ **NOT DOCUMENTED** - New M365 admin center governance controls not in framework
+**Option A: Full Auto-Generation (Simplest)**
+- Remove `nav:` section from mkdocs.yml
+- MkDocs auto-discovers all markdown files
+- **Tradeoff:** Loses custom ordering, alphabetical only
 
-**Gap Severity:** MEDIUM - These are centralized governance controls but overlap with existing PPAC controls. Need to document relationship.
+**Option B: Hybrid with Awesome Pages Plugin**
+- Keep curated nav for framework/controls
+- Use `.pages` files for playbook directories
+- **Tradeoff:** Adds plugin dependency
 
----
+**Option C: Current Manual (Status Quo)**
+- Continue manual nav entries
+- **Tradeoff:** Doesn't scale beyond current 254 playbooks
 
-#### 7. Copilot Hub Enhancements (Power Platform Admin Center)
+**Evidence:**
+- [MkDocs Navigation Configuration](https://www.mkdocs.org/user-guide/configuration/)
+- [mkdocs-awesome-pages-plugin](https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin)
+- Current state: Manual nav for all sections (framework, controls, playbooks, reference)
 
-**Status:** GA with preview features
-**Source:** [Track, manage, and scale Copilot adoption in the Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)
+**Dependencies:** Plugin installation if Option B chosen
 
-**New Capabilities (2025-2026):**
-
-**AI Feature Access Control (Preview - Managed Environments only):**
-- Explicitly allow specific users OR allow all except exclusion list
-- Granular control per Copilot feature:
-  - Dynamics 365 Sales: Copilot, Lead summary, Opportunity summary
-  - Power Apps: Copilot chat, Form fill assistance, Smart paste, Row summary, Visualize with Copilot, Natural language search
-
-**AI Capabilities Toggle (Dynamics 365 Sales):**
-- Turn on/off AI Agents (Sales Qualification Agent, Sales Close Agent)
-- Environment and environment group level controls
-- Default: ON for all environments
-
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - Control 3.8 documents Copilot Hub but not these new granular controls
-
-**Gap Severity:** MEDIUM - New controls for limiting AI feature access by user
+**Notes:** Phase 1 should research actual nav requirements before committing to implementation approach.
 
 ---
 
-### Reporting Features
+### 4. PowerShell Security Hardening (FSI Production)
 
-#### 8. Microsoft Purview - DSPM for AI Enhancements
+**Feature:** Production-ready PowerShell scripts with FSI security controls.
 
-**Status:** GA (classic) + Preview (new experience)
-**Source:** [Learn about Microsoft Purview DSPM](https://learn.microsoft.com/en-us/purview/data-security-posture-management-learn-about)
+**Why Expected:**
+- Financial services environments require defense-in-depth security
+- Current tech debt: `ConvertTo-SecureString -AsPlainText -Force` exposes secrets (v1 audit finding)
+- Current tech debt: Zero try/catch error handling in critical scripts
+- Australian Cyber Security Centre and US government guidance mandate these controls for production environments
 
-**New Capabilities (2025-2026):**
+**Complexity:** Medium-High
 
-**Data Risk Assessments:**
-- Automated weekly assessment for top 100 SharePoint sites
-- Identifies oversharing risks specific to M365 Copilot and agents
-- One-click remediation policies
+**Required Controls:**
 
-**AI Observability (Enhanced DSPM Preview):**
-- Drill down into individual agents
-- Contextual insights: risky behaviors, oversharing patterns
-- Recommended actions (e.g., creation of retention policies)
-- Security teams can see which agents pose oversharing risks
+| Control | Current State | Target State | Priority |
+|---------|---------------|--------------|----------|
+| **Secrets Management** | Plaintext ConvertTo-SecureString | Azure Key Vault or SecretManagement module | CRITICAL |
+| **Error Handling** | Zero try/catch blocks | Comprehensive error handling with logging | HIGH |
+| **Module Requirements** | Missing #Requires statements | All scripts declare module dependencies | MEDIUM |
+| **Execution Policy** | Not enforced | Scripts signed or RemoteSigned policy | MEDIUM |
+| **Logging** | Basic Write-Host | Structured logging with audit trail | MEDIUM |
+| **Constrained Language Mode** | Not tested | Verify scripts work in ConstrainedLanguage mode | LOW |
 
-**Item-Level Investigation and Remediation:**
-- Identify and fix overshared links at scale
-- Bulk remediation capability
-- Enhanced for SharePoint knowledge sources used by agents
+**Implementation Pattern:**
 
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - Control 1.6 documents DSPM for AI but not new weekly risk assessments or AI observability features
+```powershell
+#Requires -Version 7.0
+#Requires -Modules Microsoft.PowerShell.SecretManagement, Az.KeyVault
 
-**Gap Severity:** MEDIUM - Enhanced capabilities for oversharing detection
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)]
+    [string]$Environment,
 
----
+    [Parameter()]
+    [string]$VaultName = "fsi-secrets-vault"
+)
 
-#### 9. Microsoft Purview - Agent 365 Support (Frontier Preview)
+try {
+    # Retrieve secrets from vault (never hardcode)
+    $credential = Get-Secret -Name "ServicePrincipalSecret" -Vault $VaultName -AsPlainText
 
-**Status:** Frontier Preview
-**Source:** [Use Microsoft Purview to manage data security & compliance for Microsoft Agent 365](https://learn.microsoft.com/en-us/purview/ai-agent-365)
+    # Business logic with error handling
+    Connect-ServicePrincipal -Credential $credential -Environment $Environment
 
-**Supported Capabilities for Agent 365:**
-- ✓ DSPM for AI (classic and preview)
-- ✓ Auditing
-- ✓ Data Classification
-- ✓ Sensitivity Labels
-- ✓ Data Loss Prevention (DLP)
-- ✓ Insider Risk Management
-- ✓ Communication Compliance
-- ✓ eDiscovery
-- ✓ Data Lifecycle Management
-- ✓ Compliance Manager
-- ✕ Encryption without sensitivity labels (not supported)
+    # Structured logging
+    Write-Information "Connected to environment: $Environment" -InformationAction Continue
 
-**Key Features:**
-- Agent instances automatically enabled for audit logging and sensitive data detection
-- AI observability page shows active agent instances, risk analysis, remediation recommendations
-- Agent instances can be included in policies just like users
+} catch {
+    Write-Error "Failed to connect: $_"
+    Write-EventLog -LogName Application -Source "FSI-AgentGov" -EventId 1001 -Message "Connection failure: $_"
+    exit 1
+} finally {
+    # Cleanup
+    if ($credential) { Clear-Variable -Name credential }
+}
+```
 
-**FSI-AgentGov Status:** ❌ **NOT DOCUMENTED** - Agent 365 is not covered in framework yet
+**Evidence:**
+- [PowerShell Security Features - Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/security/security-features)
+- [Australian Cyber Security Centre - Securing PowerShell](https://www.cyber.gov.au/resources-business-and-government/maintaining-devices-and-systems/system-hardening-and-administration/system-administration/securing-powershell-enterprise)
+- [PowerShell Security Hardening Guide - CodeLucky](https://codelucky.com/powershell-security-hardening/)
+- Current v1 tech debt: 12 scripts missing #Requires, 1 CRITICAL secrets exposure, 1 HIGH error handling gap
 
-**Gap Severity:** HIGH - Microsoft's strategic agent platform with Purview integration
+**Dependencies:**
+- Azure Key Vault (if using Azure-based secrets)
+- PowerShell SecretManagement module (v1.1+)
+- PowerShell 7.0+ for modern security features
 
----
-
-#### 10. Unified Audit Logging - Agent Activities
-
-**Status:** GA
-**Source:** [Security and governance innovations for Microsoft 365 Copilot and agents from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/security-and-governance-innovations-for-microsoft-365-copilot-and-agents-from-ig/4476172)
-
-**New Audit Events:**
-- All agent-related admin activities in M365 admin center
-- Actions: publishing, updating, or removing agents
-- Web searched filter in activity explorer (locates web queries in prompts with search query text)
-
-**FSI-AgentGov Status:** ✓ **Documented** in Control 1.7
-
----
-
-### SharePoint/Grounding Features
-
-#### 11. SharePoint Restricted Search (2026 Feature)
-
-**Status:** Announced for 2026
-**Source:** [Is Your SharePoint Ready for Copilot? 2026 Checklist](https://star-knowledge.com/blog/is-your-sharepoint-ready-for-copilot-2026-data-governance-checklist/)
-
-**Capability:**
-- Flag sites to exclude from Copilot index
-- "Emergency brake" for sites with messy permissions
-- Allows cleanup while preventing Copilot access
-
-**FSI-AgentGov Status:** ❌ **NOT DOCUMENTED** - New 2026 SharePoint governance control
-
-**Gap Severity:** LOW - Feature not yet released, but FSI organizations need this
+**Notes:** FSI environments may require HSM-backed vaults (Azure Key Vault Premium) for FIPS 140-3 Level 3 compliance.
 
 ---
 
-#### 12. Tenant Graph Grounding with Semantic Search
+### 5. Compliance Dashboard - Core Components
 
-**Status:** Preview
-**Source:** [What's New in Copilot Studio: November 2025 Updates and Features](https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/whats-new-in-microsoft-copilot-studio-november-2025/)
+**Feature:** Aggregated compliance reporting across 62 controls with Power BI + Dataverse.
 
-**Capability:**
-- Enhanced knowledge retrieval for SharePoint-grounded agents
-- Uses cutting-edge internal retrieval tools
-- Improves response quality
+**Why Expected:**
+- SOX 404, FINRA 3120, OCC 2011-12 require compliance status reporting
+- Current state: Beta (v1.0.0-beta) - Dataverse schema exists, Power BI template requires manual creation
+- Industry standard: Compliance dashboards aggregate data from multiple sources into unified view
+- Power Platform + Dataverse is Microsoft's recommended approach for M365 compliance dashboards
 
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - SharePoint grounding documented in Controls 4.6 and 4.7 but not semantic search enhancement
+**Complexity:** Medium-High
 
-**Gap Severity:** LOW - Grounding quality improvement, not governance control
+**Core Architecture Components:**
 
----
+| Component | Purpose | Current State | Target State |
+|-----------|---------|---------------|--------------|
+| **Dataverse Tables** | Store compliance data | ✓ Schema defined | Add audit log tables |
+| **Power Automate Flows** | Data collection | Documented only | Deploy 3 core flows |
+| **Power BI Template** | Dashboard visualization | Manual creation required | Automated .pbit template |
+| **DAX Measures** | Compliance calculations | Documented | Implement in template |
+| **Sample Data** | Demo/testing | ✓ JSON fixture exists | Load script validated |
 
-### DLP and Data Protection Features
+**Required Data Flows:**
 
-#### 13. DLP for Microsoft 365 Copilot Prompts (GA January 2026)
+```
+1. Purview Compliance Manager → Power Automate → Dataverse
+   - Compliance scores, assessment status (Daily)
 
-**Status:** Generally Available (January 2026)
-**Source:** [Compliance Meets AI 2026: Microsoft Purview in the Age of AI](https://techcommunity.microsoft.com/blog/healthcareandlifesciencesblog/compliance-meets-ai-2026-microsoft-purview-in-the-age-of-ai/4475027)
+2. Power Platform Admin Center → Power Automate → Dataverse
+   - Environment count, DLP policy status (Daily)
 
-**Capability:**
-- DLP now safeguards prompts that contain sensitive data
-- Real-time control to prevent M365 Copilot from returning a response when prompt contains sensitive data
-- Included for all M365 Copilot and Copilot Chat users (no additional license)
+3. Environment Lifecycle Management → Dataverse
+   - Zone classification, governance status (Real-time)
 
-**FSI-AgentGov Status:** ✓ **Documented** in Control 1.5 (updated in v1.2.33)
+4. FINRA Supervision Workflow → Dataverse (if deployed)
+   - Queue metrics, review completion rates (Hourly)
 
----
+5. Dataverse → Power BI
+   - DirectQuery or Import mode
+```
 
-#### 14. Power Platform DLP - Connector Action Control
+**Evidence:**
+- [Dataverse Auditing - Power Platform Architecture](https://learn.microsoft.com/en-us/power-platform/architecture/key-concepts/dataverse-auditing)
+- [Power BI Compliance Dashboard Best Practices 2026](https://multishoring.com/blog/power-bi-compliance-dashboard-2/)
+- Current FSI-AgentGov-Solutions/compliance-dashboard: 11 files, schema complete, flows documented, Power BI template gap
 
-**Status:** GA
-**Source:** [Data policies - Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
+**Dependencies:**
+- Power BI Pro or Premium (for dashboard hosting)
+- Dataverse capacity (compliance data storage)
+- Power Automate Premium (data collection flows)
+- Microsoft 365 E5 or E5 Compliance (Purview API access)
 
-**Capability:**
-- Granular control over connector actions (e.g., "Read" but not "Write")
-- Configure which actions are permitted within Business or Non-Business groups
-- Protects sensitive data without blocking necessary connections
-
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - Control 1.5 documents DLP but not connector action control granularity
-
-**Gap Severity:** LOW - Enhancement to existing DLP capabilities
-
----
-
-#### 15. Power Platform DLP - Desktop Flows Module Control
-
-**Status:** GA
-**Source:** [Data policies - Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
-
-**Capability:**
-- Classify desktop flow modules and individual module actions as Business, Non-Business, or Blocked
-- Ensures RPA automation touching legacy systems is compliant with data policies
-
-**FSI-AgentGov Status:** ❌ **NOT DOCUMENTED** - Desktop flows (RPA) not in scope for agent governance framework
-
-**Gap Severity:** LOW - Out of scope (RPA vs. AI agents)
+**Notes:** Organizations using automated compliance dashboards reduce audit preparation time by 40% (industry benchmark).
 
 ---
 
-#### 16. Virtual Connectors for Copilot Studio Governance
+### 6. Scope Drift Monitor - Detection Logic
 
-**Status:** GA
-**Source:** [Data policies - Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
+**Feature:** Detect AI agent data access beyond declared scope (connectors, SharePoint sites, Dataverse tables, external APIs).
 
-**Capability:**
-- Virtual connectors (not based on REST API) for governing Copilot Studio features
-- Allow admins to turn off various Copilot and chatbot features via DLP policies
-- More "on/off" capabilities expected as rules within Environment groups
+**Why Expected:**
+- GDPR Article 5(1)(c) requires data minimization
+- Microsoft Agent 365 governance mandate: "grant agents access only to specific data sources required"
+- Current state: WIP (v1.0.0) - Baseline script exists, detection logic not implemented
+- 2026 AI governance standard: scope drift detection with post-market monitoring (regulatory expectation)
 
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - Control 1.5 mentions virtual connectors but doesn't enumerate them or explain governance use
+**Complexity:** High
 
-**Gap Severity:** MEDIUM - Important for feature-level control
+**Core Detection Architecture:**
 
----
+| Component | Purpose | Current State | Target State |
+|-----------|---------|---------------|--------------|
+| **Agent Scope Baseline** | Define allowed access | ✓ Schema defined | Baseline capture script validated |
+| **Access Log Aggregation** | Collect actual access | Not implemented | 4 data sources integrated |
+| **Drift Detection Engine** | Compare baseline vs actual | Not implemented | Real-time + batch detection |
+| **Alert Workflow** | Notify on violations | Not implemented | Teams/email alerts |
+| **Expansion Approval** | Request scope changes | Not implemented | Approval workflow |
 
-#### 17. Microsoft Purview Integration in M365 Admin Center (January 2026)
+**Detection Data Sources:**
 
-**Status:** GA January 2026
-**Source:** [What's New in Microsoft 365 Copilot | January 2026](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--january-2026/4488916)
+| Source | Events Captured | Availability |
+|--------|----------------|--------------|
+| **Unified Audit Log** | CopilotInteraction with connector details | M365 E5 or E5 Compliance |
+| **Defender CloudAppEvents** | Shadow IT detection, external API calls | Defender for Cloud Apps |
+| **SharePoint Audit** | Site/library access events | SharePoint E3+ |
+| **Dataverse Audit** | Table read/write operations | Dataverse capacity |
 
-**Capability:**
-- Purview now integrated into M365 admin center
-- Visibility around oversharing risks
-- Understand how sensitive data is used in Copilot interactions
-- Enable DLP for Copilot policies directly from M365 admin center
+**Drift Violation Types:**
 
-**FSI-AgentGov Status:** ✓ **Architecture documented** across multiple controls but not M365 admin center integration specifically
+| Violation | Severity | Example | Detection Window |
+|-----------|----------|---------|------------------|
+| New Connector | High | Agent uses SQL connector not in scope | 15 min (real-time) |
+| New SharePoint Site | Medium | Agent accesses HR site outside scope | 1 hour (near real-time) |
+| New Dataverse Table | Medium | Agent queries Contacts when only Accounts allowed | 1 hour |
+| New External API | High | Agent calls undeclared third-party API | 15 min |
 
-**Gap Severity:** LOW - Admin UX improvement, not new capability
+**Evidence:**
+- [Microsoft Agent 365 Governance Guide](https://www.charterglobal.com/microsoft-agent-365-and-enterprise-ai-governance-building-control-trust-and-scale-for-autonomous-systems/)
+- [AI Agent Observability 2026 - N-iX](https://www.n-ix.com/ai-agent-observability/)
+- [OWASP AI Agent Security Top 10 - 2026](https://medium.com/@oracle_43885/owasps-ai-agent-security-top-10-agent-security-risks-2026-fc5c435e86eb)
+- Current FSI-AgentGov-Solutions/scope-drift-monitor: Baseline script exists, detection logic gap
 
----
+**Dependencies:**
+- Microsoft 365 E5 or E5 Compliance (Unified Audit Log)
+- Defender for Cloud Apps (CloudAppEvents)
+- Power Automate Premium (detection flows)
+- Dataverse capacity (violation storage)
 
-#### 18. AI Administrator Role (Microsoft Entra)
-
-**Status:** GA
-**Source:** [Security and governance innovations for Microsoft 365 Copilot and agents from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/security-and-governance-innovations-for-microsoft-365-copilot-and-agents-from-ig/4476172)
-
-**Capability:**
-- New Entra role with view-only permissions in DSPM for AI
-- Access to sensitivity labels and sensitive information types
-- Enables delegation without full Compliance Admin rights
-
-**FSI-AgentGov Status:** ⚠️ **PARTIAL COVERAGE** - Role catalog in `docs/reference/role-catalog.md` likely needs update
-
-**Gap Severity:** LOW - Role addition, not governance control
-
----
-
-## Defender Capabilities for Power Platform - Complete List
-
-**Updated:** February 2, 2026
-
-### Microsoft Defender for Cloud Apps - Copilot Studio AI Agents
-
-| Capability | Status | FSI-AgentGov Coverage |
-|------------|--------|----------------------|
-| **AI Agent Inventory** | GA (Feb 2026) | ✓ Control 1.8 |
-| **AI Agent Activity Logging** | GA (Feb 2026) | ✓ Control 1.8 |
-| **Real-Time Protection during Runtime** | Preview (Sep 2025) | ✓ Control 1.8 |
-| **Advanced Hunting Integration** | Preview (Nov 2025) | ✓ Control 1.8 |
-| **XDR Incidents & Alerts** | Preview (Nov 2025) | ✓ Control 1.8 |
-| **M365 App Connector Requirement** | GA | ✓ Control 1.8 |
-
-### Microsoft Defender for Cloud - AI-SPM
-
-| Capability | Status | FSI-AgentGov Coverage |
-|------------|--------|----------------------|
-| **Azure AI Foundry Discovery** | GA | ✓ Control 1.24 |
-| **Copilot Studio Discovery** | GA | ✓ Control 1.24 |
-| **AI Bill of Materials (AI BOM)** | GA | ✓ Control 1.24 |
-| **Attack Path Analysis** | GA | ✓ Control 1.24 |
-| **AI-Specific Risk Factors** | GA | ✓ Control 1.24 |
-| **Security Recommendations** | GA | ✓ Control 1.24 |
-| **AWS Bedrock Support** | GA | ✓ Control 1.24 |
-| **GCP Vertex AI Support** | GA (Nov 2025) | ✓ Control 1.24 |
-| **Agent-Specific Recommendations** | Preview (Jan 2026) | ✓ Control 1.24 (mentioned) |
-| **Agent 365 SDK Discovery** | Preview | ✓ Control 1.24 (mentioned) |
-| **Attack Path Expansion for AI** | Preview (Jan 2026) | ✓ Control 1.24 (mentioned) |
-
-### Third-Party Integration
-
-| Capability | Status | FSI-AgentGov Coverage |
-|------------|--------|----------------------|
-| **Security Webhooks API** | GA (Nov 28, 2025) | ✓ Control 1.8 |
-| **POST /analyze-tool-execution** | GA | ✓ Control 1.8 |
-| **Entra App Registration with FIC** | GA | ✓ Control 1.8 |
-| **Palo Alto Prisma AIRS Integration** | GA | ✓ Control 1.8 (vendor example) |
-
-**Conclusion:** All documented Defender capabilities for Power Platform are covered in FSI-AgentGov v1.2.37 across Controls 1.8 and 1.24.
+**Notes:** Post-market monitoring of drift and emergent behavior is a regulatory expectation under EU and US AI frameworks in 2026.
 
 ---
 
-## Preview Features Worth Documenting
+## Differentiators
 
-### High Priority (FSI-Relevant Preview Features)
+Features that set the product apart. Not expected, but valued when present.
 
-| Feature | Status | FSI Value | Recommendation |
-|---------|--------|-----------|----------------|
-| **Microsoft Entra Agent ID** | Preview (Frontier) | Foundational identity architecture for agents; enables sponsorship (FINRA 3110 alignment) | **Document now** - Preview but strategic |
-| **Microsoft Agent 365 Control Plane** | Preview (Frontier) | Unified governance across all agent types; Microsoft's strategic direction | **Document now** - Early adopter guidance |
-| **M365 Admin Center Agent Settings** | Preview (GA Q1 2026) | Centralized agent governance controls | **Document Q1 2026** - Wait for GA |
-| **Agent 365 SDK Discovery (AI-SPM)** | Preview | Inventory for blueprint-registered agents | **Document Q2 2026** - Wait for maturity |
+### 1. AI-Assisted Learn Monitor Review
 
-### Medium Priority
+**Current State:** Implemented in v1.2.37 via `/review-learn-changes` skill
 
-| Feature | Status | FSI Value | Recommendation |
-|---------|--------|-----------|----------------|
-| **SharePoint Restricted Search** | Announced 2026 | Emergency brake for Copilot indexing | **Document when released** |
-| **AI Feature Access Control (PPAC)** | Preview (Managed Env) | Granular user-level feature control | **Document when GA** |
-| **Enhanced DSPM AI Observability** | Preview | Agent-specific risk insights | **Monitor for GA** |
+**Value Proposition:**
+- Automated analysis of Microsoft Learn documentation changes
+- AI proposes specific documentation updates based on diff analysis
+- Reduces manual review time from hours to minutes for 209 tracked URLs
 
-### Low Priority
+**Competitive Advantage:** No other M365 governance framework has automated Learn monitoring with AI-assisted remediation
 
-| Feature | Status | FSI Value | Recommendation |
-|---------|--------|-----------|----------------|
-| **Tenant Graph Grounding with Semantic Search** | Preview | Grounding quality improvement | Quality feature, not governance |
-| **DLP Connector Action Control** | GA | Granular DLP | Enhancement to existing control |
-| **Desktop Flows DLP** | GA | RPA governance | Out of scope for agent framework |
+**Complexity:** Already implemented (not a v2 feature)
+
+**Notes:** This is a differentiator that already exists. Document as best practice for other projects.
 
 ---
 
-## Gap Analysis
+### 2. Unified Monitoring Architecture
 
-### Features Already Documented (v1.2.37)
+**Current State:** Implemented in v1.2.37 (Phase 8)
 
-✅ **Defender for Cloud Apps - Copilot Studio protection** (Control 1.8)
-✅ **Security Webhooks API** (Control 1.8)
-✅ **Defender AI-SPM with GCP support** (Control 1.24)
-✅ **DLP for Copilot prompts** (Control 1.5)
-✅ **Unified audit logging for agents** (Control 1.7)
-✅ **Purview DSPM for AI** (Control 1.6)
-✅ **SharePoint grounding governance** (Controls 4.6, 4.7)
+**Value Proposition:**
+- Single monitoring system for both Learn documentation and regulatory changes
+- Consistent reporting format across monitors
+- Extensible pattern for adding new monitors (GitHub dependencies, MCP server updates, etc.)
 
-### Features Missing from Framework (Gaps)
+**Competitive Advantage:** Most frameworks monitor either documentation OR regulations, not both with unified architecture
 
-#### HIGH SEVERITY GAPS
+**Complexity:** Already implemented (not a v2 feature)
 
-**1. Microsoft Entra Agent ID (Preview)**
-- **What:** First-class identity objects for agents with lifecycle governance
-- **Why FSI needs it:** Sponsorship model aligns with FINRA 3110 supervision requirements; enables Conditional Access for agents
-- **Recommendation:** Create new control or enhance Control 1.2 (Agent Registry)
-- **Effort:** Medium (3-4 pages of documentation + playbooks)
-
-**2. Microsoft Agent 365 Control Plane (Preview)**
-- **What:** Unified registry and governance for all agent types across Microsoft ecosystem
-- **Why FSI needs it:** Strategic Microsoft direction; replaces fragmented governance approaches
-- **Recommendation:** Create new framework document `docs/framework/agent-365-architecture.md` similar to existing `agent-identity-architecture.md`
-- **Effort:** High (framework-level documentation + control updates)
-
-#### MEDIUM SEVERITY GAPS
-
-**3. M365 Admin Center Agent Settings**
-- **What:** Centralized agent governance controls (allowed types, sharing, templates, user access)
-- **Why FSI needs it:** Complements PPAC controls; needed for M365 Copilot agent governance
-- **Recommendation:** Enhance Control 1.2 or 3.1 with M365 admin center governance
-- **Effort:** Low-Medium (section addition to existing control)
-
-**4. Copilot Hub AI Feature Access Control**
-- **What:** User-level control for specific AI features in Power Apps and Dynamics 365
-- **Why FSI needs it:** Enables zone-based feature restrictions (e.g., Zone 1 users can't use certain AI features)
-- **Recommendation:** Enhance Control 3.8 (Copilot Hub) with new settings
-- **Effort:** Low (section addition)
-
-**5. Virtual Connectors for Copilot Studio**
-- **What:** DLP-based feature toggles for Copilot Studio capabilities
-- **Why FSI needs it:** Granular control over which Copilot features are permitted
-- **Recommendation:** Enhance Control 1.5 with virtual connector table and governance guidance
-- **Effort:** Low (section addition + table)
-
-**6. Enhanced DSPM AI Observability**
-- **What:** Weekly risk assessments for top 100 sites, agent-specific insights
-- **Why FSI needs it:** Proactive oversharing detection for Copilot grounding sources
-- **Recommendation:** Enhance Control 1.6 with new DSPM capabilities
-- **Effort:** Low (section addition)
-
-#### LOW SEVERITY GAPS
-
-**7. SharePoint Restricted Search (2026 Feature)**
-- **What:** Exclude sites from Copilot index
-- **Why FSI needs it:** Emergency brake for problematic sites
-- **Recommendation:** Add to Control 4.6 or 4.7 when released
-- **Effort:** Low (wait for GA)
-
-**8. AI Administrator Role**
-- **What:** New Entra role for DSPM view-only access
-- **Why FSI needs it:** Delegation without full Compliance Admin
-- **Recommendation:** Update `docs/reference/role-catalog.md`
-- **Effort:** Minimal (role addition)
+**Notes:** v2 could extend this pattern to monitor GitHub Actions workflow updates or Power Platform release notes.
 
 ---
 
-## Features Framework Already Covers (Validation)
+### 3. Navigation Pruning for Performance
 
-### Security Controls - Coverage Confirmed
+**Feature:** Enable `navigation.prune` in Material for MkDocs to reduce site size by 33%+ for 254 playbook pages.
 
-| Feature | Control | Notes |
-|---------|---------|-------|
-| Defender for Cloud Apps - AI Agent Protection | 1.8 | Comprehensive coverage including GA and preview features |
-| Security Webhooks API | 1.8 | Third-party integration documented |
-| Defender AI-SPM | 1.24 | Multi-cloud support including GCP |
-| DLP for Copilot prompts | 1.5 | GA feature documented in v1.2.33 |
-| Audit logging for agents | 1.7 | Purview UAL integration |
-| DSPM for AI (classic) | 1.6 | Base capabilities documented |
-| Communication Compliance for AI | 1.10 | Prompt/response monitoring |
-| Insider Risk Management for AI | 1.12 | Risky AI usage detection |
-| Information Rights Management | 1.16 | VIEW and EXTRACT usage rights for agents |
-| Conditional Access | 1.11 | CA policies for agent workloads |
-| Information Barriers | 1.22 | IB support (not Channel Agent) |
+**Value Proposition:**
+- Significantly faster page loads for large documentation sites
+- Only visible navigation items included in rendered HTML
+- Material for MkDocs specifically recommends this for 100+ page sites
 
-### Management Controls - Coverage Confirmed
+**Competitive Advantage:** Most MkDocs sites don't optimize for scale. This shows awareness of performance at enterprise scale.
 
-| Feature | Control | Notes |
-|---------|---------|-------|
-| Managed Environments | 2.1 | Prerequisite for AI governance |
-| Environment Groups | 2.2 | Zone classification |
-| Change Management | 2.3 | Platform Change Governance playbook |
-| Message Center monitoring | 2.10 | Message Center Monitor solution |
-| Environment provisioning | 2.15 | ELM solution |
-| Agent lifecycle | 2.13 | Documentation requirements |
-| Training and awareness | 2.14 | Maker/user education |
+**Complexity:** Low
 
-### Reporting Controls - Coverage Confirmed
+**Implementation:**
+```yaml
+theme:
+  features:
+    - navigation.prune  # For 100+ pages, reduces site size 33%+
+```
 
-| Feature | Control | Notes |
-|---------|---------|-------|
-| Agent inventory | 3.1 | PPAC and Defender inventory |
-| Usage analytics | 3.2 | Copilot Hub analytics |
-| Compliance reporting | 3.3 | Cross-pillar reporting |
-| Incident reporting | 3.4 | Deny Event Correlation solution |
-| Orphaned agent detection | 3.6 | Lifecycle monitoring |
-| PPAC Security Posture | 3.7 | Native assessment |
-| Copilot Hub | 3.8 | Governance dashboard |
-| Sentinel integration | 3.9 | SIEM for AI agents |
+**Evidence:**
+- [Material for MkDocs Navigation - Large Site Optimization](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
+- "especially useful for documentation sites with 100+ or even 1,000+ of pages"
 
-### SharePoint Controls - Coverage Confirmed
+**Dependencies:** None (configuration-only)
 
-| Feature | Control | Notes |
-|---------|---------|-------|
-| Information Access Governance | 4.1 | Oversharing prevention |
-| Site access reviews | 4.2 | Periodic certification |
-| Retention management | 4.3 | Data lifecycle |
-| Guest access controls | 4.4 | External user governance |
-| Grounding scope governance | 4.6 | Knowledge source management |
-| M365 Copilot data governance | 4.7 | Copilot-specific SharePoint controls |
+**Notes:** Pairs well with breadcrumb navigation and auto-generation.
+
+---
+
+### 4. Cross-Repository Git Operations from FSI-AgentGov
+
+**Current State:** Partially implemented (hooks + boundary-check.py)
+
+**Value Proposition:**
+- Edit solution scripts while working in framework documentation context
+- Single working directory for cross-repo features
+- Boundary hooks prevent accidental operations outside project scope
+
+**Competitive Advantage:** Most multi-repo projects require manual cd between repos. This provides seamless cross-repo workflow.
+
+**Complexity:** Low (infrastructure exists, needs documentation)
+
+**Notes:** Not a v2 feature per se, but documenting this capability improves developer experience.
+
+---
+
+## Anti-Features
+
+Features to explicitly NOT build. Common mistakes in this domain.
+
+### 1. Complete mkdocs.yml Auto-Generation Without Control
+
+**Why Avoid:**
+- Framework section needs specific ordering (Overview → Governance Fundamentals → Zones → Lifecycle → Agent 365 → Regulatory → Operating Model)
+- Control indexes need manual curation (Pillar 1 Security, Pillar 2 Management, etc.)
+- Alphabetical auto-generation breaks pedagogical flow
+
+**What to Do Instead:**
+- Hybrid approach: Manual nav for framework/controls, auto-generation for playbooks only
+- Use `nav:` section for curated content, let playbooks discover themselves
+- Or use awesome-pages plugin with `.pages` files for directory-level control
+
+**Evidence:** Current mkdocs.yml has carefully curated nav structure that provides learning path
+
+---
+
+### 2. Overly Complex Admonition Hierarchies
+
+**Why Avoid:**
+- Research shows too many callouts cause readers to ignore them
+- Nested admonitions are visually cluttered
+- "Before adding one or more admonitions to a topic, consider the visual impact they have on the page"
+
+**What to Do Instead:**
+- Limit to 1-2 admonition boxes per page
+- Use INFO type for implementation guides (consistent pattern)
+- Reserve DANGER/WARNING for actual risks (already used for API deprecations)
+
+**Evidence:**
+- [Splunk Style Guide - Admonitions](https://docs.splunk.com/Documentation/StyleGuide/current/StyleGuide/Notesandcautions)
+- [MarkdownTools Guide - Best Practices](https://blog.markdowntools.com/posts/markdown-admonitions-callouts-complete-guide)
+
+---
+
+### 3. Inline Secrets in PowerShell Scripts (Even Encrypted)
+
+**Why Avoid:**
+- `ConvertTo-SecureString -AsPlainText -Force` exposes secrets in process memory
+- SecureString is deprecated in .NET Core / PowerShell 7+
+- FSI audit requirements mandate external secrets management (not inline)
+
+**What to Do Instead:**
+- Azure Key Vault for cloud-based secrets
+- PowerShell SecretManagement module for cross-platform
+- Environment variables only for non-production development
+- NEVER commit secrets to Git (even encrypted)
+
+**Evidence:**
+- [PowerShell Secrets Management - AttuneOps](https://attuneops.io/powershell-secrets-management/)
+- [Secure Password Management - SecureIdeas](https://www.secureideas.com/blog/secure-password-management-in-powershell-best-practices)
+- Current v1 tech debt: `Register-ServicePrincipal.ps1` violates this (CRITICAL finding)
+
+---
+
+### 4. Power BI Import Mode for Real-Time Compliance Data
+
+**Why Avoid:**
+- Import mode caches data, causing stale compliance scores
+- Real-time violations (scope drift, DLP events) need fresh data
+- Import mode requires scheduled refresh, adding complexity
+
+**What to Do Instead:**
+- DirectQuery mode for Dataverse connections
+- Aggregated tables can use Import for historical trends
+- Hybrid model: DirectQuery for current state, Import for 90-day trends
+
+**Evidence:**
+- [Power BI Governance Best Practices - TheReportingHub](https://thereportinghub.com/power-bi/power-bi-governance-best-practices)
+- Compliance Dashboard architecture diagram shows DirectQuery as primary mode
+
+---
+
+### 5. Unified Audit Log as Single Source for Scope Drift
+
+**Why Avoid:**
+- Unified Audit Log has 30-minute to 24-hour latency
+- External API calls may not appear in Unified Audit Log
+- Shadow IT detection requires Defender CloudAppEvents
+- SharePoint audit provides more granular site access data
+
+**What to Do Instead:**
+- Multi-source detection: Unified Audit Log + Defender + SharePoint + Dataverse
+- Aggregate access logs from all sources into Dataverse
+- Different detection frequencies based on severity (15 min for High, 1 hour for Medium, daily for Low)
+
+**Evidence:**
+- [AI Agent Security Guide - MintMCP](https://www.mintmcp.com/blog/ai-agent-security)
+- Scope Drift Monitor architecture shows 4 data sources, not just one
 
 ---
 
 ## Feature Dependencies
 
+Dependencies between features and existing framework capabilities.
+
 ```
-Microsoft Agent 365 Control Plane
-    ├─ Requires: Microsoft Entra Agent ID
-    ├─ Integrates: Microsoft Purview (DSPM, DLP, Audit)
-    ├─ Integrates: Microsoft Defender (AI-SPM, Cloud Apps)
-    └─ Surfaces: Agent Registry across all platforms
+Breadcrumb Navigation
+  ↓
+No dependencies (standalone config change)
 
-Microsoft Entra Agent ID
-    ├─ Enables: Agent identity objects
-    ├─ Enables: Sponsorship model
-    ├─ Enables: Conditional Access for agents
-    ├─ Enables: Entitlement Management for agents
-    └─ Prerequisite for: Agent 365 Control Plane
+Playbook Discoverability
+  ↓
+Requires: Admonition markdown extension (already enabled)
+  ↓
+Depends on: 62 control pages already existing
 
-Defender for Cloud Apps - Copilot Studio
-    ├─ Requires: M365 App Connector
-    ├─ Requires: Defender for Cloud Apps license
-    ├─ Integrates: Purview (audit logs)
-    ├─ Integrates: Defender XDR (incidents, alerts)
-    └─ Complements: Security Webhooks API (third-party)
+Navigation Auto-Generation
+  ↓
+Conflicts with: Current manual nav structure (requires research phase)
+May require: awesome-pages plugin (if hybrid approach)
 
-M365 Admin Center Agent Settings
-    ├─ Complements: PPAC Copilot Hub
-    ├─ Integrates: Entra (templates, access control)
-    ├─ Integrates: Purview (security templates)
-    └─ Works with: Agent 365 Control Plane
+PowerShell Security Hardening
+  ↓
+Requires: Azure Key Vault OR PowerShell SecretManagement module
+Requires: PowerShell 7.0+ for modern security features
+Modifies: 13 solution scripts in FSI-AgentGov-Solutions repo
+  ↓
+Blocks: Production deployment of solutions until CRITICAL/HIGH findings resolved
 
-DSPM for AI Enhancements
-    ├─ Monitors: SharePoint sites (grounding sources)
-    ├─ Assesses: Agent 365 instances (when available)
-    ├─ Integrates: Agent 365 AI Observability
-    └─ Complements: Defender AI-SPM (data vs. security focus)
+Compliance Dashboard Completion
+  ↓
+Requires: Dataverse capacity (already documented)
+Requires: Power BI Pro/Premium (already documented)
+Requires: Power Automate Premium (already documented)
+  ↓
+Depends on: Environment Lifecycle Management solution (for zone data)
+Optionally depends on: FINRA Supervision Workflow (for supervision metrics)
+
+Scope Drift Monitor Completion
+  ↓
+Requires: Microsoft 365 E5 or E5 Compliance (Unified Audit Log)
+Requires: Defender for Cloud Apps (CloudAppEvents)
+Requires: Dataverse capacity (violation storage)
+  ↓
+Depends on: Agent Scope Baseline script (already exists)
+Integrates with: Controls 1.4, 1.5, 1.8 (connector policies, DLP, Defender)
 ```
 
 ---
 
-## Recommendation for FSI-AgentGov v1.3
+## MVP Feature Prioritization
 
-### Phase 1: Document Preview Features (Immediate - Q1 2026)
+For v2 milestone, prioritize based on impact and complexity.
 
-**Priority 1: Microsoft Entra Agent ID**
-- Create new section in Control 1.2 or new Control 1.25
-- Document agent identity architecture
-- Document sponsorship model for FINRA 3110 alignment
-- Cross-reference with Conditional Access (Control 1.11)
-- Effort: 2-3 days
+### Phase 1: Documentation Usability (High Impact, Low Complexity)
 
-**Priority 2: Microsoft Agent 365 Control Plane**
-- Create new framework document `docs/framework/agent-365-architecture.md`
-- Document unified registry concept
-- Compare with current per-platform governance
-- Migration guidance from current approach to Agent 365
-- Effort: 3-4 days
+1. **Breadcrumb Navigation** - 5 minutes (config change)
+2. **Playbook Discoverability** - 2-3 hours (62 control pages, templated admonitions)
+3. **Navigation Pruning** - 5 minutes (config change)
 
-**Priority 3: Enhance Existing Controls with New Features**
-- Control 1.5: Add virtual connectors table
-- Control 1.6: Add enhanced DSPM capabilities
-- Control 3.8: Add AI Feature Access Control
-- Effort: 1-2 days
+**Rationale:** These are table stakes for 254-page documentation sites. Low complexity, immediate user value.
 
-### Phase 2: M365 Admin Center Integration (Q1 2026 - wait for GA)
+---
 
-- Enhance Control 1.2 with M365 admin center agent settings
-- Document relationship between PPAC and M365 admin center governance
-- Update screenshots and verification tests
-- Effort: 1 day
+### Phase 2: PowerShell Security (Critical for Production, Medium Complexity)
 
-### Phase 3: SharePoint Restricted Search (Q2-Q3 2026 - when released)
+1. **Secrets Management** - Replace `ConvertTo-SecureString -AsPlainText` with SecretManagement module
+2. **Error Handling** - Add try/catch blocks to all scripts
+3. **Module Requirements** - Add #Requires statements to 12 scripts
 
-- Enhance Control 4.6 or 4.7 with Restricted Search
-- Document emergency brake use cases
-- Add to SharePoint governance checklist
-- Effort: 0.5 days
+**Rationale:** Blocks production deployment. FSI audit requirement. CRITICAL and HIGH severity from v1 audit.
 
-### Total Effort Estimate
+---
 
-- **Phase 1 (Immediate):** 6-9 days
-- **Phase 2 (Q1 2026):** 1 day
-- **Phase 3 (Q2-Q3 2026):** 0.5 days
-- **Total:** 7.5-10.5 days of documentation work
+### Phase 3: Navigation Auto-Generation Research (Deferred)
 
-### Rationale for Documenting Preview Features
+1. **Research Phase** - Evaluate impact of auto-generation on learning path
+2. **Prototype** - Test with playbooks directory only
+3. **Decide** - Manual, hybrid (awesome-pages), or full auto-generation
 
-FSI organizations are early adopters of Microsoft enterprise features. Documenting preview features provides:
+**Rationale:** Medium complexity, needs research to avoid breaking pedagogical structure. Can be deferred to post-v2.
 
-1. **Early guidance** for Frontier program participants
-2. **Readiness** for GA releases (Q1 2026 for several features)
-3. **Strategic alignment** with Microsoft's Agent 365 direction
-4. **Competitive advantage** for FSI firms using cutting-edge governance
+---
 
-Mark preview features clearly with admonitions:
-```markdown
-!!! info "Preview Feature - Frontier Program"
-    This feature is in preview and requires participation in Microsoft's Frontier program. Production use is not recommended until GA.
-```
+### Phase 4: Compliance Dashboard Completion (High Value, Medium Complexity)
+
+1. **Power Automate Flows** - Deploy 3 core data collection flows
+2. **Power BI Template** - Create automated .pbit with DAX measures
+3. **Testing** - Validate with sample data load
+
+**Rationale:** Differentiator for framework. Supports SOX/FINRA/OCC requirements. Beta status complete.
+
+---
+
+### Phase 5: Scope Drift Monitor Completion (High Value, High Complexity)
+
+1. **Access Log Aggregation** - Implement 4 data source collectors
+2. **Drift Detection Engine** - Compare baseline vs actual access
+3. **Alert Workflow** - Teams/email notifications
+4. **Expansion Approval** - Optional approval workflow
+
+**Rationale:** Differentiator for AI agent governance. GDPR/GLBA requirement. Most complex feature, defer if timeline tight.
+
+---
+
+## Defer to Post-v2
+
+Features valuable but not critical for v2 milestone:
+
+- **Navigation Auto-Generation** - Needs research phase, risk of breaking learning path
+- **Scope Drift Expansion Approval Workflow** - Nice-to-have, core detection is sufficient for v1.0.0
+- **Compliance Dashboard Forecasting** - Advanced analytics, not required for SOX/FINRA compliance
+- **Constrained Language Mode Testing** - Low priority security control, most FSI environments don't use CLM
+
+---
+
+## Quality Gates
+
+Before marking features complete:
+
+### Documentation Features
+- [ ] Breadcrumb navigation visible on all pages except homepage
+- [ ] All 62 control pages have INFO admonition box linking to 4 playbooks
+- [ ] Navigation pruning reduces site size (measure with `mkdocs build` output)
+- [ ] `mkdocs build --strict` passes with zero warnings
+
+### PowerShell Security
+- [ ] Zero instances of `ConvertTo-SecureString -AsPlainText -Force`
+- [ ] All scripts have try/catch with error logging
+- [ ] All scripts have #Requires statements for module dependencies
+- [ ] PSScriptAnalyzer runs clean (no Critical or Error findings)
+
+### Compliance Dashboard
+- [ ] 3 Power Automate flows deployed and collecting data
+- [ ] Power BI template (.pbit) opens in Power BI Desktop
+- [ ] Sample data loads successfully
+- [ ] All 5 dashboard pages render correctly
+- [ ] DAX measures calculate compliance scores correctly
+
+### Scope Drift Monitor
+- [ ] Baseline capture script validated
+- [ ] 4 data sources aggregating access logs
+- [ ] Drift detection runs on schedule (real-time, near-real-time, daily)
+- [ ] Alerts sent to Teams/email on violation
+- [ ] Test case: New connector triggers High severity alert within 15 minutes
 
 ---
 
 ## Sources
 
-### Official Microsoft Learn Documentation
+### MkDocs Material & Documentation
+- [Setting up navigation - Material for MkDocs](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
+- [Configuration - MkDocs](https://www.mkdocs.org/user-guide/configuration/)
+- [Admonitions - Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
+- [Markdown Admonitions Complete Guide - MarkdownTools](https://blog.markdowntools.com/posts/markdown-admonitions-callouts-complete-guide)
 
-- [Protect your Microsoft Copilot Studio AI agents (Preview)](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)
-- [Protect your agents in real-time during runtime (Preview)](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime)
-- [Discover and detect threats using the AI agents inventory (Preview)](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory)
-- [What's new - Microsoft Defender for Cloud Apps](https://learn.microsoft.com/en-us/defender-cloud-apps/release-notes)
-- [Microsoft Purview data security and compliance protections for Microsoft 365 Copilot and other generative AI apps](https://learn.microsoft.com/en-us/purview/ai-microsoft-purview)
-- [Learn about Microsoft Purview Data Security Posture Management (DSPM)](https://learn.microsoft.com/en-us/purview/data-security-posture-management-learn-about)
-- [Use Microsoft Purview to manage data security & compliance for Microsoft Agent 365](https://learn.microsoft.com/en-us/purview/ai-agent-365)
-- [Security and governance - Microsoft Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance)
-- [Track, manage, and scale Copilot adoption in the Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)
-- [Build a runtime threat detection system for Copilot Studio agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-webhooks-interface-developers)
-- [Enable external threat detection and protection for Copilot Studio custom agents (preview)](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider)
-- [Agent Settings in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings?view=o365-worldwide)
-- [Governing Agent Identities (Preview)](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
-- [What is Microsoft Entra Agent ID?](https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents)
-- [Data policies - Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
+### PowerShell Security
+- [PowerShell Security Features - Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/security/security-features)
+- [Securing PowerShell in the Enterprise - Australian Cyber Security Centre](https://www.cyber.gov.au/resources-business-and-government/maintaining-devices-and-systems/system-hardening-and-administration/system-administration/securing-powershell-enterprise)
+- [PowerShell Security Hardening Guide - CodeLucky](https://codelucky.com/powershell-security-hardening/)
+- [PowerShell Secrets Management - AttuneOps](https://attuneops.io/powershell-secrets-management/)
 
-### Microsoft TechCommunity Blog Posts
+### Power Platform & Compliance
+- [Dataverse Auditing - Power Platform Architecture](https://learn.microsoft.com/en-us/power-platform/architecture/key-concepts/dataverse-auditing)
+- [Power BI Compliance Dashboard Best Practices - Multishoring](https://multishoring.com/blog/power-bi-compliance-dashboard-2/)
+- [Power Platform Governance Guide - SysKit](https://www.syskit.com/blog/scalable-power-platform-governance-guide/)
+- [Power BI Governance Best Practices - TheReportingHub](https://thereportinghub.com/power-bi/power-bi-governance-best-practices)
 
-- [New capabilities for AI admins from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906)
-- [Security and governance innovations for Microsoft 365 Copilot and agents from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/security-and-governance-innovations-for-microsoft-365-copilot-and-agents-from-ig/4476172)
-- [Ignite 2025: Copilot Control System and related updates for IT and Security Teams](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/ignite-2025-copilot-control-system-and-related-updates-for-it-and-security-teams/4469768)
-- [What's New in Microsoft 365 Copilot | January 2026](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--january-2026/4488916)
-- [Compliance Meets AI 2026: Microsoft Purview in the Age of AI](https://techcommunity.microsoft.com/blog/healthcareandlifesciencesblog/compliance-meets-ai-2026-microsoft-purview-in-the-age-of-ai/4475027)
-- [Beyond Visibility: The new Microsoft Purview Data Security Posture Management (DSPM) experience](https://techcommunity.microsoft.com/blog/microsoft-security-blog/beyond-visibility-the-new-microsoft-purview-data-security-posture-management-dsp/4470984)
-- [Protect Copilot Studio AI Agents in Real Time with Microsoft Defender](https://techcommunity.microsoft.com/blog/microsoftthreatprotectionblog/protect-copilot-studio-ai-agents-in-real-time-with-microsoft-defender/4446560)
-- [Announcing Microsoft Entra Agent ID: Secure and manage your AI agents](https://techcommunity.microsoft.com/blog/microsoft-entra-blog/announcing-microsoft-entra-agent-id-secure-and-manage-your-ai-agents/3827392)
-- [Surfing the AI Wave: Manage, Govern, and Protect AI Agents with Microsoft Entra Agent ID](https://techcommunity.microsoft.com/blog/microsoft-entra-blog/surfing-the-ai-wave-manage-govern-and-protect-ai-agents-with-microsoft-entra-age/2464407)
+### AI Agent Governance & Security
+- [Microsoft Agent 365 Governance - Charter Global](https://www.charterglobal.com/microsoft-agent-365-and-enterprise-ai-governance-building-control-trust-and-scale-for-autonomous-systems/)
+- [AI Agent Observability 2026 - N-iX](https://www.n-ix.com/ai-agent-observability/)
+- [AI Agent Security Guide - MintMCP](https://www.mintmcp.com/blog/ai-agent-security)
+- [OWASP AI Agent Security Top 10 - 2026](https://medium.com/@oracle_43885/owasps-ai-agent-security-top-10-agent-security-risks-2026-fc5c435e86eb)
+- [Data, Privacy, and Security for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-copilot-privacy)
 
-### Microsoft Official Blogs
-
-- [Microsoft Ignite 2025: Copilot and agents built to power the Frontier Firm](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-ignite-2025-copilot-and-agents-built-to-power-the-frontier-firm/)
-- [Microsoft Agent 365: The control plane for AI agents](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-agent-365-the-control-plane-for-ai-agents/)
-- [What's New in Microsoft Copilot Studio: November 2025 Updates and Features](https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/whats-new-in-microsoft-copilot-studio-november-2025/)
-- [Strengthen agent security with near-real-time protection in Microsoft Copilot Studio](https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/strengthen-agent-security-with-near-real-time-protection-in-microsoft-copilot-studio/)
-- [From runtime risk to real‑time defense: Securing AI agents](https://www.microsoft.com/en-us/security/blog/2026/01/23/runtime-risk-realtime-defense-securing-ai-agents/)
-- [Four priorities for AI-powered identity and network access security in 2026](https://www.microsoft.com/en-us/security/blog/2026/01/20/four-priorities-for-ai-powered-identity-and-network-access-security-in-2026/)
-- [Evolving Power Platform Governance for AI Agents](https://www.microsoft.com/en-us/power-platform/blog/2025/07/31/evolving-power-platform-governance-for-ai-agents/)
-- [Breaking down the facts about secure development with Power Platform](https://www.microsoft.com/en-us/power-platform/blog/2026/01/26/breaking-down-the-facts-about-secure-development-with-power-platform/)
-
-### Industry Sources
-
-- [Defender for Cloud Apps Helps Protect Copilot Studio Agents - Directions on Microsoft](https://www.directionsonmicrosoft.com/reports/defender-for-cloud-apps-helps-protect-copilot-studio-agents/)
-- [Is Your SharePoint Ready for Copilot? 2026 Checklist](https://star-knowledge.com/blog/is-your-sharepoint-ready-for-copilot-2026-data-governance-checklist/)
-- [Copilot Studio Adds Near-Real-Time Security Controls for AI Agents - Visual Studio Magazine](https://visualstudiomagazine.com/articles/2025/09/08/copilot-studio-adds-near-real-time-security-controls-for-ai-agents.aspx)
+### Technical Documentation Trends
+- [Technical Documentation Trends 2026 - Fluid Topics](https://www.fluidtopics.com/blog/industry-insights/technical-documentation-trends-2026/)
+- [Discoverability in 2026 - Search Engine Land](https://searchengineland.com/discoverability-in-2026-how-digital-pr-and-social-search-work-together-467559)
 
 ---
 
-**Research Confidence:** HIGH
-**Sources:** 40+ official Microsoft Learn and TechCommunity articles
-**Date Range:** November 2025 - February 2026
-**Verification:** Cross-referenced with FSI-AgentGov v1.2.37 CHANGELOG and control documentation
+*Researched: 2026-02-04*
+*Confidence: HIGH (all sources verified with official Microsoft and MkDocs documentation)*

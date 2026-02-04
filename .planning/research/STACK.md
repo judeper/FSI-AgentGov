@@ -1,533 +1,591 @@
-# Stack Research: Microsoft Agent Governance (2025-2026 Updates)
+# Technology Stack - v2 Improvements
 
-**Project:** FSI-AgentGov v1.2.37
-**Research Date:** February 2, 2026
-**Research Mode:** Ecosystem - What's NEW or CHANGED
-**Overall Confidence:** HIGH
-
-## Summary
-
-Microsoft has released significant governance, security, and platform enhancements for Copilot Studio and Power Platform in 2025-2026. Key findings:
-
-- **Model Context Protocol (MCP) reached GA** at Build 2025, enabling 1,400+ system integrations
-- **Microsoft Entra Agent ID** launched in preview (May 2025) with automatic identity assignment
-- **Microsoft Agent 365** rolled out in Frontier program (November 2025) as centralized governance control plane
-- **Defender AI-SPM expanded to GCP Vertex AI** (May 2025 preview) and added unified agent posture management
-- **DLP for Copilot prompts reached Public Preview** (November 2025) with GA planned March/April 2026
-- **Major API retirements approaching:** EWS (Oct 2026), SharePoint Add-Ins (Apr 2026), Azure Key Vault pre-2026 APIs (Feb 2027)
-- **BYOK deprecated January 6, 2026** - must migrate to Customer-Managed Keys (CMK)
-
-All findings verified against official Microsoft Learn documentation and release plans.
+**Project:** FSI Agent Governance Framework
+**Research Date:** 2026-02-04
+**Scope:** Stack additions/changes for v2 milestone improvements
 
 ---
 
-## New Capabilities (2025-2026)
+## Executive Summary
 
-### 1. Copilot Studio Platform Enhancements
+This research focuses on stack additions needed for v2 improvements to the existing FSI-AgentGov framework. The v2 milestone emphasizes **incremental improvements** to existing infrastructure rather than wholesale replacement. Key areas: MkDocs navigation enhancements, PowerShell security hardening, monitoring configuration externalization, and solution completion patterns.
 
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **GPT-5 Chat** | GA | Nov 24, 2025 | New model option for agents | HIGH |
-| **GPT-4.1 default** | GA | Oct 27, 2025 | Replaced GPT-4o for new agents | HIGH |
-| **Model Context Protocol (MCP)** | GA | Build 2025 | 1,400+ system integrations | HIGH |
-| **Automated agent evaluation** | Preview | 2025 Wave 2 | Systematic testing at scale | HIGH |
-| **Express mode optimization** | Preview | 2025 Wave 2 | Finish flows within 2 minutes | MEDIUM |
-| **Python code interpreter** | Preview | 2025 Wave 2 | Excel/CSV/PDF file analysis | HIGH |
-| **File groups for knowledge** | GA | 2025 Wave 2 | Organized local file uploads | HIGH |
-
-**Sources:**
-- [What's new in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new)
-- [2025 Wave 2 Planned Features](https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/microsoft-copilot-studio/planned-features)
-- [MCP GA Announcement](https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/model-context-protocol-mcp-is-now-generally-available-in-microsoft-copilot-studio/)
-
-### 2. Identity & Access Management
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **Microsoft Entra Agent ID** | Preview | May 2025+ | Automatic agent identity creation | HIGH |
-| **Auto-assign agent identities** | Preview | 2025 Wave 2 | Copilot Studio integration | HIGH |
-| **SSO for non-Entra ID** | Preview/GA | Feb-May 2026 | External identity providers | HIGH |
-| **End-user credential triggers** | GA | Feb 2026 | Replace service accounts | HIGH |
-
-**Key Details:**
-
-**Entra Agent ID:**
-- Announced at Ignite 2025, initially previewed May 2025
-- When enabled in Power Platform admin center, Copilot Studio agents automatically receive agent identities
-- Unified directory across Copilot Studio and Azure AI Foundry
-- Part of Microsoft Agent 365 (Frontier program)
-- Additional platforms (Security Copilot, M365 Copilot, third-party) coming throughout 2025-2026
-
-**Sources:**
-- [Microsoft Entra Agent ID Overview](https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents)
-- [Automatically create agent identities](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-use-entra-agent-identities)
-- [Ignite 2025 Announcements](https://learn.microsoft.com/en-us/entra/fundamentals/whats-new-ignite-2025)
-
-### 3. Security & Threat Protection
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **Defender AI-SPM for GCP Vertex AI** | Preview | May 2025 | Multi-cloud posture management | HIGH |
-| **Defender AI Agent Security** | Preview | Ignite 2025 | Unified agent inventory | HIGH |
-| **Copilot Studio threat protection** | Preview/GA | Sep 2025 - Feb 2026 | Additional threat capabilities | HIGH |
-| **IP firewall for Copilot Studio** | GA | Dec 2025 | Network-level protection | HIGH |
-| **Sentinel MCP server** | Preview | 2025 | Natural language threat hunting | HIGH |
-
-**Key Details:**
-
-**Defender AI-SPM Expansion:**
-- Extended beyond Azure and AWS to include Google Vertex AI (May 2025 preview)
-- Coverage for Gemini, Gemma, Meta Llama, Mistral, and custom models
-- AI Bill of Materials (AI BOM) discovery across code-to-runtime
-- Attack path analysis with contextual security recommendations
-- Included with Defender CSPM at no extra cost (preview pricing)
-
-**Defender AI Agent Security (Preview at Ignite 2025):**
-- Unified, risk-based inventory of AI agents across Microsoft Foundry and Copilot Studio
-- Eliminates blind spots and reduces shadow agents
-- Consolidates metadata, instructions, identities, and connected tools
-- Requires: Defender CSPM for Azure Foundry agents, Defender for Cloud Apps license for Copilot Studio agents
-
-**Sources:**
-- [AI Security Posture Management](https://learn.microsoft.com/en-us/azure/defender-for-cloud/ai-security-posture)
-- [Defender AI agent journey](https://techcommunity.microsoft.com/blog/microsoft-security-blog/start-secure-and-stay-secure-on-your-ai-agent-journey-with-microsoft-defender/4469430)
-- [IDC MarketScape Leader announcement](https://www.microsoft.com/en-us/security/blog/2026/01/14/microsoft-named-a-leader-in-idc-marketscape-for-unified-ai-governance-platforms/)
-
-### 4. Data Loss Prevention & Compliance
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **DLP for Copilot prompts** | Preview | Nov 2025 | Block sensitive data in prompts | HIGH |
-| **DLP for Copilot prompts** | GA | Late Mar - Late Apr 2026 | Worldwide rollout | HIGH |
-| **Sensitivity labels in Copilot Studio** | Preview/GA | Nov 2025 - Jun 2026 | MIP label visibility | HIGH |
-| **Sensitivity labels in connectors** | Preview/GA | Nov 2025 - Jun 2026 | Connector-level protection | HIGH |
-| **Column-level security masking** | GA | Oct 31, 2025 | Dataverse field masking | HIGH |
-
-**Key Details:**
-
-**DLP for Copilot Prompts (MC1181998):**
-- **Public Preview:** Mid-November 2025 (completed late December 2025)
-- **General Availability:** Late March 2026 (completion late April 2026)
-- **Licensing:** Available to ALL tenants with M365 Copilot access (E1, E3, E5) regardless of license tier by December 2025
-- **Scope:** Microsoft 365 Copilot, Copilot Chat, and pre-built agents
-- **Capabilities:** Prevents Copilot from returning responses when prompts contain sensitive information types (default and custom SITs)
-- **New Roles:** Entra AI Admin, Purview Data Security AI Admin
-
-**Sources:**
-- [MC1181998 Message Center](https://mc.merill.net/message/MC1181998)
-- [DLP for Copilot prompts Learn documentation](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
-- [Power Platform Wave 2 Security Features](https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/power-platform-governance-administration/planned-features)
-
-### 5. Microsoft Agent 365 (New Control Plane)
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **Agent 365 control plane** | Frontier | Nov 18, 2025 | Centralized governance | HIGH |
-| **Unified agent directory** | Frontier | Nov 2025+ | Cross-platform agent inventory | HIGH |
-| **Admin center integration** | Frontier | Nov 2025+ | M365 admin center governance | HIGH |
-
-**Key Details:**
-
-**Microsoft Agent 365:**
-- Rolled out in Frontier program starting November 18, 2025, 9:00 AM PST
-- Centralized control plane for deploying, organizing, and governing agents at scale
-- Integrates with M365 admin center, Defender, Entra, and Purview
-- Requires at least one Microsoft 365 Copilot license to enable
-- Unified directory of agent identities across Copilot Studio and Azure AI Foundry
-- Initially limited to Frontier early access program participants
-
-**Frontier Program:**
-- Extended to individuals with M365 Personal, Family, or Premium subscriptions
-- Provides early access to newest Copilot and agent experiences
-
-**Sources:**
-- [Microsoft Agent 365 Overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
-- [Ignite 2025 Agent 365 announcement](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-ignite-2025-copilot-and-agents-built-to-power-the-frontier-firm/)
-- [New capabilities for AI admins](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906)
-
-### 6. Analytics & Observability
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **ROI analytics** | 2025 Wave 2 | Oct 2025 - Mar 2026 | Time/cost savings estimates | MEDIUM |
-| **User comment analytics** | 2025 Wave 2 | Oct 2025 - Mar 2026 | Thumbs up/down feedback | MEDIUM |
-| **MCP tracing & analytics** | GA | Build 2025 | Activity map with MCP server invocations | HIGH |
-
-**Sources:**
-- [2025 Wave 2 Copilot Studio Features](https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/microsoft-copilot-studio/planned-features)
-
-### 7. SharePoint Governance for AI
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **SharePoint Admin Agent** | Preview | Nov 2025+ | AI-powered governance tasks | HIGH |
-| **Storage skill** | Preview | Full by end Jan 2026 | Storage management | MEDIUM |
-| **Knowledge Agent** | GA planned | Early CY 2026 | Included with M365 Copilot | MEDIUM |
-| **1,000 files per agent** | GA | Oct 6, 2025 | SharePoint/OneDrive uploads | HIGH |
-
-**Key Details:**
-
-**SharePoint Admin Agent:**
-- Currently in public preview (Ignite 2025 announcement)
-- Requires M365 Copilot license (at least one user must have license)
-- Monitors inactive sites, overshared content, permissions sprawl
-- Applies policies like archiving, adjusting access
-- No specific GA date announced for Admin Agent itself
-
-**Sources:**
-- [SharePoint Admin Agent documentation](https://learn.microsoft.com/en-us/sharepoint/content-governance-agent)
-- [SharePoint Ignite 2025 announcements](https://techcommunity.microsoft.com/blog/spblog/sharepoint-showcase-announcements-at-microsoft-ignite-2025/4470378)
-
-### 8. Licensing Changes
-
-| Feature | Status | Timeline | Impact | Confidence |
-|---------|--------|----------|--------|------------|
-| **M365 Copilot Business (SMB)** | GA | Dec 2, 2025 | $21/user/month, 300-user limit | HIGH |
-| **Copilot Business promo** | Active | Dec 1, 2025 - Mar 31, 2026 | 15% off ($18/user/month) | HIGH |
-| **Power Apps per app SKU** | End of sale | 2026 | Affects per-app licensing | MEDIUM |
-
-**Key Details:**
-
-**Microsoft 365 Copilot Business:**
-- Designed for SMBs with fewer than 300 users
-- Standard price: $21/user/month
-- Promotional price (Dec 1, 2025 - Mar 31, 2026): $18/user/month (15% off)
-- Can be added to M365 Business Basic, Standard, Premium plans
-- Same features as enterprise Copilot at lower price point
-- Bundle pricing: Business Standard + Copilot = $42.50/user/month (35% off bundle)
-
-**Managed Environment Licensing:**
-- All active users in Managed Environments need premium licenses (Power Apps Premium, Power Automate Premium, Dynamics 365 Enterprise, or Copilot Studio)
-- Pay-as-you-go does NOT satisfy Managed Environment licensing requirements for active users (documented in v1.2.25)
-- February 2026 deadline for pipeline Managed Environment enforcement (documented in v1.2.25)
-
-**Sources:**
-- [Microsoft 365 Copilot Licensing](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-licensing)
-- [Copilot Business announcement](https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/02/microsoft-365-copilot-business-the-future-of-work-for-small-businesses/)
-- [Managed Environment Licensing](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-licensing)
+**Recommendation:** Add selective plugins and modules to existing stack. **Do NOT** replace working foundation (MkDocs Material, Python validation scripts, PowerShell solutions).
 
 ---
 
-## Deprecated / Changed Features
+## Stack Additions for v2
 
-### 1. API Retirements (CRITICAL)
+### 1. MkDocs Navigation Improvements
 
-| API / Service | Retirement Date | Impact | Migration Path | Confidence |
-|---------------|----------------|--------|----------------|------------|
-| **Exchange Web Services (EWS)** | October 1, 2026 | Blocks non-Microsoft app requests | Migrate to Microsoft Graph | HIGH |
-| **SharePoint Add-Ins** | April 2, 2026 | Add-in model no longer available | Migrate to SharePoint Framework (SPFx) | HIGH |
-| **Azure ACS for SharePoint** | April 2, 2026 | Authentication stops working | Migrate to Entra ID | HIGH |
-| **Azure Key Vault APIs (pre-2026-02-01)** | February 27, 2027 | Old APIs retired | Update to API version 2026-02-01+ | HIGH |
-| **Microsoft Graph Toolkit** | August 28, 2026 | Retirement period begins Sep 1, 2025 | No replacement specified | HIGH |
-| **SMTP AUTH with Basic Auth** | March 1, 2026 | Basic auth removed for SMTP | Modern auth required | HIGH |
-| **Entra ID Protection Risk Policies** | October 1, 2026 | Risk policy experience retired | Migrate to Conditional Access | HIGH |
-| **Entra PIM Iteration 2 (beta) APIs** | October 28, 2026 | Beta APIs deprecated | Use GA PIM APIs | HIGH |
-| **Public Folder APIs** | October 2026 | No programmatic CRUD for public folders | Manual management only | MEDIUM |
+**Requirement:** Breadcrumb navigation, auto-generated navigation, playbook discovery
 
-**Critical Details:**
+#### Recommended: Native MkDocs Material Features
 
-**Exchange Web Services (MC676299):**
-- Microsoft will START BLOCKING EWS requests from non-Microsoft apps on October 1, 2026
-- Three-year notice period (announced September 2023)
-- Only affects Microsoft 365 and Exchange Online (no changes to Exchange Server)
-- Applications still using EWS after October 2026 will fail catastrophically
-- **Action Required:** Migrate to Microsoft Graph immediately
+| Feature | Version | Status | Why |
+|---------|---------|--------|-----|
+| `navigation.path` (breadcrumbs) | mkdocs-material 9.7.0+ | Built-in | Native feature, zero dependencies, now free (was Insiders) |
+| mkdocs-material | 9.7.1 (latest) | Stable | Already in use, includes all former Insiders features |
 
-**SharePoint Add-Ins:**
-- SharePoint add-in model retired fully April 2, 2026
-- Azure ACS for SharePoint Online retired November 27, 2023; stops working April 2, 2026
-- **Action Required:** Migrate to SharePoint Framework (SPFx) before April 2026
+**Configuration (breadcrumbs):**
+```yaml
+theme:
+  name: material
+  features:
+    - navigation.path  # Breadcrumb navigation above page title
+```
 
-**Azure Key Vault API Version 2026-02-01:**
-- Releasing February 2026 with Azure RBAC as default access control
-- All API versions BEFORE 2026-02-01 retire February 27, 2027
-- New key vaults default to enableRbacAuthorization = true unless explicitly set to false
-- Existing key vaults continue using current access control model
-- **Action Required:** Update ARM/BICEP/Terraform templates to API version 2026-02-01 or later before Feb 27, 2027
+**Rationale:**
+- MkDocs Material 9.7.0 (released Nov 11, 2025) made `navigation.path` free for everyone
+- Zero additional dependencies
+- Native integration with existing theme
+- Lightweight, no plugin conflicts
 
-**Sources:**
-- [EWS Retirement announcement](https://devblogs.microsoft.com/microsoft365dev/retirement-of-exchange-web-services-in-exchange-online/)
-- [SharePoint Add-Ins retirement FAQ](https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/add-ins-and-azure-acs-retirements-faq)
-- [Azure Key Vault API 2026-02-01](https://learn.microsoft.com/en-us/azure/key-vault/general/access-control-default)
-- [2026 End-of-Support Milestone](https://blog.admindroid.com/2026-end-of-support-milestone-in-microsoft-365/)
+**Source:** [MkDocs Material - Setting up navigation](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
 
-### 2. Power Platform Deprecations
+#### Alternative Considered: mkdocs-awesome-pages-plugin
 
-| Feature | Deprecation Date | Impact | Migration Path | Confidence |
-|---------|------------------|--------|----------------|------------|
-| **Bring Your Own Key (BYOK)** | January 6, 2026 | Must migrate to CMK or revert to Microsoft-managed keys | Migrate to Customer-Managed Keys (CMK) | HIGH |
-| **BYOK for production environments** | June 1, 2025 | Can no longer apply BYOK to production | Use CMK instead | HIGH |
+| Library | Version | Purpose | Why NOT Using |
+|---------|---------|---------|---------------|
+| mkdocs-awesome-pages-plugin | 2.10.1 | Auto-generate navigation from directory structure | Requires manual `.pages` files, conflicts with existing mkdocs.yml nav structure |
 
-**Critical Details:**
+**Reason to defer:**
+- Current project has 62 controls with established manual nav structure in `mkdocs.yml` (lines 79-591)
+- Plugin requires removing existing `nav:` entry or adding `...` placeholders
+- Risk: Breaking existing navigation structure that's working
+- Current manual nav provides explicit control over presentation order
+- **v2 recommendation:** Use native `navigation.path` only, defer auto-generation to v3 if needed
 
-**BYOK Deprecation:**
-- Microsoft discontinued support for BYOK effective January 6, 2026
-- As of June 1, 2025, customers cannot apply BYOK to production environments
-- Environments not migrated by January 6, 2026 automatically revert to Microsoft-managed keys
-- **Migration Required:** Move to Customer-Managed Keys (CMK) immediately
+**Source:** [mkdocs-awesome-pages-plugin on PyPI](https://pypi.org/project/mkdocs-awesome-pages-plugin/)
 
-**CMK Benefits over BYOK:**
-- Removes upload size limits for files and images
-- Faster key application with less downtime
-- Improved handling of key vault access changes
-- Expanded global availability
-- Enhanced data protection for Dataverse environments
+#### Playbook Discovery via Admonitions
 
-**Sources:**
-- [CMK Updates announcement](https://www.microsoft.com/en-us/power-platform/blog/2025/08/12/customer-managed-key-updates/)
-- [Migrate BYOK to CMK](https://learn.microsoft.com/en-us/power-platform/admin/cmk-migrate-from-byok)
-- [Important changes coming](https://learn.microsoft.com/en-us/power-platform/important-changes-coming)
+**Requirement:** Help users discover playbooks from parent control pages
 
-### 3. Platform Changes & Corrections
+**Recommended Pattern:** Use existing MkDocs Material admonition syntax
 
-| Item | Status | Timeline | Impact | Confidence |
-|------|--------|----------|--------|------------|
-| **Sentinel Azure portal deprecation** | Extended | Now March 31, 2027 (was July 2026) | More time to migrate | HIGH |
-| **Classic eDiscovery retirement** | Clarified | 21Vianet only | No impact on global Microsoft 365 | HIGH |
-| **GPT-4o replaced by GPT-4.1** | Changed | Oct 27, 2025 | New agents use GPT-4.1 by default | HIGH |
+```markdown
+!!! info "Implementation Playbooks"
+    See [Portal Walkthrough](../../playbooks/control-implementations/1.1/portal-walkthrough.md) for step-by-step portal configuration.
+```
 
-**Sources:**
-- Documented in FSI-AgentGov v1.2.37 (Learn Monitor PR #6)
+**No additional plugins needed.** MkDocs Material supports admonitions natively via `markdown_extensions: [admonition]` (already configured line 62 in mkdocs.yml).
+
+**Rationale:**
+- Zero dependencies (already configured)
+- Existing project uses admonitions extensively
+- Simple markdown syntax
+- Integration: Add admonition blocks to control files pointing to their 4 playbooks
+
+**Source:** [MkDocs Material - Admonitions](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
 
 ---
 
-## Platform Announcements
+### 2. PowerShell Security Best Practices (FSI)
 
-### 1. Microsoft Purview AI Governance
+**Requirement:** Secret management, error handling, #Requires statements for FSI PowerShell scripts
 
-**Status:** Microsoft named Leader in 2025-2026 IDC MarketScape for Unified AI Governance Platforms (December 2025)
+#### Recommended: PowerShell SecretManagement + Az.KeyVault
 
-**Key Capabilities:**
-- Data Security Posture Management (DSPM) for AI with graphical tools
-- Compliance Manager with 100+ regulatory framework templates
-- Native integration of Microsoft Foundry, Agent 365, Purview, Entra, Defender
-- Centralized oversight across AI lifecycle
-- Support for Microsoft Agent 365
+| Module | Version | Purpose | Why |
+|--------|---------|---------|-----|
+| Microsoft.PowerShell.SecretManagement | 1.1.2 | Unified secret management interface | Cross-platform, extensible, Microsoft-supported |
+| Az.KeyVault | 3.3.0+ | Azure Key Vault integration | Includes SecretManagement extension, FSI-standard secret store |
 
-**Sources:**
-- [IDC MarketScape announcement](https://www.microsoft.com/en-us/security/blog/2026/01/14/microsoft-named-a-leader-in-idc-marketscape-for-unified-ai-governance-platforms/)
-- [Compliance Meets AI 2026](https://techcommunity.microsoft.com/blog/healthcareandlifesciencesblog/compliance-meets-ai-2026-microsoft-purview-in-the-age-of-ai/4475027)
+**Installation:**
+```powershell
+# Core SecretManagement module
+Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser
 
-### 2. Sentinel MCP Server Integration
+# Azure Key Vault module (3.3.0+ includes SecretManagement support)
+Install-Module Az.KeyVault -Scope CurrentUser
+```
 
-**Status:** Public Preview (2025)
+**Registration Pattern (for FSI scripts):**
+```powershell
+# Register Azure Key Vault as secret vault
+Register-SecretVault -Name "FSIAgentGov" -ModuleName Az.KeyVault -VaultParameters @{
+    AZKVaultName = "your-keyvault-name"
+    SubscriptionId = "your-subscription-id"
+}
 
-**Key Capabilities:**
-- Natural language queries to Sentinel data lake without KQL
-- Available in GitHub Copilot, Copilot Studio, Microsoft Foundry
-- Fully hosted, no infrastructure deployment required
-- Microsoft Entra ID authentication
-- Scenario-focused security tool collections
-- Graph-based approach for Security Copilot agents
+# Retrieve secrets in scripts
+$credential = Get-Secret -Name "PowerPlatformServicePrincipal" -Vault "FSIAgentGov" -AsPlainText
+```
 
-**Sources:**
-- [Sentinel MCP Overview](https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-mcp-overview)
-- [Use Sentinel MCP in Copilot Studio](https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-mcp-use-tool-copilot-studio)
-- [Sentinel December 2025 updates](https://techcommunity.microsoft.com/blog/microsoftsentinelblog/what%E2%80%99s-new-in-microsoft-sentinel-december-2025/4477063)
-
-### 3. Power Platform Governance Pillars (2025 Wave 2)
-
-**Four Foundational Pillars:**
-
-1. **Managed Security** - Advanced protection for AI-driven world, security by default, comprehensive auditing
-2. **Managed Governance** - Comprehensive visibility, granular control, reduced administrative overhead
-3. **Managed Operations** - Monitoring, alerting, lifecycle management
-4. **Managed Availability** - Enterprise-grade reliability for mission-critical workloads
-
-**Key Focus Areas:**
-- Security and compliance with enterprise-grade protection for all Power Platform assets
-- Copilot governance with improved enterprise scalability
-- Enterprise scale administration with unified interface, API, PowerShell, CLI automation
+**Rationale:**
+- **FSI requirement:** Secrets must not be in scripts, environment variables insufficient for audit trails
+- Azure Key Vault provides audit logging required for SOX 302/404, FINRA 4511
+- SecretManagement abstraction allows swapping vault providers without script changes
+- Az.KeyVault 3.3.0+ natively includes SecretManagement extension (no separate extension module)
+- Cross-platform support for Windows/Linux/macOS
 
 **Sources:**
-- [Wave 2 Governance Overview](https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/power-platform-governance-administration/)
-- [Wave 2 Planned Features](https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/power-platform-governance-administration/planned-features)
+- [PowerShell Gallery - SecretManagement 1.1.2](https://www.powershellgallery.com/packages/Microsoft.PowerShell.SecretManagement/1.1.2)
+- [Microsoft Learn - Azure Key Vault automation](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/how-to/using-azure-keyvault)
+- [Microsoft Learn - SecretManagement Overview](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview)
+
+#### #Requires Statement Best Practices
+
+**Pattern for FSI scripts:**
+```powershell
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName="Microsoft.PowerShell.SecretManagement"; ModuleVersion="1.1.2" }
+#Requires -Modules @{ ModuleName="Az.KeyVault"; ModuleVersion="3.3.0" }
+```
+
+**Rationale:**
+- Fail-fast validation prevents runtime errors in production
+- PowerShell 7.0+ required for cross-platform support
+- Module version enforcement prevents API compatibility issues
+- #Requires statements are global scope, enforced before script execution
+
+**Source:** [Microsoft Learn - about_Requires](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires)
+
+#### Error Handling Pattern
+
+**Recommended:**
+```powershell
+[CmdletBinding()]
+param()
+
+# Enable strict mode
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+try {
+    # Script logic
+}
+catch {
+    Write-Error "Operation failed: $_"
+    throw  # Propagate for CI/CD detection
+}
+```
+
+**Rationale:**
+- `Set-StrictMode -Version Latest` catches uninitialized variables, undefined properties
+- `$ErrorActionPreference = "Stop"` converts non-terminating errors to terminating (enables try/catch)
+- Explicit error messages aid troubleshooting
+- `throw` propagates errors for CI/CD pipeline failure detection
+
+**Source:** [PowerShell Scripting Best Practices](https://dstreefkerk.github.io/2025-06-powershell-scripting-best-practices/)
 
 ---
 
-## Recommendations for Framework Updates
+### 3. Monitoring Configuration Externalization
 
-### HIGH PRIORITY (Update Required)
+**Requirement:** YAML externalization for monitoring adapter patterns
 
-1. **Document Entra Agent ID (Control 1.23 or new control)**
-   - Automatic agent identity creation feature
-   - Configuration in Power Platform admin center
-   - Integration with Microsoft Agent 365
-   - Frontier program access requirements
-   - **Confidence:** HIGH
-   - **Source:** Official Microsoft Learn documentation
+#### Recommended: YAML Configuration Files with PyYAML
 
-2. **Update DLP for Copilot Prompts (Control 1.5)**
-   - Public Preview completed (December 2025)
-   - GA timeline: Late March - Late April 2026
-   - New roles: Entra AI Admin, Purview Data Security AI Admin
-   - Available to ALL tenants (E1/E3/E5) by December 2025
-   - **Status:** Already documented in v1.2.33
-   - **Action:** Update with final GA dates and new roles
-   - **Confidence:** HIGH
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| PyYAML | 6.0+ | YAML parsing in Python | Industry standard, already suggested in requirements.txt |
 
-3. **Add Microsoft Agent 365 Documentation (Framework section)**
-   - New centralized governance control plane
-   - Frontier program access (November 2025)
-   - Integration with M365 admin center, Defender, Entra, Purview
-   - Requires M365 Copilot license
-   - **Confidence:** HIGH
-   - **Source:** Official Microsoft Learn and Ignite 2025 announcements
+**Pattern:**
+```yaml
+# config/monitoring-sources.yaml
+sources:
+  learn:
+    enabled: true
+    check_interval_hours: 24
+    classification_patterns:
+      critical:
+        - "deprecated"
+        - "breaking change"
+      high:
+        - "Admin center"
+        - "compliance"
 
-4. **Update API Deprecation Warnings (Multiple controls)**
-   - EWS retirement October 1, 2026 (affects email integrations)
-   - SharePoint Add-Ins retirement April 2, 2026 (affects SharePoint extensibility)
-   - Azure Key Vault API retirement February 27, 2027 (affects key management)
-   - BYOK deprecated January 6, 2026 (affects encryption key management)
-   - **Action:** Add deprecation warnings to Controls 1.12 (encryption), any SharePoint integration guidance
-   - **Confidence:** HIGH
+  regulatory-federal-register:
+    enabled: true
+    check_interval_hours: 168  # weekly
+    agencies:
+      - FINRA
+      - SEC
+      - OCC
+```
 
-5. **Document MCP GA (Control 2.17 or new section)**
-   - MCP reached GA at Build 2025
-   - 1,400+ system integrations available
-   - Enhanced tracing and analytics in activity map
-   - Sentinel MCP server for security use cases
-   - **Confidence:** HIGH
+**Integration with existing monitoring_shared.py:**
+```python
+import yaml
+from pathlib import Path
 
-6. **Update Defender AI-SPM (Control 1.24)**
-   - GCP Vertex AI support (May 2025 preview)
-   - AI Agent Security preview (Ignite 2025)
-   - Unified agent inventory across Foundry and Copilot Studio
-   - **Status:** Control 1.24 added in v1.2.10
-   - **Action:** Update with GCP support and agent security preview
-   - **Confidence:** HIGH
+def load_monitoring_config():
+    """Load monitoring configuration from YAML."""
+    config_path = Path(__file__).parent.parent / "config" / "monitoring-sources.yaml"
+    with open(config_path) as f:
+        return yaml.safe_load(f)
+```
 
-7. **Update Managed Environment Licensing (Control 2.1)**
-   - BYOK deprecated January 6, 2026; must migrate to CMK
-   - Power Apps per app SKU end of sale (2026)
-   - **Status:** Already documented in v1.2.25
-   - **Action:** Add BYOK deprecation warning
-   - **Confidence:** HIGH
+**Rationale:**
+- Existing `monitoring_shared.py` (591 lines) uses hardcoded patterns for classification
+- YAML externalization enables non-developers to adjust monitoring sensitivity
+- Supports multiple source adapters (Learn, regulatory) with per-source configuration
+- PyYAML already listed as optional dependency in `scripts/requirements.txt` line 12
+- Maintains existing unified state management (data/monitor-state.json)
 
-### MEDIUM PRIORITY (Consider Adding)
+**What NOT to change:**
+- Keep JSON for state files (`data/monitor-state.json`) - optimized for programmatic read/write
+- YAML only for human-editable configuration, NOT state persistence
 
-8. **Document M365 Copilot Business License (Framework section)**
-   - New SMB SKU at $21/user/month (300-user limit)
-   - Promotional pricing: $18/user/month (Dec 1, 2025 - Mar 31, 2026)
-   - **Status:** Already documented in v1.2.33
-   - **Action:** Update with promotional pricing end date
-   - **Confidence:** HIGH
-
-9. **Add SharePoint Admin Agent (Control 4.x or new control)**
-   - Currently in public preview
-   - AI-powered governance tasks
-   - Monitors inactive sites, overshared content, permissions sprawl
-   - Requires M365 Copilot license
-   - **Confidence:** MEDIUM (no GA date announced)
-
-10. **Document Sentinel MCP Integration (Control 3.9)**
-    - Alternative to Power Platform Admin Activity connector
-    - Natural language queries without KQL
-    - Available in Copilot Studio, GitHub Copilot, Microsoft Foundry
-    - **Status:** Sentinel integration already documented in v1.2.32
-    - **Action:** Add MCP as integration option
-    - **Confidence:** HIGH
-
-11. **Add Express Mode Optimization (Control 2.17)**
-    - Preview feature optimizes flows to finish within 2 minutes
-    - Avoids timeouts for complex orchestrations
-    - **Confidence:** MEDIUM (preview only)
-
-### LOW PRIORITY (Monitor for GA)
-
-12. **Python Code Interpreter (Knowledge/Training section)**
-    - Preview: Excel/CSV/PDF file analysis
-    - Powered by code interpreter in chat
-    - **Confidence:** MEDIUM (preview only)
-
-13. **ROI Analytics (Control 3.x)**
-    - Time and cost savings estimates
-    - Based on successful runs or actions
-    - **Confidence:** MEDIUM (limited details)
-
-14. **Automated Agent Evaluation (Control 2.5)**
-    - Public preview for systematic testing at scale
-    - Compare multiple agent versions
-    - **Confidence:** MEDIUM (preview only)
+**Source:** [YAML Configuration Externalization](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73)
 
 ---
 
-## Verification Sources
+### 4. State Management: SQLite vs JSON
 
-All findings verified against:
+**Requirement:** State persistence for ~200 monitored URLs
 
-### Official Microsoft Documentation
-- [Microsoft Copilot Studio What's New](https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new)
-- [Power Platform 2025 Wave 2 Release Plan](https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/)
-- [Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/)
-- [Microsoft Agent 365 Overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
-- [Defender for Cloud AI Security](https://learn.microsoft.com/en-us/azure/defender-for-cloud/ai-security-posture)
-- [Purview DLP for Copilot](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
-- [Azure Key Vault API 2026-02-01](https://learn.microsoft.com/en-us/azure/key-vault/general/access-control-default)
+#### Recommended: KEEP JSON
 
-### Official Announcements
-- [Ignite 2025 Entra Announcements](https://learn.microsoft.com/en-us/entra/fundamentals/whats-new-ignite-2025)
-- [Ignite 2025 M365 Copilot](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-ignite-2025-copilot-and-agents-built-to-power-the-frontier-firm/)
-- [MCP GA Announcement](https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/model-context-protocol-mcp-is-now-generally-available-in-microsoft-copilot-studio/)
-- [CMK Updates](https://www.microsoft.com/en-us/power-platform/blog/2025/08/12/customer-managed-key-updates/)
-- [Copilot Business SKU](https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/02/microsoft-365-copilot-business-the-future-of-work-for-small-businesses/)
+**Decision:** Continue using JSON files for state management.
 
-### Message Center
-- [MC1181998 - DLP for Copilot Prompts](https://mc.merill.net/message/MC1181998)
-- [MC676299 - EWS Retirement](https://mc.merill.net/message/MC676299)
+**Current implementation:**
+- `data/monitor-state.json` - Unified state with source-keyed sections
+- `monitoring_shared.py` provides atomic write with temp file + rename pattern (lines 415-450)
 
-### Community & Tech Blogs
-- [2026 End-of-Support Milestones](https://blog.admindroid.com/2026-end-of-support-milestone-in-microsoft-365/)
-- [IDC MarketScape Announcement](https://www.microsoft.com/en-us/security/blog/2026/01/14/microsoft-named-a-leader-in-idc-marketscape-for-unified-ai-governance-platforms/)
-- [Sentinel December 2025 Updates](https://techcommunity.microsoft.com/blog/microsoftsentinelblog/what%E2%80%99s-new-in-microsoft-sentinel-december-2025/4477063)
+**Rationale:**
+| Factor | JSON | SQLite | Winner |
+|--------|------|--------|--------|
+| **Scale** | 200 URLs, ~50KB file | Overkill for this size | JSON |
+| **Performance** | Entire file read at startup (microseconds for 50KB) | Connection overhead | JSON |
+| **Queries** | Linear scan sufficient | Indexed queries unnecessary | JSON |
+| **Atomicity** | Temp file + rename (existing) | WAL mode, BEGIN/COMMIT | Equivalent |
+| **Complexity** | Zero dependencies | sqlite3 module (stdlib) | JSON simpler |
+| **Portability** | Human-readable, git-diffable | Binary format | JSON |
+
+**When SQLite becomes necessary:**
+- State file exceeds 1MB (~4000 URLs)
+- Require historical change tracking (not current requirement)
+- Need concurrent read/write from multiple processes
+
+**Current v2 scope does NOT require SQLite.**
+
+**Sources:**
+- [SQLite vs JSON Forum Discussion](https://sqlite.org/forum/forumpost/3d7be1ad3d)
+- [JSON vs SQLite Performance](https://news.ycombinator.com/item?id=2685131)
+
+---
+
+### 5. Power Platform Solution Completion Patterns
+
+**Requirement:** Guidance for Compliance Dashboard and Scope Drift Monitor completion
+
+#### Compliance Dashboard (Control 3.3)
+
+**Recommended Stack:**
+
+| Component | Technology | Why |
+|-----------|------------|-----|
+| Data Source | Power Platform CoE Starter Kit | Industry-standard governance data model |
+| Dashboard | Power BI Desktop | Native integration with Dataverse |
+| Deployment | Power BI Service | FSI tenant deployment model |
+
+**Integration Pattern:**
+```powershell
+# Data extraction from CoE Starter Kit
+Connect-PowerAppsAccount
+$environments = Get-AdminPowerAppEnvironment
+$apps = Get-AdminPowerApp
+
+# Export to Dataverse table for Power BI
+# Use CoE Starter Kit tables: admin_Environment, admin_App, admin_Flow
+```
+
+**Rationale:**
+- CoE Starter Kit provides pre-built Dataverse schema for governance data
+- Power BI desktop files (.pbix) deployable via Power BI Service
+- FSI audit requirement: Power BI workspaces with AAD group-based access control
+- Data refresh: Scheduled refresh via Power Platform connector (no secrets in .pbix)
+
+**Source:** [Microsoft Learn - CoE Power BI Compliance Dashboard](https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-compliance)
+
+#### Scope Drift Monitor (Control 1.14)
+
+**Recommended Pattern:**
+
+| Component | Technology | Why |
+|-----------|------------|-----|
+| Baseline Storage | Dataverse custom table | Audit trail, RBAC, versioning |
+| Agent Metadata | Power Platform API via PowerShell | Runtime data access scope |
+| Comparison Logic | Power Automate flow | Scheduled monitoring (daily) |
+
+**Dataverse Table Schema:**
+```
+AgentBaseline {
+    AgentId: string (primary key)
+    BaselineDeclaredScope: string (JSON array of SharePoint sites)
+    BaselineCreatedDate: datetime
+    LastValidationDate: datetime
+}
+
+AgentScopeDriftEvent {
+    AgentId: string (lookup to AgentBaseline)
+    DetectedScope: string (JSON array)
+    DriftType: OptionSet (Expansion, Reduction, Unauthorized)
+    DetectedDate: datetime
+    Severity: OptionSet (High, Medium, Low)
+}
+```
+
+**Rationale:**
+- Dataverse native audit logging meets FINRA 4511 requirements
+- Agent identity (Agent 365 Entra ID) enables Microsoft Graph API queries for actual access
+- Power Automate flow orchestrates daily validation without custom hosting
+- Integration with existing Control 3.1 (Agent Inventory) via AgentId foreign key
+
+**Source:** [Microsoft Power Platform Blog - Agent 365 Dataverse](https://www.microsoft.com/en-us/power-platform/blog/2025/06/16/data-agent-architecture-powered-by-microsoft-dataverse/)
+
+---
+
+## What NOT to Add
+
+### Deferred to Future Versions
+
+| Technology | Why Deferring |
+|------------|---------------|
+| mkdocs-awesome-pages-plugin | Conflicts with existing manual nav (62 controls), risky for v2 |
+| SQLite | JSON sufficient for current scale (200 URLs) |
+| Alternative Python validation frameworks | Existing verify_controls.py works, no need to replace |
+| Container orchestration (Docker/K8s) | GitHub Pages deployment works, over-engineering |
+| Alternative monitoring frameworks (Prometheus) | Unified monitoring system via monitoring_shared.py is appropriate for scope |
+
+---
+
+## Integration Points with Existing Stack
+
+### MkDocs Material (Current: Base theme)
+
+**Changes:**
+- Add `navigation.path` feature flag to mkdocs.yml
+- No version upgrade required (9.7.1 already latest)
+- Zero plugin additions
+
+**Integration:**
+```yaml
+# mkdocs.yml additions
+theme:
+  features:
+    - navigation.path  # NEW: Breadcrumb navigation
+    # Existing features preserved
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+```
+
+### Python Scripts (Current: Standard library only)
+
+**Changes:**
+- Add PyYAML to requirements.txt (uncomment line 12)
+- Add monitoring configuration loader to monitoring_shared.py
+- No breaking changes to existing scripts
+
+**Integration:**
+```python
+# monitoring_shared.py additions
+import yaml
+
+def load_classification_config():
+    """Load classification patterns from YAML config."""
+    # New function, existing classification logic remains backward compatible
+```
+
+### PowerShell Solutions (Current: Basic patterns)
+
+**Changes:**
+- Add #Requires statements to all scripts
+- Add SecretManagement integration for credential management
+- Add error handling template
+
+**Integration:**
+```powershell
+# Template for FSI-AgentGov-Solutions scripts
+#Requires -Version 7.0
+#Requires -Modules Microsoft.PowerShell.SecretManagement
+
+[CmdletBinding()]
+param()
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+# Existing script logic wraps in try/catch
+```
+
+### GitHub Actions (Current: CI/CD for docs, Learn monitor)
+
+**Changes:**
+- Add PowerShell module installation step
+- Add YAML validation step for monitoring configs
+- No workflow restructuring
+
+**Integration:**
+```yaml
+# .github/workflows/learn-monitor.yml additions
+- name: Install Python Dependencies
+  run: pip install -r scripts/requirements.txt  # Now includes PyYAML
+
+- name: Validate Monitoring Config
+  run: python scripts/validate_monitoring_config.py  # New validation script
+```
+
+---
+
+## Installation Instructions
+
+### For Documentation (MkDocs)
+
+```bash
+# No new packages required
+# Just update mkdocs.yml configuration
+
+# Verify current version
+pip show mkdocs-material
+# Expected: 9.7.1 or higher
+```
+
+### For Python Scripts
+
+```bash
+cd /Users/admin/dev/FSI-AgentGov
+
+# Uncomment PyYAML in scripts/requirements.txt (line 12)
+# Then install
+pip install -r scripts/requirements.txt
+```
+
+### For PowerShell Solutions
+
+```powershell
+# Install SecretManagement
+Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser -Force
+
+# Install Azure Key Vault module (includes SecretManagement extension)
+Install-Module Az.KeyVault -MinimumVersion 3.3.0 -Scope CurrentUser -Force
+
+# Verify installation
+Get-Module -ListAvailable Microsoft.PowerShell.SecretManagement
+Get-Module -ListAvailable Az.KeyVault
+```
+
+---
+
+## Version Pinning Recommendations
+
+| Package | Minimum Version | Maximum Version | Rationale |
+|---------|-----------------|-----------------|-----------|
+| mkdocs-material | 9.7.0 | 9.7.x | Last feature release, includes navigation.path |
+| PyYAML | 6.0 | 6.x | Stable API, semantic versioning |
+| Microsoft.PowerShell.SecretManagement | 1.1.2 | 1.x | Current stable, minor updates safe |
+| Az.KeyVault | 3.3.0 | 4.x | Includes SecretManagement extension |
+
+**Pin strategy:**
+- MkDocs Material: Pin to 9.7.x (team shifting to Zensical, no new features)
+- Python packages: Allow minor updates (6.0 → 6.x) for security patches
+- PowerShell modules: Allow major updates (1.x, 4.x) - Microsoft backward compatibility guarantee
+
+---
+
+## Security Considerations
+
+### Secret Management (PowerShell)
+
+**FSI Requirements:**
+- Secrets stored in Azure Key Vault (not local SecretStore)
+- Key Vault access logged via Azure Monitor
+- Service principal authentication with certificate (not password)
+- Key rotation every 90 days (automated via Key Vault)
+
+**Implementation:**
+```powershell
+# Register vault with service principal auth
+$tenantId = "your-tenant-id"
+$appId = "your-app-id"
+$certThumbprint = "your-cert-thumbprint"
+
+Connect-AzAccount -ServicePrincipal -TenantId $tenantId -ApplicationId $appId -CertificateThumbprint $certThumbprint
+
+Register-SecretVault -Name "FSIAgentGovProd" -ModuleName Az.KeyVault -VaultParameters @{
+    AZKVaultName = "fsi-agentgov-prod-kv"
+    SubscriptionId = "your-subscription-id"
+}
+```
+
+**Audit Trail:**
+- Key Vault logs all secret access via Diagnostic Settings → Log Analytics
+- Meets FINRA 4511 / SEC 17a-4 requirements for audit trails
+
+### Configuration Files (YAML)
+
+**Security:**
+- YAML files contain classification patterns ONLY (no secrets)
+- Store in repository (version controlled)
+- No encryption required
+
+**Anti-pattern:**
+- DO NOT store secrets in YAML (use Key Vault instead)
 
 ---
 
 ## Confidence Assessment
 
-| Category | Confidence | Rationale |
-|----------|-----------|-----------|
-| **New Capabilities** | HIGH | All features verified against official Microsoft Learn release plans and announcements |
-| **Deprecations** | HIGH | Official deprecation notices from Microsoft with specific dates |
-| **Platform Announcements** | HIGH | Ignite 2025 announcements and official blog posts |
-| **Timeline Accuracy** | HIGH | Dates sourced from official release plans and Message Center |
-| **Feature Availability** | MEDIUM-HIGH | Some preview features may change before GA |
+| Area | Confidence | Source Quality | Notes |
+|------|------------|----------------|-------|
+| MkDocs Material navigation | **HIGH** | Official docs, PyPI | navigation.path verified in official docs, version 9.7.1 confirmed on PyPI |
+| PowerShell SecretManagement | **HIGH** | Microsoft Learn, PowerShell Gallery | Version 1.1.2 verified on PowerShell Gallery, Az.KeyVault 3.3.0+ confirmed |
+| YAML externalization | **MEDIUM** | WebSearch + existing code review | Pattern well-established, PyYAML already in requirements.txt |
+| JSON vs SQLite | **HIGH** | SQLite forum, technical analysis | Scale analysis clear: 200 URLs = JSON sufficient |
+| Power Platform patterns | **MEDIUM** | Microsoft Learn, recent blogs | CoE Starter Kit patterns verified, Agent 365 Dataverse architecture recent (2025-2026) |
+
+**Overall Confidence: HIGH** - Core recommendations (MkDocs, PowerShell, JSON) verified with official sources. Power Platform patterns at MEDIUM confidence due to rapidly evolving Agent 365 capabilities.
 
 ---
 
-## Research Gaps
+## Open Questions / Validation Needed
 
-1. **SharePoint Admin Agent GA Date** - No specific GA timeline announced; monitoring required
-2. **Agent 365 Broader Rollout** - Currently Frontier-only; general availability timeline unclear
-3. **ROI Analytics Details** - Limited technical documentation on calculation methodology
-4. **Express Mode Technical Details** - Preview feature with minimal architectural documentation
-5. **Python Code Interpreter Limitations** - Security boundaries and file size limits not fully documented
-
----
-
-## Next Steps for Framework
-
-1. **Immediate Updates (Q1 2026):**
-   - Add Entra Agent ID documentation (new control or update Control 1.23)
-   - Document Microsoft Agent 365 as centralized governance control plane
-   - Update API deprecation warnings across affected controls
-   - Add MCP GA status to integration guidance
-
-2. **Q2 2026 Updates:**
-   - Update DLP for Copilot prompts with final GA status (after April 2026)
-   - Monitor SharePoint Admin Agent for GA announcement
-   - Track Agent 365 rollout beyond Frontier program
-
-3. **Q3 2026 Updates:**
-   - Add deprecation reminders for EWS (Oct 1, 2026 deadline)
-   - Monitor preview features (Express mode, Python interpreter, automated evaluation) for GA
-
-4. **Q4 2026 and Beyond:**
-   - Track Azure Key Vault API migration deadlines (Feb 27, 2027)
-   - Monitor Agent 365 expansion to Security Copilot, M365 Copilot, third-party platforms
+1. **MkDocs navigation.path UX:** Test breadcrumbs on mobile/tablet to confirm usability improvement
+2. **PyYAML performance:** Benchmark YAML load time vs hardcoded patterns (expect negligible difference)
+3. **SecretManagement in GitHub Actions:** Verify service principal authentication pattern for CI/CD pipelines
+4. **Agent 365 Entra ID availability:** Confirm Agent 365 Entra ID feature GA (currently rolling out per Jan 2026 blog post)
 
 ---
 
-**Research Completed:** February 2, 2026
-**Researcher:** Claude (GSD Project Researcher)
-**Framework Version Reviewed:** v1.2.37
+## Sources
+
+**MkDocs Material:**
+- [Setting up navigation](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
+- [Admonitions reference](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
+- [mkdocs-material on PyPI](https://pypi.org/project/mkdocs-material/)
+- [Insiders now free announcement](https://squidfunk.github.io/mkdocs-material/blog/2025/11/11/insiders-now-free-for-everyone/)
+
+**MkDocs Plugins:**
+- [mkdocs-awesome-pages-plugin on PyPI](https://pypi.org/project/mkdocs-awesome-pages-plugin/)
+
+**PowerShell SecretManagement:**
+- [SecretManagement overview](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview)
+- [Azure Key Vault automation](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/how-to/using-azure-keyvault)
+- [PowerShell Gallery - SecretManagement 1.1.2](https://www.powershellgallery.com/packages/Microsoft.PowerShell.SecretManagement/1.1.2)
+- [PowerShell Scripting Best Practices](https://dstreefkerk.github.io/2025-06-powershell-scripting-best-practices/)
+- [about_Requires](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires)
+
+**Configuration Externalization:**
+- [Configuration Externalization Pattern](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73)
+- [YAML Best Practices](https://medium.com/@lingeshcbz/yaml-the-ultimate-guide-with-examples-and-best-practices-7040f9e389ed)
+
+**State Management:**
+- [SQLite vs JSON Discussion](https://sqlite.org/forum/forumpost/3d7be1ad3d)
+- [When JSON Sucks article](https://pl-rants.net/posts/when-not-json/)
+
+**Power Platform:**
+- [CoE Power BI Compliance Dashboard](https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-compliance)
+- [Data Agent Architecture with Dataverse](https://www.microsoft.com/en-us/power-platform/blog/2025/06/16/data-agent-architecture-powered-by-microsoft-dataverse/)
+- [Agent 365 and Work IQ](https://www.microsoft.com/en-us/power-platform/blog/2026/01/27/build-adaptive-intelligence/)
+
+---
+
+## Appendix: Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-02-04 | Initial research for v2 milestone improvements |

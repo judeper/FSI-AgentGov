@@ -1,520 +1,1003 @@
-# Architecture Research: FSI Agent Governance Framework
+# Architecture Patterns: v2 Integration with FSI-AgentGov
 
-**Domain:** Governance framework documentation architecture
-**Researched:** 2026-02-02
-**Confidence:** HIGH (based on direct codebase examination)
-
----
-
-## Summary
-
-After examining the FSI-AgentGov framework architecture, I've identified key strengths in its layered documentation model and cross-repo integration, along with several simplification opportunities:
-
-- **Three-layer documentation model is sound** but could benefit from clearer navigation hints
-- **Learn Monitor and Regulatory Monitor are appropriately complex** for their compliance mission
-- **Cross-repo workflows are functional** but documentation parity could be improved
-- **Control template structure (10 sections) is consistent** and comprehensive
-- **Monitoring automation is production-grade** with good error handling and classification
+**Domain:** MkDocs documentation site enhancement + PowerShell solutions modernization
+**Researched:** 2026-02-04
+**Confidence:** HIGH
 
 ---
 
-## Current State Assessment
+## Executive Summary
 
-### Documentation Structure
+v2 improvements integrate cleanly with the existing FSI-AgentGov architecture with minimal disruption. The core finding: **all six integration points can be implemented incrementally without requiring full rewrites**. MkDocs Material breadcrumbs work with manual nav (additive). Awesome Pages plugin requires explicit integration points via `...` entries (opt-in coexistence). PowerShell modernization is isolated to the Solutions repo. Compliance Dashboard and Scope Drift Monitor build on existing monitoring framework patterns with established Dataverse/Power Automate/Power BI patterns.
 
-The framework uses a **three-layer information architecture**:
+**Critical Integration Points:**
+1. MkDocs breadcrumbs: Theme feature flag addition (zero nav changes)
+2. Awesome Pages: Requires `nav: ...` integration markers (breaking if done wrong)
+3. PowerShell SecretManagement: Drop-in replacement for ConvertTo-SecureString (targeted fix)
+4. Compliance Dashboard: New Dataverse tables + flows, no framework changes
+5. Scope Drift Monitor: Uses monitoring_shared.py as intended (plugin pattern)
+6. YAML config files: Belongs in docs/ with validation schema support
 
-```
-Layer 1: Framework (10 docs)
-   └─ Strategic overview, zones, lifecycle, operating model
-         │
-         ▼
-Layer 2: Controls (62 controls across 4 pillars)
-   └─ Technical specifications with 10-section template
-         │
-         ▼
-Layer 3: Playbooks (275 total playbooks)
-   └─ 248 control implementation playbooks (4 per control)
-   └─ 27 advanced implementation playbooks
-```
-
-**Strengths:**
-
-1. **Clear separation of concerns:**
-   - Framework = governance principles (WHY)
-   - Controls = technical specifications (WHAT)
-   - Playbooks = implementation procedures (HOW)
-
-2. **Consistent control template:**
-   - All 62 controls follow 10-section format
-   - Header metadata (Control ID, Pillar, Regulatory Reference, Last UI Verified, Governance Levels)
-   - Standard sections: Objective, Why This Matters, Description, Config Points, Zone Requirements, Roles, Related Controls, Implementation Guides, Verification, Resources
-   - Footer metadata (Updated, Version, UI Status)
-
-3. **Comprehensive playbook coverage:**
-   - Every control has 4 playbooks: portal-walkthrough, powershell-setup, verification-testing, troubleshooting
-   - Advanced implementations for complex multi-control scenarios (Platform Change Governance, Environment Lifecycle Management, etc.)
-   - All 275 playbooks integrated into mkdocs.yml navigation
-
-4. **MkDocs Material integration:**
-   - Site builds with strict validation (`mkdocs build --strict`)
-   - Link validation in CI
-   - Dark/light mode support
-   - Search functionality
-   - Navigation sections and TOC integration
-
-**Weaknesses:**
-
-1. **Navigation complexity:**
-   - mkdocs.yml has 590 lines of nested navigation
-   - Finding a specific playbook requires understanding the pillar → control → playbook type hierarchy
-   - No breadcrumb guidance for users jumping between layers
-
-2. **Layer 3 discoverability:**
-   - Playbooks are deeply nested (e.g., `playbooks/control-implementations/1.1/portal-walkthrough.md`)
-   - No clear signposting when reading a control about which playbook to read next
-   - Users might miss that advanced implementations exist
-
-3. **Section ordering may not match user mental model:**
-   - Controls lead with "Why This Matters for FSI" (regulatory justification)
-   - Some practitioners might prefer leading with "What does it do?" before "Why do it?"
-   - This is subjective and low-priority
-
-### Monitoring Systems
-
-The framework has **two automated monitoring systems**:
-
-#### 1. Learn Monitor (Microsoft Learn documentation changes)
-
-**Architecture:**
-```
-Daily 6 AM UTC (GitHub Actions)
-    │
-    ├─ Parse watchlist (209 URLs from microsoft-learn-urls.md)
-    │
-    ├─ Fetch each URL
-    │   └─ BeautifulSoup extraction → normalize → SHA-256 hash
-    │
-    ├─ Compare to state file (data/learn-monitor-state.json)
-    │   └─ Classification: meaningful / minor / noise
-    │
-    ├─ Find affected files (grep for URLs in controls/playbooks)
-    │   └─ Priority: CRITICAL (affects portal-walkthrough) / HIGH / MEDIUM / LOW
-    │
-    └─ Create PR (exit code 1 OR Sunday baseline)
-        ├─ Updated state file
-        ├─ Change report (if changes detected)
-        └─ Labels: learn-watch, needs-review (if changes), automated
-```
-
-**Complexity assessment:** APPROPRIATE
-
-- **Justification:** Framework documents 62 controls with 209 Microsoft Learn URLs. Manual tracking is infeasible. Change classification (meaningful vs noise) prevents alert fatigue.
-- **Code quality:** Production-grade with retry logic, rate limiting, proper error handling
-- **Pattern detection:** Smart regex patterns for UI navigation, policy language, deprecations
-- **AI-assisted review:** New v1.2.37 enhancement provides `/review-learn-changes` skill for drafting documentation updates
-
-**Where complexity is justified:**
-- Content normalization (remove dates, metadata) prevents false positives
-- Diff generation with unified diff format
-- Priority determination based on affected playbooks (CRITICAL if portal-walkthrough impacted)
-- Baseline vs change detection logic
-
-**Where simplification is possible:**
-- Pattern matching rules are hardcoded in `learn_monitor.py` (lines 266-286). Could be externalized to YAML config for easier tuning.
-- State file is 209 URLs × ~2KB per entry = ~400KB JSON. Could be split by section or use SQLite for faster queries.
-
-#### 2. Regulatory Monitor (mentioned but not implemented)
-
-**Status:** Documented in CLAUDE.md but no implementation found in codebase.
-
-**Implication:** This is a future enhancement, not a complexity concern.
-
-### Cross-Repo Workflow
-
-The framework has a **companion repository** (FSI-AgentGov-Solutions) for deployable automation:
-
-```
-FSI-AgentGov (Framework)
-├─ Documentation (MkDocs site)
-├─ Controls catalog (62 controls)
-├─ Playbooks (275 playbooks)
-└─ Learn Monitor automation
-
-FSI-AgentGov-Solutions (Automation)
-├─ Environment Lifecycle Management (v1.1.2)
-├─ Message Center Monitor (v2.1.1)
-├─ Pipeline Governance Cleanup (v1.0.8)
-├─ Deny Event Correlation Report (v1.1.0)
-├─ FINRA Supervision Workflow (v1.0.0)
-├─ Conditional Access Automation (v1.0.0)
-└─ 7 additional solutions (v1.0.0)
-```
-
-**Integration points:**
-
-1. **Documentation cross-references:**
-   - Controls link to solutions (e.g., Control 2.1 links to Environment Lifecycle Management)
-   - Solutions Index maps solutions to controls
-   - Solutions Integration doc explains zone applicability and deployment sequence
-
-2. **Boundary hooks (Claude Code):**
-   - `scripts/hooks/boundary-check.py` intercepts Bash commands to prevent accidental cross-repo operations
-   - Read/Write/Edit/Glob/Grep tools work cross-repo without restriction
-   - Git operations require explicit directory changes
-
-3. **Cross-repo commit workflow:**
-   - Commit FSI-AgentGov-Solutions first (implementations)
-   - Commit FSI-AgentGov second (documentation)
-   - Use cross-references in commit messages
-
-**Strengths:**
-
-- Separation of concerns: framework docs vs deployable code
-- Solutions are versioned independently
-- Documentation points to solutions, solutions point back to controls
-
-**Weaknesses:**
-
-1. **Documentation parity gaps:**
-   - FSI-AgentGov CLAUDE.md is comprehensive (857 lines)
-   - FSI-AgentGov-Solutions CLAUDE.md is minimal (would need to read to assess)
-   - Users working in solutions repo might miss framework context
-
-2. **Cross-repo navigation friction:**
-   - No automated way to jump from a control doc to the solution code
-   - Users must manually open the solutions repo
-   - GitHub UI doesn't show cross-repo relationships
-
-3. **Boundary hook limitation:**
-   - `researcher-package-reminder.py` hook only fires when working in FSI-AgentGov
-   - If editing framework files from solutions repo, reminder doesn't trigger
-   - This is documented but easy to forget
-
-### MkDocs Configuration
-
-The `mkdocs.yml` file is the navigation backbone:
-
-**Structure:**
-- Site metadata (5 lines)
-- Theme configuration (Material with features and palette)
-- Plugins (search only)
-- Validation rules (link checking, nav validation)
-- Markdown extensions (admonition, superfences, tabbed, tasklist, attr_list)
-- Navigation tree (590 lines, 80+ top-level items)
-
-**Strengths:**
-
-- Strict validation catches broken links early
-- Material theme provides excellent UX
-- Mermaid diagram support via superfences
-- Tabbed content for showing alternatives
-
-**Weaknesses:**
-
-- **Navigation is hand-maintained:** Every new control requires 5 manual edits to mkdocs.yml (control entry + 4 playbooks)
-- **No automated navigation generation:** Could use MkDocs plugins like `awesome-pages` to generate nav from folder structure
-- **Exclude rules are file-based:** `exclude_docs` lists specific files; if new non-navigable files are added, must remember to exclude them
+**Build Order Recommendation:** Documentation improvements first (breadcrumbs, YAML configs), then PowerShell fixes (isolated), then solutions completion (most complex).
 
 ---
 
-## Improvement Opportunities
+## Recommended Architecture
 
-### 1. Navigation Enhancement (HIGH priority)
+### High-Level Component Map
 
-**Problem:** Users jumping between layers (Framework → Control → Playbook) lose context.
+```
+FSI-AgentGov (Documentation Repository)
+├── docs/ (MkDocs Material site)
+│   ├── framework/
+│   ├── controls/
+│   ├── playbooks/
+│   └── reference/
+│       ├── monitoring-architecture.md (existing)
+│       ├── learn-monitor-config.yaml (NEW - Learn Monitor config)
+│       └── regulatory-monitor-config.yaml (NEW - Regulatory config)
+├── mkdocs.yml (nav structure - MODIFIED for breadcrumbs + optional Awesome Pages)
+├── scripts/
+│   ├── monitoring_shared.py (existing - unchanged)
+│   ├── learn_monitor.py (existing - unchanged)
+│   └── regulatory_monitor.py (existing - unchanged)
+└── data/
+    └── monitor-state.json (unified state - unchanged)
 
-**Recommendation:** Add breadcrumb navigation and "You are here" signposting.
-
-**Implementation:**
-```yaml
-# mkdocs.yml - add Material feature
-theme:
-  features:
-    - navigation.path  # Shows breadcrumbs
+FSI-AgentGov-Solutions (Deployable Solutions Repository)
+├── compliance-dashboard/ (WIP → Completed)
+│   ├── dataverse-solution/ (NEW - Dataverse schema + flows)
+│   │   ├── ComplianceDashboard_1_0_0.zip
+│   │   └── schema.xml
+│   ├── power-bi-template/ (NEW - .pbit file)
+│   │   └── ComplianceDashboard.pbit
+│   └── scripts/ (existing - enhanced)
+├── scope-drift-monitor/ (WIP → Completed)
+│   ├── scripts/
+│   │   ├── New-AgentBaseline.ps1 (MODIFIED - add #Requires)
+│   │   └── monitoring_adapter.py (NEW - uses monitoring_shared.py)
+│   └── dataverse-solution/ (NEW)
+└── [other solutions]/
+    └── *.ps1 (MODIFIED - add #Requires, SecretManagement)
 ```
 
-**Benefit:** Users understand their location in the three-layer hierarchy.
+---
 
-### 2. Playbook Discoverability (HIGH priority)
+## Integration Point 1: MkDocs Material Breadcrumbs
 
-**Problem:** Controls mention playbooks exist but users might not realize there are 4 types.
+### Current State
+- **mkdocs.yml:** Manual nav with ~200 entries across 4 sections
+- **Theme features:** navigation.instant, navigation.tracking, navigation.sections, search.suggest, toc.integrate
+- **No breadcrumbs:** Users navigate via left sidebar only
 
-**Recommendation:** Add an admonition box at top of each control with direct links to all 4 playbooks.
+### How Breadcrumbs Integrate
 
-**Implementation:**
-```markdown
-!!! tip "Implementation Playbooks"
-    - [Portal Walkthrough](../../playbooks/control-implementations/X.X/portal-walkthrough.md) - Step-by-step UI configuration
-    - [PowerShell Setup](../../playbooks/control-implementations/X.X/powershell-setup.md) - Automation scripts
-    - [Verification & Testing](../../playbooks/control-implementations/X.X/verification-testing.md) - How to verify it works
-    - [Troubleshooting](../../playbooks/control-implementations/X.X/troubleshooting.md) - Common issues and fixes
-```
+**Official Source:** [Setting up navigation - Material for MkDocs](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
 
-**Benefit:** Reduces "How do I implement this?" questions.
+Breadcrumbs in MkDocs Material are **additive** and work seamlessly with manual nav.
 
-### 3. Learn Monitor Pattern Externalization (MEDIUM priority)
-
-**Problem:** Change classification patterns are hardcoded in Python, making tuning require code changes.
-
-**Recommendation:** Extract patterns to `data/learn-monitor-patterns.yaml`.
-
-**Implementation:**
-```yaml
-# data/learn-monitor-patterns.yaml
-meaningful_patterns:
-  ui_navigation:
-    regex: '\d+\.\s+(click|select|go to|navigate)'
-    reason: 'UI navigation steps'
-    priority: CRITICAL
-  policy_callouts:
-    regex: '(Important|Warning|Note|Caution):'
-    reason: 'Policy callout blocks'
-    priority: HIGH
-  deprecation:
-    regex: '(deprecated|removed|no longer|retired)'
-    reason: 'Deprecation notice'
-    priority: HIGH
-
-noise_patterns:
-  - regex: '^[-+]\s*$'
-  - regex: 'ms\.(date|author|reviewer|topic)'
-```
-
-**Benefit:** Non-developers can tune classification without editing Python.
-
-### 4. Navigation Auto-Generation (MEDIUM priority)
-
-**Problem:** Adding a control requires 5 manual edits to mkdocs.yml.
-
-**Recommendation:** Use MkDocs Awesome Pages plugin to generate navigation from file structure.
-
-**Implementation:**
-```bash
-pip install mkdocs-awesome-pages-plugin
-```
-
+**Integration Method:**
 ```yaml
 # mkdocs.yml
-plugins:
-  - search
-  - awesome-pages  # Auto-generates nav from .pages files
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.path         # NEW - enables breadcrumbs
+    - search.suggest
+    - search.highlight
+    - toc.integrate
 ```
+
+**Behavior:**
+- Breadcrumbs render **above** the page title
+- Generated from nav hierarchy (manual or automatic)
+- Format: `Home > Framework > Agent Identity Architecture`
+- No changes to existing nav structure required
+- Optional: Can hide per-page via front matter (`hide: [navigation.path]`)
+
+**Impact Assessment:**
+- **Existing nav:** Zero changes needed
+- **User experience:** Improved orientation on deep pages (Control 2.16 Playbooks have 4-level depth)
+- **Breaking changes:** None
+- **Rollback:** Remove feature flag
+
+**Recommendation:** Implement immediately as Phase 1 quick win.
+
+---
+
+## Integration Point 2: Awesome Pages Plugin Migration
+
+### Current State
+- **mkdocs.yml:** Fully manual nav (79 lines for framework, 489 lines for controls/playbooks)
+- **Maintenance:** Adding new control requires 5 manual nav edits
+- **Error prone:** Typos in paths cause build failures
+
+### How Awesome Pages Coexists
+
+**Official Source:** [Getting Started - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/)
+
+Awesome Pages **requires explicit integration** but can coexist with manual nav via `...` (rest) entries.
+
+**Critical Constraint:**
+> This plugin won't do anything if your mkdocs.yml defines a nav or pages entry. To make use of the features listed below, you'll either have to remove the entry completely or add a `...` entry to it.
+
+**Integration Strategy (Incremental Migration):**
 
 ```yaml
-# docs/controls/pillar-1-security/.pages
+# mkdocs.yml - Phase 1: Manual sections + auto playbooks
 nav:
-  - Overview: index.md
-  - ... # Auto-discovers all controls in this folder
+  - Home: index.md
+  - Disclaimer: disclaimer.md
+  - Getting Started:
+    - Quick Start: getting-started/quick-start.md
+    - Implementation Checklist: getting-started/checklist.md
+  - Framework:
+    - Overview: framework/index.md
+    - Executive Summary: framework/executive-summary.md
+    # ... (keep manual for stable sections)
+  - Control Catalog:
+    - ...  # Auto-generate controls from pillar-*/
+  - Playbooks:
+    - ...  # Auto-generate playbooks from docs/playbooks/
+  - Reference:
+    - ...  # Auto-generate reference docs
 ```
 
-**Benefit:** Reduces mkdocs.yml from 590 lines to ~200 lines. New controls auto-appear in navigation.
+**Directory-Level Configuration (.pages.yaml):**
 
-**Tradeoff:** Loses fine-grained control over ordering. Would need `.pages` files in each folder to specify order.
-
-### 5. Cross-Repo Documentation Parity (MEDIUM priority)
-
-**Problem:** FSI-AgentGov-Solutions CLAUDE.md might be less comprehensive than FSI-AgentGov's.
-
-**Recommendation:** Audit solutions repo CLAUDE.md and bring to parity. Include cross-references back to framework.
-
-**Implementation:**
-```markdown
-# FSI-AgentGov-Solutions/.claude/CLAUDE.md
-
-## Related Framework Documentation
-
-For each solution, see corresponding control documentation:
-
-| Solution | Related Controls |
-|----------|------------------|
-| Environment Lifecycle Management | [2.1](https://judeper.github.io/FSI-AgentGov/controls/pillar-2-management/2.1-managed-environments/), [2.2](https://judeper.github.io/FSI-AgentGov/controls/pillar-2-management/2.2-environment-groups-and-tier-classification/), [2.15](https://judeper.github.io/FSI-AgentGov/controls/pillar-2-management/2.15-environment-routing/) |
+```yaml
+# docs/controls/pillar-1-security/.pages.yaml
+title: Pillar 1 - Security
+order: 1
+collapse_single_pages: false
 ```
 
-**Benefit:** Users working in solutions repo have framework context.
+**Behavior:**
+- Sections with manual nav entries: Use manual nav
+- Sections with `...`: Auto-generated from file structure
+- Hybrid approach reduces maintenance burden by ~60%
 
-### 6. Section Ordering Experiment (LOW priority)
+**Migration Path:**
+1. **Phase 1:** Keep Framework manual, auto-generate Playbooks only (lowest risk)
+2. **Phase 2:** Auto-generate Controls (requires .pages.yaml per pillar)
+3. **Phase 3:** Auto-generate Reference (highest payoff, currently 15 manual entries)
 
-**Problem:** Some users might prefer "what" before "why" in controls.
+**Impact Assessment:**
+- **Build compatibility:** Requires mkdocs-awesome-pages-plugin in requirements.txt
+- **Breaking changes:** If `...` placement is wrong, nav will break
+- **Rollback:** Remove plugin, restore manual nav from git
+- **Testing:** mkdocs build --strict must pass
 
-**Recommendation:** User test with 3-5 practitioners to see if current ordering (Why → What → How) vs alternative (What → Why → How) has preference.
-
-**Implementation:** A/B test with different audiences. This is subjective and should be data-driven.
-
-**Benefit:** Better cognitive fit for users' mental model.
+**Recommendation:** Implement as Phase 2 after breadcrumbs. Start with Playbooks section (most repetitive).
 
 ---
 
-## Simplification Recommendations
+## Integration Point 3: YAML Configuration Files for Monitoring
 
-### What NOT to Simplify
+### Current State
+- **Learn Monitor:** URLs hardcoded in docs/reference/microsoft-learn-urls.md (Markdown table)
+- **Regulatory Monitor:** Sources hardcoded in scripts/regulatory_monitor.py
+- **No schema validation:** Manual editing, prone to typos
+- **Configuration scattered:** Some in scripts, some in docs
 
-1. **Learn Monitor complexity:** It's appropriate for the compliance mission. The pattern detection prevents alert fatigue.
-2. **10-section control template:** Consistency across 62 controls is more valuable than reducing sections.
-3. **Three-layer architecture:** Clear separation of concerns is a strength, not a weakness.
-4. **Cross-repo separation:** Keeps documentation repository lightweight and deployable code versioned independently.
+### Where YAML Config Files Belong
 
-### What TO Simplify
+**Pattern from MkDocs Ecosystem:**
+- Configuration lives in **docs/reference/** alongside markdown documentation
+- Benefits from MkDocs YAML schema validation
+- Version controlled with documentation
 
-1. **mkdocs.yml navigation:** Use awesome-pages plugin to auto-generate from folder structure.
-2. **Learn Monitor patterns:** Externalize to YAML for easier tuning.
-3. **Cross-repo boundary hooks:** Document more prominently (maybe add to README.md, not just CLAUDE.md).
+**Proposed Structure:**
 
-### Optional Enhancements (Not Simplifications)
+```
+docs/reference/
+├── monitoring-architecture.md (existing)
+├── learn-monitor-config.yaml (NEW)
+├── regulatory-monitor-config.yaml (NEW)
+└── microsoft-learn-urls.md (DEPRECATED - migrate to YAML)
+```
 
-1. **State file format:** Learn Monitor uses JSON. SQLite would enable faster queries for 209 URLs.
-2. **Playbook auto-linking:** Script to add "Implementation Playbooks" admonition to all controls automatically.
-3. **Regulatory Monitor implementation:** Documented but not built. If built, follow Learn Monitor pattern.
+**Example: learn-monitor-config.yaml**
+
+```yaml
+# Learn Monitor Configuration
+# Schema: https://github.com/judeper/FSI-AgentGov/schemas/learn-monitor-config.schema.json
+
+version: 1
+source_key: learn
+report_prefix: learn-changes
+
+# URL Categories
+url_sources:
+  - section: Power Platform Admin Center
+    urls:
+      - url: https://learn.microsoft.com/en-us/power-platform/admin/...
+        topic: Environment Lifecycle Management
+        priority: high
+        affected_controls:
+          - 2.1
+          - 2.2
+
+  - section: Microsoft Purview Compliance
+    urls:
+      - url: https://learn.microsoft.com/en-us/purview/...
+        topic: DLP Policies
+        priority: critical
+        affected_controls:
+          - 1.5
+          - 1.17
+
+# Change Classification Rules
+classification:
+  critical_patterns:
+    - pattern: '\d+\.\s+(click|select|go to|navigate)'
+      reason: 'UI navigation steps changed'
+    - pattern: '(deprecated|removed|no longer|retired)'
+      reason: 'Deprecation notice'
+
+  high_patterns:
+    - pattern: '(Admin center|portal|Power Platform|Purview)'
+      reason: 'Portal references'
+```
+
+**Benefits:**
+1. **Schema validation:** Catch errors before runtime
+2. **Documentation proximity:** Config near the docs it affects
+3. **DRY principle:** No duplication between docs and code
+4. **Migration path:** Scripts read YAML instead of scraping markdown
+
+**Integration with monitoring_shared.py:**
+
+```python
+# NEW: scripts/config_loader.py
+import yaml
+from pathlib import Path
+
+def load_monitor_config(config_path: Path) -> dict:
+    """Load and validate monitor configuration from YAML."""
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+
+    # Validate against schema
+    # ... (JSON Schema validation)
+
+    return config
+
+# scripts/learn_monitor.py (MODIFIED)
+from config_loader import load_monitor_config
+
+# Replace parse_watchlist() with:
+config = load_monitor_config(DOCS_DIR / "reference" / "learn-monitor-config.yaml")
+url_entries = []
+for section in config['url_sources']:
+    for url_info in section['urls']:
+        url_entries.append(URLEntry(
+            url=url_info['url'],
+            topic=url_info['topic'],
+            section=section['section']
+        ))
+```
+
+**Impact Assessment:**
+- **Breaking changes:** None (additive - old markdown still works during migration)
+- **Dependencies:** Requires PyYAML (already in requirements.txt via MkDocs)
+- **Validation:** JSON Schema recommended but optional
+- **Migration effort:** ~2-4 hours per monitor
+
+**Recommendation:** Implement as Phase 1 alongside breadcrumbs. Low risk, high maintainability payoff.
 
 ---
 
-## Proposed Build Order
+## Integration Point 4: PowerShell Module Modernization
 
-If implementing improvements, prioritize in this order:
+### Current State (from v1 Audit)
 
-### Phase 1: Quick Wins (1-2 hours)
-1. Add breadcrumb navigation (`navigation.path` feature in Material theme)
-2. Audit FSI-AgentGov-Solutions CLAUDE.md for parity
+**Critical Issues:**
+- `Register-ServicePrincipal.ps1`: Uses `ConvertTo-SecureString -AsPlainText -Force` (exposes secrets in memory)
+- `Test-PolicyCompliance.ps1`: Zero try/catch error handling
+- 12 scripts missing `#Requires` statements
 
-### Phase 2: Documentation Enhancements (3-5 hours)
-1. Add "Implementation Playbooks" admonition to all 62 controls (could be scripted)
-2. Create template for controls to prevent omission in future
+**Isolated to FSI-AgentGov-Solutions repository** - no framework changes.
 
-### Phase 3: Structural Improvements (1-2 days)
-1. Externalize Learn Monitor patterns to YAML
-2. Test awesome-pages plugin for navigation auto-generation
-3. Document cross-repo workflow more prominently
+### PowerShell SecretManagement Integration
 
-### Phase 4: Optional Optimizations (as needed)
-1. Convert state file from JSON to SQLite (only if performance becomes an issue)
-2. Implement Regulatory Monitor if scope expands
-3. User test section ordering (only if practitioner feedback suggests confusion)
+**Official Source:** [Overview of the SecretManagement and SecretStore modules](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview?view=ps-modules)
+
+**Current Anti-Pattern:**
+```powershell
+# Register-ServicePrincipal.ps1 (BEFORE)
+$SecurePassword = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
+$Credential = New-Object System.Management.Automation.PSCredential($ClientId, $SecurePassword)
+```
+
+**Recommended Pattern:**
+```powershell
+# Register-ServicePrincipal.ps1 (AFTER)
+#Requires -Modules @{ ModuleName = 'Microsoft.PowerShell.SecretManagement'; ModuleVersion = '1.1.2' }
+
+# Store secret once during setup
+Set-Secret -Name 'ServicePrincipal-ClientSecret' -Secret $ClientSecret
+
+# Retrieve as SecureString in script
+$SecurePassword = Get-Secret -Name 'ServicePrincipal-ClientSecret' -AsPlainText:$false
+$Credential = New-Object System.Management.Automation.PSCredential($ClientId, $SecurePassword)
+```
+
+**Best Practices Applied:**
+1. **SecureString objects:** Secrets retrieved as SecureString (never plain text in memory)
+2. **User context:** Vault registered per-user (no cross-user exposure)
+3. **Automation support:** Set-SecretStoreConfiguration -Authentication None for scheduled tasks
+4. **Multiple vaults:** Different security levels for different secret types
+
+**Source:** [Working with PowerShell Secret Management](https://www.techtarget.com/searchwindowsserver/tutorial/Working-with-PowerShell-Secret-Management-and-Secret-Vault)
+
+### #Requires Statements
+
+**Official Source:** [about_Requires - PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.5)
+
+**Current State:** 12 scripts missing module requirements
+
+**Implementation Pattern:**
+```powershell
+# All scripts MUST start with:
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName = 'Microsoft.Graph'; ModuleVersion = '2.0.0' }
+#Requires -Modules @{ ModuleName = 'Microsoft.PowerShell.SecretManagement'; ModuleVersion = '1.1.2' }
+
+<#
+.SYNOPSIS
+Script description here
+#>
+```
+
+**Benefits:**
+- **Early failure:** Script won't run if prerequisites missing (better UX)
+- **Version enforcement:** Prevents compatibility issues
+- **Self-documenting:** Module dependencies visible in header
+
+**Impact Assessment:**
+- **Breaking changes:** Scripts will fail on systems without required modules (GOOD - prevents silent failures)
+- **Deployment:** README.md must document module installation steps
+- **CI/CD:** Pipeline must install required modules before testing
+
+### Error Handling
+
+**Current Anti-Pattern:**
+```powershell
+# Test-PolicyCompliance.ps1 (BEFORE)
+$policies = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/policies/..."
+foreach ($policy in $policies.value) {
+    # Process policy
+}
+```
+
+**Recommended Pattern:**
+```powershell
+# Test-PolicyCompliance.ps1 (AFTER)
+try {
+    $policies = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/policies/..." -ErrorAction Stop
+
+    if ($null -eq $policies -or $policies.value.Count -eq 0) {
+        Write-Warning "No policies found - environment may not be configured"
+        return
+    }
+
+    foreach ($policy in $policies.value) {
+        # Process policy
+    }
+}
+catch {
+    Write-Error "Failed to retrieve policies: $_"
+    Write-Error $_.Exception.Message
+    exit 1
+}
+```
+
+**Impact Assessment:**
+- **Solutions repo only:** Zero impact on framework documentation
+- **Testing required:** Each modified script needs functional testing
+- **Documentation:** Playbooks reference PowerShell scripts but don't embed code
+- **Migration:** Can be done incrementally per-solution
+
+**Recommendation:** Implement as Phase 3 after documentation improvements. Prioritize CRITICAL findings first (Register-ServicePrincipal.ps1).
 
 ---
 
-## Anti-Patterns to Avoid
+## Integration Point 5: Compliance Dashboard Architecture
 
-### 1. Over-Simplification
-**Trap:** "Let's reduce the 10-section control template to 6 sections."
-**Why bad:** Consistency across 62 controls is more valuable than brevity. Removing sections would create information gaps.
-**Instead:** Keep the template. Focus on navigation and discoverability.
+### Current State
+- **Status:** v1.0.0-beta (WIP)
+- **Missing:** Power BI template (.pbit), complete Dataverse solution
+- **Documented:** Schema, flows, prerequisites (docs complete, artifacts missing)
 
-### 2. Navigation Automation Without Constraints
-**Trap:** "Auto-generate all navigation from folder structure."
-**Why bad:** Loses intentional ordering (e.g., "1.1 before 1.2"). Requires careful `.pages` file management.
-**Instead:** Use awesome-pages for predictable sections (playbooks) but hand-maintain strategic order (controls by number).
+### Dataverse Schema Design
 
-### 3. Merging Repos
-**Trap:** "Combine FSI-AgentGov and FSI-AgentGov-Solutions into one repo."
-**Why bad:** Mixes documentation cadence with code deployment cadence. Solutions need independent versioning.
-**Instead:** Improve cross-references and documentation parity.
+**Official Source:** [Power BI modeling guidance for Power Platform](https://learn.microsoft.com/en-us/power-bi/guidance/powerbi-modeling-guidance-for-power-platform)
 
-### 4. Learn Monitor Pattern Explosion
-**Trap:** "Add 50 more patterns to detect every possible change type."
-**Why bad:** Increases false positives and maintenance burden.
-**Instead:** Keep patterns focused on HIGH/CRITICAL categories. Let MEDIUM/NOISE be catch-alls.
+**Recommended Star Schema:**
+
+```
+┌──────────────────────┐
+│  Fact_Compliance     │ (FACT TABLE)
+├──────────────────────┤
+│ ComplianceScoreId PK │
+│ ControlId FK         │
+│ DateKey FK           │
+│ EnvironmentId FK     │
+│ ZoneId FK            │
+├──────────────────────┤
+│ Score (0-100)        │
+│ Status (enum)        │
+│ LastAssessmentDate   │
+│ AssessmentMethod     │
+└──────────────────────┘
+         │ N:1 relationships
+         ├─────────────────────────────┐
+         │                             │
+         ▼                             ▼
+┌──────────────────┐         ┌──────────────────┐
+│ Dim_Control      │         │ Dim_Zone         │
+├──────────────────┤         ├──────────────────┤
+│ ControlId PK     │         │ ZoneId PK        │
+│ ControlNumber    │         │ ZoneName         │
+│ PillarId FK      │         │ WeightMultiplier │
+│ Title            │         └──────────────────┘
+│ RegulatoryImpact │
+└──────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Dim_Pillar       │
+├──────────────────┤
+│ PillarId PK      │
+│ PillarName       │
+│ PillarNumber     │
+└──────────────────┘
+```
+
+**Best Practices Applied:**
+1. **Star schema:** Fact table at center with dimension tables (standard analytics pattern)
+2. **Assumed referential integrity:** Set on all relationships for INNER JOIN optimization
+3. **Dual storage mode:** Dimension tables use Dual mode (cached when possible)
+4. **Column pruning:** Only retrieve columns needed for reports (not all table columns)
+
+**Source:** [DirectQuery model guidance in Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/guidance/directquery-model-guidance)
+
+**Integration with Existing Framework:**
+
+The Compliance Dashboard reads **existing control metadata** from the FSI-AgentGov repository:
+
+```python
+# scripts/load_sample_data.py (MODIFIED)
+import json
+from pathlib import Path
+
+# Read control master data from FSI-AgentGov
+controls_index = Path("../FSI-AgentGov/docs/controls/CONTROL-INDEX.md")
+# Parse markdown table to extract 62 controls
+# Load into Dim_Control table
+```
+
+**No changes to FSI-AgentGov required** - dashboard reads from published GitHub repo or local clone.
+
+### Power Automate Flows
+
+**Official Source:** [Manage cloud flow run history in Dataverse](https://learn.microsoft.com/en-us/power-automate/dataverse/cloud-flow-run-metadata)
+
+**Data Collection Pattern:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Scheduled Cloud Flow: Daily Compliance Collector    │
+├─────────────────────────────────────────────────────┤
+│ Trigger: Recurrence (Daily at 06:00 UTC)           │
+│                                                     │
+│ Actions:                                            │
+│ 1. HTTP: Get Purview Compliance Score API          │
+│ 2. Parse JSON: Extract assessment data             │
+│ 3. For Each: Control assessment                    │
+│    ├─ Condition: Check if control exists           │
+│    ├─ Dataverse: Upsert Fact_Compliance            │
+│    └─ Dataverse: Update Dim_Control last_checked   │
+│ 4. Dataverse: Update metadata table (run timestamp)│
+└─────────────────────────────────────────────────────┘
+```
+
+**Flow Run History Storage:**
+- Stored in Dataverse FlowRun elastic table (28-day retention)
+- Partitioned by user for performance
+- Application Insights integration for deeper diagnostics
+
+**Source:** [Monitor your flows - Power Automate](https://learn.microsoft.com/en-us/power-automate/guidance/coding-guidelines/monitoring-and-alerting)
+
+**Integration with monitoring_shared.py:**
+
+Compliance Dashboard is **separate** from Learn/Regulatory Monitor. It uses **Power Automate** for data collection, not Python scripts. Monitoring patterns are conceptually similar (state management, change detection) but implementation is different.
+
+```
+Learn Monitor (Python)          Compliance Dashboard (Power Automate)
+├─ monitoring_shared.py         ├─ Cloud flows
+├─ learn_monitor.py             ├─ Dataverse tables
+├─ regulatory_monitor.py        ├─ Power BI DirectQuery
+└─ data/monitor-state.json      └─ FlowRun history
+```
+
+**No code sharing between systems** - both are monitoring, but different domains.
+
+### Power BI Report
+
+**DirectQuery Configuration:**
+
+```
+Data Source: Dataverse (DirectQuery mode)
+Connection: https://{org}.crm.dynamics.com
+Authentication: Azure AD
+Tables:
+  - Fact_Compliance (DirectQuery)
+  - Dim_Control (Dual - cached)
+  - Dim_Pillar (Dual - cached)
+  - Dim_Zone (Dual - cached)
+  - Dim_Date (Import - date table)
+```
+
+**DAX Measures (from docs/dax-measures.md):**
+
+```dax
+Overall Compliance Score =
+    DIVIDE(
+        SUMX(
+            Fact_Compliance,
+            [Score] * RELATED(Dim_Zone[WeightMultiplier])
+        ),
+        SUMX(
+            Fact_Compliance,
+            100 * RELATED(Dim_Zone[WeightMultiplier])
+        ),
+        0
+    )
+
+Critical Exceptions Count =
+    CALCULATE(
+        COUNTROWS(Fact_Compliance),
+        Fact_Compliance[Status] = "Non-Compliant",
+        RELATED(Dim_Control[RegulatoryImpact]) = "Critical"
+    )
+```
+
+**Impact Assessment:**
+- **FSI-AgentGov changes:** None (dashboard consumes published data)
+- **Solutions repo changes:** Add Dataverse solution ZIP, Power BI .pbit template
+- **Dependencies:** Requires Environment Lifecycle Management solution for zone data
+- **Testing:** Requires test Dataverse environment with sample data
+
+**Recommendation:** Implement as Phase 4 after PowerShell fixes. Most complex integration but well-isolated.
 
 ---
 
-## Component Boundaries
+## Integration Point 6: Scope Drift Monitor
 
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| **MkDocs Site** | Render documentation, navigation, search | None (static HTML) |
-| **Learn Monitor (Python)** | Fetch URLs, detect changes, classify priority | GitHub Actions, state file (JSON), change reports (Markdown) |
-| **Claude Code Skills** | Review change reports, draft documentation updates | Learn Monitor output (Markdown), framework docs (Markdown) |
-| **GitHub Actions** | Trigger Learn Monitor daily, create PRs, run validation | Learn Monitor (Python), Git, GitHub API |
-| **Control Template** | Define structure for all 62 controls | Controls (enforces format), Playbooks (referenced by controls) |
-| **FSI-AgentGov-Solutions** | Deployable automation code | Framework docs (cross-references), Controls (implements) |
+### Current State
+- **Status:** v1.0.0 (WIP)
+- **Structure:** Basic framework, incomplete core logic
+- **Missing:** Detection flow, baseline capture script, monitoring adapter
+
+### Integration with monitoring_shared.py
+
+**Scope Drift Monitor is a different domain** from Learn/Regulatory Monitor but **should follow same patterns**.
+
+**Proposed Architecture:**
+
+```
+scripts/
+├── monitoring_shared.py (existing - core utilities)
+├── learn_monitor.py (existing - uses monitoring_shared)
+├── regulatory_monitor.py (existing - uses monitoring_shared)
+└── scope_drift_adapter.py (NEW - uses monitoring_shared)
+
+FSI-AgentGov-Solutions/scope-drift-monitor/
+├── scripts/
+│   ├── New-AgentBaseline.ps1 (PowerShell - captures initial scope)
+│   └── monitoring_adapter.py (Python - bridges PowerShell → monitoring_shared)
+└── flows/
+    └── DriftDetectionFlow.json (Power Automate - real-time detection)
+```
+
+**Adapter Pattern:**
+
+```python
+# FSI-AgentGov-Solutions/scope-drift-monitor/scripts/monitoring_adapter.py
+"""
+Scope Drift Monitor adapter for unified monitoring framework.
+
+Uses monitoring_shared.py from FSI-AgentGov repository for:
+- State management (unified monitor-state.json)
+- Change classification
+- Report generation
+"""
+import sys
+from pathlib import Path
+
+# Import from FSI-AgentGov repository
+sys.path.insert(0, str(Path(__file__).parent / "../../../FSI-AgentGov/scripts"))
+from monitoring_shared import (
+    load_state,
+    save_state_atomic,
+    get_source_state,
+    set_source_state,
+    generate_report_header,
+    generate_executive_summary,
+    write_report,
+    CLASSIFICATION_CRITICAL,
+    CLASSIFICATION_HIGH,
+    CLASSIFICATION_MEDIUM,
+)
+
+SOURCE_KEY = "scope-drift"
+REPORT_PREFIX = "scope-drift"
+
+def detect_drift(agent_id: str, baseline_scope: dict, current_access: dict) -> list:
+    """
+    Detect drift between baseline scope and current access patterns.
+
+    Returns list of drift violations.
+    """
+    violations = []
+
+    # Compare connectors
+    baseline_connectors = set(baseline_scope.get('connectors', []))
+    current_connectors = set(current_access.get('connectors', []))
+    new_connectors = current_connectors - baseline_connectors
+
+    for connector in new_connectors:
+        violations.append({
+            'type': 'connector',
+            'name': connector,
+            'severity': CLASSIFICATION_HIGH,
+            'reason': 'Agent used connector not in declared scope'
+        })
+
+    # Compare SharePoint sites (similar pattern)
+    # Compare Dataverse tables (similar pattern)
+
+    return violations
+
+# ... rest of adapter logic
+```
+
+**Benefits of Shared Framework:**
+1. **Consistent state management:** All monitors use same JSON structure
+2. **Consistent reporting:** All monitors generate same report format
+3. **Code reuse:** Change classification, diff generation shared
+4. **Unified dashboard:** Could aggregate Learn + Regulatory + Scope Drift changes
+
+**Integration Method:**
+- **Python adapter:** Reads PowerShell baseline output, uses monitoring_shared.py
+- **Power Automate flow:** Runs real-time (different trigger than batch Python)
+- **Dual approach:** Batch daily Python scan + real-time flow alerts
+
+**Impact Assessment:**
+- **FSI-AgentGov changes:** None (monitoring_shared.py already designed for plugins)
+- **Solutions repo changes:** Add monitoring_adapter.py, reference monitoring_shared.py
+- **Testing:** Requires mock agent data, simulated access patterns
+- **Dependencies:** Python 3.10+, requests, Access to Unified Audit Log
+
+**Recommendation:** Implement as Phase 5 after Compliance Dashboard. Demonstrates monitoring framework extensibility.
 
 ---
 
-## Data Flow
+## Component Integration Summary
 
-### Documentation Build Process
-```
-Markdown files (docs/)
-    │
-    ├─ mkdocs build --strict
-    │   ├─ Parse navigation (mkdocs.yml)
-    │   ├─ Render HTML (Material theme)
-    │   ├─ Validate links (validation rules)
-    │   └─ Generate search index
-    │
-    └─ Output: site/ directory (GitHub Pages)
-```
+### New Components
 
-### Learn Monitor Flow
-```
-Watchlist (microsoft-learn-urls.md)
-    │
-    ├─ Parse 209 URLs
-    │
-    ├─ Fetch each URL (requests)
-    │   ├─ Extract content (BeautifulSoup)
-    │   ├─ Normalize (remove dates, metadata)
-    │   └─ Hash (SHA-256)
-    │
-    ├─ Compare to state (learn-monitor-state.json)
-    │   ├─ If changed: classify (meaningful/minor/noise)
-    │   ├─ Find affected files (grep controls/playbooks)
-    │   └─ Determine priority (CRITICAL/HIGH/MEDIUM/LOW)
-    │
-    ├─ Generate report (learn-changes-YYYY-MM-DD.md)
-    │
-    └─ Create PR (GitHub Actions)
-        ├─ Label: learn-watch, needs-review (if changes)
-        └─ Assignee: repository owner
-```
+| Component | Location | Purpose | Dependencies |
+|-----------|----------|---------|--------------|
+| **YAML Monitor Configs** | docs/reference/ | Monitoring URL/source configuration | PyYAML (existing) |
+| **config_loader.py** | scripts/ | Load and validate YAML configs | PyYAML, JSON Schema |
+| **Breadcrumbs** | mkdocs.yml theme.features | Navigation enhancement | None (MkDocs Material built-in) |
+| **Awesome Pages** | mkdocs.yml plugins | Auto-nav generation | mkdocs-awesome-pages-plugin |
+| **SecretManagement** | Solutions *.ps1 scripts | Secure secret handling | Microsoft.PowerShell.SecretManagement module |
+| **#Requires** | Solutions *.ps1 scripts | Module dependency declaration | None (PowerShell built-in) |
+| **Compliance Dashboard Schema** | Solutions/compliance-dashboard/dataverse-solution/ | Dataverse tables + flows | Dataverse, Power Automate |
+| **Compliance Dashboard BI** | Solutions/compliance-dashboard/power-bi-template/ | Power BI report template | Power BI Premium/Pro |
+| **Scope Drift Adapter** | Solutions/scope-drift-monitor/scripts/ | Monitoring framework integration | monitoring_shared.py |
 
-### Cross-Repo Workflow
-```
-User edits FSI-AgentGov-Solutions code
-    │
-    ├─ Commit solution implementation
-    │
-    ├─ Switch to FSI-AgentGov
-    │
-    ├─ Update control documentation
-    │   ├─ Reference new solution
-    │   └─ Add to Solutions Index
-    │
-    └─ Commit documentation (cross-reference solution commit)
-```
+### Modified Components
+
+| Component | Change | Impact |
+|-----------|--------|--------|
+| **mkdocs.yml** | Add navigation.path, optional Awesome Pages | Additive - zero breaking changes |
+| **learn_monitor.py** | Load YAML config instead of markdown scraping | Backward compatible during migration |
+| **regulatory_monitor.py** | Load YAML config instead of hardcoded sources | Backward compatible during migration |
+| **Solutions *.ps1** | Add #Requires, error handling, SecretManagement | Breaking for systems without modules |
+| **Solutions README.md** | Document module prerequisites | Documentation only |
+
+### Unchanged Components
+
+| Component | Why Unchanged |
+|-----------|---------------|
+| **monitoring_shared.py** | Already designed for plugin pattern - no changes needed |
+| **data/monitor-state.json** | Unified format supports new sources without schema change |
+| **docs/controls/** | Control markdown files unchanged - breadcrumbs render from nav |
+| **docs/playbooks/** | Playbooks unchanged - Awesome Pages reads file structure |
+| **Framework docs** | No architecture changes - enhancements are additive |
 
 ---
 
-## Scalability Considerations
+## Data Flow Changes
 
-| Concern | Current State | At 100 Controls | At 200 Controls |
-|---------|---------------|-----------------|-----------------|
-| **mkdocs build time** | ~5 seconds | ~10 seconds (linear) | ~20 seconds (still acceptable) |
-| **Learn Monitor runtime** | ~5 minutes (209 URLs) | ~10 minutes (400 URLs) | ~20 minutes (800 URLs) - may need parallel fetching |
-| **State file size** | ~400KB (JSON) | ~800KB | ~1.6MB - consider SQLite at this scale |
-| **Navigation complexity** | 590 lines (manual) | 1000+ lines (manual) - automation critical | 2000+ lines - must automate |
-| **Search index** | ~500KB | ~1MB | ~2MB (Material Search handles this fine) |
+### Before v2 (Current State)
 
-**Recommendation:** Current architecture scales to 150-200 controls before requiring significant changes. Learn Monitor may need parallel fetching (concurrent.futures) at 400+ URLs.
+```
+Learn Monitor Flow:
+microsoft-learn-urls.md → parse_watchlist() → URLEntry list → fetch + classify
+                                                                      ↓
+                                                        monitor-state.json (source: learn)
+                                                                      ↓
+                                                      learn-changes-YYYY-MM-DD.md
+
+Compliance Dashboard Flow:
+[None - v1.0.0-beta incomplete]
+
+Scope Drift Monitor Flow:
+[None - v1.0.0 incomplete]
+```
+
+### After v2 (Proposed State)
+
+```
+Learn Monitor Flow:
+learn-monitor-config.yaml → load_monitor_config() → URLEntry list → fetch + classify
+                                                                           ↓
+                                                         monitor-state.json (source: learn)
+                                                                           ↓
+                                                       learn-changes-YYYY-MM-DD.md
+
+Compliance Dashboard Flow:
+FSI-AgentGov/docs/controls/ → load_sample_data.py → Dim_Control (Dataverse)
+                                                           ↓
+Purview Compliance API → Power Automate Flow → Fact_Compliance (Dataverse)
+                                                           ↓
+                                              Power BI DirectQuery → Dashboard
+
+Scope Drift Monitor Flow:
+Agent metadata → New-AgentBaseline.ps1 → baseline.json → Dataverse (Agent Scope table)
+                                                                ↓
+Unified Audit Log → Power Automate Flow → Access log analysis → Drift detection
+                                                                       ↓
+                                                        monitor-state.json (source: scope-drift)
+                                                                       ↓
+Drift violations → monitoring_adapter.py → scope-drift-YYYY-MM-DD.md
+```
+
+**Key Changes:**
+1. **YAML configs replace markdown scraping** - structured data, validated
+2. **Compliance Dashboard uses Dataverse hub** - enterprise BI pattern
+3. **Scope Drift uses dual approach** - real-time flows + batch Python reports
+4. **All monitoring shares state file** - unified monitor-state.json with source keys
+
+---
+
+## Build Order and Dependencies
+
+### Phase 1: Documentation Quick Wins (Week 1)
+**Goal:** Immediate UX improvements with zero risk
+
+1. **Breadcrumbs** (1 day)
+   - Add `navigation.path` to mkdocs.yml
+   - Test: `mkdocs build --strict`
+   - Deploy: Commit to main, GitHub Pages auto-deploys
+
+2. **YAML Monitor Configs** (2 days)
+   - Create learn-monitor-config.yaml
+   - Create regulatory-monitor-config.yaml
+   - Create config_loader.py
+   - Migrate URLs from markdown (backward compatible)
+   - Test: `python scripts/learn_monitor.py --dry-run --limit 5`
+
+**Dependencies:** None
+**Risk:** Low
+**Deliverables:** Breadcrumbs live, YAML configs usable
+
+### Phase 2: Awesome Pages Migration (Week 2)
+**Goal:** Reduce nav maintenance burden
+
+1. **Playbooks Auto-Nav** (3 days)
+   - Add mkdocs-awesome-pages-plugin to requirements.txt
+   - Replace Playbooks section with `...` entry
+   - Create .pages.yaml in playbooks/ subdirectories
+   - Test: `mkdocs build --strict` (critical - nav breakage possible)
+   - Rollback plan: Git revert if build fails
+
+2. **Reference Auto-Nav** (1 day)
+   - Replace Reference section with `...` entry
+   - Test and verify ordering
+
+**Dependencies:** Phase 1 complete (validates mkdocs.yml changes work)
+**Risk:** Medium (nav structure changes)
+**Deliverables:** 60% reduction in manual nav entries
+
+### Phase 3: PowerShell Modernization (Week 3-4)
+**Goal:** Fix CRITICAL and HIGH security findings
+
+1. **#Requires Statements** (2 days)
+   - Add to all 12 missing scripts
+   - Document module prerequisites in README.md
+   - Test: Script validation (regex-based - pwsh not available)
+
+2. **SecretManagement Migration** (3 days)
+   - Fix Register-ServicePrincipal.ps1 (CRITICAL)
+   - Add error handling to Test-PolicyCompliance.ps1 (HIGH)
+   - Document vault setup in prerequisites.md
+
+3. **Functional Testing** (3 days)
+   - Test each modified script in test environment
+   - Validate error handling paths
+   - Update playbooks if script interfaces changed
+
+**Dependencies:** Phase 2 complete (documentation stable)
+**Risk:** Medium (scripts must work in production)
+**Deliverables:** CRITICAL/HIGH findings resolved, solutions hardened
+
+### Phase 4: Compliance Dashboard Completion (Week 5-6)
+**Goal:** Move from v1.0.0-beta to v1.0.0
+
+1. **Dataverse Solution** (4 days)
+   - Export schema from docs/dataverse-schema.md
+   - Create Dataverse solution ZIP
+   - Deploy to test environment
+   - Load sample data
+
+2. **Power Automate Flows** (3 days)
+   - Create Compliance Score Collector flow
+   - Create Environment Status Collector flow
+   - Create Exception Aggregator flow
+   - Test with sample data
+
+3. **Power BI Template** (3 days)
+   - Build .pbit from docs/power-bi-setup.md spec
+   - Implement DAX measures from docs/dax-measures.md
+   - Test with Dataverse connection
+   - Validate all 5 dashboard pages render
+
+**Dependencies:** Phase 3 complete (PowerShell scripts stable)
+**Risk:** High (complex multi-component system)
+**Deliverables:** Compliance Dashboard v1.0.0, deployable ZIP + .pbit
+
+### Phase 5: Scope Drift Monitor Completion (Week 7-8)
+**Goal:** Move from v1.0.0 WIP to v1.0.0 stable
+
+1. **Monitoring Adapter** (3 days)
+   - Create monitoring_adapter.py
+   - Implement drift detection logic
+   - Integrate with monitoring_shared.py
+   - Test with mock data
+
+2. **PowerShell Baseline Capture** (2 days)
+   - Complete New-AgentBaseline.ps1
+   - Add #Requires statements
+   - Test with real agent metadata
+
+3. **Power Automate Flow** (3 days)
+   - Create real-time drift detection flow
+   - Test with Unified Audit Log data
+   - Validate alerts trigger correctly
+
+**Dependencies:** Phase 4 complete (establishes Dataverse pattern)
+**Risk:** Medium (depends on Audit Log data availability)
+**Deliverables:** Scope Drift Monitor v1.0.0, dual detection modes
+
+---
+
+## Rollback Plans
+
+### Breadcrumbs
+**Rollback:** Remove `navigation.path` from mkdocs.yml, redeploy
+**Time:** 5 minutes
+**Risk:** None (additive feature)
+
+### Awesome Pages
+**Rollback:** Git revert mkdocs.yml, remove plugin from requirements.txt, redeploy
+**Time:** 10 minutes
+**Risk:** Medium if build broken, manual nav still in git history
+
+### YAML Configs
+**Rollback:** Point scripts back to markdown parsing (code supports both)
+**Time:** 15 minutes
+**Risk:** Low (backward compatible during migration)
+
+### PowerShell Changes
+**Rollback:** Git revert modified scripts, redeploy
+**Time:** 30 minutes
+**Risk:** High if production scripts already using SecretManagement (vault data persists)
+
+### Compliance Dashboard
+**Rollback:** Delete Dataverse solution, remove Power BI workspace
+**Time:** 1 hour
+**Risk:** Low (isolated system, no framework dependencies)
+
+### Scope Drift Monitor
+**Rollback:** Disable Power Automate flow, remove monitoring_adapter.py
+**Time:** 30 minutes
+**Risk:** Low (isolated system, no framework dependencies)
+
+---
+
+## Quality Gates
+
+### Phase 1 Gates
+- [ ] `mkdocs build --strict` passes with breadcrumbs enabled
+- [ ] Breadcrumbs render correctly on sample pages (deep and shallow)
+- [ ] YAML configs validate against JSON Schema
+- [ ] learn_monitor.py loads YAML successfully in dry-run mode
+
+### Phase 2 Gates
+- [ ] `mkdocs build --strict` passes with Awesome Pages
+- [ ] All playbooks visible in auto-generated nav
+- [ ] Nav ordering matches expected structure
+- [ ] No broken links introduced
+
+### Phase 3 Gates
+- [ ] All PowerShell scripts include #Requires statements
+- [ ] SecretManagement integration tested with real secrets
+- [ ] Error handling tested with simulated API failures
+- [ ] No regression in existing solution functionality
+
+### Phase 4 Gates
+- [ ] Dataverse solution imports without errors
+- [ ] Sample data loads successfully
+- [ ] Power Automate flows run without errors
+- [ ] Power BI report renders all 5 pages
+- [ ] DirectQuery performs within 10-second threshold
+
+### Phase 5 Gates
+- [ ] monitoring_adapter.py integrates with monitoring_shared.py
+- [ ] Baseline capture script completes successfully
+- [ ] Drift detection identifies test violations correctly
+- [ ] Reports generated in unified format
 
 ---
 
 ## Sources
 
-All findings based on direct examination of:
+### MkDocs Material Integration
+- [Setting up navigation - Material for MkDocs](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
+- [Getting Started - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/)
+- [Configuration - MkDocs](https://www.mkdocs.org/user-guide/configuration/)
 
-- `/Users/admin/dev/FSI-AgentGov/.claude/CLAUDE.md` (project instructions)
-- `/Users/admin/dev/FSI-AgentGov/.github/copilot-instructions.md` (repository structure)
-- `/Users/admin/dev/FSI-AgentGov/docs/templates/control-setup-template.md` (control template)
-- `/Users/admin/dev/FSI-AgentGov/mkdocs.yml` (navigation structure)
-- `/Users/admin/dev/FSI-AgentGov/scripts/learn_monitor.py` (monitoring implementation)
-- `/Users/admin/dev/FSI-AgentGov/docs/reference/learn-monitor-guide.md` (monitoring documentation)
-- `/Users/admin/dev/FSI-AgentGov/docs/reference/learn-monitor-ai-enhancement.md` (AI-assist design)
-- `/Users/admin/dev/FSI-AgentGov/.github/workflows/learn-monitor.yml` (GitHub Actions workflow)
-- `/Users/admin/dev/FSI-AgentGov/docs/framework/solutions-integration.md` (cross-repo architecture)
-- `/Users/admin/dev/FSI-AgentGov/docs/reference/solutions-index.md` (solutions catalog)
+### PowerShell Best Practices
+- [about_Requires - PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.5)
+- [Overview of the SecretManagement and SecretStore modules](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview?view=ps-modules)
+- [Working with PowerShell Secret Management](https://www.techtarget.com/searchwindowsserver/tutorial/Working-with-PowerShell-Secret-Management-and-Secret-Vault)
 
-**Confidence Level:** HIGH - All claims verified by reading actual source code and documentation.
+### Power Platform Integration
+- [Power BI modeling guidance for Power Platform](https://learn.microsoft.com/en-us/power-bi/guidance/powerbi-modeling-guidance-for-power-platform)
+- [DirectQuery model guidance in Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/guidance/directquery-model-guidance)
+- [Manage cloud flow run history in Dataverse](https://learn.microsoft.com/en-us/power-automate/dataverse/cloud-flow-run-metadata)
+- [Monitor your flows - Power Automate](https://learn.microsoft.com/en-us/power-automate/guidance/coding-guidelines/monitoring-and-alerting)
 
 ---
 
-*FSI-AgentGov Architecture Research - February 2026*
+## Confidence Assessment
+
+| Area | Confidence | Source Quality | Notes |
+|------|------------|----------------|-------|
+| MkDocs Breadcrumbs | HIGH | Official MkDocs Material docs | Feature well-documented, widely used |
+| Awesome Pages | HIGH | Official plugin docs + examples | Coexistence pattern validated |
+| YAML Configs | MEDIUM | MkDocs ecosystem patterns | No official schema yet, custom implementation |
+| PowerShell #Requires | HIGH | Microsoft Learn official docs | Language feature, stable |
+| SecretManagement | HIGH | Microsoft Learn + community guides | Module stable since v1.1.2 |
+| Dataverse Schema | HIGH | Microsoft Learn guidance | Star schema is standard BI pattern |
+| Power BI DirectQuery | HIGH | Microsoft Learn official guidance | DirectQuery best practices well-established |
+| Power Automate Flows | MEDIUM | Microsoft Learn + community patterns | Flow patterns validated, specific flows need testing |
+| Scope Drift Adapter | MEDIUM | Architectural pattern (not implemented) | Based on proven monitoring_shared.py design |
+
+**Overall Confidence: HIGH** for documentation improvements, **MEDIUM-HIGH** for solutions completion.
+
+---
+
+*Research completed: 2026-02-04*
+*Researcher: GSD Project Researcher (Claude Agent)*
+*Review status: Ready for roadmap creation*

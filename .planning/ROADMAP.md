@@ -1,215 +1,145 @@
-# ROADMAP: FSI-AgentGov Enhancement
+# ROADMAP: FSI-AgentGov v2 — Tech Debt, Architecture & Solution Completion
 
 **Project:** FSI-AgentGov Comprehensive Audit & Enhancement
 **Core Value:** Documentation and solutions that US FSI customers trust — every control accurate, every solution working, ongoing maintenance sustainable.
-**Created:** 2026-02-02
-**Depth:** Comprehensive (8 phases, 5-10 plans each)
+**Created:** 2026-02-04
+**Depth:** Focused (5 phases)
 
 ## Overview
 
-This roadmap delivers a comprehensive audit and enhancement of the FSI Agent Governance Framework across two repositories (FSI-AgentGov documentation and FSI-AgentGov-Solutions). The work spans 8 phases that address time-sensitive technical fixes, foundational documentation accuracy, strategic architecture updates, feature enhancements, regulatory validation, solution audits, functional testing, and monitoring improvements.
+This roadmap delivers tech debt resolution, documentation architecture improvements, and two solution completions. Phase ordering prioritizes security fixes first (CRITICAL/HIGH findings), then documentation usability, then monitoring configuration, then solution completion one at a time.
 
-The phases are ordered to prioritize the February 2026 pipeline deadline, establish documentation accuracy as a foundation, document Microsoft's strategic Agent 365 direction, then systematically enhance controls, validate regulations, audit solutions, test implementations, and optimize monitoring systems.
+**Previous milestone:** v1 complete (33/33 requirements, 8 phases, 35 plans). See `.planning/v1-MILESTONE-AUDIT.md`.
 
 ---
 
-## Phase 1: Critical Technical Remediation
+## Phase 1: PowerShell Tech Debt Resolution
 
-**Goal:** Users have accurate documentation for time-sensitive compliance deadlines and API deprecations.
+**Goal:** All PowerShell scripts in FSI-AgentGov-Solutions meet FSI production security and quality standards.
 
 **Dependencies:** None (starting phase)
 
-**Requirements:** TECH-01, TECH-02, TECH-08
+**Requirements:** DEBT-01, DEBT-02, DEBT-03, DEBT-04
 
-**Plans:** 2 plans
+**Scope:** FSI-AgentGov-Solutions repository (`/Users/admin/dev/FSI-AgentGov-Solutions`)
 
-Plans:
-- [ ] 01-01-PLAN.md — FSI-AgentGov-Solutions x-api-key deprecation warnings
-- [ ] 01-02-PLAN.md — Pipeline deadline cross-references and build validation
+**Work Items:**
+
+| Item | Severity | File(s) | Description |
+|------|----------|---------|-------------|
+| DEBT-01 | CRITICAL | `conditional-access-automation/scripts/Register-ServicePrincipal.ps1` | Replace 3 instances of `ConvertTo-SecureString -AsPlainText -Force` (lines 149, 154, 159) with SecretManagement module pattern |
+| DEBT-02 | HIGH | `conditional-access-automation/scripts/Test-PolicyCompliance.ps1` | Add try/catch error handling to unprotected code paths (config loading, Graph connection, policy retrieval, compliance checks) |
+| DEBT-03 | MEDIUM | 11 PowerShell scripts across 5 solutions | Add `#Requires -Version` and `#Requires -Modules` statements declaring module dependencies |
+| DEBT-04 | MEDIUM | `environment-lifecycle-management/scripts/requirements.txt`, `finra-supervision-workflow/scripts/requirements.txt` | Remove unused Python dependencies |
+
+**Scripts missing #Requires (DEBT-03):**
+1. `deny-event-correlation-report/scripts/Export-CopilotDenyEvents.ps1`
+2. `deny-event-correlation-report/scripts/Export-DlpCopilotEvents.ps1`
+3. `deny-event-correlation-report/scripts/Invoke-DailyDenyReport.ps1`
+4. `deny-event-correlation-report/scripts/Export-RaiTelemetry.ps1`
+5. `pipeline-governance-cleanup/src/Get-PipelineInventory.ps1`
+6. `pipeline-governance-cleanup/src/Send-OwnerNotifications.ps1`
+7. `segregation-detector/scripts/Invoke-SoDScan.ps1`
+8. `segregation-detector/scripts/Import-ConflictRules.ps1`
+9. `scope-drift-monitor/scripts/New-AgentBaseline.ps1`
+10. `rag-source-validator/scripts/Invoke-SourceValidation.ps1`
+11. `dr-testing-framework/scripts/Invoke-DRTest.ps1`
 
 **Success Criteria:**
-1. February 2026 pipeline deadline is prominently documented in Control 2.1 with licensing implications and required actions
-2. All API deprecation warnings include specific dates (x-api-key March 31 2026, EWS, SharePoint Add-Ins, Key Vault)
-3. Affected playbooks contain x-api-key deprecation warnings with migration guidance
-4. Documentation clearly states urgency and impact for FSI organizations
+1. Zero instances of `ConvertTo-SecureString -AsPlainText -Force` in any PowerShell script
+2. Test-PolicyCompliance.ps1 has try/catch error handling on all code paths with structured error messages
+3. All 14 PowerShell scripts have `#Requires` statements declaring version and module dependencies
+4. No unused dependencies in any `requirements.txt` file
+5. All scripts pass regex-based validation (reuse Phase 7 validation approach)
 
 ---
 
-## Phase 2: Documentation Audit Foundation — COMPLETE (2026-02-03)
+## Phase 2: Documentation Architecture Improvements
 
-**Goal:** Users can trust that all 62 controls reflect current Microsoft capabilities with accurate citations and consistent formatting.
+**Goal:** Users can navigate the 254-page documentation site with breadcrumb context and discover playbooks directly from control pages.
 
-**Dependencies:** Phase 1 (technical fixes complete)
+**Dependencies:** None (independent of Phase 1)
 
-**Requirements:** AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05
+**Requirements:** ARCH-01, ARCH-02
 
-**Plans:** 9/9 complete
+**Scope:** FSI-AgentGov repository (this repo)
 
-Plans:
-- [x] 02-01-PLAN.md — Audit Pillar 1 Security (24 controls, 96 playbooks)
-- [x] 02-02-PLAN.md — Audit Pillar 2 Management (21 controls, 84 playbooks)
-- [x] 02-03-PLAN.md — Audit Pillar 3 Reporting (10 controls, 40 playbooks)
-- [x] 02-04-PLAN.md — Audit Pillar 4 SharePoint (7 controls, 28 playbooks)
-- [x] 02-05-PLAN.md — User review checkpoint for all audit reports
-- [x] 02-06-PLAN.md — Apply corrections to Pillar 1
-- [x] 02-07-PLAN.md — Apply corrections to Pillar 2
-- [x] 02-08-PLAN.md — Apply corrections to Pillar 3
-- [x] 02-09-PLAN.md — Apply corrections to Pillar 4 and final validation
+**Work Items:**
+
+| Item | Description |
+|------|-------------|
+| ARCH-01 | Add `navigation.path` feature to `mkdocs.yml` theme features (config-only change) |
+| ARCH-02 | Add INFO admonition box to all 62 control pages linking to their 4 playbooks |
 
 **Success Criteria:**
-1. All 62 controls verified against current Microsoft Learn documentation with discrepancies resolved
-2. 10-section control template structure validated across all controls with consistent ordering
-3. All regulatory citations verified for accuracy with corrections applied where needed
-4. Formatting consistency achieved across all controls (headings, tables, admonitions, code blocks)
-5. Cross-references between controls and Microsoft Learn documentation validated
+1. Breadcrumb navigation visible on all pages (except homepage) after `mkdocs serve`
+2. All 62 control pages contain an INFO admonition box with links to 4 playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+3. `mkdocs build --strict` passes with zero errors
+4. `verify_controls.py` reports all 62 controls valid
 
 ---
 
-## Phase 3: Agent 365 Strategic Architecture — COMPLETE (2026-02-03)
+## Phase 3: Monitoring Configuration Externalization
 
-**Goal:** Users understand Microsoft's unified agent governance direction and can plan migration from per-platform governance.
+**Goal:** Learn Monitor classification patterns are configurable via YAML without code changes.
 
-**Dependencies:** Phase 2 (documentation accuracy validated)
+**Dependencies:** Phase 1 (tech debt clean before adding features)
 
-**Requirements:** FEAT-01, FEAT-02
+**Requirements:** ARCH-03
 
-**Plans:** 3/3 complete
+**Scope:** FSI-AgentGov repository — `scripts/` directory
 
-Plans:
-- [x] 03-01-PLAN.md — Create Agent 365 unified governance architecture framework document
-- [x] 03-02-PLAN.md — Update Controls 1.2, 1.11, 2.12 with Agent 365 cross-references
-- [x] 03-03-PLAN.md — Validation and cross-reference verification
+**Work Items:**
+
+| Item | Description |
+|------|-------------|
+| ARCH-03 | Extract hardcoded classification patterns from `monitoring_shared.py` into `config/monitoring-sources.yaml`; add YAML loader; maintain backward compatibility |
 
 **Success Criteria:**
-1. New framework document explains Agent 365 unified control plane concept and comparison with current per-platform governance
-2. Microsoft Entra Agent ID architecture documented with sponsorship model and FINRA 3110 alignment
-3. FSI organizations have clear guidance on early adoption benefits and migration roadmap
-4. Cross-references established between Agent 365 architecture and existing controls (1.2, 1.11, 2.12)
+1. Classification patterns defined in YAML configuration file
+2. `learn_monitor.py --dry-run --limit 5` works with externalized config
+3. Existing behavior unchanged (backward compatible)
+4. Non-developers can adjust monitoring sensitivity by editing YAML
 
 ---
 
-## Phase 4: Feature Enhancement Updates — COMPLETE (2026-02-03)
+## Phase 4: Compliance Dashboard Completion
 
-**Goal:** Users have documentation for all GA and preview governance features released in 2025-2026.
+**Goal:** Compliance Dashboard moves from beta to production-ready with deployable Power Automate flows and Power BI template.
 
-**Dependencies:** Phase 3 (strategic architecture established)
+**Dependencies:** Phase 1 (solutions repo tech debt resolved first)
 
-**Requirements:** FEAT-03, FEAT-04, FEAT-05, FEAT-06, FEAT-07
+**Requirements:** SOL-01
 
-**Plans:** 5/5 complete
-
-Plans:
-- [x] 04-01-PLAN.md — Control 1.5 virtual connectors DLP enhancement + playbooks
-- [x] 04-02-PLAN.md — Control 1.6 DSPM weekly assessments, observability, remediation + playbooks
-- [x] 04-03-PLAN.md — Control 3.8 AI Feature Access Control + role catalog updates (AI Administrator, Defender XDR Admin)
-- [x] 04-04-PLAN.md — Defender for Cloud Apps verification and cross-control consistency
-- [x] 04-05-PLAN.md — Validation, cross-reference verification, and researcher package regeneration
+**Scope:** FSI-AgentGov-Solutions — `compliance-dashboard/`
 
 **Success Criteria:**
-1. Control 1.5 updated with virtual connectors table for Copilot Studio feature-level DLP
-2. Control 1.6 enhanced with weekly risk assessments and AI observability capabilities
-3. Control 3.8 updated with AI Feature Access Control for user-level feature restrictions
-4. All Defender for Power Platform capabilities documented including preview features
-5. Role catalog updated with AI Administrator and Defender XDR Administrator roles
+1. Power Automate flow definitions deployable (3 core data collection flows)
+2. Power BI template (.pbit) opens in Power BI Desktop and renders correctly
+3. Sample data loads successfully via load script
+4. DAX measures calculate compliance scores accurately
+5. README documents all prerequisites, deployment steps, and known limitations
+6. Solution version updated from v1.0.0-beta to v1.0.0
 
 ---
 
-## Phase 5: Regulatory Validation — COMPLETE (2026-02-04)
+## Phase 5: Scope Drift Monitor Completion
 
-**Goal:** Users can verify that all US FSI regulatory requirements are accurately mapped and current.
+**Goal:** Scope Drift Monitor moves from WIP to production-ready with detection logic and alert workflow.
 
-**Dependencies:** Phase 2 (documentation audit complete)
+**Dependencies:** Phase 4 (one solution at a time per project constraints)
 
-**Requirements:** REG-01, REG-02, REG-03, REG-04, REG-05
+**Requirements:** SOL-02
 
-**Plans:** 5/5 complete
-
-Plans:
-- [x] 05-01-PLAN.md — Federal regulatory citation verification audit (7 bodies, 62 controls)
-- [x] 05-02-PLAN.md — FINRA 2026 Report AI/agent analysis + retention period validation
-- [x] 05-03-PLAN.md — State AI laws verification and expansion (CO, TX, NYC, IL, CA)
-- [x] 05-04-PLAN.md — Corrections pass: apply all findings to regulatory-mappings.md
-- [x] 05-05-PLAN.md — Control-level integration, final validation, researcher package regeneration
+**Scope:** FSI-AgentGov-Solutions — `scope-drift-monitor/`
 
 **Success Criteria:**
-1. All US FSI regulation mappings verified (FINRA, SEC, SOX, GLBA, OCC, Fed SR 11-7, CFTC)
-2. 2025-2026 regulatory updates incorporated with specific changes documented
-3. Retention period classifications validated (3-year vs 6-year) with accurate citations
-4. FINRA 2026 Report findings added to relevant controls with specific guidance
-5. State AI laws applicability reviewed (Colorado, NYC, Texas) with FSI impact assessment
-
----
-
-## Phase 6: Solutions Audit — COMPLETE (2026-02-04)
-
-**Goal:** Users know which solutions are complete, which are WIP, and how solutions align with framework controls.
-
-**Dependencies:** Phase 2 (documentation accuracy validated)
-
-**Requirements:** SOL-01, SOL-02, SOL-03, SOL-05, TECH-03, TECH-04, TECH-05, TECH-06, TECH-07
-
-**Plans:** 5/5 complete
-
-Plans:
-- [x] 06-01-PLAN.md — Audit 4 Tier-A solutions (ELM, MCM, PGC, DEC) + TECH-03 + DEC fixes
-- [x] 06-02-PLAN.md — Audit 5 Tier-B solutions with deeper docs (FINRA, CAA, Compliance, SoD, Scope Drift)
-- [x] 06-03-PLAN.md — Audit 4 Tier-B minimal-doc solutions (RAG, COI, Hallucination, DR) + keep/cut recommendations
-- [x] 06-04-PLAN.md — TECH-04, TECH-05, TECH-06, TECH-07 resolution across both repos
-- [x] 06-05-PLAN.md — Framework doc updates: solutions-integration.md + solutions-index.md + control cross-references
-
-**Success Criteria:**
-1. All 13 solutions audited with completeness status clearly marked (Planned, Work In Progress, Validated, Completed)
-2. Solution-to-control mappings validated with bidirectional cross-references updated
-3. Incomplete solutions flagged with status indicators and missing components documented
-4. Solution prerequisites and dependencies documented for each implementation
-5. Technical accuracy issues resolved (PAYG licensing, Service Principal bypass, DLP enforcement modes, Defender configuration, Information Barriers limitation)
-
----
-
-## Phase 7: Solutions Functional Testing — COMPLETE (2026-02-04)
-
-**Goal:** Users can deploy solutions with confidence that they work as documented.
-
-**Dependencies:** Phase 6 (solutions audit complete)
-
-**Requirements:** SOL-04
-
-**Plans:** 3/3 complete
-
-Plans:
-- [x] 07-01-PLAN.md — Python solution validation (AST syntax, import-requirements alignment, deprecation scanning)
-- [x] 07-02-PLAN.md — PowerShell, JSON, and KQL validation (regex analysis, security patterns, schema validation)
-- [x] 07-03-PLAN.md — Documentation-code traceability, aggregated findings, README corrections
-
-**Success Criteria:**
-1. Each solution validated through functional testing in representative environment
-2. Installation and configuration procedures verified to work as documented
-3. Test results documented with any corrections applied to documentation
-4. Known limitations or environment-specific issues documented in solution README files
-
----
-
-## Phase 8: Monitoring Systems Review — COMPLETE (2026-02-04)
-
-**Goal:** Users benefit from simplified, effective monitoring that shows WHAT changed in Microsoft documentation and regulations.
-
-**Dependencies:** None (can run in parallel)
-
-**Requirements:** MON-01, MON-02, MON-03, MON-04, MON-05
-
-**Plans:** 3/3 complete
-
-Plans:
-- [x] 08-01-PLAN.md — Learn Monitor refactoring: shared utilities extraction + control-to-URL mapping
-- [x] 08-02-PLAN.md — Regulatory Monitor implementation: Federal Register API + FINRA notices
-- [x] 08-03-PLAN.md — AI review validation + monitoring architecture documentation
-
-**Success Criteria:**
-1. Learn Monitor implementation reviewed with simplification opportunities identified
-2. Regulatory Monitor implementation assessed for effectiveness with improvement recommendations
-3. Change visibility enhanced to show specific content changes, not just detection flags
-4. Monitoring architecture documented with maintenance procedures and troubleshooting guidance
-5. Alternative approaches evaluated with decision rationale documented
+1. Baseline capture script validated and documented
+2. Access log aggregation implemented for available data sources
+3. Drift detection logic compares baseline vs actual access
+4. Alert workflow sends notifications on violations
+5. README documents all prerequisites, deployment steps, and known limitations
+6. Solution version updated from v1.0.0 to v1.1.0
 
 ---
 
@@ -217,100 +147,70 @@ Plans:
 
 | Phase | Requirements | Status | Progress |
 |-------|--------------|--------|----------|
-| 1 - Critical Technical Remediation | 3 | ✓ Complete | ██████████ 100% |
-| 2 - Documentation Audit Foundation | 5 | ✓ Complete | ██████████ 100% |
-| 3 - Agent 365 Strategic Architecture | 2 | ✓ Complete | ██████████ 100% |
-| 4 - Feature Enhancement Updates | 5 | ✓ Complete | ██████████ 100% |
-| 5 - Regulatory Validation | 5 | ✓ Complete | ██████████ 100% |
-| 6 - Solutions Audit | 9 | ✓ Complete | ██████████ 100% |
-| 7 - Solutions Functional Testing | 1 | ✓ Complete | ██████████ 100% |
-| 8 - Monitoring Systems Review | 5 | ✓ Complete | ██████████ 100% |
+| 1 - PowerShell Tech Debt Resolution | 4 | Not Started | ░░░░░░░░░░ 0% |
+| 2 - Documentation Architecture | 2 | Not Started | ░░░░░░░░░░ 0% |
+| 3 - Monitoring Configuration | 1 | Not Started | ░░░░░░░░░░ 0% |
+| 4 - Compliance Dashboard | 1 | Not Started | ░░░░░░░░░░ 0% |
+| 5 - Scope Drift Monitor | 1 | Not Started | ░░░░░░░░░░ 0% |
 
-**Total:** 33/33 requirements mapped (100% coverage)
+**Total:** 9/9 requirements mapped (100% coverage)
 
 ---
 
 ## Coverage Validation
 
-All 33 v1 requirements mapped to phases:
+All 9 v2 requirements mapped to phases:
 
-**Phase 1 (3 requirements):**
-- TECH-01: February 2026 pipeline deadline
-- TECH-02: API deprecation warnings
-- TECH-08: x-api-key deprecation in playbooks
+**Phase 1 (4 requirements):**
+- DEBT-01: Fix Register-ServicePrincipal.ps1 secret exposure
+- DEBT-02: Add error handling to Test-PolicyCompliance.ps1
+- DEBT-03: Add #Requires statements to 11 PowerShell scripts
+- DEBT-04: Remove unused dependencies in requirements.txt files
 
-**Phase 2 (5 requirements):**
-- AUDIT-01: Verify all 62 controls
-- AUDIT-02: Check formatting consistency
-- AUDIT-03: Validate regulatory citations
-- AUDIT-04: Review section ordering
-- AUDIT-05: Cross-reference Microsoft Learn
+**Phase 2 (2 requirements):**
+- ARCH-01: Enable breadcrumb navigation
+- ARCH-02: Add playbook discoverability admonitions
 
-**Phase 3 (2 requirements):**
-- FEAT-01: Document Agent 365 architecture
-- FEAT-02: Document Entra Agent ID
+**Phase 3 (1 requirement):**
+- ARCH-03: Externalize monitoring classification patterns to YAML
 
-**Phase 4 (5 requirements):**
-- FEAT-03: Update Control 1.5 virtual connectors
-- FEAT-04: Update Control 1.6 DSPM
-- FEAT-05: Update Control 3.8 AI feature access
-- FEAT-06: Verify Defender capabilities
-- FEAT-07: Update role catalog
+**Phase 4 (1 requirement):**
+- SOL-01: Complete Compliance Dashboard (beta → production)
 
-**Phase 5 (5 requirements):**
-- REG-01: Verify regulation mappings
-- REG-02: Check regulatory updates
-- REG-03: Validate retention periods
-- REG-04: Add FINRA 2026 Report
-- REG-05: Review state AI laws
-
-**Phase 6 (9 requirements):**
-- SOL-01: Audit all 13 solutions
-- SOL-02: Ensure solution-documentation alignment
-- SOL-03: Mark incomplete solutions
-- SOL-05: Document dependencies
-- TECH-03: PAYG licensing clarification
-- TECH-04: Service Principal bypass risk
-- TECH-05: DLP enforcement mode confusion
-- TECH-06: Defender two-portal configuration
-- TECH-07: Information Barriers limitation
-
-**Phase 7 (1 requirement):**
-- SOL-04: Validate solutions work
-
-**Phase 8 (5 requirements):**
-- MON-01: Review Learn Monitor
-- MON-02: Review Regulatory Monitor
-- MON-03: Assess monitoring approach
-- MON-04: Improve change visibility
-- MON-05: Document monitoring architecture
+**Phase 5 (1 requirement):**
+- SOL-02: Complete Scope Drift Monitor (WIP → production)
 
 **Orphans:** None (100% coverage achieved)
+
+---
+
+## Deferred (v3)
+
+| Item | Reason |
+|------|--------|
+| ARCH-04: Navigation auto-generation | Risk of breaking pedagogical structure; needs research phase |
+| ARCH-05: SQLite state file | JSON sufficient for 209 URLs; revisit if scale exceeds 1000 |
+| MCP server for governance framework | Separate initiative |
+| Copilot Studio agent for governance Q&A | Separate initiative |
+| Complete Planned solutions (RAG, COI, Hallucination, DR) | Focus on 2 closest-to-done solutions |
 
 ---
 
 ## Notes
 
 **Phase ordering rationale:**
-- Phase 1 addresses February 2026 compliance deadline (time-sensitive)
-- Phase 2 establishes documentation accuracy foundation for all other work
-- Phase 3 documents strategic architecture before feature details
-- Phase 4 adds feature enhancements after strategic context is clear
-- Phase 5 validates regulations after documentation accuracy is confirmed
-- Phase 6-7 audit and test solutions after documentation is accurate
-- Phase 8 runs in parallel optimizing monitoring systems
+- Phase 1 resolves CRITICAL/HIGH security findings before any new feature work
+- Phase 2 can run in parallel with Phase 1 (different repos, independent work)
+- Phase 3 follows tech debt (monitoring improvements after security clean)
+- Phases 4-5 complete solutions one at a time per project constraint
+- ARCH-04/ARCH-05 deferred per research recommendations
 
-**Research integration:**
-- Phase 3 implements Milestone 1 from research (Agent 365 Foundation)
-- Phase 4 implements Milestone 2 from research (Enhance Existing Controls)
-- SharePoint Restricted Search (Milestone 3) deferred to v2 (not yet released)
-
-**Depth calibration:**
-- Comprehensive depth (8 phases) reflects natural requirement clustering
-- Each phase delivers coherent, verifiable capability
-- No artificial splits or padding applied
+**Cross-repo coordination:**
+- Phase 1, 4, 5 operate in FSI-AgentGov-Solutions
+- Phase 2, 3 operate in FSI-AgentGov
+- Git commits must run from within target repo
 
 ---
 
-*Roadmap version: 1.8*
+*Roadmap version: 2.0*
 *Last updated: 2026-02-04*

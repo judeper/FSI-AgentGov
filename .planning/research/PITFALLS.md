@@ -1,606 +1,749 @@
-# Pitfalls Research: FSI Agent Governance
+# Domain Pitfalls: Documentation Architecture Improvements & Solution Completion
 
-**Domain:** Financial services AI agent governance (Microsoft 365 Copilot Studio/Power Platform)
-**Researched:** February 2, 2026
-**Confidence:** HIGH (regulatory sources), MEDIUM (platform issues from docs/community)
-
-## Summary
-
-Research identifies 5 critical regulatory pitfalls and 8 major technical pitfalls in FSI agent governance for 2025-2026:
-
-- **Retention period misclassification** - Agent logs as communications (3 years) vs financial records (6 years)
-- **February 2026 pipeline deadline** - Automatic Managed Environment enforcement requires premium licensing
-- **PAYG licensing misconception** - Pay-as-you-go does NOT satisfy Managed Environment requirements for active users
-- **Service Principal security group bypass** - SPs access ANY environment regardless of Security Groups
-- **Recordkeeping completeness gap** - Audit logs provide metadata only; full content requires eDiscovery/DSPM
+**Domain:** Adding documentation architecture changes and completing WIP solutions in mature governance framework
+**Researched:** 2026-02-04
+**Confidence:** HIGH
 
 ---
 
-## Regulatory Pitfalls
+## Executive Summary
 
-### CRITICAL: Retention Period Misclassification
+This research identifies pitfalls specific to v2 milestone work: improving documentation architecture and completing WIP solutions in an **existing, production-used framework** with 62 controls, 254 playbooks, and 209 monitored URLs published to GitHub Pages.
 
-**What goes wrong:** Organizations apply 6-year retention to ALL agent records based on SEC 17a-4(a), when most agent conversation logs qualify as "communications" under 17a-4(b)(4) requiring only 3 years.
+Unlike greenfield development, these changes carry **integration risk** — every navigation change affects existing bookmarks, every PowerShell change breaks existing deployments, every YAML config adds maintenance burden. The framework is mature (v1.2.37) with real FSI customers depending on URL stability and script backward compatibility.
+
+**Key insight:** The biggest pitfalls come from **treating incremental improvements as greenfield projects**. What works for new systems often breaks existing workflows. Documentation changes that "improve" navigation can destroy SEO rankings built over months. Security hardening that "fixes" PowerShell scripts breaks production automation. Configuration externalization that "simplifies" maintenance creates YAML sprawl worse than the code it replaced.
+
+This research focuses on **integration pitfalls** — mistakes that happen when adding features to systems with existing users, URLs, and dependencies.
+
+---
+
+## Critical Pitfalls
+
+### Pitfall 1: MkDocs Awesome-Pages Migration Breaks Existing Links
+
+**What goes wrong:** Migrating from manual `mkdocs.yml` navigation to awesome-pages plugin generates different URLs, breaking all existing bookmarks and search engine indexed pages.
 
 **Why it happens:**
-- Broker-dealers default to longest retention period to be "safe"
-- Confusion between communications vs. financial/accounting records
-- Documentation doesn't distinguish record types
+- Awesome-pages v3 generates navigation from scratch, ignoring `mkdocs.yml` nav structure
+- Plugin uses alphabetical sorting by default; manual nav had semantic ordering
+- `.pages` file rename to `.nav.yml` changes discovery logic
+- Glob patterns (`*`) replace explicit file lists, changing URL generation order
+
+**Real-world evidence:**
+- [Migration from v2 to v3 - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/migration-v3/) documents breaking changes: "In version 3, the plugin ignores a nav that is defined in mkdocs.yml"
+- Version 3 was "developed from scratch using a new approach" — not incremental
+- Documentation warns: "filtering expressions will require more attention" during migration
 
 **Consequences:**
-- Unnecessary storage costs (3x storage for 3 extra years)
-- Incorrect retention policy configuration
-- Potential compliance gaps if policies don't match actual requirements
+- Google Search Console shows 404 errors for previously indexed URLs
+- Users' browser bookmarks return 404 or redirect to different content
+- Internal cross-references break (248 control playbooks referencing each other)
+- SEO ranking drops as search engines detect "site migration" signal
+- GitHub Pages rebuild changes all canonical URLs overnight
+
+**FSI-AgentGov-specific impact:**
+- 254 playbook files with deep linking paths (`/playbooks/control-implementations/1.1/portal-walkthrough/`)
+- Users bookmark specific control URLs for compliance audits
+- Framework documentation cited in internal FSI compliance policies (URL changes invalidate references)
+- 62 controls × 4 playbooks = 248 potential broken links
 
 **Prevention:**
-- Implement retention period matrix from framework (v1.2.30 update)
-- Classify agent logs as communications (SEC 17a-4(b)(4)) unless they generate/modify financial records
-- Use separate retention labels: `FSI-Communications-3Y` vs `FSI-Financial-6Y`
+
+1. **URL preservation testing BEFORE migration:**
+   - Generate navigation with awesome-pages in test branch
+   - Run `mkdocs build` and compare `site/` directory structure to production
+   - Create URL mapping table: old path → new path
+   - If ANY URL changes, migration requires redirect strategy
+
+2. **Implement 301 redirects for changed URLs:**
+   - Use MkDocs `redirects` plugin to preserve old URLs
+   - Document all URL changes in migration changelog
+   - Monitor Google Search Console for 404s post-deployment
+
+3. **Staged rollout with fallback:**
+   - Deploy awesome-pages to staging environment first
+   - Test ALL internal links with link checker
+   - Keep `mkdocs.yml` nav structure in version control for 6 months (rollback option)
+   - Monitor analytics for traffic drops indicating broken user workflows
+
+4. **Consider NOT migrating:**
+   - Manual navigation provides explicit control over URL structure
+   - "Maintenance burden" of updating `mkdocs.yml` is low for stable framework
+   - Automation is not always improvement — manual nav prevents accidental URL changes
 
 **Detection:**
-- Review retention policy names in Purview
-- Check CopilotInteraction audit log retention settings
-- Verify storage tier costs align with record type classifications
+- Pre-migration: Build both versions, diff `site/` directories for URL changes
+- Post-migration: Monitor HTTP 404 rate in GitHub Pages analytics
+- Post-migration: Run `mkdocs build --strict` with link validation
+- User feedback: Bookmark breakage reports within 48 hours
 
-**Which controls address this:** 1.7, 1.9, 2.13, 4.3
+**Which phase should address:**
+- Phase 1: URL Impact Assessment (migration decision point)
+- Phase 2: Redirect Implementation (if proceeding)
+- Phase 3: Staged Deployment with Rollback Plan
 
-**Phase recommendation:** Phase 1 (Foundation) - Must establish retention classification before agents go live
+**Reference:** [The Secret Migration: How Site Navigation Changes Can Destroy SEO](https://sitebulb.com/resources/guides/the-secret-migration-how-site-navigation-changes-can-destroy-seo-without-you-realising/)
 
 ---
 
-### CRITICAL: FINRA Supervision Gaps for Autonomous Agents
+### Pitfall 2: PowerShell Security Hardening Breaks Production Scripts
 
-**What goes wrong:** Firms deploy autonomous AI agents without establishing written supervisory procedures (WSPs), human-in-the-loop (HITL) triggers, or annual testing protocols required under FINRA Rules 3110 and 3120.
+**What goes wrong:** Adding `#Requires` statements, replacing `ConvertTo-SecureString -AsPlainText`, and adding try/catch blocks causes existing scripts to fail in production FSI environments with restrictive execution policies.
 
 **Why it happens:**
-- FINRA Notice 24-09 (June 2024) provided general guidance but many firms missed application to agentic AI
-- FINRA 2026 Annual Regulatory Oversight Report (December 2025) clarified autonomous agent supervision requirements AFTER many deployments
-- Firms treat AI agents as "technology tools" rather than systems requiring supervision
+- FSI environments often run older PowerShell versions (5.1 is common, not 7.x)
+- Adding `#Requires -Version 7.0` breaks scripts on systems with only 5.1 installed
+- Adding `#Requires -Modules Microsoft.Graph.Authentication` breaks when module not pre-installed
+- Changing secret handling from `ConvertTo-SecureString -AsPlainText` to `Get-Secret` requires SecretManagement module (not default)
+- New error handling changes script behavior — scripts that silently continued now halt with exceptions
+
+**Real-world evidence from v1 audit:**
+- Tech debt item: "12 PowerShell scripts missing #Requires statements"
+- Tech debt item: "Register-ServicePrincipal.ps1 uses ConvertTo-SecureString -AsPlainText -Force (exposes secrets in process memory)"
+- Tech debt item: "Test-PolicyCompliance.ps1 has zero try/catch error handling"
+- "PowerShell validation limited to regex (pwsh unavailable on macOS)" — indicates environment constraints
 
 **Consequences:**
-- FINRA examination findings and enforcement actions
-- Agent autonomy without documented oversight creates regulatory exposure
-- Inability to demonstrate supervisory procedures during examinations
+- Scripts fail on first run after "security update" deployment
+- FSI security teams block script execution due to new module dependencies
+- Users with PowerShell 5.1 cannot run scripts requiring 7.x features
+- Breaking changes not documented in CHANGELOG — users assume backward compatibility
+- Rollback requires Git revert, but customers may have forked repo before changes
+
+**FSI-AgentGov-specific impact:**
+- Solutions deployed in production FSI environments (Message Center Monitor, Pipeline Governance Cleanup)
+- Customers may run automation on Windows Server 2019 (PowerShell 5.1 only)
+- Changing secret handling affects Environment Lifecycle Management (ELM) solution
+- 13 solutions × multiple scripts = high blast radius for breaking changes
 
 **Prevention:**
-- Document WSPs specifically for AI agent supervision per Rule 3110
-- Implement HITL triggers for Zone 2/3 agents (see HITL triggers playbook)
-- Establish annual testing program per Rule 3120 (WSP adherence, HITL functionality, escalation procedures)
-- Classify agents by autonomy level (Assisted, Augmented, Automated, Autonomous) with corresponding supervision intensity
+
+1. **Backward compatibility testing matrix:**
+   ```powershell
+   # Test matrix BEFORE merging changes:
+   # - PowerShell 5.1 on Windows Server 2019
+   # - PowerShell 7.2 on Windows 11
+   # - PowerShell 7.4 on macOS (if cross-platform)
+
+   # Test with and without optional modules installed
+   # Document minimum supported version in README
+   ```
+
+2. **Gradual hardening with feature detection:**
+   ```powershell
+   # Instead of: #Requires -Modules SecretManagement (breaks existing)
+   # Use:
+   if (Get-Module -ListAvailable -Name SecretManagement) {
+       $secret = Get-Secret -Name $secretName -AsPlainText
+   } else {
+       Write-Warning "SecretManagement module not found. Using ConvertTo-SecureString (legacy)."
+       $secret = Read-Host -Prompt "Enter secret" -AsSecureString
+   }
+   ```
+
+3. **Version-specific security improvements:**
+   - Create separate branches: `v1-stable` (no breaking changes), `v2-hardened` (security improvements)
+   - Document migration path in UPGRADE.md
+   - Provide conversion scripts to upgrade deployments
+   - Maintain v1 for 6 months minimum
+
+4. **Change classification in release notes:**
+   - **BREAKING:** Changes requiring user action before upgrade
+   - **SECURITY:** Security improvements (may change behavior)
+   - **COMPATIBLE:** Backward-compatible enhancements
+
+   Example: "BREAKING: Register-ServicePrincipal.ps1 now requires SecretManagement module. See UPGRADE.md for migration steps."
+
+5. **Don't over-engineer for theoretical risks:**
+   - `ConvertTo-SecureString -AsPlainText` is **acceptable** for interactive scripts
+   - Process memory exposure is low-risk for one-time setup scripts
+   - Adding try/catch everywhere creates verbose code — focus on external API calls only
+   - #Requires statements are useful but not mandatory — document prerequisites in README instead
 
 **Detection:**
-- Check if WSPs mention "AI agents," "Copilot Studio," or "autonomous systems"
-- Verify HITL trigger configuration exists in production agents
-- Confirm Rule 3120 testing was performed in last 12 months
+- Pre-release: Test scripts on PowerShell 5.1 (minimum supported version)
+- Pre-release: Test on clean system without optional modules installed
+- Pre-release: Run PSScriptAnalyzer with compatibility rules: `Invoke-ScriptAnalyzer -Path . -Settings PSGallery`
+- Post-release: Monitor GitHub issues for "script no longer works" reports
 
-**Which controls address this:** 2.12, 2.5, 3.3
+**Which phase should address:**
+- Phase 1: Compatibility Testing Setup (before any script changes)
+- Phase 2: Security Improvements with Feature Detection (gradual hardening)
+- Phase 3: Breaking Changes with Migration Guide (if truly necessary)
 
-**Phase recommendation:** Phase 2 (Management) - Required before Zone 3 agents launch
-
-**Sources:**
-- [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/sites/default/files/2025-12/2026-annual-regulatory-oversight-report.pdf)
-- [FINRA Regulatory Notice 24-09](https://www.finra.org/rules-guidance/notices/24-09)
+**Reference:** [Microsoft's Removal of PowerShell 2.0: Security Implications and Migration Guidance](https://redteamnews.com/blue-team/microsofts-removal-of-powershell-2-0-security-implications-and-migration-guidance/)
 
 ---
 
-### CRITICAL: Recordkeeping Completeness Gap
+### Pitfall 3: YAML Configuration Externalization Creates More Complexity Than It Solves
 
-**What goes wrong:** Organizations rely solely on Purview CopilotInteraction audit logs, believing they capture full prompt/response content for SEC 17a-4/FINRA 4511 compliance. Purview audit logs capture **metadata only** (timestamps, model info, detection flags) - NOT full conversational content.
+**What goes wrong:** Moving hard-coded configuration to external YAML files increases maintenance burden, creates version skew between config and code, and makes simple scripts harder to understand.
 
 **Why it happens:**
-- Microsoft's audit schema naming suggests comprehensive coverage
-- Organizations don't read schema field documentation carefully
-- Assumption that "audit log" = "complete record"
+- Over-application of "12-factor app" principles to simple automation scripts
+- Belief that "configuration should be external" applies to all config, not just environment-specific config
+- YAML syntax errors are runtime failures (not caught until script executes)
+- Multiple YAML files require synchronization (config drift between environments)
+- Users must learn YAML structure on top of PowerShell/Python syntax
+
+**Real-world evidence:**
+- [Spring Boot Anti-Patterns: When to Use Design Patterns Without Overengineering](https://medium.com/@sunsetheus/spring-boot-anti-patterns-when-to-use-design-patterns-without-overengineering-361471d986f0): "Overengineering involves applying design patterns unnecessarily, leading to bloated and convoluted codebases"
+- [Configuration Externalization — Design Pattern](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73): "If you're managing a few microservices and only need one or two credentials, start with environment variables or YAML files, then consider adopting a Config Server or Vault as the platform scales"
+- [YAML: probably not so great after all](https://www.arp242.net/yaml-config.html): Documents YAML complexity, ambiguity, and security issues
 
 **Consequences:**
-- Recordkeeping violation during SEC/FINRA examination when full conversation reconstruction is requested
-- Inability to demonstrate what agent said to customer
-- Gap between believed compliance posture and actual capability
+- Simple 50-line script now requires 100-line YAML config file
+- Users must edit YAML correctly (indentation matters, no tabs allowed)
+- Config schema not enforced — typos cause runtime failures
+- Version control shows config changes but not why config structure changed
+- Deployment requires distributing script + config + schema documentation
+
+**FSI-AgentGov-specific impact:**
+- Learn Monitor (`learn_monitor.py`) has 100+ lines of configuration (209 URLs)
+- Regulatory Monitor has state file (`data/monitor-state.json`) — already JSON-based
+- Moving Python config to YAML doesn't improve maintainability for this use case
+- Scripts are run by administrators, not deployed as services — externalization less valuable
+
+**When externalization DOES make sense:**
+- Environment-specific values (tenant IDs, environment URLs) that differ per deployment
+- Secrets (already handled by Key Vault or environment variables)
+- Large lists of items that change frequently independent of code (e.g., URL monitoring list)
+
+**When externalization is OVERENGINEERING:**
+- Hard-coded constants that never change (`DEFAULT_TIMEOUT = 30`)
+- Code structure choices (which API version to use)
+- Small scripts with <10 configuration values
+- Single-environment deployments (no dev/staging/prod split)
 
 **Prevention:**
-- Implement eDiscovery, DSPM for AI, or Communication Compliance for FULL content capture
-- Document distinction: Purview audit = evidence trail; eDiscovery = content
-- Test content retrieval BEFORE production deployment
+
+1. **Apply externalization selectively:**
+   ```python
+   # GOOD: Externalize environment-specific config
+   tenant_id = os.environ.get("TENANT_ID")  # Different per deployment
+
+   # GOOD: Externalize large lists
+   monitored_urls = load_yaml("config/monitored-urls.yaml")  # Changes independently
+
+   # BAD: Externalize constants
+   # config.yaml: "max_retries: 3"  # This should be a constant in code
+   MAX_RETRIES = 3  # Clear, typed, versioned with code
+   ```
+
+2. **Validate config at startup:**
+   ```python
+   # If using YAML, validate structure immediately
+   from jsonschema import validate
+
+   config = load_yaml("config.yaml")
+   validate(config, schema)  # Fail fast with clear error
+   ```
+
+3. **Document the config-code contract:**
+   - If config.yaml exists, README must document all fields
+   - Config changes should trigger version bumps (breaking vs. non-breaking)
+   - Provide example configs for common scenarios
+
+4. **Consider JSON over YAML for machine-edited configs:**
+   - JSON schema validation is more mature
+   - No indentation ambiguity
+   - Easier to programmatically update
+   - Python/PowerShell native support without libraries
+
+5. **Start simple, refactor later:**
+   - Ship v1.0 with config in code
+   - Add externalization in v2.0 if users request it (evidence of need)
+   - Don't prematurely optimize for "might need to configure this later"
 
 **Detection:**
-- Export CopilotInteraction schema and verify field contents
-- Attempt to reconstruct full conversation from audit log alone
-- Check if eDiscovery/DSPM configured for Copilot Studio workloads
+- Pre-implementation: Count configuration values — if <10, keep in code
+- Pre-implementation: Ask "will users customize this per deployment?" — if no, keep in code
+- Code review: Challenge each externalized config item with "why not a constant?"
+- Post-release: Monitor issues for "config file is confusing" feedback
 
-**Which controls address this:** 1.7, 1.19, 1.6
+**Which phase should address:**
+- Phase 1: Configuration Audit (what actually needs externalization)
+- Phase 2: Selective Externalization (only environment-specific values)
+- Phase 3: Validation & Documentation (if proceeding with YAML)
 
-**Phase recommendation:** Phase 1 (Foundation) - Must configure before Zone 3 agents interact with customers
-
-**Sources:**
-- Framework v1.2.32 - Control 1.7 CopilotInteraction schema clarification
-- [SEC 2026 Examination Priorities](https://www.sec.gov/files/2026-exam-priorities.pdf)
+**Reference:** [Platform Engineering's Patterns And Anti-patterns](https://octopus.com/devops/platform-engineering/patterns-anti-patterns/)
 
 ---
 
-### HIGH: AI Explainability Requirement
+## Moderate Pitfalls
 
-**What goes wrong:** AI systems flag communications as high-risk or make recommendations, but compliance teams cannot explain HOW the AI reached that decision when SEC examiners ask.
+### Pitfall 4: "Completing" WIP Solutions Triggers Scope Creep
+
+**What goes wrong:** Attempting to "finish" 6 WIP solutions leads to feature bloat as team adds "just one more" capability that seems necessary for "production readiness."
 
 **Why it happens:**
-- Organizations deploy black-box AI models without decision transparency
-- Focus on outputs rather than reasoning process
-- Model risk management doesn't include explainability testing
+- No clear definition of "done" for WIP solutions
+- "While we're at it" syndrome — adding features because code is already open
+- Perfectionism — belief that solution must handle all edge cases before marking Complete
+- Feature requests accumulate during implementation ("can we also add X?")
+- Sunk cost fallacy — "we've invested this much, might as well make it perfect"
+
+**Real-world evidence:**
+- Solutions Index shows: 3 Completed, 1 Validated, **6 WIP**, 3 Planned
+- WIP solutions: Deny Event Correlation, Conditional Access Automation, Compliance Dashboard, Segregation Detector, Scope Drift Monitor, RAG Source Validator
+- [Scope Creep is a Boss Fight: How to Beat Feature Bloat](https://www.wayline.io/blog/scope-creep-boss-fight-beat-feature-bloat): "Feature creep is the gradual addition of unnecessary features, often at the expense of time, budget, and user experience"
+- [Feature Creep, the Bane of Our Existence](https://www.interaction-design.org/literature/article/feature-creep-the-bane-of-our-existence): "Feature creep leads to feature bloat, resulting in a product that is complex, difficult to navigate"
 
 **Consequences:**
-- SEC examination findings for inadequate supervisory controls
-- Inability to demonstrate reasonableness of agent recommendations
-- Potential enforcement if decision-making process cannot be demonstrated
+- V2 milestone scope expands from "complete 6 WIP solutions" to "complete + add 20 new features"
+- Timeline slips as each solution grows from 2 weeks to 6 weeks
+- Code quality suffers as features are rushed to meet extended deadline
+- Solutions become harder to deploy (more dependencies, longer setup)
+- "Perfect" solutions never ship because there's always one more feature to add
+
+**FSI-AgentGov-specific impact:**
+- Compliance Dashboard is "v1.0.0-beta" — temptation to add every possible chart before marking v1.0
+- Conditional Access Automation has 8 policy templates — temptation to add 20 more "edge case" policies
+- Each WIP solution maps to 2-4 framework controls — scope creep delays control automation
+- Cross-solution dependencies create cascading delays (Scope Drift depends on Agent Inventory, etc.)
 
 **Prevention:**
-- Require decision reasoning documentation in agent design (Agent Card)
-- Test explainability BEFORE production (can you explain why agent made recommendation X?)
-- Log decision factors alongside outputs
-- Implement HITL review for non-explainable decisions
+
+1. **Define "Complete" explicitly before starting:**
+   ```markdown
+   # Compliance Dashboard v1.0 Definition of Done
+
+   MUST HAVE (blocking):
+   - [ ] Dataverse tables deployed and schema documented
+   - [ ] Sample data loads without errors
+   - [ ] README installation steps tested on clean environment
+   - [ ] All 62 controls appear in Power BI report template
+
+   SHOULD HAVE (defer to v1.1):
+   - Exception workflow automation (manual process documented for v1.0)
+   - Trend analysis charts (aggregation exists, visualization deferred)
+
+   WON'T HAVE (out of scope):
+   - Real-time alerting (requires Premium capacity, not in scope)
+   - Mobile app (web-only for v1.0)
+   ```
+
+2. **Use existing Completed solutions as quality bar:**
+   - Environment Lifecycle Management (v1.1.2) is Completed
+   - Message Center Monitor (v2.1.1) is Completed
+   - Compare WIP solution scope to ELM — are you adding more features? Why?
+
+3. **Implement feature freeze 2 weeks before milestone:**
+   - No new features accepted after freeze date
+   - Only bug fixes and documentation improvements
+   - "Great idea, let's add it to v2.1 backlog" becomes default response
+
+4. **Say no to "while we're at it" additions:**
+   - Track feature requests in GitHub Issues with "v2.1" milestone
+   - Require justification: "Why is this blocking v2.0 completion?"
+   - Default to deferral unless customer-requested
+
+5. **Ship iteratively:**
+   - v1.0: Core functionality, manual steps documented
+   - v1.1: Automation of previously manual steps
+   - v2.0: Advanced features based on user feedback
+
+   Example: Compliance Dashboard v1.0 ships with manual exception approval; v1.1 adds Power Automate approval flow.
 
 **Detection:**
-- Ask "Why did the agent recommend X?" and verify answer exists
-- Check if audit logs include decision reasoning fields
-- Test reconstruction of agent decision logic from logs
+- Weekly scope review: "What features were added this week? Were they in original scope?"
+- Compare current feature list to initial RESEARCH.md for solution
+- Monitor Git commit messages for "add feature" vs. "fix bug" ratio
+- Team retrospective: "Are we scope creeping or shipping?"
 
-**Which controls address this:** 2.6, 2.13, 3.2
+**Which phase should address:**
+- Phase 1: Define "Complete" for Each WIP Solution (blocking)
+- Phase 2-N: One Phase per Solution with Explicit Scope
+- Final Phase: Integration Testing (no new features)
 
-**Phase recommendation:** Phase 2 (Management) - Required for Zone 3 agents making recommendations
-
-**Sources:**
-- [SEC 2026 Examination Priorities](https://www.wealthmanagement.com/regulation-compliance/sec-2026-examination-priorities-what-financial-services-firms-need-to-know)
-- [Skadden AI Recordkeeping Analysis](https://www.skadden.com/insights/publications/2024/09/how-and-when-sec-recordkeeping-rules-may-apply)
+**Reference:** [4 Steps to Manage with Feature Creep](https://thisisstoked.com/knowledge/how-to-manage-feature-creep)
 
 ---
 
-### HIGH: OCC 2011-12 / SR 11-7 Model Classification Confusion
+### Pitfall 5: Cross-Repo Changes Create Coordination Failures
 
-**What goes wrong:** Banks fail to apply Model Risk Management (MRM) guidance consistently to AI agents, either over-applying (9-month delays) or under-applying (missing governance).
+**What goes wrong:** Updating documentation in FSI-AgentGov while simultaneously updating solution code in FSI-AgentGov-Solutions leads to version skew, broken links, and incomplete deployments.
 
 **Why it happens:**
-- Examiners lack consistent framework for classifying AI tools as "models"
-- MRM processes designed for traditional statistical models don't fit AI agents well
-- Excessive documentation requirements delay AI adoption
+- Two repositories require two commits, two PRs, two review cycles
+- Documentation changes merge before solution changes (or vice versa)
+- Cross-references point to code that doesn't exist yet (or documentation that's missing)
+- Reviewers only see one repo at a time, missing cross-repo dependencies
+- No automated testing of cross-repo integration
+
+**Real-world evidence:**
+- [Cross-repository (or, project-level) PR with multiple branches](https://github.com/orgs/community/discussions/13733): "Coordinating changes that span multiple repositories may require additional effort"
+- [Multi-Repo Workflows: Managing Distributed Systems](https://developertoolkit.ai/en/cursor-ide/advanced-techniques/multi-repo-workflows/): "Teams often forget to update components among multiple repositories when working on a topic"
+- FSI-AgentGov CLAUDE.md documents: "Each repo has separate git history. Git commands must run from within the target repo."
 
 **Consequences:**
-- OCC/Fed examination findings for inadequate model governance
-- Delayed AI agent deployments (up to 9 months reported)
-- Inconsistent risk management across agent portfolio
+- Documentation references solution features that don't exist yet (links to non-existent files)
+- Solution deployed without documentation (users can't figure out how to use it)
+- Version mismatch: docs say v1.1.0, solution is still v1.0.8
+- Broken playbook links to FSI-AgentGov-Solutions README
+- Review cycles double (need approval in both repos, reviews happen at different times)
+
+**FSI-AgentGov-specific impact:**
+- 13 solutions in FSI-AgentGov-Solutions
+- Each solution documented in FSI-AgentGov playbooks (cross-references)
+- Solutions Index (`docs/reference/solutions-index.md`) lists versions — must stay in sync
+- Advanced implementation playbooks reference solution code structure
 
 **Prevention:**
-- Establish clear model classification criteria (use SR 11-7 definition: quantitative tool with outputs based on statistical/ML algorithms)
-- Apply proportional MRM based on risk (Zone 1 = minimal, Zone 2 = basic, Zone 3 = comprehensive)
-- Document model classification decisions with rationale
-- Engage with examiners early for alignment on classification approach
+
+1. **Commit order protocol:**
+   ```markdown
+   # When changing both repos for a feature:
+   1. Commit FSI-AgentGov-Solutions changes FIRST (code)
+   2. Wait for merge and tag (e.g., v1.1.0)
+   3. Commit FSI-AgentGov changes SECOND (documentation)
+   4. Reference solution tag in documentation commit message
+
+   Rationale: Documentation can reference tagged code release.
+   Reverse order creates broken links to unreleased features.
+   ```
+
+2. **Cross-reference validation in CI:**
+   ```python
+   # In FSI-AgentGov CI pipeline:
+   # Parse docs/reference/solutions-index.md for version numbers
+   # Check that FSI-AgentGov-Solutions tags exist
+   # Example: If docs say "v1.1.0", verify git tag exists
+
+   def validate_solution_versions():
+       for solution in parse_solutions_index():
+           tag = f"{solution.name}-v{solution.version}"
+           if not tag_exists(tag, solutions_repo):
+               raise Error(f"Solutions Index references {tag} but tag doesn't exist")
+   ```
+
+3. **Atomic documentation updates:**
+   - Don't split solution documentation across multiple PRs
+   - One PR in FSI-AgentGov should document ALL changes from one solution release
+   - PR description links to merged FSI-AgentGov-Solutions PR
+
+4. **Version alignment table in CHANGELOG:**
+   ```markdown
+   # FSI-AgentGov v1.3.0 - March 2026
+
+   ## Cross-Repo Version Alignment
+
+   | FSI-AgentGov Version | Solutions Versions |
+   |---------------------|-------------------|
+   | v1.3.0 | - Environment Lifecycle Management v1.2.0 |
+   |        | - Compliance Dashboard v1.0.0 (GA) |
+   |        | - Conditional Access Automation v1.0.0 (GA) |
+
+   Users deploying v1.3.0 framework should use above solution versions.
+   ```
+
+5. **Test deployment with both repos:**
+   - Clone both repos at specific tags
+   - Follow documentation from FSI-AgentGov
+   - Deploy solution from FSI-AgentGov-Solutions
+   - Verify all links work, versions match, deployment succeeds
 
 **Detection:**
-- Check if model inventory includes/excludes Copilot Studio agents
-- Verify MRM documentation exists for Zone 3 agents
-- Confirm independent validation performed for high-risk agents
+- Pre-merge: Check that referenced solution version exists in FSI-AgentGov-Solutions
+- Pre-merge: Validate all playbook links to solution README files
+- Post-merge: Monitor GitHub issues for "documentation doesn't match code" reports
+- Post-merge: Run link checker across both repositories
 
-**Which controls address this:** 2.6, 2.11, 2.5
+**Which phase should address:**
+- Phase 1: Cross-Repo Coordination Protocol (document commit order)
+- Each Solution Phase: Commit to Solutions Repo, Then Docs Repo
+- Final Phase: Cross-Repo Integration Testing
 
-**Phase recommendation:** Phase 2 (Management) - Required before deploying agents making financial decisions
-
-**Sources:**
-- [BPI OSTP AI RFI Response (October 2025)](https://bpi.com/wp-content/uploads/2025/10/BPI-OSTP-AI-RFI-Response-10.27.25.pdf)
-- [OCC Model Risk Management Guidance](https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/model-risk-management/index-model-risk-management.html)
+**Reference:** [Collaborating within the same repository](https://coderefinery.github.io/git-collaborative/same-repository/)
 
 ---
 
-### MODERATE: Notice 25-07 Misinterpretation
+### Pitfall 6: JSON to SQLite Migration Adds Complexity Without Clear Benefit
 
-**What goes wrong:** Organizations cite FINRA Notice 25-07 as requiring specific AI governance controls, when it actually addresses workplace modernization rules (not AI).
+**What goes wrong:** Migrating state files from JSON to SQLite database adds SQLite dependency, migration scripts, and schema management for minimal performance gain on small datasets.
 
 **Why it happens:**
-- Notice 25-07 released April 2025 with "AI" mentioned in limited recordkeeping context
-- Title suggests broader AI applicability than content delivers
-- Organizations don't read full RFI vs. interpreting title
+- Belief that "databases are always better than flat files"
+- Premature optimization for scale that doesn't exist yet
+- Desire to use SQL queries instead of simple Python dict operations
+- Copying patterns from large-scale systems to small scripts
+
+**Real-world evidence:**
+- [SQLite JSON Storage Debate: Modern Solution or Unnecessary Complexity?](https://biggo.com/news/202412230727_sqlite-json-storage-debate): "Some developers question whether using SQLite for JSON storage adds unnecessary complexity to data storage, particularly when the application requirements are simple"
+- [SQLite User Forum: Flat files vs SQLite](https://sqlite.org/forum/forumpost/3d7be1ad3d?t=c): Discusses when SQLite is overkill for simple data
+- Current FSI-AgentGov: `data/learn-monitor-state.json` is 209 URLs × ~200 bytes = ~42KB file
 
 **Consequences:**
-- Misdirected compliance effort
-- Confusion about actual AI supervision requirements
-- Missing actual guidance (Notice 24-09, 2026 Report)
+- Must add SQLite library dependency (or use Python stdlib sqlite3)
+- Schema evolution requires migration scripts (ALTER TABLE, version management)
+- Debugging harder (can't just open JSON in editor, need SQL client)
+- Cross-platform testing expands (SQLite file format varies)
+- Backup/restore more complex (can't just copy .json file)
+- State file corruption harder to fix (can't hand-edit like JSON)
+
+**FSI-AgentGov-specific impact:**
+- Learn Monitor state: 209 URLs, read/write once per day, file size <100KB
+- Regulatory Monitor state: Even smaller dataset
+- Performance not a bottleneck (current JSON parsing takes <1ms)
+- Scripts run once per day in GitHub Actions (not high-concurrency scenario)
+
+**When SQLite DOES make sense:**
+- Concurrent read/write operations (JSON requires file locking)
+- Large datasets (>10MB) where indexed queries matter
+- Complex relational queries across multiple tables
+- ACID transaction requirements
+
+**When SQLite is OVERENGINEERING:**
+- Single-user scripts with sequential access
+- Small datasets (<1MB) with simple structure
+- Infrequent updates (once per day or less)
+- Current solution works fine (no performance complaints)
 
 **Prevention:**
-- Reference FINRA Notice 24-09 (June 2024) for Gen AI guidance
-- Use FINRA 2026 Annual Regulatory Oversight Report for AI agent supervision requirements
-- Clarify Notice 25-07 is Request for Comment (RFI) on workplace modernization
+
+1. **Measure before migrating:**
+   ```python
+   # Current JSON approach:
+   import json
+   import time
+
+   start = time.time()
+   with open("data/learn-monitor-state.json") as f:
+       state = json.load(f)  # Parse 209 URLs
+   elapsed = time.time() - start
+   print(f"JSON load time: {elapsed*1000:.2f}ms")
+
+   # Is this slow? (Spoiler: No, it's <5ms)
+   # Then why migrate to SQLite?
+   ```
+
+2. **Consider alternatives to SQLite:**
+   - **Keep JSON** — if current performance is acceptable
+   - **Switch to JSONL** (JSON Lines) — easier to append, still text-based
+   - **Use TOML** — more human-readable than JSON for config files
+   - **Use Parquet** — if query performance matters (unlikely for this use case)
+
+3. **If migrating, automate the migration:**
+   ```python
+   # scripts/migrate_json_to_sqlite.py
+   def migrate_state_file():
+       """One-time migration with rollback."""
+       # 1. Backup original JSON
+       shutil.copy("data/state.json", "data/state.json.backup")
+
+       # 2. Create SQLite schema
+       # 3. Import JSON data
+       # 4. Validate (compare record counts)
+       # 5. If validation fails, restore backup and exit
+   ```
+
+4. **Document the rationale:**
+   - If migrating, CHANGELOG must explain why (performance? features?)
+   - If keeping JSON, document decision to avoid future "why not SQLite?" debates
+   - Compare before/after metrics (load time, file size, LOC)
+
+5. **Don't migrate just because it's "more professional":**
+   - JSON is a professional format used by production systems
+   - Simplicity is a feature, not a limitation
+   - Text-based formats are debuggable and versionable
 
 **Detection:**
-- Review compliance documentation citing Notice 25-07
-- Check if referenced for AI governance vs. recordkeeping
+- Pre-migration: Benchmark current JSON performance (is it actually slow?)
+- Pre-migration: Survey team — has anyone complained about state file performance?
+- Post-migration: Compare complexity (LOC, dependencies, test coverage) — did it increase?
 
-**Which controls address this:** Framework regulatory references
+**Which phase should address:**
+- Phase 1: Performance Benchmarking (establish need)
+- Phase 2: Migration Script Development (if proceeding)
+- Phase 3: Validation & Rollback Testing
 
-**Phase recommendation:** Documentation accuracy check during Phase 1
+**Reference:** [JSON with Sqlite | Hacker News](https://news.ycombinator.com/item?id=19277809)
 
 ---
 
-## Technical Pitfalls
+## Minor Pitfalls
 
-### CRITICAL: February 2026 Pipeline Deadline - Licensing Trap
+### Pitfall 7: Breadcrumb/Navigation Changes Break User Muscle Memory
 
-**What goes wrong:** Organizations miss Microsoft's automatic Managed Environment enablement for pipeline targets starting February 2026, triggering premium licensing requirements for ALL users in those environments.
+**What goes wrong:** Changing site breadcrumbs or left-nav structure breaks user workflows even if URLs stay the same — users can't find familiar pages.
 
 **Why it happens:**
-- Notification via Microsoft 365 Message Center (MC) easily missed
-- Organizations use pipelines without realizing Managed Environment implications
-- Assumption that existing licensing covers new requirements
+- Focus on "improving" information architecture without user testing
+- Alphabetical sorting seems logical but disrupts learned navigation patterns
+- Adding new categories splits content users expect to be together
+- Renaming sections ("Playbooks" → "Implementation Guides") confuses existing users
 
 **Consequences:**
-- Sudden premium license requirement for all active users in pipeline target environments
-- Budget impact (Power Apps Premium $20/user/month or Power Automate Premium $15/user/month)
-- Potential service interruption if licenses not procured
+- Support requests increase: "Where did X page go?"
+- Users stop using documentation, rely on Google searches instead
+- Onboarding harder for new users (no stable reference point)
+- Analytics show users returning to homepage repeatedly (lost navigation)
 
 **Prevention:**
-- Enable Managed Environments manually NOW for all pipeline targets
-- Audit active users in pipeline target environments
-- Procure premium licenses proactively (Power Apps Premium, Power Automate Premium, Copilot Studio, or Dynamics 365)
-- Configure automatic Managed Environment setting for new pipelines
+- A/B test navigation changes in staging environment
+- Survey existing users before major nav restructuring
+- Keep top-level nav structure stable (Framework, Controls, Playbooks)
+- Add new sections, don't rename existing ones
 
 **Detection:**
-- Query environments: `Get-AdminPowerAppEnvironment | Where-Object {$_.Internal.properties.states.management.id -eq "ManagedEnvironment"}`
-- Check Message Center for MC notifications about pipeline enforcement
-- Review pipeline configuration for target environments
-
-**Which controls address this:** 2.1, 2.2
-
-**Phase recommendation:** IMMEDIATE action required - deadline February 2026
-
-**Sources:**
-- Framework v1.2.25 - Control 2.1 critical warning
-- [Power Platform Pipelines Documentation](https://learn.microsoft.com/en-us/power-platform/alm/pipelines)
+- Monitor time-on-site metrics (increases suggest users are lost)
+- Track homepage bounce rate (users giving up)
+- Review GitHub Discussions for "can't find X anymore"
 
 ---
 
-### CRITICAL: Pay-As-You-Go (PAYG) Licensing Misconception
+### Pitfall 8: Over-Testing WIP Solutions Delays Completion
 
-**What goes wrong:** Organizations enable Pay-As-You-Go for Managed Environments, believing it satisfies licensing requirements. PAYG does NOT satisfy Managed Environment licensing for active users without standalone licenses.
+**What goes wrong:** Attempting to achieve 100% test coverage on WIP solutions blocks them from reaching "Completed" status.
 
 **Why it happens:**
-- PAYG name suggests comprehensive licensing coverage
-- Microsoft documentation distinction between capacity licensing vs. user licensing is subtle
-- Organizations see PAYG as easier than individual license procurement
+- Belief that "production ready" requires comprehensive test suite
+- Porting enterprise testing standards to small automation scripts
+- Perfectionism — solution can't ship until all edge cases tested
 
 **Consequences:**
-- Non-compliant Managed Environment configuration
-- Licensing violation risk
-- Potential service disruption during audit
+- 6 WIP solutions remain WIP despite being functionally complete
+- Testing phase takes longer than development phase
+- Team burns out writing tests for theoretical edge cases
+- Users can't deploy solutions that work but lack "official" Completed status
 
 **Prevention:**
-- Procure per-user premium licenses (Power Apps Premium, Power Automate Premium, etc.) for Managed Environment users
-- Use PAYG for capacity overages, NOT as primary licensing strategy
-- Document licensing approach and validate with Microsoft licensing specialist
+- Test critical paths only for v1.0 (happy path + common errors)
+- Expand test coverage in v1.1+ based on real-world issues
+- Mark solutions "Validated" (functionally tested) before "Completed" (full test suite)
+- Remember: These are deployment scripts, not life-critical systems
 
 **Detection:**
-- Check if Managed Environment relies solely on PAYG without user licenses
-- Query active users and cross-reference with premium license assignments
-- Review billing to see if costs align with expected user count
-
-**Which controls address this:** 2.1
-
-**Phase recommendation:** Phase 1 (Foundation) - Validate before enabling Managed Environments
-
-**Sources:**
-- Framework v1.2.32 - Control 2.1 PAYG limitation warning
-- [Managed Environment Licensing](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-licensing)
+- Measure test LOC vs. implementation LOC ratio (>2:1 is often overkill)
+- Track time spent on test development vs. feature development
+- Ask: "Would this test catch a bug we've actually seen?"
 
 ---
 
-### CRITICAL: Service Principal Security Group Bypass
+### Pitfall 9: Documentation Version Skew (Docs Ahead of Code)
 
-**What goes wrong:** Organizations configure environment-level Security Groups to restrict access, but Service Principals bypass these controls entirely and can access ANY environment.
+**What goes wrong:** Documentation describes features that exist in development branch but not in released version users deploy.
 
 **Why it happens:**
-- Microsoft documentation doesn't prominently highlight SP bypass behavior
-- Assumption that Security Groups apply universally
-- Service Principals created for automation without security review
+- Docs updated on main branch while features in feature branch
+- Merge order: docs merge first, code merges later (or never)
+- No version tags in documentation indicating which release features apply to
 
 **Consequences:**
-- Unexpected privileged access to sensitive environments
-- Compliance violation if separation of duties required
-- Audit findings for inadequate access controls
+- Users follow documentation, features don't exist, file bugs
+- Support burden increases ("how do I use X?" / "X doesn't exist yet")
+- Documentation loses credibility (can't trust it's accurate)
 
 **Prevention:**
-- Implement defense-in-depth: row-level security (RLS), column-level security, Dataverse audit logging
-- Quarterly audit of Service Principal permissions
-- Rotate credentials regularly (90 days recommended)
-- Minimize Service Principal privilege (least privilege principle)
+- Use version badges in documentation: "Added in v1.3.0", "Deprecated in v2.0.0"
+- Merge feature documentation in same PR as feature code
+- Release notes clearly indicate which features are GA vs. preview
+- Test documentation against released versions, not development branches
 
 **Detection:**
-- Enumerate Service Principals with environment access
-- Review RLS/column security configuration
-- Check audit logs for Service Principal activity in restricted environments
-
-**Which controls address this:** 2.8, 1.18
-
-**Phase recommendation:** Phase 2 (Management) - Critical for Environment Lifecycle Management implementation
-
-**Sources:**
-- Framework v1.2.32 - ELM architecture.md critical warning
-- Zenity research on Power Platform SP permissions (June 2025)
+- Search docs for references to unreleased versions
+- Check that all documented features exist in latest tagged release
+- Review GitHub Issues for "documentation doesn't match release"
 
 ---
 
-### HIGH: DLP Enforcement Mode Confusion
+## Phase Assignments
 
-**What goes wrong:** Organizations deploy agents believing DLP is enforced, but agents are in "Soft-Enabled" mode where existing agents keep running without DLP adherence (only updates blocked).
-
-**Why it happens:**
-- Microsoft phased DLP enforcement rollout (January-March 2025)
-- Mode changed from Soft-Enabled to Enabled without proactive notification
-- Organizations don't verify enforcement mode after deployment
-
-**Consequences:**
-- Agents accessing restricted data despite DLP policies
-- Compliance violation (GLBA 501(b), SEC Reg S-P)
-- False sense of security
-
-**Prevention:**
-- Verify DLP enforcement mode is "Enabled" (not "Soft-Enabled")
-- Test DLP policy blocking BEFORE production deployment
-- Review MC973179 for phased rollout timeline (completed March 2025)
-- Configure 11 virtual governance connectors for AI capabilities
-
-**Detection:**
-- Check Power Platform Admin Center > Data Policies > Enforcement Mode
-- Test agent with restricted data connector
-- Review CloudAppEvents for blocked DLP actions
-
-**Which controls address this:** 1.5, 1.4
-
-**Phase recommendation:** Phase 1 (Foundation) - Verify before any agent deployment
-
-**Sources:**
-- Framework v1.2.32 - Control 1.5 phased timeline
-- [Microsoft Copilot Studio DLP Best Practices](https://ragnarheil.de/from-chaos-to-control-governance-best-practices-for-microsoft-copilot-studio-with-dlp-capacity-security-controls/)
+| Pitfall | Severity | Recommended Phase |
+|---------|----------|------------------|
+| 1. MkDocs Awesome-Pages Breaking Links | CRITICAL | Phase 1 (URL Impact Assessment) |
+| 2. PowerShell Security Hardening Breaking Scripts | CRITICAL | Phase 1 (Compatibility Testing Setup) |
+| 3. YAML Configuration Overengineering | HIGH | Phase 1 (Configuration Audit) |
+| 4. WIP Solution Scope Creep | HIGH | Phase 1 (Define "Complete" per Solution) |
+| 5. Cross-Repo Coordination Failures | HIGH | Phase 1 (Commit Order Protocol) |
+| 6. JSON to SQLite Unnecessary Migration | MEDIUM | Phase 1 (Performance Benchmarking) |
+| 7. Navigation Changes Break User Workflows | MEDIUM | Phase 2 (Nav Stability Testing) |
+| 8. Over-Testing Delays Completion | MEDIUM | Each Solution Phase (Test Pragmatically) |
+| 9. Documentation Version Skew | MEDIUM | Final Integration Phase (Version Validation) |
 
 ---
 
-### HIGH: Connector Governance Blind Spot
+## Integration Testing Requirements
 
-**What goes wrong:** Organizations focus on agent logic security but ignore connector governance, creating massive hidden risk surface for data exfiltration.
+Before v2 release, verify these cross-cutting concerns:
 
-**Why it happens:**
-- Copilot Studio includes ALL premium connectors by default
-- Organizations don't realize agent can invoke any allowed connector
-- Connector catalog is vast (hundreds) and complex
+### URL Stability Test
+```bash
+# Compare production site to v2 build
+mkdocs build --strict
+diff -r site/ ../production-site-backup/
+# Zero URL changes = safe to deploy
+```
 
-**Consequences:**
-- Agent uses unapproved third-party connector
-- Data exfiltration to unvetted SaaS application
-- GLBA/SEC Reg S-P violation
+### Backward Compatibility Test
+```powershell
+# Test scripts on PowerShell 5.1 (minimum supported)
+pwsh -Version 5.1 -File scripts/Deploy.ps1
+# Must run without errors
+```
 
-**Prevention:**
-- Implement Advanced Connector Policies (ACP) for granular control
-- Allowlist approach: block by default, allow specific connectors
-- Regular connector policy refresh as new connectors released
-- Vendor risk assessment for third-party connectors
+### Cross-Repo Integration Test
+```bash
+# Clone both repos at release tags
+git clone --branch v2.0.0 FSI-AgentGov
+git clone --branch elm-v1.2.0 FSI-AgentGov-Solutions
 
-**Detection:**
-- Review DLP policies for connector classifications
-- Audit agent connections to identify connector usage
-- Check CloudAppEvents for connector activity
+# Follow documentation from FSI-AgentGov
+# Deploy solution from FSI-AgentGov-Solutions
+# All links work, versions match
+```
 
-**Which controls address this:** 1.4, 2.7
-
-**Phase recommendation:** Phase 1 (Foundation) - Must configure before agent deployment
-
-**Sources:**
-- [Copilot Studio Governance Guide](https://holgerimbery.blog/copilot-studio-governance)
-- [DLP and Governance Tips](https://ragnarheil.de/mastering-microsoft-copilot-studio-data-loss-prevention-and-governance-tips/)
-
----
-
-### HIGH: Microsoft Defender Integration Confusion
-
-**What goes wrong:** Organizations believe runtime protection is automatic, but native Defender integration requires explicit two-portal configuration (Defender Portal + Power Platform Admin Center).
-
-**Why it happens:**
-- Defender for Cloud Apps licensing doesn't auto-enable Copilot Studio protection
-- Two-portal configuration requirement not obvious
-- Organizations assume M365 E5 includes everything
-
-**Consequences:**
-- Prompt injection attacks succeed without blocking
-- No AI agent inventory in Defender
-- Missing XDR alerting for agent threats
-- Compliance gap (Control 1.8)
-
-**Prevention:**
-- Configure native Defender integration via both portals (Step 5 in portal-walkthrough)
-- Enable "Copilot Studio AI Agents" in Defender for Cloud Apps > M365 App Connector
-- Enable Defender toggle in Power Platform Admin Center > Environment > AI Agents
-- Verify AI agent inventory appears in Defender XDR
-
-**Detection:**
-- Check if AI agent inventory visible in Microsoft Defender XDR
-- Query CloudAppEvents for CopilotInteraction events
-- Test if Defender blocks known prompt injection pattern
-
-**Which controls address this:** 1.8
-
-**Phase recommendation:** Phase 1 (Foundation) - Required for Zone 2/3 agents
-
-**Sources:**
-- Framework v1.2.37 - Control 1.8 comprehensive documentation
-- [Protect Copilot Studio AI Agents with Defender](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)
+### User Workflow Preservation Test
+```markdown
+# Test these existing user workflows MUST NOT break:
+1. Navigate from Solutions Index to control playbook to solution README
+2. Bookmark a control URL, access it after v2 deployment (same content)
+3. Search for "DLP" in site, find Control 1.5 as first result (SEO preserved)
+4. Run existing PowerShell script without modification (backward compatible)
+```
 
 ---
 
-### MODERATE: Information Barriers - Channel Agent Limitation
+## Recommended Decision Points
 
-**What goes wrong:** Organizations assume Information Barriers (IB) work for all Copilot Studio deployment types, but Channel Agents do NOT support IB.
+**Phase 1 (Architecture Decisions) should answer:**
+- [ ] Are we migrating MkDocs navigation? (YES/NO with URL impact analysis)
+- [ ] Are we hardening PowerShell scripts? (GRADUAL with compatibility matrix)
+- [ ] Are we externalizing configuration? (SELECTIVE with justification per config item)
+- [ ] What defines "Complete" for each WIP solution? (Explicit checklist)
+- [ ] What is our cross-repo commit protocol? (Document and follow)
 
-**Why it happens:**
-- Microsoft documentation doesn't prominently call out limitation
-- Assumption that IB applies universally across M365
-- Organizations deploy Channel Agents for scalability without verifying IB support
+**Each Solution Completion Phase should answer:**
+- [ ] Does this solution meet minimum viable "Complete" criteria? (ship it)
+- [ ] Are we adding features beyond v1.0 scope? (defer to v1.1)
+- [ ] Have we tested on clean environment with documented prerequisites? (works for users)
+- [ ] Is cross-repo version alignment verified? (docs match code)
 
-**Consequences:**
-- Agent shares information across IB segments
-- FINRA Rule 2241 (research/investment banking wall) violation
-- Chinese Wall breach for M&A teams
-
-**Prevention:**
-- Use Copilot Studio agents deployed in Teams (supports IB), NOT Channel Agents
-- Test IB enforcement before production deployment
-- Document IB applicability in agent architecture decisions
-
-**Detection:**
-- Identify agent deployment type (Teams vs. Channel)
-- Test agent access across IB segments
-- Review IB policy logs for agent user
-
-**Which controls address this:** 1.22
-
-**Phase recommendation:** Phase 2 (Management) - Critical for organizations with IB requirements
-
-**Sources:**
-- Framework v1.2.32 - Control 1.22 clarification
-
----
-
-### MODERATE: x-api-key Deprecation (March 31, 2026)
-
-**What goes wrong:** Organizations use Application Insights x-api-key authentication for RAI telemetry export, unaware of March 31, 2026 deprecation. Scripts fail after deadline.
-
-**Why it happens:**
-- Legacy authentication method still works (for now)
-- Microsoft deprecation notice not widely visible
-- Organizations copy older implementation patterns
-
-**Consequences:**
-- RAI telemetry export scripts fail after March 31, 2026
-- Loss of hallucination/UPIA/XPIA tracking
-- Compliance gap (Control 3.10)
-
-**Prevention:**
-- Migrate to Entra ID authentication (service principals or managed identities)
-- Update Export-RaiTelemetry.ps1 to use Entra auth
-- Reference FSI-AgentGov-Solutions DEC v1.1.0 for updated scripts
-
-**Detection:**
-- Search scripts for "-ApiKey" parameter
-- Check if authentication uses x-api-key header
-- Verify script execution after March 2026
-
-**Which controls address this:** 1.8, 3.10
-
-**Phase recommendation:** Phase 3 (Reporting) - Migrate before March 31, 2026
-
-**Sources:**
-- Framework v1.2.33 - DEC playbook deprecation warning
-- [Azure Monitor API Retirement Notice](https://azure.microsoft.com/en-us/updates/)
-
----
-
-## Documentation Accuracy Pitfalls
-
-### Critical Documentation Mistakes
-
-Based on framework's 36 versions with 189 corrections/clarifications (v1.2.1 - v1.2.37), common documentation accuracy pitfalls:
-
-1. **Regulatory Citation Precision**
-   - **Pitfall:** Citing wrong regulation section or misattributing requirements
-   - **Examples:** FINRA 4511 retention (5 files corrected v1.2.17), SEC 17a-4 retention period (5 files v1.2.19), CFTC WORM misattribution (v1.2.29)
-   - **Prevention:** Verify citations against official regulator sources, include CFR section numbers, link to source
-
-2. **Feature Naming History**
-   - **Pitfall:** Using outdated product/feature names
-   - **Examples:** "AI Hub DSPM" → "DSPM for AI" (v1.2.35), Sentinel Azure portal deprecation
-   - **Prevention:** Check Microsoft Learn for current naming, note rebranding dates
-
-3. **Licensing Scope Creep**
-   - **Pitfall:** Overstating what's included in base licenses
-   - **Examples:** E5 vs E5 Compliance vs E5 Security distinctions, Copilot Studio premium connectors
-   - **Prevention:** Reference official Microsoft licensing guide, specify SKU exactly
-
-4. **Technical Capability Overclaims**
-   - **Pitfall:** Stating features exist that require additional configuration or don't exist
-   - **Examples:** CopilotInteraction full content (metadata only), UPIA/XPIA detection locations
-   - **Prevention:** Test feature, read schema documentation, verify with Microsoft Learn
-
-5. **Deprecation Date Accuracy**
-   - **Pitfall:** Wrong retirement/deprecation dates
-   - **Examples:** Exchange Basic Auth (corrected v1.2.32), x-api-key (March 31, 2026), Azure Key Vault API (February 27, 2027)
-   - **Prevention:** Check Message Center, Azure Updates, verify MC number
-
----
-
-## Prevention Strategies
-
-### Organizational Level
-
-1. **Establish Research Validation Protocol**
-   - Verify regulatory claims with official sources (finra.org, sec.gov, federalreserve.gov)
-   - Cross-reference Microsoft Learn for technical capabilities
-   - Date all documentation with "verified as of [date]"
-   - Flag LOW confidence claims requiring validation
-
-2. **Implement Technical Verification**
-   - Test feature claims in lab environment before documenting
-   - Export schemas and verify field contents
-   - Screenshot portal configurations with dates
-   - Maintain "Last Verified" metadata per control
-
-3. **Monitor Regulatory Updates**
-   - Subscribe to FINRA Regulatory Notices, SEC examination priorities
-   - Track Microsoft 365 Message Center for deprecations
-   - Quarterly review of framework controls for accuracy
-   - Annual regulatory mapping validation
-
-4. **Licensing Clarity**
-   - Reference official Microsoft Licensing Guide (month/year version)
-   - Specify exact SKU names (not generic "E5")
-   - Validate with Microsoft licensing specialist before documenting requirements
-   - Track PAYG vs. per-user license distinctions
-
-### Phase-Specific Prevention
-
-| Phase | Primary Pitfall Risks | Mitigation |
-|-------|----------------------|------------|
-| Phase 1 (Foundation) | Retention classification, DLP enforcement mode, Defender integration | Validate retention matrix, test DLP blocking, verify Defender inventory |
-| Phase 2 (Management) | FINRA supervision gaps, MRM classification, Service Principal bypass | Document WSPs, classify agents as models per SR 11-7, implement RLS |
-| Phase 3 (Reporting) | Recordkeeping completeness, x-api-key deprecation | Configure eDiscovery, migrate to Entra auth |
-| Phase 4 (Maturity) | February 2026 deadline, PAYG misconception | Enable Managed Environments, procure premium licenses |
+**Final Integration Phase should answer:**
+- [ ] Do all URLs from v1.2.37 still work in v2.0? (backward compatible)
+- [ ] Do existing bookmarks still resolve? (user workflows preserved)
+- [ ] Does v2.0 documentation reference only released code? (no version skew)
+- [ ] Can users upgrade from v1.2.37 to v2.0 without breaking changes? (migration path clear)
 
 ---
 
 ## Sources
 
-### Regulatory Sources (HIGH Confidence)
-
-- [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/sites/default/files/2025-12/2026-annual-regulatory-oversight-report.pdf)
-- [FINRA Regulatory Notice 24-09 - Gen AI Guidance](https://www.finra.org/rules-guidance/notices/24-09)
-- [SEC 2026 Examination Priorities](https://www.sec.gov/files/2026-exam-priorities.pdf)
-- [OCC Model Risk Management Guidance](https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/model-risk-management/index-model-risk-management.html)
-- [Federal Reserve SR 11-7](https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm)
-
-### Microsoft Official Sources (HIGH Confidence)
-
-- [Power Platform Pipelines Documentation](https://learn.microsoft.com/en-us/power-platform/alm/pipelines)
-- [Managed Environment Licensing](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-licensing)
-- [Protect Copilot Studio AI Agents - Defender](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)
-- [SEC 17a-4 Compliance - Microsoft](https://learn.microsoft.com/en-us/compliance/regulatory/offering-sec-docs)
-
-### Industry Analysis (MEDIUM Confidence)
-
-- [Skadden - SEC Recordkeeping Rules for AI](https://www.skadden.com/insights/publications/2024/09/how-and-when-sec-recordkeeping-rules-may-apply)
-- [McGuireWoods - FINRA 2026 Report Analysis](https://www.mcguirewoods.com/client-resources/alerts/2025/12/finras-2026-annual-regulatory-oversight-report-same-priorities-new-focus-on-ai-and-cybersecurity/)
-- [Directions on Microsoft - Defender for Cloud Apps](https://www.directionsonmicrosoft.com/reports/defender-for-cloud-apps-helps-protect-copilot-studio-agents/)
-
-### Community Best Practices (MEDIUM Confidence)
-
-- [Holger Imbery - Copilot Studio Governance](https://holgerimbery.blog/copilot-studio-governance)
-- [Ragnar Heil - DLP Best Practices](https://ragnarheil.de/from-chaos-to-control-governance-best-practices-for-microsoft-copilot-studio-with-dlp-capacity-security-controls/)
-
-### Framework Internal Sources (HIGH Confidence)
-
-- FSI-AgentGov CHANGELOG.md (v1.2.1 - v1.2.37) - 189 corrections across 36 versions
-- Framework documentation accuracy remediation phases (v1.2.17 - v1.2.37)
+- [Migration from v2 to v3 - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/migration-v3/)
+- [The Secret Migration: How Site Navigation Changes Can Destroy SEO](https://sitebulb.com/resources/guides/the-secret-migration-how-site-navigation-changes-can-destroy-seo-without-you-realising/)
+- [PowerShell security features - Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/security/security-features?view=powershell-7.5)
+- [Microsoft's Removal of PowerShell 2.0: Security Implications and Migration Guidance](https://redteamnews.com/blue-team/microsofts-removal-of-powershell-2-0-security-implications-and-migration-guidance/)
+- [Spring Boot Anti-Patterns: When to Use Design Patterns Without Overengineering](https://medium.com/@sunsetheus/spring-boot-anti-patterns-when-to-use-design-patterns-without-overengineering-361471d986f0)
+- [Configuration Externalization — Design Pattern: An Overview](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73)
+- [YAML: probably not so great after all](https://www.arp242.net/yaml-config.html)
+- [Scope Creep is a Boss Fight: How to Beat Feature Bloat](https://www.wayline.io/blog/scope-creep-boss-fight-beat-feature-bloat)
+- [4 Steps to Manage with Feature Creep](https://thisisstoked.com/knowledge/how-to-manage-feature-creep)
+- [Multi-Repo Workflows: Managing Distributed Systems](https://developertoolkit.ai/en/cursor-ide/advanced-techniques/multi-repo-workflows/)
+- [SQLite JSON Storage Debate: Modern Solution or Unnecessary Complexity?](https://biggo.com/news/202412230727_sqlite-json-storage-debate)
+- [MkDocs Writing Your Docs](https://www.mkdocs.org/user-guide/writing-your-docs/)
 
 ---
 
-**Research Complete:** February 2, 2026
-**Next Steps:** Use findings to inform roadmap phase structure and identify controls requiring deeper implementation guidance
+*Researched: 2026-02-04*
+*Confidence: HIGH (verified with 2026 sources, existing FSI-AgentGov audit data, and multi-repo architecture patterns)*

@@ -62,22 +62,34 @@ Requirements for this project cycle. Each maps to roadmap phases.
 
 ## v2 Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+Active requirements for v2 milestone: Tech Debt, Architecture & Solution Completion.
+
+### Tech Debt Resolution
+
+- [ ] **DEBT-01**: Fix Register-ServicePrincipal.ps1 secret exposure — replace `ConvertTo-SecureString -AsPlainText -Force` with SecretManagement module pattern (CRITICAL)
+- [ ] **DEBT-02**: Add error handling to Test-PolicyCompliance.ps1 — wrap unprotected code paths in try/catch with structured error logging (HIGH)
+- [ ] **DEBT-03**: Add `#Requires` statements to 11 PowerShell scripts missing module dependency declarations (MEDIUM)
+- [ ] **DEBT-04**: Remove unused dependencies in ELM and FINRA `requirements.txt` files (MEDIUM)
 
 ### Architecture Improvements
 
-- **ARCH-01**: Implement breadcrumb navigation enhancement
-- **ARCH-02**: Add playbook discoverability with admonition boxes in controls
-- **ARCH-03**: Externalize Learn Monitor patterns to YAML configuration
-- **ARCH-04**: Implement navigation auto-generation with Awesome Pages plugin
-- **ARCH-05**: SQLite state file for Learn Monitor (if performance issues emerge)
+- [ ] **ARCH-01**: Enable breadcrumb navigation (`navigation.path`) in MkDocs Material
+- [ ] **ARCH-02**: Add playbook discoverability with INFO admonition boxes linking to 4 playbooks per control
+- [ ] **ARCH-03**: Externalize Learn Monitor classification patterns to YAML configuration
 
-### Future Features
+### Solution Completion
 
+- [ ] **SOL-01**: Complete Compliance Dashboard (beta → production) — Power Automate flows, Power BI template, validated sample data
+- [ ] **SOL-02**: Complete Scope Drift Monitor (WIP → production) — access log aggregation, drift detection engine, alert workflow
+
+### Deferred to v3
+
+- **ARCH-04**: Navigation auto-generation with Awesome Pages plugin — deferred per research (risk of breaking pedagogical structure)
+- **ARCH-05**: SQLite state file for Learn Monitor — deferred (JSON sufficient for 209 URLs)
 - **FUT-01**: Document SharePoint Restricted Search (when released Q2-Q3 2026)
-- **FUT-02**: Complete WIP solutions (after audit determines scope)
-- **FUT-03**: Automated compliance checks
-- **FUT-04**: Cross-repo documentation parity improvements
+- **FUT-02**: MCP server for governance framework
+- **FUT-03**: Copilot Studio agent for governance Q&A
+- **FUT-04**: Complete Planned solutions (RAG Validator, COI Testing, Hallucination Tracker, DR Testing)
 
 ## Out of Scope
 
@@ -86,7 +98,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Feature | Reason |
 |---------|--------|
 | Non-US regulations | Framework specifically targets US financial sector |
-| Building new solutions from scratch | Focus is audit and completion of existing WIP |
+| Building entirely new solutions | Focus is completing existing WIP solutions |
 | Real-time monitoring | Batch/scheduled monitoring sufficient for compliance |
 | Mobile interface | GitHub Pages is the delivery mechanism |
 | Major architecture overhaul | Current 3-layer structure is sound per research |
@@ -94,51 +106,29 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+### v1 (Complete)
+
+All 33 v1 requirements satisfied. See v1-MILESTONE-AUDIT.md for full verification.
+
+### v2 (Active)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TECH-01 | Phase 1 | Complete |
-| TECH-02 | Phase 1 | Complete |
-| TECH-08 | Phase 1 | Complete |
-| AUDIT-01 | Phase 2 | Complete |
-| AUDIT-02 | Phase 2 | Complete |
-| AUDIT-03 | Phase 2 | Complete |
-| AUDIT-04 | Phase 2 | Complete |
-| AUDIT-05 | Phase 2 | Complete |
-| FEAT-01 | Phase 3 | Complete |
-| FEAT-02 | Phase 3 | Complete |
-| FEAT-03 | Phase 4 | Complete |
-| FEAT-04 | Phase 4 | Complete |
-| FEAT-05 | Phase 4 | Complete |
-| FEAT-06 | Phase 4 | Complete |
-| FEAT-07 | Phase 4 | Complete |
-| REG-01 | Phase 5 | Complete |
-| REG-02 | Phase 5 | Complete |
-| REG-03 | Phase 5 | Complete |
-| REG-04 | Phase 5 | Complete |
-| REG-05 | Phase 5 | Complete |
-| SOL-01 | Phase 6 | Complete |
-| SOL-02 | Phase 6 | Complete |
-| SOL-03 | Phase 6 | Complete |
-| SOL-05 | Phase 6 | Complete |
-| TECH-03 | Phase 6 | Complete |
-| TECH-04 | Phase 6 | Complete |
-| TECH-05 | Phase 6 | Complete |
-| TECH-06 | Phase 6 | Complete |
-| TECH-07 | Phase 6 | Complete |
-| SOL-04 | Phase 7 | Complete |
-| MON-01 | Phase 8 | Complete |
-| MON-02 | Phase 8 | Complete |
-| MON-03 | Phase 8 | Complete |
-| MON-04 | Phase 8 | Complete |
-| MON-05 | Phase 8 | Complete |
+| DEBT-01 | Phase 1 | Pending |
+| DEBT-02 | Phase 1 | Pending |
+| DEBT-03 | Phase 1 | Pending |
+| DEBT-04 | Phase 1 | Pending |
+| ARCH-01 | Phase 2 | Pending |
+| ARCH-02 | Phase 2 | Pending |
+| ARCH-03 | Phase 3 | Pending |
+| SOL-01 | Phase 4 | Pending |
+| SOL-02 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 33 total
-- Mapped to phases: 33
+- v2 requirements: 9 total
+- Mapped to phases: 9
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-04 — All 33 v1 requirements marked Complete*
+*Last updated: 2026-02-04 — v2 requirements activated, 9 requirements across 5 phases*

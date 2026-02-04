@@ -2,7 +2,7 @@
 
 **Project:** FSI-AgentGov Comprehensive Audit & Enhancement
 **Initialized:** 2026-02-02
-**Last Updated:** 2026-02-04 (v2 milestone started)
+**Last Updated:** 2026-02-04 (v2 roadmap created)
 
 ---
 
@@ -19,13 +19,13 @@
 ## Current Position
 
 **Milestone:** v2 — Tech Debt, Architecture & Solution Completion
-**Phase:** Not started (defining requirements)
-**Plan:** —
-**Status:** Defining requirements and roadmap
+**Phase:** Phase 1 — PowerShell Tech Debt Resolution
+**Plan:** Not yet planned
+**Status:** Roadmap complete, ready for Phase 1 planning
 **Progress:** ░░░░░░░░░░ 0%
-**Last activity:** 2026-02-04 — Milestone v2 started, researching ecosystem
+**Last activity:** 2026-02-04 — v2 roadmap created with 5 phases, 9 requirements
 
-**Next Action:** Complete research, define requirements, create roadmap.
+**Next Action:** `/gsd:plan-phase 1` — Plan Phase 1 tech debt resolution.
 
 ---
 
@@ -36,9 +36,9 @@
 - Plans in progress: 0
 
 **Quality:**
-- Requirements completed: 0/TBD
+- Requirements completed: 0/9
 - Tests passing: N/A
-- Coverage: TBD
+- Coverage: 9/9 requirements mapped
 
 **Efficiency:**
 - Blocked plans: 0
@@ -58,13 +58,15 @@
 | 2026-02-04 | Defer MCP server and Copilot agent to v3 | Keep v2 focused on debt, architecture, and 2 solutions | Focused scope |
 | 2026-02-04 | Only complete 2 WIP solutions in v2 | Compliance Dashboard and Scope Drift Monitor are closest to done | Achievable scope |
 | 2026-02-04 | Each solution handled as standalone phase | One at a time for thorough validation | Quality over velocity |
+| 2026-02-04 | Defer ARCH-04 (awesome-pages) to v3 | Risk of breaking pedagogical nav structure per research | Avoid regression |
+| 2026-02-04 | Defer ARCH-05 (SQLite) indefinitely | JSON sufficient for 209 URLs per research | Avoid over-engineering |
+| 2026-02-04 | 11 scripts need #Requires, not 12 | Exploration found 3 already have them (CAA solution) | Accurate scope |
 
 ### Active TODOs
 
 **Immediate:**
-- [ ] Complete research
-- [ ] Define requirements
-- [ ] Create roadmap
+- [ ] Plan Phase 1 (`/gsd:plan-phase 1`)
+- [ ] Execute Phase 1
 
 ### Pending Todos (Deferred to v3)
 
@@ -78,15 +80,14 @@
 
 **None currently.**
 
-### Technical Debt (from v1 audit — targeted for resolution)
+### Technical Debt (targeted for Phase 1)
 
-| Item | Severity | Source | Target Phase |
-|------|----------|--------|-------------|
-| Register-ServicePrincipal.ps1 ConvertTo-SecureString -AsPlainText | CRITICAL | Phase 7 audit | TBD |
-| Test-PolicyCompliance.ps1 zero error handling | HIGH | Phase 7 audit | TBD |
-| 12 PowerShell scripts missing #Requires | MEDIUM | Phase 7 audit | TBD |
-| 6 unused dependencies in ELM/FINRA requirements.txt | MEDIUM | Phase 7 audit | TBD |
-| Template docs: clarify 4 baseline + optional extended playbooks | LOW | Phase 2 audit | TBD |
+| Item | Severity | File | Status |
+|------|----------|------|--------|
+| ConvertTo-SecureString -AsPlainText (3 instances) | CRITICAL | Register-ServicePrincipal.ps1 | Phase 1 |
+| Zero try/catch error handling | HIGH | Test-PolicyCompliance.ps1 | Phase 1 |
+| 11 scripts missing #Requires | MEDIUM | 5 solutions across Solutions repo | Phase 1 |
+| Unused dependencies in requirements.txt | MEDIUM | ELM + FINRA solutions | Phase 1 |
 
 ---
 
@@ -105,7 +106,7 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 
 ### What Worked Well (from v1)
 
-- Two-pass audit methodology (findings → corrections)
+- Two-pass audit methodology (findings then corrections)
 - Cross-repository coordination pattern
 - Unified monitoring framework with source adapters
 - AST-based Python validation
@@ -122,13 +123,15 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 
 **Context to preserve:**
 1. v1 milestone complete — all 33 requirements, 8 phases, 35 plans
-2. v2 milestone initialized — tech debt, architecture, 2 solutions
-3. Research in progress for v2 scope
+2. v2 roadmap created — 5 phases, 9 requirements
+3. Phase 1 ready for planning — 4 tech debt items in FSI-AgentGov-Solutions
 
 **Files to reference:**
 - `.planning/PROJECT.md` — Updated for v2
+- `.planning/ROADMAP.md` — v2 roadmap with 5 phases
 - `.planning/v1-MILESTONE-AUDIT.md` — v1 audit with tech debt items
-- `.planning/research/SUMMARY.md` — Research findings (v1, update for v2)
+- `.planning/research/FEATURES.md` — Feature research for v2
+- `.planning/research/STACK.md` — Stack research for v2
 
 ---
 
@@ -137,12 +140,12 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 | Milestone | Status | Notes |
 |-----------|--------|-------|
 | v1 Complete | ✓ Complete | 33/33 requirements, 8/8 phases, 35 plans |
-| v2 In Progress | ◆ Initializing | Tech debt + architecture + 2 solutions |
+| v2 In Progress | ◆ Roadmap Complete | 5 phases, 9 requirements, ready for Phase 1 planning |
 
 **Overall Project Status:** ON TRACK
 
 ---
 
-*State version: 2.0*
-*Session: 16*
+*State version: 2.1*
+*Session: 17*
 *Last updated: 2026-02-04*
