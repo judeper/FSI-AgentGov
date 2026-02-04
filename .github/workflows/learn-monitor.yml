@@ -102,7 +102,7 @@ jobs:
             - Updated baseline or detected changes in Microsoft Learn documentation
             - See reports/monitoring/ for detailed change reports
             - Automated update from learn-monitor workflow (unified monitoring framework)
-          branch: learn-monitor/update-${{ github.run_number }}
+          branch: monitoring/learn-${{ github.run_number }}
           delete-branch: true
           title: 'Learn Monitor: Microsoft Learn Documentation Update (${{ github.run_number }})'
           body: |
@@ -169,6 +169,7 @@ jobs:
 
             *Automated PR created by `.github/workflows/learn-monitor.yml`*
           labels: |
+            monitoring
             documentation
             automated
             learn-watch

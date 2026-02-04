@@ -1,0 +1,156 @@
+name: Regulatory Monitor
+
+on:
+  schedule:
+    # Run weekly on Mondays at 7:00 AM UTC
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    # Allow manual triggering
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  monitor-regulatory:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run Regulatory Monitor
+        id: monitor
+        continue-on-error: true
+        run: |
+          # Run the monitor and capture exit code
+          python scripts/regulatory_monitor.py
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          # If changes were detected, extract summary stats from the report
+          if [ "$EXIT_CODE" -eq 1 ]; then
+            REPORT_FILE=$(ls -t reports/monitoring/regulatory-changes-*.md 2>/dev/null | head -1)
+            if [ -n "$REPORT_FILE" ]; then
+              # Extract counts from the report (using CRITICAL/HIGH/MEDIUM/NOISE tier names)
+              CRITICAL=$(grep -oP 'CRITICAL Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              HIGH=$(grep -oP 'HIGH Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              MEDIUM=$(grep -oP 'MEDIUM Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              NOISE=$(grep -oP 'NOISE Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+
+              echo "critical_items=$CRITICAL" >> $GITHUB_OUTPUT
+              echo "high_items=$HIGH" >> $GITHUB_OUTPUT
+              echo "medium_items=$MEDIUM" >> $GITHUB_OUTPUT
+              echo "noise_items=$NOISE" >> $GITHUB_OUTPUT
+              echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Create Pull Request
+        id: create_pr
+        if: steps.monitor.outputs.exit_code == '1'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Monitoring: Regulatory changes detected
+
+            - Detected new regulatory items from Federal Register and FINRA
+            - See reports/monitoring/ for detailed change reports
+            - Automated update from regulatory-monitor workflow (unified monitoring framework)
+          branch: monitoring/regulatory-${{ github.run_number }}
+          delete-branch: true
+          title: 'Monitoring: ${{ steps.monitor.outputs.critical_items }} CRITICAL, ${{ steps.monitor.outputs.high_items }} HIGH regulatory items (${{ github.run_number }})'
+          body: |
+            ## Regulatory Monitor Report
+
+            This PR contains new regulatory items detected from Federal Register (SEC, CFTC, OCC, Federal Reserve) and FINRA notices.
+
+            ### Change Summary
+
+            | Category | Count |
+            |----------|-------|
+            | **CRITICAL** | ${{ steps.monitor.outputs.critical_items }} |
+            | **HIGH Priority** | ${{ steps.monitor.outputs.high_items }} |
+            | **MEDIUM Priority** | ${{ steps.monitor.outputs.medium_items }} |
+            | **NOISE** | ${{ steps.monitor.outputs.noise_items }} |
+
+            **Total New Items:** ${{ steps.monitor.outputs.critical_items + steps.monitor.outputs.high_items + steps.monitor.outputs.medium_items + steps.monitor.outputs.noise_items }}
+
+            ### Next Steps
+
+            1. Review the full report: `${{ steps.monitor.outputs.report_file }}`
+            2. For CRITICAL/HIGH items, check suggested affected controls
+            3. Update framework documentation if regulatory changes require it
+            4. Merge to update baseline for future monitoring
+
+            ### Review Instructions
+
+            **CRITICAL items** directly mention AI agents, copilot, or automated advice in FSI context.
+
+            **HIGH items** reference AI, ML, automation, or FSI-specific requirements (FINRA 3110, SEC 17a-3/4, etc.).
+
+            **MEDIUM items** are general FSI regulations that may indirectly affect AI agent deployments.
+
+            **NOISE items** have no FSI AI agent governance relevance.
+
+            ### Files Modified
+
+            - `data/monitor-state.json` - Updated with new regulatory item hashes (unified state for all monitoring sources)
+            - `${{ steps.monitor.outputs.report_file }}` - Detailed change report with control-to-keyword mapping
+
+            ---
+
+            *Automated PR created by `.github/workflows/regulatory-monitor.yml` (unified monitoring system)*
+          labels: |
+            monitoring
+            regulatory
+            needs-review
+          assignees: ${{ github.repository_owner }}
+
+      - name: Add summary comment with priority items
+        if: steps.create_pr.outputs.pull-request-number && steps.monitor.outputs.exit_code == '1'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ steps.create_pr.outputs.pull-request-number }}
+          body: |
+            ## 📋 Priority Regulatory Changes Detected
+
+            The following regulatory changes may require updates to FSI-AgentGov controls or playbooks:
+
+            <details>
+            <summary>View ${{ steps.monitor.outputs.critical_items + steps.monitor.outputs.high_items }} CRITICAL/HIGH priority items</summary>
+
+            See the full change report: `${{ steps.monitor.outputs.report_file }}`
+
+            **Classification Tiers:**
+            - 🔴 **CRITICAL** - Directly mentions AI agents, copilot, or automated advice
+            - 🟠 **HIGH** - References AI/ML/automation or FSI-specific requirements
+            - 🟡 **MEDIUM** - General FSI regulations (indirect AI agent impact)
+            - ⚪ **NOISE** - No FSI AI agent governance relevance
+
+            </details>
+
+            ---
+
+            ### Quick Actions
+
+            | Action | Command |
+            |--------|---------|
+            | Checkout PR | `gh pr checkout ${{ steps.create_pr.outputs.pull-request-number }}` |
+            | View change report | Open `${{ steps.monitor.outputs.report_file }}` |
+            | Merge without changes | Approve and merge this PR |
+
+            > 💡 **Tip:** Review CRITICAL and HIGH items first. Check the "Potentially Affected Controls" section for keyword-based suggestions.
