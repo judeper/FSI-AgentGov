@@ -48,6 +48,9 @@ from monitoring_shared import (
     generate_report_header,
     generate_executive_summary,
     write_report,
+    load_monitoring_config,
+    validate_config,
+    DEFAULT_CONFIG_PATH,
     CLASSIFICATION_CRITICAL,
     CLASSIFICATION_HIGH,
     CLASSIFICATION_MEDIUM,
@@ -106,8 +109,6 @@ REPORTS_DIR = PROJECT_ROOT / "reports" / "monitoring"  # Unified reports directo
 
 SOURCE_KEY = "learn"  # Key in unified state file
 REPORT_PREFIX = "learn-changes"  # Report filename prefix
-
-REQUEST_DELAY = 1.0   # seconds between requests
 
 # === Data Classes ===
 @dataclass
@@ -341,7 +342,7 @@ def _format_change(c: ChangeRecord, index: int) -> list[str]:
 
 
 # === Debug Functions ===
-def _debug_single_url(url: str):
+def _debug_single_url(url: str, config: dict):
     """Debug a single URL - useful for troubleshooting."""
     print(f"\nDebug mode: checking single URL")
     print(f"URL: {url}")
@@ -401,7 +402,7 @@ def _debug_single_url(url: str):
             print("   Content: CHANGED")
             if old_state.get("normalized_content"):
                 classification, reason, diff_text = classify_change(
-                    old_state["normalized_content"], normalized, url
+                    old_state["normalized_content"], normalized, url, config=config
                 )
                 print(f"   Classification: {classification} ({reason})")
     else:
@@ -440,11 +441,30 @@ Examples:
                        help="Enable debug output (very verbose)")
     parser.add_argument("--url", type=str,
                        help="Check a single URL (for debugging)")
+    parser.add_argument("--config", type=str, default=None,
+                       help='Path to config file (default: scripts/config/monitoring-config.yaml)')
+    parser.add_argument("--validate", action="store_true",
+                       help='Validate config file and exit without running')
     args = parser.parse_args()
 
     # Setup logging
     global logger
     logger = setup_logging(verbose=args.verbose, debug=args.debug)
+
+    # Load and validate config
+    config_path = args.config or DEFAULT_CONFIG_PATH
+    config = load_monitoring_config(config_path)
+
+    if args.validate:
+        is_valid, errors = validate_config(config)
+        if is_valid:
+            print(f"Config valid: {config_path}")
+            sys.exit(0)
+        else:
+            print(f"Config errors in {config_path}:")
+            for err in errors:
+                print(f"  - {err}")
+            sys.exit(2)
 
     print("Microsoft Learn Documentation Monitor")
     print("=" * 50)
@@ -452,9 +472,10 @@ Examples:
     logger.debug(f"PROJECT_ROOT: {PROJECT_ROOT}")
     logger.debug(f"WATCHLIST_PATH: {WATCHLIST_PATH}")
     logger.debug(f"STATE_FILE_PATH: {STATE_FILE_PATH}")
+    logger.debug(f"CONFIG_PATH: {config_path}")
 
     try:
-        return _run_monitor(args)
+        return _run_monitor(args, config)
     except KeyboardInterrupt:
         print("\n\nInterrupted by user")
         sys.exit(130)
@@ -467,12 +488,15 @@ Examples:
         sys.exit(2)
 
 
-def _run_monitor(args):
+def _run_monitor(args, config: dict):
     """Internal monitor implementation."""
+
+    # Get operational settings from config
+    request_delay = config.get('operational', {}).get('request_delay', 1.0)
 
     # Handle single URL mode for debugging
     if args.url:
-        return _debug_single_url(args.url)
+        return _debug_single_url(args.url, config)
 
     # 1. Parse watchlist
     if not WATCHLIST_PATH.exists():
@@ -548,7 +572,7 @@ def _run_monitor(args):
                 source_state["urls"][entry.url]["last_checked"] = now
                 source_state["urls"][entry.url]["last_status"] = result['status_code']
 
-            time.sleep(REQUEST_DELAY)
+            time.sleep(request_delay)
             continue
 
         # Track redirects
@@ -585,7 +609,7 @@ def _run_monitor(args):
             }
         elif new_hash != old_hash:
             # Content changed
-            classification, reason, diff_text = classify_change(old_content, normalized, entry.url)
+            classification, reason, diff_text = classify_change(old_content, normalized, entry.url, config=config)
             print(f"  CHANGED: {classification} ({reason})")
 
             # Find affected files
@@ -619,7 +643,7 @@ def _run_monitor(args):
             source_state["urls"][entry.url]["last_checked"] = now
             source_state["urls"][entry.url]["last_status"] = 200
 
-        time.sleep(REQUEST_DELAY)
+        time.sleep(request_delay)
 
     # 4. Update statistics
     meaningful_changes = [c for c in changes if c.classification in [CLASSIFICATION_CRITICAL, CLASSIFICATION_HIGH]]
