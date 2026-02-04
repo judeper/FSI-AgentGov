@@ -66,15 +66,15 @@ Active requirements for v2 milestone: Tech Debt, Architecture & Solution Complet
 
 ### Tech Debt Resolution
 
-- [ ] **DEBT-01**: Fix Register-ServicePrincipal.ps1 secret exposure — replace `ConvertTo-SecureString -AsPlainText -Force` with SecretManagement module pattern (CRITICAL)
-- [ ] **DEBT-02**: Add error handling to Test-PolicyCompliance.ps1 — wrap unprotected code paths in try/catch with structured error logging (HIGH)
-- [ ] **DEBT-03**: Add `#Requires` statements to 11 PowerShell scripts missing module dependency declarations (MEDIUM)
-- [ ] **DEBT-04**: Remove unused dependencies in ELM and FINRA `requirements.txt` files (MEDIUM)
+- [x] **DEBT-01**: Fix Register-ServicePrincipal.ps1 secret exposure — replace `ConvertTo-SecureString -AsPlainText -Force` with SecretManagement module pattern (CRITICAL)
+- [x] **DEBT-02**: Add error handling to Test-PolicyCompliance.ps1 — wrap unprotected code paths in try/catch with structured error logging (HIGH)
+- [x] **DEBT-03**: Add `#Requires` statements to 11 PowerShell scripts missing module dependency declarations (MEDIUM)
+- [x] **DEBT-04**: Remove unused dependencies in ELM and FINRA `requirements.txt` files (MEDIUM)
 
 ### Architecture Improvements
 
-- [ ] **ARCH-01**: Enable breadcrumb navigation (`navigation.path`) in MkDocs Material
-- [ ] **ARCH-02**: Add playbook discoverability with INFO admonition boxes linking to 4 playbooks per control
+- [x] **ARCH-01**: Enable breadcrumb navigation (`navigation.path`) in MkDocs Material
+- [x] **ARCH-02**: Add playbook discoverability with INFO admonition boxes linking to 4 playbooks per control
 - [ ] **ARCH-03**: Externalize Learn Monitor classification patterns to YAML configuration
 
 ### Solution Completion
@@ -114,12 +114,12 @@ All 33 v1 requirements satisfied. See v1-MILESTONE-AUDIT.md for full verificatio
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEBT-01 | Phase 1 | Pending |
-| DEBT-02 | Phase 1 | Pending |
-| DEBT-03 | Phase 1 | Pending |
-| DEBT-04 | Phase 1 | Pending |
-| ARCH-01 | Phase 2 | Pending |
-| ARCH-02 | Phase 2 | Pending |
+| DEBT-01 | Phase 1 | Complete |
+| DEBT-02 | Phase 1 | Complete |
+| DEBT-03 | Phase 1 | Complete |
+| DEBT-04 | Phase 1 | Complete |
+| ARCH-01 | Phase 2 | Complete |
+| ARCH-02 | Phase 2 | Complete |
 | ARCH-03 | Phase 3 | Pending |
 | SOL-01 | Phase 4 | Pending |
 | SOL-02 | Phase 5 | Pending |
@@ -131,4 +131,4 @@ All 33 v1 requirements satisfied. See v1-MILESTONE-AUDIT.md for full verificatio
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-04 — v2 requirements activated, 9 requirements across 5 phases*
+*Last updated: 2026-02-04 — Phase 2 complete, 6/9 v2 requirements satisfied*

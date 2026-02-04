@@ -25,7 +25,7 @@
 **Progress:** ████░░░░░░ 33%
 **Last activity:** 2026-02-04 — Completed 02-03-PLAN.md (Pillar 3 and 4 INFO admonition conversion)
 
-**Next Action:** Phase 2 complete. Ready for Phase 3 (if applicable in roadmap).
+**Next Action:** `/gsd:plan-phase 3` — Plan Phase 3 monitoring configuration externalization.
 
 ---
 
@@ -71,8 +71,10 @@
 **Immediate:**
 - [x] Plan Phase 1 (`/gsd:plan-phase 1`)
 - [x] Execute Phase 1
-- [ ] Plan Phase 2 (`/gsd:plan-phase 2`)
-- [ ] Execute Phase 2
+- [x] Plan Phase 2 (`/gsd:plan-phase 2`)
+- [x] Execute Phase 2
+- [ ] Plan Phase 3 (`/gsd:plan-phase 3`)
+- [ ] Execute Phase 3
 
 ### Pending Todos (Deferred to v3)
 

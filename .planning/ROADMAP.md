@@ -88,9 +88,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Enable breadcrumb navigation + Pillar 1 INFO admonitions (24 controls)
-- [ ] 02-02-PLAN.md — Pillar 2 INFO admonitions (21 controls)
-- [ ] 02-03-PLAN.md — Pillar 3+4 INFO admonitions (17 controls) + full site verification
+- [x] 02-01-PLAN.md — Enable breadcrumb navigation + Pillar 1 INFO admonitions (24 controls)
+- [x] 02-02-PLAN.md — Pillar 2 INFO admonitions (21 controls)
+- [x] 02-03-PLAN.md — Pillar 3+4 INFO admonitions (17 controls) + full site verification
 
 ---
 
@@ -163,7 +163,7 @@ Plans:
 | Phase | Requirements | Status | Progress |
 |-------|--------------|--------|----------|
 | 1 - PowerShell Tech Debt Resolution | 4 | ✓ Complete | ██████████ 100% |
-| 2 - Documentation Architecture | 2 | Not Started | ░░░░░░░░░░ 0% |
+| 2 - Documentation Architecture | 2 | ✓ Complete | ██████████ 100% |
 | 3 - Monitoring Configuration | 1 | Not Started | ░░░░░░░░░░ 0% |
 | 4 - Compliance Dashboard | 1 | Not Started | ░░░░░░░░░░ 0% |
 | 5 - Scope Drift Monitor | 1 | Not Started | ░░░░░░░░░░ 0% |
@@ -227,5 +227,5 @@ All 9 v2 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 2.1*
+*Roadmap version: 2.2*
 *Last updated: 2026-02-04*
