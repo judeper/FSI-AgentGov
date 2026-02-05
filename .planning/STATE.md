@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 2 of 7 (KQL Query Library & Governance Mapping) - COMPLETE
-**Plan:** 3 of 3 in current phase - COMPLETE
-**Status:** Ready for Phase 3
-**Last activity:** 2026-02-05 - Completed 02-03-PLAN.md (SR 11-7 queries + governance-queries.md)
+**Phase:** 3 of 7 (Azure Monitor Workbooks & Alert Rules) - IN PROGRESS
+**Plan:** 1 of 5 in current phase
+**Status:** In progress
+**Last activity:** 2026-02-05 - Completed 03-01-PLAN.md (Operational Health Workbook)
 
 **Progress:**
 ```
-Milestone Progress: [████████░░░░░░░░░░░░] 7/17+ plans (Phase 1 + Phase 2 complete)
+Milestone Progress: [█████████░░░░░░░░░░░] 8/17+ plans (Phase 1 + Phase 2 + 03-01 complete)
 
-Phase 2: [████████████████████] 3/3 plans complete (KQL-01-07, GOV-01-03)
+Phase 3: [████░░░░░░░░░░░░░░░░] 1/5 plans complete (WKBK-01)
 ```
 
 ## Performance Metrics
@@ -47,6 +47,14 @@ Phase 2: [████████████████████] 3/3 plan
 - Commits: 6 total (2 per plan)
 - KQL queries: 14 total (6 foundation + 5 compliance + 3 SR 11-7)
 - Governance mapping: 507 lines covering 7 controls
+
+**Phase 3 Performance:**
+- Plans completed: 1/5
+- Requirements satisfied: 3/3 (WKBK-01)
+- Commits: 2 total (2 per plan)
+- Workbooks: 1 (Operational Health with 4 tabs)
+- ARM templates: 1 workbook template + 2 environment parameter files
+- KQL queries embedded: 10 queries in workbook serializedData
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -150,46 +158,52 @@ None currently. Phase 2 complete, ready for Phase 3 planning.
 ### Last Session Summary (2026-02-05)
 
 **What happened:**
-- Executed 02-03-PLAN.md (SR 11-7 Queries + Governance Mapping)
-- Created 4 files in FSI-AgentGov-Solutions/agent-observability-foundation/queries/
-- 3 commits: dc4fe63 (SR 11-7 queries), df172a5 (governance-queries.md), 3f83aae (README update)
-- SR 11-7 model risk queries: output-monitoring, drift-detection-baseline, validation-test-results
-- governance-queries.md: 507-line comprehensive query-to-control mapping
+- Executed 03-01-PLAN.md (Operational Health Workbook)
+- Created 3 files in FSI-AgentGov-Solutions/agent-observability-foundation/workbooks/operational-health/
+- 2 commits: 6e89623 (workbook ARM template), 44a4fc2 (environment parameter files)
+- Operational Health Workbook with 4 tabs: Overview, Availability, Error Rates, Latency
+- Global parameters: Zone dropdown and TimeRange picker (24-hour default)
+- 10 KQL queries embedded in serializedData with drill-down navigation
 
 **Decisions made:**
-- 20% default drift threshold (10% for higher-risk agents)
-- 95% validation pass rate threshold
-- InvestigationRequired boolean for proactive SR 11-7 compliance
+- Fixed GUID workbookId for idempotent deployment
+- 24-hour default time range for daily operations monitoring
+- Zone parameter as global dropdown for governance alignment
+- Conditional formatting for P95/P99 latency thresholds
 
-**Phase 2 Status:**
-- Plan 01 complete (KQL-01-03 satisfied)
-- Plan 02 complete (KQL-04-07 satisfied)
-- Plan 03 complete (GOV-01-03 satisfied)
-- **Phase 2 COMPLETE**
+**Phase 3 Status:**
+- Plan 01 complete (WKBK-01 satisfied)
+- Plan 02 pending (Error Diagnostics Workbook)
+- Plan 03 pending (Usage Overview Workbook)
+- Plan 04-05 pending (Alert Rules)
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/02-kql-query-library-governance-mapping/02-03-SUMMARY.md` — Plan 03 complete
-   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/queries/governance-queries.md` — Query governance mapping
-   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/queries/README.md` — Query library documentation (v1.1.0)
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/03-azure-monitor-workbooks-alert-rules/03-01-SUMMARY.md` — Operational Health Workbook complete
+   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/workbooks/operational-health/workbook-template.json` — ARM template reference
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/03-azure-monitor-workbooks-alert-rules/03-CONTEXT.md` — Phase 3 implementation decisions
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans)
    - Phase 2: COMPLETE (3/3 plans)
-   - Query library: 14 production queries
-   - Ready for Phase 3 (Workbooks and Alerts)
+   - Phase 3: IN PROGRESS (1/5 plans)
+   - Operational Health Workbook deployed
+   - Ready for Error Diagnostics Workbook (03-02)
 
 3. **Next steps:**
-   - Create Phase 3 planning (03-CONTEXT.md, 03-RESEARCH.md, 03-XX-PLAN.md files)
-   - Focus: Azure Monitor Workbooks + Alert Rules
+   - Execute 03-02-PLAN.md (Error Diagnostics Workbook)
+   - Execute 03-03-PLAN.md (Usage Overview Workbook)
+   - Execute 03-04-PLAN.md (Alert Rules - Part 1)
+   - Execute 03-05-PLAN.md (Alert Rules - Part 2)
 
-4. **Key artifacts for Phase 3:**
-   - Query library: `/agent-observability-foundation/queries/` (14 queries)
-   - Governance mapping: `/agent-observability-foundation/queries/governance-queries.md`
-   - All queries use workbook parameter syntax `{Param:default}`
+4. **Key artifacts created:**
+   - Operational Health Workbook: 4 tabs with drill-down navigation
+   - ARM template pattern: Fixed GUID workbookId for idempotency
+   - Zone filtering: Global parameter aligned with governance framework
+   - 10 embedded KQL queries from Phase 2 library
 
 ---
 
