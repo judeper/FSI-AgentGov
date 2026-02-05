@@ -6,6 +6,82 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.38] — February 5, 2026 (v2 Milestone - Solutions & Architecture)
+
+### Overview
+
+Major milestone completion: Resolved all PowerShell security issues, modernized documentation architecture, externalized monitoring configuration, and promoted two solutions to production-ready status.
+
+### Added
+
+**Documentation Architecture:**
+
+- **Breadcrumb Navigation** - Enabled `navigation.path` in MkDocs Material theme for improved site navigation
+- **Playbook Discovery** - Added INFO admonition boxes to all 62 control pages linking to their 4 playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- **"Implementation Playbooks" Section** - Standardized heading across all controls for consistent playbook access
+
+**Monitoring Configuration Externalization:**
+
+- **monitoring-config.yaml** - New 391-line YAML configuration file for Learn Monitor and Regulatory Monitor classification patterns
+- **--config CLI Flag** - Both monitors now support custom configuration file paths
+- **--validate CLI Flag** - Configuration validation without running full monitor
+- **config/README.md** - Non-developer documentation for adjusting monitoring sensitivity
+
+**Solution Completions:**
+
+| Solution | Version | Status Change | Key Features |
+|----------|---------|---------------|--------------|
+| Compliance Dashboard | v1.0.0 | Beta → Production | 2 Power Automate flows, 5 Dataverse tables, 1,742 sample assessments, 147-step deployment checklist, Power BI template spec |
+| Scope Drift Monitor | v1.1.0 | WIP → Production | 3 PowerShell scripts, 4 Dataverse tables, 3 Power Automate flows, Office 365 Management API integration |
+
+### Changed
+
+**PowerShell Security Improvements (FSI-AgentGov-Solutions):**
+
+- Eliminated `ConvertTo-SecureString -AsPlainText -Force` pattern from Register-ServicePrincipal.ps1
+- Added 4 try-catch error handling blocks to Test-PolicyCompliance.ps1
+- Added `#Requires -Version 7.0` statements to all 14 PowerShell scripts
+- Added `#Requires -Modules` declarations where module dependencies exist
+
+**Monitoring Scripts:**
+
+- `monitoring_shared.py` - classify_change() now loads patterns from YAML config
+- `learn_monitor.py` - Uses config for operational settings, removed hardcoded REQUEST_DELAY
+- `regulatory_monitor.py` - Uses config for classification patterns, keyword mappings, and Federal Register agencies
+
+**Documentation Updates:**
+
+- `solutions-index.md` - Updated Compliance Dashboard and Scope Drift Monitor to "Completed" status with Production Ready admonitions
+- `verify_controls.py` - Updated to recognize "Implementation Playbooks" heading
+
+### Fixed
+
+**Security:**
+
+- DEBT-01: Register-ServicePrincipal.ps1 no longer exposes secrets via plaintext conversion
+- DEBT-02: Test-PolicyCompliance.ps1 handles errors on all code paths
+
+**Quality:**
+
+- DEBT-03: All PowerShell scripts declare version and module dependencies
+- DEBT-04: Removed unused dependencies from FINRA requirements.txt (stdlib only)
+
+### Milestone Summary
+
+**v2 Milestone Complete:**
+- 5 phases, 17 plans executed
+- 9/9 requirements satisfied
+- 135 files modified, +18,287 / -3,210 lines
+- 2 days from start to ship
+
+**Solutions Status Update:**
+- 5 Completed (was 3): +Compliance Dashboard, +Scope Drift Monitor
+- 1 Validated: FINRA Supervision Workflow
+- 4 Work In Progress: Deny Event Correlation, Conditional Access Automation, Segregation Detector, RAG Source Validator
+- 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
+
+---
+
 ## [1.2.37] — February 2, 2026 (Defender Threat Detection + Learn Monitor AI)
 
 ### Overview
