@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-05
 **Milestone:** v3 — Observability & Documentation Updates
-**Status:** Phase 1 Complete
+**Status:** Phase 2 In Progress
 
 ## Project Reference
 
@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 1 of 7 (Telemetry Infrastructure & Solution Foundation)
-**Plan:** 4 of 4 in current phase (COMPLETE)
-**Status:** Phase 1 complete - ready for Phase 2
-**Last activity:** 2026-02-05 - Completed 01-04-PLAN.md
+**Phase:** 2 of 7 (KQL Query Library & Governance Mapping)
+**Plan:** 2 of 3 in current phase
+**Status:** In progress
+**Last activity:** 2026-02-05 - Completed 02-02-PLAN.md
 
 **Progress:**
 ```
-Milestone Progress: [████████████████████] 4/4 plans in Phase 1 (100%)
+Milestone Progress: [███████░░░░░░░░░░░░░] 6/17+ plans (Phase 1 + Phase 2 Plans 01-02)
 
-Phase 1: [████████████████████] 10/10 requirements complete (TELE-01-06, SDOC-01-04)
+Phase 2: [█████████████░░░░░░░] 2/3 plans complete (KQL-01-05, KQL-06-07 via 02-02)
 ```
 
 ## Performance Metrics
@@ -80,6 +80,11 @@ Phase 1: [████████████████████] 10/10 re
 | Three-tier evidence model | Primary/Supporting/Partial clarifies evidence strength for each artifact | 2026-02-05 |
 | Default PII handling: drop | Disable sensitive logging in Copilot Studio; hashing/encryption deferred to Phase 2 | 2026-02-05 |
 | 50%/75%/90% cost alert thresholds | Industry-standard budget monitoring pattern for Azure Monitor | 2026-02-05 |
+| Function-based query organization | Queries organized by function (not regulation) for reusability | 2026-02-05 |
+| Comprehensive query header blocks | Purpose/Parameters/Output Schema/Supports/Sample Output for self-contained docs | 2026-02-05 |
+| Workbook parameter syntax | {TimeRange:default} for seamless Azure Monitor Workbook integration | 2026-02-05 |
+| IncludePII parameter (default false) | Authorized supervisors can toggle raw UserId for FINRA 3110; privacy-by-default | 2026-02-05 |
+| ComplianceRisk thresholds | HIGH (<80%), MEDIUM (80-90%), LOW (>90%) for telemetry completeness assessment | 2026-02-05 |
 
 ### Key Constraints
 
@@ -106,13 +111,16 @@ Phase 1: [████████████████████] 10/10 re
 - [x] 01-02-PLAN.md: README, architecture, prerequisites documentation
 - [x] 01-03-PLAN.md: Teardown and verification scripts
 - [x] 01-04-PLAN.md: Governance mapping and compliance guides
-- [ ] Phase 2 planning: Create detailed plan for KQL query library
+- [x] Phase 2 planning: Create detailed plan for KQL query library
+- [x] 02-01-PLAN.md: Query library structure and foundation queries
+- [x] 02-02-PLAN.md: Compliance queries (audit trail, RAI, generative answers, flow failures)
+- [ ] 02-03-PLAN.md: Governance documentation update (pending)
 - [ ] Legal review: GDPR Article 22 applicability determination (Phase 2 dependency)
 - [ ] Feature monitoring: Track Viva Insights GA (March 2026), M365 Admin Center Agent Settings GA (Q1 2026), SharePoint Restricted Search release
 
 ### Blockers
 
-None currently. Phase 1 complete, ready for Phase 2.
+None currently. Phase 2 Plan 02 complete, ready for Plan 03.
 
 ### Risk Register
 
@@ -121,7 +129,7 @@ None currently. Phase 1 complete, ready for Phase 2.
 | PII/sensitive data in custom telemetry | HIGH | Pre-production compliance review, sanitization functions, data classification headers | Phase 2 |
 | SEC 17a-4 retention violation | CRITICAL | Configure 730-day retention + ADLS Gen2 export in Phase 1 | Phase 1 (MITIGATED) |
 | Cost explosion from high-cardinality events | HIGH | Adaptive sampling, Basic Logs, cost alerts at 50%/75%/90% thresholds | Phase 1 (MITIGATED) |
-| FINRA 4511 audit trail gaps | HIGH | Structured schema with decision chain fields (AgentID, sources, prompt version) | Phase 2 |
+| FINRA 4511 audit trail gaps | HIGH | agent-decision-audit-trail.kql with CompletenessPercent | Phase 2 (MITIGATED) |
 | Viva Insights GA delay | MEDIUM | Phase 4 is independent, can defer without blocking critical path | Monitor |
 | Agent 365 preview documentation incomplete | MEDIUM | Document both current + Agent 365 target state with migration guidance | Phase 6 |
 
@@ -130,50 +138,46 @@ None currently. Phase 1 complete, ready for Phase 2.
 ### Last Session Summary (2026-02-05)
 
 **What happened:**
-- Executed 01-04-PLAN.md (Governance mapping and compliance guides)
-- Created 5 files in FSI-AgentGov-Solutions/agent-observability-foundation/
-- Committed 2 atomic task commits (09e8d32, 4d52a9f)
-- governance-mapping.md with artifact-to-controls mapping, three evidence tiers, regulatory cross-reference
-- docs/pii-sanitization-guide.md with 4-step decision framework, 8 customDimensions fields
-- docs/cost-tuning-guide.md with sampling configuration, cost alert thresholds
-- docs/worm-configuration.md with irreversibility warning, 8-step portal instructions
-- templates/diagnostic-settings.json with AppTraces and AppEvents log categories
+- Executed 02-01-PLAN.md (KQL Query Library Foundation)
+- Created 7 files in FSI-AgentGov-Solutions/agent-observability-foundation/queries/
+- Committed 2 atomic task commits (29da69e, ce61beb)
+- README.md with query library overview, usage instructions, PII handling
+- 6 KQL queries covering usage analytics, error categorization, and performance
 
 **Decisions made:**
-- Artifact-first governance mapping (start from component, list controls)
-- Three-tier evidence model (Primary/Supporting/Partial)
-- Default PII handling: drop (simplest implementation)
-- 50%/75%/90% cost alert thresholds
+- Function-based query organization for reusability
+- Comprehensive header blocks with inline control references
+- Workbook parameter syntax for dashboard integration
 
-**Phase 1 Status:**
-- All 4 plans complete
-- 10/10 requirements satisfied
-- Ready for Phase 2 (KQL Query Library)
+**Phase 2 Status:**
+- Plan 01 complete (KQL-01-03 satisfied)
+- Plan 02 complete (KQL-04-07 satisfied)
+- Ready for Plan 03 (Governance documentation update)
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/01-telemetry-infrastructure-solution-foundation/01-04-SUMMARY.md` — Just completed
-   - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 2 requirements
-   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/governance-mapping.md` — Control references for Phase 2
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/02-kql-query-library-governance-mapping/02-01-SUMMARY.md` — Plan 01 complete
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/02-kql-query-library-governance-mapping/02-02-SUMMARY.md` — Plan 02 complete
+   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/queries/README.md` — Query library documentation
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans)
-   - Agent Observability Foundation solution fully documented
-   - Ready for Phase 2: KQL Query Library
+   - Phase 2: IN PROGRESS (2/3 plans)
+   - Query library has 10 production queries
 
 3. **Next steps:**
-   - Create Phase 2 planning (02-kql-query-library-governance-queries)
-   - Execute Phase 2 plans
+   - Execute 02-03-PLAN.md (Governance documentation update)
+   - Update governance-mapping.md with query library entries
 
 4. **Key reminders:**
-   - Phase 2 work continues in FSI-AgentGov-Solutions repo
-   - Governance mapping provides control references for KQL query organization
-   - KQL queries should align with tiered evidence model from governance-mapping.md
+   - Continue work in FSI-AgentGov-Solutions repo
+   - Follow established query header format
+   - Align with three-tier evidence model (Primary/Supporting/Partial)
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-05 (01-04-PLAN.md execution - Phase 1 complete)*
+*Last session: 2026-02-05 (02-01-PLAN.md + 02-02-PLAN.md execution)*
