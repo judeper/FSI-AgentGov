@@ -116,43 +116,45 @@ None currently. Awaiting user approval to proceed.
 ### Last Session Summary (2026-02-05)
 
 **What happened:**
-- Executed 01-01-PLAN.md (Config scaffolding and provision.py)
-- Created 4 files in FSI-AgentGov-Solutions/agent-observability-foundation/
-- Committed 2 atomic task commits (79c57db, 7fd0058)
-- provision.py implements full Azure resource provisioning (Log Analytics, App Insights, Storage, Diagnostic Settings, RBAC)
+- Executed 01-02-PLAN.md (README, architecture, prerequisites documentation)
+- Created 3 documentation files in FSI-AgentGov-Solutions/agent-observability-foundation/
+- Committed 2 atomic task commits (08c43de, 1b8d4f9)
+- README.md with architecture-first layout, inline control references, troubleshooting table
+- architecture.md with Mermaid data flow diagram, SoD boundaries, retention tiers
+- prerequisites.md with checklist table format, pre-deployment checklist
 
 **Decisions made:**
-- WORM policy excluded from automation (manual setup required)
-- StorageV2 without hierarchical namespace for diagnostic settings compatibility
-- YAML config format for readability
-- 730-day default retention for SEC 17a-4(b)(4) compliance
+- Architecture-first README layout (understand what before how)
+- Single Mermaid diagram (simplicity first)
+- Inline control references (contextual pointers)
+- Checklist table for prerequisites (clear validation structure)
 
 **What's next:**
-- Execute 01-02-PLAN.md (README, architecture, prerequisites documentation)
+- Execute 01-03-PLAN.md (Teardown and verification scripts)
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/01-telemetry-infrastructure-solution-foundation/01-01-SUMMARY.md` — Just completed
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/01-telemetry-infrastructure-solution-foundation/01-02-PLAN.md` — Next plan
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/01-telemetry-infrastructure-solution-foundation/01-02-SUMMARY.md` — Just completed
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/01-telemetry-infrastructure-solution-foundation/01-03-PLAN.md` — Next plan
    - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/` — Solution files created
 
 2. **Current state:**
-   - Phase 1: 1/4 plans complete
-   - Requirements TELE-01,02,03,04,06 implemented via provision.py
-   - TELE-05 and SDOC-01-04 pending (later plans)
+   - Phase 1: 2/4 plans complete
+   - Requirements TELE-01-06 + SDOC-01-03 implemented
+   - SDOC-04 (governance mapping) and TELE-05 (verify_worm.py) pending (later plans)
 
 3. **Next steps:**
-   - Execute 01-02-PLAN.md (README, architecture, prerequisites documentation)
+   - Execute 01-03-PLAN.md (Teardown and verification scripts)
 
 4. **Key reminders:**
    - Phase 1-5 work in FSI-AgentGov-Solutions repo (`/Users/admin/dev/FSI-AgentGov-Solutions`)
    - Git operations must run from within target repo directory
-   - Python scripts follow banner + preflight + provision pattern
+   - Documentation follows architecture-first, checklist-table patterns
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-05 (01-01-PLAN.md execution)*
+*Last session: 2026-02-05 (01-02-PLAN.md execution)*
