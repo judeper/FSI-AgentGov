@@ -1,0 +1,186 @@
+# Requirements: FSI-AgentGov v3 — Observability & Documentation Updates
+
+**Defined:** 2026-02-05
+**Core Value:** Documentation and solutions that US FSI customers trust.
+
+## v3 Requirements
+
+Requirements for this milestone. Each maps to roadmap phases.
+
+### Core Telemetry Infrastructure
+
+- [ ] **TELE-01**: Application Insights workspace configured with Copilot Studio telemetry integration
+- [ ] **TELE-02**: Log Analytics workspace with 730-day interactive retention for FSI compliance
+- [ ] **TELE-03**: ADLS Gen2 export via Diagnostic Settings for SEC 17a-4 long-term retention (6 years)
+- [ ] **TELE-04**: RBAC separation between operational monitoring and compliance audit data paths
+- [ ] **TELE-05**: PII sanitization guidance for conversation text in customDimensions
+- [ ] **TELE-06**: Sampling and cost management configuration to prevent ingestion cost explosion
+
+### KQL Query Library
+
+- [ ] **KQL-01**: Agent usage analytics query (sessions, messages, completion rates over time)
+- [ ] **KQL-02**: Error categorization query (connector errors, knowledge source failures, orchestration timeouts)
+- [ ] **KQL-03**: Latency distribution query (P50/P95/P99 response times)
+- [ ] **KQL-04**: Generative answers telemetry query (topic, result, feedback extraction)
+- [ ] **KQL-05**: Flow failure correlation query (Power Automate failures linked to agent conversations)
+- [ ] **KQL-06**: Agent decision audit trail query (FINRA 3110/SR 11-7 compliance)
+- [ ] **KQL-07**: RAI content filtering detection query (XPIADetected, JailbreakDetected from Purview)
+
+### Azure Monitor Workbooks
+
+- [ ] **WKBK-01**: Operational health workbook (agent availability, error rates, latency by zone)
+- [ ] **WKBK-02**: Error diagnostics workbook (failure drill-down, root cause analysis)
+- [ ] **WKBK-03**: Enterprise usage overview workbook (adoption, engagement, channel distribution)
+
+### Alert Rules
+
+- [ ] **ALRT-01**: High failure rate alert (>5% threshold with zone-specific tuning)
+- [ ] **ALRT-02**: Latency regression alert (dynamic threshold based on baseline)
+- [ ] **ALRT-03**: Abnormal usage pattern alert (session count anomaly detection)
+- [ ] **ALRT-04**: Action group configuration (Teams notification + email escalation)
+
+### Power BI Integration
+
+- [ ] **PBI-01**: Semantic model documentation (star schema, relationships, RLS by zone)
+- [ ] **PBI-02**: DAX measures for sessions, average latency, and error rate
+- [ ] **PBI-03**: Integration guidance for DirectQuery (Premium) and ADX connector (Pro) methods
+
+### Viva Insights
+
+- [ ] **VIVA-01**: Scope and limitations documentation (what Viva Insights does and does NOT cover for Copilot Studio)
+- [ ] **VIVA-02**: Cross-reference mapping between Viva Insights metrics and Application Insights telemetry
+
+### Governance & Compliance Mapping
+
+- [ ] **GOV-01**: Governance mapping document linking observability to existing 62-control framework
+- [ ] **GOV-02**: SR 11-7 model risk monitoring KQL patterns and audit evidence guidance
+- [ ] **GOV-03**: SOX 302/404 control evidence documentation for agent observability
+
+### Deployment & Validation
+
+- [ ] **DEPL-01**: deploy-workbooks.ps1 script (Azure CLI, idempotent, #Requires, try-catch)
+- [ ] **DEPL-02**: deploy-alerts.ps1 script (alert rules + action groups, idempotent)
+- [ ] **DEPL-03**: Validation checklist (pre-deployment prerequisites + post-deployment verification)
+
+### Solution Documentation
+
+- [ ] **SDOC-01**: README.md with architecture overview, compliance mapping, quick start guide
+- [ ] **SDOC-02**: architecture.md with Mermaid data flow diagrams, SoD boundaries, data retention
+- [ ] **SDOC-03**: prerequisites.md with Azure AD roles, Power BI licensing, data residency, networking
+- [ ] **SDOC-04**: governance-mapping.md linking solution artifacts to framework controls
+
+### Agent 365 & Identity Documentation
+
+- [ ] **A365-01**: Microsoft Entra Agent ID documentation (identity architecture, sponsorship model, Conditional Access)
+- [ ] **A365-02**: Agent 365 unified control plane architecture document (registry, access control, security)
+- [ ] **A365-03**: M365 Admin Center Agent Settings documentation (allowed types, sharing, templates)
+
+### Control Enhancements
+
+- [ ] **CTRL-01**: Virtual connectors enumeration and DLP guidance added to Control 1.5
+- [ ] **CTRL-02**: Enhanced DSPM AI Observability capabilities added to Control 1.6
+- [ ] **CTRL-03**: AI Feature Access Control (user-level restrictions, zone-based enablement) added to Control 3.8
+- [ ] **CTRL-04**: AI Administrator role added to role catalog
+- [ ] **CTRL-05**: Defender XDR Administrator role added to role catalog
+- [ ] **CTRL-06**: SharePoint Restricted Search documented in Control 4.6 or 4.7 (when released)
+
+## Future Requirements
+
+Deferred to later milestones. Tracked but not in current roadmap.
+
+### Advanced Observability
+
+- **ADV-01**: Token usage tracking per agent (blocked — Copilot Studio does not expose token data natively)
+- **ADV-02**: Multi-agent orchestration tracing (theoretical — requires implementation validation)
+- **ADV-03**: Auto-remediation workflows (needs FSI-safe human approval patterns)
+- **ADV-04**: Dynamic threshold tuning (requires 2-week production baseline first)
+- **ADV-05**: Bias testing visualization (no industry standard benchmarks)
+
+### Tooling
+
+- **TOOL-01**: MCP server for governance framework
+- **TOOL-02**: Copilot Studio agent for governance Q&A
+
+### Solution Completion
+
+- **SOLN-01**: Deny Event Correlation Report completion
+- **SOLN-02**: Conditional Access Automation completion
+- **SOLN-03**: Segregation Detector completion
+- **SOLN-04**: RAG Source Validator completion
+- **SOLN-05**: COI Testing (new)
+- **SOLN-06**: Hallucination Tracker (new)
+- **SOLN-07**: DR Testing Framework (new)
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Token-level cost tracking | Copilot Studio does not expose per-call token data (validated Feb 2026) |
+| Real-time compliance scoring | Compliance is point-in-time assessment, not continuous streaming |
+| Real-time streaming dashboards | Batch/scheduled refresh sufficient for FSI use cases |
+| Custom ML anomaly detection | Simple thresholds more explainable for regulated environments |
+| GDPR Article 22 automated decision tracking | US FSI scope only — no EU regulatory coverage |
+| Third-party observability platforms | Microsoft-native stack only (Datadog, Splunk, etc. out of scope) |
+| Blockchain audit trails | Azure Immutable Storage sufficient for SEC 17a-4 |
+| Mobile dashboards | Power BI web and desktop sufficient |
+| Non-US regulations | Framework is US financial sector only |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TELE-01 | — | Pending |
+| TELE-02 | — | Pending |
+| TELE-03 | — | Pending |
+| TELE-04 | — | Pending |
+| TELE-05 | — | Pending |
+| TELE-06 | — | Pending |
+| KQL-01 | — | Pending |
+| KQL-02 | — | Pending |
+| KQL-03 | — | Pending |
+| KQL-04 | — | Pending |
+| KQL-05 | — | Pending |
+| KQL-06 | — | Pending |
+| KQL-07 | — | Pending |
+| WKBK-01 | — | Pending |
+| WKBK-02 | — | Pending |
+| WKBK-03 | — | Pending |
+| ALRT-01 | — | Pending |
+| ALRT-02 | — | Pending |
+| ALRT-03 | — | Pending |
+| ALRT-04 | — | Pending |
+| PBI-01 | — | Pending |
+| PBI-02 | — | Pending |
+| PBI-03 | — | Pending |
+| VIVA-01 | — | Pending |
+| VIVA-02 | — | Pending |
+| GOV-01 | — | Pending |
+| GOV-02 | — | Pending |
+| GOV-03 | — | Pending |
+| DEPL-01 | — | Pending |
+| DEPL-02 | — | Pending |
+| DEPL-03 | — | Pending |
+| SDOC-01 | — | Pending |
+| SDOC-02 | — | Pending |
+| SDOC-03 | — | Pending |
+| SDOC-04 | — | Pending |
+| A365-01 | — | Pending |
+| A365-02 | — | Pending |
+| A365-03 | — | Pending |
+| CTRL-01 | — | Pending |
+| CTRL-02 | — | Pending |
+| CTRL-03 | — | Pending |
+| CTRL-04 | — | Pending |
+| CTRL-05 | — | Pending |
+| CTRL-06 | — | Pending |
+
+**Coverage:**
+- v3 requirements: 44 total
+- Mapped to phases: 0 (awaiting roadmap)
+- Unmapped: 44
+
+---
+*Requirements defined: 2026-02-05*
+*Last updated: 2026-02-05 after initial definition*
