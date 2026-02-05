@@ -9,12 +9,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Core Telemetry Infrastructure
 
-- [ ] **TELE-01**: Application Insights workspace configured with Copilot Studio telemetry integration
-- [ ] **TELE-02**: Log Analytics workspace with 730-day interactive retention for FSI compliance
-- [ ] **TELE-03**: ADLS Gen2 export via Diagnostic Settings for SEC 17a-4 long-term retention (6 years)
-- [ ] **TELE-04**: RBAC separation between operational monitoring and compliance audit data paths
-- [ ] **TELE-05**: PII sanitization guidance for conversation text in customDimensions
-- [ ] **TELE-06**: Sampling and cost management configuration to prevent ingestion cost explosion
+- [x] **TELE-01**: Application Insights workspace configured with Copilot Studio telemetry integration
+- [x] **TELE-02**: Log Analytics workspace with 730-day interactive retention for FSI compliance
+- [x] **TELE-03**: ADLS Gen2 export via Diagnostic Settings for SEC 17a-4 long-term retention (6 years)
+- [x] **TELE-04**: RBAC separation between operational monitoring and compliance audit data paths
+- [x] **TELE-05**: PII sanitization guidance for conversation text in customDimensions
+- [x] **TELE-06**: Sampling and cost management configuration to prevent ingestion cost explosion
 
 ### KQL Query Library
 
@@ -64,10 +64,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Solution Documentation
 
-- [ ] **SDOC-01**: README.md with architecture overview, compliance mapping, quick start guide
-- [ ] **SDOC-02**: architecture.md with Mermaid data flow diagrams, SoD boundaries, data retention
-- [ ] **SDOC-03**: prerequisites.md with Azure AD roles, Power BI licensing, data residency, networking
-- [ ] **SDOC-04**: governance-mapping.md linking solution artifacts to framework controls
+- [x] **SDOC-01**: README.md with architecture overview, compliance mapping, quick start guide
+- [x] **SDOC-02**: architecture.md with Mermaid data flow diagrams, SoD boundaries, data retention
+- [x] **SDOC-03**: prerequisites.md with Azure AD roles, Power BI licensing, data residency, networking
+- [x] **SDOC-04**: governance-mapping.md linking solution artifacts to framework controls
 
 ### Agent 365 & Identity Documentation
 
@@ -131,16 +131,16 @@ Which phases cover which requirements. Updated after roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TELE-01 | Phase 1 | Pending |
-| TELE-02 | Phase 1 | Pending |
-| TELE-03 | Phase 1 | Pending |
-| TELE-04 | Phase 1 | Pending |
-| TELE-05 | Phase 1 | Pending |
-| TELE-06 | Phase 1 | Pending |
-| SDOC-01 | Phase 1 | Pending |
-| SDOC-02 | Phase 1 | Pending |
-| SDOC-03 | Phase 1 | Pending |
-| SDOC-04 | Phase 1 | Pending |
+| TELE-01 | Phase 1 | Complete |
+| TELE-02 | Phase 1 | Complete |
+| TELE-03 | Phase 1 | Complete |
+| TELE-04 | Phase 1 | Complete |
+| TELE-05 | Phase 1 | Complete |
+| TELE-06 | Phase 1 | Complete |
+| SDOC-01 | Phase 1 | Complete |
+| SDOC-02 | Phase 1 | Complete |
+| SDOC-03 | Phase 1 | Complete |
+| SDOC-04 | Phase 1 | Complete |
 | KQL-01 | Phase 2 | Pending |
 | KQL-02 | Phase 2 | Pending |
 | KQL-03 | Phase 2 | Pending |
@@ -192,4 +192,4 @@ Which phases cover which requirements. Updated after roadmap creation.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after roadmap creation (100% coverage)*
+*Last updated: 2026-02-05 (Phase 1 complete: 10/44 requirements satisfied)*
