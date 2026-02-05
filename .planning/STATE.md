@@ -11,16 +11,16 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** Planning next milestone (v3)
+**Current focus:** v3 — Observability & Documentation Updates
 
 ---
 
 ## Current Position
 
-**Milestone:** v2 — SHIPPED
-**Phase:** All complete
-**Status:** Ready for v3 planning
-**Last activity:** 2026-02-05 — v2 milestone archived
+**Milestone:** v3 — Observability & Documentation Updates
+**Phase:** Not started (defining requirements)
+**Status:** Defining requirements
+**Last activity:** 2026-02-05 — Milestone v3 started
 
 ---
 
@@ -85,17 +85,18 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 1. v1 milestone complete — 33 requirements, 8 phases, 35 plans
 2. v2 milestone complete — 9 requirements, 5 phases, 17 plans
 3. Both milestones archived in `.planning/milestones/`
-4. Ready for `/gsd:new-milestone` to start v3
+4. v3 milestone started — Observability & Documentation Updates
+5. Two tracks: Agent Observability Foundation solution + documentation gap closure
 
 **Files to reference:**
-- `.planning/PROJECT.md` — Updated for post-v2
+- `.planning/PROJECT.md` — Updated for v3
 - `.planning/MILESTONES.md` — v1 and v2 entries
-- `.planning/milestones/v2-ROADMAP.md` — Full v2 phase details
-- `.planning/milestones/v2-REQUIREMENTS.md` — v2 requirements archive
-- `.planning/milestones/v2-MILESTONE-AUDIT.md` — v2 audit results
+- `.planning/REQUIREMENTS.md` — v3 requirements (when created)
+- `.planning/ROADMAP.md` — v3 roadmap (when created)
+- `.planning/research/SUMMARY.md` — Existing research from Feb 2 (documentation gaps)
 
 ---
 
-*State version: 3.0*
-*Session: 31*
+*State version: 4.0*
+*Session: 32*
 *Last updated: 2026-02-05*

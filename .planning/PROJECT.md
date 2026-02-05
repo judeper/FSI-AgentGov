@@ -52,20 +52,35 @@ Capabilities delivered:
 
 ### Active
 
-*No active requirements — v3 milestone not yet defined.*
+**v3 — Observability & Documentation Updates:**
+
+- [ ] Agent Observability Foundation solution (FSI-AgentGov-Solutions)
+  - Application Insights KQL queries, workbooks, alerts
+  - Power BI semantic model and DAX measures
+  - Viva Insights integration guidance
+  - Governance mapping to 62-control framework
+  - Deployment scripts (PowerShell)
+- [ ] Documentation gap closure (FSI-AgentGov)
+  - Microsoft Entra Agent ID documentation
+  - Agent 365 Control Plane architecture
+  - Virtual connectors for Copilot Studio (Control 1.5)
+  - Enhanced DSPM AI Observability (Control 1.6)
+  - AI Feature Access Control (Control 3.8)
+  - Role catalog updates (AI Administrator, Defender XDR Administrator)
 
 ### Out of Scope
 
 - Non-US regulations — this framework is specifically for US financial sector
-- Building entirely new solutions — focus is completing existing WIP solutions
 - Real-time monitoring — batch/scheduled monitoring is sufficient
 - Mobile or alternative interfaces — GitHub Pages is the delivery mechanism
+- SharePoint Restricted Search — not yet released, monitor for GA
 
-### Deferred to v3
+### Deferred to v4+
 
 - MCP server for governance framework
 - Copilot Studio agent for governance Q&A
-- Complete Planned solutions (RAG Validator, COI Testing, Hallucination Tracker, DR Testing)
+- Complete remaining WIP solutions (Deny Event, Conditional Access, Segregation Detector, RAG Validator)
+- Complete Planned solutions (COI Testing, Hallucination Tracker, DR Testing)
 - Navigation auto-generation with Awesome Pages plugin (risk of breaking pedagogical structure)
 
 ## Context
@@ -114,4 +129,4 @@ Capabilities delivered:
 | Unpacked solution format | Enables version control and pac CLI packaging | ✓ Good |
 
 ---
-*Last updated: 2026-02-05 after v2 milestone*
+*Last updated: 2026-02-05 after v3 milestone initialization*
