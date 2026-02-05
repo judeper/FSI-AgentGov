@@ -22,9 +22,9 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Work In Progress | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.0.0 | Work In Progress | CA policy deployment and compliance monitoring for AI workloads | 1.11, 1.23, 1.18 |
-| [Compliance Dashboard](#compliance-dashboard) | v1.0.0-beta | Work In Progress | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
-| [Scope Drift Monitor](#scope-drift-monitor) | v1.0.0 | Work In Progress | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
+| [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
 | [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Planned | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
 | [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
@@ -166,8 +166,8 @@ Automates Conditional Access policy deployment and compliance monitoring for AI 
 
 ### Compliance Dashboard
 
-!!! info "Beta Release"
-    Documentation and Dataverse schemas are complete. Power BI template requires manual creation following the provided specifications.
+!!! success "Production Ready"
+    v1.0.0 includes Power Automate flows, Dataverse schema, sample data, and deployment documentation. Power BI template requires manual creation following the 883-line specification.
 
 Provides unified compliance visibility across all 62 framework controls with zone-based filtering and trend analysis for regulatory reporting.
 
@@ -211,6 +211,9 @@ Identifies and prevents segregation of duties violations where users have incomp
 ---
 
 ### Scope Drift Monitor
+
+!!! success "Production Ready"
+    v1.1.0 includes PowerShell scripts for baseline capture and drift detection, Power Automate flows for detection and expansion approval, Dataverse schema, and comprehensive deployment documentation.
 
 Tracks agent data access and alerts when access extends beyond declared operational scope, supporting data minimization principles.
 
@@ -341,9 +344,9 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Deny Event Correlation Report | v1.1.0 | January 2026 |
 | FINRA Supervision Workflow | v1.0.0 | February 2026 |
 | Conditional Access Automation | v1.0.0 | February 2026 |
-| Compliance Dashboard | v1.0.0-beta | February 2026 |
+| Compliance Dashboard | v1.0.0 | February 2026 |
 | Segregation of Duties Detector | v1.0.0 | February 2026 |
-| Scope Drift Monitor | v1.0.0 | February 2026 |
+| Scope Drift Monitor | v1.1.0 | February 2026 |
 | RAG Source Validator | v1.0.0 | February 2026 |
 | COI Testing Framework | v1.0.0 | February 2026 |
 | Hallucination Tracker | v1.0.0 | February 2026 |
@@ -351,4 +354,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.36 - February 2026*
+*FSI Agent Governance Framework v1.2.37 - February 2026*
