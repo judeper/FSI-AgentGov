@@ -18,13 +18,13 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### KQL Query Library
 
-- [ ] **KQL-01**: Agent usage analytics query (sessions, messages, completion rates over time)
-- [ ] **KQL-02**: Error categorization query (connector errors, knowledge source failures, orchestration timeouts)
-- [ ] **KQL-03**: Latency distribution query (P50/P95/P99 response times)
-- [ ] **KQL-04**: Generative answers telemetry query (topic, result, feedback extraction)
-- [ ] **KQL-05**: Flow failure correlation query (Power Automate failures linked to agent conversations)
-- [ ] **KQL-06**: Agent decision audit trail query (FINRA 3110/SR 11-7 compliance)
-- [ ] **KQL-07**: RAI content filtering detection query (XPIADetected, JailbreakDetected from Purview)
+- [x] **KQL-01**: Agent usage analytics query (sessions, messages, completion rates over time)
+- [x] **KQL-02**: Error categorization query (connector errors, knowledge source failures, orchestration timeouts)
+- [x] **KQL-03**: Latency distribution query (P50/P95/P99 response times)
+- [x] **KQL-04**: Generative answers telemetry query (topic, result, feedback extraction)
+- [x] **KQL-05**: Flow failure correlation query (Power Automate failures linked to agent conversations)
+- [x] **KQL-06**: Agent decision audit trail query (FINRA 3110/SR 11-7 compliance)
+- [x] **KQL-07**: RAI content filtering detection query (XPIADetected, JailbreakDetected from Purview)
 
 ### Azure Monitor Workbooks
 
@@ -52,9 +52,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Governance & Compliance Mapping
 
-- [ ] **GOV-01**: Governance mapping document linking observability to existing 62-control framework
-- [ ] **GOV-02**: SR 11-7 model risk monitoring KQL patterns and audit evidence guidance
-- [ ] **GOV-03**: SOX 302/404 control evidence documentation for agent observability
+- [x] **GOV-01**: Governance mapping document linking observability to existing 62-control framework
+- [x] **GOV-02**: SR 11-7 model risk monitoring KQL patterns and audit evidence guidance
+- [x] **GOV-03**: SOX 302/404 control evidence documentation for agent observability
 
 ### Deployment & Validation
 
@@ -141,16 +141,16 @@ Which phases cover which requirements. Updated after roadmap creation.
 | SDOC-02 | Phase 1 | Complete |
 | SDOC-03 | Phase 1 | Complete |
 | SDOC-04 | Phase 1 | Complete |
-| KQL-01 | Phase 2 | Pending |
-| KQL-02 | Phase 2 | Pending |
-| KQL-03 | Phase 2 | Pending |
-| KQL-04 | Phase 2 | Pending |
-| KQL-05 | Phase 2 | Pending |
-| KQL-06 | Phase 2 | Pending |
-| KQL-07 | Phase 2 | Pending |
-| GOV-01 | Phase 2 | Pending |
-| GOV-02 | Phase 2 | Pending |
-| GOV-03 | Phase 2 | Pending |
+| KQL-01 | Phase 2 | Complete |
+| KQL-02 | Phase 2 | Complete |
+| KQL-03 | Phase 2 | Complete |
+| KQL-04 | Phase 2 | Complete |
+| KQL-05 | Phase 2 | Complete |
+| KQL-06 | Phase 2 | Complete |
+| KQL-07 | Phase 2 | Complete |
+| GOV-01 | Phase 2 | Complete |
+| GOV-02 | Phase 2 | Complete |
+| GOV-03 | Phase 2 | Complete |
 | WKBK-01 | Phase 3 | Pending |
 | WKBK-02 | Phase 3 | Pending |
 | WKBK-03 | Phase 3 | Pending |
@@ -192,4 +192,4 @@ Which phases cover which requirements. Updated after roadmap creation.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 1 complete: 10/44 requirements satisfied)*
+*Last updated: 2026-02-05 (Phase 2 complete: 20/44 requirements satisfied)*

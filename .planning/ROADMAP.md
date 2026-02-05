@@ -84,12 +84,14 @@ Plans:
 4. User can identify which KQL queries provide evidence for specific framework controls
 5. User can generate SR 11-7 model risk monitoring report using documented patterns
 
-**Plans:** 3 plans
+**Plans:** 3 plans ✓
 
 Plans:
-- [ ] 02-01-PLAN.md — Query library foundation (README, usage-analytics, performance, error queries)
-- [ ] 02-02-PLAN.md — Compliance queries (audit trail, RAI detection, generative answers, flow failures)
-- [ ] 02-03-PLAN.md — SR 11-7 queries and governance-queries.md mapping document
+- [x] 02-01-PLAN.md — Query library foundation (README, usage-analytics, performance, error queries) [29da69e, ce61beb]
+- [x] 02-02-PLAN.md — Compliance queries (audit trail, RAI detection, generative answers, flow failures) [09d2f0d, 74b56db]
+- [x] 02-03-PLAN.md — SR 11-7 queries and governance-queries.md mapping document [dc4fe63, df172a5]
+
+**Completed:** 2026-02-05
 
 ---
 
@@ -217,14 +219,14 @@ Plans:
 | Phase | Status | Plans | Requirements | Success Criteria |
 |-------|--------|-------|--------------|------------------|
 | 1 - Telemetry Infrastructure & Solution Foundation | ✓ Complete | 4/4 | 10 | 5/5 |
-| 2 - KQL Query Library & Governance Mapping | Planned | 3 | 10 | 5 |
+| 2 - KQL Query Library & Governance Mapping | ✓ Complete | 3/3 | 10 | 5/5 |
 | 3 - Azure Monitor Workbooks & Alert Rules | Pending | 0/0 | 7 | 5 |
 | 4 - Power BI Integration & Viva Insights | Pending | 0/0 | 5 | 5 |
 | 5 - Deployment Scripts & Validation | Pending | 0/0 | 3 | 5 |
 | 6 - Agent 365 & Identity Documentation | Pending | 0/0 | 3 | 5 |
 | 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
 
-**Total:** 1/7 phases complete, 10/44 requirements satisfied
+**Total:** 2/7 phases complete, 20/44 requirements satisfied
 
 ---
 
@@ -263,4 +265,4 @@ Phases 1-5 use well-documented Azure patterns. Phase 6 may require deeper resear
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 2 planned — 3 plans in 2 waves)*
+*Last updated: 2026-02-05 (Phase 2 complete — 14 KQL queries + governance-queries.md)*
