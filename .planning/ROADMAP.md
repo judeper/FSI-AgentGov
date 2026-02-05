@@ -119,6 +119,15 @@ Plans:
 4. User can tune alert thresholds independently for Zone 1/2/3 environments
 5. User can deploy workbooks to new environment via ARM templates
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Operational Health workbook ARM template with zone/time parameters and drill-down
+- [ ] 03-02-PLAN.md — Action groups (zone-based routing) and Logic App Teams notification
+- [ ] 03-03-PLAN.md — Error Diagnostics and Usage Overview workbook ARM templates
+- [ ] 03-04-PLAN.md — Alert rules (failure rate, latency regression, abnormal usage) with dynamic thresholds
+- [ ] 03-05-PLAN.md — Phase documentation (workbooks README, alerts README, tuning guide, solution README update)
+
 ---
 
 ### Phase 4: Power BI Integration & Viva Insights
@@ -220,7 +229,7 @@ Plans:
 |-------|--------|-------|--------------|------------------|
 | 1 - Telemetry Infrastructure & Solution Foundation | ✓ Complete | 4/4 | 10 | 5/5 |
 | 2 - KQL Query Library & Governance Mapping | ✓ Complete | 3/3 | 10 | 5/5 |
-| 3 - Azure Monitor Workbooks & Alert Rules | Pending | 0/0 | 7 | 5 |
+| 3 - Azure Monitor Workbooks & Alert Rules | Planned | 0/5 | 7 | 5 |
 | 4 - Power BI Integration & Viva Insights | Pending | 0/0 | 5 | 5 |
 | 5 - Deployment Scripts & Validation | Pending | 0/0 | 3 | 5 |
 | 6 - Agent 365 & Identity Documentation | Pending | 0/0 | 3 | 5 |
@@ -265,4 +274,4 @@ Phases 1-5 use well-documented Azure patterns. Phase 6 may require deeper resear
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 2 complete — 14 KQL queries + governance-queries.md)*
+*Last updated: 2026-02-05 (Phase 3 planned — 5 plans in 3 waves)*
