@@ -173,10 +173,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Enhance PowerShell scripts for baseline capture and manual detection
-- [ ] 05-02-PLAN.md — Create solution package source with Dataverse schema and flows
-- [ ] 05-03-PLAN.md — Create expansion workflow and deployment documentation
-- [ ] 05-04-PLAN.md — Final verification and human approval checkpoint
+- [x] 05-01-PLAN.md — Enhance PowerShell scripts for baseline capture and manual detection
+- [x] 05-02-PLAN.md — Create solution package source with Dataverse schema and flows
+- [x] 05-03-PLAN.md — Create expansion workflow and deployment documentation
+- [x] 05-04-PLAN.md — Final verification and human approval checkpoint
 
 ---
 
@@ -188,7 +188,7 @@ Plans:
 | 2 - Documentation Architecture | 2 | Complete | ██████████ 100% |
 | 3 - Monitoring Configuration | 1 | Complete | ██████████ 100% |
 | 4 - Compliance Dashboard | 1 | Complete | ██████████ 100% |
-| 5 - Scope Drift Monitor | 1 | Planned | ░░░░░░░░░░ 0% |
+| 5 - Scope Drift Monitor | 1 | Complete | ██████████ 100% |
 
 **Total:** 9/9 requirements mapped (100% coverage)
 
@@ -249,5 +249,5 @@ All 9 v2 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 2.7*
-*Last updated: 2026-02-04*
+*Roadmap version: 2.8*
+*Last updated: 2026-02-05*
