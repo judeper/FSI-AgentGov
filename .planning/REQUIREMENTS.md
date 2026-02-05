@@ -127,60 +127,69 @@ Deferred to later milestones. Tracked but not in current roadmap.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Which phases cover which requirements. Updated after roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TELE-01 | — | Pending |
-| TELE-02 | — | Pending |
-| TELE-03 | — | Pending |
-| TELE-04 | — | Pending |
-| TELE-05 | — | Pending |
-| TELE-06 | — | Pending |
-| KQL-01 | — | Pending |
-| KQL-02 | — | Pending |
-| KQL-03 | — | Pending |
-| KQL-04 | — | Pending |
-| KQL-05 | — | Pending |
-| KQL-06 | — | Pending |
-| KQL-07 | — | Pending |
-| WKBK-01 | — | Pending |
-| WKBK-02 | — | Pending |
-| WKBK-03 | — | Pending |
-| ALRT-01 | — | Pending |
-| ALRT-02 | — | Pending |
-| ALRT-03 | — | Pending |
-| ALRT-04 | — | Pending |
-| PBI-01 | — | Pending |
-| PBI-02 | — | Pending |
-| PBI-03 | — | Pending |
-| VIVA-01 | — | Pending |
-| VIVA-02 | — | Pending |
-| GOV-01 | — | Pending |
-| GOV-02 | — | Pending |
-| GOV-03 | — | Pending |
-| DEPL-01 | — | Pending |
-| DEPL-02 | — | Pending |
-| DEPL-03 | — | Pending |
-| SDOC-01 | — | Pending |
-| SDOC-02 | — | Pending |
-| SDOC-03 | — | Pending |
-| SDOC-04 | — | Pending |
-| A365-01 | — | Pending |
-| A365-02 | — | Pending |
-| A365-03 | — | Pending |
-| CTRL-01 | — | Pending |
-| CTRL-02 | — | Pending |
-| CTRL-03 | — | Pending |
-| CTRL-04 | — | Pending |
-| CTRL-05 | — | Pending |
-| CTRL-06 | — | Pending |
+| TELE-01 | Phase 1 | Pending |
+| TELE-02 | Phase 1 | Pending |
+| TELE-03 | Phase 1 | Pending |
+| TELE-04 | Phase 1 | Pending |
+| TELE-05 | Phase 1 | Pending |
+| TELE-06 | Phase 1 | Pending |
+| SDOC-01 | Phase 1 | Pending |
+| SDOC-02 | Phase 1 | Pending |
+| SDOC-03 | Phase 1 | Pending |
+| SDOC-04 | Phase 1 | Pending |
+| KQL-01 | Phase 2 | Pending |
+| KQL-02 | Phase 2 | Pending |
+| KQL-03 | Phase 2 | Pending |
+| KQL-04 | Phase 2 | Pending |
+| KQL-05 | Phase 2 | Pending |
+| KQL-06 | Phase 2 | Pending |
+| KQL-07 | Phase 2 | Pending |
+| GOV-01 | Phase 2 | Pending |
+| GOV-02 | Phase 2 | Pending |
+| GOV-03 | Phase 2 | Pending |
+| WKBK-01 | Phase 3 | Pending |
+| WKBK-02 | Phase 3 | Pending |
+| WKBK-03 | Phase 3 | Pending |
+| ALRT-01 | Phase 3 | Pending |
+| ALRT-02 | Phase 3 | Pending |
+| ALRT-03 | Phase 3 | Pending |
+| ALRT-04 | Phase 3 | Pending |
+| PBI-01 | Phase 4 | Pending |
+| PBI-02 | Phase 4 | Pending |
+| PBI-03 | Phase 4 | Pending |
+| VIVA-01 | Phase 4 | Pending |
+| VIVA-02 | Phase 4 | Pending |
+| DEPL-01 | Phase 5 | Pending |
+| DEPL-02 | Phase 5 | Pending |
+| DEPL-03 | Phase 5 | Pending |
+| A365-01 | Phase 6 | Pending |
+| A365-02 | Phase 6 | Pending |
+| A365-03 | Phase 6 | Pending |
+| CTRL-01 | Phase 7 | Pending |
+| CTRL-02 | Phase 7 | Pending |
+| CTRL-03 | Phase 7 | Pending |
+| CTRL-04 | Phase 7 | Pending |
+| CTRL-05 | Phase 7 | Pending |
+| CTRL-06 | Phase 7 | Pending |
 
 **Coverage:**
 - v3 requirements: 44 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 44
+- Mapped to phases: 44 (100%)
+- Unmapped: 0
+
+**Phase breakdown:**
+- Phase 1 (Telemetry Infrastructure & Solution Foundation): 10 requirements
+- Phase 2 (KQL Query Library & Governance Mapping): 10 requirements
+- Phase 3 (Azure Monitor Workbooks & Alert Rules): 7 requirements
+- Phase 4 (Power BI Integration & Viva Insights): 5 requirements
+- Phase 5 (Deployment Scripts & Validation): 3 requirements
+- Phase 6 (Agent 365 & Identity Documentation): 3 requirements
+- Phase 7 (Control Enhancements & Role Updates): 6 requirements
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after initial definition*
+*Last updated: 2026-02-05 after roadmap creation (100% coverage)*
