@@ -8,12 +8,27 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
+## Current State (v2 Shipped)
+
+**Framework Version:** 1.2.37 (February 2026)
+
+**Shipped:**
+- v1: 62 controls verified, Agent 365 architecture, regulatory validation, solutions audit, unified monitoring
+- v2: PowerShell security fixes, documentation architecture (breadcrumbs + playbook discovery), monitoring config externalization, Compliance Dashboard v1.0.0, Scope Drift Monitor v1.1.0
+
+**Solutions Status:**
+- 5 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor
+- 1 Validated: FINRA Supervision Workflow
+- 4 Work In Progress: Deny Event Correlation Report, Conditional Access Automation, Segregation Detector, RAG Source Validator
+- 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
+
 ## Requirements
 
 ### Validated
 
-Capabilities delivered in v1:
+Capabilities delivered:
 
+**v1 Milestone:**
 - ✓ 62 controls verified against current Microsoft capabilities — v1 Phase 2
 - ✓ 248 control playbooks + 27 advanced implementation docs — v1 Phase 2
 - ✓ Agent 365 strategic architecture documented — v1 Phase 3
@@ -25,21 +40,19 @@ Capabilities delivered in v1:
 - ✓ GitHub Pages documentation publishing — existing
 - ✓ Regulatory mappings (FINRA, SEC, SOX, GLBA, OCC, Fed SR 11-7, CFTC) — existing
 
+**v2 Milestone:**
+- ✓ PowerShell security vulnerabilities eliminated (ConvertTo-SecureString pattern) — v2 Phase 1
+- ✓ Comprehensive error handling in production scripts — v2 Phase 1
+- ✓ #Requires statements on all 14 PowerShell scripts — v2 Phase 1
+- ✓ Breadcrumb navigation enabled site-wide — v2 Phase 2
+- ✓ INFO admonition boxes on all 62 control pages for playbook discovery — v2 Phase 2
+- ✓ Monitoring classification patterns externalized to YAML (391 lines) — v2 Phase 3
+- ✓ Compliance Dashboard v1.0.0 production-ready — v2 Phase 4
+- ✓ Scope Drift Monitor v1.1.0 production-ready — v2 Phase 5
+
 ### Active
 
-Current scope for v2 milestone:
-
-- [ ] **DEBT-01**: Fix Register-ServicePrincipal.ps1 secret exposure (CRITICAL)
-- [ ] **DEBT-02**: Add error handling to Test-PolicyCompliance.ps1 (HIGH)
-- [ ] **DEBT-03**: Add #Requires statements to 12 PowerShell scripts (MEDIUM)
-- [ ] **DEBT-04**: Remove 6 unused dependencies in ELM/FINRA requirements.txt (MEDIUM)
-- [ ] **ARCH-01**: Implement breadcrumb navigation enhancement
-- [ ] **ARCH-02**: Add playbook discoverability with admonition boxes in controls
-- [ ] **ARCH-03**: Externalize Learn Monitor patterns to YAML configuration
-- [ ] **ARCH-04**: Implement navigation auto-generation with Awesome Pages plugin
-- [ ] **ARCH-05**: SQLite state file for Learn Monitor (if performance issues emerge)
-- [ ] **SOL-01**: Complete Compliance Dashboard (currently beta) to production-ready
-- [ ] **SOL-02**: Complete Scope Drift Monitor (currently WIP) to production-ready
+*No active requirements — v3 milestone not yet defined.*
 
 ### Out of Scope
 
@@ -47,32 +60,19 @@ Current scope for v2 milestone:
 - Building entirely new solutions — focus is completing existing WIP solutions
 - Real-time monitoring — batch/scheduled monitoring is sufficient
 - Mobile or alternative interfaces — GitHub Pages is the delivery mechanism
-- MCP server for governance framework — deferred to v3
-- Copilot Studio agent for governance Q&A — deferred to v3
-- Completing Planned solutions (RAG Validator, COI Testing, Hallucination Tracker, DR Testing) — deferred to v3
 
-## Current Milestone: v2 Tech Debt, Architecture & Solution Completion
+### Deferred to v3
 
-**Goal:** Resolve accumulated tech debt, modernize documentation architecture, and bring 2 WIP solutions to production-ready status.
-
-**Target features:**
-- PowerShell security and quality fixes across FSI-AgentGov-Solutions
-- MkDocs architecture improvements (breadcrumbs, navigation, playbook discovery)
-- Compliance Dashboard completion (beta → production)
-- Scope Drift Monitor completion (WIP → production)
+- MCP server for governance framework
+- Copilot Studio agent for governance Q&A
+- Complete Planned solutions (RAG Validator, COI Testing, Hallucination Tracker, DR Testing)
+- Navigation auto-generation with Awesome Pages plugin (risk of breaking pedagogical structure)
 
 ## Context
 
 **Repository Structure:**
 - **FSI-AgentGov** (this repo): MkDocs-based documentation site with 62 controls, playbooks, and framework guidance
 - **FSI-AgentGov-Solutions** (`/Users/admin/dev/FSI-AgentGov-Solutions`): Companion repo with deployable solutions (PowerShell, Power Automate, Dataverse schemas)
-
-**Current state (post-v1):**
-- Framework version 1.2.37 (February 2026)
-- All 62 controls verified accurate with "Last Verified: 2026-02-03" metadata
-- 13 solutions cataloged: 3 Completed, 1 Validated, 6 WIP, 3 Planned
-- Unified monitoring system operational (Learn + Regulatory adapters)
-- 9 tech debt items identified in v1 audit
 
 **Target audience:**
 - US financial sector Microsoft 365 administrators
@@ -104,10 +104,14 @@ Current scope for v2 milestone:
 | Audit both repos in one project | Documentation and solutions are interrelated; changes often span both | ✓ Good |
 | Review solutions one at a time | Ensures thorough validation without overwhelming scope | ✓ Good |
 | Simplify monitoring systems | User wants straightforward implementations, not over-engineered | ✓ Good |
-| Tech debt before architecture | Fix security/quality issues before adding new features | — Pending |
-| Architecture before solutions | Documentation improvements benefit all future work | — Pending |
-| Defer MCP server and Copilot agent to v3 | Keep v2 focused on debt, architecture, and 2 solutions | — Pending |
-| Only complete 2 WIP solutions in v2 | Compliance Dashboard and Scope Drift Monitor are closest to done | — Pending |
+| Tech debt before architecture | Fix security/quality issues before adding new features | ✓ Good |
+| Architecture before solutions | Documentation improvements benefit all future work | ✓ Good |
+| Defer MCP server and Copilot agent to v3 | Keep v2 focused on debt, architecture, and 2 solutions | ✓ Good |
+| Only complete 2 WIP solutions in v2 | Compliance Dashboard and Scope Drift Monitor are closest to done | ✓ Good |
+| Defer ARCH-04 (awesome-pages) to v3 | Risk of breaking pedagogical nav structure per research | ✓ Good |
+| Defer ARCH-05 (SQLite) indefinitely | JSON sufficient for 209 URLs | ✓ Good |
+| Human verification gate for solutions | Automated + human checkpoint ensures production quality | ✓ Good |
+| Unpacked solution format | Enables version control and pac CLI packaging | ✓ Good |
 
 ---
-*Last updated: 2026-02-04 after v2 milestone initialization*
+*Last updated: 2026-02-05 after v2 milestone*
