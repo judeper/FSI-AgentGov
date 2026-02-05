@@ -170,17 +170,25 @@ Plans:
 5. README documents all prerequisites, deployment steps, and known limitations
 6. Solution version updated from v1.0.0 to v1.1.0
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Enhance PowerShell scripts for baseline capture and manual detection
+- [ ] 05-02-PLAN.md — Create solution package source with Dataverse schema and flows
+- [ ] 05-03-PLAN.md — Create expansion workflow and deployment documentation
+- [ ] 05-04-PLAN.md — Final verification and human approval checkpoint
+
 ---
 
 ## Progress
 
 | Phase | Requirements | Status | Progress |
 |-------|--------------|--------|----------|
-| 1 - PowerShell Tech Debt Resolution | 4 | ✓ Complete | ██████████ 100% |
-| 2 - Documentation Architecture | 2 | ✓ Complete | ██████████ 100% |
-| 3 - Monitoring Configuration | 1 | ✓ Complete | ██████████ 100% |
-| 4 - Compliance Dashboard | 1 | ✓ Complete | ██████████ 100% |
-| 5 - Scope Drift Monitor | 1 | Not Started | ░░░░░░░░░░ 0% |
+| 1 - PowerShell Tech Debt Resolution | 4 | Complete | ██████████ 100% |
+| 2 - Documentation Architecture | 2 | Complete | ██████████ 100% |
+| 3 - Monitoring Configuration | 1 | Complete | ██████████ 100% |
+| 4 - Compliance Dashboard | 1 | Complete | ██████████ 100% |
+| 5 - Scope Drift Monitor | 1 | Planned | ░░░░░░░░░░ 0% |
 
 **Total:** 9/9 requirements mapped (100% coverage)
 
@@ -204,10 +212,10 @@ All 9 v2 requirements mapped to phases:
 - ARCH-03: Externalize monitoring classification patterns to YAML
 
 **Phase 4 (1 requirement):**
-- SOL-01: Complete Compliance Dashboard (beta → production)
+- SOL-01: Complete Compliance Dashboard (beta -> production)
 
 **Phase 5 (1 requirement):**
-- SOL-02: Complete Scope Drift Monitor (WIP → production)
+- SOL-02: Complete Scope Drift Monitor (WIP -> production)
 
 **Orphans:** None (100% coverage achieved)
 
@@ -241,5 +249,5 @@ All 9 v2 requirements mapped to phases:
 
 ---
 
-*Roadmap version: 2.6*
+*Roadmap version: 2.7*
 *Last updated: 2026-02-04*
