@@ -2,7 +2,7 @@
 
 **Project:** FSI-AgentGov Comprehensive Audit & Enhancement
 **Initialized:** 2026-02-02
-**Last Updated:** 2026-02-04 (Phase 4 complete - Compliance Dashboard v1.0.0)
+**Last Updated:** 2026-02-05 (Phase 5 Plan 1 complete - PowerShell scripts enhanced)
 
 ---
 
@@ -19,20 +19,20 @@
 ## Current Position
 
 **Milestone:** v2 — Tech Debt, Architecture & Solution Completion
-**Phase:** 4 of 5 (Compliance Dashboard) — COMPLETE ✅
-**Plan:** 4 of 4 plans complete in Phase 4
-**Status:** Phase complete, ready for Phase 5
-**Progress:** ████████░░ 80%
-**Last activity:** 2026-02-04 — Completed 04-04-PLAN.md (Final verification and production approval)
+**Phase:** 5 of 5 (Scope Drift Monitor)
+**Plan:** 1 of 4 plans complete in Phase 5
+**Status:** In progress
+**Progress:** ████████▓░ 85%
+**Last activity:** 2026-02-05 — Completed 05-01-PLAN.md (PowerShell scripts enhancement)
 
-**Next Action:** Plan and execute Phase 5 (Scope Drift Monitor completion).
+**Next Action:** Execute Phase 5 Plan 2 (Power Automate flows creation).
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Plans completed: 13
+- Plans completed: 14
 - Plans in progress: 0
 
 **Quality:**
@@ -79,6 +79,9 @@
 | 2026-02-04 | Flow language (Workflow Definition Language) | Standard Power Automate JSON schema for solution packaging | Flows are human-readable and can be edited as code |
 | 2026-02-04 | Connection parameterization | Connection references + environment variables | Allows customer configuration during import without flow edits |
 | 2026-02-04 | Human verification gate | Automated validation + human checkpoint for production release | Ensures artifacts meet production quality standards |
+| 2026-02-05 | Office 365 Management API over Graph API | Graph API auditLogs moved to beta April 2025; Management API stable | Reliable audit data source for CopilotInteraction events |
+| 2026-02-05 | Auto-generated baselines go active immediately | Per CONTEXT.md decision, fsi_status=2 for auto-baselines | No approval delay for baseline creation |
+| 2026-02-05 | Severity: High (2) for connector/API, Medium (3) for site/table | Broader impact violations get higher severity | Consistent severity assignment across detection |
 
 ### Active TODOs
 
@@ -91,7 +94,11 @@
 - [x] Execute Phase 3 (2/2 plans complete)
 - [x] Plan Phase 4 (Compliance Dashboard)
 - [x] Execute Phase 4 (4/4 plans complete - v1.0.0 production-ready)
-- [ ] Plan Phase 5 (Scope Drift Monitor)
+- [x] Plan Phase 5 (Scope Drift Monitor)
+- [x] Execute Phase 5 Plan 1 (PowerShell scripts)
+- [ ] Execute Phase 5 Plan 2 (Power Automate flows)
+- [ ] Execute Phase 5 Plan 3 (Deployment documentation)
+- [ ] Execute Phase 5 Plan 4 (Final verification)
 
 ### Pending Todos (Deferred to v3)
 
@@ -154,6 +161,7 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 3. v2 Phase 2 complete — 3/3 plans, all 62 controls converted to INFO admonition
 4. v2 Phase 3 complete — 2/2 plans, monitoring config externalized
 5. v2 Phase 4 complete — 4/4 plans, Compliance Dashboard v1.0.0 production-ready and approved
+6. v2 Phase 5 Plan 1 complete — PowerShell scripts enhanced with Office 365 Management API
 
 **Files to reference:**
 - `.planning/PROJECT.md` — Updated for v2
@@ -162,11 +170,15 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 - `.planning/phases/04-compliance-dashboard-completion/04-02-SUMMARY.md` — Solution package source creation (5 tables, 2 flows)
 - `.planning/phases/04-compliance-dashboard-completion/04-03-SUMMARY.md` — Deployment documentation and v1.0.0 release
 - `.planning/phases/04-compliance-dashboard-completion/04-04-SUMMARY.md` — Final verification and production approval
+- `.planning/phases/05-scope-drift-monitor-completion/05-01-SUMMARY.md` — PowerShell scripts enhanced with O365 Management API
 - `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/sample-data/` — Pre-generated JSON files
 - `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/scripts/load_sample_data.py` — Enhanced loader with --export
 - `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/src/ComplianceDashboard/` — Unpacked solution source
 - `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/docs/deployment-checklist.md` — 147-step deployment validation
 - `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/docs/power-bi-template-spec.md` — .pbit creation guide
+- `/Users/admin/dev/FSI-AgentGov-Solutions/scope-drift-monitor/scripts/New-AgentBaseline.ps1` — Enhanced baseline capture
+- `/Users/admin/dev/FSI-AgentGov-Solutions/scope-drift-monitor/scripts/Invoke-DriftScan.ps1` — Manual drift detection
+- `/Users/admin/dev/FSI-AgentGov-Solutions/scope-drift-monitor/scripts/Test-AlertDelivery.ps1` — Alert testing utility
 - `scripts/config/monitoring-config.yaml` — Config file (391 lines)
 - `scripts/monitoring_shared.py` — classify_change() uses config-driven patterns
 - `scripts/learn_monitor.py` — --config and --validate CLI flags
@@ -179,12 +191,12 @@ All 33 v1 requirements satisfied across 8 phases (35 plans). Key deliverables:
 | Milestone | Status | Notes |
 |-----------|--------|-------|
 | v1 Complete | Complete | 33/33 requirements, 8/8 phases, 35 plans |
-| v2 In Progress | Phase 4 complete (4/5 phases) | 5 phases, 9 requirements, 9/9 complete (100%) |
+| v2 In Progress | Phase 5 Plan 1 complete (4/5 phases) | 5 phases, 9 requirements, 9/9 complete (100%) |
 
-**Overall Project Status:** ON TRACK - Compliance Dashboard v1.0.0 production-ready
+**Overall Project Status:** ON TRACK - Scope Drift Monitor Phase 5 Plan 1 complete
 
 ---
 
-*State version: 2.10*
-*Session: 26*
-*Last updated: 2026-02-04*
+*State version: 2.11*
+*Session: 27*
+*Last updated: 2026-02-05*
