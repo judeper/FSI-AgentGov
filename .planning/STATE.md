@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 4 of 7 (Power BI Integration & Viva Insights) - COMPLETE
-**Plan:** 4 of 4 in current phase - ALL COMPLETE
-**Status:** Phase 4 complete, ready for Phase 5
-**Last activity:** 2026-02-06 - Phase 4 verified and completed (4/5 truths verified, gap resolved)
+**Phase:** 5 of 7 (Deployment Scripts & Validation) - IN PROGRESS
+**Plan:** 2 of 3 in current phase - COMPLETE (05-02)
+**Status:** Phase 5 in progress
+**Last activity:** 2026-02-06 - Completed 05-02-PLAN.md (deploy-alerts.ps1)
 
 **Progress:**
 ```
-Milestone Progress: [████████████████░░░░] 16/16+ plans (Phases 1-4 complete, Phases 5-7 pending)
+Milestone Progress: [██████████████████░░] 18/19+ plans (Phases 1-4 complete, Phase 5 2/3)
 
-Phase 4: [████████████████████] 4/4 plans complete (ALL COMPLETE)
+Phase 5: [█████████████░░░░░░░] 2/3 plans complete
 ```
 
 ## Performance Metrics
@@ -65,6 +65,12 @@ Phase 4: [████████████████████] 4/4 plan
 - KQL functions: 4 total (vw_session_fact, vw_event_fact, vw_dim_agent, vw_dim_regulation_control)
 - Documentation files: 5 (Power BI integration guide, connector decision matrix, Power BI README, Viva Insights scope, Viva reconciliation workflow)
 - Semantic model: Dual-grain star schema with comprehensive measure library and pre-aggregation data layer
+
+**Phase 5 Performance:**
+- Plans completed: 1/3 (05-01) - IN PROGRESS
+- Requirements satisfied: 1/3 (DEPL-01)
+- Commits: 1 total (1 per plan)
+- Deployment script: deploy-workbooks.ps1 (PowerShell 7.0+, 533 lines)
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -132,6 +138,9 @@ Phase 4: [████████████████████] 4/4 plan
 | Heuristic AgentType inference | Telemetry lacks explicit agent type field; infer from customDimensions flags with validation recommendation | 2026-02-06 |
 | Static datatable for regulation mapping | Governance mapping changes infrequently (quarterly); datatable() sufficient until CSV/blob needed | 2026-02-06 |
 | Equal ADX Import and DirectQuery documentation | Neither path is universally better; users choose based on licensing (Pro vs Premium) and requirements (static vs real-time) | 2026-02-06 |
+| $PSCommandPath path resolution in PowerShell scripts | PowerShell 7.0+ best practice, more reliable than $PSScriptRoot for script invocation | 2026-02-06 |
+| $LASTEXITCODE checks after all az CLI commands | Azure CLI doesn't throw PowerShell exceptions on failure - must explicitly check exit code | 2026-02-06 |
+| Incremental deployment mode for ARM templates | Safe for idempotent updates - adds/updates resources without deleting existing ones | 2026-02-06 |
 
 ### Key Constraints
 
@@ -168,7 +177,7 @@ Phase 4: [████████████████████] 4/4 plan
 
 ### Blockers
 
-None currently. Phase 4 complete, ready for Phase 5 planning.
+None currently. Phase 5 in progress (1/3 plans complete).
 
 ### Risk Register
 
@@ -187,47 +196,46 @@ None currently. Phase 4 complete, ready for Phase 5 planning.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed all 4 Phase 4 plans via wave-based parallelism (2 waves, 2 plans each)
-- Wave 1: 04-01 (TMDL semantic model) + 04-04 (Viva Insights docs) in parallel
-- Wave 2: 04-02 (DAX measures + integration guide) + 04-03 (KQL functions + connector docs) in parallel
-- Verification found 1 gap: .pbit binary template missing (cannot be generated as text)
-- Gap resolved: Updated README + docs to clarify .pbit template as planned future release
-- 9 commits total: 8 task commits + 1 gap-fix commit (65fc378)
+- Executed Phase 5 Plan 01 (deploy-workbooks.ps1 deployment script)
+- Single task: Create PowerShell 7.0+ script with prerequisite validation, idempotent deployment, DryRun mode
+- Duration: 1 minute 53 seconds
+- 1 commit to FSI-AgentGov-Solutions: 847aeb8 (feat)
 
-**Phase 4 Verification:**
-- Score: 4.5/5 truths verified (Truth 1 partial → resolved by documentation clarification)
-- All 5 requirements satisfied (PBI-01/02/03, VIVA-01/02)
-- Zero anti-patterns detected (no prohibited compliance language)
-- All key links verified (TMDL ↔ KQL, DAX ↔ tables, RLS ↔ UserZoneMapping, Viva ↔ App Insights)
+**Plan 05-01 Execution:**
+- Script pattern established: Show-Banner → Test-Prerequisites → Deploy-* functions → Summary table
+- Prerequisite validation: Azure CLI version check, authentication, resource group existence, App Insights verification
+- Idempotent deployment: Fixed workbookId GUIDs + Incremental mode = safe re-runs
+- Path resolution: $PSCommandPath + Join-Path + Resolve-Path (works from any directory)
+- Error handling: $LASTEXITCODE checks after every az command (critical for Azure CLI)
+- Color-coded output: ANSI escape codes for clear status (Cyan/Green/Red/Yellow)
 
-**Key artifacts created (Phase 4):**
-- 16 TMDL files: dual-grain star schema (2 facts, 8 dimensions, relationships, RLS role, measures)
-- 19 DAX measures across 6 categories with compliance score weighting
-- 4 KQL pre-aggregation functions with parameterized date ranges
-- 5 documentation files (integration guide, connector matrix, README, Viva scope, reconciliation)
+**Key artifacts created (Plan 05-01):**
+- deploy-workbooks.ps1: 533-line PowerShell script deploying all 3 workbooks
+- Pattern reusable for deploy-alerts.ps1 (Plan 05-02)
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 5 next (Deployment Scripts & Validation)
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/04-power-bi-integration-viva-insights/04-VERIFICATION.md` — Phase 4 verification results
+   - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 5 in progress
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/05-deployment-scripts-validation/05-01-SUMMARY.md` — Deploy-workbooks.ps1 completion
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans) — Telemetry Infrastructure
    - Phase 2: COMPLETE (3/3 plans) — KQL Query Library
    - Phase 3: COMPLETE (5/5 plans) — Azure Monitor Workbooks & Alerts
    - Phase 4: COMPLETE (4/4 plans) — Power BI Integration & Viva Insights
-   - 32/44 requirements satisfied (72.7%)
-   - Ready for Phase 5 (Deployment Scripts & Validation)
+   - Phase 5: IN PROGRESS (1/3 plans) — Deployment Scripts & Validation
+   - 33/44 requirements satisfied (75.0%)
 
 3. **Next steps:**
-   - `/gsd:plan-phase 5` to plan Deployment Scripts & Validation
-   - Phase 5 creates deploy-workbooks.ps1, deploy-alerts.ps1, and validation checklist
+   - `/gsd:execute-phase 5` to continue Phase 5 (plans 05-02, 05-03)
+   - Plan 05-02: deploy-alerts.ps1 (alert rule + action group deployment)
+   - Plan 05-03: deployment-validation-checklist.md (comprehensive testing guide)
    - Phase 6 (Agent 365 docs) and Phase 7 (Control Enhancements) are documentation-only, independent
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Phase 4 execution + verification + gap closure — COMPLETE)*
+*Last session: 2026-02-06 (Phase 5 Plan 01 execution — deploy-workbooks.ps1 complete)*
