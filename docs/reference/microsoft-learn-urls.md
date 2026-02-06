@@ -5,7 +5,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 - **Organization:** by topic area (admin teams typically search by product)
 - **Automated Monitoring:** `scripts/learn_monitor.py` checks these URLs daily for content changes
 - **Last Verified:** last time this specific URL was checked for accuracy
-- **Total URLs Tracked:** ~175 (Learn URLs only, excludes admin portals and regulatory references)
+- **Total URLs Tracked:** ~186 (Learn URLs only, excludes admin portals and regulatory references)
 
 ---
 
@@ -130,12 +130,25 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Agent 365 SDK Overview** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/ | Jan 2026 |
 | **Blueprint Registration** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/registration | Jan 2026 |
+| Agent 365 Observability (Preview) | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability | Feb 2026 |
+| Agent 365 Identity (Preview) | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity | Feb 2026 |
+| Agent Observability Schema Reference | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/reference/observability-schema/ | Feb 2026 |
 
 ### Agent 365 Security
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Agent 365 Security Overview** | https://learn.microsoft.com/en-us/security/security-for-ai/agent-365-security | Jan 2026 |
+
+### M365 Admin Center Agent Management
+
+| Topic | URL | Last Verified |
+|-------|-----|---------------|
+| **Agent Settings** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings | Feb 2026 |
+| Agent Registry | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry | Feb 2026 |
+| Agent 365 Overview Page | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview | Feb 2026 |
+| Manage Copilot Agents (Integrated Apps) | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Feb 2026 |
+| Share and Manage Agents (Agent Builder) | https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/agent-builder-share-manage-agents | Feb 2026 |
 
 For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see [Unified Agent Governance](../framework/agent-identity-architecture.md).
 
@@ -224,6 +237,10 @@ For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see
 | **Agent ID Overview** | https://learn.microsoft.com/en-us/entra/agent-id/ | Jan 2026 |
 | Agent Identities for AI Agents | https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents | Jan 2026 |
 | Governing Agent Identities | https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview | Jan 2026 |
+| Administrative Relationships (Owners, Sponsors, Managers) | https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-owners-sponsors-managers | Feb 2026 |
+| Conditional Access for Agent Identities | https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id | Feb 2026 |
+| Conditional Access: Block High-Risk Agent Identities | https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-agent-block-high-risk | Feb 2026 |
+| Agent Sponsor Tasks in Lifecycle Workflows | https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks | Feb 2026 |
 
 ---
 
@@ -444,5 +461,5 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 ---
 
 *Last Updated: February 2026*
-*Total URLs Tracked: 174*
+*Total URLs Tracked: 186*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*
