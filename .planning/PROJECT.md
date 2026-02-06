@@ -62,7 +62,17 @@ Capabilities delivered:
 
 ### Active
 
-(No active requirements — next milestone not yet defined)
+**v4-v9 Milestone Series: Customer-Requested Automation Solutions**
+
+5 new automation solutions addressing customer-identified gaps, plus integration milestone:
+- v4: Audit Configuration Validator — automated audit logging validation and enforcement
+- v5: Session Security Configurator — inactivity timeout automation per zone
+- v6: Agent Access Governance Monitor — unrestricted agent access detection
+- v7: Content Moderation Governance Monitor — AI content moderation policy enforcement
+- v8: File Upload Security Configurator — MIME type restriction enforcement
+- v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
+
+**Current milestone: v4 — Audit Configuration Validator**
 
 ### Out of Scope
 
@@ -73,7 +83,7 @@ Capabilities delivered:
 - GDPR Article 22 — US FSI scope only, no EU regulatory coverage
 - Third-party observability platforms — Microsoft-native stack only
 
-### Deferred to v4+
+### Deferred to v10+
 
 - MCP server for governance framework
 - Copilot Studio agent for governance Q&A
@@ -136,6 +146,9 @@ Capabilities delivered:
 | Function-based KQL query organization | Reusability over regulation-based organization | ✓ Good |
 | SharePoint Restricted Search at GA | Research confirmed GA status from Microsoft Learn documentation | ✓ Good |
 | AI Administrator expanded scope | Comprehensive governance role beyond basic Copilot management | ✓ Good |
+| 5 separate milestones for 5 solutions | Each solution is self-contained milestone; cleaner scope, faster cycles | — Pending |
+| Enhance existing controls (not new ones) | Keep 62-control structure; add automation sections to existing controls | — Pending |
+| Separate integration milestone (v9) | Build all 5 solutions first, then wire ELM + Dashboard in v9 | — Pending |
 
 ---
-*Last updated: 2026-02-06 after v3 milestone*
+*Last updated: 2026-02-06 after v4 milestone planning started*
