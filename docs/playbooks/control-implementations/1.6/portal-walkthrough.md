@@ -225,6 +225,113 @@ For high-priority sites not in the top 100, create custom assessments:
 
 ---
 
+## Enhanced DSPM AI Observability (Preview)
+
+!!! warning "Preview Feature — UI may change at GA"
+    The unified DSPM experience consolidating DSPM and DSPM for AI is in preview. GA rollout expected June 2026 (per MC1191257). Portal navigation and feature availability may change before general availability.
+
+The unified DSPM experience provides a single interface for monitoring data security posture across all data types, including AI-specific interactions. This section covers configuring enhanced DSPM AI Observability capabilities that help FSI organizations meet comprehensive agent supervision requirements.
+
+### Accessing Unified DSPM Experience
+
+!!! info "Preview Ring Enrollment Required"
+    The unified DSPM experience is gradually rolling out to tenants. If your tenant is not yet in the preview ring, these features will not be visible. Monitor Message Center for MC1191257 availability notifications.
+
+1. Navigate to **Microsoft Purview** (https://purview.microsoft.com)
+2. In the left navigation, select **Solutions** > **Data Security Posture Management**
+   - For preview-enabled tenants: Single unified DSPM dashboard appears
+   - For classic tenants: Separate "DSPM for AI" navigation remains (legacy experience)
+3. Verify unified experience by checking for integrated AI and non-AI data security metrics on a single dashboard
+
+### Agent Risk Observability Dashboard
+
+The unified DSPM experience includes agent risk observability dashboards that provide per-agent risk scoring based on data sensitivity, access patterns, and policy violations:
+
+1. From **Purview > Data Security Posture Management**, select **AI Risk Dashboard** (or equivalent unified dashboard tab)
+2. Review agent risk scores:
+   - **High Risk (Red):** Agents with policy violations, excessive data access, or sensitive data exposure
+   - **Medium Risk (Yellow):** Agents with elevated data sensitivity interactions or access pattern anomalies
+   - **Low Risk (Green):** Agents with normal data access patterns and no policy violations
+3. Click on a high-risk agent to view contributing factors:
+   - Data sensitivity level accessed (Highly Confidential, Confidential, General)
+   - Access pattern analysis (sites/files accessed beyond normal baseline)
+   - Policy violation details (DLP policy blocks, sensitivity label mismatches)
+   - Oversharing assessment findings (broad permission sites accessed by agent)
+4. Export agent risk summary for compliance reporting: Click **Export** to generate CSV
+
+### Enhanced Activity Explorer
+
+The unified DSPM experience includes improved Activity Explorer with advanced filtering and search capabilities:
+
+1. Navigate to **Purview > Data Security Posture Management > Activity explorer**
+2. Use enhanced filters:
+   - **Multi-Agent Selection:** Filter by multiple agents simultaneously (shift-click agent names)
+   - **Data Classification Filter:** Filter events by sensitivity label or sensitive info type
+   - **Access Pattern Filter:** Show events where agent accessed data outside normal scope
+   - **Policy Violation Filter:** Show only events triggering DLP or IRM policy alerts
+3. Use advanced search:
+   - Enter keywords in search box to filter across all event fields (user, agent, site, file)
+   - Use operators: `AND`, `OR`, `NOT` for complex queries
+   - Example: `Agent:"Expense Approver" AND SensitivityLabel:"Highly Confidential"`
+4. Export filtered results:
+   - Select date range (up to 90 days for standard export, 6 years for compliance export)
+   - Click **Export** > **Enhanced CSV** (includes additional metadata fields vs. classic export)
+   - Verify export includes: Event timestamp, User, Agent, Activity type, Data source, Sensitivity label, Policy actions
+
+### Unified Dashboard Configuration
+
+The unified dashboard consolidates data security posture metrics across AI and non-AI data:
+
+1. Navigate to **Purview > Data Security Posture Management > Overview**
+2. Review integrated dashboard sections:
+   - **Overall Data Security Posture:** Combined risk score across all data types
+   - **AI-Specific Risks:** Agent risk scores, sensitive AI interactions, policy violations
+   - **Data Classification Coverage:** Labeled vs. unlabeled content across AI-accessible locations
+   - **Oversharing Summary:** Sites with broad permissions accessible by agents
+3. Configure dashboard widgets:
+   - Click **Customize dashboard** to add/remove widgets
+   - Recommended for Zone 3: Add "High-Risk Agent Summary" and "Daily AI Policy Violations" widgets
+4. Set up dashboard email notifications:
+   - Click **Configure alerts** > **Dashboard digest email**
+   - Schedule: Daily for Zone 3, Weekly for Zone 2, Monthly for Zone 1
+   - Recipients: Compliance Officer, AI Governance Lead, CISO (Zone 3 only)
+
+### Data Classification Insights
+
+Enhanced DSPM AI Observability provides real-time insights into how agents interact with classified data:
+
+1. Navigate to **Purview > Data Security Posture Management > Classification insights**
+2. Review agent classification metrics:
+   - **Labeled Data Access:** Percentage of agent interactions with sensitivity-labeled content
+   - **Unlabeled Data Exposure:** Volume of unlabeled content accessed by agents (potential classification gap)
+   - **Label Mismatch Events:** Instances where agent received higher sensitivity data than declared scope
+3. Configure classification alerts:
+   - Set threshold for unlabeled data access (e.g., alert if >10% of agent interactions involve unlabeled content)
+   - Enable "Label Mismatch" alert for Zone 3 agents (requires immediate investigation)
+4. Export classification report for compliance evidence
+
+### Zone-Specific Configuration Guidance
+
+**Zone 1 (Personal Productivity):**
+- Monthly unified dashboard review sufficient
+- No agent risk alerts required
+- Export quarterly classification insights for trend analysis
+
+**Zone 2 (Team Collaboration):**
+- Weekly unified dashboard review
+- Enable agent risk email digest (weekly)
+- Configure Activity Explorer saved searches for team agents
+- Export monthly classification insights and agent risk summaries
+
+**Zone 3 (Enterprise Managed):**
+- Daily unified dashboard review required
+- Enable real-time agent risk alerts (high-risk agents trigger immediate notification)
+- Configure Activity Explorer advanced filters for all Zone 3 agents
+- Daily export of enhanced Activity Explorer data for compliance repository
+- Weekly agent risk observability report to Compliance Officer and CISO
+
+---
+
 ## MIP Labels for Agents (Preview)
 
 ### Configuration Path

@@ -104,6 +104,103 @@
 
 ---
 
+## Enhanced DSPM AI Observability Troubleshooting (Preview)
+
+### Issue: Unified DSPM Experience Not Visible
+
+**Symptoms:** Cannot find "Data Security Posture Management" in Purview navigation; only classic "DSPM for AI" appears
+
+**Solutions:**
+
+1. Verify tenant is in preview ring:
+   - Check Message Center for MC1191257 (unified DSPM experience rollout notification)
+   - If notification not received, tenant not yet in preview ring
+   - GA expected June 2026; unified experience will become available for all tenants at GA
+2. Complete DSPM for AI Get Started wizard:
+   - Unified experience migration requires all four Get Started steps completed
+   - Navigate to **Purview > DSPM for AI > Overview** and complete wizard
+3. Check tenant preview ring enrollment:
+   - Navigate to **M365 Admin Center > Settings > Org settings > Organization profile**
+   - Verify "Targeted release for entire organization" OR "Targeted release for selected users" is enabled
+   - Note: Not all targeted release tenants receive preview immediately; gradual rollout
+4. Verify licensing:
+   - Unified DSPM experience requires E5 Compliance or Microsoft 365 E5
+   - Verify license assignment: **M365 Admin Center > Users > Active users > [User] > Licenses**
+5. Clear browser cache and retry:
+   - Hard refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
+   - Try incognito/private browsing window
+   - Try different browser (Edge, Chrome)
+
+**Workaround:** Use classic DSPM for AI until unified experience becomes available for your tenant. Core functionality (weekly risk assessments, Activity Explorer, oversharing detection) remains available in classic experience.
+
+---
+
+### Issue: Agent Risk Data Not Populating
+
+**Symptoms:** Agent risk observability dashboard shows "No data available" or agents listed with "Insufficient Data" risk status
+
+**Solutions:**
+
+1. Verify Application Insights integration:
+   - Unified DSPM agent risk scoring requires Application Insights telemetry
+   - Navigate to **Azure Portal > Application Insights > [Your AI Instance]**
+   - Verify "Logs" section shows AI agent telemetry events (search for `customEvents` or `traces` tables)
+   - Check data ingestion latency: **Application Insights > Overview > Data ingestion volume**
+2. Check Observability SDK configuration (for Agent 365 SDK agents):
+   - Agent 365 SDK agents require Observability SDK integration for risk scoring
+   - Verify agent code includes: `import { observability } from '@microsoft/agent-sdk'`
+   - Check Observability SDK telemetry export: Agent settings should include Application Insights connection string
+   - See [Agent 365 Observability documentation](https://learn.microsoft.com/en-us/microsoft-365/agent-sdk/observability) for configuration guidance
+3. Verify agent activity baseline:
+   - Risk scoring requires 7-14 days of agent activity to establish baseline
+   - Check agent has generated sufficient events: **Activity Explorer** should show 50+ events for agent
+   - New agents deployed <7 days ago may show "Insufficient Data" until baseline established
+4. Check data latency:
+   - Agent risk scores update weekly (typically Sunday night)
+   - Last risk assessment date shown on dashboard; if >7 days old, risk scoring may be delayed
+   - Wait 24-48 hours after first agent activity before expecting risk data
+5. Verify DSPM for AI Get Started completion:
+   - Navigate to **Purview > DSPM for AI > Overview**
+   - Confirm all four Get Started steps show "Completed" status
+   - Extended Insights (Step 4) required for comprehensive risk scoring
+
+**Workaround:** Use Activity Explorer enhanced filters to manually review agent activity and identify high-risk patterns (excessive data access, policy violations) until automated risk scoring populates.
+
+---
+
+### Issue: Activity Explorer Missing AI Events
+
+**Symptoms:** Activity Explorer shows no AI interaction events despite active Copilot or agent usage
+
+**Solutions:**
+
+1. Verify audit logging enabled:
+   - Navigate to **Purview > Audit > Audit** (main page)
+   - Confirm "Start recording user and admin activity" banner is NOT present
+   - If banner present, click "Start recording" and wait 24 hours for events to populate
+   - Verify unified audit log ingestion: PowerShell `Get-AdminAuditLogConfig | Select UnifiedAuditLogIngestionEnabled` should return `True`
+2. Check Activity Explorer filters:
+   - Ensure date range includes recent activity (last 7-30 days)
+   - Clear all filters and verify events appear
+   - Try broadening "AI app category" filter to "All AI apps"
+3. Verify audit retention policy:
+   - Navigate to **Purview > Audit > Audit retention policies**
+   - Confirm retention period includes desired date range (minimum 90 days for FSI compliance)
+   - If events older than retention period, they are permanently deleted and unrecoverable
+4. Check agent activity type:
+   - Not all agent interactions generate Activity Explorer events
+   - Copilot Studio agents: Interactions logged if DLP or sensitivity label policy applies
+   - Agent Builder agents: Interactions logged via Observability SDK telemetry
+   - M365 Copilot: Interactions logged if involving sensitive data or policy enforcement
+5. Verify user/agent in scope:
+   - Check agent is published and active (not in draft mode)
+   - Verify users interacting with agent have licenses (M365 Copilot or appropriate agent license)
+   - Confirm user is not excluded from audit logging via retention policy
+
+**Workaround:** Export audit log data via PowerShell `Search-UnifiedAuditLog` and filter for AI-related operations manually. See PowerShell Setup playbook for export script.
+
+---
+
 ## Escalation Path
 
 If issues persist after troubleshooting:

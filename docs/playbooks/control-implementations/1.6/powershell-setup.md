@@ -145,6 +145,157 @@ Write-Host "Evidence exported to: $evidencePath"
 
 ---
 
+## Enhanced DSPM AI Observability - Data Export (Preview)
+
+!!! warning "Preview Feature — Cmdlets may change at GA"
+    PowerShell cmdlets for unified DSPM experience are in preview. Command syntax and parameters may change at GA (June 2026).
+
+### Export Activity Explorer Enhanced Data
+
+The unified DSPM experience provides enhanced Activity Explorer exports with additional metadata fields:
+
+```powershell
+# Connect to Security & Compliance Center
+Connect-IPPSSession -UserPrincipalName admin@contoso.com
+
+# Export enhanced Activity Explorer data for AI interactions
+$startDate = (Get-Date).AddDays(-30)
+$endDate = Get-Date
+
+# Search for AI interaction events with enhanced metadata
+$aiActivityData = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+    -RecordType "AIPDiscover,AIPFileDeleted,AIPHeartBeat,AIPProtectionAction,AIPSensitivityLabelAction" `
+    -ResultSize 5000
+
+# Parse and export with enhanced fields
+$enhancedData = $aiActivityData | ForEach-Object {
+    $data = $_.AuditData | ConvertFrom-Json
+    [PSCustomObject]@{
+        EventTimestamp = $_.CreationDate
+        User = $_.UserIds
+        AgentName = $data.ApplicationDisplayName
+        ActivityType = $_.Operations
+        DataSource = $data.ObjectId
+        SensitivityLabel = $data.SensitivityLabelId
+        PolicyActions = ($data.PolicyDetails | ConvertTo-Json -Compress)
+        RiskScore = $data.RiskScore  # Preview field - may change at GA
+        AccessPattern = $data.AccessPattern  # Preview field - may change at GA
+    }
+}
+
+$enhancedData | Export-Csv -Path "DSPM-Enhanced-Activity-Export.csv" -NoTypeInformation
+Write-Host "Enhanced Activity Explorer data exported to DSPM-Enhanced-Activity-Export.csv"
+```
+
+### Generate Weekly DSPM Summary Report
+
+Automated script to generate weekly DSPM summary report combining classic metrics with enhanced observability data:
+
+```powershell
+# Generate weekly DSPM summary report
+$reportDate = Get-Date -Format "yyyy-MM-dd"
+$reportPath = "DSPM-Weekly-Summary-$reportDate.html"
+
+# Collect agent risk summary (preview - API may change)
+$agentRiskSummary = @()
+# Note: Unified DSPM PowerShell API for agent risk not yet available in preview
+# Placeholder for future API once GA - manual export from portal recommended until then
+
+# Collect Activity Explorer summary
+$startDate = (Get-Date).AddDays(-7)
+$endDate = Get-Date
+$weeklyEvents = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+    -ResultSize 5000 | Where-Object { $_.AuditData -match 'Copilot|AI|Agent' }
+
+$eventSummary = @{
+    TotalEvents = $weeklyEvents.Count
+    UniqueUsers = ($weeklyEvents.UserIds | Select-Object -Unique).Count
+    UniqueAgents = ($weeklyEvents | ForEach-Object {
+        ($_.AuditData | ConvertFrom-Json).ApplicationDisplayName
+    } | Where-Object { $_ } | Select-Object -Unique).Count
+}
+
+# Collect policy violation summary
+$policyViolations = $weeklyEvents | Where-Object {
+    $data = $_.AuditData | ConvertFrom-Json
+    $data.PolicyDetails -and $data.PolicyDetails.Count -gt 0
+}
+
+$violationSummary = @{
+    TotalViolations = $policyViolations.Count
+    DLPViolations = ($policyViolations | Where-Object {
+        ($_.AuditData | ConvertFrom-Json).PolicyDetails.PolicyType -eq 'DLP'
+    }).Count
+}
+
+# Generate HTML report
+$htmlReport = @"
+<!DOCTYPE html>
+<html>
+<head><title>DSPM Weekly Summary - $reportDate</title></head>
+<body>
+<h1>DSPM Weekly Summary Report</h1>
+<p>Report Date: $reportDate</p>
+<p>Reporting Period: $startDate to $endDate</p>
+
+<h2>Activity Summary</h2>
+<ul>
+<li>Total AI Events: $($eventSummary.TotalEvents)</li>
+<li>Unique Users: $($eventSummary.UniqueUsers)</li>
+<li>Unique Agents: $($eventSummary.UniqueAgents)</li>
+</ul>
+
+<h2>Policy Violations</h2>
+<ul>
+<li>Total Violations: $($violationSummary.TotalViolations)</li>
+<li>DLP Violations: $($violationSummary.DLPViolations)</li>
+</ul>
+
+<p><em>Note: Agent Risk Observability data currently requires manual export from Purview portal. PowerShell API for agent risk scores expected at GA (June 2026).</em></p>
+</body>
+</html>
+"@
+
+$htmlReport | Out-File $reportPath
+Write-Host "Weekly DSPM summary report generated: $reportPath"
+```
+
+### Export Agent Risk Data (Manual Portal Export Required)
+
+!!! info "PowerShell API Not Yet Available"
+    The unified DSPM experience agent risk observability data does not yet have PowerShell cmdlet support in preview. Use portal export until GA.
+
+**Manual Export Steps:**
+
+1. Navigate to **Purview > Data Security Posture Management > AI Risk Dashboard**
+2. Click **Export** > **Agent Risk Summary CSV**
+3. Save file as `Agent-Risk-Summary-YYYY-MM-DD.csv`
+4. Import to PowerShell for processing:
+
+```powershell
+# Import manually exported agent risk data
+$agentRiskData = Import-Csv -Path "Agent-Risk-Summary-2026-02-06.csv"
+
+# Filter high-risk agents for escalation
+$highRiskAgents = $agentRiskData | Where-Object {
+    $_.RiskScore -eq 'High' -or [int]$_.RiskScoreNumeric -ge 70
+}
+
+# Generate high-risk agent notification email
+if ($highRiskAgents.Count -gt 0) {
+    $emailBody = "High-risk agents detected in DSPM AI Observability dashboard:`n`n"
+    $highRiskAgents | ForEach-Object {
+        $emailBody += "- Agent: $($_.AgentName), Risk Score: $($_.RiskScore), Contributing Factors: $($_.RiskFactors)`n"
+    }
+
+    # Send notification (configure Send-MailMessage parameters for your environment)
+    Write-Host "High-Risk Agent Alert:`n$emailBody"
+    # Send-MailMessage -To "compliance@contoso.com" -Subject "DSPM High-Risk Agents Detected" -Body $emailBody
+}
+```
+
+---
+
 ## Complete Configuration Script
 
 ```powershell
