@@ -217,6 +217,13 @@ Plans:
 4. User can configure M365 Admin Center Agent Settings when feature reaches GA
 5. User can plan migration roadmap from current governance to Agent 365 architecture
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Unified Agent 365 & Entra Agent ID governance document (replaces agent-identity-architecture.md, consolidates agent-365-architecture.md, updates mkdocs.yml nav)
+- [ ] 06-02-PLAN.md — Agent 365 forward-reference notes for HIGH/MEDIUM-impact control files (10 controls: 1.2, 1.5, 1.7, 1.8, 1.11, 2.1, 2.3, 2.12, 3.1, 3.6)
+- [ ] 06-03-PLAN.md — Agent 365 forward-reference notes for LOW-impact control files (7 controls) and Learn Monitor URL updates (~12 new URLs)
+
 ---
 
 ### Phase 7: Control Enhancements & Role Updates
@@ -253,7 +260,7 @@ Plans:
 | 3 - Azure Monitor Workbooks & Alert Rules | ✓ Complete | 5/5 | 7 | 5/5 |
 | 4 - Power BI Integration & Viva Insights | ✓ Complete | 4/4 | 5 | 5/5 |
 | 5 - Deployment Scripts & Validation | ✓ Complete | 3/3 | 3 | 5/5 |
-| 6 - Agent 365 & Identity Documentation | Pending | 0/0 | 3 | 5 |
+| 6 - Agent 365 & Identity Documentation | Planned | 0/3 | 3 | 5 |
 | 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
 
 **Total:** 5/7 phases complete, 35/44 requirements satisfied
@@ -271,7 +278,7 @@ This milestone operates across two repositories:
 | 3 - Azure Monitor Artifacts | FSI-AgentGov-Solutions | /agent-observability-foundation/workbooks/*, /alerts/* |
 | 4 - Power BI Integration | FSI-AgentGov-Solutions | /agent-observability-foundation/power-bi/* |
 | 5 - Deployment Scripts | FSI-AgentGov-Solutions | /agent-observability-foundation/scripts/* |
-| 6 - Agent 365 Documentation | FSI-AgentGov | /docs/framework/agent-365-architecture.md, controls/pillar-1-security/* |
+| 6 - Agent 365 Documentation | FSI-AgentGov | /docs/framework/agent-identity-architecture.md, /docs/controls/pillar-*/* (17 controls), /docs/reference/microsoft-learn-urls.md |
 | 7 - Control Enhancements | FSI-AgentGov | /docs/controls/pillar-*/* |
 
 **Git operations:** Each repo has separate git history. Git commands must run from within the target repo.
@@ -287,12 +294,12 @@ Phases with research needs identified:
 - **Phase 3:** Standard workbook and alert patterns (LOW research need)
 - **Phase 4:** Power BI semantic model design patterns (LOW research need)
 - **Phase 5:** Standard PowerShell deployment patterns (LOW research need)
-- **Phase 6:** Agent 365 preview feature architecture (HIGH research need - incomplete documentation)
+- **Phase 6:** Agent 365 preview feature architecture (HIGH research need - COMPLETE via 06-RESEARCH.md)
 - **Phase 7:** Standard control enhancement patterns (LOW research need)
 
-Phases 1-5 use well-documented Azure patterns. Phase 6 may require deeper research due to preview feature status.
+Phases 1-5 use well-documented Azure patterns. Phase 6 research complete with 776-line RESEARCH.md covering GA/preview status, 17 affected controls, and migration roadmap.
 
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-06 (Phase 5 complete — 3 plans, 2 waves, 5 task commits)*
+*Last updated: 2026-02-06 (Phase 6 planned — 3 plans, 2 waves)*
