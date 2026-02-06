@@ -8,16 +8,17 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current State (v2 Shipped)
+## Current State (v3 Shipped)
 
-**Framework Version:** 1.2.37 (February 2026)
+**Framework Version:** 1.2.38 (February 2026)
 
 **Shipped:**
 - v1: 62 controls verified, Agent 365 architecture, regulatory validation, solutions audit, unified monitoring
 - v2: PowerShell security fixes, documentation architecture (breadcrumbs + playbook discovery), monitoring config externalization, Compliance Dashboard v1.0.0, Scope Drift Monitor v1.1.0
+- v3: Agent Observability Foundation solution, Agent 365/Entra Agent ID documentation, Q1 2026 control enhancements (virtual connectors, DSPM, AI Feature Access, SharePoint Restricted Search), role catalog expansion
 
 **Solutions Status:**
-- 5 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor
+- 6 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation
 - 1 Validated: FINRA Supervision Workflow
 - 4 Work In Progress: Deny Event Correlation Report, Conditional Access Automation, Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
@@ -50,30 +51,27 @@ Capabilities delivered:
 - ✓ Compliance Dashboard v1.0.0 production-ready — v2 Phase 4
 - ✓ Scope Drift Monitor v1.1.0 production-ready — v2 Phase 5
 
+**v3 Milestone:**
+- ✓ Agent Observability Foundation solution (14 KQL queries, 3 workbooks, 4 alerts, Power BI, deployment scripts) — v3 Phases 1-5
+- ✓ Agent 365 & Entra Agent ID unified governance document (1009 lines, 17-control impact analysis) — v3 Phase 6
+- ✓ Virtual connectors enumeration and DLP guidance (11 connectors, zone-specific) — v3 Phase 7
+- ✓ Enhanced DSPM AI Observability with unified DSPM experience — v3 Phase 7
+- ✓ AI Feature Access Control with zone-based enablement and Admin Exclusion Groups — v3 Phase 7
+- ✓ SharePoint Restricted Search with positive governance model (100-site allowed list) — v3 Phase 7
+- ✓ AI Administrator and Defender XDR Admin role catalog expansion with FSI guidance — v3 Phase 7
+
 ### Active
 
-**v3 — Observability & Documentation Updates:**
-
-- [ ] Agent Observability Foundation solution (FSI-AgentGov-Solutions)
-  - Application Insights KQL queries, workbooks, alerts
-  - Power BI semantic model and DAX measures
-  - Viva Insights integration guidance
-  - Governance mapping to 62-control framework
-  - Deployment scripts (PowerShell)
-- [ ] Documentation gap closure (FSI-AgentGov)
-  - Microsoft Entra Agent ID documentation
-  - Agent 365 Control Plane architecture
-  - Virtual connectors for Copilot Studio (Control 1.5)
-  - Enhanced DSPM AI Observability (Control 1.6)
-  - AI Feature Access Control (Control 3.8)
-  - Role catalog updates (AI Administrator, Defender XDR Administrator)
+(No active requirements — next milestone not yet defined)
 
 ### Out of Scope
 
 - Non-US regulations — this framework is specifically for US financial sector
 - Real-time monitoring — batch/scheduled monitoring is sufficient
 - Mobile or alternative interfaces — GitHub Pages is the delivery mechanism
-- SharePoint Restricted Search — not yet released, monitor for GA
+- Token-level cost tracking — Copilot Studio does not expose per-call token data
+- GDPR Article 22 — US FSI scope only, no EU regulatory coverage
+- Third-party observability platforms — Microsoft-native stack only
 
 ### Deferred to v4+
 
@@ -82,6 +80,9 @@ Capabilities delivered:
 - Complete remaining WIP solutions (Deny Event, Conditional Access, Segregation Detector, RAG Validator)
 - Complete Planned solutions (COI Testing, Hallucination Tracker, DR Testing)
 - Navigation auto-generation with Awesome Pages plugin (risk of breaking pedagogical structure)
+- .pbit Power BI template file (TMDL import path is functional workaround)
+- Dynamic threshold tuning (requires 2-week production baseline)
+- Multi-agent orchestration tracing
 
 ## Context
 
@@ -127,6 +128,14 @@ Capabilities delivered:
 | Defer ARCH-05 (SQLite) indefinitely | JSON sufficient for 209 URLs | ✓ Good |
 | Human verification gate for solutions | Automated + human checkpoint ensures production quality | ✓ Good |
 | Unpacked solution format | Enables version control and pac CLI packaging | ✓ Good |
+| Consolidate 13 phases to 7 | Research suggested 10+3 phases; consolidation improves coherence | ✓ Good |
+| 730-day default retention | SEC 17a-4(b)(4) requires 2-year retention for broker-dealer communications | ✓ Good |
+| WORM policy excluded from automation | Irreversible — too risky for accidental lockdown | ✓ Good |
+| Dual-grain star schema for Power BI | Session-grain for trends, event-grain for drill-down investigation | ✓ Good |
+| Unified Agent 365 document | Single comprehensive source consolidates 3 requirements | ✓ Good |
+| Function-based KQL query organization | Reusability over regulation-based organization | ✓ Good |
+| SharePoint Restricted Search at GA | Research confirmed GA status from Microsoft Learn documentation | ✓ Good |
+| AI Administrator expanded scope | Comprehensive governance role beyond basic Copilot management | ✓ Good |
 
 ---
-*Last updated: 2026-02-05 after v3 milestone initialization*
+*Last updated: 2026-02-06 after v3 milestone*

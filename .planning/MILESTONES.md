@@ -1,5 +1,33 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v3 Observability & Documentation Updates (Shipped: 2026-02-06)
+
+**Delivered:** Production-ready Agent Observability Foundation solution with FSI-compliant telemetry, KQL queries, workbooks, alerts, and Power BI integration, plus Agent 365 architecture documentation and Q1 2026 control enhancements.
+
+**Phases completed:** 1-7 (27 plans total)
+
+**Key accomplishments:**
+
+- Deployed Agent Observability Foundation solution with telemetry pipeline, 14 KQL queries, 3 Azure Monitor workbooks, and 4 alert rules
+- Created Power BI semantic model with dual-grain star schema, 19 DAX measures, zone-based RLS, and Viva Insights reconciliation
+- Built idempotent deployment automation (deploy-workbooks.ps1, deploy-alerts.ps1) with validation checklist
+- Documented unified Agent 365 control plane and Entra Agent ID architecture with 17-control impact analysis
+- Enhanced 4 controls with Q1 2026 capabilities (virtual connectors, DSPM, AI Feature Access, SharePoint Restricted Search)
+- Expanded role catalog with AI Administrator and Defender XDR Admin documentation
+
+**Stats:**
+
+- 123 files created/modified
+- 28,465 lines added, 618 removed
+- 7 phases, 27 plans, 44 requirements (100% satisfied)
+- 2 days from start to ship (2026-02-05 -> 2026-02-06)
+
+**Git range:** `169986a` -> `ba5eebe`
+
+**What's next:** v4 — MCP server, Copilot Studio agent, complete remaining WIP/planned solutions
+
+---
+
 ## v2 Tech Debt, Architecture & Solution Completion (Shipped: 2026-02-05)
 
 **Delivered:** Resolved all PowerShell security issues, modernized documentation architecture with breadcrumb navigation and playbook discovery, externalized monitoring configuration, and completed Compliance Dashboard and Scope Drift Monitor to production-ready status.
@@ -56,4 +84,4 @@
 
 ---
 
-*Last updated: 2026-02-05 after v2 milestone*
+*Last updated: 2026-02-06 after v3 milestone*
