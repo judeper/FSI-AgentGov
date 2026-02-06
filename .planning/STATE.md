@@ -9,7 +9,7 @@
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** Phase 2 - Infrastructure & Environment Validation
+**Current focus:** Phase 3 - Automated Orchestration & Alerting
 
 ## Milestone Series Plan
 
@@ -24,19 +24,20 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 2 of 4 (Infrastructure & Environment Validation)
-**Plan:** 3 of 3 in phase
-**Status:** Phase 2 complete
-**Last activity:** 2026-02-06 — Completed 02-03-PLAN.md
+**Phase:** 3 of 4 (Automated Orchestration & Alerting)
+**Plan:** 1 of 3 in phase
+**Status:** Phase 3 in progress
+**Last activity:** 2026-02-06 — Completed 03-01-PLAN.md
 
 **Progress:**
 ```
 v1: [█████████████████████████] 8/8 phases (35 plans) — SHIPPED
 v2: [█████████████████████████] 5/5 phases (17 plans) — SHIPPED
 v3: [█████████████████████████] 7/7 phases (27 plans) — SHIPPED
-v4: [████████████░░░░░░░░░░░░░] 2/4 phases — IN PROGRESS
+v4: [████████████████░░░░░░░░░] 2.3/4 phases — IN PROGRESS
     Phase 1: [███] 3/3 plans complete ✓
     Phase 2: [███] 3/3 plans complete ✓
+    Phase 3: [█░░] 1/3 plans complete
 ```
 
 ## Performance Metrics
@@ -47,9 +48,9 @@ v4: [████████████░░░░░░░░░░░░░
 - Requirements: 90 total (33 + 13 + 44)
 
 **v4 Milestone:**
-- Total plans completed: 6
-- Average duration: 3.5 minutes
-- Total execution time: 0.35 hours
+- Total plans completed: 7
+- Average duration: 3.3 minutes
+- Total execution time: 0.39 hours
 
 ## Accumulated Context
 
@@ -106,6 +107,13 @@ Recent decisions affecting v4:
 - auditretentionperiodv2 unavailability returns Warning (not Failed) to avoid false positives
 - Per-environment orchestrator record written to Dataverse (3 records per environment: audit, retention, orchestrator)
 
+**Plan 03-01 decisions:**
+- Drift detection compares numeric severity values (Passed=1, Error=5) to detect regression vs. improvement
+- First run (no baseline) treats any non-Passed result as drift to ensure alerts fire for initial failures
+- Baseline query fails open (DriftDetected=true on error) to avoid silently suppressing alerts
+- Single JSON output per runbook execution (no Write-Host) for Azure Automation compatibility
+- Per-validator drift detection for tenant, per-environment drift for environments (granular alerting)
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, documentation in FSI-AgentGov
@@ -130,20 +138,20 @@ None.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed plan 02-03: Per-Environment Audit and Retention Validators with Orchestrator
-- Created 3 PowerShell scripts: Test-EnvironmentAudit.ps1, Test-EnvironmentRetention.ps1, Invoke-EnvironmentAuditValidation.ps1
-- Implemented per-environment Dataverse audit enablement validation with 24-hour grace period
-- Implemented retention validation against zone-specific thresholds from Dataverse environment variables
-- Implemented environment-level orchestrator with discovery, isolated validation, and correlated result storage
+- Executed plan 03-01: Azure Automation Runbook Wrappers and Drift Detection
+- Created 3 PowerShell scripts: Compare-ValidationBaseline.ps1, Start-TenantValidationRunbook.ps1, Start-EnvironmentValidationRunbook.ps1
+- Implemented drift detection helper querying Dataverse for last Passed baseline and comparing severity
+- Implemented tenant runbook wrapper with certificate auth, JSON output, and per-validator drift detection
+- Implemented environment runbook wrapper with per-environment drift detection and AlertsRequired aggregation
 - 2 commits to FSI-AgentGov-Solutions
-- SUMMARY.md created with validation pattern and decision documentation
-- **Phase 2 COMPLETE** — All 10 Phase 2 requirements satisfied
+- SUMMARY.md created with runbook patterns and drift detection logic
+- **Phase 3 started** — 2/6 Phase 3 requirements satisfied (AUTO-01, AUTO-02)
 
 **Performance:**
 - Tasks: 2/2 completed
-- Duration: 5 minutes
-- Files: 3 PowerShell scripts created (1,326 lines)
-- Phase 2 progress: 3/3 plans complete ✓
+- Duration: 3 minutes
+- Files: 3 PowerShell scripts created (831 lines)
+- Phase 3 progress: 1/3 plans complete
 
 ### Context for Next Session
 
@@ -159,24 +167,27 @@ If resuming this project:
    - v4 milestone: Audit Configuration Validator
    - **Phase 1: COMPLETE** (3/3 plans) — 6 PowerShell scripts (2,191 lines)
    - **Phase 2: COMPLETE** (3/3 plans) — 9 PowerShell scripts (3,517 lines)
-   - Requirements covered: All Phase 1 and Phase 2 requirements (16 total)
+   - **Phase 3: IN PROGRESS** (1/3 plans) — 3 PowerShell scripts (831 lines)
+   - Requirements covered: Phase 1, Phase 2, and partial Phase 3 (18/28 total)
      * TVAL-01, TVAL-02, TVAL-03, TVAL-04 (tenant validation)
      * PVAL-01, PVAL-02, PVAL-03 (Purview retention)
-     * INFR-01, INFR-02, INFR-03, INFR-04, INFR-05 (infrastructure)
+     * INFR-01, INFR-02, INFR-03, INFR-04, INFR-05, INFR-06 (infrastructure)
      * EVAL-01, EVAL-02, EVAL-03, EVAL-04, EVAL-05 (environment validation)
+     * AUTO-01, AUTO-02 (runbook wrappers, drift detection)
      * EVID-03 (immutable history)
    - Dataverse infrastructure: 5 option sets, 2 org-owned tables, 5 env vars, 2 connection refs
    - Tenant validators: 4 scripts (Invoke-TenantAuditValidation + 3 validators)
    - Environment validators: 3 scripts (Invoke-EnvironmentAuditValidation + 2 validators)
-   - Helpers: 4 private scripts (auth, write, discovery, canary)
+   - Runbook wrappers: 2 scripts (Start-TenantValidationRunbook, Start-EnvironmentValidationRunbook)
+   - Helpers: 5 private scripts (auth, write, discovery, canary, drift detection)
 
 3. **Next step:**
-   - Start Phase 3: Power Automate Integration
-   - Create cloud flows for scheduled validation execution
-   - Trigger Invoke-TenantAuditValidation and Invoke-EnvironmentAuditValidation
-   - Implement error handling and notification logic
+   - Continue Phase 3: Power Automate Integration
+   - Plan 03-02: Create cloud flows for Azure Automation runbook scheduling
+   - Implement webhook triggers and scheduled recurrence patterns
+   - Configure flow error handling and retry logic
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Plan 02-02 executed - Phase 2 in progress, 2/3 complete)*
+*Last session: 2026-02-06 (Plan 03-01 executed - Phase 3 in progress, 1/3 complete)*
