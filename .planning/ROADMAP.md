@@ -58,12 +58,12 @@ Plans:
 6. Trial and Developer environments are filtered out from validation and alerting
 7. Recently-enabled environments get 24-hour grace period before alerts fire
 
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 02-01: TBD during planning
-- [ ] 02-02: TBD during planning
-- [ ] 02-03: TBD during planning
+- [ ] 02-01-PLAN.md — Solution structure, Dataverse API client, schema scripts, env vars, connection refs, and deploy orchestrator (INFR-01, INFR-02, INFR-03, INFR-04, EVID-03)
+- [ ] 02-02-PLAN.md — Power Platform auth helper, Dataverse write helper, and environment discovery with registry sync (EVAL-04)
+- [ ] 02-03-PLAN.md — Per-environment audit and retention validators with environment-level orchestrator (EVAL-01, EVAL-02, EVAL-03, EVAL-05)
 
 ### Phase 3: Automated Orchestration & Alerting
 
@@ -115,9 +115,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Validation Scripts | 3/3 | Complete | 2026-02-06 |
-| 2. Infrastructure & Environment Validation | 0/TBD | Not started | - |
+| 2. Infrastructure & Environment Validation | 0/3 | Not started | - |
 | 3. Automated Orchestration & Alerting | 0/TBD | Not started | - |
 | 4. Evidence Export & Framework Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-06 — Phase 1 complete*
+*Last updated: 2026-02-06 — Phase 2 planned (3 plans in 3 waves)*
