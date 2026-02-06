@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 6 of 7 (Agent 365 & Identity Documentation) - IN PROGRESS
-**Plan:** 1 of 1 in current phase - COMPLETE (06-01)
+**Phase:** 6 of 7 (Agent 365 & Identity Documentation) - COMPLETE
+**Plan:** 3 of 3 in current phase - COMPLETE (06-03)
 **Status:** Phase 6 complete — Ready for Phase 7
-**Last activity:** 2026-02-06 - Completed 06-01-PLAN.md (unified Agent 365 documentation)
+**Last activity:** 2026-02-06 - Completed 06-03-PLAN.md (LOW-impact control forward-references & Learn URLs)
 
 **Progress:**
 ```
-Milestone Progress: [████████████████████] 20/20 plans (Phases 1-6 complete)
+Milestone Progress: [████████████████████] 22/22 plans (Phases 1-6 complete)
 
-Phase 6: [████████████████████] 1/1 plan complete ✓
+Phase 6: [████████████████████] 3/3 plans complete ✓
 ```
 
 ## Performance Metrics
@@ -75,14 +75,16 @@ Phase 6: [████████████████████] 1/1 plan
 - Documentation: README.md deployment section (+84 lines)
 
 **Phase 6 Performance:**
-- Plans completed: 1/1 (06-01) - PHASE COMPLETE
+- Plans completed: 3/3 (06-01, 06-02, 06-03) - PHASE COMPLETE
 - Requirements satisfied: 3/3 (A365-01, A365-02, A365-03)
-- Commits: 2 total (2 per plan)
+- Commits: 6 total (2 per plan)
 - Unified governance document: agent-identity-architecture.md (1009 lines)
 - Mermaid diagrams: 3 (sponsorship flow, control plane architecture, admin settings hierarchy)
 - Control impact analysis: 17 controls (HIGH: 4, MEDIUM: 6, LOW: 7)
+- Forward-reference admonitions: 17 control files updated (4 HIGH with tip, 6 MEDIUM with tip, 7 LOW with note)
+- Learn Monitor URLs: Expanded from 174 to 186 URLs (+12 Agent 365 and Entra Agent ID URLs)
 - Regulatory alignment: 5 regulations (FINRA 3110, SEC 17a-3/4, OCC 2011-12, SOX, GLBA)
-- Duration: 8 minutes
+- Duration: 14 minutes (06-01: 8min, 06-02: 3min, 06-03: 3min)
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -170,6 +172,13 @@ Phase 6: [████████████████████] 1/1 plan
 | 17-control impact analysis grouped by level | HIGH (4), MEDIUM (6), LOW (7) controls affected by Agent 365; side-by-side current vs Agent 365 approach | 2026-02-06 |
 | Single top-level preview disclaimer | GA vs preview features distinction at document top; no inline per-feature status badges | 2026-02-06 |
 | Redirect stub for agent-365-architecture.md | Preserves backward compatibility for external links and bookmarks while directing to unified document | 2026-02-06 |
+| Note-level admonitions for LOW-impact controls | LOW-impact controls get `!!! note` (visually lighter) vs `!!! tip` for HIGH/MEDIUM | 2026-02-06 |
+| M365 Admin Center as separate Learn URL section | Separates admin portal URLs from SDK/identity URLs for better organization | 2026-02-06 |
+| Learn Monitor URL tracking expanded | Added 12 Agent 365 and Entra Agent ID URLs (174→186 total) for daily documentation monitoring | 2026-02-06 |
+| MkDocs 'tip' admonition for HIGH-impact controls | Visual hierarchy: tip level (prominent blue) for HIGH-impact Agent 365 changes | 2026-02-06 |
+| MkDocs 'info' admonition for MEDIUM-impact controls | Visual hierarchy: info level (lighter blue) for MEDIUM-impact Agent 365 changes | 2026-02-06 |
+| Control-specific admonition content | Each forward-reference describes how Agent 365 specifically changes that control's approach - avoids generic boilerplate | 2026-02-06 |
+| Admonitions inserted after title/metadata | Placement before first content section ensures immediate visibility without disrupting control structure | 2026-02-06 |
 
 ### Key Constraints
 
@@ -225,31 +234,30 @@ None currently. Phase 6 complete (1/1 plan). Ready for Phase 7 (Control Enhancem
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed Phase 6 Plan 01 (unified Agent 365 and Entra Agent ID documentation)
-- Two tasks: Create unified governance document + redirect stub and navigation update
-- Duration: 8 minutes
-- 2 commits to FSI-AgentGov: e711682 (feat), 6b80478 (docs)
+- Executed Phase 6 Plan 03 (LOW-impact control forward-references and Learn Monitor URL expansion)
+- Two tasks: Add forward-reference notes to 7 LOW-impact controls + update Learn URLs watchlist
+- Duration: 3 minutes
+- 2 commits to FSI-AgentGov: a1a324e (feat), 4f2f767 (feat)
 
-**Plan 06-01 Execution:**
-- Created comprehensive unified governance document (1009 lines) consolidating A365-01, A365-02, A365-03
-- Documented Entra Agent ID identity foundation (sponsorship, lifecycle workflows, Conditional Access)
-- Documented Agent 365 unified control plane (registry, security posture, observability)
-- Documented M365 Admin Center Agent Settings (templates, sharing controls, user access)
-- Created migration roadmap with pre-GA and post-GA checklists
-- Mapped Agent 365 impact to 17 controls (HIGH: 4, MEDIUM: 6, LOW: 7)
-- Aligned Agent 365 capabilities with FSI regulations (FINRA 3110, SEC 17a-3/4, OCC 2011-12, SOX, GLBA)
-- Created redirect stub for agent-365-architecture.md (backward compatibility)
-- Updated mkdocs.yml navigation labels
+**Plan 06-03 Execution:**
+- Added Agent 365 forward-reference notes to 7 LOW-impact control files (1.6, 1.18, 1.24, 2.4, 2.5, 2.13, 3.2)
+- Used `!!! note` admonition level for LOW-impact controls (visually lighter than `!!! tip` for HIGH/MEDIUM)
+- Expanded Microsoft Learn URLs watchlist from 174 to 186 URLs (+12 new URLs)
+- Added 4 new Entra Agent ID URLs (Administrative Relationships, Conditional Access, Agent Sponsor Tasks)
+- Added 3 new Agent 365 SDK URLs (Observability, Identity, Schema Reference)
+- Created new "M365 Admin Center Agent Management" section with 5 URLs
+- Learn Monitor successfully parses updated watchlist (221 total URLs including non-Learn)
 
-**Key artifacts created (Plan 06-01):**
-- agent-identity-architecture.md: 1009-line unified governance document with 3 Mermaid diagrams
-- agent-365-architecture.md: Redirect stub pointing to unified document
-- mkdocs.yml: Updated navigation ("Unified Agent Governance", "Agent 365 Architecture (Archived)")
+**Key artifacts modified (Plan 06-03):**
+- 7 control files: Added Agent 365 forward-reference notes
+- microsoft-learn-urls.md: Expanded with 12 new URLs for daily Learn Monitor tracking
 
 **Phase 6 Complete:**
-Single plan executed successfully:
+All three plans executed successfully:
 - 06-01: Unified Agent 365 documentation (1009 lines, 3 Mermaid diagrams, 17-control impact analysis)
-- Total: 2 commits, comprehensive Agent 365 governance guidance
+- 06-02: Added forward-references to 10 HIGH/MEDIUM controls
+- 06-03: Added forward-references to 7 LOW controls + expanded Learn Monitor watchlist
+- Total: 6 commits, comprehensive Agent 365 governance guidance
 
 ### Context for Next Session
 
@@ -265,8 +273,8 @@ If resuming this project:
    - Phase 3: COMPLETE (5/5 plans) — Azure Monitor Workbooks & Alerts
    - Phase 4: COMPLETE (4/4 plans) — Power BI Integration & Viva Insights
    - Phase 5: COMPLETE (3/3 plans) — Deployment Scripts & Validation
-   - Phase 6: COMPLETE (1/1 plan) — Agent 365 & Identity Documentation
-   - 38/44 requirements satisfied (86.4%)
+   - Phase 6: COMPLETE (3/3 plans) — Agent 365 & Identity Documentation
+   - 41/44 requirements satisfied (93.2%)
    - **Phase 7 ready to begin**
 
 3. **Next steps:**
@@ -277,4 +285,4 @@ If resuming this project:
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Phase 6 complete — unified Agent 365 documentation)*
+*Last session: 2026-02-06 (Phase 6 complete — Agent 365 forward-references & Learn Monitor expansion)*
