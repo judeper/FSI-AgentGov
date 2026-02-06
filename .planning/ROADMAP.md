@@ -101,11 +101,12 @@ Plans:
 5. Solution README provides prerequisites, quick start guide, and zone-specific requirements
 6. Deployment guide provides step-by-step setup instructions for administrators
 
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 04-01: TBD during planning
-- [ ] 04-02: TBD during planning
+- [ ] 04-01-PLAN.md — Evidence export scripts with JSON output and SHA-256 integrity hashing (EVID-01, EVID-02, EVID-04)
+- [ ] 04-02-PLAN.md — Control 1.7 tip admonition and solutions-index.md catalog entry (DOCS-01, DOCS-02)
+- [ ] 04-03-PLAN.md — Solution README update and evidence export deployment guide (DOCS-03, DOCS-04)
 
 ## Progress
 
@@ -117,7 +118,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Core Validation Scripts | 3/3 | Complete | 2026-02-06 |
 | 2. Infrastructure & Environment Validation | 3/3 | Complete | 2026-02-06 |
 | 3. Automated Orchestration & Alerting | 2/2 | Complete | 2026-02-06 |
-| 4. Evidence Export & Framework Integration | 0/TBD | Not started | - |
+| 4. Evidence Export & Framework Integration | 0/3 | In progress | - |
 
 ---
-*Last updated: 2026-02-06 — Phase 3 complete (2/2 plans)*
+*Last updated: 2026-02-06 — Phase 4 planned (3 plans in 2 waves)*
