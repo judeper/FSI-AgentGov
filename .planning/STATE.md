@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 4 of 7 (Power BI Integration & Viva Insights) - IN PROGRESS
-**Plan:** 3 of 4 in current phase - COMPLETE (04-01, 04-02, 04-04)
-**Status:** Ready for Plan 04-03
-**Last activity:** 2026-02-06 - Completed 04-02-PLAN.md (DAX Measures & Power BI Integration Guide)
+**Phase:** 4 of 7 (Power BI Integration & Viva Insights) - COMPLETE
+**Plan:** 4 of 4 in current phase - ALL COMPLETE
+**Status:** Phase 4 complete, ready for Phase 5
+**Last activity:** 2026-02-06 - Completed 04-03-PLAN.md (KQL Pre-Aggregation Functions & Connector Decision Matrix)
 
 **Progress:**
 ```
-Milestone Progress: [███████████████░░░░░] 15/17+ plans (Phase 1-3 complete, Phase 4 in progress)
+Milestone Progress: [████████████████░░░░] 16/17+ plans (Phases 1-4 complete, Phase 5 pending)
 
-Phase 4: [███████████████░░░░░] 3/4 plans complete (PBI-01, PBI-02, VIVA-01-02)
+Phase 4: [████████████████████] 4/4 plans complete (ALL COMPLETE)
 ```
 
 ## Performance Metrics
@@ -57,13 +57,14 @@ Phase 4: [███████████████░░░░░] 3/4 plan
 - Action groups: 4 (operations team, compliance team, security team, cost management)
 
 **Phase 4 Performance:**
-- Plans completed: 3/4 (04-01, 04-02, 04-04)
-- Requirements satisfied: 7/10 (PBI-01, PBI-02, VIVA-01-02)
-- Commits: 6 total (2 per plan)
+- Plans completed: 4/4 (04-01, 04-02, 04-03, 04-04) - PHASE COMPLETE
+- Requirements satisfied: 10/10 (PBI-01, PBI-02, PBI-03, VIVA-01-02)
+- Commits: 8 total (2 per plan)
 - TMDL files: 16 total (database, model, 11 tables, relationships, RLS role, measures)
 - DAX measures: 19 total across 6 categories (Session Metrics, Latency, Error Rates, Compliance, Trends, Event Detail)
-- Documentation files: 3 (Power BI integration guide, Viva Insights scope, Viva reconciliation workflow)
-- Semantic model: Dual-grain star schema with comprehensive measure library
+- KQL functions: 4 total (vw_session_fact, vw_event_fact, vw_dim_agent, vw_dim_regulation_control)
+- Documentation files: 5 (Power BI integration guide, connector decision matrix, Power BI README, Viva Insights scope, Viva reconciliation workflow)
+- Semantic model: Dual-grain star schema with comprehensive measure library and pre-aggregation data layer
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -126,6 +127,11 @@ Phase 4: [███████████████░░░░░] 3/4 plan
 | Regulation Drill-Down framed for exam prep | Per 04-CONTEXT locked decision — valuable for audit preparation workflows | 2026-02-06 |
 | Three refresh strategies documented | Pro/PPU/Premium license tiers have different capabilities and cost models | 2026-02-06 |
 | Event-level measures use USERELATIONSHIP | Avoids ambiguous relationship paths for EventDateKey inactive relationship | 2026-02-06 |
+| KQL functions with parameterized date ranges | Power BI Pro 1GB limit requires user control over dataset size (90-day for <100 agents, 30-day for >100) | 2026-02-06 |
+| SHA-256 PII hashing for UserId | Persistent hashing enables cross-session correlation while protecting PII (Phase 2 convention) | 2026-02-06 |
+| Heuristic AgentType inference | Telemetry lacks explicit agent type field; infer from customDimensions flags with validation recommendation | 2026-02-06 |
+| Static datatable for regulation mapping | Governance mapping changes infrequently (quarterly); datatable() sufficient until CSV/blob needed | 2026-02-06 |
+| Equal ADX Import and DirectQuery documentation | Neither path is universally better; users choose based on licensing (Pro vs Premium) and requirements (static vs real-time) | 2026-02-06 |
 
 ### Key Constraints
 
@@ -181,56 +187,59 @@ None currently. Phase 2 complete, ready for Phase 3 planning.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed 04-02-PLAN.md (DAX Measures & Power BI Integration Guide)
-- Created 2 files in FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/
-- 2 commits: 7089b4f (CoreMetrics.tmdl), ed9e2c1 (power-bi-integration.md)
-- 19 DAX measures across 6 categories: Session Metrics, Latency, Error Rates, Compliance, Trends, Event Detail
-- Compliance Score with weighted pillar calculation (40%/30%/20%/10%)
-- WoW/MoM trends for Sessions, Error Rate, Avg Latency
-- Comprehensive integration guide with 5-page executive dashboard design
-- Regulation drill-down page framed for regulatory examination readiness
+- Executed 04-03-PLAN.md (KQL Pre-Aggregation Functions & Connector Decision Matrix)
+- Created 6 files in FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/
+- 2 commits: a389902 (4 KQL functions), c393dd8 (connector docs + README)
+- 4 KQL pre-aggregation functions: vw_session_fact, vw_event_fact, vw_dim_agent, vw_dim_regulation_control
+- Parameterized date ranges for Pro license 1GB limit management
+- SHA-256 PII hashing for UserId in event-level detail
+- Connector decision matrix (15.7 KB) documenting ADX Import and DirectQuery equally
+- Power BI solution README (13 KB) with quick-start guide and 18 cross-references
 
 **Decisions made:**
-- WoW/MoM trends applied only to high-value operational measures (not slowly changing metrics)
-- Compliance Score simplified pattern with customization guidance for varied GRC systems
-- Three refresh strategies documented (ADX Import, DirectQuery, Hybrid) for different license tiers
-- Event-level measures use USERELATIONSHIP for inactive EventDateKey relationship
+- KQL functions with parameterized date ranges (90-day for <100 agents, 30-day for >100)
+- SHA-256 PII hashing for persistent, privacy-safe user correlation
+- Heuristic AgentType inference from telemetry flags (requires validation)
+- Static datatable for regulation mapping (sufficient until CSV/blob needed)
+- Equal documentation depth for both connector paths (ADX Import vs DirectQuery)
 
 **Phase 4 Status:**
 - Plan 01 complete (PBI-01 satisfied — TMDL semantic model)
 - Plan 02 complete (PBI-02 satisfied — DAX measures + integration guide)
-- Plan 03 pending (KQL Pre-Aggregation Views)
+- Plan 03 complete (PBI-03 satisfied — KQL functions + connector decision matrix)
 - Plan 04 complete (VIVA-01-02 satisfied — Viva Insights scope + reconciliation)
+- **PHASE 4 COMPLETE** — All 10 requirements satisfied
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/04-power-bi-integration-viva-insights/04-02-SUMMARY.md` — DAX measures + integration guide complete
-   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/semantic-model/measures/CoreMetrics.tmdl` — 19 DAX measures reference
-   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/docs/power-bi-integration.md` — Executive dashboard design
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/04-power-bi-integration-viva-insights/04-CONTEXT.md` — Phase 4 implementation decisions
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/04-power-bi-integration-viva-insights/04-03-SUMMARY.md` — KQL functions + connector decision matrix complete
+   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/kql-views/vw_session_fact.kql` — Session-level aggregation function
+   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/docs/connector-decision-matrix.md` — ADX vs DirectQuery comparison
+   - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 5 next (Agent 365 or Control Enhancements)
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans)
    - Phase 2: COMPLETE (3/3 plans)
    - Phase 3: COMPLETE (5/5 plans)
-   - Phase 4: IN PROGRESS (3/4 plans)
-   - TMDL semantic model with comprehensive DAX measures
-   - Ready for KQL Pre-Aggregation Views (04-03)
+   - Phase 4: COMPLETE (4/4 plans) — ALL REQUIREMENTS SATISFIED
+   - Power BI solution complete: TMDL model + DAX measures + KQL functions + documentation
+   - Ready for Phase 5
 
 3. **Next steps:**
-   - Execute 04-03-PLAN.md (KQL Pre-Aggregation Views)
-   - Move to Phase 5 (Testing & Validation)
+   - Review ROADMAP.md for Phase 5 planning
+   - Phase 5 options: Testing & Validation OR Agent 365 Documentation OR Control Enhancements
+   - All 4 phases (16 plans) of Agent Observability Foundation complete
 
-4. **Key artifacts created:**
-   - CoreMetrics.tmdl: 19 measures across 6 categories with USERELATIONSHIP pattern
-   - power-bi-integration.md: 5-page dashboard design with regulation drill-down for exam prep
-   - Refresh strategies: ADX Import, DirectQuery, Hybrid for different license tiers
-   - RLS setup with zone-based USERNAME() filtering
+4. **Key artifacts created (Phase 4):**
+   - 4 KQL pre-aggregation functions with parameterized date ranges and SHA-256 PII hashing
+   - Connector decision matrix (15.7 KB) documenting ADX Import and DirectQuery equally
+   - Power BI solution README (13 KB) with quick-start guide
+   - Complete data layer for executive dashboards (session + event facts, 8 dimensions)
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (04-02-PLAN.md execution — Phase 4 Plan 02 complete)*
+*Last session: 2026-02-06 (04-03-PLAN.md execution — Phase 4 COMPLETE)*
