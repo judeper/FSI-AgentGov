@@ -9,10 +9,10 @@ Requirements for Audit Configuration Validator solution. Each maps to roadmap ph
 
 ### Tenant Audit Validation
 
-- [ ] **TVAL-01**: Validator checks M365 Unified Audit Log is enabled via Get-AdminAuditLogConfig
-- [ ] **TVAL-02**: Validator checks mailbox audit on-by-default status via Get-OrganizationConfig
-- [ ] **TVAL-03**: Validator checks admin audit log enablement
-- [ ] **TVAL-04**: Validator uses dual validation strategy (cmdlet + canary event) to avoid false positives
+- [x] **TVAL-01**: Validator checks M365 Unified Audit Log is enabled via Get-AdminAuditLogConfig ✓
+- [x] **TVAL-02**: Validator checks mailbox audit on-by-default status via Get-OrganizationConfig ✓
+- [x] **TVAL-03**: Validator checks admin audit log enablement ✓
+- [x] **TVAL-04**: Validator uses dual validation strategy (cmdlet + canary event) to avoid false positives ✓
 
 ### Environment Audit Validation
 
@@ -24,9 +24,9 @@ Requirements for Audit Configuration Validator solution. Each maps to roadmap ph
 
 ### Purview Retention Validation
 
-- [ ] **PVAL-01**: Validator checks Purview audit retention policies via Get-UnifiedAuditLogRetentionPolicy
-- [ ] **PVAL-02**: Validator validates retention periods meet FSI regulatory requirements (minimum 730 days for Zone 3)
-- [ ] **PVAL-03**: Validator identifies gaps in record type coverage (CopilotInteraction, PowerPlatformAdmin)
+- [x] **PVAL-01**: Validator checks Purview audit retention policies via Get-UnifiedAuditLogRetentionPolicy ✓
+- [x] **PVAL-02**: Validator validates retention periods meet FSI regulatory requirements (minimum 730 days for Zone 3) ✓
+- [x] **PVAL-03**: Validator identifies gaps in record type coverage (CopilotInteraction, PowerPlatformAdmin) ✓
 
 ### Automation & Alerting
 
@@ -48,7 +48,7 @@ Requirements for Audit Configuration Validator solution. Each maps to roadmap ph
 - [ ] **INFR-02**: Dataverse schema uses fsi_ publisher prefix for all tables and columns
 - [ ] **INFR-03**: Connection references use fsi_cr_* naming convention
 - [ ] **INFR-04**: Environment variables use fsi_ACV_* naming convention
-- [ ] **INFR-05**: PowerShell scripts use #Requires with minimum module versions
+- [x] **INFR-05**: PowerShell scripts use #Requires with minimum module versions ✓
 
 ### Documentation
 
@@ -103,18 +103,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TVAL-01 | Phase 1 | Pending |
-| TVAL-02 | Phase 1 | Pending |
-| TVAL-03 | Phase 1 | Pending |
-| TVAL-04 | Phase 1 | Pending |
+| TVAL-01 | Phase 1 | Complete |
+| TVAL-02 | Phase 1 | Complete |
+| TVAL-03 | Phase 1 | Complete |
+| TVAL-04 | Phase 1 | Complete |
 | EVAL-01 | Phase 2 | Pending |
 | EVAL-02 | Phase 2 | Pending |
 | EVAL-03 | Phase 2 | Pending |
 | EVAL-04 | Phase 2 | Pending |
 | EVAL-05 | Phase 2 | Pending |
-| PVAL-01 | Phase 1 | Pending |
-| PVAL-02 | Phase 1 | Pending |
-| PVAL-03 | Phase 1 | Pending |
+| PVAL-01 | Phase 1 | Complete |
+| PVAL-02 | Phase 1 | Complete |
+| PVAL-03 | Phase 1 | Complete |
 | AUTO-01 | Phase 3 | Pending |
 | AUTO-02 | Phase 3 | Pending |
 | AUTO-03 | Phase 3 | Pending |
@@ -127,7 +127,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFR-02 | Phase 2 | Pending |
 | INFR-03 | Phase 2 | Pending |
 | INFR-04 | Phase 2 | Pending |
-| INFR-05 | Phase 1 | Pending |
+| INFR-05 | Phase 1 | Complete |
 | DOCS-01 | Phase 4 | Pending |
 | DOCS-02 | Phase 4 | Pending |
 | DOCS-03 | Phase 4 | Pending |
@@ -140,4 +140,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after roadmap creation*
+*Last updated: 2026-02-06 — Phase 1 requirements complete (8/28)*
