@@ -20,6 +20,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Completed | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Work In Progress | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
+| [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Work In Progress | Automated validation of tenant and environment audit configurations | 1.7 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.0.0 | Work In Progress | CA policy deployment and compliance monitoring for AI workloads | 1.11, 1.23, 1.18 |
 | [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
@@ -322,6 +323,29 @@ Validates AI agent disaster recovery procedures against defined RTO/RPO targets,
 
 ---
 
+### Audit Configuration Validator
+
+Automated validation of Microsoft 365 and Power Platform audit configurations to support compliance with US financial services regulations.
+
+**Components:**
+- PowerShell validation scripts (tenant and environment level)
+- Azure Automation runbook wrappers for scheduled execution
+- Power Automate flow definitions for drift detection and alerting
+- Dataverse tables for validation history and environment registry
+- Evidence export with SHA-256 integrity hashing
+
+**Regulatory Alignment:**
+- FINRA 4511 (Books and Records - Audit Configuration)
+- SEC 17a-3/4 (Recordkeeping - Audit Trail Requirements)
+- SOX 404 (Internal Controls - Audit Logging)
+- GLBA 501(b) (Safeguards - Audit Trail)
+
+**Related Control:** [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+
+**Repository Link:** [audit-configuration-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-configuration-validator)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -338,6 +362,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 | Solution | Current | Last Updated |
 |----------|---------|--------------|
+| Audit Configuration Validator | v1.0.0 | February 2026 |
 | Environment Lifecycle Management | v1.1.2 | January 2026 |
 | Message Center Monitor | v2.1.1 | January 2026 |
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
