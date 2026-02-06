@@ -31,6 +31,254 @@ Add-PowerAppsAccount
 
 ---
 
+## AI Feature Access Control Management
+
+### Create Admin Exclusion Group
+
+```powershell
+function New-CopilotAdminExclusionGroup {
+    param(
+        [string]$GroupName = "CopilotForM365AdminExclude",
+        [string]$Description = "Users excluded from Microsoft 365 Copilot access for compliance reasons"
+    )
+
+    Write-Host "Creating Admin Exclusion Group: $GroupName" -ForegroundColor Cyan
+
+    # Check if group already exists
+    $existingGroup = Get-MgGroup -Filter "displayName eq '$GroupName'" -ErrorAction SilentlyContinue
+
+    if ($existingGroup) {
+        Write-Host "Group already exists: $($existingGroup.Id)" -ForegroundColor Yellow
+        return $existingGroup
+    }
+
+    # Create new security group
+    $groupParams = @{
+        DisplayName = $GroupName
+        Description = $Description
+        MailEnabled = $false
+        SecurityEnabled = $true
+        MailNickname = $GroupName.Replace(" ", "")
+    }
+
+    $newGroup = New-MgGroup -BodyParameter $groupParams
+    Write-Host "Admin Exclusion Group created successfully: $($newGroup.Id)" -ForegroundColor Green
+
+    return $newGroup
+}
+```
+
+### Add Users to Admin Exclusion Group
+
+```powershell
+function Add-UsersToAdminExclusionGroup {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string[]]$UserPrincipalNames,
+
+        [string]$GroupName = "CopilotForM365AdminExclude"
+    )
+
+    Write-Host "Adding users to Admin Exclusion Group..." -ForegroundColor Cyan
+
+    # Get the exclusion group
+    $group = Get-MgGroup -Filter "displayName eq '$GroupName'"
+
+    if (!$group) {
+        Write-Host "Error: Admin Exclusion Group not found. Create it first." -ForegroundColor Red
+        return
+    }
+
+    foreach ($upn in $UserPrincipalNames) {
+        try {
+            # Get user object
+            $user = Get-MgUser -Filter "userPrincipalName eq '$upn'"
+
+            if (!$user) {
+                Write-Host "Warning: User not found: $upn" -ForegroundColor Yellow
+                continue
+            }
+
+            # Add user to group
+            $memberParams = @{
+                "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$($user.Id)"
+            }
+
+            New-MgGroupMember -GroupId $group.Id -BodyParameter $memberParams
+            Write-Host "Added: $upn" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to add $upn : $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+
+    Write-Host "`nNote: Changes take up to 24 hours to propagate." -ForegroundColor Yellow
+}
+```
+
+### Bulk Add Users from CSV
+
+```powershell
+function Import-AdminExclusionGroupFromCSV {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$CsvPath,
+
+        [string]$GroupName = "CopilotForM365AdminExclusionGroup"
+    )
+
+    Write-Host "Importing users from CSV: $CsvPath" -ForegroundColor Cyan
+
+    # Import CSV (expects column: UserPrincipalName)
+    $users = Import-Csv -Path $CsvPath
+
+    if (!$users) {
+        Write-Host "Error: No users found in CSV" -ForegroundColor Red
+        return
+    }
+
+    Write-Host "Found $($users.Count) users in CSV" -ForegroundColor Green
+
+    # Extract UPNs
+    $upns = $users | Select-Object -ExpandProperty UserPrincipalName
+
+    # Add to exclusion group
+    Add-UsersToAdminExclusionGroup -UserPrincipalNames $upns -GroupName $GroupName
+}
+```
+
+**Example CSV format:**
+
+```csv
+UserPrincipalName,Reason,AddedBy,AddedDate
+trader1@contoso.com,Blackout period Q1 2026,compliance@contoso.com,2026-02-06
+trader2@contoso.com,Blackout period Q1 2026,compliance@contoso.com,2026-02-06
+employee3@contoso.com,Under compliance investigation,legal@contoso.com,2026-02-06
+```
+
+### Export Admin Exclusion Group Membership
+
+```powershell
+function Export-AdminExclusionGroupMembers {
+    param(
+        [string]$GroupName = "CopilotForM365AdminExclude",
+        [string]$OutputPath = ".\AdminExclusionGroup_Members_$(Get-Date -Format 'yyyyMMdd').csv"
+    )
+
+    Write-Host "Exporting Admin Exclusion Group members..." -ForegroundColor Cyan
+
+    # Get group
+    $group = Get-MgGroup -Filter "displayName eq '$GroupName'"
+
+    if (!$group) {
+        Write-Host "Error: Group not found: $GroupName" -ForegroundColor Red
+        return
+    }
+
+    # Get group members
+    $members = Get-MgGroupMember -GroupId $group.Id -All
+
+    # Expand member details
+    $memberDetails = foreach ($member in $members) {
+        $user = Get-MgUser -UserId $member.Id -ErrorAction SilentlyContinue
+        if ($user) {
+            [PSCustomObject]@{
+                UserPrincipalName = $user.UserPrincipalName
+                DisplayName = $user.DisplayName
+                JobTitle = $user.JobTitle
+                Department = $user.Department
+                AddedToGroup = $member.AdditionalProperties.createdDateTime
+            }
+        }
+    }
+
+    # Export to CSV
+    $memberDetails | Export-Csv -Path $OutputPath -NoTypeInformation
+    Write-Host "Export completed: $OutputPath" -ForegroundColor Green
+    Write-Host "Total members: $($memberDetails.Count)" -ForegroundColor Green
+}
+```
+
+### Query Copilot Settings via Microsoft Graph
+
+```powershell
+function Get-CopilotSettings {
+
+    Write-Host "Retrieving Copilot settings via Microsoft Graph..." -ForegroundColor Cyan
+
+    # Note: As of February 2026, Copilot-specific settings may require
+    # direct REST API calls as dedicated PowerShell cmdlets may not exist
+
+    try {
+        # Query organization settings
+        $orgSettings = Get-MgOrganization | Select-Object -First 1
+
+        # Query service principals related to Copilot
+        $copilotSPs = Get-MgServicePrincipal -Filter "startswith(displayName, 'Microsoft 365 Copilot')" -All
+
+        # Query authorization policies (may contain Copilot-related policies)
+        $authPolicies = Get-MgPolicyAuthorizationPolicy
+
+        Write-Host "`nOrganization: $($orgSettings.DisplayName)" -ForegroundColor Green
+        Write-Host "Copilot Service Principals found: $($copilotSPs.Count)" -ForegroundColor Green
+
+        # Build result object
+        $result = [PSCustomObject]@{
+            OrganizationName = $orgSettings.DisplayName
+            TenantId = $orgSettings.Id
+            CopilotServicePrincipals = $copilotSPs
+            AuthorizationPolicies = $authPolicies
+            RetrievedAt = Get-Date
+        }
+
+        return $result
+    }
+    catch {
+        Write-Host "Error retrieving Copilot settings: $($_.Exception.Message)" -ForegroundColor Red
+        return $null
+    }
+}
+```
+
+### Export Copilot Configuration for Compliance
+
+```powershell
+function Export-CopilotConfigurationForCompliance {
+    param(
+        [string]$OutputPath = ".\CopilotCompliance_$(Get-Date -Format 'yyyyMMdd')"
+    )
+
+    Write-Host "Exporting Copilot configuration for compliance documentation..." -ForegroundColor Cyan
+
+    if (!(Test-Path $OutputPath)) {
+        New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+    }
+
+    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+
+    # 1. Export Admin Exclusion Group membership
+    $exclusionGroupMembers = Export-AdminExclusionGroupMembers -OutputPath "$OutputPath\AdminExclusionGroup_$timestamp.csv"
+
+    # 2. Export Copilot settings
+    $copilotSettings = Get-CopilotSettings
+    $copilotSettings | ConvertTo-Json -Depth 5 | Out-File "$OutputPath\CopilotSettings_$timestamp.json"
+
+    # 3. Export deployment group assignments (if accessible via Graph API)
+    # Note: This may require custom Graph API calls depending on API availability
+
+    # 4. Export audit log of Copilot configuration changes
+    $auditEvents = Get-CopilotAuditEvents -DaysBack 90
+    $auditEvents | Select-Object ActivityDateTime, ActivityDisplayName, InitiatedBy, Result |
+        Export-Csv -Path "$OutputPath\CopilotAuditEvents_$timestamp.csv" -NoTypeInformation
+
+    Write-Host "`nCompliance export completed: $OutputPath" -ForegroundColor Green
+    Write-Host "Files created:" -ForegroundColor Cyan
+    Get-ChildItem -Path $OutputPath | Select-Object Name, Length, LastWriteTime | Format-Table
+}
+```
+
+---
+
 ## Get Copilot Configuration
 
 ```powershell

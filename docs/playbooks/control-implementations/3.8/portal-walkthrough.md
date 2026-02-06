@@ -71,44 +71,172 @@ Navigate through the four settings tabs:
 
 ### Step 3A: Configure AI Feature Access Control
 
+!!! info "GA Feature"
+    AI Feature Access Control settings are generally available and provide granular user-level and feature-level controls for Microsoft 365 Copilot.
+
 **Portal Path:** M365 Admin Center > Copilot > Settings
 
 Configure user-level feature access to manage Copilot availability by user, group, and compliance requirements:
 
-**1. Navigate to M365 Admin Center > Copilot > Settings**
+#### 1. Create Admin Exclusion Group (Entra ID)
 
-**2. Configure User Access:**
-   - Set license assignments (Licenses > Assign/Remove)
-   - Create Admin Exclusion Groups for compliance-restricted users
-   - Review user access settings
+**Portal Path:** Microsoft Entra admin center > Groups > All groups > New group
 
-**3. Configure End-User Experience:**
-   - Set Copilot Chat pinning preferences (Teams/Outlook)
-   - Configure user interface defaults
+1. Navigate to [Microsoft Entra admin center](https://entra.microsoft.com)
+2. Select **Groups** > **All groups** > **New group**
+3. Configure group:
+   - **Group type:** Security
+   - **Group name:** `CopilotForM365AdminExclude` (exact name required)
+   - **Group description:** "Users excluded from Microsoft 365 Copilot access for compliance reasons"
+   - **Membership type:** Assigned (or Dynamic if using attribute-based rules)
+4. Click **Create**
 
-**4. Configure Data Access:**
-   - Disable web search for regulated environments processing MNPI
-   - Set organizational data boundaries
+**Add members to exclusion group:**
 
-**5. Configure Actions:**
-   - Set agent access controls
-   - Manage connector permissions
-   - Configure allowed agent types
+- Navigate to the newly created group > **Members** > **Add members**
+- Select users or nested groups to exclude from Copilot access
+- Common FSI populations:
+  - Traders during blackout periods (temporary)
+  - Employees under compliance investigation (temporary)
+  - Restricted persons lists (permanent or semi-permanent)
+  - Customer-facing roles during pilot phase (temporary)
 
-**6. Set up Deployment Groups:**
-   - Navigate to Settings > Deployment
-   - Create deployment groups for staged rollout
-   - Assign user groups to deployment phases
-   - Start with Zone 1 personal productivity users
-   - Expand to Zone 2/3 after validation
+**Zone-specific notes:**
 
-**7. Verify settings propagation:**
-   - Allow up to 8 hours for full tenant propagation
-   - Test with users in each deployment group
-   - Confirm Admin Exclusion Groups block access as expected
+- **Zone 1:** Admin Exclusion Groups typically not required for personal productivity agents
+- **Zone 2:** Use for compliance-sensitive roles (e.g., traders on MNPI teams)
+- **Zone 3:** Mandatory for traders, restricted persons, and roles under enhanced supervision per FINRA 3110
+
+!!! warning "Propagation Delay"
+    Admin Exclusion Group membership changes take up to **24 hours** to propagate. Plan additions/removals accordingly. Users will retain access until propagation completes.
+
+#### 2. Configure User Access Settings
+
+**Portal Path:** M365 Admin Center > Copilot > Settings > User access tab
+
+1. Navigate to [M365 Admin Center](https://admin.microsoft.com)
+2. Select **Copilot** > **Settings** > **User access** tab
+3. Configure settings:
+   - **Self-service purchases:** Set to "Disabled" (FSI recommendation: prevent shadow IT)
+   - **Copilot in Edge:** Set to "Managed users only" (enforces organizational account usage)
+   - **Consumer Copilot access:** Set to "Disabled" (prevents consumer account mixing)
+
+**Zone-specific notes:**
+
+- **Zone 3:** All settings must be "Disabled" or "Managed users only" to ensure organizational control
+
+#### 3. Configure Deployment Groups for Staged Rollout
+
+**Portal Path:** M365 Admin Center > Copilot > Settings > (check for Deployment tab or section)
+
+1. In M365 Admin Center > Copilot > Settings, locate deployment group configuration
+2. Create deployment groups aligned with rollout phases:
+
+   **Pilot Deployment Group:**
+   - Name: `Copilot-Pilot-IT-Compliance`
+   - Members: IT staff, Compliance team, AI Governance Lead (10-50 users)
+   - Duration: 4-6 weeks
+   - Validation: Feature functionality, no compliance violations, positive feedback
+
+   **Wave 1 Deployment Group:**
+   - Name: `Copilot-Wave1-NonCustomerFacing`
+   - Members: Non-customer-facing business units (100-500 users)
+   - Duration: 8-12 weeks
+   - Validation: Usage metrics healthy, DLP policies effective, no audit findings
+
+   **Wave 2 Deployment Group:**
+   - Name: `Copilot-Wave2-SupervisedCustomerFacing`
+   - Members: Customer-facing roles with supervision (500-2000 users)
+   - Duration: 12-16 weeks
+   - Validation: Supervision workflows validated, regulatory reporting functional
+
+   **Wave 3 (Full Rollout):**
+   - All licensed users (excludes Admin Exclusion Group members)
+   - Ongoing monitoring and quarterly compliance review
+
+3. Assign users to appropriate deployment group based on current phase
+4. Document group membership and phase transition approval process
+
+**Zone-specific notes:**
+
+- **Zone 1:** Deployment groups optional; useful for managing support load during large-scale rollout
+- **Zone 2:** Recommended to validate team collaboration patterns before full enablement
+- **Zone 3:** Mandatory; align deployment group phases with change control approval gates
+
+#### 4. Configure Data Access Settings
+
+**Portal Path:** M365 Admin Center > Copilot > Settings > Data access tab
+
+1. Navigate to **Data access** tab
+2. Configure settings:
+   - **Web search for M365 Copilot:**
+     - Zone 1: Enabled (personal productivity)
+     - Zone 2: Disabled for MNPI teams (Material Non-Public Information protection)
+     - Zone 3: Disabled organization-wide (GLBA 501(b): prevent external data leakage)
+   - **External AI providers:** Set to "Block" (all zones)
+   - **Third-party LLM access:** Set to "Block" (all zones)
+
+**Zone-specific notes:**
+
+- **Zone 3 (customer-facing):** Web search MUST be disabled to prevent inadvertent exposure of customer data to external search providers
+- **MNPI environments:** Disable web search to comply with insider trading prevention controls
+
+#### 5. Configure Actions Settings (Agent Access Control)
+
+**Portal Path:** M365 Admin Center > Copilot > Settings > Actions tab
+
+1. Navigate to **Actions** tab (previously "Copilot Actions")
+2. Configure agent access controls:
+   - **Allowed agent types:**
+     - Zone 1: All agents allowed (Microsoft + Organizational + Verified third-party)
+     - Zone 2: Organizational + Microsoft verified agents only
+     - Zone 3: Organizational agents only, with approval workflow required (FINRA 4511)
+   - **Image generation:** Disable (FSI recommendation for all zones)
+   - **Video generation:** Disable (FSI recommendation for all zones)
+   - **Teams meeting Copilot:** Enable with retention policies configured (align with FINRA 4511 books and records)
+
+**Zone-specific notes:**
+
+- **Zone 3:** Restrict agent access to pre-approved organizational agents only; require governance review before enabling any new agent capabilities
+
+#### 6. Configure End-User Experience
+
+**Portal Path:** M365 Admin Center > Copilot > Settings > (check for End-User Experience section)
+
+1. Locate End-User Experience or similar settings section
+2. Configure Copilot Chat pinning:
+   - **Copilot Chat pinned in Teams:**
+     - Zone 1: User preference
+     - Zone 2: Enabled for collaboration teams
+     - Zone 3: Controlled per department based on supervision requirements
+   - **Copilot Chat pinned in Outlook:** Configure similarly based on zone
+
+**Zone-specific notes:**
+
+- **Zone 3:** Align pinning with supervision requirements — disable for unsupervised roles to reduce inadvertent AI usage without oversight
+
+#### 7. Verify Settings Propagation
+
+**After completing configuration:**
+
+1. Allow **up to 8 hours** for settings to propagate across the tenant
+2. Test with pilot users in each deployment group:
+   - Sign in as user in deployment group → Verify Copilot access granted
+   - Sign in as user NOT in deployment group → Verify Copilot access denied
+   - Sign in as user in Admin Exclusion Group → Verify Copilot access denied (may take up to 24 hours)
+3. Verify web search disabled (if configured):
+   - Test Copilot chat with query requiring external data
+   - Confirm response uses only organizational data, no web results
+4. Document test results for compliance evidence
+
+**Troubleshooting:**
+
+- If settings not applying: Wait full 8-hour propagation window before escalating
+- If Admin Exclusion not working: Verify group name exactly matches `CopilotForM365AdminExclude` (case-sensitive)
+- If deployment group not limiting access: Verify group type is Security group, check license assignment
 
 !!! tip "FSI Governance Best Practice"
-    Create an Admin Exclusion Group for compliance-restricted users BEFORE enabling Copilot organization-wide. This prevents inadvertent access during the propagation window.
+    Create the Admin Exclusion Group and add all compliance-restricted users BEFORE enabling Copilot organization-wide. This prevents inadvertent access during the 24-hour propagation window.
 
 ---
 
