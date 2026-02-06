@@ -137,7 +137,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Agent 365 Security Overview** | https://learn.microsoft.com/en-us/security/security-for-ai/agent-365-security | Jan 2026 |
 
-For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Identity Architecture](../framework/agent-identity-architecture.md).
+For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see [Unified Agent Governance](../framework/agent-identity-architecture.md).
 
 ---
 
