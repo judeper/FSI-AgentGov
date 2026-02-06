@@ -12,7 +12,7 @@ This milestone delivers an automated audit configuration validation solution for
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Core Validation Scripts** - PowerShell validation logic with dual validation strategy
+- [x] **Phase 1: Core Validation Scripts** - PowerShell validation logic with dual validation strategy ✓
 - [ ] **Phase 2: Infrastructure & Environment Validation** - Solution structure, Dataverse schema, environment-level validation
 - [ ] **Phase 3: Automated Orchestration & Alerting** - Power Automate flows with Teams/email notifications
 - [ ] **Phase 4: Evidence Export & Framework Integration** - Compliance evidence generation and documentation
@@ -37,9 +37,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Auth helpers and Unified Audit Log validation with dual strategy (TVAL-01, TVAL-03, TVAL-04, INFR-05)
-- [ ] 01-02-PLAN.md — Mailbox audit and Purview retention validation (TVAL-02, PVAL-01, PVAL-02, PVAL-03)
-- [ ] 01-03-PLAN.md — Main orchestrator and end-to-end verification
+- [x] 01-01-PLAN.md — Auth helpers and Unified Audit Log validation with dual strategy (TVAL-01, TVAL-03, TVAL-04, INFR-05) ✓
+- [x] 01-02-PLAN.md — Mailbox audit and Purview retention validation (TVAL-02, PVAL-01, PVAL-02, PVAL-03) ✓
+- [x] 01-03-PLAN.md — Main orchestrator and end-to-end verification ✓
 
 ### Phase 2: Infrastructure & Environment Validation
 
