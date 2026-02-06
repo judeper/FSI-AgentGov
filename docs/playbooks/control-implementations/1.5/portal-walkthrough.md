@@ -50,6 +50,9 @@ Power Platform DLP policies enforce data protection through 11 virtual governanc
 
 ### Classify Virtual Governance Connectors
 
+!!! info "GA Feature"
+    Virtual governance connectors are generally available as of Q1 2025. This configuration step applies to all Power Platform DLP policies.
+
 1. Navigate to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 2. Select **Policies** > **Data policies**
 3. Select an existing DLP policy or create a new one
@@ -71,46 +74,201 @@ Power Platform DLP policies enforce data protection through 11 virtual governanc
    - **Non-Business** - Cannot be used alongside Business connectors in the same agent
    - **Blocked** - Completely prohibited from use
 
-### FSI-Specific Classification Guidance
+### Zone-Specific Classification Configuration
 
-For Zone 3 (Enterprise Managed) environments, apply the following classifications:
+#### Zone 1 (Personal Productivity) Configuration
 
-| Connector | Zone 3 Classification | Rationale |
-|-----------|----------------------|-----------|
-| AI Builder (GPT) | Business | Required for AI functionality; control via usage monitoring |
-| AI Builder (Document Processing) | Business | Required for document understanding; monitor for sensitive content |
+For Zone 1 environments, apply minimal restrictions to enable self-service agent development:
+
+| Connector | Classification | Rationale |
+|-----------|----------------|-----------|
+| AI Builder (GPT) | Business | Enable generative AI capabilities |
+| AI Builder (Document Processing) | Business | Enable document understanding |
 | Copilot Studio Topics | Business | Core agent functionality |
-| Copilot Studio Skills | Business | Required for Power Automate integration |
-| Copilot Studio Knowledge | Business | Allow only after Control 1.3 SharePoint governance implemented |
-| HTTP with Microsoft Entra ID | Business | Allow with endpoint filtering (see below) |
-| HTTP Webhook | **Blocked** | Unauthenticated calls pose data exfiltration risk |
-| Direct Line | Business | Required for web chat deployment |
-| Microsoft Teams Channel | Business | Approved publishing channel |
-| SharePoint Channel | Non-Business or Blocked | Require approval before Business classification |
+| Copilot Studio Skills | Business | Enable Power Automate integration |
+| Copilot Studio Knowledge | Business | Enable knowledge source grounding |
+| HTTP with Microsoft Entra ID | Business or Non-Business | Allow authenticated HTTP; block list social media |
+| HTTP Webhook | Non-Business or Blocked | Minimize unauthenticated external calls |
+| Direct Line | Business | Enable web chat deployment |
+| Microsoft Teams Channel | Business | Primary publishing channel |
+| SharePoint Channel | Non-Business | Use with caution |
+| Custom Website Channel | Non-Business or Blocked | Restrict external publishing |
+
+**Zone 1 Configuration Steps:**
+
+1. Classify all AI Builder and Copilot Studio connectors as Business
+2. Classify HTTP Webhook as Non-Business or Blocked
+3. Classify Custom Website Channel as Non-Business or Blocked
+4. For HTTP with Microsoft Entra ID, configure block list for social media domains (see below)
+5. Save policy and verify propagation
+
+#### Zone 2 (Team Collaboration) Configuration
+
+For Zone 2 environments, balance team collaboration with controlled external access:
+
+| Connector | Classification | Rationale |
+|-----------|----------------|-----------|
+| AI Builder (GPT) | Business | Required for team agents |
+| AI Builder (Document Processing) | Business | Required for team document processing |
+| Copilot Studio Topics | Business | Core agent functionality |
+| Copilot Studio Skills | Business | Enable approved Power Automate flows |
+| Copilot Studio Knowledge | Business | Enable team knowledge sources |
+| HTTP with Microsoft Entra ID | Business | Allow with block list for risky endpoints |
+| HTTP Webhook | **Blocked** | Prevent unauthenticated external calls |
+| Direct Line | Business | Enable web chat for team agents |
+| Microsoft Teams Channel | Business | Primary publishing channel |
+| SharePoint Channel | Non-Business or Blocked | Require approval per agent |
 | Custom Website Channel | **Blocked** | External publishing requires security review |
+
+**Zone 2 Configuration Steps:**
+
+1. Classify all AI Builder and Copilot Studio connectors as Business
+2. Classify HTTP Webhook as Blocked (not Non-Business)
+3. Classify Custom Website Channel as Blocked
+4. For HTTP with Microsoft Entra ID, configure block list for social media and file-sharing domains
+5. Classify SharePoint Channel as Non-Business (requires per-agent justification to use)
+6. Save policy and document approved connectors
+
+#### Zone 3 (Enterprise Managed) Configuration
+
+For Zone 3 environments, apply strictest controls for customer-facing and regulated agents:
+
+| Connector | Zone 3 Classification | Governance Control |
+|-----------|----------------------|-------------------|
+| AI Builder (GPT) | Business | Monitor via Control 3.1 (Usage Dashboards) |
+| AI Builder (Document Processing) | Business | Log all document uploads |
+| Copilot Studio Topics | Business | Core functionality; no restrictions |
+| Copilot Studio Skills | Business | Require flow approval per Control 2.2 |
+| Copilot Studio Knowledge | Business | **Prerequisites:** Control 1.3 + Control 4.1 must be implemented |
+| HTTP with Microsoft Entra ID | Business | **Required:** HTTP endpoint allow list filtering (see below) |
+| HTTP Webhook | **Blocked** | Data exfiltration risk; use Entra-authenticated alternative |
+| Direct Line | Business | Monitor via Control 3.3 (Conversation Transcripts) |
+| Microsoft Teams Channel | Business | Approved internal publishing channel |
+| SharePoint Channel | **Blocked** | Embedding poses XSS risk; requires security review |
+| Custom Website Channel | **Blocked** | External publishing requires penetration testing |
+
+**Zone 3 Configuration Steps:**
+
+1. Classify AI Builder (GPT) and AI Builder (Document Processing) as Business
+2. Classify all Copilot Studio connectors as Business
+3. Classify HTTP Webhook as **Blocked** (not Non-Business)
+4. Classify SharePoint Channel as **Blocked** (not Non-Business)
+5. Classify Custom Website Channel as **Blocked**
+6. For HTTP with Microsoft Entra ID:
+   - Classify as Business
+   - **REQUIRED:** Configure HTTP endpoint filtering with allow list (see next section)
+7. Save policy and document configuration in change control system (Control 2.1)
 
 ### Configure HTTP Endpoint Filtering
 
-For HTTP connectors classified as Business, configure endpoint filtering to restrict external API calls:
+!!! warning "Zone 3 Requirement"
+    Zone 3 environments MUST configure HTTP endpoint filtering with allow list mode. Failure to configure endpoint filtering creates data exfiltration risk.
 
-1. In the DLP policy, select **HTTP with Microsoft Entra ID** connector
-2. Click **Configure connector** or **Endpoint filtering**
-3. Choose filtering mode:
-   - **Allow list** - Only specified domains/patterns permitted
-   - **Block list** - Specified domains/patterns denied; all others allowed
-4. For Zone 3, use **Allow list** with approved internal APIs only:
-   ```
-   *.internal.yourdomain.com
-   api.yourdomain.com
-   ```
-5. Click **Save** to apply endpoint filters
+For HTTP with Microsoft Entra ID connector classified as Business, configure endpoint filtering:
+
+#### Step 1: Access Endpoint Filtering Configuration
+
+1. In the DLP policy, locate **HTTP with Microsoft Entra ID** connector in the Business classification group
+2. Click the connector name or select **Configure connector** from the three-dot menu
+3. Select **Endpoint filtering** tab
+4. Choose filtering mode:
+   - **Allow list** (Zone 3 requirement) - Only specified domains/patterns permitted; all others blocked
+   - **Block list** (Zone 1-2 option) - Specified domains/patterns blocked; all others allowed
+
+#### Step 2: Configure Zone-Specific Patterns
+
+**For Zone 1 (Block list mode):**
+
+Block social media and consumer file-sharing APIs:
+
+```
+https://*.twitter.com/*
+https://api.twitter.com/*
+https://*.linkedin.com/oauth/*
+https://api.linkedin.com/*
+https://*.facebook.com/*
+https://graph.facebook.com/*
+https://*.dropbox.com/*
+https://api.dropbox.com/*
+https://*.box.com/*
+https://api.box.com/*
+http://*                          # Block all unencrypted HTTP
+```
+
+**For Zone 2 (Block list or Allow list):**
+
+If using block list, add to Zone 1 patterns:
+
+```
+https://*.file-sharing.com/*
+https://*.free-tier.com/*
+```
+
+If using allow list, specify approved internal and regulatory endpoints only.
+
+**For Zone 3 (Allow list mode - REQUIRED):**
+
+Specify approved internal APIs and regulatory data sources only:
+
+```
+*.internal.yourbank.com           # Internal domain (all subdomains)
+api.yourbank.com                  # Primary API gateway
+*.core-banking-system.local       # On-premises core banking APIs
+https://api.sec.gov/*             # SEC EDGAR API
+https://api.finra.org/*           # FINRA regulatory APIs
+https://www.ffiec.gov/*           # FFIEC data repository
+https://data.treasury.gov/*       # U.S. Treasury data feeds
+```
+
+For approved partner bank APIs (with BAA):
+
+```
+https://api.partner-bank.com/*
+```
+
+For approved market data vendors (Bloomberg, Refinitiv):
+
+```
+https://api.bloomberg.com/*       # Requires vendor approval + BAA
+https://api.refinitiv.com/*       # Requires vendor approval + BAA
+```
+
+#### Step 3: Document and Verify Configuration
+
+1. Click **Save** to apply endpoint filters
+2. **Screenshot:** Capture the endpoint filtering configuration for audit evidence
+3. Document all allowed endpoints in your IT change control system (Control 2.1)
+4. For Zone 3, obtain dual approval from Power Platform Admin + AI Governance Lead
+5. Allow 1-2 hours for policy propagation before testing
+
+#### Step 4: Portal Verification Steps
+
+After configuration, verify in PPAC:
+
+1. Navigate to Policies > Data policies > [Your Policy] > Connectors
+2. Locate **HTTP with Microsoft Entra ID** in Business classification
+3. Verify endpoint filtering icon/badge appears next to connector name
+4. Click connector to verify filtering mode and patterns are correct
+5. Confirm policy scope includes target environments
+
+**Expected Portal Display:**
+
+- Connector shows "Endpoint filtering configured" badge or icon
+- Clicking connector displays configured patterns
+- Filtering mode (Allow list / Block list) is correct for zone
+- No syntax errors in URL patterns
 
 ### Verify Connector Classification
 
+After completing zone-specific configuration, verify all settings:
+
 1. In the DLP policy, review the **Connectors** tab
-2. Confirm all 11 virtual governance connectors appear with expected classifications
-3. Note that policies apply to all environments within the policy scope
-4. Allow 1-2 hours for policy propagation before testing
+2. Confirm all 11 virtual governance connectors appear with expected classifications per zone
+3. Verify HTTP with Microsoft Entra ID shows endpoint filtering configured (Zone 3 requirement)
+4. Note that policies apply to all environments within the policy scope
+5. Export policy configuration via PowerShell (see PowerShell Setup playbook) for audit evidence
+6. Document configuration in change control system per Control 2.1
+7. Allow 1-2 hours for policy propagation before executing test cases
 
 ---
 

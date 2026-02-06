@@ -94,6 +94,91 @@
 
 ---
 
+### Issue: Virtual Connector Classification Not Enforcing
+
+**Symptoms:** Agent uses blocked connector without triggering DLP error; expected DLP block does not occur
+
+**Solutions:**
+
+1. Verify DLP policy scope includes the target environment:
+   - Navigate to PPAC > Policies > Data policies > [Policy] > Environments
+   - Confirm target environment is listed in policy scope
+   - Note: Policies scoped to "All environments except..." may not apply as expected
+2. Check policy propagation timing:
+   - Allow 1-2 hours after policy changes for propagation
+   - Clear browser cache and retry agent creation/publishing
+3. Verify connector is correctly identified:
+   - Some connectors have multiple versions or aliases
+   - Ensure you've blocked all variants (e.g., "HTTP Webhook" vs "HTTP with no authentication")
+4. Check for conflicting policies:
+   - Multiple DLP policies may apply to the same environment
+   - Higher-priority policy may override expected classification
+   - Review all policies via `Get-DlpPolicy` PowerShell cmdlet
+5. Verify agent is in target environment:
+   - Agents in different environments may have different DLP policies
+   - Confirm agent environment matches policy scope
+
+---
+
+### Issue: HTTP Endpoint Filtering Not Blocking Expected URLs
+
+**Symptoms:** Agent successfully calls external API that should be blocked by endpoint filtering; allow list not enforcing
+
+**Solutions:**
+
+1. Verify endpoint filtering is configured:
+   - Navigate to PPAC > Policies > Data policies > [Policy] > Connectors
+   - Click "HTTP with Microsoft Entra ID" connector
+   - Confirm endpoint filtering badge/icon is present
+   - Click connector to view configured patterns
+2. Check URL pattern syntax:
+   - Patterns are case-sensitive for path components (not domain)
+   - Wildcards (`*`) must be used correctly: `*.domain.com` (subdomain wildcard) vs `https://domain.com/*` (path wildcard)
+   - Verify no typos in domain names
+3. Verify filtering mode:
+   - Confirm you're using "Allow list" mode (not "Block list") for Zone 3
+   - In Allow list mode, only specified patterns are permitted
+   - In Block list mode, only specified patterns are denied
+4. Allow for propagation delay:
+   - Endpoint filtering changes can take 1-2 hours to propagate
+   - Test in incognito/private browsing mode to avoid cache
+5. Check for pattern overlap:
+   - Broader pattern may allow URL you intended to block
+   - Example: `*.bank.com` allows `https://external.bank.com` even if you intended only `internal.bank.com`
+6. Verify agent is using HTTP with Microsoft Entra ID connector:
+   - If agent uses HTTP Webhook (different connector), endpoint filtering for HTTP with Entra ID won't apply
+   - Check agent skills/actions to confirm connector type
+
+---
+
+### Issue: Maker Sees No DLP Error When Using Blocked Connector
+
+**Symptoms:** Agent maker can add blocked connector to agent without error message; no DLP notification
+
+**Solutions:**
+
+1. Verify DLP policy applies to maker's user account:
+   - Check if maker is in excluded group (some policies exclude admins)
+   - DLP policies apply based on environment membership, not user role
+2. Confirm environment-level DLP policy scope:
+   - Navigate to PPAC > Policies > Data policies > [Policy] > Environments
+   - Verify the environment where agent is being created is in policy scope
+   - Default environment may have different policies than custom environments
+3. Check for "Audit only" mode:
+   - If policy is in "Audit only" mode, makers see no blocking errors
+   - Verify policy mode in PPAC (should be "Enabled" for enforcement)
+4. Test with actual agent execution (not just design-time):
+   - DLP enforcement may occur at runtime (when agent executes) rather than design-time (when agent is created)
+   - Publish agent and test execution to verify DLP enforcement
+5. Check connector classification group:
+   - If connector is "Non-Business" (not "Blocked"), maker can use it if not mixing with Business connectors
+   - Verify connector is in "Blocked" group for complete prohibition
+6. Review Purview Audit Log:
+   - Even if maker sees no error, DLP events may be logged
+   - Search Purview Audit Log for DLP policy matches with maker's user account
+
+---
+
 ## Escalation Path
 
 If issues persist after troubleshooting:

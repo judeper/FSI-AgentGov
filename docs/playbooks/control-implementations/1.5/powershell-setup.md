@@ -151,6 +151,219 @@ Start-ComplianceSearch -Identity "Highly-Confidential-Content"
 
 ---
 
+## Virtual Governance Connector Management
+
+!!! info "PowerShell Management Limitation"
+    Virtual governance connector DLP classification is primarily managed via Power Platform Admin Center portal. PowerShell management of virtual governance connectors requires Power Platform Admin PowerShell module and may have limited cmdlet support. Use portal for initial configuration; use PowerShell for audit and export.
+
+### Export Current Virtual Connector Classifications
+
+```powershell
+# Connect to Power Platform Admin Center
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force
+Add-PowerAppsAccount
+
+# Get all DLP policies
+$dlpPolicies = Get-DlpPolicy
+
+# Export current connector classifications for audit
+foreach ($policy in $dlpPolicies) {
+    Write-Host "Policy: $($policy.DisplayName)" -ForegroundColor Cyan
+
+    # Get policy details including connector classifications
+    $policyDetail = Get-DlpPolicy -PolicyName $policy.PolicyName
+
+    # Export Business connectors
+    $businessConnectors = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "General" }
+    $businessConnectors.Connectors | Where-Object { $_.Name -like "*Copilot*" -or $_.Name -like "*AI*" -or $_.Name -like "*HTTP*" } |
+        Select-Object Id, Name, Type | Export-Csv -Path "Business-Connectors-$($policy.DisplayName).csv" -NoTypeInformation -Append
+
+    # Export Non-Business connectors
+    $nonBusinessConnectors = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Confidential" }
+    $nonBusinessConnectors.Connectors | Where-Object { $_.Name -like "*Copilot*" -or $_.Name -like "*AI*" -or $_.Name -like "*HTTP*" } |
+        Select-Object Id, Name, Type | Export-Csv -Path "NonBusiness-Connectors-$($policy.DisplayName).csv" -NoTypeInformation -Append
+
+    # Export Blocked connectors
+    $blockedConnectors = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Blocked" }
+    $blockedConnectors.Connectors | Where-Object { $_.Name -like "*Copilot*" -or $_.Name -like "*AI*" -or $_.Name -like "*HTTP*" } |
+        Select-Object Id, Name, Type | Export-Csv -Path "Blocked-Connectors-$($policy.DisplayName).csv" -NoTypeInformation -Append
+}
+
+Write-Host "Virtual connector classifications exported to CSV files" -ForegroundColor Green
+```
+
+### Audit Virtual Connector Configuration
+
+```powershell
+# Audit script to verify Zone 3 virtual connector configuration
+$policyName = "Zone3-Enterprise-DLP-Policy"
+$policy = Get-DlpPolicy -PolicyName $policyName
+
+Write-Host "=== Zone 3 Virtual Connector Audit ===" -ForegroundColor Cyan
+
+# Define expected Zone 3 configuration
+$expectedBlocked = @(
+    "*HTTP Webhook*",
+    "*Custom Website*",
+    "*SharePoint Channel*"
+)
+
+# Get connector groups
+$businessGroup = $policy.ConnectorGroups | Where-Object { $_.Classification -eq "General" }
+$blockedGroup = $policy.ConnectorGroups | Where-Object { $_.Classification -eq "Blocked" }
+
+# Check for required blocked connectors
+foreach ($pattern in $expectedBlocked) {
+    $found = $blockedGroup.Connectors | Where-Object { $_.Name -like $pattern }
+    if ($found) {
+        Write-Host "  [PASS] $pattern is blocked" -ForegroundColor Green
+    } else {
+        Write-Host "  [FAIL] $pattern is NOT blocked (required for Zone 3)" -ForegroundColor Red
+    }
+}
+
+# Check for HTTP with Entra ID endpoint filtering
+$httpEntraId = $businessGroup.Connectors | Where-Object { $_.Name -like "*HTTP*Entra*" }
+if ($httpEntraId) {
+    Write-Host "  [INFO] HTTP with Microsoft Entra ID is Business-classified" -ForegroundColor Yellow
+    Write-Host "  [ACTION] Verify endpoint filtering is configured via portal (cannot validate via PowerShell)" -ForegroundColor Yellow
+} else {
+    Write-Host "  [WARN] HTTP with Microsoft Entra ID not found in Business group" -ForegroundColor Red
+}
+
+Write-Host "`nAudit complete. Review findings and remediate any FAIL items." -ForegroundColor Cyan
+```
+
+### Export Virtual Connector Configuration for Audit Evidence
+
+```powershell
+<#
+.SYNOPSIS
+    Export virtual connector DLP classification for audit evidence
+
+.DESCRIPTION
+    This script exports current virtual governance connector classifications
+    across all DLP policies for compliance audit evidence collection.
+
+.PARAMETER OutputPath
+    Directory path for CSV export files (default: current directory)
+
+.EXAMPLE
+    .\Export-VirtualConnectorConfig.ps1 -OutputPath "C:\Audit\DLP"
+
+.NOTES
+    Run this script monthly as part of Control 3.9 (Compliance Reporting)
+    evidence collection.
+#>
+
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$OutputPath = "."
+)
+
+try {
+    # Connect to Power Platform
+    Add-PowerAppsAccount
+
+    Write-Host "=== Exporting Virtual Connector Configuration ===" -ForegroundColor Cyan
+
+    # Get all DLP policies
+    $dlpPolicies = Get-DlpPolicy
+
+    # Prepare export data
+    $exportData = @()
+
+    foreach ($policy in $dlpPolicies) {
+        Write-Host "Processing policy: $($policy.DisplayName)" -ForegroundColor White
+
+        $policyDetail = Get-DlpPolicy -PolicyName $policy.PolicyName
+
+        # Get all connector groups
+        $businessGroup = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "General" }
+        $nonBusinessGroup = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Confidential" }
+        $blockedGroup = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Blocked" }
+
+        # Process virtual governance connectors
+        $virtualConnectorPatterns = @(
+            "*AI Builder*",
+            "*Copilot Studio*",
+            "*HTTP*",
+            "*Direct Line*",
+            "*Teams*Channel*",
+            "*SharePoint*Channel*",
+            "*Custom Website*"
+        )
+
+        foreach ($pattern in $virtualConnectorPatterns) {
+            # Check Business classification
+            $businessMatch = $businessGroup.Connectors | Where-Object { $_.Name -like $pattern }
+            if ($businessMatch) {
+                foreach ($connector in $businessMatch) {
+                    $exportData += [PSCustomObject]@{
+                        PolicyName = $policy.DisplayName
+                        PolicyGuid = $policy.PolicyName
+                        ConnectorName = $connector.Name
+                        ConnectorId = $connector.Id
+                        Classification = "Business"
+                        ExportDate = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                    }
+                }
+            }
+
+            # Check Non-Business classification
+            $nonBusinessMatch = $nonBusinessGroup.Connectors | Where-Object { $_.Name -like $pattern }
+            if ($nonBusinessMatch) {
+                foreach ($connector in $nonBusinessMatch) {
+                    $exportData += [PSCustomObject]@{
+                        PolicyName = $policy.DisplayName
+                        PolicyGuid = $policy.PolicyName
+                        ConnectorName = $connector.Name
+                        ConnectorId = $connector.Id
+                        Classification = "Non-Business"
+                        ExportDate = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                    }
+                }
+            }
+
+            # Check Blocked classification
+            $blockedMatch = $blockedGroup.Connectors | Where-Object { $_.Name -like $pattern }
+            if ($blockedMatch) {
+                foreach ($connector in $blockedMatch) {
+                    $exportData += [PSCustomObject]@{
+                        PolicyName = $policy.DisplayName
+                        PolicyGuid = $policy.PolicyName
+                        ConnectorName = $connector.Name
+                        ConnectorId = $connector.Id
+                        Classification = "Blocked"
+                        ExportDate = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+                    }
+                }
+            }
+        }
+    }
+
+    # Export to CSV
+    $filename = "Virtual-Connector-Classifications-$(Get-Date -Format 'yyyyMMdd').csv"
+    $filepath = Join-Path $OutputPath $filename
+    $exportData | Export-Csv -Path $filepath -NoTypeInformation
+
+    Write-Host "`n[PASS] Virtual connector configuration exported to: $filepath" -ForegroundColor Green
+    Write-Host "Total connectors exported: $($exportData.Count)" -ForegroundColor Cyan
+
+    # Summary by classification
+    Write-Host "`nClassification Summary:" -ForegroundColor Cyan
+    $exportData | Group-Object Classification | ForEach-Object {
+        Write-Host "  $($_.Name): $($_.Count)" -ForegroundColor White
+    }
+}
+catch {
+    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
+}
+```
+
+---
+
 ## FSI-Specific SIT Configuration
 
 ```powershell
