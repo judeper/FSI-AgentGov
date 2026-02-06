@@ -25,9 +25,9 @@ v9: Integration (ELM + Dashboard + cross-solution)
 ## Current Position
 
 **Phase:** 2 of 4 (Infrastructure & Environment Validation)
-**Plan:** 1 of 3 in phase
+**Plan:** 2 of 3 in phase
 **Status:** In progress
-**Last activity:** 2026-02-06 — Completed 02-01-PLAN.md
+**Last activity:** 2026-02-06 — Completed 02-02-PLAN.md
 
 **Progress:**
 ```
@@ -36,7 +36,7 @@ v2: [█████████████████████████
 v3: [█████████████████████████] 7/7 phases (27 plans) — SHIPPED
 v4: [████████████░░░░░░░░░░░░░] 2/4 phases — IN PROGRESS
     Phase 1: [███] 3/3 plans complete ✓
-    Phase 2: [█░░] 1/3 plans complete
+    Phase 2: [██░] 2/3 plans complete
 ```
 
 ## Performance Metrics
@@ -47,9 +47,9 @@ v4: [████████████░░░░░░░░░░░░░
 - Requirements: 90 total (33 + 13 + 44)
 
 **v4 Milestone:**
-- Total plans completed: 4
-- Average duration: 3.6 minutes
-- Total execution time: 0.24 hours
+- Total plans completed: 5
+- Average duration: 3.4 minutes
+- Total execution time: 0.28 hours
 
 ## Accumulated Context
 
@@ -90,6 +90,15 @@ Recent decisions affecting v4:
 - Denormalized zone in validation history (captures zone at time of validation)
 - Idempotent deployment with existing schema checks before creation
 
+**Plan 02-02 decisions:**
+- Use MSAL.PS for Dataverse Web API token acquisition (consistent with industry standard MSAL libraries)
+- Well-known Power Apps client ID (1950a258-227b-4e31-a9cf-717495945fc2) for interactive auth
+- Append-only validation history (Write-ValidationResult supports only POST, no PUT/DELETE)
+- Auto-register new environments as Unclassified/Active (requires admin zone assignment before validation)
+- Preserve deprovisioned environment records by marking Inactive (history preservation)
+- Trial/Developer exclusion policy (excluded by default unless -IncludeTrialDev or fsi_overrideinclude=true)
+- Unclassified zone exclusion (environments require zone classification before validation)
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, documentation in FSI-AgentGov
@@ -114,18 +123,19 @@ None.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed plan 02-01: Infrastructure & Environment Validation - Solution Structure, Deploy Orchestrator
-- Created Dataverse infrastructure: API client, schema (5 option sets, 2 org-owned tables), env vars, connection refs
-- Created deploy.py orchestrator with dry-run, selective deployment, and idempotent execution
+- Executed plan 02-02: Power Platform Auth, Dataverse Write Helper, and Environment Discovery
+- Created 3 PowerShell scripts: Connect-PowerPlatform.ps1, Write-ValidationResult.ps1, Invoke-EnvironmentDiscovery.ps1
+- Implemented authentication for Power Platform Admin API and Dataverse Web API (interactive + service principal)
+- Implemented append-only Dataverse validation result writer with option set mappings
+- Implemented three-phase environment discovery: enumerate → sync registry → filter validation set
 - 2 commits to FSI-AgentGov-Solutions
-- SUMMARY.md created with infrastructure completion documentation
-- Solution folder structure (docs/, src/, scripts/) following Tier 2 pattern
+- SUMMARY.md created with auth and discovery pattern documentation
 
 **Performance:**
 - Tasks: 2/2 completed
-- Duration: 7 minutes
-- Files: 7 Python files created (~2,157 lines)
-- Phase 2 progress: 1/3 plans complete
+- Duration: 3 minutes
+- Files: 3 PowerShell scripts created (1,048 lines)
+- Phase 2 progress: 2/3 plans complete
 
 ### Context for Next Session
 
@@ -135,22 +145,25 @@ If resuming this project:
    - `.planning/PROJECT.md` — Current project state
    - `.planning/REQUIREMENTS.md` — v4 requirements (28 total)
    - `.planning/ROADMAP.md` — v4 roadmap (4 phases)
-   - `.planning/phases/02-infrastructure-environment-validation/02-01-SUMMARY.md` — Latest plan summary
+   - `.planning/phases/02-infrastructure-environment-validation/02-02-SUMMARY.md` — Latest plan summary
 
 2. **Current state:**
    - v4 milestone: Audit Configuration Validator
-   - **Phase 1: COMPLETE** (3/3 plans) — 6 PowerShell scripts (2191 lines)
-   - **Phase 2: IN PROGRESS** (1/3 plans) — Dataverse infrastructure ready
-   - Requirements covered: TVAL-01, TVAL-02, TVAL-03, TVAL-04, PVAL-01, PVAL-02, PVAL-03, INFR-01, INFR-02, INFR-03, INFR-04, EVID-03, INFR-05
-   - Dataverse infrastructure complete: 5 option sets, 2 org-owned tables, 5 env vars, 2 connection refs
-   - deploy.py ready for rapid lab testing
+   - **Phase 1: COMPLETE** (3/3 plans) — 6 PowerShell scripts (2,191 lines)
+   - **Phase 2: IN PROGRESS** (2/3 plans) — Dataverse infrastructure + auth + discovery ready
+   - Requirements covered: TVAL-01, TVAL-02, TVAL-03, TVAL-04, PVAL-01, PVAL-02, PVAL-03, INFR-01, INFR-02, INFR-03, INFR-04, EVID-03, INFR-05, EVAL-04
+   - Dataverse infrastructure: 5 option sets, 2 org-owned tables, 5 env vars, 2 connection refs
+   - Auth helpers: Power Platform Admin API + Dataverse Web API (Connect-PowerPlatform.ps1)
+   - Validation writer: Append-only Dataverse writer (Write-ValidationResult.ps1)
+   - Environment discovery: Three-phase discovery with registry sync (Invoke-EnvironmentDiscovery.ps1)
 
 3. **Next step:**
-   - Continue Phase 2: Plan 02-02 (Environment Discovery) and 02-03 (Environment Validation)
-   - Create Python scripts for Power Platform API integration
-   - Implement environment registry population and audit validation
+   - Continue Phase 2: Plan 02-03 (Environment Validation)
+   - Create environment-scoped validators (environment audit, mailbox audit)
+   - Implement per-environment validation orchestrator
+   - Use auth helpers and discovery script for environment enumeration
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Plan 02-01 executed - Phase 2 in progress)*
+*Last session: 2026-02-06 (Plan 02-02 executed - Phase 2 in progress, 2/3 complete)*
