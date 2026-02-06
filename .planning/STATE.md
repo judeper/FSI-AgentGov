@@ -256,30 +256,33 @@ None currently. Phase 6 complete (1/1 plan). Ready for Phase 7 (Control Enhancem
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed Phase 6 Plan 03 (LOW-impact control forward-references and Learn Monitor URL expansion)
-- Two tasks: Add forward-reference notes to 7 LOW-impact controls + update Learn URLs watchlist
-- Duration: 3 minutes
-- 2 commits to FSI-AgentGov: a1a324e (feat), 4f2f767 (feat)
+- Executed Phase 7 Plan 04 (SharePoint Restricted Search documentation in Control 4.6)
+- Two tasks: Add Restricted Search to Control 4.6 + update all 4 playbooks
+- Duration: 5 minutes
+- 2 commits to FSI-AgentGov: 29e7c6a (feat), 81debd5 (feat)
 
-**Plan 06-03 Execution:**
-- Added Agent 365 forward-reference notes to 7 LOW-impact control files (1.6, 1.18, 1.24, 2.4, 2.5, 2.13, 3.2)
-- Used `!!! note` admonition level for LOW-impact controls (visually lighter than `!!! tip` for HIGH/MEDIUM)
-- Expanded Microsoft Learn URLs watchlist from 174 to 186 URLs (+12 new URLs)
-- Added 4 new Entra Agent ID URLs (Administrative Relationships, Conditional Access, Agent Sponsor Tasks)
-- Added 3 new Agent 365 SDK URLs (Observability, Identity, Schema Reference)
-- Created new "M365 Admin Center Agent Management" section with 5 URLs
-- Learn Monitor successfully parses updated watchlist (221 total URLs including non-Learn)
+**Plan 07-04 Execution:**
+- Added comprehensive SharePoint Restricted Search subsection to Control 4.6 with GA admonition
+- Documented positive governance model (allowed list up to 100 sites) vs RCD (exclusion list)
+- Created comparison table: RCD (exclusion/unlimited) vs Restricted Search (allowed/100-site limit)
+- Included AI agent grounding impact table for M365 Copilot, Copilot Studio, Agent Builder
+- Established 100-site allowed list governance with site selection criteria (ownership, labeling, access review, currency, clearance)
+- Added "Prepare Now" readiness checklist for organizations
+- Updated capabilities table, Related Controls, Key Configuration Points, Additional Resources
+- Updated all 4 playbooks: portal-walkthrough (Step 5), powershell-setup (RSS cmdlets), verification-testing (RSS-01/02/03 test cases), troubleshooting (3 new issues)
 
-**Key artifacts modified (Plan 06-03):**
-- 7 control files: Added Agent 365 forward-reference notes
-- microsoft-learn-urls.md: Expanded with 12 new URLs for daily Learn Monitor tracking
+**Key artifacts modified (Plan 07-04):**
+- 1 control file: 4.6-grounding-scope-governance.md (comprehensive Restricted Search section)
+- 4 playbook files: portal-walkthrough, powershell-setup, verification-testing, troubleshooting
 
-**Phase 6 Complete:**
-All three plans executed successfully:
-- 06-01: Unified Agent 365 documentation (1009 lines, 3 Mermaid diagrams, 17-control impact analysis)
-- 06-02: Added forward-references to 10 HIGH/MEDIUM controls
-- 06-03: Added forward-references to 7 LOW controls + expanded Learn Monitor watchlist
-- Total: 6 commits, comprehensive Agent 365 governance guidance
+**Phase 7 Status:**
+4 of 5 plans complete:
+- 07-01: Control 1.5 virtual connector enhancements (11 connectors, zone guidance, HTTP filtering)
+- 07-02: Control 1.6 DSPM AI Observability (unified DSPM preview, agent risk tracking)
+- 07-03: Control 3.8 AI Feature Access Control (granular Copilot settings, Admin Exclusion Groups)
+- 07-04: Control 4.6 SharePoint Restricted Search (positive governance, 100-site allowed list)
+- Remaining: 07-05 (AI Administrator role catalog updates)
+- Total: 8 commits, 4 controls enhanced, 16 playbooks updated
 
 ### Context for Next Session
 
@@ -296,15 +299,17 @@ If resuming this project:
    - Phase 4: COMPLETE (4/4 plans) — Power BI Integration & Viva Insights
    - Phase 5: COMPLETE (3/3 plans) — Deployment Scripts & Validation
    - Phase 6: COMPLETE (3/3 plans) — Agent 365 & Identity Documentation
-   - 41/44 requirements satisfied (93.2%)
-   - **Phase 7 ready to begin**
+   - Phase 7: IN PROGRESS (4/5 plans) — Control Enhancements & Role Updates
+   - 43/44 requirements satisfied (97.7%)
+   - **Phase 7 Plan 5 ready to begin** (AI Administrator role catalog updates)
 
 3. **Next steps:**
-   - **Phase 7:** Control Enhancements (add Agent 365 forward-reference notes to 17 affected controls)
+   - **Plan 07-05:** AI Administrator role catalog updates (final plan in Phase 7)
    - Agent Observability Foundation solution is deployment-ready with comprehensive automation
    - Agent 365 documentation provides unified governance guidance
+   - 4 controls enhanced with Q1 2026 capabilities (1.5, 1.6, 3.8, 4.6)
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Phase 6 complete — Agent 365 forward-references & Learn Monitor expansion)*
+*Last session: 2026-02-06 (Phase 7 Plan 04 complete — SharePoint Restricted Search documentation)*
