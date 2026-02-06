@@ -34,11 +34,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 4. Scripts include comprehensive error handling with try-catch blocks and module version validation (#Requires statements)
 5. False positives are prevented through 24-hour audit lag grace period and result set validation
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD during planning
-- [ ] 01-02: TBD during planning
+- [ ] 01-01-PLAN.md — Auth helpers and Unified Audit Log validation with dual strategy (TVAL-01, TVAL-03, TVAL-04, INFR-05)
+- [ ] 01-02-PLAN.md — Mailbox audit and Purview retention validation (TVAL-02, PVAL-01, PVAL-02, PVAL-03)
+- [ ] 01-03-PLAN.md — Main orchestrator and end-to-end verification
 
 ### Phase 2: Infrastructure & Environment Validation
 
@@ -113,10 +114,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Validation Scripts | 0/TBD | Not started | - |
+| 1. Core Validation Scripts | 0/3 | Planned | - |
 | 2. Infrastructure & Environment Validation | 0/TBD | Not started | - |
 | 3. Automated Orchestration & Alerting | 0/TBD | Not started | - |
 | 4. Evidence Export & Framework Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-06 during roadmap creation*
+*Last updated: 2026-02-06 during phase 1 planning*
