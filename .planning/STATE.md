@@ -1,8 +1,8 @@
 # Project State: FSI-AgentGov v3
 
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-02-06
 **Milestone:** v3 — Observability & Documentation Updates
-**Status:** Phase 3 Complete
+**Status:** Phase 4 In Progress
 
 ## Project Reference
 
@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 3 of 7 (Azure Monitor Workbooks & Alert Rules) - COMPLETE
-**Plan:** 5 of 5 in current phase - COMPLETE
-**Status:** Ready for Phase 4
-**Last activity:** 2026-02-05 - Completed Phase 3 (all 5 plans, verified)
+**Phase:** 4 of 7 (Power BI Integration & Viva Insights) - IN PROGRESS
+**Plan:** 2 of 4 in current phase - COMPLETE (04-01, 04-04)
+**Status:** Ready for Plan 04-02
+**Last activity:** 2026-02-06 - Completed 04-04-PLAN.md (Viva Insights Scope & Reconciliation)
 
 **Progress:**
 ```
-Milestone Progress: [████████████░░░░░░░░] 12/17+ plans (Phase 1-3 complete)
+Milestone Progress: [██████████████░░░░░░] 14/17+ plans (Phase 1-3 complete, Phase 4 in progress)
 
-Phase 3: [████████████████████] 5/5 plans complete (WKBK-01-03, ALRT-01-04)
+Phase 4: [██████████░░░░░░░░░░] 2/4 plans complete (PBI-01, VIVA-01-02)
 ```
 
 ## Performance Metrics
@@ -49,12 +49,19 @@ Phase 3: [████████████████████] 5/5 plan
 - Governance mapping: 507 lines covering 7 controls
 
 **Phase 3 Performance:**
-- Plans completed: 1/5
-- Requirements satisfied: 3/3 (WKBK-01)
+- Plans completed: 5/5
+- Requirements satisfied: 10/10 (WKBK-01-03, ALRT-01-04)
+- Commits: 10 total (2 per plan)
+- Workbooks: 3 (Operational Health, Error Diagnostics, Usage Overview)
+- Alert rules: 4 (session failure rate, error spike, latency threshold, completeness gap)
+- Action groups: 4 (operations team, compliance team, security team, cost management)
+
+**Phase 4 Performance:**
+- Plans completed: 1/4
+- Requirements satisfied: 3/3 (PBI-01)
 - Commits: 2 total (2 per plan)
-- Workbooks: 1 (Operational Health with 4 tabs)
-- ARM templates: 1 workbook template + 2 environment parameter files
-- KQL queries embedded: 10 queries in workbook serializedData
+- TMDL files: 15 total (database, model, 11 tables, relationships, RLS role)
+- Semantic model: Dual-grain star schema (2 facts, 8 dimensions, 10 relationships)
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -103,6 +110,12 @@ Phase 3: [████████████████████] 5/5 plan
 | 20% drift threshold default | Industry standard for SR 11-7; configurable for higher-risk agents (10%) | 2026-02-05 |
 | 95% validation pass rate threshold | Production readiness standard; regulatory communications require 99% | 2026-02-05 |
 | InvestigationRequired boolean flag | Enables proactive alerting and workflow automation for SR 11-7 | 2026-02-05 |
+| Dual-grain star schema (session + event facts) | Session-grain for trend analysis, event-grain for drill-down investigation | 2026-02-06 |
+| EventDateKey → DateKey relationship inactive | Avoid ambiguous relationship paths; use USERELATIONSHIP in DAX | 2026-02-06 |
+| Zone-based RLS applied to DimZone | Filter propagation from dimension to facts is more maintainable | 2026-02-06 |
+| DimRegulation denormalized | Anti-snowflake pattern per research guidance | 2026-02-06 |
+| UserZoneMapping for RLS USERNAME() lookup | Dynamic zone assignment without role proliferation | 2026-02-06 |
+| PillarWeight in DimControl | Enables compliance score calculation with configurable weights | 2026-02-06 |
 
 ### Key Constraints
 
