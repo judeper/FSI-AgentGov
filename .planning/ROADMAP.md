@@ -79,11 +79,11 @@ Plans:
 3. Teams adaptive cards are posted when Critical or High severity validation failures occur
 4. Email alerts are sent to compliance team distribution list for all validation failures
 
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 03-01: TBD during planning
-- [ ] 03-02: TBD during planning
+- [ ] 03-01-PLAN.md — Azure Automation runbook wrappers and drift detection helper (AUTO-01, AUTO-02)
+- [ ] 03-02-PLAN.md — Power Automate flow definitions, adaptive card templates, and deployment guide (AUTO-01, AUTO-02, AUTO-03, AUTO-04)
 
 ### Phase 4: Evidence Export & Framework Integration
 
@@ -116,8 +116,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Core Validation Scripts | 3/3 | Complete | 2026-02-06 |
 | 2. Infrastructure & Environment Validation | 3/3 | Complete | 2026-02-06 |
-| 3. Automated Orchestration & Alerting | 0/TBD | Not started | - |
+| 3. Automated Orchestration & Alerting | 0/2 | Not started | - |
 | 4. Evidence Export & Framework Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-02-06 — Phase 2 complete (3/3 plans, verified PASS)*
+*Last updated: 2026-02-06 — Phase 3 planned (2 plans in 2 waves)*
