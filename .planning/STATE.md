@@ -141,6 +141,14 @@ Phase 5: [█████████████░░░░░░░] 2/3 plan
 | $PSCommandPath path resolution in PowerShell scripts | PowerShell 7.0+ best practice, more reliable than $PSScriptRoot for script invocation | 2026-02-06 |
 | $LASTEXITCODE checks after all az CLI commands | Azure CLI doesn't throw PowerShell exceptions on failure - must explicitly check exit code | 2026-02-06 |
 | Incremental deployment mode for ARM templates | Safe for idempotent updates - adds/updates resources without deleting existing ones | 2026-02-06 |
+| 3-phase alert deployment order enforced | Logic App → Action Groups → Alert Rules sequencing is CRITICAL due to callback URL and resource ID dependencies | 2026-02-06 |
+| Callback URL propagated from Phase 1 to Phase 2 | Logic App outputs captured via az deployment show and passed to Action Groups as parameter override | 2026-02-06 |
+| Action Group IDs propagated from Phase 2 to Phase 3 | Action Group resource IDs captured from deployment outputs and passed to Alert Rules | 2026-02-06 |
+| Prerequisites validation checks template file existence | Fail fast with clear error messages before attempting deployment | 2026-02-06 |
+| DryRun mode for deployment preview | Allows users to see intended actions without modifying Azure resources | 2026-02-06 |
+| Confirmation prompt required for alert deployment | Production safety: user must type "yes" or pass -Force flag before deploying alert infrastructure | 2026-02-06 |
+| Shared parameters with dynamic overrides | Script accepts shared-parameters.$Environment.json but overrides dynamic values (Logic App URL, Action Group IDs) | 2026-02-06 |
+| Phase-specific error handling with troubleshooting | Each deployment function has try-catch with troubleshooting guidance relevant to that phase | 2026-02-06 |
 
 ### Key Constraints
 
@@ -196,22 +204,24 @@ None currently. Phase 5 in progress (1/3 plans complete).
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed Phase 5 Plan 01 (deploy-workbooks.ps1 deployment script)
-- Single task: Create PowerShell 7.0+ script with prerequisite validation, idempotent deployment, DryRun mode
-- Duration: 1 minute 53 seconds
-- 1 commit to FSI-AgentGov-Solutions: 847aeb8 (feat)
+- Executed Phase 5 Plan 02 (deploy-alerts.ps1 deployment script)
+- Single task: Create PowerShell 7.0+ script with 3-phase dependency-ordered deployment
+- Duration: 2 minutes
+- 1 commit to FSI-AgentGov-Solutions: b96df45 (feat)
 
-**Plan 05-01 Execution:**
-- Script pattern established: Show-Banner → Test-Prerequisites → Deploy-* functions → Summary table
-- Prerequisite validation: Azure CLI version check, authentication, resource group existence, App Insights verification
-- Idempotent deployment: Fixed workbookId GUIDs + Incremental mode = safe re-runs
-- Path resolution: $PSCommandPath + Join-Path + Resolve-Path (works from any directory)
-- Error handling: $LASTEXITCODE checks after every az command (critical for Azure CLI)
-- Color-coded output: ANSI escape codes for clear status (Cyan/Green/Red/Yellow)
+**Plan 05-02 Execution:**
+- 3-phase deployment order enforced: Logic App → Action Groups → Alert Rules
+- Callback URL propagation: Logic App outputs captured and passed to Action Groups
+- Action Group ID propagation: Action Group resource IDs captured and passed to Alert Rules
+- Prerequisites validation: Checks ARM template file existence before deployment
+- DryRun mode: Preview deployment without resource creation
+- Confirmation prompt: Production safety (requires "yes" or -Force flag)
+- Comprehensive error handling: Phase-specific troubleshooting guidance
+- Deployment summary: Resource inventory (1 Logic App, 3 Action Groups, 9 Alert Rules) + next steps
 
-**Key artifacts created (Plan 05-01):**
-- deploy-workbooks.ps1: 533-line PowerShell script deploying all 3 workbooks
-- Pattern reusable for deploy-alerts.ps1 (Plan 05-02)
+**Key artifacts created (Plan 05-02):**
+- deploy-alerts.ps1: 684-line PowerShell script with 3-phase dependency sequencing
+- Pattern extends deploy-workbooks.ps1 with inter-phase resource ID propagation
 
 ### Context for Next Session
 
@@ -219,23 +229,22 @@ If resuming this project:
 
 1. **Read these files first:**
    - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 5 in progress
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/05-deployment-scripts-validation/05-01-SUMMARY.md` — Deploy-workbooks.ps1 completion
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/05-deployment-scripts-validation/05-02-SUMMARY.md` — Deploy-alerts.ps1 completion
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans) — Telemetry Infrastructure
    - Phase 2: COMPLETE (3/3 plans) — KQL Query Library
    - Phase 3: COMPLETE (5/5 plans) — Azure Monitor Workbooks & Alerts
    - Phase 4: COMPLETE (4/4 plans) — Power BI Integration & Viva Insights
-   - Phase 5: IN PROGRESS (1/3 plans) — Deployment Scripts & Validation
-   - 33/44 requirements satisfied (75.0%)
+   - Phase 5: IN PROGRESS (2/3 plans) — Deployment Scripts & Validation
+   - 34/44 requirements satisfied (77.3%)
 
 3. **Next steps:**
-   - `/gsd:execute-phase 5` to continue Phase 5 (plans 05-02, 05-03)
-   - Plan 05-02: deploy-alerts.ps1 (alert rule + action group deployment)
-   - Plan 05-03: deployment-validation-checklist.md (comprehensive testing guide)
+   - Execute Phase 5 Plan 03 (deployment-validation-checklist.md) to complete Phase 5
+   - Plan 05-03 creates comprehensive testing guide for manual validation of deployment scripts
    - Phase 6 (Agent 365 docs) and Phase 7 (Control Enhancements) are documentation-only, independent
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Phase 5 Plan 01 execution — deploy-workbooks.ps1 complete)*
+*Last session: 2026-02-06 (Phase 5 Plan 02 execution — deploy-alerts.ps1 complete)*
