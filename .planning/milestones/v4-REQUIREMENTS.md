@@ -1,7 +1,12 @@
-# Requirements: FSI-AgentGov v4 — Audit Configuration Validator
+# Requirements Archive: v4 Audit Configuration Validator
 
-**Defined:** 2026-02-06
-**Core Value:** Documentation and solutions that US FSI customers trust.
+**Archived:** 2026-02-06
+**Status:** ✅ SHIPPED
+
+This is the archived requirements specification for v4.
+For current requirements, see `.planning/REQUIREMENTS.md` (created for next milestone).
+
+---
 
 ## v4 Requirements
 
@@ -57,34 +62,7 @@ Requirements for Audit Configuration Validator solution. Each maps to roadmap ph
 - [x] **DOCS-03**: Solution README with prerequisites, quick start, zone requirements ✓
 - [x] **DOCS-04**: Deployment guide with step-by-step setup instructions ✓
 
-## Future Requirements
-
-Deferred to future milestones. Tracked but not in current roadmap.
-
-### Auto-Remediation (v4.1+)
-
-- **RMED-01**: Auto-enable audit logging with Power Automate approval workflow
-- **RMED-02**: Exclude Default environment from auto-remediation
-- **RMED-03**: Read-before-write for retention policies (preserve existing policies)
-- **RMED-04**: Rollback capability for remediation actions
-
-### Advanced Validation (v4.1+)
-
-- **ADVL-01**: SEC 17a-4(f) automatic verification compliance report
-- **ADVL-02**: FINRA 2026 compliance evidence format
-- **ADVL-03**: Audit event type coverage validation (CopilotInteraction, AgentPublished)
-- **ADVL-04**: WORM storage verification for broker-dealers
-- **ADVL-05**: Per-agent audit trail validation
-
-### Integration (v9)
-
-- **INTG-01**: ELM post-provisioning audit validation hook
-- **INTG-02**: Compliance Dashboard control status feed
-- **INTG-03**: Deny Event Correlation prerequisite check
-
 ## Out of Scope
-
-Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
@@ -98,8 +76,6 @@ Explicitly excluded. Documented to prevent scope creep.
 | Auto-remediation in v4 | Risk without approval workflow; validation-only meets SEC 17a-4(f) |
 
 ## Traceability
-
-Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -135,9 +111,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 **Coverage:**
 - v4 requirements: 28 total
-- Mapped to phases: 28
-- Unmapped: 0
+- Shipped: 28 (100%)
+- Adjusted: 0
+- Dropped: 0
 
 ---
-*Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 — All requirements complete (28/28)*
+
+## Milestone Summary
+
+**Shipped:** 28 of 28 requirements
+**Adjusted:** None — all requirements delivered as originally specified
+**Dropped:** None
+
+---
+*Archived: 2026-02-06 as part of v4 milestone completion*

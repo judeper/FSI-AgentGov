@@ -8,7 +8,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current State (v3 Shipped)
+## Current State (v4 Shipped)
 
 **Framework Version:** 1.2.38 (February 2026)
 
@@ -16,9 +16,10 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v1: 62 controls verified, Agent 365 architecture, regulatory validation, solutions audit, unified monitoring
 - v2: PowerShell security fixes, documentation architecture (breadcrumbs + playbook discovery), monitoring config externalization, Compliance Dashboard v1.0.0, Scope Drift Monitor v1.1.0
 - v3: Agent Observability Foundation solution, Agent 365/Entra Agent ID documentation, Q1 2026 control enhancements (virtual connectors, DSPM, AI Feature Access, SharePoint Restricted Search), role catalog expansion
+- v4: Audit Configuration Validator v1.0.0 — automated tenant/environment audit validation with drift detection, multi-channel alerting, and SHA-256 evidence export
 
 **Solutions Status:**
-- 6 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation
+- 7 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator
 - 1 Validated: FINRA Supervision Workflow
 - 4 Work In Progress: Deny Event Correlation Report, Conditional Access Automation, Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
@@ -60,19 +61,25 @@ Capabilities delivered:
 - ✓ SharePoint Restricted Search with positive governance model (100-site allowed list) — v3 Phase 7
 - ✓ AI Administrator and Defender XDR Admin role catalog expansion with FSI guidance — v3 Phase 7
 
+**v4 Milestone:**
+- ✓ Audit Configuration Validator v1.0.0 with dual validation strategy (cmdlet + canary event) — v4 Phase 1
+- ✓ Dataverse infrastructure with immutable validation history and zone-specific retention rules — v4 Phase 2
+- ✓ Automated daily validation with drift detection and multi-channel alerting (Teams + email) — v4 Phase 3
+- ✓ SHA-256 integrity-hashed compliance evidence export for SEC 17a-4(f) support — v4 Phase 4
+- ✓ Control 1.7 framework integration and solutions-index.md catalog entry — v4 Phase 4
+
 ### Active
 
-**v4-v9 Milestone Series: Customer-Requested Automation Solutions**
+**v5-v9 Milestone Series: Customer-Requested Automation Solutions**
 
-5 new automation solutions addressing customer-identified gaps, plus integration milestone:
-- v4: Audit Configuration Validator — automated audit logging validation and enforcement
+4 remaining automation solutions addressing customer-identified gaps, plus integration milestone:
 - v5: Session Security Configurator — inactivity timeout automation per zone
 - v6: Agent Access Governance Monitor — unrestricted agent access detection
 - v7: Content Moderation Governance Monitor — AI content moderation policy enforcement
 - v8: File Upload Security Configurator — MIME type restriction enforcement
 - v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Current milestone: v4 — Audit Configuration Validator**
+**Next milestone: v5 — Session Security Configurator**
 
 ### Out of Scope
 
@@ -146,9 +153,12 @@ Capabilities delivered:
 | Function-based KQL query organization | Reusability over regulation-based organization | ✓ Good |
 | SharePoint Restricted Search at GA | Research confirmed GA status from Microsoft Learn documentation | ✓ Good |
 | AI Administrator expanded scope | Comprehensive governance role beyond basic Copilot management | ✓ Good |
-| 5 separate milestones for 5 solutions | Each solution is self-contained milestone; cleaner scope, faster cycles | — Pending |
-| Enhance existing controls (not new ones) | Keep 62-control structure; add automation sections to existing controls | — Pending |
+| 5 separate milestones for 5 solutions | Each solution is self-contained milestone; cleaner scope, faster cycles | ✓ Good |
+| Enhance existing controls (not new ones) | Keep 62-control structure; add automation sections to existing controls | ✓ Good |
 | Separate integration milestone (v9) | Build all 5 solutions first, then wire ELM + Dashboard in v9 | — Pending |
+| Dual validation strategy (cmdlet + canary) | Prevents false positives from audit lag; canary verifies actual audit pipeline | ✓ Good |
+| Organization-owned Dataverse tables | Immutable audit history; security roles remove Write/Delete post-deployment | ✓ Good |
+| Auto-remediation deferred to v4.1+ | Too risky without approval workflow; validation-only meets SEC 17a-4(f) | ✓ Good |
 
 ---
-*Last updated: 2026-02-06 after v4 milestone planning started*
+*Last updated: 2026-02-06 after v4 milestone*
