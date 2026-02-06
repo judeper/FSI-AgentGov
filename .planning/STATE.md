@@ -57,10 +57,11 @@ Phase 4: [██████████░░░░░░░░░░] 2/4 plan
 - Action groups: 4 (operations team, compliance team, security team, cost management)
 
 **Phase 4 Performance:**
-- Plans completed: 1/4
-- Requirements satisfied: 3/3 (PBI-01)
-- Commits: 2 total (2 per plan)
+- Plans completed: 2/4 (04-01, 04-04)
+- Requirements satisfied: 5/10 (PBI-01, VIVA-01-02)
+- Commits: 4 total (2 per plan)
 - TMDL files: 15 total (database, model, 11 tables, relationships, RLS role)
+- Documentation files: 2 (Viva Insights scope + reconciliation workflow)
 - Semantic model: Dual-grain star schema (2 facts, 8 dimensions, 10 relationships)
 
 **Historical (v2):**
@@ -116,6 +117,9 @@ Phase 4: [██████████░░░░░░░░░░] 2/4 plan
 | DimRegulation denormalized | Anti-snowflake pattern per research guidance | 2026-02-06 |
 | UserZoneMapping for RLS USERNAME() lookup | Dynamic zone assignment without role proliferation | 2026-02-06 |
 | PillarWeight in DimControl | Enables compliance score calculation with configurable weights | 2026-02-06 |
+| Viva Insights scope warning at top of doc | Executives need immediate clarity that Viva only covers Copilot Studio Production agents | 2026-02-06 |
+| 10% variance threshold for reconciliation | Balances sensitivity (catches real issues) with tolerance (normal sampling/timing variance) | 2026-02-06 |
+| Application Insights is authoritative source | Only App Insights covers Agent Builder, Agent 365 SDK, dev/test, and compliance evidence | 2026-02-06 |
 
 ### Key Constraints
 
