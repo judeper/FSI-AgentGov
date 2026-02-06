@@ -251,6 +251,15 @@ Plans:
 4. User can assign AI Administrator role per updated role catalog guidance
 5. User can implement SharePoint Restricted Search when feature reaches GA
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Control 1.5 virtual connector expansion with zone-specific DLP guidance and 4 playbook updates
+- [ ] 07-02-PLAN.md — Control 1.6 enhanced DSPM AI Observability with unified DSPM experience and 4 playbook updates
+- [ ] 07-03-PLAN.md — Control 3.8 AI Feature Access Control with zone-based enablement and 4 playbook updates
+- [ ] 07-04-PLAN.md — Control 4.6 SharePoint Restricted Search with AI grounding focus and 4 playbook updates
+- [ ] 07-05-PLAN.md — Role catalog expansion (AI Admin, Defender XDR Admin) with role selection guidance and control cross-references
+
 ---
 
 ## Progress
@@ -263,7 +272,7 @@ Plans:
 | 4 - Power BI Integration & Viva Insights | ✓ Complete | 4/4 | 5 | 5/5 |
 | 5 - Deployment Scripts & Validation | ✓ Complete | 3/3 | 3 | 5/5 |
 | 6 - Agent 365 & Identity Documentation | ✓ Complete | 3/3 | 3 | 5/5 |
-| 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
+| 7 - Control Enhancements & Role Updates | In Progress | 0/5 | 6 | 5 |
 
 **Total:** 6/7 phases complete, 38/44 requirements satisfied
 
@@ -281,7 +290,7 @@ This milestone operates across two repositories:
 | 4 - Power BI Integration | FSI-AgentGov-Solutions | /agent-observability-foundation/power-bi/* |
 | 5 - Deployment Scripts | FSI-AgentGov-Solutions | /agent-observability-foundation/scripts/* |
 | 6 - Agent 365 Documentation | FSI-AgentGov | /docs/framework/agent-identity-architecture.md, /docs/controls/pillar-*/* (17 controls), /docs/reference/microsoft-learn-urls.md |
-| 7 - Control Enhancements | FSI-AgentGov | /docs/controls/pillar-*/* |
+| 7 - Control Enhancements | FSI-AgentGov | /docs/controls/pillar-*/* , /docs/playbooks/control-implementations/*, /docs/reference/role-catalog.md |
 
 **Git operations:** Each repo has separate git history. Git commands must run from within the target repo.
 
@@ -297,11 +306,11 @@ Phases with research needs identified:
 - **Phase 4:** Power BI semantic model design patterns (LOW research need)
 - **Phase 5:** Standard PowerShell deployment patterns (LOW research need)
 - **Phase 6:** Agent 365 preview feature architecture (HIGH research need - COMPLETE via 06-RESEARCH.md)
-- **Phase 7:** Standard control enhancement patterns (LOW research need)
+- **Phase 7:** Standard control enhancement patterns (LOW research need - COMPLETE via 07-RESEARCH.md)
 
-Phases 1-5 use well-documented Azure patterns. Phase 6 research complete with 776-line RESEARCH.md covering GA/preview status, 17 affected controls, and migration roadmap.
+Phases 1-5 use well-documented Azure patterns. Phase 6 research complete with 776-line RESEARCH.md covering GA/preview status, 17 affected controls, and migration roadmap. Phase 7 research complete with 485-line RESEARCH.md covering all 6 requirements.
 
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-06 (Phase 6 complete — 3 plans, 2 waves, 18/18 must-haves verified)*
+*Last updated: 2026-02-06 (Phase 7 planned — 5 plans, 2 waves)*
