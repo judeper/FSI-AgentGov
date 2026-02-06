@@ -186,6 +186,13 @@ Plans:
 4. User can re-run deployment scripts without errors (idempotent behavior)
 5. User receives clear error messages if prerequisites are missing
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — deploy-workbooks.ps1 (3 workbook ARM template deployments with prerequisite validation)
+- [ ] 05-02-PLAN.md — deploy-alerts.ps1 (3-phase deployment: Logic App → Action Groups → Alert Rules)
+- [ ] 05-03-PLAN.md — Validation checklist and README deployment section update
+
 ---
 
 ### Phase 6: Agent 365 & Identity Documentation
@@ -243,7 +250,7 @@ Plans:
 | 2 - KQL Query Library & Governance Mapping | ✓ Complete | 3/3 | 10 | 5/5 |
 | 3 - Azure Monitor Workbooks & Alert Rules | ✓ Complete | 5/5 | 7 | 5/5 |
 | 4 - Power BI Integration & Viva Insights | ✓ Complete | 4/4 | 5 | 5/5 |
-| 5 - Deployment Scripts & Validation | Pending | 0/0 | 3 | 5 |
+| 5 - Deployment Scripts & Validation | Planned | 0/3 | 3 | 5 |
 | 6 - Agent 365 & Identity Documentation | Pending | 0/0 | 3 | 5 |
 | 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
 
