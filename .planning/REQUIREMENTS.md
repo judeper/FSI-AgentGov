@@ -103,41 +103,41 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TVAL-01 | TBD | Pending |
-| TVAL-02 | TBD | Pending |
-| TVAL-03 | TBD | Pending |
-| TVAL-04 | TBD | Pending |
-| EVAL-01 | TBD | Pending |
-| EVAL-02 | TBD | Pending |
-| EVAL-03 | TBD | Pending |
-| EVAL-04 | TBD | Pending |
-| EVAL-05 | TBD | Pending |
-| PVAL-01 | TBD | Pending |
-| PVAL-02 | TBD | Pending |
-| PVAL-03 | TBD | Pending |
-| AUTO-01 | TBD | Pending |
-| AUTO-02 | TBD | Pending |
-| AUTO-03 | TBD | Pending |
-| AUTO-04 | TBD | Pending |
-| EVID-01 | TBD | Pending |
-| EVID-02 | TBD | Pending |
-| EVID-03 | TBD | Pending |
-| EVID-04 | TBD | Pending |
-| INFR-01 | TBD | Pending |
-| INFR-02 | TBD | Pending |
-| INFR-03 | TBD | Pending |
-| INFR-04 | TBD | Pending |
-| INFR-05 | TBD | Pending |
-| DOCS-01 | TBD | Pending |
-| DOCS-02 | TBD | Pending |
-| DOCS-03 | TBD | Pending |
-| DOCS-04 | TBD | Pending |
+| TVAL-01 | Phase 1 | Pending |
+| TVAL-02 | Phase 1 | Pending |
+| TVAL-03 | Phase 1 | Pending |
+| TVAL-04 | Phase 1 | Pending |
+| EVAL-01 | Phase 2 | Pending |
+| EVAL-02 | Phase 2 | Pending |
+| EVAL-03 | Phase 2 | Pending |
+| EVAL-04 | Phase 2 | Pending |
+| EVAL-05 | Phase 2 | Pending |
+| PVAL-01 | Phase 1 | Pending |
+| PVAL-02 | Phase 1 | Pending |
+| PVAL-03 | Phase 1 | Pending |
+| AUTO-01 | Phase 3 | Pending |
+| AUTO-02 | Phase 3 | Pending |
+| AUTO-03 | Phase 3 | Pending |
+| AUTO-04 | Phase 3 | Pending |
+| EVID-01 | Phase 4 | Pending |
+| EVID-02 | Phase 4 | Pending |
+| EVID-03 | Phase 2 | Pending |
+| EVID-04 | Phase 4 | Pending |
+| INFR-01 | Phase 2 | Pending |
+| INFR-02 | Phase 2 | Pending |
+| INFR-03 | Phase 2 | Pending |
+| INFR-04 | Phase 2 | Pending |
+| INFR-05 | Phase 1 | Pending |
+| DOCS-01 | Phase 4 | Pending |
+| DOCS-02 | Phase 4 | Pending |
+| DOCS-03 | Phase 4 | Pending |
+| DOCS-04 | Phase 4 | Pending |
 
 **Coverage:**
 - v4 requirements: 28 total
-- Mapped to phases: 0
-- Unmapped: 28 (pending roadmap creation)
+- Mapped to phases: 28
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after initial definition*
+*Last updated: 2026-02-06 after roadmap creation*
