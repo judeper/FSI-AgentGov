@@ -16,11 +16,11 @@ Requirements for Audit Configuration Validator solution. Each maps to roadmap ph
 
 ### Environment Audit Validation
 
-- [ ] **EVAL-01**: Validator checks per-environment audit enablement via Dataverse Web API
-- [ ] **EVAL-02**: Validator validates per-environment audit retention period against zone requirements
-- [ ] **EVAL-03**: Validator applies zone-specific retention rules (Zone 1: 180d, Zone 2: 365d, Zone 3: 730d)
-- [ ] **EVAL-04**: Validator filters out Trial/Developer environments from validation and alerting
-- [ ] **EVAL-05**: Validator handles 24-hour audit lag with grace period for recently-enabled environments
+- [x] **EVAL-01**: Validator checks per-environment audit enablement via Dataverse Web API ✓
+- [x] **EVAL-02**: Validator validates per-environment audit retention period against zone requirements ✓
+- [x] **EVAL-03**: Validator applies zone-specific retention rules (Zone 1: 180d, Zone 2: 365d, Zone 3: 730d) ✓
+- [x] **EVAL-04**: Validator filters out Trial/Developer environments from validation and alerting ✓
+- [x] **EVAL-05**: Validator handles 24-hour audit lag with grace period for recently-enabled environments ✓
 
 ### Purview Retention Validation
 
@@ -30,24 +30,24 @@ Requirements for Audit Configuration Validator solution. Each maps to roadmap ph
 
 ### Automation & Alerting
 
-- [ ] **AUTO-01**: Daily validation runs via Power Automate scheduled flow
-- [ ] **AUTO-02**: Configuration drift detection by comparing current state against last known good baseline
-- [ ] **AUTO-03**: Teams adaptive card alerts for validation failures (Critical/High severity)
-- [ ] **AUTO-04**: Email alerts to compliance team distribution list for all failures
+- [x] **AUTO-01**: Daily validation runs via Power Automate scheduled flow ✓
+- [x] **AUTO-02**: Configuration drift detection by comparing current state against last known good baseline ✓
+- [x] **AUTO-03**: Teams adaptive card alerts for validation failures (Critical/High severity) ✓
+- [x] **AUTO-04**: Email alerts to compliance team distribution list for all failures ✓
 
 ### Compliance Evidence
 
 - [ ] **EVID-01**: Evidence export in JSON format with full validation results
 - [ ] **EVID-02**: SHA-256 integrity hashing for all exported evidence files
-- [ ] **EVID-03**: Immutable validation history stored in Dataverse (organization-owned, no update/delete)
+- [x] **EVID-03**: Immutable validation history stored in Dataverse (organization-owned, no update/delete) ✓
 - [ ] **EVID-04**: Evidence includes timestamp, validation type, overall status, per-environment details
 
 ### Solution Infrastructure
 
-- [ ] **INFR-01**: Solution follows established Tier 2 pattern (README, CHANGELOG, docs/, scripts/, src/)
-- [ ] **INFR-02**: Dataverse schema uses fsi_ publisher prefix for all tables and columns
-- [ ] **INFR-03**: Connection references use fsi_cr_* naming convention
-- [ ] **INFR-04**: Environment variables use fsi_ACV_* naming convention
+- [x] **INFR-01**: Solution follows established Tier 2 pattern (README, CHANGELOG, docs/, scripts/, src/) ✓
+- [x] **INFR-02**: Dataverse schema uses fsi_ publisher prefix for all tables and columns ✓
+- [x] **INFR-03**: Connection references use fsi_cr_* naming convention ✓
+- [x] **INFR-04**: Environment variables use fsi_ACV_* naming convention ✓
 - [x] **INFR-05**: PowerShell scripts use #Requires with minimum module versions ✓
 
 ### Documentation
@@ -107,26 +107,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TVAL-02 | Phase 1 | Complete |
 | TVAL-03 | Phase 1 | Complete |
 | TVAL-04 | Phase 1 | Complete |
-| EVAL-01 | Phase 2 | Pending |
-| EVAL-02 | Phase 2 | Pending |
-| EVAL-03 | Phase 2 | Pending |
-| EVAL-04 | Phase 2 | Pending |
-| EVAL-05 | Phase 2 | Pending |
+| EVAL-01 | Phase 2 | Complete |
+| EVAL-02 | Phase 2 | Complete |
+| EVAL-03 | Phase 2 | Complete |
+| EVAL-04 | Phase 2 | Complete |
+| EVAL-05 | Phase 2 | Complete |
 | PVAL-01 | Phase 1 | Complete |
 | PVAL-02 | Phase 1 | Complete |
 | PVAL-03 | Phase 1 | Complete |
-| AUTO-01 | Phase 3 | Pending |
-| AUTO-02 | Phase 3 | Pending |
-| AUTO-03 | Phase 3 | Pending |
-| AUTO-04 | Phase 3 | Pending |
+| AUTO-01 | Phase 3 | Complete |
+| AUTO-02 | Phase 3 | Complete |
+| AUTO-03 | Phase 3 | Complete |
+| AUTO-04 | Phase 3 | Complete |
 | EVID-01 | Phase 4 | Pending |
 | EVID-02 | Phase 4 | Pending |
-| EVID-03 | Phase 2 | Pending |
+| EVID-03 | Phase 2 | Complete |
 | EVID-04 | Phase 4 | Pending |
-| INFR-01 | Phase 2 | Pending |
-| INFR-02 | Phase 2 | Pending |
-| INFR-03 | Phase 2 | Pending |
-| INFR-04 | Phase 2 | Pending |
+| INFR-01 | Phase 2 | Complete |
+| INFR-02 | Phase 2 | Complete |
+| INFR-03 | Phase 2 | Complete |
+| INFR-04 | Phase 2 | Complete |
 | INFR-05 | Phase 1 | Complete |
 | DOCS-01 | Phase 4 | Pending |
 | DOCS-02 | Phase 4 | Pending |
@@ -140,4 +140,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 — Phase 1 requirements complete (8/28)*
+*Last updated: 2026-02-06 — Phases 1-3 requirements complete (22/28)*
