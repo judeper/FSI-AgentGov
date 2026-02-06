@@ -28,16 +28,16 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Azure Monitor Workbooks
 
-- [ ] **WKBK-01**: Operational health workbook (agent availability, error rates, latency by zone)
-- [ ] **WKBK-02**: Error diagnostics workbook (failure drill-down, root cause analysis)
-- [ ] **WKBK-03**: Enterprise usage overview workbook (adoption, engagement, channel distribution)
+- [x] **WKBK-01**: Operational health workbook (agent availability, error rates, latency by zone)
+- [x] **WKBK-02**: Error diagnostics workbook (failure drill-down, root cause analysis)
+- [x] **WKBK-03**: Enterprise usage overview workbook (adoption, engagement, channel distribution)
 
 ### Alert Rules
 
-- [ ] **ALRT-01**: High failure rate alert (>5% threshold with zone-specific tuning)
-- [ ] **ALRT-02**: Latency regression alert (dynamic threshold based on baseline)
-- [ ] **ALRT-03**: Abnormal usage pattern alert (session count anomaly detection)
-- [ ] **ALRT-04**: Action group configuration (Teams notification + email escalation)
+- [x] **ALRT-01**: High failure rate alert (>5% threshold with zone-specific tuning)
+- [x] **ALRT-02**: Latency regression alert (dynamic threshold based on baseline)
+- [x] **ALRT-03**: Abnormal usage pattern alert (session count anomaly detection)
+- [x] **ALRT-04**: Action group configuration (Teams notification + email escalation)
 
 ### Power BI Integration
 
@@ -151,13 +151,13 @@ Which phases cover which requirements. Updated after roadmap creation.
 | GOV-01 | Phase 2 | Complete |
 | GOV-02 | Phase 2 | Complete |
 | GOV-03 | Phase 2 | Complete |
-| WKBK-01 | Phase 3 | Pending |
-| WKBK-02 | Phase 3 | Pending |
-| WKBK-03 | Phase 3 | Pending |
-| ALRT-01 | Phase 3 | Pending |
-| ALRT-02 | Phase 3 | Pending |
-| ALRT-03 | Phase 3 | Pending |
-| ALRT-04 | Phase 3 | Pending |
+| WKBK-01 | Phase 3 | Complete |
+| WKBK-02 | Phase 3 | Complete |
+| WKBK-03 | Phase 3 | Complete |
+| ALRT-01 | Phase 3 | Complete |
+| ALRT-02 | Phase 3 | Complete |
+| ALRT-03 | Phase 3 | Complete |
+| ALRT-04 | Phase 3 | Complete |
 | PBI-01 | Phase 4 | Pending |
 | PBI-02 | Phase 4 | Pending |
 | PBI-03 | Phase 4 | Pending |
@@ -192,4 +192,4 @@ Which phases cover which requirements. Updated after roadmap creation.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 2 complete: 20/44 requirements satisfied)*
+*Last updated: 2026-02-05 (Phase 3 complete: 27/44 requirements satisfied)*
