@@ -58,9 +58,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Deployment & Validation
 
-- [ ] **DEPL-01**: deploy-workbooks.ps1 script (Azure CLI, idempotent, #Requires, try-catch)
-- [ ] **DEPL-02**: deploy-alerts.ps1 script (alert rules + action groups, idempotent)
-- [ ] **DEPL-03**: Validation checklist (pre-deployment prerequisites + post-deployment verification)
+- [x] **DEPL-01**: deploy-workbooks.ps1 script (Azure CLI, idempotent, #Requires, try-catch)
+- [x] **DEPL-02**: deploy-alerts.ps1 script (alert rules + action groups, idempotent)
+- [x] **DEPL-03**: Validation checklist (pre-deployment prerequisites + post-deployment verification)
 
 ### Solution Documentation
 
@@ -163,9 +163,9 @@ Which phases cover which requirements. Updated after roadmap creation.
 | PBI-03 | Phase 4 | Complete |
 | VIVA-01 | Phase 4 | Complete |
 | VIVA-02 | Phase 4 | Complete |
-| DEPL-01 | Phase 5 | Pending |
-| DEPL-02 | Phase 5 | Pending |
-| DEPL-03 | Phase 5 | Pending |
+| DEPL-01 | Phase 5 | Complete |
+| DEPL-02 | Phase 5 | Complete |
+| DEPL-03 | Phase 5 | Complete |
 | A365-01 | Phase 6 | Pending |
 | A365-02 | Phase 6 | Pending |
 | A365-03 | Phase 6 | Pending |
@@ -192,4 +192,4 @@ Which phases cover which requirements. Updated after roadmap creation.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-06 (Phase 4 complete: 32/44 requirements satisfied)*
+*Last updated: 2026-02-06 (Phase 5 complete: 35/44 requirements satisfied)*

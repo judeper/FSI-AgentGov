@@ -186,12 +186,14 @@ Plans:
 4. User can re-run deployment scripts without errors (idempotent behavior)
 5. User receives clear error messages if prerequisites are missing
 
-**Plans:** 3 plans
+**Plans:** 3 plans ✓
 
 Plans:
-- [ ] 05-01-PLAN.md — deploy-workbooks.ps1 (3 workbook ARM template deployments with prerequisite validation)
-- [ ] 05-02-PLAN.md — deploy-alerts.ps1 (3-phase deployment: Logic App → Action Groups → Alert Rules)
-- [ ] 05-03-PLAN.md — Validation checklist and README deployment section update
+- [x] 05-01-PLAN.md — deploy-workbooks.ps1 (533 lines, idempotent 3-workbook deployment with DryRun) [847aeb8]
+- [x] 05-02-PLAN.md — deploy-alerts.ps1 (684 lines, 3-phase Logic App → Action Groups → Alert Rules) [b96df45]
+- [x] 05-03-PLAN.md — Validation checklist (411 lines) and README deployment section update [85fdd66, 86d65e3]
+
+**Completed:** 2026-02-06
 
 ---
 
@@ -250,11 +252,11 @@ Plans:
 | 2 - KQL Query Library & Governance Mapping | ✓ Complete | 3/3 | 10 | 5/5 |
 | 3 - Azure Monitor Workbooks & Alert Rules | ✓ Complete | 5/5 | 7 | 5/5 |
 | 4 - Power BI Integration & Viva Insights | ✓ Complete | 4/4 | 5 | 5/5 |
-| 5 - Deployment Scripts & Validation | Planned | 0/3 | 3 | 5 |
+| 5 - Deployment Scripts & Validation | ✓ Complete | 3/3 | 3 | 5/5 |
 | 6 - Agent 365 & Identity Documentation | Pending | 0/0 | 3 | 5 |
 | 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
 
-**Total:** 4/7 phases complete, 32/44 requirements satisfied
+**Total:** 5/7 phases complete, 35/44 requirements satisfied
 
 ---
 
@@ -293,4 +295,4 @@ Phases 1-5 use well-documented Azure patterns. Phase 6 may require deeper resear
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-06 (Phase 4 complete — 4 plans, 2 waves, 8 task commits + 1 gap-fix commit)*
+*Last updated: 2026-02-06 (Phase 5 complete — 3 plans, 2 waves, 5 task commits)*
