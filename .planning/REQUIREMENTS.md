@@ -71,9 +71,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Agent 365 & Identity Documentation
 
-- [ ] **A365-01**: Microsoft Entra Agent ID documentation (identity architecture, sponsorship model, Conditional Access)
-- [ ] **A365-02**: Agent 365 unified control plane architecture document (registry, access control, security)
-- [ ] **A365-03**: M365 Admin Center Agent Settings documentation (allowed types, sharing, templates)
+- [x] **A365-01**: Microsoft Entra Agent ID documentation (identity architecture, sponsorship model, Conditional Access)
+- [x] **A365-02**: Agent 365 unified control plane architecture document (registry, access control, security)
+- [x] **A365-03**: M365 Admin Center Agent Settings documentation (allowed types, sharing, templates)
 
 ### Control Enhancements
 

@@ -217,12 +217,14 @@ Plans:
 4. User can configure M365 Admin Center Agent Settings when feature reaches GA
 5. User can plan migration roadmap from current governance to Agent 365 architecture
 
-**Plans:** 3 plans
+**Plans:** 3 plans ✓
 
 Plans:
-- [ ] 06-01-PLAN.md — Unified Agent 365 & Entra Agent ID governance document (replaces agent-identity-architecture.md, consolidates agent-365-architecture.md, updates mkdocs.yml nav)
-- [ ] 06-02-PLAN.md — Agent 365 forward-reference notes for HIGH/MEDIUM-impact control files (10 controls: 1.2, 1.5, 1.7, 1.8, 1.11, 2.1, 2.3, 2.12, 3.1, 3.6)
-- [ ] 06-03-PLAN.md — Agent 365 forward-reference notes for LOW-impact control files (7 controls) and Learn Monitor URL updates (~12 new URLs)
+- [x] 06-01-PLAN.md — Unified Agent 365 & Entra Agent ID governance document (1009 lines, 3 Mermaid diagrams, 17-control impact analysis) [e711682, 6b80478]
+- [x] 06-02-PLAN.md — Agent 365 forward-reference notes for HIGH/MEDIUM-impact control files (10 controls: 1.2, 1.5, 1.7, 1.8, 1.11, 2.1, 2.3, 2.12, 3.1, 3.6) [93e9c67, 1e3a36d]
+- [x] 06-03-PLAN.md — Agent 365 forward-reference notes for LOW-impact control files (7 controls) and Learn Monitor URL updates (12 new URLs, 186 total) [a1a324e, 4f2f767]
+
+**Completed:** 2026-02-06
 
 ---
 
@@ -260,10 +262,10 @@ Plans:
 | 3 - Azure Monitor Workbooks & Alert Rules | ✓ Complete | 5/5 | 7 | 5/5 |
 | 4 - Power BI Integration & Viva Insights | ✓ Complete | 4/4 | 5 | 5/5 |
 | 5 - Deployment Scripts & Validation | ✓ Complete | 3/3 | 3 | 5/5 |
-| 6 - Agent 365 & Identity Documentation | Planned | 0/3 | 3 | 5 |
+| 6 - Agent 365 & Identity Documentation | ✓ Complete | 3/3 | 3 | 5/5 |
 | 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
 
-**Total:** 5/7 phases complete, 35/44 requirements satisfied
+**Total:** 6/7 phases complete, 38/44 requirements satisfied
 
 ---
 
@@ -302,4 +304,4 @@ Phases 1-5 use well-documented Azure patterns. Phase 6 research complete with 77
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-06 (Phase 6 planned — 3 plans, 2 waves)*
+*Last updated: 2026-02-06 (Phase 6 complete — 3 plans, 2 waves, 18/18 must-haves verified)*
