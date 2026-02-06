@@ -182,4 +182,104 @@ Write-Host "  Excluded (Copilot cannot access): $($summary.ExcludedSites)" -Fore
 
 ---
 
+## Configure SharePoint Restricted Search
+
+!!! info "GA Feature"
+    SharePoint Restricted Search is generally available. These cmdlets are current as of January 2026. Verify cmdlet names with `Get-Command *RestrictedSearch*` if errors occur.
+
+### Enable Restricted Search
+
+```powershell
+# Enable Restricted Search for tenant
+Set-SPOTenant -EnableRestrictedSearchAllList $true
+
+# Verify status
+Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
+```
+
+### Add Sites to Allowed List
+
+```powershell
+# Add single site to allowed list
+Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/ApprovedContent"
+
+# Verify addition
+Get-SPOTenantRestrictedSearchAllowedList | Where-Object { $_ -like "*ApprovedContent*" }
+```
+
+### Bulk Add Sites from CSV
+
+```powershell
+# CSV format: SiteUrl, BusinessJustification, ApprovedBy, ApprovedDate
+$approvedSites = Import-Csv -Path "ApprovedSites.csv"
+
+foreach ($site in $approvedSites) {
+    try {
+        Add-SPOTenantRestrictedSearchAllowedList -SiteUrl $site.SiteUrl
+        Write-Host "Added to allowed list: $($site.SiteUrl)" -ForegroundColor Green
+    } catch {
+        Write-Host "Failed to add $($site.SiteUrl): $_" -ForegroundColor Red
+    }
+}
+```
+
+### Export Current Allowed List for Compliance Evidence
+
+```powershell
+# Export allowed list with metadata
+$allowedSites = Get-SPOTenantRestrictedSearchAllowedList
+
+$allowedListReport = $allowedSites | ForEach-Object {
+    $siteUrl = $_
+    $siteDetails = Get-SPOSite -Identity $siteUrl -ErrorAction SilentlyContinue
+
+    [PSCustomObject]@{
+        SiteUrl = $siteUrl
+        Title = if ($siteDetails) { $siteDetails.Title } else { "N/A" }
+        Owner = if ($siteDetails) { $siteDetails.Owner } else { "N/A" }
+        LastModified = if ($siteDetails) { $siteDetails.LastContentModifiedDate } else { "N/A" }
+        ExportDate = Get-Date -Format "yyyy-MM-dd"
+    }
+}
+
+$allowedListReport | Export-Csv -Path "RestrictedSearch-AllowedList-$(Get-Date -Format 'yyyy-MM-dd').csv" -NoTypeInformation
+```
+
+### Remove Site from Allowed List
+
+```powershell
+# Remove site from allowed list (after governance approval)
+Remove-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/OldContent"
+
+# Verify removal
+Get-SPOTenantRestrictedSearchAllowedList | Where-Object { $_ -like "*OldContent*" }
+```
+
+### Audit Allowed List Count (100-Site Limit)
+
+```powershell
+# Check current count against 100-site limit
+$allowedCount = (Get-SPOTenantRestrictedSearchAllowedList).Count
+
+Write-Host "`nRestricted Search Allowed List Status:" -ForegroundColor Cyan
+Write-Host "  Current sites: $allowedCount / 100" -ForegroundColor $(if ($allowedCount -ge 90) { "Yellow" } else { "Green" })
+Write-Host "  Remaining capacity: $(100 - $allowedCount) sites" -ForegroundColor $(if ($allowedCount -ge 90) { "Yellow" } else { "Green" })
+
+if ($allowedCount -ge 90) {
+    Write-Host "`nWARNING: Approaching 100-site limit. Review and prioritize sites." -ForegroundColor Red
+}
+```
+
+### Disable Restricted Search
+
+```powershell
+# Disable Restricted Search (returns to RCD-only governance)
+Set-SPOTenant -EnableRestrictedSearchAllList $false
+
+# Note: This does NOT clear the allowed list - sites remain configured
+# Users: Verify this is the intended behavior before disabling
+```
+
+---
+
 *Updated: January 2026 | Version: v1.2*

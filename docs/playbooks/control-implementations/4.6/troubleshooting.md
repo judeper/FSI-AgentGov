@@ -55,6 +55,112 @@
 
 ---
 
+### Issue: Copilot Still Returning Content from Non-Allowed Sites After Enabling Restricted Search
+
+**Symptoms:** Restricted Search is enabled, but Copilot returns content from sites not in the allowed list
+
+**Resolution:**
+
+1. **Verify Restricted Search is enabled at tenant level:**
+   ```powershell
+   Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
+   ```
+   Expected: `EnableRestrictedSearchAllList: True`
+
+2. **Allow propagation delay (24-48 hours):**
+   - Configuration changes can take up to 48 hours to fully propagate to Copilot grounding systems
+   - Note the time you enabled Restricted Search
+   - Wait full 48 hours before escalating
+
+3. **Verify the site is NOT in the allowed list:**
+   ```powershell
+   Get-SPOTenantRestrictedSearchAllowedList | Where-Object { $_ -like "*SiteName*" }
+   ```
+   If site appears in results, it IS allowed (remove if unintended)
+
+4. **Check for content duplication:**
+   - Content may exist on multiple sites
+   - Copilot may be grounding on an allowed site with duplicated content
+   - Verify content source in Copilot citations
+
+5. **Verify user interaction history:**
+   - Users who recently interacted with content may still see it in recent files
+   - Copilot may surface content from user's recent activity, which is separate from grounding
+
+6. **Contact Microsoft support** if issue persists after 48 hours and above checks confirm configuration
+
+---
+
+### Issue: Unable to Add Site to Allowed List (100 Site Limit Reached)
+
+**Symptoms:** `Add-SPOTenantRestrictedSearchAllowedList` fails with "limit exceeded" or similar error
+
+**Resolution:**
+
+1. **Verify current allowed list count:**
+   ```powershell
+   $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
+   Write-Host "Current allowed sites: $count / 100"
+   ```
+
+2. **Review and prioritize sites:**
+   - Export current allowed list with usage metrics
+   - Identify low-usage or outdated sites for removal
+   - Document business case for new site vs. existing sites
+
+3. **Remove low-priority sites:**
+   ```powershell
+   # After governance approval
+   Remove-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/LowPriority"
+   ```
+
+4. **Consider using RCD for complementary exclusions:**
+   - Restricted Search defines what IS allowed (positive)
+   - RCD can exclude specific content WITHIN allowed sites (negative)
+   - Use both approaches together for fine-grained control
+
+5. **Consolidate content where possible:**
+   - Merge low-usage sites into existing allowed sites
+   - Reduces site count while preserving content
+
+---
+
+### Issue: Restricted Search Enabled But Copilot Returns No Results
+
+**Symptoms:** After enabling Restricted Search, Copilot cannot answer any queries, even for allowed sites
+
+**Resolution:**
+
+1. **Verify at least one site is in the allowed list:**
+   ```powershell
+   Get-SPOTenantRestrictedSearchAllowedList
+   ```
+   If empty, add approved sites
+
+2. **Verify user has permissions to allowed sites:**
+   - Restricted Search does NOT override SharePoint permissions
+   - User must have access to allowed sites to see grounded content
+   - Check user's site permissions
+
+3. **Check SharePoint search index health:**
+   ```powershell
+   # Verify sites are indexed
+   Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/AllowedSite" |
+       Select-Object Url, LastContentModifiedDate
+   ```
+   If LastContentModifiedDate is very old, content may be stale
+
+4. **Verify propagation delay:**
+   - Allow 24-48 hours after adding sites to allowed list
+   - Test with known content from allowed sites
+
+5. **Check for conflicting RCD settings:**
+   - If a site is in the allowed list BUT has RCD enabled, RCD takes precedence
+   - Verify: `Get-SPOSite -Identity $siteUrl | Select-Object RestrictContentOrgWideSearch`
+   - Should be `False` for allowed sites
+
+---
+
 ## Diagnostic Commands
 
 ```powershell
