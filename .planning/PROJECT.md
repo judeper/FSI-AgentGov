@@ -8,6 +8,18 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
+## Current Milestone: v5 Session Security Configurator
+
+**Goal:** Automate session security enforcement (inactivity timeouts, sign-in frequency, session lifetime) per governance zone, with drift detection and compliance reporting for Control 1.23.
+
+**Target features:**
+- Zone-specific session lifetime enforcement (8h / 4h / 1h per Control 1.23)
+- Sign-in frequency configuration per authentication context (15min / 30min / 1h)
+- Conditional Access policy deployment and validation
+- Session security drift detection with alerting
+- Compliance evidence export for regulatory examinations
+- Control 1.23 framework integration (tip admonition + solutions-index.md)
+
 ## Current State (v4 Shipped)
 
 **Framework Version:** 1.2.38 (February 2026)
@@ -79,7 +91,7 @@ Capabilities delivered:
 - v8: File Upload Security Configurator — MIME type restriction enforcement
 - v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Next milestone: v5 — Session Security Configurator**
+**Current milestone: v5 — Session Security Configurator (IN PROGRESS)**
 
 ### Out of Scope
 
@@ -161,4 +173,4 @@ Capabilities delivered:
 | Auto-remediation deferred to v4.1+ | Too risky without approval workflow; validation-only meets SEC 17a-4(f) | ✓ Good |
 
 ---
-*Last updated: 2026-02-06 after v4 milestone*
+*Last updated: 2026-02-06 after v5 milestone start*

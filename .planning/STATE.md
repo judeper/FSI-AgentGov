@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-06
-**Milestone:** v4 — Audit Configuration Validator
-**Status:** SHIPPED
+**Milestone:** v5 — Session Security Configurator
+**Status:** DEFINING REQUIREMENTS
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** Planning next milestone (v5 — Session Security Configurator)
+**Current focus:** v5 — Session Security Configurator (Control 1.23)
 
 ## Milestone Series Plan
 
 ```
 v4: Audit Configuration Validator — SHIPPED ✓
-v5: Session Security Configurator (NEXT)
+v5: Session Security Configurator (CURRENT)
 v6: Agent Access Governance Monitor
 v7: Content Moderation Governance Monitor
 v8: File Upload Security Configurator
@@ -24,10 +24,10 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** v4 complete — awaiting v5 milestone start
+**Phase:** Not started (defining requirements)
 **Plan:** N/A
-**Status:** Ready for next milestone
-**Last activity:** 2026-02-06 — v4 milestone archived
+**Status:** Defining requirements
+**Last activity:** 2026-02-06 — Milestone v5 started
 
 **Progress:**
 ```
@@ -58,6 +58,7 @@ See PROJECT.md Key Decisions table for full history.
 - **Solution pattern:** Follow established Tier 2 pattern (PowerShell + Power Automate + docs)
 - **Controls:** Enhance existing controls, do NOT create new control numbers
 - **Integration deferred:** ELM hooks and Dashboard feeds handled in v9, not per-solution
+- **Control 1.23:** Session security requirements already documented with zone-specific lifetimes
 
 ### Open Questions
 
@@ -75,10 +76,9 @@ None.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Completed v4 milestone (Audit Configuration Validator)
-- Archived roadmap, requirements, and audit to milestones/
-- Updated MILESTONES.md, PROJECT.md, STATE.md
-- Git tagged v4
+- Started v5 milestone (Session Security Configurator)
+- Updated PROJECT.md with Current Milestone section
+- Updated STATE.md for new milestone
 
 ### Context for Next Session
 
@@ -87,19 +87,17 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/PROJECT.md` — Current project state
    - `.planning/MILESTONES.md` — Shipped milestone history
-   - `.planning/milestones/v4-ROADMAP.md` — v4 archive (if reference needed)
+   - `.planning/REQUIREMENTS.md` — v5 requirements (when created)
 
 2. **Current state:**
-   - v4 milestone: Audit Configuration Validator — **SHIPPED**
-   - Solution v1.0.0 in FSI-AgentGov-Solutions/audit-configuration-validator/
-   - 7 Completed solutions, 1 Validated, 4 WIP, 3 Planned
+   - v5 milestone: Session Security Configurator — IN PROGRESS
+   - Target: Control 1.23 session security automation
 
-3. **Next milestone:**
-   - v5: Session Security Configurator (Control 1.9)
-   - Run `/gsd:new-milestone` to start
-   - `/clear` first for fresh context window
+3. **Next action:**
+   - Continue from wherever v5 left off
+   - Check STATE.md for current position
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (v4 milestone SHIPPED — archived to milestones/)*
+*Last session: 2026-02-06 (v5 milestone started)*
