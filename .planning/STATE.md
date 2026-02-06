@@ -2,14 +2,14 @@
 
 **Last Updated:** 2026-02-06
 **Milestone:** v4 — Audit Configuration Validator
-**Status:** Ready to plan Phase 1
+**Status:** In progress
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** Phase 1 - Core Validation Scripts
+**Current focus:** Phase 2 - Infrastructure & Environment Validation
 
 ## Milestone Series Plan
 
@@ -24,18 +24,19 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 1 of 4 (Core Validation Scripts)
-**Plan:** 3 of 3 in phase
-**Status:** Phase complete
-**Last activity:** 2026-02-06 — Completed 01-03-PLAN.md
+**Phase:** 2 of 4 (Infrastructure & Environment Validation)
+**Plan:** 1 of 3 in phase
+**Status:** In progress
+**Last activity:** 2026-02-06 — Completed 02-01-PLAN.md
 
 **Progress:**
 ```
 v1: [█████████████████████████] 8/8 phases (35 plans) — SHIPPED
 v2: [█████████████████████████] 5/5 phases (17 plans) — SHIPPED
 v3: [█████████████████████████] 7/7 phases (27 plans) — SHIPPED
-v4: [██████░░░░░░░░░░░░░░░░░░░] 1/4 phases — IN PROGRESS
+v4: [████████████░░░░░░░░░░░░░] 2/4 phases — IN PROGRESS
     Phase 1: [███] 3/3 plans complete ✓
+    Phase 2: [█░░] 1/3 plans complete
 ```
 
 ## Performance Metrics
@@ -46,9 +47,9 @@ v4: [██████░░░░░░░░░░░░░░░░░░░
 - Requirements: 90 total (33 + 13 + 44)
 
 **v4 Milestone:**
-- Total plans completed: 3
-- Average duration: 2.9 minutes
-- Total execution time: 0.14 hours
+- Total plans completed: 4
+- Average duration: 3.6 minutes
+- Total execution time: 0.24 hours
 
 ## Accumulated Context
 
@@ -81,6 +82,14 @@ Recent decisions affecting v4:
 - Zone parameter required at orchestrator level (forces explicit zone declaration)
 - Optional JSON output via -OutputPath parameter (serves both manual and automation scenarios)
 
+**Plan 02-01 decisions:**
+- Organization-owned tables for immutability (security roles must remove Write/Delete post-deployment)
+- Zone thresholds stored as Dataverse environment variables (not hardcoded)
+- Dry-run mode in ACVClient for safe preview of all API operations
+- Retry logic with exponential backoff (3 retries, 429/500/502/503/504 status codes)
+- Denormalized zone in validation history (captures zone at time of validation)
+- Idempotent deployment with existing schema checks before creation
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, documentation in FSI-AgentGov
@@ -105,18 +114,18 @@ None.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed plan 01-03: Core Validation Scripts - Orchestrator & End-to-End Verification
-- Created Invoke-TenantAuditValidation.ps1 (main orchestrator entry point)
-- Verified all 6 Phase 1 scripts for syntax, consistency, regulatory language
-- 1 commit to FSI-AgentGov-Solutions
-- SUMMARY.md created with phase completion documentation
-- **PHASE 1 COMPLETE** - All 6 scripts (2191 lines) validated and ready
+- Executed plan 02-01: Infrastructure & Environment Validation - Solution Structure, Deploy Orchestrator
+- Created Dataverse infrastructure: API client, schema (5 option sets, 2 org-owned tables), env vars, connection refs
+- Created deploy.py orchestrator with dry-run, selective deployment, and idempotent execution
+- 2 commits to FSI-AgentGov-Solutions
+- SUMMARY.md created with infrastructure completion documentation
+- Solution folder structure (docs/, src/, scripts/) following Tier 2 pattern
 
 **Performance:**
 - Tasks: 2/2 completed
-- Duration: 2.7 minutes
-- Files: 1 created (476 lines of PowerShell)
-- Phase 1 total: 6 scripts, 2191 lines
+- Duration: 7 minutes
+- Files: 7 Python files created (~2,157 lines)
+- Phase 2 progress: 1/3 plans complete
 
 ### Context for Next Session
 
@@ -126,20 +135,22 @@ If resuming this project:
    - `.planning/PROJECT.md` — Current project state
    - `.planning/REQUIREMENTS.md` — v4 requirements (28 total)
    - `.planning/ROADMAP.md` — v4 roadmap (4 phases)
-   - `.planning/phases/01-core-validation-scripts/01-03-SUMMARY.md` — Phase 1 completion summary
+   - `.planning/phases/02-infrastructure-environment-validation/02-01-SUMMARY.md` — Latest plan summary
 
 2. **Current state:**
    - v4 milestone: Audit Configuration Validator
-   - **Phase 1: COMPLETE** (3/3 plans)
-   - Requirements covered: TVAL-01, TVAL-02, TVAL-03, TVAL-04, PVAL-01, PVAL-02, PVAL-03, INFR-05
-   - 6 PowerShell scripts ready: orchestrator, 3 validators, 2 helpers
-   - All scripts verified for syntax, consistency, regulatory language
+   - **Phase 1: COMPLETE** (3/3 plans) — 6 PowerShell scripts (2191 lines)
+   - **Phase 2: IN PROGRESS** (1/3 plans) — Dataverse infrastructure ready
+   - Requirements covered: TVAL-01, TVAL-02, TVAL-03, TVAL-04, PVAL-01, PVAL-02, PVAL-03, INFR-01, INFR-02, INFR-03, INFR-04, EVID-03, INFR-05
+   - Dataverse infrastructure complete: 5 option sets, 2 org-owned tables, 5 env vars, 2 connection refs
+   - deploy.py ready for rapid lab testing
 
 3. **Next step:**
-   - Begin Phase 2: Infrastructure & Environment Validation
-   - Create solution structure, Dataverse schema, environment-level validation
+   - Continue Phase 2: Plan 02-02 (Environment Discovery) and 02-03 (Environment Validation)
+   - Create Python scripts for Power Platform API integration
+   - Implement environment registry population and audit validation
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Plan 01-03 executed - Phase 1 complete)*
+*Last session: 2026-02-06 (Plan 02-01 executed - Phase 2 in progress)*
