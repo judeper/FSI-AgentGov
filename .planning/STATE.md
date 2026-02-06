@@ -14,16 +14,16 @@
 
 ## Current Position
 
-**Phase:** 5 of 7 (Deployment Scripts & Validation) - COMPLETE
-**Plan:** 3 of 3 in current phase - COMPLETE (05-03)
-**Status:** Phase 5 complete — Ready for Phase 6
-**Last activity:** 2026-02-06 - Completed 05-03-PLAN.md (validation-checklist.md)
+**Phase:** 6 of 7 (Agent 365 & Identity Documentation) - IN PROGRESS
+**Plan:** 1 of 1 in current phase - COMPLETE (06-01)
+**Status:** Phase 6 complete — Ready for Phase 7
+**Last activity:** 2026-02-06 - Completed 06-01-PLAN.md (unified Agent 365 documentation)
 
 **Progress:**
 ```
-Milestone Progress: [███████████████████░] 19/19+ plans (Phases 1-5 complete)
+Milestone Progress: [████████████████████] 20/20 plans (Phases 1-6 complete)
 
-Phase 5: [████████████████████] 3/3 plans complete ✓
+Phase 6: [████████████████████] 1/1 plan complete ✓
 ```
 
 ## Performance Metrics
@@ -73,6 +73,16 @@ Phase 5: [████████████████████] 3/3 plan
 - Deployment scripts: deploy-workbooks.ps1 (533 lines), deploy-alerts.ps1 (684 lines)
 - Validation checklist: validation-checklist.md (411 lines)
 - Documentation: README.md deployment section (+84 lines)
+
+**Phase 6 Performance:**
+- Plans completed: 1/1 (06-01) - PHASE COMPLETE
+- Requirements satisfied: 3/3 (A365-01, A365-02, A365-03)
+- Commits: 2 total (2 per plan)
+- Unified governance document: agent-identity-architecture.md (1009 lines)
+- Mermaid diagrams: 3 (sponsorship flow, control plane architecture, admin settings hierarchy)
+- Control impact analysis: 17 controls (HIGH: 4, MEDIUM: 6, LOW: 7)
+- Regulatory alignment: 5 regulations (FINRA 3110, SEC 17a-3/4, OCC 2011-12, SOX, GLBA)
+- Duration: 8 minutes
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -154,6 +164,12 @@ Phase 5: [████████████████████] 3/3 plan
 | Checklist-based validation over automated testing | Manual validation checklist provides clear verification workflow for administrators while accommodating environment-specific configurations that would be difficult to test programmatically | 2026-02-06 |
 | Separate pre-deployment and post-deployment sections | Clear separation between prerequisites (blocking issues) and verification (success confirmation) helps administrators identify deployment readiness gaps early | 2026-02-06 |
 | Include Azure CLI verification commands in checklist | Providing exact commands (not just portal instructions) enables scriptable verification and CI/CD integration while maintaining manual checklist workflow | 2026-02-06 |
+| Unified Agent 365 document combines A365-01, A365-02, A365-03 | Single comprehensive source consolidates Entra Agent ID, Agent 365 control plane, and M365 Admin Center settings | 2026-02-06 |
+| Three Mermaid diagrams for Agent 365 architecture | Sponsorship flow, control plane architecture, and admin settings hierarchy provide visual explanation | 2026-02-06 |
+| Migration roadmap with "prepare now, migrate later" tone | Actionable pre-GA steps (identity audit, sponsorship, CA policies) plus post-GA migration phases | 2026-02-06 |
+| 17-control impact analysis grouped by level | HIGH (4), MEDIUM (6), LOW (7) controls affected by Agent 365; side-by-side current vs Agent 365 approach | 2026-02-06 |
+| Single top-level preview disclaimer | GA vs preview features distinction at document top; no inline per-feature status badges | 2026-02-06 |
+| Redirect stub for agent-365-architecture.md | Preserves backward compatibility for external links and bookmarks while directing to unified document | 2026-02-06 |
 
 ### Key Constraints
 
@@ -190,7 +206,7 @@ Phase 5: [████████████████████] 3/3 plan
 
 ### Blockers
 
-None currently. Phase 5 complete (3/3 plans). Ready for Phase 6 (Agent 365 Documentation) or Phase 7 (Control Enhancements).
+None currently. Phase 6 complete (1/1 plan). Ready for Phase 7 (Control Enhancements).
 
 ### Risk Register
 
@@ -209,38 +225,39 @@ None currently. Phase 5 complete (3/3 plans). Ready for Phase 6 (Agent 365 Docum
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed Phase 5 Plan 03 (validation-checklist.md and README.md deployment section)
-- Two tasks: Create comprehensive deployment validation checklist + update README with deployment documentation
-- Duration: 3 minutes
-- 2 commits to FSI-AgentGov-Solutions: 85fdd66 (feat), 86d65e3 (docs)
+- Executed Phase 6 Plan 01 (unified Agent 365 and Entra Agent ID documentation)
+- Two tasks: Create unified governance document + redirect stub and navigation update
+- Duration: 8 minutes
+- 2 commits to FSI-AgentGov: e711682 (feat), 6b80478 (docs)
 
-**Plan 05-03 Execution:**
-- Created 411-line validation checklist with pre-deployment prerequisites and post-deployment verification
-- Covered complete deployment chain: Azure infrastructure → workbooks → alerts
-- Provided exact Azure CLI verification commands for scriptable workflows
-- Included troubleshooting quick reference with 12 common errors and resolutions
-- Updated README.md with comprehensive Deployment section (+84 lines)
-- Documented DryRun preview capability and 3-phase alert deployment order
-- Added deployment scripts and validation checklist to Solution Structure and Documentation table
+**Plan 06-01 Execution:**
+- Created comprehensive unified governance document (1009 lines) consolidating A365-01, A365-02, A365-03
+- Documented Entra Agent ID identity foundation (sponsorship, lifecycle workflows, Conditional Access)
+- Documented Agent 365 unified control plane (registry, security posture, observability)
+- Documented M365 Admin Center Agent Settings (templates, sharing controls, user access)
+- Created migration roadmap with pre-GA and post-GA checklists
+- Mapped Agent 365 impact to 17 controls (HIGH: 4, MEDIUM: 6, LOW: 7)
+- Aligned Agent 365 capabilities with FSI regulations (FINRA 3110, SEC 17a-3/4, OCC 2011-12, SOX, GLBA)
+- Created redirect stub for agent-365-architecture.md (backward compatibility)
+- Updated mkdocs.yml navigation labels
 
-**Key artifacts created (Plan 05-03):**
-- validation-checklist.md: 411-line checklist with 5 sections (prerequisites, workbook verification, alert verification, post-deployment notes, troubleshooting)
-- README.md Deployment section: Workbook and alert deployment examples with validation guidance
+**Key artifacts created (Plan 06-01):**
+- agent-identity-architecture.md: 1009-line unified governance document with 3 Mermaid diagrams
+- agent-365-architecture.md: Redirect stub pointing to unified document
+- mkdocs.yml: Updated navigation ("Unified Agent Governance", "Agent 365 Architecture (Archived)")
 
-**Phase 5 Complete:**
-All 3 plans executed successfully:
-- 05-01: deploy-workbooks.ps1 (533 lines, idempotent ARM template deployment)
-- 05-02: deploy-alerts.ps1 (684 lines, 3-phase dependency ordering)
-- 05-03: validation-checklist.md (411 lines) + README.md deployment section
-- Total: 6 commits, 1,628 lines of deployment automation and validation guidance
+**Phase 6 Complete:**
+Single plan executed successfully:
+- 06-01: Unified Agent 365 documentation (1009 lines, 3 Mermaid diagrams, 17-control impact analysis)
+- Total: 2 commits, comprehensive Agent 365 governance guidance
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 5 complete, Phase 6/7 next
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/05-deployment-scripts-validation/05-03-SUMMARY.md` — Validation checklist completion
+   - `/Users/admin/dev/FSI-AgentGov/.planning/ROADMAP.md` — Phase 6 complete, Phase 7 next
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/06-agent-365-identity-documentation/06-01-SUMMARY.md` — Unified Agent 365 documentation
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans) — Telemetry Infrastructure
@@ -248,15 +265,16 @@ If resuming this project:
    - Phase 3: COMPLETE (5/5 plans) — Azure Monitor Workbooks & Alerts
    - Phase 4: COMPLETE (4/4 plans) — Power BI Integration & Viva Insights
    - Phase 5: COMPLETE (3/3 plans) — Deployment Scripts & Validation
-   - 35/44 requirements satisfied (79.5%)
-   - **Phase 6 and Phase 7 ready to begin**
+   - Phase 6: COMPLETE (1/1 plan) — Agent 365 & Identity Documentation
+   - 38/44 requirements satisfied (86.4%)
+   - **Phase 7 ready to begin**
 
 3. **Next steps:**
-   - **Phase 6:** Agent 365 Documentation Updates (documentation-only, independent)
-   - **Phase 7:** Control Enhancements (documentation-only, can run parallel to Phase 6)
+   - **Phase 7:** Control Enhancements (add Agent 365 forward-reference notes to 17 affected controls)
    - Agent Observability Foundation solution is deployment-ready with comprehensive automation
+   - Agent 365 documentation provides unified governance guidance
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (Phase 5 complete — validation-checklist.md + README deployment section)*
+*Last session: 2026-02-06 (Phase 6 complete — unified Agent 365 documentation)*
