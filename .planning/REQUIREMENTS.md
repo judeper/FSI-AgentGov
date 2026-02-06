@@ -41,14 +41,14 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Power BI Integration
 
-- [ ] **PBI-01**: Semantic model documentation (star schema, relationships, RLS by zone)
-- [ ] **PBI-02**: DAX measures for sessions, average latency, and error rate
-- [ ] **PBI-03**: Integration guidance for DirectQuery (Premium) and ADX connector (Pro) methods
+- [x] **PBI-01**: Semantic model documentation (star schema, relationships, RLS by zone)
+- [x] **PBI-02**: DAX measures for sessions, average latency, and error rate
+- [x] **PBI-03**: Integration guidance for DirectQuery (Premium) and ADX connector (Pro) methods
 
 ### Viva Insights
 
-- [ ] **VIVA-01**: Scope and limitations documentation (what Viva Insights does and does NOT cover for Copilot Studio)
-- [ ] **VIVA-02**: Cross-reference mapping between Viva Insights metrics and Application Insights telemetry
+- [x] **VIVA-01**: Scope and limitations documentation (what Viva Insights does and does NOT cover for Copilot Studio)
+- [x] **VIVA-02**: Cross-reference mapping between Viva Insights metrics and Application Insights telemetry
 
 ### Governance & Compliance Mapping
 
@@ -158,11 +158,11 @@ Which phases cover which requirements. Updated after roadmap creation.
 | ALRT-02 | Phase 3 | Complete |
 | ALRT-03 | Phase 3 | Complete |
 | ALRT-04 | Phase 3 | Complete |
-| PBI-01 | Phase 4 | Pending |
-| PBI-02 | Phase 4 | Pending |
-| PBI-03 | Phase 4 | Pending |
-| VIVA-01 | Phase 4 | Pending |
-| VIVA-02 | Phase 4 | Pending |
+| PBI-01 | Phase 4 | Complete |
+| PBI-02 | Phase 4 | Complete |
+| PBI-03 | Phase 4 | Complete |
+| VIVA-01 | Phase 4 | Complete |
+| VIVA-02 | Phase 4 | Complete |
 | DEPL-01 | Phase 5 | Pending |
 | DEPL-02 | Phase 5 | Pending |
 | DEPL-03 | Phase 5 | Pending |
@@ -192,4 +192,4 @@ Which phases cover which requirements. Updated after roadmap creation.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 3 complete: 27/44 requirements satisfied)*
+*Last updated: 2026-02-06 (Phase 4 complete: 32/44 requirements satisfied)*

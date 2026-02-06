@@ -154,13 +154,15 @@ Plans:
 4. User understands Viva Insights only covers Copilot Studio agents (not Agent Builder)
 5. User can reconcile Viva Insights adoption metrics with Application Insights telemetry
 
-**Plans:** 4 plans
+**Plans:** 4 plans ✓
 
 Plans:
-- [ ] 04-01-PLAN.md — TMDL semantic model (dual-grain star schema, dimensions, relationships, zone-based RLS)
-- [ ] 04-02-PLAN.md — DAX measures (CoreMetrics.tmdl) and Power BI integration guide
-- [ ] 04-03-PLAN.md — KQL pre-aggregation functions, connector decision matrix, and solution README
-- [ ] 04-04-PLAN.md — Viva Insights scope/limitations documentation and reconciliation workflow
+- [x] 04-01-PLAN.md — TMDL semantic model (dual-grain star schema, dimensions, relationships, zone-based RLS) [9a5addc, 10130cb]
+- [x] 04-02-PLAN.md — DAX measures (CoreMetrics.tmdl) and Power BI integration guide [7089b4f, ed9e2c1]
+- [x] 04-03-PLAN.md — KQL pre-aggregation functions, connector decision matrix, and solution README [a389902, c393dd8]
+- [x] 04-04-PLAN.md — Viva Insights scope/limitations documentation and reconciliation workflow [12df501, 53fcbfe]
+
+**Completed:** 2026-02-06
 
 ---
 
@@ -240,12 +242,12 @@ Plans:
 | 1 - Telemetry Infrastructure & Solution Foundation | ✓ Complete | 4/4 | 10 | 5/5 |
 | 2 - KQL Query Library & Governance Mapping | ✓ Complete | 3/3 | 10 | 5/5 |
 | 3 - Azure Monitor Workbooks & Alert Rules | ✓ Complete | 5/5 | 7 | 5/5 |
-| 4 - Power BI Integration & Viva Insights | Planned | 0/4 | 5 | 5 |
+| 4 - Power BI Integration & Viva Insights | ✓ Complete | 4/4 | 5 | 5/5 |
 | 5 - Deployment Scripts & Validation | Pending | 0/0 | 3 | 5 |
 | 6 - Agent 365 & Identity Documentation | Pending | 0/0 | 3 | 5 |
 | 7 - Control Enhancements & Role Updates | Pending | 0/0 | 6 | 5 |
 
-**Total:** 3/7 phases complete, 27/44 requirements satisfied
+**Total:** 4/7 phases complete, 32/44 requirements satisfied
 
 ---
 
@@ -284,4 +286,4 @@ Phases 1-5 use well-documented Azure patterns. Phase 6 may require deeper resear
 ---
 
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 3 complete — 5 plans, 3 waves, 10 task commits)*
+*Last updated: 2026-02-06 (Phase 4 complete — 4 plans, 2 waves, 8 task commits + 1 gap-fix commit)*
