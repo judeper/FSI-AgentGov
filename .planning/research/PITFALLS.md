@@ -1,749 +1,740 @@
-# Domain Pitfalls: Documentation Architecture Improvements & Solution Completion
+# Domain Pitfalls: Audit Configuration Validator
 
-**Domain:** Adding documentation architecture changes and completing WIP solutions in mature governance framework
-**Researched:** 2026-02-04
-**Confidence:** HIGH
-
----
-
-## Executive Summary
-
-This research identifies pitfalls specific to v2 milestone work: improving documentation architecture and completing WIP solutions in an **existing, production-used framework** with 62 controls, 254 playbooks, and 209 monitored URLs published to GitHub Pages.
-
-Unlike greenfield development, these changes carry **integration risk** — every navigation change affects existing bookmarks, every PowerShell change breaks existing deployments, every YAML config adds maintenance burden. The framework is mature (v1.2.37) with real FSI customers depending on URL stability and script backward compatibility.
-
-**Key insight:** The biggest pitfalls come from **treating incremental improvements as greenfield projects**. What works for new systems often breaks existing workflows. Documentation changes that "improve" navigation can destroy SEO rankings built over months. Security hardening that "fixes" PowerShell scripts breaks production automation. Configuration externalization that "simplifies" maintenance creates YAML sprawl worse than the code it replaced.
-
-This research focuses on **integration pitfalls** — mistakes that happen when adding features to systems with existing users, URLs, and dependencies.
+**Domain:** Automated audit configuration validation for Microsoft 365 / Power Platform
+**Researched:** February 6, 2026
+**Context:** FSI Agent Governance Framework v1.2.38 — subsequent milestone adding audit validation to existing framework
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: MkDocs Awesome-Pages Migration Breaks Existing Links
+Mistakes that cause rewrites, regulatory gaps, or major incidents.
 
-**What goes wrong:** Migrating from manual `mkdocs.yml` navigation to awesome-pages plugin generates different URLs, breaking all existing bookmarks and search engine indexed pages.
+### Pitfall 1: Search-UnifiedAuditLog Cmdlet Reliability Issues
 
-**Why it happens:**
-- Awesome-pages v3 generates navigation from scratch, ignoring `mkdocs.yml` nav structure
-- Plugin uses alphabetical sorting by default; manual nav had semantic ordering
-- `.pages` file rename to `.nav.yml` changes discovery logic
-- Glob patterns (`*`) replace explicit file lists, changing URL generation order
-
-**Real-world evidence:**
-- [Migration from v2 to v3 - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/migration-v3/) documents breaking changes: "In version 3, the plugin ignores a nav that is defined in mkdocs.yml"
-- Version 3 was "developed from scratch using a new approach" — not incremental
-- Documentation warns: "filtering expressions will require more attention" during migration
-
-**Consequences:**
-- Google Search Console shows 404 errors for previously indexed URLs
-- Users' browser bookmarks return 404 or redirect to different content
-- Internal cross-references break (248 control playbooks referencing each other)
-- SEO ranking drops as search engines detect "site migration" signal
-- GitHub Pages rebuild changes all canonical URLs overnight
-
-**FSI-AgentGov-specific impact:**
-- 254 playbook files with deep linking paths (`/playbooks/control-implementations/1.1/portal-walkthrough/`)
-- Users bookmark specific control URLs for compliance audits
-- Framework documentation cited in internal FSI compliance policies (URL changes invalidate references)
-- 62 controls × 4 playbooks = 248 potential broken links
-
-**Prevention:**
-
-1. **URL preservation testing BEFORE migration:**
-   - Generate navigation with awesome-pages in test branch
-   - Run `mkdocs build` and compare `site/` directory structure to production
-   - Create URL mapping table: old path → new path
-   - If ANY URL changes, migration requires redirect strategy
-
-2. **Implement 301 redirects for changed URLs:**
-   - Use MkDocs `redirects` plugin to preserve old URLs
-   - Document all URL changes in migration changelog
-   - Monitor Google Search Console for 404s post-deployment
-
-3. **Staged rollout with fallback:**
-   - Deploy awesome-pages to staging environment first
-   - Test ALL internal links with link checker
-   - Keep `mkdocs.yml` nav structure in version control for 6 months (rollback option)
-   - Monitor analytics for traffic drops indicating broken user workflows
-
-4. **Consider NOT migrating:**
-   - Manual navigation provides explicit control over URL structure
-   - "Maintenance burden" of updating `mkdocs.yml` is low for stable framework
-   - Automation is not always improvement — manual nav prevents accidental URL changes
-
-**Detection:**
-- Pre-migration: Build both versions, diff `site/` directories for URL changes
-- Post-migration: Monitor HTTP 404 rate in GitHub Pages analytics
-- Post-migration: Run `mkdocs build --strict` with link validation
-- User feedback: Bookmark breakage reports within 48 hours
-
-**Which phase should address:**
-- Phase 1: URL Impact Assessment (migration decision point)
-- Phase 2: Redirect Implementation (if proceeding)
-- Phase 3: Staged Deployment with Rollback Plan
-
-**Reference:** [The Secret Migration: How Site Navigation Changes Can Destroy SEO](https://sitebulb.com/resources/guides/the-secret-migration-how-site-navigation-changes-can-destroy-seo-without-you-realising/)
-
----
-
-### Pitfall 2: PowerShell Security Hardening Breaks Production Scripts
-
-**What goes wrong:** Adding `#Requires` statements, replacing `ConvertTo-SecureString -AsPlainText`, and adding try/catch blocks causes existing scripts to fail in production FSI environments with restrictive execution policies.
+**What goes wrong:** The Search-UnifiedAuditLog cmdlet returns incomplete results or fails silently, causing validators to miss audit gaps. Microsoft acknowledges this cmdlet "can't be completely trusted" for what gets returned.
 
 **Why it happens:**
-- FSI environments often run older PowerShell versions (5.1 is common, not 7.x)
-- Adding `#Requires -Version 7.0` breaks scripts on systems with only 5.1 installed
-- Adding `#Requires -Modules Microsoft.Graph.Authentication` breaks when module not pre-installed
-- Changing secret handling from `ConvertTo-SecureString -AsPlainText` to `Get-Secret` requires SecretManagement module (not default)
-- New error handling changes script behavior — scripts that silently continued now halt with exceptions
-
-**Real-world evidence from v1 audit:**
-- Tech debt item: "12 PowerShell scripts missing #Requires statements"
-- Tech debt item: "Register-ServicePrincipal.ps1 uses ConvertTo-SecureString -AsPlainText -Force (exposes secrets in process memory)"
-- Tech debt item: "Test-PolicyCompliance.ps1 has zero try/catch error handling"
-- "PowerShell validation limited to regex (pwsh unavailable on macOS)" — indicates environment constraints
+- Backend API issues specific to ExchangeOnlineManagement module's API interaction
+- Works differently in different tenants (some tenants fail where native API calls succeed)
+- Silent truncation when result sets exceed internal limits
+- Microsoft changed behavior without documentation updates
 
 **Consequences:**
-- Scripts fail on first run after "security update" deployment
-- FSI security teams block script execution due to new module dependencies
-- Users with PowerShell 5.1 cannot run scripts requiring 7.x features
-- Breaking changes not documented in CHANGELOG — users assume backward compatibility
-- Rollback requires Git revert, but customers may have forked repo before changes
-
-**FSI-AgentGov-specific impact:**
-- Solutions deployed in production FSI environments (Message Center Monitor, Pipeline Governance Cleanup)
-- Customers may run automation on Windows Server 2019 (PowerShell 5.1 only)
-- Changing secret handling affects Environment Lifecycle Management (ELM) solution
-- 13 solutions × multiple scripts = high blast radius for breaking changes
+- False negatives: Validator reports "audit enabled" when logs aren't being captured
+- Regulatory examination failures: SEC/FINRA examiners request logs that don't exist
+- Audit gap periods go undetected for weeks/months
+- Compliance dashboard shows green status while actual logging is broken
 
 **Prevention:**
+1. **Dual validation strategy:** Cross-check Search-UnifiedAuditLog results with Get-OrganizationConfig AuditDisabled parameter
+2. **Canary events:** Generate known test events and verify they appear in audit log within 90 minutes
+3. **Result set validation:** Check ResultIndex and verify you received all expected records (use SessionId and paging)
+4. **Native API fallback:** For critical validations, use Office 365 Management Activity API directly instead of PowerShell cmdlet
+5. **Lag awareness:** Build in 24-hour delay before validating that audit events are actually being captured
 
-1. **Backward compatibility testing matrix:**
-   ```powershell
-   # Test matrix BEFORE merging changes:
-   # - PowerShell 5.1 on Windows Server 2019
-   # - PowerShell 7.2 on Windows 11
-   # - PowerShell 7.4 on macOS (if cross-platform)
+**Detection warning signs:**
+- Validator shows audit enabled but Search-UnifiedAuditLog returns zero results for time period with known activity
+- ResultCount matches MaxResults exactly (indicates truncation)
+- Different results when re-running same search parameters
+- API errors logged but cmdlet returns success
 
-   # Test with and without optional modules installed
-   # Document minimum supported version in README
-   ```
+**Phase to address:** Phase 1 (Core Validation Logic) — must build robust detection before Phase 2 auto-remediation
 
-2. **Gradual hardening with feature detection:**
-   ```powershell
-   # Instead of: #Requires -Modules SecretManagement (breaks existing)
-   # Use:
-   if (Get-Module -ListAvailable -Name SecretManagement) {
-       $secret = Get-Secret -Name $secretName -AsPlainText
-   } else {
-       Write-Warning "SecretManagement module not found. Using ConvertTo-SecureString (legacy)."
-       $secret = Read-Host -Prompt "Enter secret" -AsSecureString
-   }
-   ```
+**Severity:** CRITICAL — Regulatory examination risk
 
-3. **Version-specific security improvements:**
-   - Create separate branches: `v1-stable` (no breaking changes), `v2-hardened` (security improvements)
-   - Document migration path in UPGRADE.md
-   - Provide conversion scripts to upgrade deployments
-   - Maintain v1 for 6 months minimum
-
-4. **Change classification in release notes:**
-   - **BREAKING:** Changes requiring user action before upgrade
-   - **SECURITY:** Security improvements (may change behavior)
-   - **COMPATIBLE:** Backward-compatible enhancements
-
-   Example: "BREAKING: Register-ServicePrincipal.ps1 now requires SecretManagement module. See UPGRADE.md for migration steps."
-
-5. **Don't over-engineer for theoretical risks:**
-   - `ConvertTo-SecureString -AsPlainText` is **acceptable** for interactive scripts
-   - Process memory exposure is low-risk for one-time setup scripts
-   - Adding try/catch everywhere creates verbose code — focus on external API calls only
-   - #Requires statements are useful but not mandatory — document prerequisites in README instead
-
-**Detection:**
-- Pre-release: Test scripts on PowerShell 5.1 (minimum supported version)
-- Pre-release: Test on clean system without optional modules installed
-- Pre-release: Run PSScriptAnalyzer with compatibility rules: `Invoke-ScriptAnalyzer -Path . -Settings PSGallery`
-- Post-release: Monitor GitHub issues for "script no longer works" reports
-
-**Which phase should address:**
-- Phase 1: Compatibility Testing Setup (before any script changes)
-- Phase 2: Security Improvements with Feature Detection (gradual hardening)
-- Phase 3: Breaking Changes with Migration Guide (if truly necessary)
-
-**Reference:** [Microsoft's Removal of PowerShell 2.0: Security Implications and Migration Guidance](https://redteamnews.com/blue-team/microsofts-removal-of-powershell-2-0-security-implications-and-migration-guidance/)
+**Sources:**
+- [Search-UnifiedAuditLog cmdlet changes](https://practical365.com/search-unifiedauditlog-cmdlet-changes/)
+- [DFIR experts on UAL reliability](https://www.invictus-ir.com/news/what-dfir-experts-need-to-know-about-the-current-state-of-the-unified-audit-log)
+- [Search-UnifiedAuditLog issues with App Registration](https://learn.microsoft.com/en-us/answers/questions/1289339/search-unifiedauditlog-doesnt-work-from-20-5-when)
 
 ---
 
-### Pitfall 3: YAML Configuration Externalization Creates More Complexity Than It Solves
+### Pitfall 2: Audit Log Availability Lag Creating False Negatives
 
-**What goes wrong:** Moving hard-coded configuration to external YAML files increases maintenance burden, creates version skew between config and code, and makes simple scripts harder to understand.
+**What goes wrong:** Validator checks audit status immediately after enabling, reports "audit enabled but no logs captured," triggers false alert, or marks environment as non-compliant when logging is actually working correctly.
 
 **Why it happens:**
-- Over-application of "12-factor app" principles to simple automation scripts
-- Belief that "configuration should be external" applies to all config, not just environment-specific config
-- YAML syntax errors are runtime failures (not caught until script executes)
-- Multiple YAML files require synchronization (config drift between environments)
-- Users must learn YAML structure on top of PowerShell/Python syntax
-
-**Real-world evidence:**
-- [Spring Boot Anti-Patterns: When to Use Design Patterns Without Overengineering](https://medium.com/@sunsetheus/spring-boot-anti-patterns-when-to-use-design-patterns-without-overengineering-361471d986f0): "Overengineering involves applying design patterns unnecessarily, leading to bloated and convoluted codebases"
-- [Configuration Externalization — Design Pattern](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73): "If you're managing a few microservices and only need one or two credentials, start with environment variables or YAML files, then consider adopting a Config Server or Vault as the platform scales"
-- [YAML: probably not so great after all](https://www.arp242.net/yaml-config.html): Documents YAML complexity, ambiguity, and security issues
+- Unified audit log has 60-90 minute typical lag (up to 24 hours documented maximum)
+- Eventual consistency model across Microsoft 365 services
+- Different services have different lag times (Teams longer than Exchange)
+- Management Activity API returns data up to 30 minutes to 24+ hours after event
 
 **Consequences:**
-- Simple 50-line script now requires 100-line YAML config file
-- Users must edit YAML correctly (indentation matters, no tabs allowed)
-- Config schema not enforced — typos cause runtime failures
-- Version control shows config changes but not why config structure changed
-- Deployment requires distributing script + config + schema documentation
-
-**FSI-AgentGov-specific impact:**
-- Learn Monitor (`learn_monitor.py`) has 100+ lines of configuration (209 URLs)
-- Regulatory Monitor has state file (`data/monitor-state.json`) — already JSON-based
-- Moving Python config to YAML doesn't improve maintainability for this use case
-- Scripts are run by administrators, not deployed as services — externalization less valuable
-
-**When externalization DOES make sense:**
-- Environment-specific values (tenant IDs, environment URLs) that differ per deployment
-- Secrets (already handled by Key Vault or environment variables)
-- Large lists of items that change frequently independent of code (e.g., URL monitoring list)
-
-**When externalization is OVERENGINEERING:**
-- Hard-coded constants that never change (`DEFAULT_TIMEOUT = 30`)
-- Code structure choices (which API version to use)
-- Small scripts with <10 configuration values
-- Single-environment deployments (no dev/staging/prod split)
+- False positive alerts flood Teams channel
+- Administrators waste time investigating working systems
+- Loss of trust in validation tool
+- Audit auto-remediation triggers repeatedly on same environment
+- Regulatory documentation shows "audit gaps" that don't actually exist
 
 **Prevention:**
+1. **Grace period:** Wait minimum 2 hours after audit enable before validation
+2. **Validation schedule:** Run daily validation at consistent time (not immediately after changes)
+3. **Alert suppression:** Suppress alerts for 24 hours after environment creation or audit configuration change
+4. **Confidence levels:** Tag validation results as "pending_confirmation" during lag window
+5. **Event horizon:** Only validate audit capture for events older than 24 hours
 
-1. **Apply externalization selectively:**
-   ```python
-   # GOOD: Externalize environment-specific config
-   tenant_id = os.environ.get("TENANT_ID")  # Different per deployment
+**Detection warning signs:**
+- Alerts triggered within 2 hours of audit enable timestamp
+- Same environment repeatedly flagged then cleared
+- Zero events returned for newly enabled audit
 
-   # GOOD: Externalize large lists
-   monitored_urls = load_yaml("config/monitored-urls.yaml")  # Changes independently
+**Phase to address:** Phase 1 (Core Validation Logic) — validation timing must account for lag
 
-   # BAD: Externalize constants
-   # config.yaml: "max_retries: 3"  # This should be a constant in code
-   MAX_RETRIES = 3  # Clear, typed, versioned with code
-   ```
+**Severity:** CRITICAL — Creates alert fatigue that masks real issues
 
-2. **Validate config at startup:**
-   ```python
-   # If using YAML, validate structure immediately
-   from jsonschema import validate
-
-   config = load_yaml("config.yaml")
-   validate(config, schema)  # Fail fast with clear error
-   ```
-
-3. **Document the config-code contract:**
-   - If config.yaml exists, README must document all fields
-   - Config changes should trigger version bumps (breaking vs. non-breaking)
-   - Provide example configs for common scenarios
-
-4. **Consider JSON over YAML for machine-edited configs:**
-   - JSON schema validation is more mature
-   - No indentation ambiguity
-   - Easier to programmatically update
-   - Python/PowerShell native support without libraries
-
-5. **Start simple, refactor later:**
-   - Ship v1.0 with config in code
-   - Add externalization in v2.0 if users request it (evidence of need)
-   - Don't prematurely optimize for "might need to configure this later"
-
-**Detection:**
-- Pre-implementation: Count configuration values — if <10, keep in code
-- Pre-implementation: Ask "will users customize this per deployment?" — if no, keep in code
-- Code review: Challenge each externalized config item with "why not a constant?"
-- Post-release: Monitor issues for "config file is confusing" feedback
-
-**Which phase should address:**
-- Phase 1: Configuration Audit (what actually needs externalization)
-- Phase 2: Selective Externalization (only environment-specific values)
-- Phase 3: Validation & Documentation (if proceeding with YAML)
-
-**Reference:** [Platform Engineering's Patterns And Anti-patterns](https://octopus.com/devops/platform-engineering/patterns-anti-patterns/)
+**Sources:**
+- [Search the audit log](https://learn.microsoft.com/en-us/purview/audit-search)
+- [Microsoft 365 audit log latency data](https://michev.info/blog/post/5749/microsoft-365-azure-ad-audit-logs-and-reports-latency-data)
+- [Office 365 event latency](https://cybersecurity.att.com/documentation/usm-anywhere/alienapps-guide/office-365/office-365-event-latency.htm)
 
 ---
 
-## Moderate Pitfalls
+### Pitfall 3: Unified Audit Log vs Mailbox Audit Confusion
 
-### Pitfall 4: "Completing" WIP Solutions Triggers Scope Creep
-
-**What goes wrong:** Attempting to "finish" 6 WIP solutions leads to feature bloat as team adds "just one more" capability that seems necessary for "production readiness."
+**What goes wrong:** Validator checks Get-OrganizationConfig AuditDisabled (unified audit log status) and assumes mailbox auditing is also configured, or vice versa. These are separate systems with different scopes and configurations.
 
 **Why it happens:**
-- No clear definition of "done" for WIP solutions
-- "While we're at it" syndrome — adding features because code is already open
-- Perfectionism — belief that solution must handle all edge cases before marking Complete
-- Feature requests accumulate during implementation ("can we also add X?")
-- Sunk cost fallacy — "we've invested this much, might as well make it perfect"
-
-**Real-world evidence:**
-- Solutions Index shows: 3 Completed, 1 Validated, **6 WIP**, 3 Planned
-- WIP solutions: Deny Event Correlation, Conditional Access Automation, Compliance Dashboard, Segregation Detector, Scope Drift Monitor, RAG Source Validator
-- [Scope Creep is a Boss Fight: How to Beat Feature Bloat](https://www.wayline.io/blog/scope-creep-boss-fight-beat-feature-bloat): "Feature creep is the gradual addition of unnecessary features, often at the expense of time, budget, and user experience"
-- [Feature Creep, the Bane of Our Existence](https://www.interaction-design.org/literature/article/feature-creep-the-bane-of-our-existence): "Feature creep leads to feature bloat, resulting in a product that is complex, difficult to navigate"
+- Naming similarity creates assumption they're the same
+- Unified audit log is organization-wide setting
+- Mailbox audit logging is per-mailbox setting (default on, customizable per mailbox)
+- Both feed into same search interface but have different retention (180 days vs 90 days default)
+- Mailbox audit can be customized per logon type (Owner/Delegate/Admin) but UAL cannot
 
 **Consequences:**
-- V2 milestone scope expands from "complete 6 WIP solutions" to "complete + add 20 new features"
-- Timeline slips as each solution grows from 2 weeks to 6 weeks
-- Code quality suffers as features are rushed to meet extended deadline
-- Solutions become harder to deploy (more dependencies, longer setup)
-- "Perfect" solutions never ship because there's always one more feature to add
-
-**FSI-AgentGov-specific impact:**
-- Compliance Dashboard is "v1.0.0-beta" — temptation to add every possible chart before marking v1.0
-- Conditional Access Automation has 8 policy templates — temptation to add 20 more "edge case" policies
-- Each WIP solution maps to 2-4 framework controls — scope creep delays control automation
-- Cross-solution dependencies create cascading delays (Scope Drift depends on Agent Inventory, etc.)
+- Validator reports "audit compliant" when only one of two systems is enabled
+- Mailbox access events not captured despite unified audit being on
+- Regulatory examination reveals gaps in email access audit trail
+- SEC 17a-4 audit trail incomplete for email communications
 
 **Prevention:**
+1. **Check both systems:** Validate Get-OrganizationConfig AuditDisabled=False AND per-mailbox audit status
+2. **Mailbox audit validation:** Check AuditEnabled property for representative mailboxes across user types
+3. **Separate reporting:** Report unified audit and mailbox audit status independently
+4. **Scope documentation:** Document that validator checks BOTH systems and why
+5. **Retention alignment:** Verify mailbox audit retention via AuditLogAgeLimit property (default 90 days)
 
-1. **Define "Complete" explicitly before starting:**
-   ```markdown
-   # Compliance Dashboard v1.0 Definition of Done
+**Detection warning signs:**
+- Unified audit shows enabled but no mailbox access events in Search-UnifiedAuditLog
+- Get-Mailbox -ResultSize 1 shows AuditEnabled=$false despite org-wide audit being on
+- Mailbox actions missing from audit export but SharePoint actions present
 
-   MUST HAVE (blocking):
-   - [ ] Dataverse tables deployed and schema documented
-   - [ ] Sample data loads without errors
-   - [ ] README installation steps tested on clean environment
-   - [ ] All 62 controls appear in Power BI report template
+**Phase to address:** Phase 1 (Core Validation Logic) — must validate both audit systems
 
-   SHOULD HAVE (defer to v1.1):
-   - Exception workflow automation (manual process documented for v1.0)
-   - Trend analysis charts (aggregation exists, visualization deferred)
+**Severity:** CRITICAL — Regulatory examination risk, incomplete audit trail
 
-   WON'T HAVE (out of scope):
-   - Real-time alerting (requires Premium capacity, not in scope)
-   - Mobile app (web-only for v1.0)
-   ```
-
-2. **Use existing Completed solutions as quality bar:**
-   - Environment Lifecycle Management (v1.1.2) is Completed
-   - Message Center Monitor (v2.1.1) is Completed
-   - Compare WIP solution scope to ELM — are you adding more features? Why?
-
-3. **Implement feature freeze 2 weeks before milestone:**
-   - No new features accepted after freeze date
-   - Only bug fixes and documentation improvements
-   - "Great idea, let's add it to v2.1 backlog" becomes default response
-
-4. **Say no to "while we're at it" additions:**
-   - Track feature requests in GitHub Issues with "v2.1" milestone
-   - Require justification: "Why is this blocking v2.0 completion?"
-   - Default to deferral unless customer-requested
-
-5. **Ship iteratively:**
-   - v1.0: Core functionality, manual steps documented
-   - v1.1: Automation of previously manual steps
-   - v2.0: Advanced features based on user feedback
-
-   Example: Compliance Dashboard v1.0 ships with manual exception approval; v1.1 adds Power Automate approval flow.
-
-**Detection:**
-- Weekly scope review: "What features were added this week? Were they in original scope?"
-- Compare current feature list to initial RESEARCH.md for solution
-- Monitor Git commit messages for "add feature" vs. "fix bug" ratio
-- Team retrospective: "Are we scope creeping or shipping?"
-
-**Which phase should address:**
-- Phase 1: Define "Complete" for Each WIP Solution (blocking)
-- Phase 2-N: One Phase per Solution with Explicit Scope
-- Final Phase: Integration Testing (no new features)
-
-**Reference:** [4 Steps to Manage with Feature Creep](https://thisisstoked.com/knowledge/how-to-manage-feature-creep)
+**Sources:**
+- [Manage mailbox auditing](https://learn.microsoft.com/en-us/purview/audit-mailboxes)
+- [Different types of logging – Microsoft Purview Audit](https://alberthoitingh.com/2022/05/20/different-types-of-logging-microsoft-purview-audit/)
+- [Office 365 audit logging (Zolder)](https://zolder.io/blog/office-365-audit-logging/)
 
 ---
 
-### Pitfall 5: Cross-Repo Changes Create Coordination Failures
+### Pitfall 4: SEC 17a-4 Audit Gap Period Documentation Failure
 
-**What goes wrong:** Updating documentation in FSI-AgentGov while simultaneously updating solution code in FSI-AgentGov-Solutions leads to version skew, broken links, and incomplete deployments.
+**What goes wrong:** Validator detects audit was disabled for a time period but doesn't document the gap in an admissible format for regulatory examination. SEC/FINRA examiners request audit trail, discover gap, and organization cannot provide contemporaneous documentation explaining the gap.
 
 **Why it happens:**
-- Two repositories require two commits, two PRs, two review cycles
-- Documentation changes merge before solution changes (or vice versa)
-- Cross-references point to code that doesn't exist yet (or documentation that's missing)
-- Reviewers only see one repo at a time, missing cross-repo dependencies
-- No automated testing of cross-repo integration
-
-**Real-world evidence:**
-- [Cross-repository (or, project-level) PR with multiple branches](https://github.com/orgs/community/discussions/13733): "Coordinating changes that span multiple repositories may require additional effort"
-- [Multi-Repo Workflows: Managing Distributed Systems](https://developertoolkit.ai/en/cursor-ide/advanced-techniques/multi-repo-workflows/): "Teams often forget to update components among multiple repositories when working on a topic"
-- FSI-AgentGov CLAUDE.md documents: "Each repo has separate git history. Git commands must run from within the target repo."
+- Validator treats audit gaps as "fixed" once re-enabled
+- No archival of gap period metadata (who, what, when, why)
+- Audit gap documentation not in examiner-accessible format
+- No process to flag periods requiring compensating controls
 
 **Consequences:**
-- Documentation references solution features that don't exist yet (links to non-existent files)
-- Solution deployed without documentation (users can't figure out how to use it)
-- Version mismatch: docs say v1.1.0, solution is still v1.0.8
-- Broken playbook links to FSI-AgentGov-Solutions README
-- Review cycles double (need approval in both repos, reviews happen at different times)
-
-**FSI-AgentGov-specific impact:**
-- 13 solutions in FSI-AgentGov-Solutions
-- Each solution documented in FSI-AgentGov playbooks (cross-references)
-- Solutions Index (`docs/reference/solutions-index.md`) lists versions — must stay in sync
-- Advanced implementation playbooks reference solution code structure
+- SEC 17a-4 recordkeeping violations (must maintain audit trail)
+- Regulatory fines (recent SEC 17a-4 enforcement actions totaled $2B+ since 2021)
+- Unable to provide "complete, unaltered records" for examination
+- Loss of audit trail for suspicious activity investigations
+- Enforcement action for "failure to maintain required records"
 
 **Prevention:**
+1. **Gap documentation artifact:** Create immutable record for each detected gap (start time, end time, detection time, remediation time, affected systems)
+2. **Evidence export:** Export gap records to WORM storage or send to Purview retention policy
+3. **Compensating control triggers:** When gap detected, flag need for manual activity review during gap period
+4. **Regulatory documentation format:** Generate examiner-ready reports with gap periods highlighted
+5. **Notification escalation:** Alert compliance officer immediately when gap detected (not just IT admin)
+6. **Timestamp integrity:** Use NTP-synced timestamps, document detection methodology
 
-1. **Commit order protocol:**
-   ```markdown
-   # When changing both repos for a feature:
-   1. Commit FSI-AgentGov-Solutions changes FIRST (code)
-   2. Wait for merge and tag (e.g., v1.1.0)
-   3. Commit FSI-AgentGov changes SECOND (documentation)
-   4. Reference solution tag in documentation commit message
+**Detection warning signs:**
+- Audit re-enabled without documentation of gap period
+- No tracking of "when validator detected the gap" vs "when gap actually occurred"
+- Gap notifications only to IT, not compliance team
+- Gap records stored in operational dashboard without archival
 
-   Rationale: Documentation can reference tagged code release.
-   Reverse order creates broken links to unreleased features.
-   ```
+**Phase to address:** Phase 1 (Core Validation Logic) AND Phase 3 (Compliance Evidence Export) — detect gaps AND archive documentation
 
-2. **Cross-reference validation in CI:**
-   ```python
-   # In FSI-AgentGov CI pipeline:
-   # Parse docs/reference/solutions-index.md for version numbers
-   # Check that FSI-AgentGov-Solutions tags exist
-   # Example: If docs say "v1.1.0", verify git tag exists
+**Severity:** CRITICAL — Regulatory enforcement risk, potential fines
 
-   def validate_solution_versions():
-       for solution in parse_solutions_index():
-           tag = f"{solution.name}-v{solution.version}"
-           if not tag_exists(tag, solutions_repo):
-               raise Error(f"Solutions Index references {tag} but tag doesn't exist")
-   ```
-
-3. **Atomic documentation updates:**
-   - Don't split solution documentation across multiple PRs
-   - One PR in FSI-AgentGov should document ALL changes from one solution release
-   - PR description links to merged FSI-AgentGov-Solutions PR
-
-4. **Version alignment table in CHANGELOG:**
-   ```markdown
-   # FSI-AgentGov v1.3.0 - March 2026
-
-   ## Cross-Repo Version Alignment
-
-   | FSI-AgentGov Version | Solutions Versions |
-   |---------------------|-------------------|
-   | v1.3.0 | - Environment Lifecycle Management v1.2.0 |
-   |        | - Compliance Dashboard v1.0.0 (GA) |
-   |        | - Conditional Access Automation v1.0.0 (GA) |
-
-   Users deploying v1.3.0 framework should use above solution versions.
-   ```
-
-5. **Test deployment with both repos:**
-   - Clone both repos at specific tags
-   - Follow documentation from FSI-AgentGov
-   - Deploy solution from FSI-AgentGov-Solutions
-   - Verify all links work, versions match, deployment succeeds
-
-**Detection:**
-- Pre-merge: Check that referenced solution version exists in FSI-AgentGov-Solutions
-- Pre-merge: Validate all playbook links to solution README files
-- Post-merge: Monitor GitHub issues for "documentation doesn't match code" reports
-- Post-merge: Run link checker across both repositories
-
-**Which phase should address:**
-- Phase 1: Cross-Repo Coordination Protocol (document commit order)
-- Each Solution Phase: Commit to Solutions Repo, Then Docs Repo
-- Final Phase: Cross-Repo Integration Testing
-
-**Reference:** [Collaborating within the same repository](https://coderefinery.github.io/git-collaborative/same-repository/)
+**Sources:**
+- [SEC Rule 17a-4 recordkeeping requirements](https://www.luthor.ai/blog-post/sec-rule-17a-4)
+- [Business impact of modernized SEC 17a-4 rules](https://www.smarsh.com/blog/thought-leadership/modernization-of-SEC-recordkeeping-rules-business-impact-on-financial-services/)
+- [SEC 17a-4 audit trail alternative](https://www.globalrelay.com/resources/the-compliance-hub/rules-and-regulations/sec-rules-17a-4-and-17a-3-explained/)
 
 ---
 
-### Pitfall 6: JSON to SQLite Migration Adds Complexity Without Clear Benefit
+### Pitfall 5: Auto-Enabling Audit in Default Environment
 
-**What goes wrong:** Migrating state files from JSON to SQLite database adds SQLite dependency, migration scripts, and schema management for minimal performance gain on small datasets.
+**What goes wrong:** Validator detects audit disabled in Default environment, auto-enables it (with approval workflow), breaks existing governance posture by legitimizing Default environment use instead of driving migration to Managed Environments.
 
 **Why it happens:**
-- Belief that "databases are always better than flat files"
-- Premature optimization for scale that doesn't exist yet
-- Desire to use SQL queries instead of simple Python dict operations
-- Copying patterns from large-scale systems to small scripts
-
-**Real-world evidence:**
-- [SQLite JSON Storage Debate: Modern Solution or Unnecessary Complexity?](https://biggo.com/news/202412230727_sqlite-json-storage-debate): "Some developers question whether using SQLite for JSON storage adds unnecessary complexity to data storage, particularly when the application requirements are simple"
-- [SQLite User Forum: Flat files vs SQLite](https://sqlite.org/forum/forumpost/3d7be1ad3d?t=c): Discusses when SQLite is overkill for simple data
-- Current FSI-AgentGov: `data/learn-monitor-state.json` is 209 URLs × ~200 bytes = ~42KB file
+- Default environment is where users start building before governance matures
+- FSI-AgentGov framework recommends moving apps OUT of Default to Managed Environments
+- Auto-enabling audit in Default makes it "compliant" and removes urgency to migrate
+- Default environment has relaxed DLP, sharing controls — not appropriate for Zone 2/3 workloads
 
 **Consequences:**
-- Must add SQLite library dependency (or use Python stdlib sqlite3)
-- Schema evolution requires migration scripts (ALTER TABLE, version management)
-- Debugging harder (can't just open JSON in editor, need SQL client)
-- Cross-platform testing expands (SQLite file format varies)
-- Backup/restore more complex (can't just copy .json file)
-- State file corruption harder to fix (can't hand-edit like JSON)
-
-**FSI-AgentGov-specific impact:**
-- Learn Monitor state: 209 URLs, read/write once per day, file size <100KB
-- Regulatory Monitor state: Even smaller dataset
-- Performance not a bottleneck (current JSON parsing takes <1ms)
-- Scripts run once per day in GitHub Actions (not high-concurrency scenario)
-
-**When SQLite DOES make sense:**
-- Concurrent read/write operations (JSON requires file locking)
-- Large datasets (>10MB) where indexed queries matter
-- Complex relational queries across multiple tables
-- ACID transaction requirements
-
-**When SQLite is OVERENGINEERING:**
-- Single-user scripts with sequential access
-- Small datasets (<1MB) with simple structure
-- Infrequent updates (once per day or less)
-- Current solution works fine (no performance complaints)
+- High-value apps remain in ungoverned Default environment
+- Security risk from oversharing in Default
+- Compliance false sense of security ("audit is on so we're OK")
+- Undermines framework adoption strategy (Phase 1: Default lockdown, Phase 2: Managed Env migration)
+- Regulatory examination shows non-segregated environments
 
 **Prevention:**
+1. **Default environment exclusion:** Never auto-enable audit in Default environment — flag for manual review
+2. **Migration recommendations:** When Default audit gap detected, recommend environment migration instead of audit fix
+3. **Approval workflow distinction:** Separate approval paths for Default (requires compliance sign-off) vs Managed Environments (auto-approve)
+4. **Policy documentation:** Document why Default environment audit gaps trigger migration recommendation
+5. **Integration with Environment Lifecycle Management solution:** Check if environment is candidate for migration before enabling audit
 
-1. **Measure before migrating:**
-   ```python
-   # Current JSON approach:
-   import json
-   import time
+**Detection warning signs:**
+- Audit enabled in Default environment without migration plan
+- Default environment showing "compliant" in dashboard
+- No tracking of workload types in Default environment
 
-   start = time.time()
-   with open("data/learn-monitor-state.json") as f:
-       state = json.load(f)  # Parse 209 URLs
-   elapsed = time.time() - start
-   print(f"JSON load time: {elapsed*1000:.2f}ms")
+**Phase to address:** Phase 2 (Auto-Remediation) — must build environment type awareness before auto-enable
 
-   # Is this slow? (Spoiler: No, it's <5ms)
-   # Then why migrate to SQLite?
-   ```
+**Severity:** CRITICAL — Undermines broader governance strategy
 
-2. **Consider alternatives to SQLite:**
-   - **Keep JSON** — if current performance is acceptable
-   - **Switch to JSONL** (JSON Lines) — easier to append, still text-based
-   - **Use TOML** — more human-readable than JSON for config files
-   - **Use Parquet** — if query performance matters (unlikely for this use case)
-
-3. **If migrating, automate the migration:**
-   ```python
-   # scripts/migrate_json_to_sqlite.py
-   def migrate_state_file():
-       """One-time migration with rollback."""
-       # 1. Backup original JSON
-       shutil.copy("data/state.json", "data/state.json.backup")
-
-       # 2. Create SQLite schema
-       # 3. Import JSON data
-       # 4. Validate (compare record counts)
-       # 5. If validation fails, restore backup and exit
-   ```
-
-4. **Document the rationale:**
-   - If migrating, CHANGELOG must explain why (performance? features?)
-   - If keeping JSON, document decision to avoid future "why not SQLite?" debates
-   - Compare before/after metrics (load time, file size, LOC)
-
-5. **Don't migrate just because it's "more professional":**
-   - JSON is a professional format used by production systems
-   - Simplicity is a feature, not a limitation
-   - Text-based formats are debuggable and versionable
-
-**Detection:**
-- Pre-migration: Benchmark current JSON performance (is it actually slow?)
-- Pre-migration: Survey team — has anyone complained about state file performance?
-- Post-migration: Compare complexity (LOC, dependencies, test coverage) — did it increase?
-
-**Which phase should address:**
-- Phase 1: Performance Benchmarking (establish need)
-- Phase 2: Migration Script Development (if proceeding)
-- Phase 3: Validation & Rollback Testing
-
-**Reference:** [JSON with Sqlite | Hacker News](https://news.ycombinator.com/item?id=19277809)
+**Sources:**
+- [Manage and govern the default Power Platform environment](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/manage-default-environment)
+- [Secure the default environment](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/secure-default-environment)
+- [Power Platform security guidance](https://practical365.com/practical-protection-getting-started-with-power-platform-security/)
 
 ---
 
-## Minor Pitfalls
+## High-Severity Pitfalls
 
-### Pitfall 7: Breadcrumb/Navigation Changes Break User Muscle Memory
+Mistakes that cause delays, technical debt, or moderate compliance risk.
 
-**What goes wrong:** Changing site breadcrumbs or left-nav structure breaks user workflows even if URLs stay the same — users can't find familiar pages.
+### Pitfall 6: Purview Audit Standard vs Premium Confusion
+
+**What goes wrong:** Validator checks that audit is "enabled" without verifying license tier (Standard vs Premium), reports compliance when organization only has 180-day retention but FSI regulations require longer retention (FINRA 3110: 3 years, SEC 17a-4: 6 years).
 
 **Why it happens:**
-- Focus on "improving" information architecture without user testing
-- Alphabetical sorting seems logical but disrupts learned navigation patterns
-- Adding new categories splits content users expect to be together
-- Renaming sections ("Playbooks" → "Implementation Guides") confuses existing users
+- Both Standard and Premium show audit as "enabled" in same cmdlets
+- Standard (180 days) vs Premium (1 year default, up to 10 years with add-on) has different retention
+- License tier determines retention capability
+- Audit log retention policies require Premium license
+- Many E3 licenses include Standard but not Premium
 
 **Consequences:**
-- Support requests increase: "Where did X page go?"
-- Users stop using documentation, rely on Google searches instead
-- Onboarding harder for new users (no stable reference point)
-- Analytics show users returning to homepage repeatedly (lost navigation)
+- Audit logs purged after 180 days when regulation requires 3-6+ years
+- Regulatory examination reveals retention gap
+- Cannot investigate historical incidents beyond 180 days
+- Expensive emergency 10-year retention add-on purchases
+- Validation dashboard shows "compliant" when retention is insufficient
 
 **Prevention:**
-- A/B test navigation changes in staging environment
-- Survey existing users before major nav restructuring
-- Keep top-level nav structure stable (Framework, Controls, Playbooks)
-- Add new sections, don't rename existing ones
+1. **License tier validation:** Check if tenant has Purview Audit Premium licenses assigned
+2. **Retention policy validation:** Use Get-UnifiedAuditLogRetentionPolicy to verify retention periods match regulatory requirements
+3. **Regulatory requirement mapping:** Document required retention by record type (CopilotInteraction: 6 years, MailItemsAccessed: 3 years)
+4. **Policy coverage check:** Verify retention policies cover all audit record types (not just Exchange)
+5. **Alert on Standard-only:** Flag tenants using only Audit Standard with FSI workloads
 
-**Detection:**
-- Monitor time-on-site metrics (increases suggest users are lost)
-- Track homepage bounce rate (users giving up)
-- Review GitHub Discussions for "can't find X anymore"
+**Detection warning signs:**
+- Get-UnifiedAuditLogRetentionPolicy returns no policies (Standard only)
+- Search-UnifiedAuditLog -StartDate (> 180 days ago) returns no results
+- Tenant has E3 licenses but not E5 or Compliance add-ons
+
+**Phase to address:** Phase 1 (Core Validation Logic) — retention validation is part of audit compliance
+
+**Severity:** HIGH — Regulatory retention requirement violations
+
+**Sources:**
+- [Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
+- [Learn about auditing solutions in Microsoft Purview](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
+- [Purview Audit Premium for SMBs](https://blog.ciaops.com/2025/10/07/microsoft-purview-audit-premium-for-smbs-on-microsoft-365-business-premium/)
 
 ---
 
-### Pitfall 8: Over-Testing WIP Solutions Delays Completion
+### Pitfall 7: Power Platform Admin API Rate Limiting
 
-**What goes wrong:** Attempting to achieve 100% test coverage on WIP solutions blocks them from reaching "Completed" status.
+**What goes wrong:** Validator queries Power Platform Admin API for all environments in rapid succession, hits 6,000 requests / 5 minutes throttling limit, receives HTTP 429 errors, script fails mid-execution leaving partial validation results.
 
 **Why it happens:**
-- Belief that "production ready" requires comprehensive test suite
-- Porting enterprise testing standards to small automation scripts
-- Perfectionism — solution can't ship until all edge cases tested
+- Power Platform uses Dataverse service protection limits
+- 6,000 API calls per 5 minutes per user
+- Large tenants with 100+ environments trigger throttling
+- Each Get-AdminPowerAppEnvironment call counts against limit
+- Parallel validation scripts compound the problem
 
 **Consequences:**
-- 6 WIP solutions remain WIP despite being functionally complete
-- Testing phase takes longer than development phase
-- Team burns out writing tests for theoretical edge cases
-- Users can't deploy solutions that work but lack "official" Completed status
+- Validation runs fail intermittently
+- Partial results create false negatives ("environment not checked" interpreted as "audit disabled")
+- Scheduled validation jobs fail without alerts
+- Emergency validation during incident response hits throttling
+- Compliance dashboard shows stale data
 
 **Prevention:**
-- Test critical paths only for v1.0 (happy path + common errors)
-- Expand test coverage in v1.1+ based on real-world issues
-- Mark solutions "Validated" (functionally tested) before "Completed" (full test suite)
-- Remember: These are deployment scripts, not life-critical systems
+1. **Exponential backoff:** Implement retry logic with exponential backoff when HTTP 429 received
+2. **Batch processing:** Validate environments in batches with delays between batches
+3. **Cache environment list:** Cache environment metadata, only query full details on change detection
+4. **Request budgeting:** Track API calls consumed, pause when approaching 5,000 in 5-minute window
+5. **Parallel execution limits:** If running multiple validators, coordinate to avoid cumulative throttling
+6. **Service principal pooling:** For high-volume scenarios, use multiple service principals to increase quota
 
-**Detection:**
-- Measure test LOC vs. implementation LOC ratio (>2:1 is often overkill)
-- Track time spent on test development vs. feature development
-- Ask: "Would this test catch a bug we've actually seen?"
+**Detection warning signs:**
+- HTTP 429 "Too Many Requests" errors in logs
+- Validation runs taking longer than expected
+- Inconsistent environment counts across runs
+- Sporadic connection failures
+
+**Phase to address:** Phase 1 (Core Validation Logic) — throttling handling must be built into API calls
+
+**Severity:** HIGH — Operational reliability issue
+
+**Sources:**
+- [Power Automate API throttling and batching](https://www.skysoftconnections.com/power-automate-api-calls-optimization-batching-throttling/)
+- [Understand platform limits and avoid throttling](https://learn.microsoft.com/en-us/power-automate/guidance/coding-guidelines/understand-limits)
+- [Service protection API limits (Dataverse)](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/api-limits)
 
 ---
 
-### Pitfall 9: Documentation Version Skew (Docs Ahead of Code)
+### Pitfall 8: ExchangeOnlineManagement Module Version Conflicts
 
-**What goes wrong:** Documentation describes features that exist in development branch but not in released version users deploy.
+**What goes wrong:** Validator script requires ExchangeOnlineManagement module 3.x but server has 2.x installed, or uses deprecated authentication method (Basic auth), script fails with cryptic error "Search-UnifiedAuditLog not found" or authentication failures.
 
 **Why it happens:**
-- Docs updated on main branch while features in feature branch
-- Merge order: docs merge first, code merges later (or never)
-- No version tags in documentation indicating which release features apply to
+- Module versions 2.x and 3.x have breaking changes
+- Basic authentication deprecated in Exchange Online (October 2022)
+- Search-UnifiedAuditLog behavior changed between versions without documentation updates
+- Multiple PowerShell module versions can coexist, causing load order issues
+- Azure Automation runbooks may have old module versions cached
 
 **Consequences:**
-- Users follow documentation, features don't exist, file bugs
-- Support burden increases ("how do I use X?" / "X doesn't exist yet")
-- Documentation loses credibility (can't trust it's accurate)
+- Validator fails with "command not found" errors
+- Authentication fails silently with Basic auth deprecation
+- Scheduled validation jobs break after module auto-update
+- Inconsistent results when running on different servers
+- Module load conflicts when script also uses Microsoft.Graph or other modules
 
 **Prevention:**
-- Use version badges in documentation: "Added in v1.3.0", "Deprecated in v2.0.0"
-- Merge feature documentation in same PR as feature code
-- Release notes clearly indicate which features are GA vs. preview
-- Test documentation against released versions, not development branches
+1. **Explicit version requirement:** Use #Requires -Modules ExchangeOnlineManagement 3.0.0+ (but note: #Requires doesn't support version comparison)
+2. **Version validation at runtime:** Check $module = Get-Module -ListAvailable -Name ExchangeOnlineManagement | Sort-Object Version -Descending | Select-Object -First 1
+3. **Modern auth only:** Use Connect-ExchangeOnline with certificate-based auth or managed identity (never username/password)
+4. **Module isolation:** Use separate PowerShell sessions for Exchange vs Graph vs Power Platform to avoid conflicts
+5. **Azure Automation module updates:** Document required module versions in deployment guide
+6. **Backward compatibility testing:** Test on both 2.x and 3.x during development
 
-**Detection:**
-- Search docs for references to unreleased versions
-- Check that all documented features exist in latest tagged release
-- Review GitHub Issues for "documentation doesn't match release"
+**Detection warning signs:**
+- "Search-UnifiedAuditLog: The term 'Search-UnifiedAuditLog' is not recognized"
+- Authentication failures despite correct credentials
+- Different results when running same script on different machines
+- Errors about "WinRM" or "Basic authentication"
 
----
+**Phase to address:** Phase 1 (Core Validation Logic) — must handle module versioning from start
 
-## Phase Assignments
+**Severity:** HIGH — Operational reliability issue
 
-| Pitfall | Severity | Recommended Phase |
-|---------|----------|------------------|
-| 1. MkDocs Awesome-Pages Breaking Links | CRITICAL | Phase 1 (URL Impact Assessment) |
-| 2. PowerShell Security Hardening Breaking Scripts | CRITICAL | Phase 1 (Compatibility Testing Setup) |
-| 3. YAML Configuration Overengineering | HIGH | Phase 1 (Configuration Audit) |
-| 4. WIP Solution Scope Creep | HIGH | Phase 1 (Define "Complete" per Solution) |
-| 5. Cross-Repo Coordination Failures | HIGH | Phase 1 (Commit Order Protocol) |
-| 6. JSON to SQLite Unnecessary Migration | MEDIUM | Phase 1 (Performance Benchmarking) |
-| 7. Navigation Changes Break User Workflows | MEDIUM | Phase 2 (Nav Stability Testing) |
-| 8. Over-Testing Delays Completion | MEDIUM | Each Solution Phase (Test Pragmatically) |
-| 9. Documentation Version Skew | MEDIUM | Final Integration Phase (Version Validation) |
+**Sources:**
+- [Microsoft changed Search-UnifiedAuditLog without telling anyone](https://practical365.com/search-unifiedauditlog-cmdlet-changes/)
+- [Connect-ExchangeOnline guide (2026)](https://inventivehq.com/knowledge-base/microsoft-365/how-to-install-and-connect-to-exchange-online-powershell)
+- [Deprecation of Basic authentication in Exchange Online](https://learn.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-basic-authentication-exchange-online)
 
 ---
 
-## Integration Testing Requirements
+### Pitfall 9: Service Principal Connection Refresh Failures
 
-Before v2 release, verify these cross-cutting concerns:
+**What goes wrong:** Validator uses Power Automate flow with service principal connection, connection refresh token expires after 90 days due to inactivity, flow fails silently, audit validation stops running, no one notices for weeks until regulatory audit.
 
-### URL Stability Test
-```bash
-# Compare production site to v2 build
-mkdocs build --strict
-diff -r site/ ../production-site-backup/
-# Zero URL changes = safe to deploy
-```
+**Why it happens:**
+- Service principal refresh tokens expire after 90 days without use
+- Power Platform doesn't support Per User licensing for service principals (requires Per Flow)
+- Token rate limiting when multiple flows use same service principal
+- Disabled service principals invalidate all connections
+- No built-in alerts for connection expiration
 
-### Backward Compatibility Test
-```powershell
-# Test scripts on PowerShell 5.1 (minimum supported)
-pwsh -Version 5.1 -File scripts/Deploy.ps1
-# Must run without errors
-```
+**Consequences:**
+- Scheduled validation stops running without alerts
+- Compliance dashboard shows stale data ("last validated 45 days ago")
+- Audit gaps go undetected during connection downtime
+- Emergency "fix all connections" effort before regulatory examination
+- Expensive Per Flow licensing required instead of Per User
 
-### Cross-Repo Integration Test
-```bash
-# Clone both repos at release tags
-git clone --branch v2.0.0 FSI-AgentGov
-git clone --branch elm-v1.2.0 FSI-AgentGov-Solutions
+**Prevention:**
+1. **Connection health monitoring:** Use separate flow to check connection health, alert if connections broken
+2. **Token refresh automation:** Build scheduled process to refresh tokens every 60 days (before 90-day expiration)
+3. **Multiple service principals:** Distribute load across multiple service principals to avoid rate limiting
+4. **Connection reference testing:** Validate connections work as part of validator self-test
+5. **Reauthentication runbook:** Document process to reauthenticate connections when expired
+6. **Licensing documentation:** Document Per Flow licensing requirement for service principal flows
+7. **Failure mode alerts:** Ensure flow failures trigger alerts, not silent failures
 
-# Follow documentation from FSI-AgentGov
-# Deploy solution from FSI-AgentGov-Solutions
-# All links work, versions match
-```
+**Detection warning signs:**
+- Flow run history shows "Failed" status
+- "The refresh token has expired due to inactivity" error
+- Connection status shows "Reauthentication required"
+- Multiple flows failing with authentication errors
 
-### User Workflow Preservation Test
-```markdown
-# Test these existing user workflows MUST NOT break:
-1. Navigate from Solutions Index to control playbook to solution README
-2. Bookmark a control URL, access it after v2 deployment (same content)
-3. Search for "DLP" in site, find Control 1.5 as first result (SEO preserved)
-4. Run existing PowerShell script without modification (backward compatible)
-```
+**Phase to address:** Phase 2 (Auto-Remediation Workflow) — connection health must be monitored when using Power Automate
+
+**Severity:** HIGH — Operational reliability and silent failure risk
+
+**Sources:**
+- [Troubleshoot broken connections](https://learn.microsoft.com/en-us/troubleshoot/power-platform/power-automate/connections/troubleshoot-broken-connections)
+- [Service principal support in Power Automate](https://learn.microsoft.com/en-us/power-automate/service-principal-support)
+- [Power Automate connection reference failures](https://www.beringer.net/beringerblog/power-automate-connection-reference-failures/)
 
 ---
 
-## Recommended Decision Points
+### Pitfall 10: Breaking Existing Audit Retention Policies
 
-**Phase 1 (Architecture Decisions) should answer:**
-- [ ] Are we migrating MkDocs navigation? (YES/NO with URL impact analysis)
-- [ ] Are we hardening PowerShell scripts? (GRADUAL with compatibility matrix)
-- [ ] Are we externalizing configuration? (SELECTIVE with justification per config item)
-- [ ] What defines "Complete" for each WIP solution? (Explicit checklist)
-- [ ] What is our cross-repo commit protocol? (Document and follow)
+**What goes wrong:** Validator attempts to "fix" audit configuration by creating new retention policy, overwrites UserIds parameter on existing policy, breaks custom retention for specific high-value users (executives, traders), regulatory examination reveals gaps.
 
-**Each Solution Completion Phase should answer:**
-- [ ] Does this solution meet minimum viable "Complete" criteria? (ship it)
-- [ ] Are we adding features beyond v1.0 scope? (defer to v1.1)
-- [ ] Have we tested on clean environment with documented prerequisites? (works for users)
-- [ ] Is cross-repo version alignment verified? (docs match code)
+**Why it happens:**
+- Set-UnifiedAuditLogRetentionPolicy with -UserIds overwrites existing entries (doesn't append)
+- No cmdlet to "re-distribute" individual policy (must delete and recreate)
+- Multiple custom policies may exist with overlapping scopes
+- Validator assumes no policies exist if Get-UnifiedAuditLogRetentionPolicy returns empty (might be Standard only)
 
-**Final Integration Phase should answer:**
-- [ ] Do all URLs from v1.2.37 still work in v2.0? (backward compatible)
-- [ ] Do existing bookmarks still resolve? (user workflows preserved)
-- [ ] Does v2.0 documentation reference only released code? (no version skew)
-- [ ] Can users upgrade from v1.2.37 to v2.0 without breaking changes? (migration path clear)
+**Consequences:**
+- Custom 10-year retention for executives replaced with default 1-year
+- Trader communications purged after 1 year instead of required 6 years (FINRA 4511)
+- Compliance team discovers retention gaps during examination preparation
+- Emergency policy recreation effort
+- Loss of audit data that was already purged
+
+**Prevention:**
+1. **Read before write:** Always Get-UnifiedAuditLogRetentionPolicy before creating/modifying policies
+2. **Append, don't replace:** When adding UserIds, read existing list and append new users
+3. **Policy gap analysis:** Identify which users/record types are NOT covered by existing policies before creating new ones
+4. **Change approval workflow:** Require compliance officer approval before modifying retention policies
+5. **Backup policy metadata:** Export existing policies before modifications
+6. **Policy reconciliation:** Document how new policy interacts with existing policies (priority, overlaps)
+7. **Validation mode only:** Consider making validator read-only for retention policies, flag for manual remediation
+
+**Detection warning signs:**
+- Get-UnifiedAuditLogRetentionPolicy shows DistributionStatus "Pending" indefinitely
+- UserIds list shorter than expected after policy update
+- Record types missing from policy coverage
+
+**Phase to address:** Phase 2 (Auto-Remediation Workflow) — must validate existing policies before modifications
+
+**Severity:** HIGH — Regulatory retention requirement violations
+
+**Sources:**
+- [Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
+- [Configuring retention for Office 365 audit logs](https://michev.info/blog/post/2890/configuring-retention-for-office-365-audit-logs)
+- [Set-UnifiedAuditLogRetentionPolicy cmdlet](https://learn.microsoft.com/en-us/powershell/module/exchange/set-unifiedauditlogretentionpolicy?view=exchange-ps)
+
+---
+
+## Medium-Severity Pitfalls
+
+Mistakes that cause operational friction or minor compliance gaps.
+
+### Pitfall 11: Trial/Developer Environment False Positives
+
+**What goes wrong:** Validator flags trial and developer environments as "audit disabled," generates alerts, but these environment types don't support Dataverse audit logging, alerts are noise.
+
+**Why it happens:**
+- Trial (standard) environments have limited database capabilities
+- Developer Plan environments are single-user with restrictions
+- Not all environment types support audit equally
+- Environment type metadata requires separate API call to determine
+
+**Consequences:**
+- Alert fatigue from persistent false positives
+- Wasted time investigating environments that can't be fixed
+- Dashboard shows low compliance percentage due to trial environments
+- Loss of trust in validator tool
+
+**Prevention:**
+1. **Environment type filtering:** Check environment type before validation, exclude Trial and Developer by default
+2. **Capability detection:** Attempt to query audit settings, gracefully handle "not supported" responses
+3. **Separate reporting sections:** Report trial/dev environments separately from production/sandbox
+4. **Configuration option:** Allow admin to specify which environment types to validate
+5. **Documentation:** Document which environment types support audit
+
+**Detection warning signs:**
+- Same environments flagged repeatedly
+- Environment names containing "trial" or "developer"
+- Environments with expiration dates
+
+**Phase to address:** Phase 1 (Core Validation Logic) — environment type filtering should be built-in
+
+**Severity:** MEDIUM — Operational noise, not regulatory risk
+
+**Sources:**
+- [About trial environments: standard and subscription-based](https://learn.microsoft.com/en-us/power-platform/admin/trial-environments)
+- [Power Platform environments overview](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview)
+- [Power Platform environment types and strategies](https://www.esamatic.it/governance/power-platform/environments/types-strategies)
+
+---
+
+### Pitfall 12: Validation Evidence Not Admissible for Examination
+
+**What goes wrong:** Validator exports evidence as JSON files stored in SharePoint library without retention policy, examiner requests "audit configuration proof as of Q2 2025," evidence was overwritten or deleted, cannot provide admissible records.
+
+**Why it happens:**
+- Evidence stored in operational system (SharePoint, file share) without retention
+- No immutability controls on evidence files
+- Evidence format not examiner-friendly (raw JSON vs summary report)
+- No chain of custody for evidence records
+
+**Consequences:**
+- Cannot prove audit configuration during examination period
+- "He said / she said" with examiner about historical configuration
+- Regulatory finding for inadequate recordkeeping
+- Forced to rely on Microsoft's audit logs (if available)
+
+**Prevention:**
+1. **Immutable storage:** Export evidence to Azure Blob with WORM policy or Purview retention
+2. **Purview integration:** Tag evidence records with Purview retention labels (6 years for FSI)
+3. **Examiner-ready format:** Export both machine-readable (JSON) and human-readable (PDF report) formats
+4. **Timestamp authority:** Use NTP-synced timestamps, include collection methodology
+5. **Chain of custody:** Log who ran validation, when, what systems were checked
+6. **Periodic archival:** Move evidence older than 90 days to long-term archive storage
+
+**Detection warning signs:**
+- Evidence stored in editable SharePoint library
+- No retention policy applied to evidence location
+- Evidence files only in JSON format (no human-readable summary)
+- No audit trail of who accessed evidence files
+
+**Phase to address:** Phase 3 (Compliance Evidence Export) — archival strategy must meet regulatory standards
+
+**Severity:** MEDIUM — Regulatory examination risk if evidence unavailable
+
+**Sources:**
+- [PCAOB Audit Documentation standards (AS 1215)](https://pcaobus.org/oversight/standards/auditing-standards/details/AS1215)
+- [PCAOB Audit Evidence standards (AS 1105)](https://pcaobus.org/oversight/standards/auditing-standards/details/AS1105)
+- [FFIEC IT Examination Handbook guidance](https://learn.microsoft.com/en-us/compliance/regulatory/offering-ffiec-us)
+
+---
+
+### Pitfall 13: Integration with Existing FSI-AgentGov Solutions
+
+**What goes wrong:** Validator operates independently without integration with existing framework solutions (Environment Lifecycle Management, Deny Event Correlation Report, Compliance Dashboard), creates duplicate data exports, conflicting validation schedules, inconsistent environment classification.
+
+**Why it happens:**
+- Validator built without reviewing existing solution patterns
+- No shared Dataverse instance for solution data
+- Different solutions run validation at different times
+- No common service principal or connection pool
+- Solutions use different environment filtering logic
+
+**Consequences:**
+- Multiple solutions query same environments simultaneously, compounding throttling
+- Environment Lifecycle Management classifies environment as Zone 3, but Audit Validator doesn't apply Zone 3 requirements
+- Compliance Dashboard shows different environment count than Audit Validator
+- Duplicate service principals and connections increase licensing costs
+- Evidence exports stored in different locations, hard to correlate for examination
+
+**Prevention:**
+1. **Read existing solutions:** Review FSI-AgentGov-Solutions repo before design
+2. **Shared Dataverse:** Use single Dataverse instance for all solution operational data
+3. **Environment metadata service:** Create/use shared environment registry with zone classification, validation schedule
+4. **Connection pooling:** Reuse service principals and connections across solutions
+5. **Coordinated scheduling:** Stagger validation runs to avoid concurrent API calls
+6. **Compliance Dashboard integration:** Export findings to format compatible with Compliance Dashboard v1.0.0-beta
+7. **Evidence correlation:** Use consistent evidence export location and naming convention
+
+**Detection warning signs:**
+- Same environment queried by multiple solutions within minutes
+- Environment count mismatches between solutions
+- Multiple service principals with overlapping permissions
+- Evidence exports in different SharePoint sites
+
+**Phase to address:** Phase 1 (Architecture) — integration patterns must be designed before implementation
+
+**Severity:** MEDIUM — Operational efficiency and data consistency issue
+
+**Sources:**
+- FSI-AgentGov-Solutions repository structure
+- Existing solution patterns (deny-event-correlation-report, conditional-access-automation)
+- FSI-AgentGov framework docs/framework/solutions-integration.md
+
+---
+
+### Pitfall 14: Power Platform Audit Settings Eventual Consistency
+
+**What goes wrong:** Validator checks Power Platform environment audit setting via Admin API, sees "IsAuditEnabled = True," but actual audit events aren't being captured due to cache lag or backend provisioning delay.
+
+**Why it happens:**
+- Power Platform uses eventual consistency model
+- Audit setting changes replicate across backend services with delay
+- Admin API returns cached status, not real-time logging status
+- Database provisioning for audit tables happens asynchronously
+
+**Consequences:**
+- False positives: Validator reports "audit enabled" when logging not yet active
+- Audit gap periods unreported
+- Confidence in validator erodes when users notice discrepancies
+
+**Prevention:**
+1. **Canary event validation:** After detecting audit enabled, generate test event and verify it appears in audit log
+2. **Status correlation:** Cross-check Admin API status with actual audit log query results
+3. **Confidence tagging:** Tag recent status changes as "pending_verification" for 2 hours
+4. **Revalidation scheduling:** Re-check environments with recent audit config changes after 24 hours
+5. **Lag documentation:** Document expected lag time in validation reports
+
+**Detection warning signs:**
+- IsAuditEnabled = True but Search-UnifiedAuditLog returns zero events
+- Audit enabled timestamp within last 2 hours
+- Environment recently created (< 24 hours)
+
+**Phase to address:** Phase 1 (Core Validation Logic) — canary event validation prevents false positives
+
+**Severity:** MEDIUM — Accuracy issue, not regulatory risk
+
+**Sources:**
+- [System Settings Auditing tab](https://learn.microsoft.com/en-us/power-platform/admin/system-settings-dialog-box-auditing-tab)
+- [Manage Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing)
+- [Microsoft 365 audit log latency](https://michev.info/blog/post/5749/microsoft-365-azure-ad-audit-logs-and-reports-latency-data)
+
+---
+
+## Phase-Specific Warnings
+
+Pitfalls tied to specific implementation phases.
+
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Phase 1: Core Validation Logic | Search-UnifiedAuditLog reliability issues (Pitfall 1) | Implement dual validation strategy with Get-OrganizationConfig, canary events |
+| Phase 1: Core Validation Logic | Audit lag creating false negatives (Pitfall 2) | Build 24-hour grace period, tag results as "pending_confirmation" |
+| Phase 1: Core Validation Logic | UAL vs mailbox audit confusion (Pitfall 3) | Validate both systems independently, separate reporting |
+| Phase 1: Core Validation Logic | Module version conflicts (Pitfall 8) | Require ExchangeOnlineManagement 3.x, use modern auth only |
+| Phase 1: Core Validation Logic | Environment type false positives (Pitfall 11) | Filter trial/developer environments, detect capability support |
+| Phase 1: Architecture | Integration with existing solutions (Pitfall 13) | Use shared Dataverse, coordinate schedules, reuse connections |
+| Phase 2: Auto-Remediation | Auto-enabling audit in Default environment (Pitfall 5) | Exclude Default from auto-enable, recommend migration instead |
+| Phase 2: Auto-Remediation | Breaking existing retention policies (Pitfall 10) | Read existing policies first, append UserIds, require approval |
+| Phase 2: Auto-Remediation | Connection refresh failures (Pitfall 9) | Monitor connection health, automate token refresh, use Per Flow licensing |
+| Phase 3: Compliance Evidence Export | SEC 17a-4 gap documentation failure (Pitfall 4) | Create immutable gap records, export to WORM storage, alert compliance officer |
+| Phase 3: Compliance Evidence Export | Evidence admissibility issues (Pitfall 12) | Use Purview retention labels, export to immutable storage, generate human-readable reports |
+| Phase 4: Power Platform Integration | API rate limiting (Pitfall 7) | Implement exponential backoff, batch processing, request budgeting |
+| Phase 4: Power Platform Integration | Eventual consistency false positives (Pitfall 14) | Use canary events, cross-check API status with actual logs |
+| Phase 5: Purview Integration | Audit Standard vs Premium confusion (Pitfall 6) | Validate license tier, check retention policies, map regulatory requirements |
+
+---
+
+## Common Patterns Across Pitfalls
+
+### Pattern 1: Reliability Over Speed
+Multiple pitfalls (1, 2, 8, 9, 14) stem from prioritizing "fast validation" over "reliable validation." Lesson: Build robust error handling, retries, and verification checks even if they slow down initial execution.
+
+### Pattern 2: Read Before Write
+Pitfalls 5, 10, 13 involve making changes without checking existing state. Lesson: Always query current configuration before modifications, especially for retention policies and Default environment.
+
+### Pattern 3: Regulatory Documentation First
+Pitfalls 4, 6, 12 involve technical compliance without regulatory evidence. Lesson: Build audit trail and evidence export BEFORE auto-remediation features.
+
+### Pattern 4: Multiple Validation Layers
+Pitfall 1, 3, 14 show single-source validation is unreliable. Lesson: Cross-validate using multiple sources (cmdlet + API, status + actual events, UAL + mailbox audit).
+
+### Pattern 5: False Positive Management
+Pitfalls 2, 11, 14 create alert fatigue from false positives. Lesson: Build confidence tagging, grace periods, and environment type filtering into core validation logic.
+
+---
+
+## Severity Classification
+
+| Severity | Count | Impact |
+|----------|-------|--------|
+| CRITICAL | 5 | Regulatory examination risk, enforcement actions, audit trail gaps |
+| HIGH | 5 | Operational reliability, retention violations, technical debt |
+| MEDIUM | 4 | Operational noise, evidence quality, integration efficiency |
+
+**Critical pitfalls** must be addressed in Phase 1 (Core Validation Logic) and Phase 3 (Compliance Evidence Export).
+
+**High pitfalls** span Phases 1-2 and require robust engineering practices.
+
+**Medium pitfalls** can be addressed incrementally but prevent production readiness if ignored.
+
+---
+
+## Verification Checklist
+
+Before considering audit validator production-ready:
+
+**Core Validation:**
+- [ ] Dual validation strategy (Search-UnifiedAuditLog + Get-OrganizationConfig)
+- [ ] Canary event generation and verification
+- [ ] 24-hour grace period for audit lag
+- [ ] Separate UAL and mailbox audit validation
+- [ ] Environment type filtering (exclude trial/dev)
+- [ ] Module version validation (ExchangeOnlineManagement 3.x)
+
+**Remediation Safety:**
+- [ ] Default environment exclusion from auto-enable
+- [ ] Read existing retention policies before modifications
+- [ ] Approval workflow for policy changes
+- [ ] Connection health monitoring
+
+**Compliance Evidence:**
+- [ ] Immutable audit gap documentation
+- [ ] WORM storage for evidence export
+- [ ] Purview retention labels applied
+- [ ] Human-readable report generation
+- [ ] Chain of custody logging
+
+**Operational Resilience:**
+- [ ] Exponential backoff for HTTP 429 errors
+- [ ] Batch processing with rate limit tracking
+- [ ] Service principal token refresh automation
+- [ ] Multiple validation result sources cross-checked
+
+**Integration:**
+- [ ] Shared Dataverse for solution data
+- [ ] Coordinated validation schedules
+- [ ] Compliance Dashboard export format
+- [ ] Environment metadata service integration
+
+---
+
+## Confidence Assessment
+
+| Pitfall Category | Confidence | Evidence Sources |
+|-----------------|-----------|-----------------|
+| PowerShell Module Issues | HIGH | Microsoft Learn docs, community reports, existing FSI-AgentGov-Solutions patterns |
+| API Throttling | HIGH | Official Microsoft documentation, Power Platform admin guides |
+| Audit System Architecture | HIGH | Microsoft Purview documentation, official cmdlet references |
+| Regulatory Requirements | HIGH | SEC/FINRA rule text, compliance vendor guidance, PCAOB standards |
+| Eventual Consistency | MEDIUM | Community blogs, Microsoft support threads (limited official documentation) |
+| Service Principal Auth | HIGH | Microsoft Learn articles, Power Automate documentation |
+| FSI-Specific Evidence | HIGH | SEC 17a-4 enforcement actions, regulatory examination guidance |
+
+**Overall Confidence:** HIGH — Pitfalls based on official documentation, real-world incident reports, and existing solution patterns in FSI-AgentGov-Solutions repository.
 
 ---
 
 ## Sources
 
-- [Migration from v2 to v3 - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/migration-v3/)
-- [The Secret Migration: How Site Navigation Changes Can Destroy SEO](https://sitebulb.com/resources/guides/the-secret-migration-how-site-navigation-changes-can-destroy-seo-without-you-realising/)
-- [PowerShell security features - Microsoft Learn](https://learn.microsoft.com/en-us/powershell/scripting/security/security-features?view=powershell-7.5)
-- [Microsoft's Removal of PowerShell 2.0: Security Implications and Migration Guidance](https://redteamnews.com/blue-team/microsofts-removal-of-powershell-2-0-security-implications-and-migration-guidance/)
-- [Spring Boot Anti-Patterns: When to Use Design Patterns Without Overengineering](https://medium.com/@sunsetheus/spring-boot-anti-patterns-when-to-use-design-patterns-without-overengineering-361471d986f0)
-- [Configuration Externalization — Design Pattern: An Overview](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73)
-- [YAML: probably not so great after all](https://www.arp242.net/yaml-config.html)
-- [Scope Creep is a Boss Fight: How to Beat Feature Bloat](https://www.wayline.io/blog/scope-creep-boss-fight-beat-feature-bloat)
-- [4 Steps to Manage with Feature Creep](https://thisisstoked.com/knowledge/how-to-manage-feature-creep)
-- [Multi-Repo Workflows: Managing Distributed Systems](https://developertoolkit.ai/en/cursor-ide/advanced-techniques/multi-repo-workflows/)
-- [SQLite JSON Storage Debate: Modern Solution or Unnecessary Complexity?](https://biggo.com/news/202412230727_sqlite-json-storage-debate)
-- [MkDocs Writing Your Docs](https://www.mkdocs.org/user-guide/writing-your-docs/)
+### Official Microsoft Documentation
+- [Search-UnifiedAuditLog cmdlet reference](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/search-unifiedauditlog?view=exchange-ps)
+- [Manage mailbox auditing](https://learn.microsoft.com/en-us/purview/audit-mailboxes)
+- [Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
+- [Learn about auditing solutions in Microsoft Purview](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
+- [Service protection API limits (Dataverse)](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/api-limits)
+- [Deprecation of Basic authentication in Exchange Online](https://learn.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-basic-authentication-exchange-online)
+- [Troubleshoot broken connections](https://learn.microsoft.com/en-us/troubleshoot/power-platform/power-automate/connections/troubleshoot-broken-connections)
+- [Power Platform environments overview](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview)
+- [Manage and govern the default Power Platform environment](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/manage-default-environment)
+
+### Regulatory and Standards
+- [SEC Rule 17a-4 recordkeeping requirements](https://www.luthor.ai/blog-post/sec-rule-17a-4)
+- [PCAOB Audit Documentation (AS 1215)](https://pcaobus.org/oversight/standards/auditing-standards/details/AS1215)
+- [PCAOB Audit Evidence (AS 1105)](https://pcaobus.org/oversight/standards/auditing-standards/details/AS1105)
+- [FFIEC IT Examination Handbook](https://learn.microsoft.com/en-us/compliance/regulatory/offering-ffiec-us)
+
+### Community and Analysis
+- [Microsoft changed Search-UnifiedAuditLog without telling anyone](https://practical365.com/search-unifiedauditlog-cmdlet-changes/)
+- [DFIR experts on unified audit log reliability](https://www.invictus-ir.com/news/what-dfir-experts-need-to-know-about-the-current-state-of-the-unified-audit-log)
+- [Microsoft 365 audit log latency analysis](https://michev.info/blog/post/5749/microsoft-365-azure-ad-audit-logs-and-reports-latency-data)
+- [Different types of logging – Microsoft Purview Audit](https://alberthoitingh.com/2022/05/20/different-types-of-logging-microsoft-purview-audit/)
+- [Connect-ExchangeOnline guide (2026)](https://inventivehq.com/knowledge-base/microsoft-365/how-to-install-and-connect-to-exchange-online-powershell)
 
 ---
 
-*Researched: 2026-02-04*
-*Confidence: HIGH (verified with 2026 sources, existing FSI-AgentGov audit data, and multi-repo architecture patterns)*
+**Research completed:** February 6, 2026
+**Next step:** Use this pitfall analysis to inform roadmap phase structure and implementation priorities. Critical pitfalls must be addressed in Phase 1 core validation logic.

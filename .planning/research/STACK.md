@@ -1,472 +1,603 @@
-# Technology Stack - v2 Improvements
+# Technology Stack - Audit Configuration Validator
 
-**Project:** FSI Agent Governance Framework
-**Research Date:** 2026-02-04
-**Scope:** Stack additions/changes for v2 milestone improvements
+**Project:** FSI Agent Governance Framework - Audit Configuration Validator Solution
+**Research Date:** 2026-02-06
+**Scope:** PowerShell modules, APIs, and tooling for automated audit configuration validation
 
 ---
 
 ## Executive Summary
 
-This research focuses on stack additions needed for v2 improvements to the existing FSI-AgentGov framework. The v2 milestone emphasizes **incremental improvements** to existing infrastructure rather than wholesale replacement. Key areas: MkDocs navigation enhancements, PowerShell security hardening, monitoring configuration externalization, and solution completion patterns.
+This research identifies the specific PowerShell modules, API endpoints, and authentication patterns needed to build an automated audit configuration validator for the FSI Agent Governance Framework. The solution must validate audit logging across three surfaces: tenant-level unified audit (Exchange Online), per-environment audit (Power Platform), and audit retention policies (Purview Compliance).
 
-**Recommendation:** Add selective plugins and modules to existing stack. **Do NOT** replace working foundation (MkDocs Material, Python validation scripts, PowerShell solutions).
+**Key Finding:** All three audit surfaces support service principal authentication, but each requires different modules, permissions, and API approaches. No single module covers all three surfaces.
 
----
-
-## Stack Additions for v2
-
-### 1. MkDocs Navigation Improvements
-
-**Requirement:** Breadcrumb navigation, auto-generated navigation, playbook discovery
-
-#### Recommended: Native MkDocs Material Features
-
-| Feature | Version | Status | Why |
-|---------|---------|--------|-----|
-| `navigation.path` (breadcrumbs) | mkdocs-material 9.7.0+ | Built-in | Native feature, zero dependencies, now free (was Insiders) |
-| mkdocs-material | 9.7.1 (latest) | Stable | Already in use, includes all former Insiders features |
-
-**Configuration (breadcrumbs):**
-```yaml
-theme:
-  name: material
-  features:
-    - navigation.path  # Breadcrumb navigation above page title
-```
-
-**Rationale:**
-- MkDocs Material 9.7.0 (released Nov 11, 2025) made `navigation.path` free for everyone
-- Zero additional dependencies
-- Native integration with existing theme
-- Lightweight, no plugin conflicts
-
-**Source:** [MkDocs Material - Setting up navigation](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
-
-#### Alternative Considered: mkdocs-awesome-pages-plugin
-
-| Library | Version | Purpose | Why NOT Using |
-|---------|---------|---------|---------------|
-| mkdocs-awesome-pages-plugin | 2.10.1 | Auto-generate navigation from directory structure | Requires manual `.pages` files, conflicts with existing mkdocs.yml nav structure |
-
-**Reason to defer:**
-- Current project has 62 controls with established manual nav structure in `mkdocs.yml` (lines 79-591)
-- Plugin requires removing existing `nav:` entry or adding `...` placeholders
-- Risk: Breaking existing navigation structure that's working
-- Current manual nav provides explicit control over presentation order
-- **v2 recommendation:** Use native `navigation.path` only, defer auto-generation to v3 if needed
-
-**Source:** [mkdocs-awesome-pages-plugin on PyPI](https://pypi.org/project/mkdocs-awesome-pages-plugin/)
-
-#### Playbook Discovery via Admonitions
-
-**Requirement:** Help users discover playbooks from parent control pages
-
-**Recommended Pattern:** Use existing MkDocs Material admonition syntax
-
-```markdown
-!!! info "Implementation Playbooks"
-    See [Portal Walkthrough](../../playbooks/control-implementations/1.1/portal-walkthrough.md) for step-by-step portal configuration.
-```
-
-**No additional plugins needed.** MkDocs Material supports admonitions natively via `markdown_extensions: [admonition]` (already configured line 62 in mkdocs.yml).
-
-**Rationale:**
-- Zero dependencies (already configured)
-- Existing project uses admonitions extensively
-- Simple markdown syntax
-- Integration: Add admonition blocks to control files pointing to their 4 playbooks
-
-**Source:** [MkDocs Material - Admonitions](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
+**Recommendation:** Use a multi-module approach with ExchangeOnlineManagement 3.9.2+, Microsoft.PowerApps.Administration.PowerShell 2.0.214+, and Dataverse Web API for environment-level audit configuration.
 
 ---
 
-### 2. PowerShell Security Best Practices (FSI)
+## Core Stack Requirements
 
-**Requirement:** Secret management, error handling, #Requires statements for FSI PowerShell scripts
+### 1. Exchange Online PowerShell (Tenant-Level Unified Audit)
 
-#### Recommended: PowerShell SecretManagement + Az.KeyVault
+**Purpose:** Enable/disable unified audit logging at tenant level, verify audit status
 
-| Module | Version | Purpose | Why |
-|--------|---------|---------|-----|
-| Microsoft.PowerShell.SecretManagement | 1.1.2 | Unified secret management interface | Cross-platform, extensible, Microsoft-supported |
-| Az.KeyVault | 3.3.0+ | Azure Key Vault integration | Includes SecretManagement extension, FSI-standard secret store |
+| Component | Version | Why |
+|-----------|---------|-----|
+| **ExchangeOnlineManagement** | 3.9.2+ | Latest GA version with REST API support, no WinRM Basic Auth required |
 
 **Installation:**
 ```powershell
-# Core SecretManagement module
-Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser
-
-# Azure Key Vault module (3.3.0+ includes SecretManagement support)
-Install-Module Az.KeyVault -Scope CurrentUser
+Install-Module ExchangeOnlineManagement -MinimumVersion 3.9.2 -Scope CurrentUser
 ```
 
-**Registration Pattern (for FSI scripts):**
+**Key Cmdlets:**
+
+| Cmdlet | Purpose | Notes |
+|--------|---------|-------|
+| `Get-AdminAuditLogConfig` | Check unified audit status | Returns `UnifiedAuditLogIngestionEnabled` property |
+| `Set-AdminAuditLogConfig` | Enable/disable unified audit | `-UnifiedAuditLogIngestionEnabled $true/$false` |
+| `Search-UnifiedAuditLog` | Query audit log events | Used for evidence collection, not configuration |
+
+**Service Principal Authentication:**
 ```powershell
-# Register Azure Key Vault as secret vault
-Register-SecretVault -Name "FSIAgentGov" -ModuleName Az.KeyVault -VaultParameters @{
-    AZKVaultName = "your-keyvault-name"
-    SubscriptionId = "your-subscription-id"
-}
-
-# Retrieve secrets in scripts
-$credential = Get-Secret -Name "PowerPlatformServicePrincipal" -Vault "FSIAgentGov" -AsPlainText
+Connect-ExchangeOnline -CertificateThumbprint "THUMBPRINT" `
+  -AppId "APP-GUID" `
+  -Organization "tenant.onmicrosoft.com"
 ```
+
+**Required Permissions:**
+- **Application Permission:** `Office 365 Exchange Online` > `Exchange.ManageAsApp`
+- **Directory Role:** Compliance Management OR Organization Management role group
+- **Audit Logs Role:** Required for Set-AdminAuditLogConfig (assigned via role groups above)
+
+**Version 3.x Key Changes:**
+- All cmdlets are REST API-backed (as of v3.0.0, September 2022)
+- Remote PowerShell (RPS) protocol deprecated but available via `-UseRPSSession` switch
+- Certificate-based authentication supported (v2.0.4+, enhanced in v3.x)
+- PowerShell 7.4.0+ required for versions 3.5.0+ (due to .NET 8.0 dependencies)
 
 **Rationale:**
-- **FSI requirement:** Secrets must not be in scripts, environment variables insufficient for audit trails
-- Azure Key Vault provides audit logging required for SOX 302/404, FINRA 4511
-- SecretManagement abstraction allows swapping vault providers without script changes
-- Az.KeyVault 3.3.0+ natively includes SecretManagement extension (no separate extension module)
-- Cross-platform support for Windows/Linux/macOS
+- Version 3.9.2 (released January 5, 2026) is current stable release
+- REST API removes WinRM dependency, critical for FSI automation scenarios
+- Service principal authentication with certificates meets FSI audit requirements (no password secrets)
+- `Get-AdminAuditLogConfig` and `Set-AdminAuditLogConfig` cmdlets unchanged in v3.x (verified via cmdlet documentation)
 
 **Sources:**
-- [PowerShell Gallery - SecretManagement 1.1.2](https://www.powershellgallery.com/packages/Microsoft.PowerShell.SecretManagement/1.1.2)
-- [Microsoft Learn - Azure Key Vault automation](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/how-to/using-azure-keyvault)
-- [Microsoft Learn - SecretManagement Overview](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview)
-
-#### #Requires Statement Best Practices
-
-**Pattern for FSI scripts:**
-```powershell
-#Requires -Version 7.0
-#Requires -Modules @{ ModuleName="Microsoft.PowerShell.SecretManagement"; ModuleVersion="1.1.2" }
-#Requires -Modules @{ ModuleName="Az.KeyVault"; ModuleVersion="3.3.0" }
-```
-
-**Rationale:**
-- Fail-fast validation prevents runtime errors in production
-- PowerShell 7.0+ required for cross-platform support
-- Module version enforcement prevents API compatibility issues
-- #Requires statements are global scope, enforced before script execution
-
-**Source:** [Microsoft Learn - about_Requires](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires)
-
-#### Error Handling Pattern
-
-**Recommended:**
-```powershell
-[CmdletBinding()]
-param()
-
-# Enable strict mode
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
-
-try {
-    # Script logic
-}
-catch {
-    Write-Error "Operation failed: $_"
-    throw  # Propagate for CI/CD detection
-}
-```
-
-**Rationale:**
-- `Set-StrictMode -Version Latest` catches uninitialized variables, undefined properties
-- `$ErrorActionPreference = "Stop"` converts non-terminating errors to terminating (enables try/catch)
-- Explicit error messages aid troubleshooting
-- `throw` propagates errors for CI/CD pipeline failure detection
-
-**Source:** [PowerShell Scripting Best Practices](https://dstreefkerk.github.io/2025-06-powershell-scripting-best-practices/)
+- [PowerShell Gallery - ExchangeOnlineManagement 3.9.2](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/3.9.2)
+- [Microsoft Learn - About Exchange Online PowerShell V3](https://learn.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
+- [Microsoft Learn - App-only authentication in Exchange Online PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps)
+- [Microsoft Learn - Turn auditing on or off](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable)
 
 ---
 
-### 3. Monitoring Configuration Externalization
+### 2. Security & Compliance PowerShell (Audit Retention Policies)
 
-**Requirement:** YAML externalization for monitoring adapter patterns
+**Purpose:** Manage audit log retention policies (default 90 days, up to 10 years for Audit Premium)
 
-#### Recommended: YAML Configuration Files with PyYAML
+| Component | Version | Why |
+|-----------|---------|-----|
+| **ExchangeOnlineManagement** | 3.9.2+ | Same module, different connection endpoint (Security & Compliance) |
+
+**Installation:**
+```powershell
+# Same module as Exchange Online, different connection cmdlet
+Install-Module ExchangeOnlineManagement -MinimumVersion 3.9.2 -Scope CurrentUser
+```
+
+**Key Cmdlets:**
+
+| Cmdlet | Purpose | Notes |
+|--------|---------|-------|
+| `Get-UnifiedAuditLogRetentionPolicy` | View retention policies | Returns policy name, priority, retention duration, record types |
+| `Set-UnifiedAuditLogRetentionPolicy` | Modify retention policy | Change `RetentionDuration` (values: ThreeMonths, SixMonths, NineMonths, TwelveMonths, TenYears) |
+| `New-UnifiedAuditLogRetentionPolicy` | Create retention policy | Useful for record types not available in portal UI |
+| `Remove-UnifiedAuditLogRetentionPolicy` | Delete retention policy | Cleanup for deprecated policies |
+
+**Service Principal Authentication:**
+```powershell
+Connect-IPPSSession -CertificateThumbprint "THUMBPRINT" `
+  -AppId "APP-GUID" `
+  -Organization "tenant.onmicrosoft.com"
+```
+
+**Required Permissions:**
+- **Application Permission:** `Office 365 Exchange Online` > `Exchange.ManageAsApp` (same as Exchange Online)
+- **Role:** Organization Configuration role in Microsoft Purview portal
+- **Note:** Certificate-based authentication for SCC PowerShell rolled out mid-February 2025 (GA)
+
+**Retention Policy Capabilities:**
+- Default retention: 90 days (180 days for E5/Audit Premium)
+- Custom retention: Up to 10 years (requires Audit Premium license)
+- Maximum policies: 50 per organization
+- Granularity: Per record type (e.g., MicrosoftTeams, PowerPlatformAdminActivity, CopilotInteraction)
+
+**FSI Validation Requirements:**
+| Regulation | Minimum Retention | Recommended Policy |
+|------------|-------------------|-------------------|
+| FINRA 4511 | 3 years | `RetentionDuration TenYears` (covers all FSI regs) |
+| SEC 17a-4 | 7 years | TenYears |
+| SOX 302/404 | 7 years | TenYears |
+
+**Rationale:**
+- Audit retention is FSI-critical — default 90 days does NOT meet regulatory requirements
+- Validator must check retention policies, alert if <3 years for key record types
+- Auto-enablement workflow can create retention policy via `New-UnifiedAuditLogRetentionPolicy`
+- Record types to prioritize: `CopilotInteraction`, `PowerPlatformAdminActivity`, `MicrosoftTeams`, `SharePointFileOperation`
+
+**Sources:**
+- [Microsoft Learn - Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
+- [Microsoft Learn - Get-UnifiedAuditLogRetentionPolicy](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-unifiedauditlogretentionpolicy?view=exchange-ps)
+- [Microsoft Learn - Set-UnifiedAuditLogRetentionPolicy](https://learn.microsoft.com/en-us/powershell/module/exchange/set-unifiedauditlogretentionpolicy?view=exchange-ps)
+- [Blog - Security & Compliance PowerShell Certificate Authentication](https://michev.info/blog/post/3796/connect-to-the-security-and-compliance-center-powershell-via-certificate-based-authentication)
+
+---
+
+### 3. Power Platform PowerShell (Environment Audit Settings)
+
+**Purpose:** Validate per-environment audit enablement in Power Platform (Dataverse)
+
+| Component | Version | Why |
+|-----------|---------|-----|
+| **Microsoft.PowerApps.Administration.PowerShell** | 2.0.214+ | Latest version with environment management capabilities |
+
+**Installation:**
+```powershell
+Install-Module Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser
+```
+
+**Key Cmdlets:**
+
+| Cmdlet | Purpose | Audit Relevance |
+|--------|---------|----------------|
+| `Get-AdminPowerAppEnvironment` | Retrieve environment metadata | Returns environment GUID, display name, type, region |
+| `Get-AdminPowerAppEnvironmentLocations` | List available regions | Used for environment provisioning context |
+
+**Service Principal Authentication:**
+```powershell
+Add-PowerAppsAccount -Endpoint prod `
+  -TenantID $tenantId `
+  -ApplicationId $appId `
+  -ClientSecret $secret `
+  -Verbose
+```
+
+**Required Setup:**
+1. Register application in Entra ID
+2. Register service principal with Power Platform:
+   ```powershell
+   New-PowerAppManagementApp -ApplicationId $appId
+   ```
+3. Create Application User in Dataverse environment
+4. Assign System Administrator or System Customizer role to Application User
+
+**Limitations:**
+- `Get-AdminPowerAppEnvironment` does NOT return audit settings directly
+- Audit configuration requires Dataverse Web API (see below)
+- PowerShell module supports environment discovery only, not audit configuration
+
+**Rationale:**
+- Power Apps PowerShell module is environment discovery layer
+- Audit settings live in Dataverse Organization table, not exposed via PowerShell cmdlets
+- Version 2.0.214 is latest (verified via PowerShell Gallery)
+- Service principal authentication supported for environment management operations
+
+**Sources:**
+- [PowerShell Gallery - Microsoft.PowerApps.Administration.PowerShell 2.0.214](https://www.powershellgallery.com/packages/Microsoft.PowerApps.Administration.PowerShell/2.0.214)
+- [Microsoft Learn - Get started using Power Apps admin module](https://learn.microsoft.com/en-us/powershell/powerapps/get-started-powerapps-admin?view=pa-ps-latest)
+- [Microsoft Learn - Creating a service principal with PowerShell](https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal)
+- [Microsoft Learn - Get-AdminPowerAppEnvironment](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/get-adminpowerappenvironment?view=pa-ps-latest)
+
+---
+
+### 4. Dataverse Web API (Environment Audit Configuration)
+
+**Purpose:** Check and configure audit settings for Power Platform environments programmatically
+
+| Component | Version | Why |
+|-----------|---------|-----|
+| **Dataverse Web API** | v9.2 | Current stable version for organization settings management |
+
+**Authentication:**
+- OAuth 2.0 client credentials flow via Microsoft Entra ID
+- Service principal with client secret or certificate
+- Requires Application User created in target Dataverse environment
+
+**Key Endpoints:**
+
+#### Retrieve Environment Audit Settings
+```http
+GET [Organization URI]/api/data/v9.2/organizations?$select=auditsettings,isauditenabled,auditretentionperiodv2,isuseraccessauditenabled,useraccessauditinginterval HTTP/1.1
+Accept: application/json
+OData-MaxVersion: 4.0
+OData-Version: 4.0
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+    "@odata.context": "[Organization URI]/api/data/v9.2/$metadata#organizations(...)",
+    "value": [
+        {
+            "@odata.etag": "W/\"67404512\"",
+            "auditsettings": "{\"IsSqlAuditWriteDisabled\":true}",
+            "isauditenabled": true,
+            "auditretentionperiodv2": 30,
+            "isuseraccessauditenabled": true,
+            "useraccessauditinginterval": 4,
+            "organizationid": "<organizationid value>"
+        }
+    ]
+}
+```
+
+#### Enable Environment Auditing
+```http
+PATCH [Organization URI]/api/data/v9.2/organizations([Organization ID]) HTTP/1.1
+Content-Type: application/json
+OData-MaxVersion: 4.0
+OData-Version: 4.0
+If-Match: *
+Authorization: Bearer {token}
+
+{
+   "isauditenabled": true,
+   "auditretentionperiodv2": 30
+}
+```
+
+#### Query Tables Enabled for Auditing
+```http
+GET [Organization URI]/api/data/v9.2/EntityDefinitions?$select=LogicalName,IsAuditEnabled&$filter=IsAuditEnabled/Value eq true and IsPrivate eq false HTTP/1.1
+Accept: application/json
+OData-MaxVersion: 4.0
+OData-Version: 4.0
+Authorization: Bearer {token}
+```
+
+**Organization Table Properties:**
+
+| Property | Type | Purpose |
+|----------|------|---------|
+| `isauditenabled` | Boolean | Master switch for environment auditing |
+| `auditretentionperiodv2` | Integer | Retention period in days (default 30, max varies by license) |
+| `isuseraccessauditenabled` | Boolean | Track user sign-ins |
+| `useraccessauditinginterval` | Integer | Interval for user access logging (4 = every 4 hours) |
+| `auditsettings` | String (JSON) | Advanced settings (e.g., `IsSqlAuditWriteDisabled`, `StoreLabelNameforPicklistAudits`) |
+
+**OAuth Token Acquisition (PowerShell Example):**
+```powershell
+# Using MSAL.PS module
+Install-Module MSAL.PS -Scope CurrentUser
+
+$tokenParams = @{
+    ClientId     = $appId
+    ClientSecret = (ConvertTo-SecureString $clientSecret -AsPlainText -Force)
+    TenantId     = $tenantId
+    Scopes       = @("$organizationUri/.default")
+}
+$token = Get-MsalToken @tokenParams
+
+$headers = @{
+    "Authorization" = "Bearer $($token.AccessToken)"
+    "OData-MaxVersion" = "4.0"
+    "OData-Version" = "4.0"
+    "Accept" = "application/json"
+}
+
+$response = Invoke-RestMethod -Uri "$organizationUri/api/data/v9.2/organizations?`$select=isauditenabled" -Headers $headers -Method Get
+```
+
+**Required Permissions:**
+- **Dataverse:** Application User with System Administrator or System Customizer role
+- **Entra ID:** Application registered with client secret or certificate
+- **No Graph API permissions required** (Dataverse uses its own resource endpoint)
+
+**FSI Validation Checks:**
+1. `isauditenabled` = true (CRITICAL)
+2. `auditretentionperiodv2` >= 1095 days (3 years minimum for FINRA 4511)
+3. `isuseraccessauditenabled` = true (recommended for SOX 302 compliance)
+
+**Rationale:**
+- Dataverse Web API is the ONLY programmatic way to check/configure environment audit settings
+- PowerShell module does not expose audit configuration cmdlets
+- REST API approach consistent with existing FSI-AgentGov-Solutions patterns (deny-event-correlation-report uses REST APIs)
+- Service principal authentication supports unattended automation
+- Organization table is standard Dataverse schema, stable across versions
+
+**Sources:**
+- [Microsoft Learn - Configure auditing (Dataverse)](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/configure)
+- [Microsoft Learn - Manage Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing)
+- [Microsoft Learn - Use OAuth authentication with Dataverse](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/authenticate-oauth)
+- [GitHub - Dataverse Audit Management PowerShell](https://github.com/jenschristianschroder/Dataverse-Audit-Management)
+
+---
+
+## Microsoft Graph API (Audit Log Query - Optional)
+
+**Purpose:** Query Entra ID audit logs (directory audits, sign-ins) for evidence collection
+
+| Component | Version | Why |
+|-----------|---------|-----|
+| **Microsoft.Graph PowerShell SDK** | 2.x | Unified Graph SDK for Entra ID audit logs |
+
+**Installation:**
+```powershell
+Install-Module Microsoft.Graph -Scope CurrentUser
+```
+
+**Key Endpoints:**
+
+| Endpoint | Purpose | Notes |
+|----------|---------|-------|
+| `/v1.0/auditLogs/directoryAudits` | Entra ID directory changes | Admin role assignments, app registrations |
+| `/v1.0/auditLogs/signIns` | User sign-in logs | Authentication events, MFA prompts |
+| `/beta/security/auditLog/queries` | Unified Audit Log query | Alternative to Search-UnifiedAuditLog (preview) |
+
+**Service Principal Authentication:**
+```powershell
+Connect-MgGraph -ClientId $appId `
+  -TenantId $tenantId `
+  -CertificateThumbprint $thumbprint
+```
+
+**Required Permissions:**
+- **Application Permission:** `AuditLog.Read.All` (Microsoft Graph)
+- **Admin consent required:** Yes
+
+**Use Case in Audit Configuration Validator:**
+- Evidence collection for compliance reports
+- Track changes to audit configuration (who enabled/disabled auditing)
+- NOT required for audit configuration validation itself
+- OPTIONAL: Include for comprehensive compliance evidence
+
+**Rationale:**
+- Graph API provides Entra ID audit context (e.g., "Who granted System Administrator role to the service principal?")
+- Complements Exchange/Dataverse audit logs
+- `AuditLog.Read.All` is read-only, safe for automation scenarios
+- NOT a blocker for MVP — can be added in v2 for enhanced compliance reporting
+
+**Sources:**
+- [Microsoft Learn - Microsoft Entra audit logs API overview](https://learn.microsoft.com/en-us/graph/api/resources/azure-ad-auditlog-overview?view=graph-rest-1.0)
+- [Microsoft Learn - AuditLog.Read.All permission](https://graphpermissions.merill.net/permission/AuditLog.Read.All)
+- [Blog - Querying the Unified Audit Log via Graph API](https://michev.info/blog/post/6001/querying-the-microsoft-365-unified-audit-log-datamart-via-the-graph-api)
+
+---
+
+## Supporting Libraries
+
+### MSAL.PS (OAuth Token Acquisition)
 
 | Library | Version | Purpose | Why |
 |---------|---------|---------|-----|
-| PyYAML | 6.0+ | YAML parsing in Python | Industry standard, already suggested in requirements.txt |
+| **MSAL.PS** | 4.x | Acquire OAuth tokens for Dataverse Web API | Simplifies service principal authentication |
 
-**Pattern:**
-```yaml
-# config/monitoring-sources.yaml
-sources:
-  learn:
-    enabled: true
-    check_interval_hours: 24
-    classification_patterns:
-      critical:
-        - "deprecated"
-        - "breaking change"
-      high:
-        - "Admin center"
-        - "compliance"
-
-  regulatory-federal-register:
-    enabled: true
-    check_interval_hours: 168  # weekly
-    agencies:
-      - FINRA
-      - SEC
-      - OCC
+**Installation:**
+```powershell
+Install-Module MSAL.PS -Scope CurrentUser
 ```
 
-**Integration with existing monitoring_shared.py:**
-```python
-import yaml
-from pathlib import Path
-
-def load_monitoring_config():
-    """Load monitoring configuration from YAML."""
-    config_path = Path(__file__).parent.parent / "config" / "monitoring-sources.yaml"
-    with open(config_path) as f:
-        return yaml.safe_load(f)
+**Usage:**
+```powershell
+$token = Get-MsalToken -ClientId $appId `
+  -ClientSecret (ConvertTo-SecureString $secret -AsPlainText -Force) `
+  -TenantId $tenantId `
+  -Scopes @("https://contoso.crm.dynamics.com/.default")
 ```
 
 **Rationale:**
-- Existing `monitoring_shared.py` (591 lines) uses hardcoded patterns for classification
-- YAML externalization enables non-developers to adjust monitoring sensitivity
-- Supports multiple source adapters (Learn, regulatory) with per-source configuration
-- PyYAML already listed as optional dependency in `scripts/requirements.txt` line 12
-- Maintains existing unified state management (data/monitor-state.json)
-
-**What NOT to change:**
-- Keep JSON for state files (`data/monitor-state.json`) - optimized for programmatic read/write
-- YAML only for human-editable configuration, NOT state persistence
-
-**Source:** [YAML Configuration Externalization](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73)
-
----
-
-### 4. State Management: SQLite vs JSON
-
-**Requirement:** State persistence for ~200 monitored URLs
-
-#### Recommended: KEEP JSON
-
-**Decision:** Continue using JSON files for state management.
-
-**Current implementation:**
-- `data/monitor-state.json` - Unified state with source-keyed sections
-- `monitoring_shared.py` provides atomic write with temp file + rename pattern (lines 415-450)
-
-**Rationale:**
-| Factor | JSON | SQLite | Winner |
-|--------|------|--------|--------|
-| **Scale** | 200 URLs, ~50KB file | Overkill for this size | JSON |
-| **Performance** | Entire file read at startup (microseconds for 50KB) | Connection overhead | JSON |
-| **Queries** | Linear scan sufficient | Indexed queries unnecessary | JSON |
-| **Atomicity** | Temp file + rename (existing) | WAL mode, BEGIN/COMMIT | Equivalent |
-| **Complexity** | Zero dependencies | sqlite3 module (stdlib) | JSON simpler |
-| **Portability** | Human-readable, git-diffable | Binary format | JSON |
-
-**When SQLite becomes necessary:**
-- State file exceeds 1MB (~4000 URLs)
-- Require historical change tracking (not current requirement)
-- Need concurrent read/write from multiple processes
-
-**Current v2 scope does NOT require SQLite.**
+- Dataverse Web API requires OAuth token via client credentials flow
+- MSAL.PS is Microsoft-supported library for token acquisition
+- Alternative: Use `Invoke-RestMethod` to call Entra ID token endpoint directly (more verbose)
+- MSAL.PS handles token caching, simplifies retry logic
 
 **Sources:**
-- [SQLite vs JSON Forum Discussion](https://sqlite.org/forum/forumpost/3d7be1ad3d)
-- [JSON vs SQLite Performance](https://news.ycombinator.com/item?id=2685131)
+- [PowerShell Gallery - MSAL.PS](https://www.powershellgallery.com/packages/MSAL.PS)
 
 ---
 
-### 5. Power Platform Solution Completion Patterns
+## Authentication Architecture
 
-**Requirement:** Guidance for Compliance Dashboard and Scope Drift Monitor completion
+### Service Principal Setup
 
-#### Compliance Dashboard (Control 3.3)
+**Required Azure Resources:**
 
-**Recommended Stack:**
+1. **Entra ID App Registration**
+   - Client ID (Application ID)
+   - Client secret OR certificate (FSI: certificate preferred)
+   - Tenant ID
 
-| Component | Technology | Why |
-|-----------|------------|-----|
-| Data Source | Power Platform CoE Starter Kit | Industry-standard governance data model |
-| Dashboard | Power BI Desktop | Native integration with Dataverse |
-| Deployment | Power BI Service | FSI tenant deployment model |
-
-**Integration Pattern:**
+2. **Certificate-Based Authentication (FSI Recommended):**
 ```powershell
-# Data extraction from CoE Starter Kit
-Connect-PowerAppsAccount
-$environments = Get-AdminPowerAppEnvironment
-$apps = Get-AdminPowerApp
+# Generate self-signed certificate (1-year validity)
+$cert = New-SelfSignedCertificate -Subject "CN=FSI-AuditValidator" `
+  -CertStoreLocation "Cert:\CurrentUser\My" `
+  -NotAfter (Get-Date).AddYears(1) `
+  -KeySpec KeyExchange
 
-# Export to Dataverse table for Power BI
-# Use CoE Starter Kit tables: admin_Environment, admin_App, admin_Flow
+# Export certificate (upload .cer to Entra ID app registration)
+$certPath = "C:\Certs\FSI-AuditValidator.cer"
+Export-Certificate -Cert $cert -FilePath $certPath
+
+# Get thumbprint for authentication
+$thumbprint = $cert.Thumbprint
 ```
 
-**Rationale:**
-- CoE Starter Kit provides pre-built Dataverse schema for governance data
-- Power BI desktop files (.pbix) deployable via Power BI Service
-- FSI audit requirement: Power BI workspaces with AAD group-based access control
-- Data refresh: Scheduled refresh via Power Platform connector (no secrets in .pbix)
+3. **Application Permissions:**
 
-**Source:** [Microsoft Learn - CoE Power BI Compliance Dashboard](https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-compliance)
+| Service | Permission | Type | Why |
+|---------|------------|------|-----|
+| Office 365 Exchange Online | `Exchange.ManageAsApp` | Application | Manage unified audit logging |
+| Microsoft Graph (optional) | `AuditLog.Read.All` | Application | Query Entra ID audit logs |
 
-#### Scope Drift Monitor (Control 1.14)
+4. **Dataverse Application User:**
+```powershell
+# Register service principal with Power Platform
+Add-PowerAppsAccount -TenantID $tenantId `
+  -ApplicationId $appId `
+  -ClientSecret $secret
 
-**Recommended Pattern:**
+New-PowerAppManagementApp -ApplicationId $appId
 
-| Component | Technology | Why |
-|-----------|------------|-----|
-| Baseline Storage | Dataverse custom table | Audit trail, RBAC, versioning |
-| Agent Metadata | Power Platform API via PowerShell | Runtime data access scope |
-| Comparison Logic | Power Automate flow | Scheduled monitoring (daily) |
-
-**Dataverse Table Schema:**
-```
-AgentBaseline {
-    AgentId: string (primary key)
-    BaselineDeclaredScope: string (JSON array of SharePoint sites)
-    BaselineCreatedDate: datetime
-    LastValidationDate: datetime
-}
-
-AgentScopeDriftEvent {
-    AgentId: string (lookup to AgentBaseline)
-    DetectedScope: string (JSON array)
-    DriftType: OptionSet (Expansion, Reduction, Unauthorized)
-    DetectedDate: datetime
-    Severity: OptionSet (High, Medium, Low)
-}
+# Then create Application User in each environment via UI:
+# Settings > Security > Users > app users > + New app user
+# Assign: System Administrator OR System Customizer role
 ```
 
-**Rationale:**
-- Dataverse native audit logging meets FINRA 4511 requirements
-- Agent identity (Agent 365 Entra ID) enables Microsoft Graph API queries for actual access
-- Power Automate flow orchestrates daily validation without custom hosting
-- Integration with existing Control 3.1 (Agent Inventory) via AgentId foreign key
+**FSI Security Requirements:**
+- **Certificate over secret:** Audit trail in Azure Key Vault for secret access, but certificate rotation simpler
+- **Certificate rotation:** 90-day maximum (automate via Key Vault or Entra ID policies)
+- **Least privilege:** Use System Customizer role if possible (read/write audit settings, not full admin)
+- **Key Vault integration:** Store certificate thumbprint and tenant ID in Key Vault, NOT in scripts
 
-**Source:** [Microsoft Power Platform Blog - Agent 365 Dataverse](https://www.microsoft.com/en-us/power-platform/blog/2025/06/16/data-agent-architecture-powered-by-microsoft-dataverse/)
+**Sources:**
+- [Microsoft Learn - App-only authentication for Exchange Online](https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps)
+- [Microsoft Learn - Creating a service principal for Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal)
 
 ---
 
 ## What NOT to Add
 
-### Deferred to Future Versions
+### Deferred or Excluded Technologies
 
-| Technology | Why Deferring |
-|------------|---------------|
-| mkdocs-awesome-pages-plugin | Conflicts with existing manual nav (62 controls), risky for v2 |
-| SQLite | JSON sufficient for current scale (200 URLs) |
-| Alternative Python validation frameworks | Existing verify_controls.py works, no need to replace |
-| Container orchestration (Docker/K8s) | GitHub Pages deployment works, over-engineering |
-| Alternative monitoring frameworks (Prometheus) | Unified monitoring system via monitoring_shared.py is appropriate for scope |
+| Technology | Why Excluded |
+|------------|--------------|
+| **PnP.PowerShell** | SharePoint-focused, no audit configuration capabilities for Exchange/Purview |
+| **Microsoft365DSC** | Desired State Configuration framework overkill for targeted validator solution |
+| **Azure Monitor REST API** | For monitoring audit log ingestion pipeline health, not configuration validation (future v2 feature) |
+| **Power Platform Admin API (REST)** | Environment metadata only, does not expose audit settings (use Dataverse Web API instead) |
+| **ExchangeOnlineManagement v2.x** | Deprecated, v3.x is GA since September 2022 |
+| **Security & Compliance PowerShell (separate module)** | No longer exists as standalone module, integrated into ExchangeOnlineManagement v3.x |
+
+**Anti-Patterns to Avoid:**
+- **Do NOT** use basic authentication (deprecated since September 2022)
+- **Do NOT** use client secrets with >90-day expiration in FSI environments
+- **Do NOT** mix PowerShell remoting (RPS) with REST API cmdlets (stick to REST for consistency)
+- **Do NOT** assume `Get-AdminPowerAppEnvironment` returns audit settings (it does not)
 
 ---
 
-## Integration Points with Existing Stack
+## Integration with Existing Stack
 
-### MkDocs Material (Current: Base theme)
+### FSI-AgentGov-Solutions Existing Patterns
 
-**Changes:**
-- Add `navigation.path` feature flag to mkdocs.yml
-- No version upgrade required (9.7.1 already latest)
-- Zero plugin additions
+**Current Modules in Use (from existing scripts):**
+- `Microsoft.PowerApps.Administration.PowerShell` (environment-lifecycle-management, deny-event-correlation-report)
+- `Microsoft.Graph` (deny-event-correlation-report, scope-drift-monitor)
+- `ExchangeOnlineManagement` (NOT yet used in existing solutions)
 
-**Integration:**
-```yaml
-# mkdocs.yml additions
-theme:
-  features:
-    - navigation.path  # NEW: Breadcrumb navigation
-    # Existing features preserved
-    - navigation.instant
-    - navigation.tracking
-    - navigation.sections
-```
-
-### Python Scripts (Current: Standard library only)
-
-**Changes:**
-- Add PyYAML to requirements.txt (uncomment line 12)
-- Add monitoring configuration loader to monitoring_shared.py
-- No breaking changes to existing scripts
-
-**Integration:**
-```python
-# monitoring_shared.py additions
-import yaml
-
-def load_classification_config():
-    """Load classification patterns from YAML config."""
-    # New function, existing classification logic remains backward compatible
-```
-
-### PowerShell Solutions (Current: Basic patterns)
-
-**Changes:**
-- Add #Requires statements to all scripts
-- Add SecretManagement integration for credential management
-- Add error handling template
-
-**Integration:**
+**Consistency Patterns:**
 ```powershell
-# Template for FSI-AgentGov-Solutions scripts
+# Existing pattern from deny-event-correlation-report/scripts/Export-CopilotDenyEvents.ps1
 #Requires -Version 7.0
-#Requires -Modules Microsoft.PowerShell.SecretManagement
+# No #Requires for modules (they check/install dynamically)
 
+# New pattern for audit-configuration-validator:
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName="ExchangeOnlineManagement"; ModuleVersion="3.9.2" }
+#Requires -Modules @{ ModuleName="Microsoft.PowerApps.Administration.PowerShell"; ModuleVersion="2.0.214" }
+```
+
+**Error Handling Pattern:**
+```powershell
 [CmdletBinding()]
 param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# Existing script logic wraps in try/catch
+try {
+    # Script logic
+} catch {
+    Write-Error "Audit validation failed: $_"
+    throw  # Propagate for Power Automate flow failure detection
+}
 ```
 
-### GitHub Actions (Current: CI/CD for docs, Learn monitor)
-
-**Changes:**
-- Add PowerShell module installation step
-- Add YAML validation step for monitoring configs
-- No workflow restructuring
-
-**Integration:**
-```yaml
-# .github/workflows/learn-monitor.yml additions
-- name: Install Python Dependencies
-  run: pip install -r scripts/requirements.txt  # Now includes PyYAML
-
-- name: Validate Monitoring Config
-  run: python scripts/validate_monitoring_config.py  # New validation script
+**Secret Management Pattern (from existing STACK.md v2):**
+```powershell
+# Use Azure Key Vault via SecretManagement module
+$credential = Get-Secret -Name "AuditValidatorServicePrincipal" `
+  -Vault "FSIAgentGov" `
+  -AsPlainText
 ```
 
 ---
 
 ## Installation Instructions
 
-### For Documentation (MkDocs)
+### Prerequisites
+- PowerShell 7.4.0+ (required for ExchangeOnlineManagement 3.5.0+)
+- Windows, macOS, or Linux
+- Entra ID tenant admin access (for app registration)
+- Power Platform admin access (for Application User creation)
 
-```bash
-# No new packages required
-# Just update mkdocs.yml configuration
-
-# Verify current version
-pip show mkdocs-material
-# Expected: 9.7.1 or higher
-```
-
-### For Python Scripts
-
-```bash
-cd /Users/admin/dev/FSI-AgentGov
-
-# Uncomment PyYAML in scripts/requirements.txt (line 12)
-# Then install
-pip install -r scripts/requirements.txt
-```
-
-### For PowerShell Solutions
+### Full Setup Script
 
 ```powershell
-# Install SecretManagement
-Install-Module Microsoft.PowerShell.SecretManagement -Scope CurrentUser -Force
+# 1. Install PowerShell modules
+Install-Module ExchangeOnlineManagement -MinimumVersion 3.9.2 -Scope CurrentUser -Force
+Install-Module Microsoft.PowerApps.Administration.PowerShell -MinimumVersion 2.0.214 -Scope CurrentUser -Force
+Install-Module MSAL.PS -Scope CurrentUser -Force
+Install-Module Microsoft.Graph -Scope CurrentUser -Force  # Optional
 
-# Install Azure Key Vault module (includes SecretManagement extension)
-Install-Module Az.KeyVault -MinimumVersion 3.3.0 -Scope CurrentUser -Force
+# 2. Verify installations
+Get-Module -ListAvailable ExchangeOnlineManagement
+Get-Module -ListAvailable Microsoft.PowerApps.Administration.PowerShell
 
-# Verify installation
-Get-Module -ListAvailable Microsoft.PowerShell.SecretManagement
-Get-Module -ListAvailable Az.KeyVault
+# 3. Generate service principal certificate
+$cert = New-SelfSignedCertificate -Subject "CN=FSI-AuditValidator" `
+  -CertStoreLocation "Cert:\CurrentUser\My" `
+  -NotAfter (Get-Date).AddYears(1) `
+  -KeySpec KeyExchange
+
+# 4. Export certificate for Entra ID upload
+$certPath = "$env:TEMP\FSI-AuditValidator.cer"
+Export-Certificate -Cert $cert -FilePath $certPath
+Write-Host "Upload certificate to Entra ID: $certPath"
+Write-Host "Certificate thumbprint: $($cert.Thumbprint)"
+
+# 5. Test Exchange Online connection
+Connect-ExchangeOnline -CertificateThumbprint $cert.Thumbprint `
+  -AppId "YOUR-APP-ID" `
+  -Organization "tenant.onmicrosoft.com"
+
+Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled
+
+# 6. Test Security & Compliance connection
+Connect-IPPSSession -CertificateThumbprint $cert.Thumbprint `
+  -AppId "YOUR-APP-ID" `
+  -Organization "tenant.onmicrosoft.com"
+
+Get-UnifiedAuditLogRetentionPolicy
+
+# 7. Test Power Platform connection
+Add-PowerAppsAccount -TenantID "YOUR-TENANT-ID" `
+  -ApplicationId "YOUR-APP-ID" `
+  -ClientSecret "YOUR-CLIENT-SECRET"
+
+Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName
+
+# 8. Register service principal with Power Platform
+New-PowerAppManagementApp -ApplicationId "YOUR-APP-ID"
+
+# 9. Test Dataverse Web API connection
+$token = Get-MsalToken -ClientId "YOUR-APP-ID" `
+  -ClientSecret (ConvertTo-SecureString "YOUR-SECRET" -AsPlainText -Force) `
+  -TenantId "YOUR-TENANT-ID" `
+  -Scopes @("https://YOUR-ORG.crm.dynamics.com/.default")
+
+$headers = @{
+    "Authorization" = "Bearer $($token.AccessToken)"
+    "OData-MaxVersion" = "4.0"
+    "OData-Version" = "4.0"
+    "Accept" = "application/json"
+}
+
+$orgUri = "https://YOUR-ORG.crm.dynamics.com"
+$response = Invoke-RestMethod -Uri "$orgUri/api/data/v9.2/organizations?`$select=isauditenabled" -Headers $headers -Method Get
+$response.value | Format-List isauditenabled
 ```
 
 ---
@@ -475,56 +606,105 @@ Get-Module -ListAvailable Az.KeyVault
 
 | Package | Minimum Version | Maximum Version | Rationale |
 |---------|-----------------|-----------------|-----------|
-| mkdocs-material | 9.7.0 | 9.7.x | Last feature release, includes navigation.path |
-| PyYAML | 6.0 | 6.x | Stable API, semantic versioning |
-| Microsoft.PowerShell.SecretManagement | 1.1.2 | 1.x | Current stable, minor updates safe |
-| Az.KeyVault | 3.3.0 | 4.x | Includes SecretManagement extension |
+| ExchangeOnlineManagement | 3.9.2 | 3.x | Pin to v3.x line, allow minor updates for security patches |
+| Microsoft.PowerApps.Administration.PowerShell | 2.0.214 | 2.x | Current stable, allow minor updates |
+| MSAL.PS | 4.0 | 4.x | Stable OAuth library, semantic versioning |
+| Microsoft.Graph | 2.0 | 2.x | Optional dependency, stable v2.x line |
 
-**Pin strategy:**
-- MkDocs Material: Pin to 9.7.x (team shifting to Zensical, no new features)
-- Python packages: Allow minor updates (6.0 → 6.x) for security patches
-- PowerShell modules: Allow major updates (1.x, 4.x) - Microsoft backward compatibility guarantee
+**Pin Strategy:**
+- Use `-MinimumVersion` in `#Requires` statements for fail-fast validation
+- Allow minor updates (e.g., 3.9.2 → 3.9.3) for security patches
+- Test major version updates in non-production before adopting
+- Review release notes for breaking changes in ExchangeOnlineManagement v4.x (when released)
 
 ---
 
 ## Security Considerations
 
-### Secret Management (PowerShell)
+### Certificate Management (FSI Requirements)
 
-**FSI Requirements:**
-- Secrets stored in Azure Key Vault (not local SecretStore)
-- Key Vault access logged via Azure Monitor
-- Service principal authentication with certificate (not password)
-- Key rotation every 90 days (automated via Key Vault)
+**Certificate Lifecycle:**
+1. **Generation:** Self-signed OR CA-issued (FSI: CA-issued preferred for production)
+2. **Storage:** Certificate private key in Windows Certificate Store OR Azure Key Vault
+3. **Rotation:** Maximum 90-day validity for FSI environments
+4. **Audit:** Certificate usage logged via Entra ID sign-in logs (Application sign-ins)
 
-**Implementation:**
+**Automated Rotation Pattern:**
 ```powershell
-# Register vault with service principal auth
-$tenantId = "your-tenant-id"
-$appId = "your-app-id"
-$certThumbprint = "your-cert-thumbprint"
+# Check certificate expiration
+$cert = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Subject -eq "CN=FSI-AuditValidator" }
+$daysUntilExpiration = ($cert.NotAfter - (Get-Date)).Days
 
-Connect-AzAccount -ServicePrincipal -TenantId $tenantId -ApplicationId $appId -CertificateThumbprint $certThumbprint
-
-Register-SecretVault -Name "FSIAgentGovProd" -ModuleName Az.KeyVault -VaultParameters @{
-    AZKVaultName = "fsi-agentgov-prod-kv"
-    SubscriptionId = "your-subscription-id"
+if ($daysUntilExpiration -lt 30) {
+    Write-Warning "Certificate expires in $daysUntilExpiration days. Rotate immediately."
+    # Trigger automated rotation workflow via Power Automate
 }
 ```
 
-**Audit Trail:**
-- Key Vault logs all secret access via Diagnostic Settings → Log Analytics
-- Meets FINRA 4511 / SEC 17a-4 requirements for audit trails
+### Least Privilege Access
 
-### Configuration Files (YAML)
+**Exchange Online:**
+- **Role Group:** Compliance Management (NOT Organization Management)
+- **Justification:** Read/write audit configuration, no mailbox access
 
-**Security:**
-- YAML files contain classification patterns ONLY (no secrets)
-- Store in repository (version controlled)
-- No encryption required
+**Power Platform:**
+- **Dataverse Role:** System Customizer (NOT System Administrator)
+- **Justification:** Modify organization settings, no user impersonation or environment deletion
 
-**Anti-pattern:**
-- DO NOT store secrets in YAML (use Key Vault instead)
+**Entra ID:**
+- **Directory Role:** None required (permissions granted via app registration API permissions)
+- **Application Permissions:** Exchange.ManageAsApp, AuditLog.Read.All (read-only Graph)
+
+### Audit Trail Requirements
+
+**FSI Compliance:**
+- **Certificate access:** Azure Key Vault access logs → Log Analytics → 7-year retention
+- **Script execution:** Power Automate flow run history → Dataverse → custom retention policy
+- **Audit configuration changes:** Unified Audit Log → `Set-AdminAuditLogConfig` operation → 10-year retention
+- **Service principal sign-ins:** Entra ID sign-in logs → 90-day default (export to SIEM for long-term retention)
+
+---
+
+## API Rate Limits and Throttling
+
+### Exchange Online Management
+
+| Operation | Limit | Notes |
+|-----------|-------|-------|
+| `Get-AdminAuditLogConfig` | 10,000 requests/day | Per app ID |
+| `Set-AdminAuditLogConfig` | 500 requests/day | Per app ID |
+| `Search-UnifiedAuditLog` | 10 requests/second | Burst limit |
+
+**Mitigation:**
+- Validator runs daily (not hourly), well within limits
+- Implement retry logic with exponential backoff
+
+### Dataverse Web API
+
+| Operation | Limit | Notes |
+|-----------|-------|-------|
+| API requests | 6,000 requests/5 minutes | Per user/app |
+| Concurrent requests | 52 | Per organization |
+
+**Mitigation:**
+- Validator queries one environment at a time (sequential, not parallel)
+- Batch GET requests where possible (e.g., query all environments in single request)
+
+### Microsoft Graph API
+
+| Operation | Limit | Notes |
+|-----------|-------|-------|
+| `auditLogs/directoryAudits` | 1,800 requests/minute | Per app |
+| `auditLogs/signIns` | 1,800 requests/minute | Per app |
+
+**Mitigation:**
+- Graph API is optional for MVP
+- If implemented, limit to daily batch queries (not real-time)
+
+**Sources:**
+- [Microsoft Learn - Exchange Online throttling](https://learn.microsoft.com/en-us/office365/servicedescriptions/exchange-online-service-description/exchange-online-limits)
+- [Microsoft Learn - Dataverse API limits](https://learn.microsoft.com/en-us/power-platform/admin/api-request-limits-allocations)
+- [Microsoft Learn - Graph API throttling](https://learn.microsoft.com/en-us/graph/throttling)
 
 ---
 
@@ -532,55 +712,87 @@ Register-SecretVault -Name "FSIAgentGovProd" -ModuleName Az.KeyVault -VaultParam
 
 | Area | Confidence | Source Quality | Notes |
 |------|------------|----------------|-------|
-| MkDocs Material navigation | **HIGH** | Official docs, PyPI | navigation.path verified in official docs, version 9.7.1 confirmed on PyPI |
-| PowerShell SecretManagement | **HIGH** | Microsoft Learn, PowerShell Gallery | Version 1.1.2 verified on PowerShell Gallery, Az.KeyVault 3.3.0+ confirmed |
-| YAML externalization | **MEDIUM** | WebSearch + existing code review | Pattern well-established, PyYAML already in requirements.txt |
-| JSON vs SQLite | **HIGH** | SQLite forum, technical analysis | Scale analysis clear: 200 URLs = JSON sufficient |
-| Power Platform patterns | **MEDIUM** | Microsoft Learn, recent blogs | CoE Starter Kit patterns verified, Agent 365 Dataverse architecture recent (2025-2026) |
+| ExchangeOnlineManagement v3.9.2 | **HIGH** | PowerShell Gallery, Microsoft Learn | Version verified on PSGallery (1/5/2026), cmdlet docs current |
+| Service principal auth (Exchange) | **HIGH** | Microsoft Learn official docs | Certificate-based auth GA since v2.0.4, enhanced in v3.x |
+| Audit retention cmdlets | **HIGH** | Microsoft Learn official docs | Cmdlet syntax verified, FSI retention requirements validated |
+| Power Platform PowerShell | **MEDIUM** | PowerShell Gallery, Microsoft Learn | Version 2.0.214 verified, but audit settings NOT exposed via cmdlets |
+| Dataverse Web API audit endpoints | **HIGH** | Microsoft Learn official docs | Endpoint syntax verified with examples, Organization table schema documented |
+| Service principal auth (Dataverse) | **HIGH** | Microsoft Learn, community examples | OAuth client credentials flow standard, Application User pattern documented |
+| Graph API audit endpoints | **HIGH** | Microsoft Learn official docs | Optional for MVP, but well-documented if needed |
 
-**Overall Confidence: HIGH** - Core recommendations (MkDocs, PowerShell, JSON) verified with official sources. Power Platform patterns at MEDIUM confidence due to rapidly evolving Agent 365 capabilities.
+**Overall Confidence: HIGH** — All core components verified with official Microsoft documentation and version numbers confirmed via PowerShell Gallery. Dataverse Web API is only path for environment audit configuration (no PowerShell cmdlet alternative exists).
+
+**Key Uncertainty:**
+- **Power Platform PowerShell module roadmap:** Will Microsoft add `Set-AdminPowerAppEnvironmentAudit` cmdlet in future versions? Currently NOT on public roadmap. Dataverse Web API remains canonical approach.
 
 ---
 
 ## Open Questions / Validation Needed
 
-1. **MkDocs navigation.path UX:** Test breadcrumbs on mobile/tablet to confirm usability improvement
-2. **PyYAML performance:** Benchmark YAML load time vs hardcoded patterns (expect negligible difference)
-3. **SecretManagement in GitHub Actions:** Verify service principal authentication pattern for CI/CD pipelines
-4. **Agent 365 Entra ID availability:** Confirm Agent 365 Entra ID feature GA (currently rolling out per Jan 2026 blog post)
+1. **ExchangeOnlineManagement v4.x:** When will v4.x release? Check for breaking changes to audit cmdlets before upgrading.
+
+2. **Dataverse Application User permissions:** Can System Customizer role modify `Organization.isauditenabled`, or is System Administrator required? TEST in non-production environment.
+
+3. **Audit retention policy priority:** If multiple policies conflict (e.g., default 90 days vs custom 10 years for CopilotInteraction), which wins? VERIFY via `Get-UnifiedAuditLogRetentionPolicy | Sort-Object Priority`.
+
+4. **Certificate rotation automation:** Does Azure Key Vault managed certificates work with `Connect-ExchangeOnline -CertificateThumbprint`? TEST certificate stored in Key Vault vs local certificate store.
+
+5. **Dataverse audit settings propagation delay:** After PATCH to `organizations` endpoint to enable auditing, how long until audit logs start appearing? MEASURE in test environment.
+
+---
+
+## Appendix: PowerShell Module Comparison
+
+### ExchangeOnlineManagement vs PnP.PowerShell
+
+| Feature | ExchangeOnlineManagement | PnP.PowerShell | Winner for Audit Validator |
+|---------|--------------------------|----------------|---------------------------|
+| Unified audit logging | `Get-AdminAuditLogConfig`, `Set-AdminAuditLogConfig` | NOT AVAILABLE | **ExchangeOnlineManagement** |
+| Audit retention policies | `Get-UnifiedAuditLogRetentionPolicy`, `Set-UnifiedAuditLogRetentionPolicy` | NOT AVAILABLE | **ExchangeOnlineManagement** |
+| Service principal auth | Certificate-based auth supported | Certificate or client secret | Tie (both support) |
+| REST API-backed | Yes (v3.0.0+) | Yes | Tie |
+| Focus | Exchange Online, Security & Compliance | SharePoint Online, PnP features | **ExchangeOnlineManagement** for audit |
+
+**Verdict:** ExchangeOnlineManagement is the ONLY module with audit configuration cmdlets. PnP.PowerShell is irrelevant for this solution.
 
 ---
 
 ## Sources
 
-**MkDocs Material:**
-- [Setting up navigation](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
-- [Admonitions reference](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
-- [mkdocs-material on PyPI](https://pypi.org/project/mkdocs-material/)
-- [Insiders now free announcement](https://squidfunk.github.io/mkdocs-material/blog/2025/11/11/insiders-now-free-for-everyone/)
+**Exchange Online PowerShell:**
+- [PowerShell Gallery - ExchangeOnlineManagement 3.9.2](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/3.9.2)
+- [Microsoft Learn - About Exchange Online PowerShell V3](https://learn.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps)
+- [Microsoft Learn - What's new in ExchangeOnlineManagement](https://learn.microsoft.com/en-us/powershell/exchange/whats-new-in-the-exo-module?view=exchange-ps)
+- [Microsoft Learn - App-only authentication in Exchange Online PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps)
+- [Microsoft Learn - Turn auditing on or off](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable)
+- [Microsoft Learn - Set-AdminAuditLogConfig](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-adminauditlogconfig?view=exchange-ps)
 
-**MkDocs Plugins:**
-- [mkdocs-awesome-pages-plugin on PyPI](https://pypi.org/project/mkdocs-awesome-pages-plugin/)
+**Audit Retention Policies:**
+- [Microsoft Learn - Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
+- [Microsoft Learn - Get-UnifiedAuditLogRetentionPolicy](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-unifiedauditlogretentionpolicy?view=exchange-ps)
+- [Microsoft Learn - Set-UnifiedAuditLogRetentionPolicy](https://learn.microsoft.com/en-us/powershell/module/exchange/set-unifiedauditlogretentionpolicy?view=exchange-ps)
 
-**PowerShell SecretManagement:**
-- [SecretManagement overview](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview)
-- [Azure Key Vault automation](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/how-to/using-azure-keyvault)
-- [PowerShell Gallery - SecretManagement 1.1.2](https://www.powershellgallery.com/packages/Microsoft.PowerShell.SecretManagement/1.1.2)
-- [PowerShell Scripting Best Practices](https://dstreefkerk.github.io/2025-06-powershell-scripting-best-practices/)
-- [about_Requires](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires)
+**Power Platform PowerShell:**
+- [PowerShell Gallery - Microsoft.PowerApps.Administration.PowerShell 2.0.214](https://www.powershellgallery.com/packages/Microsoft.PowerApps.Administration.PowerShell/2.0.214)
+- [Microsoft Learn - Get started using Power Apps admin module](https://learn.microsoft.com/en-us/powershell/powerapps/get-started-powerapps-admin?view=pa-ps-latest)
+- [Microsoft Learn - Creating a service principal with PowerShell](https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal)
+- [Microsoft Learn - Get-AdminPowerAppEnvironment](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/get-adminpowerappenvironment?view=pa-ps-latest)
 
-**Configuration Externalization:**
-- [Configuration Externalization Pattern](https://medium.com/@vinciabhinav7/configuration-externalization-design-pattern-an-overview-25a05680ca73)
-- [YAML Best Practices](https://medium.com/@lingeshcbz/yaml-the-ultimate-guide-with-examples-and-best-practices-7040f9e389ed)
+**Dataverse Web API:**
+- [Microsoft Learn - Configure auditing (Dataverse)](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/configure)
+- [Microsoft Learn - Manage Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing)
+- [Microsoft Learn - Use OAuth authentication with Dataverse](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/authenticate-oauth)
+- [Microsoft Learn - Organization table reference](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/reference/entities/organization)
 
-**State Management:**
-- [SQLite vs JSON Discussion](https://sqlite.org/forum/forumpost/3d7be1ad3d)
-- [When JSON Sucks article](https://pl-rants.net/posts/when-not-json/)
+**Microsoft Graph API:**
+- [Microsoft Learn - Microsoft Entra audit logs API overview](https://learn.microsoft.com/en-us/graph/api/resources/azure-ad-auditlog-overview?view=graph-rest-1.0)
+- [Graph Permissions - AuditLog.Read.All](https://graphpermissions.merill.net/permission/AuditLog.Read.All)
+- [Microsoft Learn - Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference)
 
-**Power Platform:**
-- [CoE Power BI Compliance Dashboard](https://learn.microsoft.com/en-us/power-platform/guidance/coe/power-bi-compliance)
-- [Data Agent Architecture with Dataverse](https://www.microsoft.com/en-us/power-platform/blog/2025/06/16/data-agent-architecture-powered-by-microsoft-dataverse/)
-- [Agent 365 and Work IQ](https://www.microsoft.com/en-us/power-platform/blog/2026/01/27/build-adaptive-intelligence/)
+**Community Resources:**
+- [Blog - Certificate-based authentication for SCC PowerShell (Vasil Michev)](https://michev.info/blog/post/3796/connect-to-the-security-and-compliance-center-powershell-via-certificate-based-authentication)
+- [Blog - Querying Unified Audit Log via Graph API (Vasil Michev)](https://michev.info/blog/post/6001/querying-the-microsoft-365-unified-audit-log-datamart-via-the-graph-api)
+- [GitHub - Dataverse Audit Management PowerShell](https://github.com/jenschristianschroder/Dataverse-Audit-Management)
 
 ---
 
@@ -588,4 +800,4 @@ Register-SecretVault -Name "FSIAgentGovProd" -ModuleName Az.KeyVault -VaultParam
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0 | 2026-02-04 | Initial research for v2 milestone improvements |
+| 1.0 | 2026-02-06 | Initial research for Audit Configuration Validator solution |

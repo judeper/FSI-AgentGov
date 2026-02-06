@@ -1,1003 +1,680 @@
-# Architecture Patterns: v2 Integration with FSI-AgentGov
+# Architecture Patterns
 
-**Domain:** MkDocs documentation site enhancement + PowerShell solutions modernization
-**Researched:** 2026-02-04
-**Confidence:** HIGH
-
----
-
-## Executive Summary
-
-v2 improvements integrate cleanly with the existing FSI-AgentGov architecture with minimal disruption. The core finding: **all six integration points can be implemented incrementally without requiring full rewrites**. MkDocs Material breadcrumbs work with manual nav (additive). Awesome Pages plugin requires explicit integration points via `...` entries (opt-in coexistence). PowerShell modernization is isolated to the Solutions repo. Compliance Dashboard and Scope Drift Monitor build on existing monitoring framework patterns with established Dataverse/Power Automate/Power BI patterns.
-
-**Critical Integration Points:**
-1. MkDocs breadcrumbs: Theme feature flag addition (zero nav changes)
-2. Awesome Pages: Requires `nav: ...` integration markers (breaking if done wrong)
-3. PowerShell SecretManagement: Drop-in replacement for ConvertTo-SecureString (targeted fix)
-4. Compliance Dashboard: New Dataverse tables + flows, no framework changes
-5. Scope Drift Monitor: Uses monitoring_shared.py as intended (plugin pattern)
-6. YAML config files: Belongs in docs/ with validation schema support
-
-**Build Order Recommendation:** Documentation improvements first (breadcrumbs, YAML configs), then PowerShell fixes (isolated), then solutions completion (most complex).
-
----
+**Domain:** Audit Configuration Validator
+**Researched:** 2026-02-06
 
 ## Recommended Architecture
 
-### High-Level Component Map
+The Audit Configuration Validator follows the established FSI-AgentGov-Solutions Tier 2 pattern with PowerShell + Power Automate + Dataverse integration. The solution validates that comprehensive audit logging is properly enabled across tenant-level, Power Platform environments, and Microsoft Purview configurations.
+
+### System Architecture
 
 ```
-FSI-AgentGov (Documentation Repository)
-├── docs/ (MkDocs Material site)
-│   ├── framework/
-│   ├── controls/
-│   ├── playbooks/
-│   └── reference/
-│       ├── monitoring-architecture.md (existing)
-│       ├── learn-monitor-config.yaml (NEW - Learn Monitor config)
-│       └── regulatory-monitor-config.yaml (NEW - Regulatory config)
-├── mkdocs.yml (nav structure - MODIFIED for breadcrumbs + optional Awesome Pages)
+┌────────────────────────────────────────────────────────────────┐
+│                  Audit Configuration Validator                  │
+├────────────────────────────────────────────────────────────────┤
+│  PowerShell      │  Power Automate  │  Teams           │  Export│
+│  Scanners        │  Orchestration   │  Alerts          │  Evidence│
+└────────────────────────────────────────────────────────────────┘
+                            ▲
+                            │ Status Tracking
+                            │
+┌────────────────────────────────────────────────────────────────┐
+│             Dataverse (Audit Configuration Status)              │
+├────────────────┬────────────────┬────────────────┬─────────────┤
+│ Tenant Config  │ Environment    │ Purview        │ Validation  │
+│ Status         │ Config Status  │ Config Status  │ History     │
+└────────────────┴────────────────┴────────────────┴─────────────┘
+                            ▲
+                            │ Validation Scans
+                            │
+┌─────────────┬──────────────┬──────────────┬────────────────────┐
+│ Tenant      │ Power        │ Purview      │ Environment        │
+│ Audit Log   │ Platform     │ Retention    │ Audit Settings     │
+│ Config      │ Admin API    │ Policies     │ (Dataverse)        │
+└─────────────┴──────────────┴──────────────┴────────────────────┘
+```
+
+## Integration Points with Existing Solutions
+
+### Immediate Integrations (v1.0.0)
+
+| Solution | Integration Point | How |
+|----------|------------------|-----|
+| **Deny Event Correlation** | Prerequisite check | Validate audit logging enabled before analyzing deny events |
+| **Message Center Monitor** | Alert channel reuse | Use same Teams channel for audit config alerts |
+| **Control 1.7 Documentation** | Playbook reference | Link to automated validation from manual playbooks |
+
+### Deferred Integrations (v9+)
+
+| Solution | Integration Point | Deferred Reason |
+|----------|------------------|-----------------|
+| **Environment Lifecycle Management** | Post-provisioning validation | Requires ELM v1.2+ webhook support |
+| **Compliance Dashboard** | Aggregate audit config status | Requires dashboard extensibility framework |
+
+**Design Decision:** Focus v1.0.0 on standalone validation capability. Integration with ELM and Compliance Dashboard requires architectural changes to those solutions (webhook/plugin patterns) that are out of scope for this milestone.
+
+## Standard Solution Directory Structure
+
+Based on analysis of scope-drift-monitor, conditional-access-automation, and deny-event-correlation-report, the standard FSI-AgentGov-Solutions structure is:
+
+```
+audit-configuration-validator/
+├── README.md                          # Overview, quick start, prerequisites
+├── CHANGELOG.md                       # Version history
+├── docs/
+│   ├── prerequisites.md               # Licensing, roles, dependencies
+│   ├── dataverse-schema.md            # Table definitions with fsi_ prefix
+│   ├── flow-configuration.md          # Power Automate flow specifications
+│   ├── architecture.md                # System design (this could be adapted)
+│   └── troubleshooting.md             # Common issues, error recovery
 ├── scripts/
-│   ├── monitoring_shared.py (existing - unchanged)
-│   ├── learn_monitor.py (existing - unchanged)
-│   └── regulatory_monitor.py (existing - unchanged)
-└── data/
-    └── monitor-state.json (unified state - unchanged)
-
-FSI-AgentGov-Solutions (Deployable Solutions Repository)
-├── compliance-dashboard/ (WIP → Completed)
-│   ├── dataverse-solution/ (NEW - Dataverse schema + flows)
-│   │   ├── ComplianceDashboard_1_0_0.zip
-│   │   └── schema.xml
-│   ├── power-bi-template/ (NEW - .pbit file)
-│   │   └── ComplianceDashboard.pbit
-│   └── scripts/ (existing - enhanced)
-├── scope-drift-monitor/ (WIP → Completed)
-│   ├── scripts/
-│   │   ├── New-AgentBaseline.ps1 (MODIFIED - add #Requires)
-│   │   └── monitoring_adapter.py (NEW - uses monitoring_shared.py)
-│   └── dataverse-solution/ (NEW)
-└── [other solutions]/
-    └── *.ps1 (MODIFIED - add #Requires, SecretManagement)
+│   ├── Test-TenantAuditConfig.ps1    # Validate tenant-level audit settings
+│   ├── Test-EnvironmentAuditConfig.ps1 # Validate environment audit retention
+│   ├── Test-PurviewRetention.ps1     # Validate Purview retention policies
+│   ├── Export-AuditConfigEvidence.ps1 # Export quarterly evidence
+│   └── Invoke-AuditConfigValidation.ps1 # Orchestration script
+├── src/
+│   └── AuditConfigValidator/          # Power Platform solution (unpacked)
+│       ├── environmentvariables.json  # fsi_ACV_* variables
+│       ├── connectionreferences.json  # fsi_cr_* references
+│       └── Workflows/                 # Power Automate flows (unpacked JSON)
+│           ├── ACV-DailyValidator.json
+│           └── ACV-AlertDispatcher.json
+└── templates/
+    └── adaptive-card-alert.json       # Teams notification template
 ```
 
----
-
-## Integration Point 1: MkDocs Material Breadcrumbs
-
-### Current State
-- **mkdocs.yml:** Manual nav with ~200 entries across 4 sections
-- **Theme features:** navigation.instant, navigation.tracking, navigation.sections, search.suggest, toc.integrate
-- **No breadcrumbs:** Users navigate via left sidebar only
-
-### How Breadcrumbs Integrate
-
-**Official Source:** [Setting up navigation - Material for MkDocs](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
-
-Breadcrumbs in MkDocs Material are **additive** and work seamlessly with manual nav.
-
-**Integration Method:**
-```yaml
-# mkdocs.yml
-theme:
-  name: material
-  features:
-    - navigation.instant
-    - navigation.tracking
-    - navigation.sections
-    - navigation.path         # NEW - enables breadcrumbs
-    - search.suggest
-    - search.highlight
-    - toc.integrate
-```
-
-**Behavior:**
-- Breadcrumbs render **above** the page title
-- Generated from nav hierarchy (manual or automatic)
-- Format: `Home > Framework > Agent Identity Architecture`
-- No changes to existing nav structure required
-- Optional: Can hide per-page via front matter (`hide: [navigation.path]`)
-
-**Impact Assessment:**
-- **Existing nav:** Zero changes needed
-- **User experience:** Improved orientation on deep pages (Control 2.16 Playbooks have 4-level depth)
-- **Breaking changes:** None
-- **Rollback:** Remove feature flag
-
-**Recommendation:** Implement immediately as Phase 1 quick win.
-
----
-
-## Integration Point 2: Awesome Pages Plugin Migration
-
-### Current State
-- **mkdocs.yml:** Fully manual nav (79 lines for framework, 489 lines for controls/playbooks)
-- **Maintenance:** Adding new control requires 5 manual nav edits
-- **Error prone:** Typos in paths cause build failures
-
-### How Awesome Pages Coexists
-
-**Official Source:** [Getting Started - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/)
-
-Awesome Pages **requires explicit integration** but can coexist with manual nav via `...` (rest) entries.
-
-**Critical Constraint:**
-> This plugin won't do anything if your mkdocs.yml defines a nav or pages entry. To make use of the features listed below, you'll either have to remove the entry completely or add a `...` entry to it.
-
-**Integration Strategy (Incremental Migration):**
-
-```yaml
-# mkdocs.yml - Phase 1: Manual sections + auto playbooks
-nav:
-  - Home: index.md
-  - Disclaimer: disclaimer.md
-  - Getting Started:
-    - Quick Start: getting-started/quick-start.md
-    - Implementation Checklist: getting-started/checklist.md
-  - Framework:
-    - Overview: framework/index.md
-    - Executive Summary: framework/executive-summary.md
-    # ... (keep manual for stable sections)
-  - Control Catalog:
-    - ...  # Auto-generate controls from pillar-*/
-  - Playbooks:
-    - ...  # Auto-generate playbooks from docs/playbooks/
-  - Reference:
-    - ...  # Auto-generate reference docs
-```
-
-**Directory-Level Configuration (.pages.yaml):**
-
-```yaml
-# docs/controls/pillar-1-security/.pages.yaml
-title: Pillar 1 - Security
-order: 1
-collapse_single_pages: false
-```
-
-**Behavior:**
-- Sections with manual nav entries: Use manual nav
-- Sections with `...`: Auto-generated from file structure
-- Hybrid approach reduces maintenance burden by ~60%
-
-**Migration Path:**
-1. **Phase 1:** Keep Framework manual, auto-generate Playbooks only (lowest risk)
-2. **Phase 2:** Auto-generate Controls (requires .pages.yaml per pillar)
-3. **Phase 3:** Auto-generate Reference (highest payoff, currently 15 manual entries)
-
-**Impact Assessment:**
-- **Build compatibility:** Requires mkdocs-awesome-pages-plugin in requirements.txt
-- **Breaking changes:** If `...` placement is wrong, nav will break
-- **Rollback:** Remove plugin, restore manual nav from git
-- **Testing:** mkdocs build --strict must pass
-
-**Recommendation:** Implement as Phase 2 after breadcrumbs. Start with Playbooks section (most repetitive).
-
----
-
-## Integration Point 3: YAML Configuration Files for Monitoring
-
-### Current State
-- **Learn Monitor:** URLs hardcoded in docs/reference/microsoft-learn-urls.md (Markdown table)
-- **Regulatory Monitor:** Sources hardcoded in scripts/regulatory_monitor.py
-- **No schema validation:** Manual editing, prone to typos
-- **Configuration scattered:** Some in scripts, some in docs
-
-### Where YAML Config Files Belong
-
-**Pattern from MkDocs Ecosystem:**
-- Configuration lives in **docs/reference/** alongside markdown documentation
-- Benefits from MkDocs YAML schema validation
-- Version controlled with documentation
-
-**Proposed Structure:**
-
-```
-docs/reference/
-├── monitoring-architecture.md (existing)
-├── learn-monitor-config.yaml (NEW)
-├── regulatory-monitor-config.yaml (NEW)
-└── microsoft-learn-urls.md (DEPRECATED - migrate to YAML)
-```
-
-**Example: learn-monitor-config.yaml**
-
-```yaml
-# Learn Monitor Configuration
-# Schema: https://github.com/judeper/FSI-AgentGov/schemas/learn-monitor-config.schema.json
-
-version: 1
-source_key: learn
-report_prefix: learn-changes
-
-# URL Categories
-url_sources:
-  - section: Power Platform Admin Center
-    urls:
-      - url: https://learn.microsoft.com/en-us/power-platform/admin/...
-        topic: Environment Lifecycle Management
-        priority: high
-        affected_controls:
-          - 2.1
-          - 2.2
-
-  - section: Microsoft Purview Compliance
-    urls:
-      - url: https://learn.microsoft.com/en-us/purview/...
-        topic: DLP Policies
-        priority: critical
-        affected_controls:
-          - 1.5
-          - 1.17
-
-# Change Classification Rules
-classification:
-  critical_patterns:
-    - pattern: '\d+\.\s+(click|select|go to|navigate)'
-      reason: 'UI navigation steps changed'
-    - pattern: '(deprecated|removed|no longer|retired)'
-      reason: 'Deprecation notice'
-
-  high_patterns:
-    - pattern: '(Admin center|portal|Power Platform|Purview)'
-      reason: 'Portal references'
-```
-
-**Benefits:**
-1. **Schema validation:** Catch errors before runtime
-2. **Documentation proximity:** Config near the docs it affects
-3. **DRY principle:** No duplication between docs and code
-4. **Migration path:** Scripts read YAML instead of scraping markdown
-
-**Integration with monitoring_shared.py:**
-
-```python
-# NEW: scripts/config_loader.py
-import yaml
-from pathlib import Path
-
-def load_monitor_config(config_path: Path) -> dict:
-    """Load and validate monitor configuration from YAML."""
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config = yaml.safe_load(f)
-
-    # Validate against schema
-    # ... (JSON Schema validation)
-
-    return config
-
-# scripts/learn_monitor.py (MODIFIED)
-from config_loader import load_monitor_config
-
-# Replace parse_watchlist() with:
-config = load_monitor_config(DOCS_DIR / "reference" / "learn-monitor-config.yaml")
-url_entries = []
-for section in config['url_sources']:
-    for url_info in section['urls']:
-        url_entries.append(URLEntry(
-            url=url_info['url'],
-            topic=url_info['topic'],
-            section=section['section']
-        ))
-```
-
-**Impact Assessment:**
-- **Breaking changes:** None (additive - old markdown still works during migration)
-- **Dependencies:** Requires PyYAML (already in requirements.txt via MkDocs)
-- **Validation:** JSON Schema recommended but optional
-- **Migration effort:** ~2-4 hours per monitor
-
-**Recommendation:** Implement as Phase 1 alongside breadcrumbs. Low risk, high maintainability payoff.
-
----
-
-## Integration Point 4: PowerShell Module Modernization
-
-### Current State (from v1 Audit)
-
-**Critical Issues:**
-- `Register-ServicePrincipal.ps1`: Uses `ConvertTo-SecureString -AsPlainText -Force` (exposes secrets in memory)
-- `Test-PolicyCompliance.ps1`: Zero try/catch error handling
-- 12 scripts missing `#Requires` statements
-
-**Isolated to FSI-AgentGov-Solutions repository** - no framework changes.
-
-### PowerShell SecretManagement Integration
-
-**Official Source:** [Overview of the SecretManagement and SecretStore modules](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview?view=ps-modules)
-
-**Current Anti-Pattern:**
-```powershell
-# Register-ServicePrincipal.ps1 (BEFORE)
-$SecurePassword = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
-$Credential = New-Object System.Management.Automation.PSCredential($ClientId, $SecurePassword)
-```
-
-**Recommended Pattern:**
-```powershell
-# Register-ServicePrincipal.ps1 (AFTER)
-#Requires -Modules @{ ModuleName = 'Microsoft.PowerShell.SecretManagement'; ModuleVersion = '1.1.2' }
-
-# Store secret once during setup
-Set-Secret -Name 'ServicePrincipal-ClientSecret' -Secret $ClientSecret
-
-# Retrieve as SecureString in script
-$SecurePassword = Get-Secret -Name 'ServicePrincipal-ClientSecret' -AsPlainText:$false
-$Credential = New-Object System.Management.Automation.PSCredential($ClientId, $SecurePassword)
-```
-
-**Best Practices Applied:**
-1. **SecureString objects:** Secrets retrieved as SecureString (never plain text in memory)
-2. **User context:** Vault registered per-user (no cross-user exposure)
-3. **Automation support:** Set-SecretStoreConfiguration -Authentication None for scheduled tasks
-4. **Multiple vaults:** Different security levels for different secret types
-
-**Source:** [Working with PowerShell Secret Management](https://www.techtarget.com/searchwindowsserver/tutorial/Working-with-PowerShell-Secret-Management-and-Secret-Vault)
-
-### #Requires Statements
-
-**Official Source:** [about_Requires - PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.5)
-
-**Current State:** 12 scripts missing module requirements
-
-**Implementation Pattern:**
-```powershell
-# All scripts MUST start with:
-#Requires -Version 7.0
-#Requires -Modules @{ ModuleName = 'Microsoft.Graph'; ModuleVersion = '2.0.0' }
-#Requires -Modules @{ ModuleName = 'Microsoft.PowerShell.SecretManagement'; ModuleVersion = '1.1.2' }
-
-<#
-.SYNOPSIS
-Script description here
-#>
-```
-
-**Benefits:**
-- **Early failure:** Script won't run if prerequisites missing (better UX)
-- **Version enforcement:** Prevents compatibility issues
-- **Self-documenting:** Module dependencies visible in header
-
-**Impact Assessment:**
-- **Breaking changes:** Scripts will fail on systems without required modules (GOOD - prevents silent failures)
-- **Deployment:** README.md must document module installation steps
-- **CI/CD:** Pipeline must install required modules before testing
-
-### Error Handling
-
-**Current Anti-Pattern:**
-```powershell
-# Test-PolicyCompliance.ps1 (BEFORE)
-$policies = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/policies/..."
-foreach ($policy in $policies.value) {
-    # Process policy
-}
-```
-
-**Recommended Pattern:**
-```powershell
-# Test-PolicyCompliance.ps1 (AFTER)
-try {
-    $policies = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/policies/..." -ErrorAction Stop
-
-    if ($null -eq $policies -or $policies.value.Count -eq 0) {
-        Write-Warning "No policies found - environment may not be configured"
-        return
-    }
-
-    foreach ($policy in $policies.value) {
-        # Process policy
-    }
-}
-catch {
-    Write-Error "Failed to retrieve policies: $_"
-    Write-Error $_.Exception.Message
-    exit 1
-}
-```
-
-**Impact Assessment:**
-- **Solutions repo only:** Zero impact on framework documentation
-- **Testing required:** Each modified script needs functional testing
-- **Documentation:** Playbooks reference PowerShell scripts but don't embed code
-- **Migration:** Can be done incrementally per-solution
-
-**Recommendation:** Implement as Phase 3 after documentation improvements. Prioritize CRITICAL findings first (Register-ServicePrincipal.ps1).
-
----
-
-## Integration Point 5: Compliance Dashboard Architecture
-
-### Current State
-- **Status:** v1.0.0-beta (WIP)
-- **Missing:** Power BI template (.pbit), complete Dataverse solution
-- **Documented:** Schema, flows, prerequisites (docs complete, artifacts missing)
-
-### Dataverse Schema Design
-
-**Official Source:** [Power BI modeling guidance for Power Platform](https://learn.microsoft.com/en-us/power-bi/guidance/powerbi-modeling-guidance-for-power-platform)
-
-**Recommended Star Schema:**
-
-```
-┌──────────────────────┐
-│  Fact_Compliance     │ (FACT TABLE)
-├──────────────────────┤
-│ ComplianceScoreId PK │
-│ ControlId FK         │
-│ DateKey FK           │
-│ EnvironmentId FK     │
-│ ZoneId FK            │
-├──────────────────────┤
-│ Score (0-100)        │
-│ Status (enum)        │
-│ LastAssessmentDate   │
-│ AssessmentMethod     │
-└──────────────────────┘
-         │ N:1 relationships
-         ├─────────────────────────────┐
-         │                             │
-         ▼                             ▼
-┌──────────────────┐         ┌──────────────────┐
-│ Dim_Control      │         │ Dim_Zone         │
-├──────────────────┤         ├──────────────────┤
-│ ControlId PK     │         │ ZoneId PK        │
-│ ControlNumber    │         │ ZoneName         │
-│ PillarId FK      │         │ WeightMultiplier │
-│ Title            │         └──────────────────┘
-│ RegulatoryImpact │
-└──────────────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Dim_Pillar       │
-├──────────────────┤
-│ PillarId PK      │
-│ PillarName       │
-│ PillarNumber     │
-└──────────────────┘
-```
-
-**Best Practices Applied:**
-1. **Star schema:** Fact table at center with dimension tables (standard analytics pattern)
-2. **Assumed referential integrity:** Set on all relationships for INNER JOIN optimization
-3. **Dual storage mode:** Dimension tables use Dual mode (cached when possible)
-4. **Column pruning:** Only retrieve columns needed for reports (not all table columns)
-
-**Source:** [DirectQuery model guidance in Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/guidance/directquery-model-guidance)
-
-**Integration with Existing Framework:**
-
-The Compliance Dashboard reads **existing control metadata** from the FSI-AgentGov repository:
-
-```python
-# scripts/load_sample_data.py (MODIFIED)
-import json
-from pathlib import Path
-
-# Read control master data from FSI-AgentGov
-controls_index = Path("../FSI-AgentGov/docs/controls/CONTROL-INDEX.md")
-# Parse markdown table to extract 62 controls
-# Load into Dim_Control table
-```
-
-**No changes to FSI-AgentGov required** - dashboard reads from published GitHub repo or local clone.
-
-### Power Automate Flows
-
-**Official Source:** [Manage cloud flow run history in Dataverse](https://learn.microsoft.com/en-us/power-automate/dataverse/cloud-flow-run-metadata)
-
-**Data Collection Pattern:**
-
-```
-┌─────────────────────────────────────────────────────┐
-│ Scheduled Cloud Flow: Daily Compliance Collector    │
-├─────────────────────────────────────────────────────┤
-│ Trigger: Recurrence (Daily at 06:00 UTC)           │
-│                                                     │
-│ Actions:                                            │
-│ 1. HTTP: Get Purview Compliance Score API          │
-│ 2. Parse JSON: Extract assessment data             │
-│ 3. For Each: Control assessment                    │
-│    ├─ Condition: Check if control exists           │
-│    ├─ Dataverse: Upsert Fact_Compliance            │
-│    └─ Dataverse: Update Dim_Control last_checked   │
-│ 4. Dataverse: Update metadata table (run timestamp)│
-└─────────────────────────────────────────────────────┘
-```
-
-**Flow Run History Storage:**
-- Stored in Dataverse FlowRun elastic table (28-day retention)
-- Partitioned by user for performance
-- Application Insights integration for deeper diagnostics
-
-**Source:** [Monitor your flows - Power Automate](https://learn.microsoft.com/en-us/power-automate/guidance/coding-guidelines/monitoring-and-alerting)
-
-**Integration with monitoring_shared.py:**
-
-Compliance Dashboard is **separate** from Learn/Regulatory Monitor. It uses **Power Automate** for data collection, not Python scripts. Monitoring patterns are conceptually similar (state management, change detection) but implementation is different.
-
-```
-Learn Monitor (Python)          Compliance Dashboard (Power Automate)
-├─ monitoring_shared.py         ├─ Cloud flows
-├─ learn_monitor.py             ├─ Dataverse tables
-├─ regulatory_monitor.py        ├─ Power BI DirectQuery
-└─ data/monitor-state.json      └─ FlowRun history
-```
-
-**No code sharing between systems** - both are monitoring, but different domains.
-
-### Power BI Report
-
-**DirectQuery Configuration:**
-
-```
-Data Source: Dataverse (DirectQuery mode)
-Connection: https://{org}.crm.dynamics.com
-Authentication: Azure AD
-Tables:
-  - Fact_Compliance (DirectQuery)
-  - Dim_Control (Dual - cached)
-  - Dim_Pillar (Dual - cached)
-  - Dim_Zone (Dual - cached)
-  - Dim_Date (Import - date table)
-```
-
-**DAX Measures (from docs/dax-measures.md):**
-
-```dax
-Overall Compliance Score =
-    DIVIDE(
-        SUMX(
-            Fact_Compliance,
-            [Score] * RELATED(Dim_Zone[WeightMultiplier])
-        ),
-        SUMX(
-            Fact_Compliance,
-            100 * RELATED(Dim_Zone[WeightMultiplier])
-        ),
-        0
-    )
-
-Critical Exceptions Count =
-    CALCULATE(
-        COUNTROWS(Fact_Compliance),
-        Fact_Compliance[Status] = "Non-Compliant",
-        RELATED(Dim_Control[RegulatoryImpact]) = "Critical"
-    )
-```
-
-**Impact Assessment:**
-- **FSI-AgentGov changes:** None (dashboard consumes published data)
-- **Solutions repo changes:** Add Dataverse solution ZIP, Power BI .pbit template
-- **Dependencies:** Requires Environment Lifecycle Management solution for zone data
-- **Testing:** Requires test Dataverse environment with sample data
-
-**Recommendation:** Implement as Phase 4 after PowerShell fixes. Most complex integration but well-isolated.
-
----
-
-## Integration Point 6: Scope Drift Monitor
-
-### Current State
-- **Status:** v1.0.0 (WIP)
-- **Structure:** Basic framework, incomplete core logic
-- **Missing:** Detection flow, baseline capture script, monitoring adapter
-
-### Integration with monitoring_shared.py
-
-**Scope Drift Monitor is a different domain** from Learn/Regulatory Monitor but **should follow same patterns**.
-
-**Proposed Architecture:**
-
-```
-scripts/
-├── monitoring_shared.py (existing - core utilities)
-├── learn_monitor.py (existing - uses monitoring_shared)
-├── regulatory_monitor.py (existing - uses monitoring_shared)
-└── scope_drift_adapter.py (NEW - uses monitoring_shared)
-
-FSI-AgentGov-Solutions/scope-drift-monitor/
-├── scripts/
-│   ├── New-AgentBaseline.ps1 (PowerShell - captures initial scope)
-│   └── monitoring_adapter.py (Python - bridges PowerShell → monitoring_shared)
-└── flows/
-    └── DriftDetectionFlow.json (Power Automate - real-time detection)
-```
-
-**Adapter Pattern:**
-
-```python
-# FSI-AgentGov-Solutions/scope-drift-monitor/scripts/monitoring_adapter.py
-"""
-Scope Drift Monitor adapter for unified monitoring framework.
-
-Uses monitoring_shared.py from FSI-AgentGov repository for:
-- State management (unified monitor-state.json)
-- Change classification
-- Report generation
-"""
-import sys
-from pathlib import Path
-
-# Import from FSI-AgentGov repository
-sys.path.insert(0, str(Path(__file__).parent / "../../../FSI-AgentGov/scripts"))
-from monitoring_shared import (
-    load_state,
-    save_state_atomic,
-    get_source_state,
-    set_source_state,
-    generate_report_header,
-    generate_executive_summary,
-    write_report,
-    CLASSIFICATION_CRITICAL,
-    CLASSIFICATION_HIGH,
-    CLASSIFICATION_MEDIUM,
-)
-
-SOURCE_KEY = "scope-drift"
-REPORT_PREFIX = "scope-drift"
-
-def detect_drift(agent_id: str, baseline_scope: dict, current_access: dict) -> list:
-    """
-    Detect drift between baseline scope and current access patterns.
-
-    Returns list of drift violations.
-    """
-    violations = []
-
-    # Compare connectors
-    baseline_connectors = set(baseline_scope.get('connectors', []))
-    current_connectors = set(current_access.get('connectors', []))
-    new_connectors = current_connectors - baseline_connectors
-
-    for connector in new_connectors:
-        violations.append({
-            'type': 'connector',
-            'name': connector,
-            'severity': CLASSIFICATION_HIGH,
-            'reason': 'Agent used connector not in declared scope'
-        })
-
-    # Compare SharePoint sites (similar pattern)
-    # Compare Dataverse tables (similar pattern)
-
-    return violations
-
-# ... rest of adapter logic
-```
-
-**Benefits of Shared Framework:**
-1. **Consistent state management:** All monitors use same JSON structure
-2. **Consistent reporting:** All monitors generate same report format
-3. **Code reuse:** Change classification, diff generation shared
-4. **Unified dashboard:** Could aggregate Learn + Regulatory + Scope Drift changes
-
-**Integration Method:**
-- **Python adapter:** Reads PowerShell baseline output, uses monitoring_shared.py
-- **Power Automate flow:** Runs real-time (different trigger than batch Python)
-- **Dual approach:** Batch daily Python scan + real-time flow alerts
-
-**Impact Assessment:**
-- **FSI-AgentGov changes:** None (monitoring_shared.py already designed for plugins)
-- **Solutions repo changes:** Add monitoring_adapter.py, reference monitoring_shared.py
-- **Testing:** Requires mock agent data, simulated access patterns
-- **Dependencies:** Python 3.10+, requests, Access to Unified Audit Log
-
-**Recommendation:** Implement as Phase 5 after Compliance Dashboard. Demonstrates monitoring framework extensibility.
-
----
-
-## Component Integration Summary
-
-### New Components
-
-| Component | Location | Purpose | Dependencies |
-|-----------|----------|---------|--------------|
-| **YAML Monitor Configs** | docs/reference/ | Monitoring URL/source configuration | PyYAML (existing) |
-| **config_loader.py** | scripts/ | Load and validate YAML configs | PyYAML, JSON Schema |
-| **Breadcrumbs** | mkdocs.yml theme.features | Navigation enhancement | None (MkDocs Material built-in) |
-| **Awesome Pages** | mkdocs.yml plugins | Auto-nav generation | mkdocs-awesome-pages-plugin |
-| **SecretManagement** | Solutions *.ps1 scripts | Secure secret handling | Microsoft.PowerShell.SecretManagement module |
-| **#Requires** | Solutions *.ps1 scripts | Module dependency declaration | None (PowerShell built-in) |
-| **Compliance Dashboard Schema** | Solutions/compliance-dashboard/dataverse-solution/ | Dataverse tables + flows | Dataverse, Power Automate |
-| **Compliance Dashboard BI** | Solutions/compliance-dashboard/power-bi-template/ | Power BI report template | Power BI Premium/Pro |
-| **Scope Drift Adapter** | Solutions/scope-drift-monitor/scripts/ | Monitoring framework integration | monitoring_shared.py |
-
-### Modified Components
-
-| Component | Change | Impact |
-|-----------|--------|--------|
-| **mkdocs.yml** | Add navigation.path, optional Awesome Pages | Additive - zero breaking changes |
-| **learn_monitor.py** | Load YAML config instead of markdown scraping | Backward compatible during migration |
-| **regulatory_monitor.py** | Load YAML config instead of hardcoded sources | Backward compatible during migration |
-| **Solutions *.ps1** | Add #Requires, error handling, SecretManagement | Breaking for systems without modules |
-| **Solutions README.md** | Document module prerequisites | Documentation only |
-
-### Unchanged Components
-
-| Component | Why Unchanged |
+## New Components Required
+
+### PowerShell Scripts (scripts/)
+
+| Script | Purpose | APIs Used | Evidence Output |
+|--------|---------|-----------|-----------------|
+| `Test-TenantAuditConfig.ps1` | Validate unified audit log enabled | Exchange Online PowerShell | JSON, CSV |
+| `Test-EnvironmentAuditConfig.ps1` | Validate environment audit retention (180d/1yr/7yr) | Power Platform Admin API | JSON, CSV |
+| `Test-PurviewRetention.ps1` | Validate Purview retention policies exist | Security & Compliance PowerShell | JSON, CSV |
+| `Export-AuditConfigEvidence.ps1` | Export quarterly compliance evidence | All APIs | JSON with SHA-256 hashes |
+| `Invoke-AuditConfigValidation.ps1` | Orchestration script calling all validators | N/A | Aggregated report |
+
+**Naming Convention:** Follows PowerShell Verb-Noun standard. `Test-*` for validation scripts, `Export-*` for evidence extraction, `Invoke-*` for orchestration.
+
+### Dataverse Schema (src/AuditConfigValidator/)
+
+Following fsi_ publisher prefix pattern from scope-drift-monitor:
+
+#### Table: fsi_audittenantconfig
+
+Tenant-level audit configuration status.
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `fsi_audittenantconfigid` | GUID | Primary key |
+| `fsi_name` | String (100) | "Tenant Audit Configuration" |
+| `fsi_unifiedauditenabled` | Boolean | Unified audit log enabled |
+| `fsi_mailboxauditenabled` | Boolean | Mailbox audit enabled |
+| `fsi_lastvalidated` | DateTime | Last validation timestamp |
+| `fsi_validationstatus` | Choice | Pass/Fail/Warning |
+| `fsi_validationdetails` | Text | JSON with detailed findings |
+
+#### Table: fsi_auditenvironmentconfig
+
+Per-environment audit configuration status.
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `fsi_auditenvironmentconfigid` | GUID | Primary key |
+| `fsi_name` | String (200) | Environment name |
+| `fsi_environmentid` | String (36) | Power Platform environment ID |
+| `fsi_zone` | Choice | Zone 1/2/3 classification |
+| `fsi_auditenabled` | Boolean | Audit enabled |
+| `fsi_retentiondays` | Integer | Configured retention period |
+| `fsi_expectedretentiondays` | Integer | Expected retention (180/365/2557) |
+| `fsi_compliant` | Boolean | Meets zone requirements |
+| `fsi_lastvalidated` | DateTime | Last validation timestamp |
+| `fsi_validationdetails` | Text | JSON with detailed findings |
+
+#### Table: fsi_purviewretentionconfig
+
+Purview retention policy validation.
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `fsi_purviewretentionconfigid` | GUID | Primary key |
+| `fsi_name` | String (200) | Policy name |
+| `fsi_policyid` | String (36) | Purview policy ID |
+| `fsi_retentionperiod` | Integer | Retention in days |
+| `fsi_recordtypes` | Text | Comma-separated record types |
+| `fsi_coveredusers` | Text | User scope (All/Specific) |
+| `fsi_enabled` | Boolean | Policy is active |
+| `fsi_lastvalidated` | DateTime | Last validation timestamp |
+| `fsi_compliant` | Boolean | Meets requirements |
+
+#### Table: fsi_auditvalidationhistory
+
+Immutable validation history log.
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `fsi_auditvalidationhistoryid` | GUID | Primary key |
+| `fsi_name` | String (200) | Validation run name |
+| `fsi_validationtype` | Choice | Tenant/Environment/Purview/Full |
+| `fsi_timestamp` | DateTime | Validation timestamp |
+| `fsi_overallstatus` | Choice | Pass/Fail/Warning |
+| `fsi_tenantstatus` | Choice | Pass/Fail/Warning |
+| `fsi_environmentspassed` | Integer | Count of compliant environments |
+| `fsi_environmentsfailed` | Integer | Count of non-compliant environments |
+| `fsi_purviewpolicycompliant` | Boolean | Retention policies valid |
+| `fsi_validationdetails` | Text | JSON with full results |
+| `fsi_runby` | Lookup (User) | Who initiated validation |
+| `fsi_correlationid` | String (36) | Workflow run ID |
+
+**Security Model:** Organization-owned table with read-only privileges for non-admins. Follows ProvisioningLog immutability pattern from ELM.
+
+### Power Automate Flows (src/AuditConfigValidator/Workflows/)
+
+#### Flow 1: ACV-DailyValidator
+
+| Component | Configuration |
 |-----------|---------------|
-| **monitoring_shared.py** | Already designed for plugin pattern - no changes needed |
-| **data/monitor-state.json** | Unified format supports new sources without schema change |
-| **docs/controls/** | Control markdown files unchanged - breadcrumbs render from nav |
-| **docs/playbooks/** | Playbooks unchanged - Awesome Pages reads file structure |
-| **Framework docs** | No architecture changes - enhancements are additive |
+| **Trigger** | Recurrence - Daily at 6 AM UTC |
+| **Connections** | fsi_cr_powerapps, fsi_cr_http_azuread, fsi_cr_dataverse |
+| **Steps** | 1. Run PowerShell scripts via Azure Automation<br>2. Parse JSON results<br>3. Upsert to Dataverse status tables<br>4. Create immutable history record<br>5. Trigger alert dispatcher if failures |
+| **Concurrency** | Single run (prevent overlapping validations) |
 
----
+#### Flow 2: ACV-AlertDispatcher
 
-## Data Flow Changes
+| Component | Configuration |
+|-----------|---------------|
+| **Trigger** | Dataverse - When validation history created with status = Fail/Warning |
+| **Connections** | fsi_cr_dataverse, fsi_cr_teams, fsi_cr_outlook |
+| **Steps** | 1. Read validation details<br>2. Format adaptive card<br>3. Post to Teams channel<br>4. Send email to compliance team |
+| **Alert Severity** | Tenant failure = Critical, Environment failure = High, Purview warning = Medium |
 
-### Before v2 (Current State)
+### Connection References (src/AuditConfigValidator/connectionreferences.json)
+
+Following fsi_cr_* naming convention:
+
+```json
+{
+  "connectionReferences": [
+    {
+      "connectionReferenceLogicalName": "fsi_cr_dataverse",
+      "connectionReferenceDisplayName": "Dataverse Connection",
+      "connectorId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+      "description": "Dataverse connection for audit configuration status tracking"
+    },
+    {
+      "connectionReferenceLogicalName": "fsi_cr_exchangeonline",
+      "connectionReferenceDisplayName": "Exchange Online Connection",
+      "connectorId": "/providers/Microsoft.PowerApps/apis/shared_excelonline",
+      "description": "Exchange Online PowerShell for tenant audit settings validation"
+    },
+    {
+      "connectionReferenceLogicalName": "fsi_cr_http_azuread",
+      "connectionReferenceDisplayName": "HTTP with Azure AD Connection",
+      "connectorId": "/providers/Microsoft.PowerApps/apis/shared_webcontents",
+      "description": "Power Platform Admin API for environment audit settings"
+    },
+    {
+      "connectionReferenceLogicalName": "fsi_cr_teams",
+      "connectionReferenceDisplayName": "Microsoft Teams Connection",
+      "connectorId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+      "description": "Microsoft Teams for posting audit configuration alerts"
+    },
+    {
+      "connectionReferenceLogicalName": "fsi_cr_outlook",
+      "connectionReferenceDisplayName": "Office 365 Outlook Connection",
+      "connectorId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+      "description": "Office 365 Outlook for email alerts to compliance team"
+    }
+  ]
+}
+```
+
+### Environment Variables (src/AuditConfigValidator/environmentvariables.json)
+
+Following fsi_ACV_* naming convention:
+
+```json
+{
+  "environmentVariables": [
+    {
+      "schemaName": "fsi_ACV_TenantId",
+      "displayName": "Tenant ID",
+      "description": "Azure AD tenant ID for API authentication",
+      "type": "String",
+      "isRequired": true
+    },
+    {
+      "schemaName": "fsi_ACV_ComplianceTeamEmail",
+      "displayName": "Compliance Team Email",
+      "description": "Email distribution list for audit configuration alerts",
+      "type": "String",
+      "isRequired": true
+    },
+    {
+      "schemaName": "fsi_ACV_TeamsChannelId",
+      "displayName": "Teams Channel ID",
+      "description": "Teams channel for posting audit configuration alerts",
+      "type": "String",
+      "isRequired": false
+    },
+    {
+      "schemaName": "fsi_ACV_TeamsGroupId",
+      "displayName": "Teams Group ID",
+      "description": "Teams group (team) ID for posting alerts",
+      "type": "String",
+      "isRequired": false
+    },
+    {
+      "schemaName": "fsi_ACV_AlertOnWarnings",
+      "displayName": "Alert on Warnings",
+      "description": "Send alerts for warning-level findings (not just failures)",
+      "type": "String",
+      "defaultValue": "false",
+      "isRequired": false
+    }
+  ]
+}
+```
+
+## Teams Notification Pattern
+
+Based on message-center-monitor and scope-drift-monitor patterns:
+
+### Alert Delivery
+
+| Method | Use Case | Implementation |
+|--------|----------|----------------|
+| **Adaptive Card to Teams** | Real-time visual alerts | Power Automate "Post adaptive card in a chat or channel" |
+| **Email to Compliance Team** | Audit trail, escalation | Office 365 Outlook connector |
+| **Dataverse Record** | Complete history | fsi_auditvalidationhistory table |
+
+**Design Decision:** Use native Power Automate Teams connector (not deprecated incoming webhooks). Follows message-center-monitor pattern post Office 365 connector deprecation (March 31, 2026).
+
+### Adaptive Card Template
+
+```json
+{
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Audit Configuration Validation Failed",
+      "weight": "Bolder",
+      "size": "Large",
+      "color": "Attention"
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {"title": "Validation Time", "value": "${timestamp}"},
+        {"title": "Overall Status", "value": "${status}"},
+        {"title": "Tenant Audit", "value": "${tenantStatus}"},
+        {"title": "Environments Failed", "value": "${environmentsFailed}"},
+        {"title": "Purview Policies", "value": "${purviewStatus}"}
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Details:",
+      "weight": "Bolder"
+    },
+    {
+      "type": "TextBlock",
+      "text": "${details}",
+      "wrap": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Full Report",
+      "url": "${reportUrl}"
+    }
+  ]
+}
+```
+
+## Evidence Export Format
+
+Following deny-event-correlation-report pattern for regulatory evidence:
+
+### Export Structure
 
 ```
-Learn Monitor Flow:
-microsoft-learn-urls.md → parse_watchlist() → URLEntry list → fetch + classify
-                                                                      ↓
-                                                        monitor-state.json (source: learn)
-                                                                      ↓
-                                                      learn-changes-YYYY-MM-DD.md
-
-Compliance Dashboard Flow:
-[None - v1.0.0-beta incomplete]
-
-Scope Drift Monitor Flow:
-[None - v1.0.0 incomplete]
+exports/
+├── Q1-2026/
+│   ├── TenantAuditConfig-Q1-2026.json       # Tenant validation results
+│   ├── EnvironmentAuditConfig-Q1-2026.json  # Per-environment results
+│   ├── PurviewRetention-Q1-2026.json        # Retention policy details
+│   ├── ValidationHistory-Q1-2026.json       # Complete validation runs
+│   └── manifest.json                        # SHA-256 integrity hashes
 ```
 
-### After v2 (Proposed State)
+### Manifest Format
 
-```
-Learn Monitor Flow:
-learn-monitor-config.yaml → load_monitor_config() → URLEntry list → fetch + classify
-                                                                           ↓
-                                                         monitor-state.json (source: learn)
-                                                                           ↓
-                                                       learn-changes-YYYY-MM-DD.md
-
-Compliance Dashboard Flow:
-FSI-AgentGov/docs/controls/ → load_sample_data.py → Dim_Control (Dataverse)
-                                                           ↓
-Purview Compliance API → Power Automate Flow → Fact_Compliance (Dataverse)
-                                                           ↓
-                                              Power BI DirectQuery → Dashboard
-
-Scope Drift Monitor Flow:
-Agent metadata → New-AgentBaseline.ps1 → baseline.json → Dataverse (Agent Scope table)
-                                                                ↓
-Unified Audit Log → Power Automate Flow → Access log analysis → Drift detection
-                                                                       ↓
-                                                        monitor-state.json (source: scope-drift)
-                                                                       ↓
-Drift violations → monitoring_adapter.py → scope-drift-YYYY-MM-DD.md
+```json
+{
+  "quarter": "Q1-2026",
+  "exportDate": "2026-04-01T00:00:00Z",
+  "files": [
+    {
+      "name": "TenantAuditConfig-Q1-2026.json",
+      "sha256": "abcd1234...",
+      "recordCount": 90
+    }
+  ]
+}
 ```
 
-**Key Changes:**
-1. **YAML configs replace markdown scraping** - structured data, validated
-2. **Compliance Dashboard uses Dataverse hub** - enterprise BI pattern
-3. **Scope Drift uses dual approach** - real-time flows + batch Python reports
-4. **All monitoring shares state file** - unified monitor-state.json with source keys
+## Data Flow Architecture
 
----
+### Scan → Validate → Alert → Evidence
 
-## Build Order and Dependencies
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Step 1: Scheduled Scan (Daily 6 AM UTC)                     │
+│ - Trigger: Power Automate recurrence                        │
+│ - Action: Call PowerShell scripts via Azure Automation      │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        v
+┌─────────────────────────────────────────────────────────────┐
+│ Step 2: Validation (PowerShell Scripts)                     │
+│ - Test-TenantAuditConfig.ps1 → Tenant audit settings       │
+│ - Test-EnvironmentAuditConfig.ps1 → Per-environment audit  │
+│ - Test-PurviewRetention.ps1 → Retention policies           │
+│ - Output: JSON results with Pass/Fail/Warning               │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        v
+┌─────────────────────────────────────────────────────────────┐
+│ Step 3: Status Update (Power Automate Flow)                 │
+│ - Parse JSON results                                        │
+│ - Upsert to fsi_audittenantconfig                          │
+│ - Upsert to fsi_auditenvironmentconfig (per env)           │
+│ - Upsert to fsi_purviewretentionconfig (per policy)        │
+│ - Create immutable record in fsi_auditvalidationhistory    │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        v
+┌─────────────────────────────────────────────────────────────┐
+│ Step 4: Alert Dispatch (Conditional on Failures)            │
+│ - Trigger: fsi_auditvalidationhistory status = Fail/Warning│
+│ - Action: Post adaptive card to Teams                       │
+│ - Action: Send email to compliance team                     │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        v
+┌─────────────────────────────────────────────────────────────┐
+│ Step 5: Evidence Export (Quarterly via PowerShell)          │
+│ - Manual or scheduled: Export-AuditConfigEvidence.ps1      │
+│ - Export all validation results for Q1/Q2/Q3/Q4            │
+│ - Generate SHA-256 hashes in manifest.json                 │
+│ - Store in exports/ directory or Azure Blob Storage        │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### Phase 1: Documentation Quick Wins (Week 1)
-**Goal:** Immediate UX improvements with zero risk
+## Suggested Build Order
 
-1. **Breadcrumbs** (1 day)
-   - Add `navigation.path` to mkdocs.yml
-   - Test: `mkdocs build --strict`
-   - Deploy: Commit to main, GitHub Pages auto-deploys
+Based on dependency analysis and existing solution patterns:
 
-2. **YAML Monitor Configs** (2 days)
-   - Create learn-monitor-config.yaml
-   - Create regulatory-monitor-config.yaml
-   - Create config_loader.py
-   - Migrate URLs from markdown (backward compatible)
-   - Test: `python scripts/learn_monitor.py --dry-run --limit 5`
+### Phase 1: Core PowerShell Scripts (Week 1)
 
-**Dependencies:** None
-**Risk:** Low
-**Deliverables:** Breadcrumbs live, YAML configs usable
+**Rationale:** Foundation components needed before any automation.
 
-### Phase 2: Awesome Pages Migration (Week 2)
-**Goal:** Reduce nav maintenance burden
+1. **Test-TenantAuditConfig.ps1** - Validate unified audit log enabled
+2. **Test-EnvironmentAuditConfig.ps1** - Validate environment audit retention
+3. **Test-PurviewRetention.ps1** - Validate Purview retention policies
+4. **Invoke-AuditConfigValidation.ps1** - Orchestration script
 
-1. **Playbooks Auto-Nav** (3 days)
-   - Add mkdocs-awesome-pages-plugin to requirements.txt
-   - Replace Playbooks section with `...` entry
-   - Create .pages.yaml in playbooks/ subdirectories
-   - Test: `mkdocs build --strict` (critical - nav breakage possible)
-   - Rollback plan: Git revert if build fails
+**Deliverable:** Standalone PowerShell validation capability.
 
-2. **Reference Auto-Nav** (1 day)
-   - Replace Reference section with `...` entry
-   - Test and verify ordering
+### Phase 2: Dataverse Schema (Week 1)
 
-**Dependencies:** Phase 1 complete (validates mkdocs.yml changes work)
-**Risk:** Medium (nav structure changes)
-**Deliverables:** 60% reduction in manual nav entries
+**Rationale:** Required before Power Automate flows can store results.
 
-### Phase 3: PowerShell Modernization (Week 3-4)
-**Goal:** Fix CRITICAL and HIGH security findings
+1. Create option sets (Choices) for status values
+2. Create fsi_audittenantconfig table
+3. Create fsi_auditenvironmentconfig table
+4. Create fsi_purviewretentionconfig table
+5. Create fsi_auditvalidationhistory table (immutable, org-owned)
+6. Configure security roles (Viewer, Operator, Admin)
 
-1. **#Requires Statements** (2 days)
-   - Add to all 12 missing scripts
-   - Document module prerequisites in README.md
-   - Test: Script validation (regex-based - pwsh not available)
+**Deliverable:** Dataverse schema deployed to dev environment.
 
-2. **SecretManagement Migration** (3 days)
-   - Fix Register-ServicePrincipal.ps1 (CRITICAL)
-   - Add error handling to Test-PolicyCompliance.ps1 (HIGH)
-   - Document vault setup in prerequisites.md
+### Phase 3: Power Automate Flows (Week 2)
 
-3. **Functional Testing** (3 days)
-   - Test each modified script in test environment
-   - Validate error handling paths
-   - Update playbooks if script interfaces changed
+**Rationale:** Automates script execution and result storage.
 
-**Dependencies:** Phase 2 complete (documentation stable)
-**Risk:** Medium (scripts must work in production)
-**Deliverables:** CRITICAL/HIGH findings resolved, solutions hardened
+1. Configure connection references (fsi_cr_dataverse, fsi_cr_http_azuread, etc.)
+2. Configure environment variables (fsi_ACV_TenantId, etc.)
+3. Build ACV-DailyValidator flow (scheduled trigger, script execution, result storage)
+4. Build ACV-AlertDispatcher flow (Dataverse trigger, Teams/email notifications)
+5. Test end-to-end flow execution
 
-### Phase 4: Compliance Dashboard Completion (Week 5-6)
-**Goal:** Move from v1.0.0-beta to v1.0.0
+**Deliverable:** Automated daily validation with alerts.
 
-1. **Dataverse Solution** (4 days)
-   - Export schema from docs/dataverse-schema.md
-   - Create Dataverse solution ZIP
-   - Deploy to test environment
-   - Load sample data
+### Phase 4: Evidence Export (Week 2)
 
-2. **Power Automate Flows** (3 days)
-   - Create Compliance Score Collector flow
-   - Create Environment Status Collector flow
-   - Create Exception Aggregator flow
-   - Test with sample data
+**Rationale:** Regulatory compliance requirement.
 
-3. **Power BI Template** (3 days)
-   - Build .pbit from docs/power-bi-setup.md spec
-   - Implement DAX measures from docs/dax-measures.md
-   - Test with Dataverse connection
-   - Validate all 5 dashboard pages render
+1. **Export-AuditConfigEvidence.ps1** - Quarterly evidence export
+2. Test evidence export with SHA-256 hashing
+3. Document evidence collection procedures
 
-**Dependencies:** Phase 3 complete (PowerShell scripts stable)
-**Risk:** High (complex multi-component system)
-**Deliverables:** Compliance Dashboard v1.0.0, deployable ZIP + .pbit
+**Deliverable:** Compliance evidence export capability.
 
-### Phase 5: Scope Drift Monitor Completion (Week 7-8)
-**Goal:** Move from v1.0.0 WIP to v1.0.0 stable
+### Phase 5: Documentation (Week 3)
 
-1. **Monitoring Adapter** (3 days)
-   - Create monitoring_adapter.py
-   - Implement drift detection logic
-   - Integrate with monitoring_shared.py
-   - Test with mock data
+**Rationale:** User-facing documentation for deployment and operation.
 
-2. **PowerShell Baseline Capture** (2 days)
-   - Complete New-AgentBaseline.ps1
-   - Add #Requires statements
-   - Test with real agent metadata
+1. README.md with quick start
+2. docs/prerequisites.md with licensing and roles
+3. docs/dataverse-schema.md with complete table definitions
+4. docs/flow-configuration.md with flow specifications
+5. docs/troubleshooting.md with common issues
 
-3. **Power Automate Flow** (3 days)
-   - Create real-time drift detection flow
-   - Test with Unified Audit Log data
-   - Validate alerts trigger correctly
+**Deliverable:** Complete solution documentation.
 
-**Dependencies:** Phase 4 complete (establishes Dataverse pattern)
-**Risk:** Medium (depends on Audit Log data availability)
-**Deliverables:** Scope Drift Monitor v1.0.0, dual detection modes
+### Phase 6: Control 1.7 Integration (Week 3)
 
----
+**Rationale:** Link automated solution to framework documentation.
 
-## Rollback Plans
+1. Update Control 1.7 with link to solution
+2. Update PowerShell Setup playbook with reference to automated validator
+3. Update Verification Testing playbook with automated validation option
+4. Add solution to solutions-index.md
 
-### Breadcrumbs
-**Rollback:** Remove `navigation.path` from mkdocs.yml, redeploy
-**Time:** 5 minutes
-**Risk:** None (additive feature)
+**Deliverable:** Framework documentation updated.
 
-### Awesome Pages
-**Rollback:** Git revert mkdocs.yml, remove plugin from requirements.txt, redeploy
-**Time:** 10 minutes
-**Risk:** Medium if build broken, manual nav still in git history
+## Component Dependencies
 
-### YAML Configs
-**Rollback:** Point scripts back to markdown parsing (code supports both)
-**Time:** 15 minutes
-**Risk:** Low (backward compatible during migration)
+```
+Test-*.ps1 scripts (no dependencies)
+    ↓
+Invoke-AuditConfigValidation.ps1 (depends on Test-*.ps1)
+    ↓
+Dataverse schema (no dependencies)
+    ↓
+Power Automate flows (depend on Dataverse + scripts)
+    ↓
+Export-AuditConfigEvidence.ps1 (depends on Dataverse schema)
+    ↓
+Documentation (depends on all above)
+    ↓
+Control 1.7 integration (depends on documentation)
+```
 
-### PowerShell Changes
-**Rollback:** Git revert modified scripts, redeploy
-**Time:** 30 minutes
-**Risk:** High if production scripts already using SecretManagement (vault data persists)
+## Scalability Considerations
 
-### Compliance Dashboard
-**Rollback:** Delete Dataverse solution, remove Power BI workspace
-**Time:** 1 hour
-**Risk:** Low (isolated system, no framework dependencies)
+| Concern | At 10 Environments | At 100 Environments | At 1000 Environments |
+|---------|-------------------|---------------------|---------------------|
+| **Scan Duration** | 2-3 minutes | 15-20 minutes | 2-3 hours |
+| **Dataverse Storage** | Negligible | <10 MB | <100 MB |
+| **API Throttling** | No risk | Implement retry | Batch processing required |
+| **Alert Volume** | Direct Teams/email | Aggregated summary | Daily digest only |
+| **Evidence Export** | Single JSON file | Multiple files by zone | Partitioned by region/zone |
 
-### Scope Drift Monitor
-**Rollback:** Disable Power Automate flow, remove monitoring_adapter.py
-**Time:** 30 minutes
-**Risk:** Low (isolated system, no framework dependencies)
+**Design Decision:** Initial implementation targets <100 environments (sufficient for FSI SMB/mid-market). For enterprise scale (1000+ environments), add:
+- Batch processing with continuation tokens
+- Partitioned evidence exports
+- Alert aggregation (daily digest vs per-failure)
 
----
+## Architecture Patterns to Follow
 
-## Quality Gates
+Based on existing solutions analysis:
 
-### Phase 1 Gates
-- [ ] `mkdocs build --strict` passes with breadcrumbs enabled
-- [ ] Breadcrumbs render correctly on sample pages (deep and shallow)
-- [ ] YAML configs validate against JSON Schema
-- [ ] learn_monitor.py loads YAML successfully in dry-run mode
+### Pattern 1: PowerShell-First Validation
 
-### Phase 2 Gates
-- [ ] `mkdocs build --strict` passes with Awesome Pages
-- [ ] All playbooks visible in auto-generated nav
-- [ ] Nav ordering matches expected structure
-- [ ] No broken links introduced
+**Source:** deny-event-correlation-report
 
-### Phase 3 Gates
-- [ ] All PowerShell scripts include #Requires statements
-- [ ] SecretManagement integration tested with real secrets
-- [ ] Error handling tested with simulated API failures
-- [ ] No regression in existing solution functionality
+**What:** Implement core validation logic in PowerShell scripts, not Power Automate expressions.
 
-### Phase 4 Gates
-- [ ] Dataverse solution imports without errors
-- [ ] Sample data loads successfully
-- [ ] Power Automate flows run without errors
-- [ ] Power BI report renders all 5 pages
-- [ ] DirectQuery performs within 10-second threshold
+**Why:** PowerShell provides superior error handling, logging, and testability for API interactions.
 
-### Phase 5 Gates
-- [ ] monitoring_adapter.py integrates with monitoring_shared.py
-- [ ] Baseline capture script completes successfully
-- [ ] Drift detection identifies test violations correctly
-- [ ] Reports generated in unified format
+**Example:**
+```powershell
+# GOOD: PowerShell script
+function Test-EnvironmentAuditConfig {
+    param([string]$EnvironmentId)
+    try {
+        $config = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId
+        return [PSCustomObject]@{
+            Status = if($config.AuditEnabled) { "Pass" } else { "Fail" }
+            Details = $config
+        }
+    } catch {
+        return [PSCustomObject]@{
+            Status = "Error"
+            Details = $_.Exception.Message
+        }
+    }
+}
 
----
+# BAD: Complex Power Automate expression
+@{if(body('Get_Environment')?['auditEnabled'], 'Pass', 'Fail')}
+```
+
+### Pattern 2: Immutable Audit Log Table
+
+**Source:** environment-lifecycle-management (ProvisioningLog)
+
+**What:** Create organization-owned Dataverse table with read-only privileges for non-admins.
+
+**Why:** Ensures validation history cannot be tampered with, supporting regulatory evidence requirements.
+
+**Implementation:**
+- fsi_auditvalidationhistory is org-owned
+- Security roles have Create privilege only (no Update/Delete)
+- All validation runs create new records (never update existing)
+
+### Pattern 3: Connection Reference Abstraction
+
+**Source:** scope-drift-monitor
+
+**What:** Use connection references (fsi_cr_*) instead of hardcoded connections.
+
+**Why:** Allows solution portability across environments. Connection references are resolved at import time.
+
+**Implementation:**
+```json
+// In workflow JSON, reference connection by logical name
+"connection": {
+    "connectionReferenceLogicalName": "fsi_cr_http_azuread"
+}
+// NOT hardcoded connectionId
+```
+
+### Pattern 4: Environment Variable Configuration
+
+**Source:** All solutions
+
+**What:** Store tenant-specific configuration (IDs, emails, URLs) in environment variables, not hardcoded in flows.
+
+**Why:** Enables solution import to different tenants without editing flow JSON.
+
+**Implementation:**
+- fsi_ACV_TenantId for tenant ID
+- fsi_ACV_ComplianceTeamEmail for alert recipient
+- fsi_ACV_TeamsChannelId for Teams channel
+
+### Pattern 5: Adaptive Card Alerts over Webhooks
+
+**Source:** message-center-monitor
+
+**What:** Use Power Automate "Post adaptive card in a chat or channel" action, not incoming webhooks.
+
+**Why:** Office 365 incoming webhooks are deprecated (March 31, 2026). Native connector is supported.
+
+**Implementation:**
+```
+Action: "Post adaptive card in a chat or channel"
+Team: @{variables('fsi_ACV_TeamsGroupId')}
+Channel: @{variables('fsi_ACV_TeamsChannelId')}
+Card: @{body('Format_Adaptive_Card')}
+```
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Storing Secrets in Environment Variables
+
+**What goes wrong:** Client secrets, API keys in plain-text environment variables.
+
+**Why bad:** Security risk, exposed in solution export.
+
+**Instead:** Use Azure Key Vault connector to retrieve secrets at runtime. Follow environment-lifecycle-management pattern.
+
+### Anti-Pattern 2: Synchronous API Polling
+
+**What goes wrong:** Power Automate flow waits in loop for async operation to complete.
+
+**Why bad:** Flow timeouts, API throttling, poor resource utilization.
+
+**Instead:** Use Dataverse trigger patterns. Update status field when operation completes, trigger new flow.
+
+### Anti-Pattern 3: Mixing Publisher Prefixes
+
+**What goes wrong:** Some tables use fsi_, others use custom prefix.
+
+**Why bad:** Inconsistent naming breaks solution packaging and documentation patterns.
+
+**Instead:** All Dataverse objects must use fsi_ publisher prefix consistently.
+
+## Verification Points
+
+Before marking architecture complete:
+
+- [ ] All components follow established solution patterns (PowerShell + Power Automate + Dataverse)
+- [ ] Connection references use fsi_cr_* naming convention
+- [ ] Environment variables use fsi_ACV_* naming convention
+- [ ] Dataverse tables use fsi_ publisher prefix
+- [ ] Immutable audit log table follows ProvisioningLog pattern
+- [ ] Teams notifications use native connector (not deprecated webhooks)
+- [ ] Evidence export includes SHA-256 integrity hashing
+- [ ] Build order accounts for component dependencies
+- [ ] Integration points with existing solutions documented
+- [ ] Deferred integrations (ELM, Compliance Dashboard) explicitly called out
 
 ## Sources
 
-### MkDocs Material Integration
-- [Setting up navigation - Material for MkDocs](https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/)
-- [Getting Started - Awesome Nav for MkDocs](https://lukasgeiter.github.io/mkdocs-awesome-nav/)
-- [Configuration - MkDocs](https://www.mkdocs.org/user-guide/configuration/)
+**HIGH Confidence (Read directly from solution code):**
 
-### PowerShell Best Practices
-- [about_Requires - PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.5)
-- [Overview of the SecretManagement and SecretStore modules](https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/overview?view=ps-modules)
-- [Working with PowerShell Secret Management](https://www.techtarget.com/searchwindowsserver/tutorial/Working-with-PowerShell-Secret-Management-and-Secret-Vault)
-
-### Power Platform Integration
-- [Power BI modeling guidance for Power Platform](https://learn.microsoft.com/en-us/power-bi/guidance/powerbi-modeling-guidance-for-power-platform)
-- [DirectQuery model guidance in Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/guidance/directquery-model-guidance)
-- [Manage cloud flow run history in Dataverse](https://learn.microsoft.com/en-us/power-automate/dataverse/cloud-flow-run-metadata)
-- [Monitor your flows - Power Automate](https://learn.microsoft.com/en-us/power-automate/guidance/coding-guidelines/monitoring-and-alerting)
+- FSI-AgentGov-Solutions/scope-drift-monitor/README.md - Dataverse schema, connection references, flow patterns
+- FSI-AgentGov-Solutions/scope-drift-monitor/src/ScopeDriftMonitor/environmentvariables.json - Environment variable naming
+- FSI-AgentGov-Solutions/scope-drift-monitor/src/ScopeDriftMonitor/connectionreferences.json - Connection reference naming
+- FSI-AgentGov-Solutions/conditional-access-automation/README.md - PowerShell script patterns, evidence export
+- FSI-AgentGov-Solutions/deny-event-correlation-report/README.md - Evidence export with SHA-256 hashing
+- FSI-AgentGov-Solutions/message-center-monitor/README.md - Teams notification patterns, webhook deprecation
+- FSI-AgentGov-Solutions/environment-lifecycle-management/README.md - Immutable audit log pattern
+- FSI-AgentGov-Solutions/environment-lifecycle-management/docs/flow-configuration.md - Power Automate flow architecture
+- FSI-AgentGov/docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md - Audit logging requirements
+- FSI-AgentGov/docs/playbooks/control-implementations/1.7/portal-walkthrough.md - Manual audit configuration steps
+- FSI-AgentGov/docs/playbooks/control-implementations/1.7/powershell-setup.md - PowerShell audit validation patterns
 
 ---
 
-## Confidence Assessment
-
-| Area | Confidence | Source Quality | Notes |
-|------|------------|----------------|-------|
-| MkDocs Breadcrumbs | HIGH | Official MkDocs Material docs | Feature well-documented, widely used |
-| Awesome Pages | HIGH | Official plugin docs + examples | Coexistence pattern validated |
-| YAML Configs | MEDIUM | MkDocs ecosystem patterns | No official schema yet, custom implementation |
-| PowerShell #Requires | HIGH | Microsoft Learn official docs | Language feature, stable |
-| SecretManagement | HIGH | Microsoft Learn + community guides | Module stable since v1.1.2 |
-| Dataverse Schema | HIGH | Microsoft Learn guidance | Star schema is standard BI pattern |
-| Power BI DirectQuery | HIGH | Microsoft Learn official guidance | DirectQuery best practices well-established |
-| Power Automate Flows | MEDIUM | Microsoft Learn + community patterns | Flow patterns validated, specific flows need testing |
-| Scope Drift Adapter | MEDIUM | Architectural pattern (not implemented) | Based on proven monitoring_shared.py design |
-
-**Overall Confidence: HIGH** for documentation improvements, **MEDIUM-HIGH** for solutions completion.
-
----
-
-*Research completed: 2026-02-04*
-*Researcher: GSD Project Researcher (Claude Agent)*
-*Review status: Ready for roadmap creation*
+*Audit Configuration Validator Architecture Research - February 2026*

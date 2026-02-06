@@ -1,241 +1,358 @@
-# Research Summary: Microsoft AI Agent Governance Updates (2025-2026)
+# Project Research Summary
 
-**Domain:** AI Agent Governance for Microsoft 365 and Power Platform
-**Researched:** February 2, 2026
-**Overall confidence:** HIGH
+**Project:** Audit Configuration Validator
+**Domain:** Microsoft 365 / Power Platform audit configuration validation for financial services
+**Researched:** 2026-02-06
+**Confidence:** HIGH
 
 ## Executive Summary
 
-Microsoft released **18+ major governance features** for AI agents between November 2025 and January 2026, representing the most significant governance expansion since the platform's inception. The updates center around three strategic pillars: **Microsoft Agent 365** (unified control plane), **Microsoft Entra Agent ID** (identity for agents), and **Defender for Cloud Apps** real-time protection.
+The Audit Configuration Validator is an automated validation solution that confirms audit logging is properly enabled and configured across Microsoft 365, Power Platform, and Microsoft Purview. Unlike existing solutions that analyze audit log contents (Deny Event Correlation Report), this solution validates the audit pipeline itself is working - the "pre-flight check" before you need logs for regulatory examinations.
 
-FSI-AgentGov v1.2.37 documents the majority of GA features but has **6 high/medium severity gaps** for preview features that FSI organizations need for early adoption. The research validates that **all Defender for Cloud Apps capabilities** are comprehensively documented across Controls 1.8 and 1.24.
+The recommended approach follows the established FSI-AgentGov-Solutions Tier 2 pattern: PowerShell scripts for validation logic, Power Automate flows for orchestration and alerting, and Dataverse tables for status tracking. The solution spans three audit surfaces that require different APIs: tenant-level unified audit (ExchangeOnlineManagement 3.9.2+), per-environment Power Platform audit (Dataverse Web API), and audit retention policies (Security & Compliance PowerShell). All three surfaces support service principal authentication with certificates, meeting FSI audit requirements.
 
-The platform is transitioning from **per-product governance** (Copilot Studio, Agent Builder, M365 Copilot) to **unified governance** through Agent 365, requiring framework updates to align with Microsoft's strategic direction.
+The critical risk is reliability of the Search-UnifiedAuditLog cmdlet, which Microsoft acknowledges "can't be completely trusted" for result completeness. This creates regulatory examination risk if validation reports audit as enabled when logging is silently failing. Mitigation requires a dual validation strategy: cross-check cmdlet results with Get-OrganizationConfig, generate canary test events to verify actual log capture, and build in 24-hour grace periods to account for audit log ingestion lag. Additional critical risks include confusing unified audit log with mailbox audit (two separate systems), missing audit gap documentation required by SEC 17a-4, and inadvertently enabling audit in the Default environment (which undermines the framework's migration strategy).
 
 ## Key Findings
 
-**Stack:** Microsoft 365 E5 + Defender for Cloud Apps + Purview + Power Platform Premium capacity + (Preview) Agent 365 + Entra Agent ID
+### Recommended Stack
 
-**Architecture:** Microsoft is introducing a unified agent control plane (Agent 365) powered by Entra Agent ID, replacing fragmented per-platform governance with centralized registry, access control, and security integration.
+The solution requires a multi-module PowerShell approach because no single module covers all three audit surfaces (tenant, environment, retention policies). The stack emphasizes certificate-based authentication for FSI compliance and REST API-backed cmdlets to avoid deprecated WinRM dependencies.
 
-**Critical pitfall:** Organizations relying on per-platform governance (separate processes for Copilot Studio, Agent Builder, M365 Copilot agents) will face technical debt as Microsoft consolidates around Agent 365. Early adoption of Entra Agent ID and Agent 365 concepts positions FSI firms for smoother migration.
+**Core technologies:**
+- **ExchangeOnlineManagement 3.9.2+**: Tenant-level unified audit status via Get-AdminAuditLogConfig, mailbox audit validation, and retention policy management via Get-UnifiedAuditLogRetentionPolicy. Version 3.x is GA (Jan 2026), REST API-backed, supports certificate authentication without WinRM.
+- **Microsoft.PowerApps.Administration.PowerShell 2.0.214+**: Environment discovery via Get-AdminPowerAppEnvironment. Note: Does NOT expose audit configuration cmdlets - audit settings require separate Dataverse Web API calls.
+- **Dataverse Web API v9.2**: Direct access to Organization table properties (isauditenabled, auditretentionperiodv2, isuseraccessauditenabled) for per-environment audit validation. OAuth 2.0 client credentials flow via MSAL.PS, requires Application User with System Customizer role.
+- **MSAL.PS 4.x**: OAuth token acquisition for Dataverse Web API authentication, simplifies service principal credential flow with token caching.
+
+**Critical version considerations:**
+- ExchangeOnlineManagement 3.x requires PowerShell 7.4.0+ for v3.5.0+
+- Security & Compliance PowerShell certificate authentication rolled out mid-February 2025 (GA)
+- Pin to v3.x line for Exchange module, allow minor updates for security patches
+
+**What NOT to use:**
+- PnP.PowerShell (SharePoint-focused, no audit capabilities)
+- Microsoft365DSC (Desired State Configuration overkill for targeted validator)
+- ExchangeOnlineManagement v2.x (deprecated, replaced by v3.x in September 2022)
+
+### Expected Features
+
+The solution sits at the intersection of Control 1.7 (Comprehensive Audit Logging documentation), Deny Event Correlation Report (which requires working audit to analyze), and Compliance Dashboard (which aggregates compliance status). The key distinction: this validates the audit PIPELINE works, not the log CONTENTS.
+
+**Must have (table stakes):**
+- M365 unified audit log enablement check (Get-AdminAuditLogConfig)
+- Per-environment Power Platform audit check (Dataverse API per environment)
+- Mailbox audit on-by-default verification (Get-OrganizationConfig separate from unified audit)
+- Purview audit retention policy validation (3-6 year FSI requirements, 10-year option)
+- Configuration drift detection (baseline + continuous monitoring)
+- Multi-source validation (single pane across M365/Power Platform/Purview)
+- Zone-specific retention validation (Enterprise zone requires longer retention)
+- Evidence export for examinations (CSV/JSON with SHA-256 integrity hashes)
+- Scheduled validation runs (daily/weekly cadence)
+
+**Should have (competitive differentiators):**
+- SEC 17a-4(f) automatic verification requirement fulfillment (regulatory mandate for validation itself)
+- FINRA 2026 compliance evidence (aligns with 2026 Annual Regulatory Oversight Report)
+- Audit event type coverage validation (verify CopilotInteraction, AgentPublished events captured)
+- Audit-trail alternative compliance check (2022 SEC amendment comprehensive audit option)
+- Remediation automation with rollback (auto-enable with safety checks)
+- Integration with Environment Lifecycle Management (auto-validate new environments)
+
+**Defer (v2+):**
+- WORM storage verification (Azure Immutable Blob validation - broker-dealer specific)
+- Purview audit log ingestion delay monitoring (timestamp comparison - edge case)
+- Per-agent audit trail validation (agent-level granularity - high complexity)
+- Cross-tenant audit configuration comparison (multi-tenant consistency - limited use case)
+
+**Explicit anti-features:**
+- Audit log content analysis (duplicates Deny Event Correlation Report)
+- Audit log search interface (duplicates Purview Audit portal)
+- Historical audit log retention (storage solution, not validator)
+- Real-time audit event streaming (SIEM's job)
+- User activity monitoring dashboard (Control 3.2 Usage Analytics covers this)
+
+### Architecture Approach
+
+The solution follows the established FSI-AgentGov-Solutions Tier 2 pattern: PowerShell-first validation, Power Automate orchestration, Dataverse status tracking, and Teams/email alerting. This matches patterns from deny-event-correlation-report, scope-drift-monitor, and conditional-access-automation.
+
+**Major components:**
+
+1. **PowerShell Validation Scripts** (5 scripts in scripts/ directory)
+   - Test-TenantAuditConfig.ps1: Unified audit log + mailbox audit
+   - Test-EnvironmentAuditConfig.ps1: Per-environment retention validation
+   - Test-PurviewRetention.ps1: Retention policy compliance
+   - Export-AuditConfigEvidence.ps1: Quarterly evidence with SHA-256 hashes
+   - Invoke-AuditConfigValidation.ps1: Orchestration wrapper
+
+2. **Dataverse Status Tables** (4 tables with fsi_ publisher prefix)
+   - fsi_audittenantconfig: Tenant-level status (unified audit, mailbox audit)
+   - fsi_auditenvironmentconfig: Per-environment status with zone classification
+   - fsi_purviewretentionconfig: Retention policy details
+   - fsi_auditvalidationhistory: Immutable audit log (org-owned, read-only for non-admins)
+
+3. **Power Automate Flows** (2 flows with connection references)
+   - ACV-DailyValidator: Scheduled trigger (daily 6 AM UTC), runs PowerShell scripts, upserts Dataverse, creates immutable history record
+   - ACV-AlertDispatcher: Dataverse trigger on validation failure, posts Teams adaptive card, sends email to compliance team
+
+4. **Evidence Export Pipeline**
+   - Quarterly exports to exports/Q1-2026/ with manifest.json
+   - SHA-256 integrity hashing for examiner admissibility
+   - Both machine-readable (JSON) and human-readable (PDF report) formats
+
+**Key architectural patterns:**
+- PowerShell-first validation (complex API logic in scripts, not Power Automate expressions)
+- Immutable audit log table (fsi_auditvalidationhistory is org-owned, create-only)
+- Connection reference abstraction (fsi_cr_* naming, portable across environments)
+- Environment variable configuration (fsi_ACV_* for tenant-specific settings)
+- Adaptive card alerts over webhooks (native connector, Office 365 webhooks deprecated March 31, 2026)
+
+**Build order:** Phase 1: PowerShell scripts (Week 1), Phase 2: Dataverse schema (Week 1), Phase 3: Power Automate flows (Week 2), Phase 4: Evidence export (Week 2), Phase 5: Documentation (Week 3), Phase 6: Control 1.7 integration (Week 3)
+
+### Critical Pitfalls
+
+Research identified 14 pitfalls across severity levels. The 5 critical pitfalls must be addressed in Phase 1 core validation logic to avoid regulatory examination risk.
+
+1. **Search-UnifiedAuditLog cmdlet reliability issues** (CRITICAL, Phase 1)
+   - Microsoft acknowledges cmdlet "can't be completely trusted" for result completeness
+   - Prevention: Dual validation with Get-OrganizationConfig, canary event generation, result set validation with SessionId paging, native API fallback for critical validations
+
+2. **Audit log availability lag creating false negatives** (CRITICAL, Phase 1)
+   - 60-90 minute typical lag (up to 24 hours documented maximum) creates false alerts immediately after enablement
+   - Prevention: 2-hour minimum grace period after audit enable, suppress alerts for 24 hours post-change, tag results as "pending_confirmation" during lag window
+
+3. **Unified audit log vs mailbox audit confusion** (CRITICAL, Phase 1)
+   - Two separate systems with different scopes, both must be validated independently
+   - Prevention: Check Get-OrganizationConfig AuditDisabled=False AND per-mailbox audit status, separate reporting for each system
+
+4. **SEC 17a-4 audit gap period documentation failure** (CRITICAL, Phase 1 + Phase 3)
+   - Validator detects gap but doesn't create admissible documentation explaining it
+   - Prevention: Create immutable gap record (start/end/detection/remediation times), export to WORM storage, alert compliance officer immediately, flag need for compensating controls
+
+5. **Auto-enabling audit in Default environment** (CRITICAL, Phase 2)
+   - Auto-remediation in Default undermines framework strategy to migrate apps OUT of Default to Managed Environments
+   - Prevention: Exclude Default from auto-enable, recommend migration instead, separate approval path requiring compliance sign-off
+
+**Additional high-severity pitfalls:**
+- Purview Audit Standard vs Premium confusion (retention gap - 180 days vs required 3-6 years)
+- Power Platform Admin API rate limiting (6,000 requests / 5 minutes, requires exponential backoff)
+- ExchangeOnlineManagement module version conflicts (v2.x vs v3.x breaking changes)
+- Service principal connection refresh failures (90-day token expiration, silent failures)
+- Breaking existing audit retention policies (Set-UnifiedAuditLogRetentionPolicy overwrites UserIds)
 
 ## Implications for Roadmap
 
-Based on research, suggested milestone structure for FSI-AgentGov v1.3:
+Based on research, the roadmap must prioritize reliability over speed (multiple validation sources, grace periods) and regulatory evidence before automation (immutable gap documentation before auto-remediation). The phase structure follows dependency chains: core validation → drift detection → auto-remediation → compliance reporting.
 
-### Milestone 1: Agent 365 Foundation (Phase 6-7 weeks)
-**Goal:** Document Microsoft's strategic agent governance architecture
+### Phase 1: Core Validation Engine (MVP)
+**Rationale:** Foundation must address all 5 critical pitfalls before building automation on top. Dual validation strategy and lag awareness prevent false positives that would undermine trust in the tool.
 
-**Tasks:**
-1. Create `docs/framework/agent-365-architecture.md` (3-4 days)
-   - Unified registry concept
-   - Comparison with current per-platform governance
-   - Migration roadmap for FSI organizations
+**Delivers:**
+- PowerShell scripts with robust error handling (Test-TenantAuditConfig, Test-EnvironmentAuditConfig, Test-PurviewRetention)
+- Dual validation strategy (Search-UnifiedAuditLog + Get-OrganizationConfig cross-check)
+- Canary event generation for actual log capture verification
+- 24-hour grace period handling for audit lag
+- Separate unified audit log and mailbox audit validation
+- Environment type filtering (exclude trial/developer environments)
+- Module version validation (ExchangeOnlineManagement 3.x enforcement)
 
-2. Document Microsoft Entra Agent ID (2-3 days)
-   - Enhance Control 1.2 or create Control 1.25
-   - Agent identity architecture
-   - Sponsorship model (FINRA 3110 alignment)
-   - Cross-reference with Conditional Access (Control 1.11)
+**Addresses features:**
+- M365 unified audit log enablement check (table stakes)
+- Mailbox audit on-by-default verification (table stakes)
+- Zone-specific retention validation (table stakes)
 
-3. Document M365 Admin Center Agent Settings (1 day - wait for Q1 2026 GA)
-   - Enhance Control 1.2 with centralized agent governance
-   - Allowed agent types, sharing, templates, user access
-   - Relationship between PPAC and M365 admin center
+**Avoids pitfalls:**
+- Pitfall 1: Search-UnifiedAuditLog reliability (dual validation)
+- Pitfall 2: Audit lag false negatives (grace periods)
+- Pitfall 3: UAL vs mailbox confusion (separate checks)
+- Pitfall 8: Module version conflicts (version enforcement)
+- Pitfall 11: Trial/dev environment false positives (type filtering)
 
-**Addresses:** Agent 365 Control Plane (preview), Entra Agent ID (preview), M365 Admin Center Agent Settings (preview → GA Q1 2026)
+### Phase 2: Dataverse Status Tracking
+**Rationale:** Required before Power Automate flows can store validation results. Immutable audit log table pattern (from environment-lifecycle-management ProvisioningLog) ensures validation history cannot be tampered with for regulatory evidence.
 
-**Avoids:** Technical debt from not aligning with Microsoft's strategic direction
+**Delivers:**
+- Dataverse schema with 4 tables (fsi_audittenantconfig, fsi_auditenvironmentconfig, fsi_purviewretentionconfig, fsi_auditvalidationhistory)
+- Immutable history table (org-owned, create-only privileges)
+- Security roles (Viewer, Operator, Admin)
+- Connection references (fsi_cr_dataverse, fsi_cr_exchangeonline, fsi_cr_http_azuread)
+- Environment variables (fsi_ACV_TenantId, fsi_ACV_ComplianceTeamEmail, fsi_ACV_TeamsChannelId)
 
----
+**Uses stack:**
+- Dataverse Web API v9.2 for Organization table audit settings
+- MSAL.PS for OAuth token acquisition
 
-### Milestone 2: Enhance Existing Controls (Phase 3-4 weeks)
-**Goal:** Update existing controls with new 2025-2026 capabilities
+**Implements architecture:**
+- 4 Dataverse tables with fsi_ publisher prefix
+- Connection reference abstraction pattern
+- Environment variable configuration pattern
 
-**Tasks:**
-1. Control 1.5 (DLP) - Add virtual connectors (1 day)
-   - Table of virtual connectors for Copilot Studio
-   - Governance guidance for feature-level DLP
+**Avoids pitfalls:**
+- Pitfall 13: Integration with existing solutions (shared Dataverse instance)
 
-2. Control 1.6 (DSPM for AI) - Enhanced capabilities (1 day)
-   - Weekly risk assessments for top 100 sites
-   - AI observability (agent-specific insights)
-   - Item-level remediation guidance
+### Phase 3: Automated Orchestration
+**Rationale:** Automates script execution and result storage. Must include connection health monitoring to avoid silent failures (Pitfall 9).
 
-3. Control 3.8 (Copilot Hub) - AI Feature Access Control (1 day)
-   - User-level feature restrictions (Managed Environments)
-   - Granular controls per Copilot feature
-   - Zone-based feature enablement guidance
+**Delivers:**
+- ACV-DailyValidator Power Automate flow (scheduled trigger, script execution, Dataverse upsert)
+- ACV-AlertDispatcher Power Automate flow (Dataverse trigger, Teams adaptive card, email notifications)
+- Connection health monitoring (detect expired tokens before failures)
+- Scheduled validation runs (daily 6 AM UTC)
+- Alert delivery (Teams adaptive card + email)
 
-4. Update `docs/reference/role-catalog.md` (0.5 days)
-   - Add AI Administrator role (Entra)
-   - Add Defender XDR Administrator role
+**Addresses features:**
+- Scheduled validation runs (table stakes)
+- Multi-source validation (table stakes - aggregates all checks)
+- Configuration drift detection (table stakes - baseline comparison)
 
-**Addresses:** Virtual connectors, enhanced DSPM, AI feature access control, new roles
+**Avoids pitfalls:**
+- Pitfall 9: Service principal connection refresh failures (health monitoring)
 
-**Avoids:** Framework becoming outdated on granular governance controls
+### Phase 4: Compliance Evidence Export
+**Rationale:** Regulatory requirement for admissible audit gap documentation. Must be implemented before auto-remediation to ensure gaps are documented before being "fixed."
 
----
+**Delivers:**
+- Export-AuditConfigEvidence.ps1 script
+- Quarterly evidence export (Q1-2026/, Q2-2026/, etc.)
+- SHA-256 integrity hashing in manifest.json
+- Human-readable report generation (PDF)
+- Immutable audit gap documentation (start/end/detection/remediation timestamps)
+- Purview retention label integration
+- Chain of custody logging
 
-### Milestone 3: SharePoint Restricted Search (Phase Q2-Q3 2026 - when released)
-**Goal:** Document emergency brake for Copilot indexing
+**Addresses features:**
+- Evidence export for examinations (table stakes)
+- SEC 17a-4(f) automatic verification requirement (differentiator)
+- FINRA 2026 compliance evidence (differentiator)
 
-**Tasks:**
-1. Enhance Control 4.6 or 4.7 with Restricted Search (0.5 days)
-   - Flag sites to exclude from Copilot index
-   - Use cases for FSI organizations
-   - Add to SharePoint governance checklist
+**Avoids pitfalls:**
+- Pitfall 4: SEC 17a-4 gap documentation failure (immutable gap records)
+- Pitfall 12: Evidence not admissible for examination (WORM storage, Purview labels)
 
-**Addresses:** SharePoint Restricted Search (announced 2026)
+### Phase 5: Auto-Remediation with Safety Checks
+**Rationale:** Auto-enablement is valuable but must NOT be applied to Default environment (Pitfall 5) or break existing retention policies (Pitfall 10). Requires approval workflow, especially for policy modifications.
 
-**Avoids:** Missing critical SharePoint governance control for FSI
+**Delivers:**
+- Auto-enable audit for non-Default environments with approval workflow
+- Default environment exclusion (flag for manual review + migration recommendation)
+- Read existing retention policies before modifications
+- Approval workflow for retention policy changes (compliance officer sign-off)
+- Rollback capability for failed remediation
+- Integration with Environment Lifecycle Management (post-provisioning validation hook)
 
----
+**Addresses features:**
+- Remediation automation with rollback (differentiator)
+- Integration with Environment Lifecycle Management (differentiator)
 
-## Phase Ordering Rationale
+**Avoids pitfalls:**
+- Pitfall 5: Auto-enabling audit in Default environment (exclusion logic)
+- Pitfall 10: Breaking existing retention policies (read before write, approval workflow)
 
-**Why Milestone 1 first:**
-- Agent 365 and Entra Agent ID are **foundational architecture** changes
-- FSI organizations in Frontier program need guidance now
-- GA expected Q1-Q2 2026 for several features
-- Establishes strategic context for all other updates
+### Phase 6: Advanced Validation Features
+**Rationale:** Differentiators that provide FSI-specific value but require solid foundation from Phases 1-5.
 
-**Why Milestone 2 second:**
-- These are **enhancements to existing controls** (lower risk)
-- Some are already GA (virtual connectors, AI feature access control)
-- Can be done incrementally without architectural decisions
+**Delivers:**
+- Audit event type coverage validation (test events for CopilotInteraction, AgentPublished)
+- Purview Audit Standard vs Premium license tier detection
+- WORM storage verification for broker-dealers
+- Audit-trail alternative compliance check (2022 SEC amendment)
+- Compliance Dashboard integration (export findings to dashboard format)
 
-**Why Milestone 3 third:**
-- Feature not yet released (announced for 2026)
-- Low priority until GA date confirmed
-- Simple enhancement to existing SharePoint controls
+**Addresses features:**
+- Audit event type coverage validation (differentiator)
+- WORM storage verification (differentiator - v2 candidate)
 
-**Research flags for milestones:**
-- Milestone 1: Likely needs deeper research on Agent 365 vs. current architecture tradeoffs
-- Milestone 2: Standard pattern updates, unlikely to need additional research
-- Milestone 3: Wait-and-see until feature is released
+**Avoids pitfalls:**
+- Pitfall 6: Audit Standard vs Premium confusion (license tier validation)
 
----
+### Phase Ordering Rationale
+
+- **Phases 1-2 are parallel-eligible:** PowerShell scripts (Phase 1) and Dataverse schema (Phase 2) have no mutual dependencies, can be built concurrently
+- **Phase 3 requires Phases 1-2 complete:** Power Automate flows orchestrate scripts (Phase 1) and write to Dataverse (Phase 2)
+- **Phase 4 before Phase 5:** Evidence export (Phase 4) must capture audit gaps BEFORE auto-remediation (Phase 5) fixes them, ensuring regulatory documentation exists
+- **Phase 5 is optional for MVP:** Auto-remediation provides value but is NOT required for compliance validation (read-only validation meets SEC 17a-4(f) automatic verification requirement)
+- **Phase 6 is post-MVP:** Advanced features build on proven foundation, address niche use cases (WORM storage for broker-dealers only)
+
+**Critical path:** Phase 1 → Phase 3 → Phase 4 (Core validation → Automation → Evidence export)
+**MVP definition:** Phases 1-4 (validation + evidence export without auto-remediation)
+**Nice-to-have:** Phase 5 (auto-remediation reduces manual effort but increases risk if not carefully implemented)
+
+### Research Flags
+
+Phases likely needing deeper research during planning:
+- **Phase 3:** Power Automate flow configuration with Azure Automation integration for PowerShell script execution (existing solutions use different patterns - deny-event-correlation-report uses direct PowerShell, environment-lifecycle-management uses HTTP connectors)
+- **Phase 5:** Default environment migration recommendation logic (requires understanding of Environment Lifecycle Management v1.1.2 zone classification and migration workflows)
+- **Phase 6:** WORM storage verification (broker-dealer specific, requires research into Azure Immutable Blob Storage validation patterns and SEC 17a-4 WORM format requirements)
+
+Phases with standard patterns (skip research-phase):
+- **Phase 1:** PowerShell validation scripts follow established patterns from deny-event-correlation-report and conditional-access-automation
+- **Phase 2:** Dataverse schema follows established patterns from scope-drift-monitor (fsi_ prefix, immutable history table from environment-lifecycle-management ProvisioningLog)
+- **Phase 4:** Evidence export follows SHA-256 hashing pattern from deny-event-correlation-report
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Features | **HIGH** | 40+ official Microsoft sources; all claims verified with Microsoft Learn or TechCommunity |
-| Stack | **HIGH** | Licensing and architecture confirmed through official documentation |
-| Architecture | **MEDIUM-HIGH** | Agent 365 is preview; full architecture not finalized |
-| Defender Capabilities | **HIGH** | Comprehensive validation against Controls 1.8 and 1.24; all capabilities documented |
-| Gaps | **HIGH** | Cross-referenced with v1.2.37 CHANGELOG and control files |
+| Stack | **HIGH** | All module versions verified on PowerShell Gallery (ExchangeOnlineManagement 3.9.2 released Jan 5, 2026), cmdlet documentation current, service principal authentication patterns documented in official Microsoft Learn articles |
+| Features | **HIGH** | Table stakes based on Control 1.7 requirements, differentiators aligned with SEC 17a-4 and FINRA 2026 Annual Regulatory Oversight Report, anti-features clearly bounded (no overlap with Deny Event Correlation Report) |
+| Architecture | **HIGH** | Based on direct code review of 3 existing FSI-AgentGov-Solutions (scope-drift-monitor, deny-event-correlation-report, conditional-access-automation), follows established Tier 2 pattern, component naming conventions verified |
+| Pitfalls | **HIGH** | All critical pitfalls sourced from Microsoft Learn official docs, community incident reports (Practical365, Michev blog), and official regulatory guidance (SEC 17a-4 text, FINRA rules), 5 critical + 5 high + 4 medium severity classification validated |
 
----
+**Overall confidence:** HIGH
 
-## Gaps to Address
+### Gaps to Address
 
-### High Priority Gaps (Document in v1.3)
+Research was comprehensive but identified areas requiring validation during implementation:
 
-**1. Microsoft Entra Agent ID (Preview)**
-- **Gap:** Agent identity architecture not documented
-- **Why it matters:** Foundational for Conditional Access, sponsorship (FINRA 3110), entitlement management
-- **Action:** Create new section in Control 1.2 or new Control 1.25
-- **Effort:** 2-3 days
+- **Dataverse Application User permissions:** Can System Customizer role modify Organization.isauditenabled, or is System Administrator required? VERIFY in non-production environment before deployment (STACK.md Open Question 2).
 
-**2. Microsoft Agent 365 Control Plane (Preview)**
-- **Gap:** Unified governance approach not documented
-- **Why it matters:** Microsoft's strategic direction; replaces per-platform governance
-- **Action:** Create `docs/framework/agent-365-architecture.md`
-- **Effort:** 3-4 days
+- **Search-UnifiedAuditLog result truncation detection:** Exact behavior when result sets exceed internal limits not documented. Implement SessionId paging and ResultIndex validation, TEST with large result sets during Phase 1 to detect truncation patterns.
 
-### Medium Priority Gaps (Document in v1.3)
+- **Power Automate + Azure Automation integration:** Existing solutions show varied patterns for PowerShell script execution from flows. RESEARCH best practice for FSI scenarios (Azure Automation runbooks vs HTTP trigger endpoints vs direct PowerShell connector) during Phase 3 planning.
 
-**3. M365 Admin Center Agent Settings (Preview → GA Q1 2026)**
-- **Gap:** Centralized agent governance controls not documented
-- **Why it matters:** Complements PPAC; needed for M365 Copilot agent governance
-- **Action:** Enhance Control 1.2 with M365 admin center section
-- **Effort:** 1 day
+- **Default environment migration recommendations:** How to automatically suggest target Managed Environment for Default migration. COORDINATE with Environment Lifecycle Management solution maintainers during Phase 5 to understand zone classification and environment recommendation logic.
 
-**4. Virtual Connectors for Copilot Studio**
-- **Gap:** DLP-based feature toggles not enumerated
-- **Why it matters:** Granular control over Copilot Studio capabilities
-- **Action:** Enhance Control 1.5 with virtual connector table
-- **Effort:** 0.5 days
+- **Certificate rotation automation:** Does Azure Key Vault managed certificates work with Connect-ExchangeOnline -CertificateThumbprint? TEST certificate stored in Key Vault vs local certificate store during Phase 1 authentication setup (STACK.md Open Question 4).
 
-**5. Enhanced DSPM AI Observability**
-- **Gap:** Weekly risk assessments and agent insights not documented
-- **Why it matters:** Proactive oversharing detection for grounding sources
-- **Action:** Enhance Control 1.6 with new DSPM capabilities
-- **Effort:** 0.5 days
-
-**6. Copilot Hub AI Feature Access Control**
-- **Gap:** User-level feature restrictions not documented
-- **Why it matters:** Zone-based feature enablement
-- **Action:** Enhance Control 3.8 with new settings
-- **Effort:** 0.5 days
-
-### Low Priority Gaps (Monitor for release)
-
-**7. SharePoint Restricted Search (Announced 2026)**
-- **Gap:** Emergency brake for Copilot indexing not documented
-- **Why it matters:** FSI organizations need emergency controls
-- **Action:** Enhance Control 4.6 or 4.7 when released
-- **Effort:** 0.5 days
-
-**8. AI Administrator Role**
-- **Gap:** New Entra role not in role catalog
-- **Why it matters:** Delegation without full Compliance Admin rights
-- **Action:** Update `docs/reference/role-catalog.md`
-- **Effort:** 0.25 days
-
----
-
-## Total Effort Estimate
-
-| Milestone | Effort | Timeline |
-|-----------|--------|----------|
-| Milestone 1: Agent 365 Foundation | 6-8 days | Q1 2026 (wait for GA announcements) |
-| Milestone 2: Enhance Existing Controls | 3-4 days | Q1 2026 (can start immediately) |
-| Milestone 3: SharePoint Restricted Search | 0.5 days | Q2-Q3 2026 (when released) |
-| **Total** | **9.5-12.5 days** | **Q1-Q3 2026** |
-
----
-
-## Ready for Roadmap
-
-Research is **complete and comprehensive**. Key deliverables:
-
-1. ✅ **FEATURES.md** - 18 new governance features identified with FSI-AgentGov coverage analysis
-2. ✅ **Defender Capabilities Validation** - All Defender for Cloud Apps capabilities confirmed documented
-3. ✅ **Gap Analysis** - 8 gaps identified with severity and effort estimates
-4. ✅ **Milestone Recommendations** - 3-phase roadmap with 9.5-12.5 days total effort
-
-**High-confidence findings:**
-- Microsoft Agent 365 and Entra Agent ID are strategic priorities requiring framework updates
-- FSI-AgentGov v1.2.37 has excellent coverage of GA features (Controls 1.8, 1.24 are comprehensive)
-- Preview features are FSI-relevant and should be documented for early adopters
-- Framework is well-positioned but needs architectural updates to align with Agent 365 direction
-
-**Next steps:**
-1. Create detailed requirements for Milestone 1 (Agent 365 + Entra Agent ID documentation)
-2. Prioritize Milestone 2 tasks (can start immediately)
-3. Monitor Microsoft releases for SharePoint Restricted Search GA date
-
----
+- **Audit event type coverage validation:** Generating test CopilotInteraction and AgentPublished events programmatically requires understanding of Microsoft 365 Copilot and Agent Builder event triggers. RESEARCH test event generation patterns during Phase 6 planning if this differentiator is prioritized.
 
 ## Sources
 
-All research findings are based on **40+ official Microsoft sources**:
-- 17 Microsoft Learn documentation pages
-- 12 Microsoft TechCommunity blog posts
-- 8 Microsoft official blogs
-- 3 industry analysis sources (for context)
+### Primary (HIGH confidence)
 
-See FEATURES.md for complete source list with URLs.
+**Official Microsoft Documentation:**
+- [PowerShell Gallery - ExchangeOnlineManagement 3.9.2](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/3.9.2) - Version verification, release date
+- [Microsoft Learn - About Exchange Online PowerShell V3](https://learn.microsoft.com/en-us/powershell/exchange/exchange-online-powershell-v2?view=exchange-ps) - Module capabilities, REST API migration
+- [Microsoft Learn - Turn auditing on or off](https://learn.microsoft.com/en-us/purview/audit-log-enable-disable) - Unified audit log enablement
+- [Microsoft Learn - Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) - Purview retention requirements
+- [Microsoft Learn - Configure auditing (Dataverse)](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/auditing/configure) - Dataverse Web API endpoints
+- [Microsoft Learn - Service protection API limits](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/api-limits) - Power Platform throttling limits
 
-**Source Verification Protocol:**
-1. All feature claims verified with Microsoft Learn or TechCommunity
-2. All FSI-AgentGov coverage validated against v1.2.37 CHANGELOG and control files
-3. All Defender capabilities cross-referenced with Controls 1.8 and 1.24
-4. All licensing requirements confirmed through official documentation
+**Regulatory Sources:**
+- [FINRA Rule 4511](https://www.finra.org/rules-guidance/rulebooks/finra-rules/4511) - Books and records requirements
+- [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-annual-regulatory-oversight-report) - Validation emphasis
+- [SEC Rule 17a-4](https://www.law.cornell.edu/cfr/text/17/240.17a-4) - Recordkeeping requirements with automatic verification clause
 
-**Date Range:** November 2025 - February 2, 2026
-**Research Date:** February 2, 2026
+**Existing Solution Code:**
+- FSI-AgentGov-Solutions/scope-drift-monitor/README.md - Dataverse schema patterns, connection references
+- FSI-AgentGov-Solutions/deny-event-correlation-report/README.md - Evidence export with SHA-256 hashing
+- FSI-AgentGov-Solutions/environment-lifecycle-management/README.md - Immutable audit log pattern (ProvisioningLog)
+- FSI-AgentGov/docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md - Framework requirements
+
+### Secondary (MEDIUM confidence)
+
+**Community Analysis:**
+- [Practical365 - Search-UnifiedAuditLog cmdlet changes](https://practical365.com/search-unifiedauditlog-cmdlet-changes/) - Cmdlet reliability issues
+- [Michev - Microsoft 365 audit log latency data](https://michev.info/blog/post/5749/microsoft-365-azure-ad-audit-logs-and-reports-latency-data) - Lag timing analysis
+- [Invictus-IR - DFIR experts on unified audit log reliability](https://www.invictus-ir.com/news/what-dfir-experts-need-to-know-about-the-current-state-of-the-unified-audit-log) - Forensics perspective on UAL gaps
+- [Albert Hoitingh - Different types of logging – Microsoft Purview Audit](https://alberthoitingh.com/2022/05/20/different-types-of-logging-microsoft-purview-audit/) - UAL vs mailbox audit distinction
+
+### Tertiary (LOW confidence)
+
+**Vendor and Blog Content:**
+- [PageFreezer - SEC Rule 17a-3 & FINRA Records Retention Requirements](https://blog.pagefreezer.com/sec-finra-books-records-retention-requirements/) - Retention period interpretations (vendor perspective, validate with legal)
+- [Laserfiche - What Is SEC 17a-4?](https://www.laserfiche.com/resources/blog/what-is-sec-17a-4/) - Compliance overview (vendor perspective)
+- [Global Relay - SEC Rules 17a-4 and 17a-3 Explained](https://www.globalrelay.com/resources/the-compliance-hub/rules-and-regulations/sec-rules-17a-4-and-17a-3-explained/) - Audit trail alternative explanation (vendor perspective, validate with 2022 SEC amendment text)
+
+---
+*Research completed: 2026-02-06*
+*Ready for roadmap: yes*
