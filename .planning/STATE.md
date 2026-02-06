@@ -15,15 +15,15 @@
 ## Current Position
 
 **Phase:** 4 of 7 (Power BI Integration & Viva Insights) - IN PROGRESS
-**Plan:** 2 of 4 in current phase - COMPLETE (04-01, 04-04)
-**Status:** Ready for Plan 04-02
-**Last activity:** 2026-02-06 - Completed 04-04-PLAN.md (Viva Insights Scope & Reconciliation)
+**Plan:** 3 of 4 in current phase - COMPLETE (04-01, 04-02, 04-04)
+**Status:** Ready for Plan 04-03
+**Last activity:** 2026-02-06 - Completed 04-02-PLAN.md (DAX Measures & Power BI Integration Guide)
 
 **Progress:**
 ```
-Milestone Progress: [██████████████░░░░░░] 14/17+ plans (Phase 1-3 complete, Phase 4 in progress)
+Milestone Progress: [███████████████░░░░░] 15/17+ plans (Phase 1-3 complete, Phase 4 in progress)
 
-Phase 4: [██████████░░░░░░░░░░] 2/4 plans complete (PBI-01, VIVA-01-02)
+Phase 4: [███████████████░░░░░] 3/4 plans complete (PBI-01, PBI-02, VIVA-01-02)
 ```
 
 ## Performance Metrics
@@ -57,12 +57,13 @@ Phase 4: [██████████░░░░░░░░░░] 2/4 plan
 - Action groups: 4 (operations team, compliance team, security team, cost management)
 
 **Phase 4 Performance:**
-- Plans completed: 2/4 (04-01, 04-04)
-- Requirements satisfied: 5/10 (PBI-01, VIVA-01-02)
-- Commits: 4 total (2 per plan)
-- TMDL files: 15 total (database, model, 11 tables, relationships, RLS role)
-- Documentation files: 2 (Viva Insights scope + reconciliation workflow)
-- Semantic model: Dual-grain star schema (2 facts, 8 dimensions, 10 relationships)
+- Plans completed: 3/4 (04-01, 04-02, 04-04)
+- Requirements satisfied: 7/10 (PBI-01, PBI-02, VIVA-01-02)
+- Commits: 6 total (2 per plan)
+- TMDL files: 16 total (database, model, 11 tables, relationships, RLS role, measures)
+- DAX measures: 19 total across 6 categories (Session Metrics, Latency, Error Rates, Compliance, Trends, Event Detail)
+- Documentation files: 3 (Power BI integration guide, Viva Insights scope, Viva reconciliation workflow)
+- Semantic model: Dual-grain star schema with comprehensive measure library
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -120,6 +121,11 @@ Phase 4: [██████████░░░░░░░░░░] 2/4 plan
 | Viva Insights scope warning at top of doc | Executives need immediate clarity that Viva only covers Copilot Studio Production agents | 2026-02-06 |
 | 10% variance threshold for reconciliation | Balances sensitivity (catches real issues) with tolerance (normal sampling/timing variance) | 2026-02-06 |
 | Application Insights is authoritative source | Only App Insights covers Agent Builder, Agent 365 SDK, dev/test, and compliance evidence | 2026-02-06 |
+| WoW/MoM trends applied selectively | Sessions, Error Rate, Avg Latency vary weekly; Compliance Score/Coverage change slowly | 2026-02-06 |
+| Compliance Score simplified with customization note | Organizations have varied GRC systems (ServiceNow, Azure DevOps, custom) | 2026-02-06 |
+| Regulation Drill-Down framed for exam prep | Per 04-CONTEXT locked decision — valuable for audit preparation workflows | 2026-02-06 |
+| Three refresh strategies documented | Pro/PPU/Premium license tiers have different capabilities and cost models | 2026-02-06 |
+| Event-level measures use USERELATIONSHIP | Avoids ambiguous relationship paths for EventDateKey inactive relationship | 2026-02-06 |
 
 ### Key Constraints
 
@@ -172,57 +178,59 @@ None currently. Phase 2 complete, ready for Phase 3 planning.
 
 ## Session Continuity
 
-### Last Session Summary (2026-02-05)
+### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Executed 03-01-PLAN.md (Operational Health Workbook)
-- Created 3 files in FSI-AgentGov-Solutions/agent-observability-foundation/workbooks/operational-health/
-- 2 commits: 6e89623 (workbook ARM template), 44a4fc2 (environment parameter files)
-- Operational Health Workbook with 4 tabs: Overview, Availability, Error Rates, Latency
-- Global parameters: Zone dropdown and TimeRange picker (24-hour default)
-- 10 KQL queries embedded in serializedData with drill-down navigation
+- Executed 04-02-PLAN.md (DAX Measures & Power BI Integration Guide)
+- Created 2 files in FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/
+- 2 commits: 7089b4f (CoreMetrics.tmdl), ed9e2c1 (power-bi-integration.md)
+- 19 DAX measures across 6 categories: Session Metrics, Latency, Error Rates, Compliance, Trends, Event Detail
+- Compliance Score with weighted pillar calculation (40%/30%/20%/10%)
+- WoW/MoM trends for Sessions, Error Rate, Avg Latency
+- Comprehensive integration guide with 5-page executive dashboard design
+- Regulation drill-down page framed for regulatory examination readiness
 
 **Decisions made:**
-- Fixed GUID workbookId for idempotent deployment
-- 24-hour default time range for daily operations monitoring
-- Zone parameter as global dropdown for governance alignment
-- Conditional formatting for P95/P99 latency thresholds
+- WoW/MoM trends applied only to high-value operational measures (not slowly changing metrics)
+- Compliance Score simplified pattern with customization guidance for varied GRC systems
+- Three refresh strategies documented (ADX Import, DirectQuery, Hybrid) for different license tiers
+- Event-level measures use USERELATIONSHIP for inactive EventDateKey relationship
 
-**Phase 3 Status:**
-- Plan 01 complete (WKBK-01 satisfied)
-- Plan 02 pending (Error Diagnostics Workbook)
-- Plan 03 pending (Usage Overview Workbook)
-- Plan 04-05 pending (Alert Rules)
+**Phase 4 Status:**
+- Plan 01 complete (PBI-01 satisfied — TMDL semantic model)
+- Plan 02 complete (PBI-02 satisfied — DAX measures + integration guide)
+- Plan 03 pending (KQL Pre-Aggregation Views)
+- Plan 04 complete (VIVA-01-02 satisfied — Viva Insights scope + reconciliation)
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/03-azure-monitor-workbooks-alert-rules/03-01-SUMMARY.md` — Operational Health Workbook complete
-   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/workbooks/operational-health/workbook-template.json` — ARM template reference
-   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/03-azure-monitor-workbooks-alert-rules/03-CONTEXT.md` — Phase 3 implementation decisions
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/04-power-bi-integration-viva-insights/04-02-SUMMARY.md` — DAX measures + integration guide complete
+   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/semantic-model/measures/CoreMetrics.tmdl` — 19 DAX measures reference
+   - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/docs/power-bi-integration.md` — Executive dashboard design
+   - `/Users/admin/dev/FSI-AgentGov/.planning/phases/04-power-bi-integration-viva-insights/04-CONTEXT.md` — Phase 4 implementation decisions
 
 2. **Current state:**
    - Phase 1: COMPLETE (4/4 plans)
    - Phase 2: COMPLETE (3/3 plans)
-   - Phase 3: IN PROGRESS (1/5 plans)
-   - Operational Health Workbook deployed
-   - Ready for Error Diagnostics Workbook (03-02)
+   - Phase 3: COMPLETE (5/5 plans)
+   - Phase 4: IN PROGRESS (3/4 plans)
+   - TMDL semantic model with comprehensive DAX measures
+   - Ready for KQL Pre-Aggregation Views (04-03)
 
 3. **Next steps:**
-   - Execute 03-02-PLAN.md (Error Diagnostics Workbook)
-   - Execute 03-03-PLAN.md (Usage Overview Workbook)
-   - Execute 03-04-PLAN.md (Alert Rules - Part 1)
-   - Execute 03-05-PLAN.md (Alert Rules - Part 2)
+   - Execute 04-03-PLAN.md (KQL Pre-Aggregation Views)
+   - Move to Phase 5 (Testing & Validation)
 
 4. **Key artifacts created:**
-   - Operational Health Workbook: 4 tabs with drill-down navigation
-   - ARM template pattern: Fixed GUID workbookId for idempotency
-   - Zone filtering: Global parameter aligned with governance framework
-   - 10 embedded KQL queries from Phase 2 library
+   - CoreMetrics.tmdl: 19 measures across 6 categories with USERELATIONSHIP pattern
+   - power-bi-integration.md: 5-page dashboard design with regulation drill-down for exam prep
+   - Refresh strategies: ADX Import, DirectQuery, Hybrid for different license tiers
+   - RLS setup with zone-based USERNAME() filtering
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-05 (02-03-PLAN.md execution — Phase 2 complete)*
+*Last session: 2026-02-06 (04-02-PLAN.md execution — Phase 4 Plan 02 complete)*
