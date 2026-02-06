@@ -15,15 +15,15 @@
 ## Current Position
 
 **Phase:** 7 of 7 (Control Enhancements & Role Updates) - IN PROGRESS
-**Plan:** 2 of 5 in current phase - COMPLETE (07-02)
+**Plan:** 4 of 5 in current phase - COMPLETE (07-04)
 **Status:** Phase 7 in progress
-**Last activity:** 2026-02-06 - Completed 07-02-PLAN.md (Enhanced DSPM AI Observability Documentation)
+**Last activity:** 2026-02-06 - Completed 07-04-PLAN.md (SharePoint Restricted Search Documentation)
 
 **Progress:**
 ```
-Milestone Progress: [██████████████████████] 24/27 plans (Phases 1-6 complete, 2/5 in Phase 7)
+Milestone Progress: [████████████████████████] 26/27 plans (Phases 1-6 complete, 4/5 in Phase 7)
 
-Phase 7: [████████░░░░░░░░░░░░] 2/5 plans complete
+Phase 7: [████████████████░░░░] 4/5 plans complete
 ```
 
 ## Performance Metrics
@@ -87,25 +87,15 @@ Phase 7: [████████░░░░░░░░░░░░] 2/5 plan
 - Duration: 14 minutes (06-01: 8min, 06-02: 3min, 06-03: 3min)
 
 **Phase 7 Performance (IN PROGRESS):**
-- Plans completed: 2/5 (07-01, 07-02)
-- Requirements satisfied: 2/6 (CTRL-01, CTRL-02)
-- Commits: 4 total (2 per plan so far)
-- Control enhancements: 2 controls (1.5 Virtual Connectors, 1.6 DSPM AI Observability)
-- Playbooks updated: 8 files (4 playbooks × 2 controls)
-- New capabilities documented: Virtual Governance Connectors (11 connectors enumerated), Enhanced DSPM AI Observability (unified DSPM experience preview)
-- Preview feature documentation: Unified DSPM experience (June 2026 GA per MC1191257)
-- Duration: 9.4 minutes (07-01: 3.7min, 07-02: 5.7min)
-
-**Phase 7 Performance:**
-- Plans completed: 1/5 (07-01) - IN PROGRESS
-- Requirements satisfied: 1/6 (CTRL-01)
-- Commits: 2 total (2 for plan 07-01)
-- Control enhancements: Control 1.5 virtual connector governance expanded
-- Playbooks updated: 4 (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
-- Zone-specific guidance: Comprehensive Zone 1/2/3 virtual connector configuration tables
-- HTTP endpoint filtering: FSI-specific patterns (banking APIs, regulatory sources, market data vendors)
-- Test cases added: 10 new virtual connector test cases (VC-07 through VC-16)
-- Duration: 6 minutes (07-01: 6min)
+- Plans completed: 4/5 (07-01, 07-02, 07-03, 07-04)
+- Requirements satisfied: 4/6 (CTRL-01, CTRL-02, CTRL-03, CTRL-06)
+- Commits: 8 total (2 per plan)
+- Control enhancements: 4 controls (1.5 Virtual Connectors, 1.6 DSPM AI Observability, 3.8 AI Feature Access Control, 4.6 SharePoint Restricted Search)
+- Playbooks updated: 16 files (4 playbooks × 4 controls)
+- New capabilities documented: Virtual Governance Connectors (11 connectors enumerated), Enhanced DSPM AI Observability (unified DSPM experience preview), AI Feature Access Control (granular Copilot settings), SharePoint Restricted Search (positive governance with 100-site allowed list)
+- Preview features: Unified DSPM experience (June 2026 GA per MC1191257)
+- GA features: SharePoint Restricted Search (per research findings)
+- Duration: 18.2 minutes (07-01: 3.7min, 07-02: 5.7min, 07-03: 3.8min, 07-04: 5.0min)
 
 **Historical (v2):**
 - Duration: 2 days (2026-02-04 → 2026-02-05)
@@ -200,8 +190,17 @@ Phase 7: [████████░░░░░░░░░░░░] 2/5 plan
 | MkDocs 'info' admonition for MEDIUM-impact controls | Visual hierarchy: info level (lighter blue) for MEDIUM-impact Agent 365 changes | 2026-02-06 |
 | Control-specific admonition content | Each forward-reference describes how Agent 365 specifically changes that control's approach - avoids generic boilerplate | 2026-02-06 |
 | Admonitions inserted after title/metadata | Placement before first content section ensures immediate visibility without disrupting control structure | 2026-02-06 |
+| Unified DSPM preview documentation strategy | Document unified DSPM experience as preview with explicit June 2026 GA timeline and prepare-now guidance | 2026-02-06 |
+| Prepare-now checklist for unified DSPM | Provide 6 pre-GA preparation steps following Phase 6 Agent 365 "prepare now, migrate later" pattern | 2026-02-06 |
+| Agent risk observability framing | Frame Enhanced DSPM AI Observability as collection of capabilities within unified DSPM, not standalone feature | 2026-02-06 |
+| PowerShell API manual export for agent risk | Document manual portal export for agent risk data; PowerShell cmdlet support deferred until GA | 2026-02-06 |
+| Zone-specific DSPM observability configuration depth | Provide granular zone guidance (Zone 1: monthly, Zone 2: weekly, Zone 3: daily + real-time) | 2026-02-06 |
 | Enhanced existing virtual connector table | Control 1.5 already had 11-connector table; added zone-specific columns rather than replace | 2026-02-06 |
 | Zone-specific HTTP endpoint filtering patterns | FSI-specific examples (banking APIs, regulatory sources, market data vendors) provide actionable guidance | 2026-02-06 |
+| SharePoint Restricted Search GA documentation | Research confirmed GA status based on comprehensive Microsoft Learn docs without preview disclaimers | 2026-02-06 |
+| AI agent grounding framing for Restricted Search | Primary framing focuses on how RSS controls data surface area for AI agents vs broader SharePoint search | 2026-02-06 |
+| Positive governance model (allowed list) vs RCD | Restricted Search (allow sites) complements Restricted Content Discovery (exclude sites) | 2026-02-06 |
+| 100-site allowed list governance emphasis | FSI organizations need site selection criteria and governance process for limited capacity | 2026-02-06 |
 
 ### Key Constraints
 
