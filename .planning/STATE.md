@@ -25,9 +25,9 @@ v9: Integration (ELM + Dashboard + cross-solution)
 ## Current Position
 
 **Phase:** 2 of 4 (Dataverse Infrastructure)
-**Plan:** 2 of 3 plans executed
-**Status:** In progress — Phase 2 nearly complete
-**Last activity:** 2026-02-07 — Completed 02-02-PLAN.md (environment variables, connection refs, deploy orchestrator)
+**Plan:** 3 of 3 plans executed
+**Status:** Phase complete — Phase 2 done
+**Last activity:** 2026-02-07 — Completed 02-03-PLAN.md (PowerShell-to-Dataverse threshold wiring)
 
 **Progress:**
 ```
@@ -35,7 +35,7 @@ v1: [=========================] 8/8 phases (35 plans) — SHIPPED
 v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [████████████.............] 2/4 phases (4 plans) — Phase 2 IN PROGRESS
+v5: [████████████████████.....] 2/4 phases (5 plans) — Phase 2 COMPLETE
 ```
 
 ## Performance Metrics
@@ -77,6 +77,12 @@ See PROJECT.md Key Decisions table for full history.
 - deploy.py provides post-deployment guidance on security roles (ValidationHistory immutability) and connection binding
 - Selective deployment flags enable incremental deployments (--tables-only, --vars-only, --refs-only)
 
+**v5 Phase 2 decisions (02-03):**
+- Get-DataverseThreshold.ps1 returns $null on failure without throwing - caller handles fallback
+- AccessToken parameter optional - helper attempts to extract from current Graph context via Get-MgContext
+- Dataverse Web API query uses OData $filter with startswith() to retrieve all zone env vars in single call
+- Baseline override happens after JSON load but before validation - preserves existing behavior when -DataverseUrl omitted
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, docs in FSI-AgentGov
@@ -96,14 +102,13 @@ None.
 ### Last Session Summary (2026-02-07)
 
 **What happened:**
-- Executed Phase 2 Plan 2 (environment variables, connection refs, deploy orchestrator)
-- Created create_environment_variables.py (6 zone threshold variables)
-- Created create_connection_references.py (3 connection refs: Dataverse, O365, Teams)
-- Created deploy.py (master orchestrator with selective deployment modes)
-- 2 commits to FSI-AgentGov-Solutions: f18f537, ef8a137
-- 3 files created: create_environment_variables.py (239 lines), create_connection_references.py (207 lines), deploy.py (463 lines)
+- Executed Phase 2 Plan 3 (PowerShell-to-Dataverse threshold wiring)
+- Created Get-DataverseThreshold.ps1 (223 lines) - queries Dataverse Web API for fsi_SSC_* environment variable values
+- Updated Test-SessionCompliance.ps1 (+54 lines) - added -DataverseUrl parameter with graceful fallback to local JSON baselines
+- 2 commits to FSI-AgentGov-Solutions: 5357836, d99a499
 - Self-check: PASSED (all files exist, all commits present)
-- Duration: 2m 43s
+- Duration: 2min
+- **Phase 2 complete** - all Dataverse infrastructure operational
 
 ### Context for Next Session
 
@@ -112,19 +117,19 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/02-dataverse-infrastructure/02-02-SUMMARY.md` — Env vars, connection refs, deploy orchestrator
+   - `.planning/phases/02-dataverse-infrastructure/02-03-SUMMARY.md` — PowerShell-to-Dataverse wiring
 
 2. **Current state:**
-   - v5 milestone: Phase 1 complete, Phase 2 plan 2 complete (2/3)
+   - v5 milestone: Phase 1 complete, Phase 2 complete (2/4 phases done)
    - Phase 1 delivered: 3 main scripts, 3 private helpers, 7 JSON templates
-   - Phase 2 nearly complete: Python Dataverse client, schema, env vars, connection refs, deploy orchestrator
-   - All scripts in FSI-AgentGov-Solutions/session-security-configurator/scripts/
+   - Phase 2 delivered: Dataverse schema (3 tables), env vars (6 vars), connection refs (3 refs), deploy orchestrator, PowerShell integration
+   - All scripts in FSI-AgentGov-Solutions/session-security-configurator/
 
 3. **Next action:**
-   - Complete Phase 2 with plan 02-03
-   - Plan 02-03: Wire Phase 1 PowerShell scripts to Dataverse thresholds (read zone env vars in Deploy-StepUpPolicies.ps1)
+   - Begin Phase 3: Power Automate cloud flows
+   - Validation orchestration, drift detection, Teams notifications
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-07 (Phase 2 Plan 2 executed — env vars, connection refs, deploy orchestrator)*
+*Last session: 2026-02-07 (Phase 2 Plan 3 executed — PowerShell-to-Dataverse threshold wiring, Phase 2 COMPLETE)*
