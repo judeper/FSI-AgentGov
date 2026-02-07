@@ -59,11 +59,11 @@ Plans:
   2. When drift is detected (sign-in frequency weakened, auth strength downgraded, policy disabled, exclusions added), a Teams adaptive card alert is sent with severity classification matching the zone affected
   3. Operators can capture a baseline snapshot and compare subsequent scans against it, with zone-parameterized thresholds loaded from environment variables
   4. Drift detection operates in detect-only mode (no auto-remediation for Zone 3) and all scan results are persisted in Dataverse for audit trail
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — Runbook wrapper (Start-SessionValidationRunbook.ps1) and baseline capture (Invoke-BaselineCapture.ps1)
+- [ ] 03-02-PLAN.md — Adaptive card template, Power Automate flow JSON, and flow setup guide
 
 ### Phase 4: Evidence Export and Framework Integration
 **Goal**: Session security compliance evidence is exportable for regulatory examinations and the solution is integrated into the FSI-AgentGov framework documentation
@@ -88,7 +88,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|---------------|--------|-----------|
 | 1. PowerShell Core | 3/3 | Complete | 2026-02-07 |
 | 2. Dataverse Infrastructure | 0/3 | Not started | - |
-| 3. Automation and Alerting | 0/TBD | Not started | - |
+| 3. Automation and Alerting | 0/2 | Not started | - |
 | 4. Evidence Export and Framework Integration | 0/TBD | Not started | - |
 
 ## Coverage
@@ -122,5 +122,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 *Phase 1 planned: 2026-02-06 (3 plans in 2 waves)*
 *Phase 1 complete: 2026-02-07 (3 plans executed, verified 5/5)*
 *Phase 2 planned: 2026-02-07 (3 plans in 3 waves)*
+*Phase 3 planned: 2026-02-07 (2 plans in 2 waves)*
 *Depth: comprehensive*
 *Phases: 4 (derived from requirement dependencies and ACV proven pattern)*
