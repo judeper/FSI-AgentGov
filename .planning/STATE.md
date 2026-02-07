@@ -24,10 +24,10 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 1 of 4 complete (PowerShell Core)
-**Plan:** 3/3 plans executed and verified
-**Status:** Phase 1 complete — ready for Phase 2
-**Last activity:** 2026-02-07 — Executed Phase 1 (3 plans, 2 waves, verified 5/5)
+**Phase:** 2 of 4 (Dataverse Infrastructure)
+**Plan:** 1 of 3 plans executed
+**Status:** In progress — Phase 2 started
+**Last activity:** 2026-02-07 — Completed 02-01-PLAN.md (SSC Dataverse client and schema)
 
 **Progress:**
 ```
@@ -35,7 +35,7 @@ v1: [=========================] 8/8 phases (35 plans) — SHIPPED
 v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [██████...................] 1/4 phases (3 plans) — Phase 1 COMPLETE
+v5: [████████████.............] 2/4 phases (4 plans) — Phase 2 IN PROGRESS
 ```
 
 ## Performance Metrics
@@ -63,6 +63,12 @@ See PROJECT.md Key Decisions table for full history.
 - Break-glass validation failures are CRITICAL and force overall status to Failed regardless of other validators
 - PIM validation can be skipped with -SkipPimValidation when permissions limited
 
+**v5 Phase 2 decisions (02-01):**
+- SSCClient adapts ACVClient pattern with SSC_ env var prefix (proven reliability from ACV v4)
+- Reuse fsi_acv_zone and fsi_acv_severity option sets from ACV with existence check (cross-solution consistency)
+- ValidationHistory is OrganizationOwned for immutability (regulatory requirement — tamper-proof audit log)
+- Three-table design: SessionBaseline (user-owned config), ValidationHistory (org-owned audit), DriftViolation (user-owned alerts)
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, docs in FSI-AgentGov
@@ -82,12 +88,13 @@ None.
 ### Last Session Summary (2026-02-07)
 
 **What happened:**
-- Executed all Phase 1 plans (3 plans in 2 waves)
-- Wave 1: 01-01 (scaffold, helpers, templates)
-- Wave 2: 01-02 (Deploy-AuthContexts + Deploy-StepUpPolicies) + 01-03 (Test-SessionCompliance) in parallel
-- Verification passed 5/5 must-haves
-- 5 commits to FSI-AgentGov-Solutions: d5423d5, a93d49b, 62ce3d3, 6e24688, 3beab4a
-- 3 commits to FSI-AgentGov: 577214d, 94ea6fb, b9a3fd4
+- Executed Phase 2 Plan 1 (SSC Dataverse client and schema)
+- Created ssc_client.py (SSCClient class with MSAL auth, retry logic, dry-run mode)
+- Created requirements.txt (msal, requests dependencies)
+- Created create_dataverse_schema.py (3-table schema deployment)
+- 2 commits to FSI-AgentGov-Solutions: 0965175, e4e8d0d
+- 3 files created: ssc_client.py (297 lines), requirements.txt (7 lines), create_dataverse_schema.py (568 lines)
+- Self-check: PASSED (all files exist, all commits present)
 
 ### Context for Next Session
 
@@ -96,19 +103,20 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/01-powershell-core/01-VERIFICATION.md` — Phase 1 verification results
+   - `.planning/phases/02-dataverse-infrastructure/02-01-SUMMARY.md` — Python client and schema details
 
 2. **Current state:**
-   - v5 milestone: Phase 1 complete, Phase 2 not yet planned
+   - v5 milestone: Phase 1 complete, Phase 2 plan 1 complete (1/3)
    - Phase 1 delivered: 3 main scripts, 3 private helpers, 7 JSON templates
-   - SCM-01 through SCM-07 requirements satisfied
-   - All scripts in FSI-AgentGov-Solutions/session-security-configurator/
+   - Phase 2 started: Python Dataverse client and 3-table schema
+   - All scripts in FSI-AgentGov-Solutions/session-security-configurator/scripts/
 
 3. **Next action:**
-   - Plan Phase 2 (Dataverse Infrastructure) with `/gsd:plan-phase 2`
-   - Phase 2 covers: INF-01 (tables), INF-02 (env vars), INF-03 (connection refs), INF-05 (deployment scripts)
+   - Continue Phase 2 with plans 02-02 and 02-03
+   - Plan 02-02: Environment variables and connection references
+   - Plan 02-03: Dataverse deployment scripts (write baselines, history, violations)
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-07 (Phase 1 executed and verified)*
+*Last session: 2026-02-07 (Phase 2 Plan 1 executed — SSC Dataverse client and schema)*
