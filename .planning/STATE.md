@@ -24,10 +24,10 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 2 of 4 (Dataverse Infrastructure)
-**Plan:** 3 of 3 plans executed
-**Status:** Phase complete — Phase 2 done
-**Last activity:** 2026-02-07 — Completed 02-03-PLAN.md (PowerShell-to-Dataverse threshold wiring)
+**Phase:** 3 of 4 (Automation and Alerting)
+**Plan:** 1 of 3 plans executed
+**Status:** In progress — Phase 3 plan 1 complete
+**Last activity:** 2026-02-07 — Completed 03-01-PLAN.md (Runbook wrapper and baseline capture)
 
 **Progress:**
 ```
@@ -35,7 +35,7 @@ v1: [=========================] 8/8 phases (35 plans) — SHIPPED
 v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [████████████████████.....] 2/4 phases (5 plans) — Phase 2 COMPLETE
+v5: [████████████████████████.] 3/4 phases (6 plans) — Phase 3 in progress
 ```
 
 ## Performance Metrics
@@ -83,6 +83,12 @@ See PROJECT.md Key Decisions table for full history.
 - Dataverse Web API query uses OData $filter with startswith() to retrieve all zone env vars in single call
 - Baseline override happens after JSON load but before validation - preserves existing behavior when -DataverseUrl omitted
 
+**v5 Phase 3 decisions (03-01):**
+- Inline Get-DriftStatus function within runbook (not separate helper file) - drift detection specific to runbook context
+- Drift detection fails open (returns DriftDetected=true on Dataverse query errors) to avoid suppressing alerts
+- Single active baseline per zone enforced - Invoke-BaselineCapture.ps1 deactivates previous before creating new
+- WhatIf mode in Invoke-BaselineCapture.ps1 allows operators to preview before committing to baseline
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, docs in FSI-AgentGov
@@ -102,13 +108,13 @@ None.
 ### Last Session Summary (2026-02-07)
 
 **What happened:**
-- Executed Phase 2 Plan 3 (PowerShell-to-Dataverse threshold wiring)
-- Created Get-DataverseThreshold.ps1 (223 lines) - queries Dataverse Web API for fsi_SSC_* environment variable values
-- Updated Test-SessionCompliance.ps1 (+54 lines) - added -DataverseUrl parameter with graceful fallback to local JSON baselines
-- 2 commits to FSI-AgentGov-Solutions: 5357836, d99a499
+- Executed Phase 3 Plan 1 (Runbook wrapper and baseline capture)
+- Created Start-SessionValidationRunbook.ps1 (351 lines) - Azure Automation runbook wrapper with inline drift detection
+- Created Invoke-BaselineCapture.ps1 (409 lines) - Operator-initiated baseline snapshot to Dataverse with WhatIf mode
+- 2 commits to FSI-AgentGov-Solutions: d88875d, 2c9da94
 - Self-check: PASSED (all files exist, all commits present)
 - Duration: 2min
-- **Phase 2 complete** - all Dataverse infrastructure operational
+- **Phase 3 plan 1 complete** - runbook and baseline capture operational
 
 ### Context for Next Session
 
@@ -117,19 +123,20 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/02-dataverse-infrastructure/02-03-SUMMARY.md` — PowerShell-to-Dataverse wiring
+   - `.planning/phases/03-automation-and-alerting/03-01-SUMMARY.md` — Runbook wrapper and baseline capture
 
 2. **Current state:**
-   - v5 milestone: Phase 1 complete, Phase 2 complete (2/4 phases done)
+   - v5 milestone: Phase 1 complete, Phase 2 complete, Phase 3 plan 1 complete (3/4 phases, 6/9 total plans done)
    - Phase 1 delivered: 3 main scripts, 3 private helpers, 7 JSON templates
    - Phase 2 delivered: Dataverse schema (3 tables), env vars (6 vars), connection refs (3 refs), deploy orchestrator, PowerShell integration
+   - Phase 3 plan 1 delivered: Start-SessionValidationRunbook.ps1, Invoke-BaselineCapture.ps1
    - All scripts in FSI-AgentGov-Solutions/session-security-configurator/
 
 3. **Next action:**
-   - Begin Phase 3: Power Automate cloud flows
-   - Validation orchestration, drift detection, Teams notifications
+   - Continue Phase 3: Power Automate cloud flows (plans 03-02, 03-03)
+   - Daily validation orchestration flow, alerting/Teams notification flow
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-07 (Phase 2 Plan 3 executed — PowerShell-to-Dataverse threshold wiring, Phase 2 COMPLETE)*
+*Last session: 2026-02-07 (Phase 3 Plan 1 executed — Runbook wrapper and baseline capture, Phase 3 in progress)*
