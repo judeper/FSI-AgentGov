@@ -43,11 +43,12 @@ Plans:
   2. Environment variables for zone-specific session thresholds (fsi_SSC_* prefix) are deployed and Phase 1 scripts read thresholds from them instead of hardcoded values
   3. Connection references for Dataverse, Office 365, and Teams are deployed with fsi_cr_* naming convention
   4. Python deployment scripts are idempotent (safe to re-run) and support dry-run mode, following the ACV pattern
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
 - [ ] 02-01-PLAN.md — SSC Dataverse client, requirements, and three-table schema deployment
 - [ ] 02-02-PLAN.md — Environment variables, connection references, and deploy.py orchestrator
+- [ ] 02-03-PLAN.md — Wire Phase 1 PowerShell scripts to read thresholds from Dataverse
 
 ### Phase 3: Automation and Alerting
 **Goal**: Session security drift is automatically detected daily and operators receive classified alerts when configuration deviates from baselines
@@ -86,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. PowerShell Core | 3/3 | Complete | 2026-02-07 |
-| 2. Dataverse Infrastructure | 0/2 | Not started | - |
+| 2. Dataverse Infrastructure | 0/3 | Not started | - |
 | 3. Automation and Alerting | 0/TBD | Not started | - |
 | 4. Evidence Export and Framework Integration | 0/TBD | Not started | - |
 
@@ -120,6 +121,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 *Roadmap created: 2026-02-06*
 *Phase 1 planned: 2026-02-06 (3 plans in 2 waves)*
 *Phase 1 complete: 2026-02-07 (3 plans executed, verified 5/5)*
-*Phase 2 planned: 2026-02-07 (2 plans in 2 waves)*
+*Phase 2 planned: 2026-02-07 (3 plans in 3 waves)*
 *Depth: comprehensive*
 *Phases: 4 (derived from requirement dependencies and ACV proven pattern)*
