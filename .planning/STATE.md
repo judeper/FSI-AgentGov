@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-06
 **Milestone:** v5 — Session Security Configurator
-**Status:** DEFINING REQUIREMENTS
+**Status:** ROADMAP CREATED
 
 ## Project Reference
 
@@ -14,8 +14,8 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Milestone Series Plan
 
 ```
-v4: Audit Configuration Validator — SHIPPED ✓
-v5: Session Security Configurator (CURRENT)
+v4: Audit Configuration Validator — SHIPPED
+v5: Session Security Configurator (CURRENT — roadmap created)
 v6: Agent Access Governance Monitor
 v7: Content Moderation Governance Monitor
 v8: File Upload Security Configurator
@@ -24,18 +24,18 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** Not started (defining requirements)
-**Plan:** N/A
-**Status:** Defining requirements
-**Last activity:** 2026-02-06 — Milestone v5 started
+**Phase:** 1 of 4 (PowerShell Core)
+**Plan:** Not started (ready to plan)
+**Status:** Ready to plan Phase 1
+**Last activity:** 2026-02-06 — Roadmap created with 4 phases, 19 requirements mapped
 
 **Progress:**
 ```
-v1: [█████████████████████████] 8/8 phases (35 plans) — SHIPPED
-v2: [█████████████████████████] 5/5 phases (17 plans) — SHIPPED
-v3: [█████████████████████████] 7/7 phases (27 plans) — SHIPPED
-v4: [█████████████████████████] 4/4 phases (11 plans) — SHIPPED
-v5: [░░░░░░░░░░░░░░░░░░░░░░░░░] not started
+v1: [=========================] 8/8 phases (35 plans) — SHIPPED
+v2: [=========================] 5/5 phases (17 plans) — SHIPPED
+v3: [=========================] 7/7 phases (27 plans) — SHIPPED
+v4: [=========================] 4/4 phases (11 plans) — SHIPPED
+v5: [.........................] 0/4 phases — ROADMAP CREATED
 ```
 
 ## Performance Metrics
@@ -53,19 +53,13 @@ See PROJECT.md Key Decisions table for full history.
 
 ### Key Constraints
 
-- **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, documentation in FSI-AgentGov
-- **Git operations:** Must run from within target repo directory (separate git histories)
-- **Solution pattern:** Follow established Tier 2 pattern (PowerShell + Power Automate + docs)
-- **Controls:** Enhance existing controls, do NOT create new control numbers
-- **Integration deferred:** ELM hooks and Dashboard feeds handled in v9, not per-solution
-- **Control 1.23:** Session security requirements already documented with zone-specific lifetimes
-
-### Open Questions
-
-- [ ] GDPR Article 22 applicability: Which US FSI firms have EU exposure?
-- [ ] Viva Insights GA timeline: Will March 2026 release happen on schedule?
-- [ ] M365 Admin Center Agent Settings: When will Q1 2026 GA occur?
-- [ ] Multi-agent orchestration tracing: Implementation pattern?
+- **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, docs in FSI-AgentGov
+- **Solution pattern:** Tier 2 (PowerShell + Dataverse + Power Automate)
+- **ACV option set reuse:** fsi_acv_zone and fsi_acv_severity shared across solutions
+- **Detect-only for Zone 3:** No auto-remediation; SOX/FINRA change control requirement
+- **Break-glass validation:** Every deployment operation must validate break-glass exclusions
+- **Report-only bake:** 72-hour minimum before enforcement transition
+- **Integration deferred:** ELM hooks and Dashboard feeds handled in v9
 
 ### Blockers
 
@@ -76,28 +70,27 @@ None.
 ### Last Session Summary (2026-02-06)
 
 **What happened:**
-- Started v5 milestone (Session Security Configurator)
-- Updated PROJECT.md with Current Milestone section
-- Updated STATE.md for new milestone
+- Completed research (HIGH confidence across all 4 dimensions)
+- Created ROADMAP.md with 4 phases, 19 requirements mapped
+- Updated STATE.md and REQUIREMENTS.md traceability
 
 ### Context for Next Session
 
 If resuming this project:
 
 1. **Read these files first:**
-   - `.planning/PROJECT.md` — Current project state
-   - `.planning/MILESTONES.md` — Shipped milestone history
-   - `.planning/REQUIREMENTS.md` — v5 requirements (when created)
+   - `.planning/STATE.md` — Current position
+   - `.planning/ROADMAP.md` — Phase structure and success criteria
+   - `.planning/research/SUMMARY.md` — Research findings and pitfalls
 
 2. **Current state:**
-   - v5 milestone: Session Security Configurator — IN PROGRESS
-   - Target: Control 1.23 session security automation
+   - v5 milestone: Roadmap created, ready to plan Phase 1
+   - Phase 1 has 7 requirements (SCM-01 through SCM-07)
 
 3. **Next action:**
-   - Continue from wherever v5 left off
-   - Check STATE.md for current position
+   - `/gsd:plan-phase 1` to decompose Phase 1 into executable plans
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (v5 milestone started)*
+*Last session: 2026-02-06 (roadmap created)*

@@ -66,31 +66,31 @@ Deferred to post-v5 or v9 integration milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCM-01 | — | Pending |
-| SCM-02 | — | Pending |
-| SCM-03 | — | Pending |
-| SCM-04 | — | Pending |
-| SCM-05 | — | Pending |
-| SCM-06 | — | Pending |
-| SCM-07 | — | Pending |
-| DDA-01 | — | Pending |
-| DDA-02 | — | Pending |
-| DDA-03 | — | Pending |
-| DDA-04 | — | Pending |
-| CEV-01 | — | Pending |
-| CEV-02 | — | Pending |
-| CEV-03 | — | Pending |
-| INF-01 | — | Pending |
-| INF-02 | — | Pending |
-| INF-03 | — | Pending |
-| INF-04 | — | Pending |
-| INF-05 | — | Pending |
+| SCM-01 | Phase 1 | Pending |
+| SCM-02 | Phase 1 | Pending |
+| SCM-03 | Phase 1 | Pending |
+| SCM-04 | Phase 1 | Pending |
+| SCM-05 | Phase 1 | Pending |
+| SCM-06 | Phase 1 | Pending |
+| SCM-07 | Phase 1 | Pending |
+| DDA-01 | Phase 3 | Pending |
+| DDA-02 | Phase 3 | Pending |
+| DDA-03 | Phase 3 | Pending |
+| DDA-04 | Phase 3 | Pending |
+| CEV-01 | Phase 4 | Pending |
+| CEV-02 | Phase 4 | Pending |
+| CEV-03 | Phase 4 | Pending |
+| INF-01 | Phase 2 | Pending |
+| INF-02 | Phase 2 | Pending |
+| INF-03 | Phase 2 | Pending |
+| INF-04 | Phase 3 | Pending |
+| INF-05 | Phase 2 | Pending |
 
 **Coverage:**
 - v5 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after initial definition*
+*Last updated: 2026-02-06 after roadmap creation*
