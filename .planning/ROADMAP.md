@@ -27,12 +27,12 @@ The Session Security Configurator automates Conditional Access session control e
   3. Operator can run dry-run mode on any deployment operation and see a preview of all changes that would be made without any tenant modifications occurring
   4. Operator can run zone validation that reports pass/fail/warning status for each zone, covering session controls, authentication strength policies, PIM settings, and break-glass exclusions
   5. Operator can see a pre-deployment CA policy conflict audit that identifies overlapping policies which would create unpredictable session timeouts
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Solution scaffold, private helpers, and JSON templates
+- [ ] 01-02-PLAN.md — Deploy-AuthContexts.ps1 and Deploy-StepUpPolicies.ps1
+- [ ] 01-03-PLAN.md — Test-SessionCompliance.ps1 validation orchestrator
 
 ### Phase 2: Dataverse Infrastructure
 **Goal**: Session baselines, validation history, and configuration thresholds are stored in Dataverse for persistent, queryable state across automated runs
@@ -85,7 +85,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. PowerShell Core | 0/TBD | Not started | - |
+| 1. PowerShell Core | 0/3 | Planned | - |
 | 2. Dataverse Infrastructure | 0/TBD | Not started | - |
 | 3. Automation and Alerting | 0/TBD | Not started | - |
 | 4. Evidence Export and Framework Integration | 0/TBD | Not started | - |
@@ -118,5 +118,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 ---
 *Roadmap created: 2026-02-06*
+*Phase 1 planned: 2026-02-06 (3 plans in 2 waves)*
 *Depth: comprehensive*
 *Phases: 4 (derived from requirement dependencies and ACV proven pattern)*
