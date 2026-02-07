@@ -25,9 +25,9 @@ v9: Integration (ELM + Dashboard + cross-solution)
 ## Current Position
 
 **Phase:** 2 of 4 (Dataverse Infrastructure)
-**Plan:** 1 of 3 plans executed
-**Status:** In progress — Phase 2 started
-**Last activity:** 2026-02-07 — Completed 02-01-PLAN.md (SSC Dataverse client and schema)
+**Plan:** 2 of 3 plans executed
+**Status:** In progress — Phase 2 nearly complete
+**Last activity:** 2026-02-07 — Completed 02-02-PLAN.md (environment variables, connection refs, deploy orchestrator)
 
 **Progress:**
 ```
@@ -69,6 +69,14 @@ See PROJECT.md Key Decisions table for full history.
 - ValidationHistory is OrganizationOwned for immutability (regulatory requirement — tamper-proof audit log)
 - Three-table design: SessionBaseline (user-owned config), ValidationHistory (org-owned audit), DriftViolation (user-owned alerts)
 
+**v5 Phase 2 decisions (02-02):**
+- Environment variables use Decimal type (100000001) for numeric sign-in frequency minutes
+- Environment variables use String type (100000000) for authentication strength names
+- Zone defaults match Phase 1 baselines: Zone 1 (480m/standard), Zone 2 (240m/passwordless), Zone 3 (60m/phishing-resistant)
+- Connection references follow fsi_cr_ naming convention for consistency with ACV
+- deploy.py provides post-deployment guidance on security roles (ValidationHistory immutability) and connection binding
+- Selective deployment flags enable incremental deployments (--tables-only, --vars-only, --refs-only)
+
 ### Key Constraints
 
 - **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, docs in FSI-AgentGov
@@ -88,13 +96,14 @@ None.
 ### Last Session Summary (2026-02-07)
 
 **What happened:**
-- Executed Phase 2 Plan 1 (SSC Dataverse client and schema)
-- Created ssc_client.py (SSCClient class with MSAL auth, retry logic, dry-run mode)
-- Created requirements.txt (msal, requests dependencies)
-- Created create_dataverse_schema.py (3-table schema deployment)
-- 2 commits to FSI-AgentGov-Solutions: 0965175, e4e8d0d
-- 3 files created: ssc_client.py (297 lines), requirements.txt (7 lines), create_dataverse_schema.py (568 lines)
+- Executed Phase 2 Plan 2 (environment variables, connection refs, deploy orchestrator)
+- Created create_environment_variables.py (6 zone threshold variables)
+- Created create_connection_references.py (3 connection refs: Dataverse, O365, Teams)
+- Created deploy.py (master orchestrator with selective deployment modes)
+- 2 commits to FSI-AgentGov-Solutions: f18f537, ef8a137
+- 3 files created: create_environment_variables.py (239 lines), create_connection_references.py (207 lines), deploy.py (463 lines)
 - Self-check: PASSED (all files exist, all commits present)
+- Duration: 2m 43s
 
 ### Context for Next Session
 
@@ -103,20 +112,19 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/02-dataverse-infrastructure/02-01-SUMMARY.md` — Python client and schema details
+   - `.planning/phases/02-dataverse-infrastructure/02-02-SUMMARY.md` — Env vars, connection refs, deploy orchestrator
 
 2. **Current state:**
-   - v5 milestone: Phase 1 complete, Phase 2 plan 1 complete (1/3)
+   - v5 milestone: Phase 1 complete, Phase 2 plan 2 complete (2/3)
    - Phase 1 delivered: 3 main scripts, 3 private helpers, 7 JSON templates
-   - Phase 2 started: Python Dataverse client and 3-table schema
+   - Phase 2 nearly complete: Python Dataverse client, schema, env vars, connection refs, deploy orchestrator
    - All scripts in FSI-AgentGov-Solutions/session-security-configurator/scripts/
 
 3. **Next action:**
-   - Continue Phase 2 with plans 02-02 and 02-03
-   - Plan 02-02: Environment variables and connection references
-   - Plan 02-03: Dataverse deployment scripts (write baselines, history, violations)
+   - Complete Phase 2 with plan 02-03
+   - Plan 02-03: Wire Phase 1 PowerShell scripts to Dataverse thresholds (read zone env vars in Deploy-StepUpPolicies.ps1)
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-07 (Phase 2 Plan 1 executed — SSC Dataverse client and schema)*
+*Last session: 2026-02-07 (Phase 2 Plan 2 executed — env vars, connection refs, deploy orchestrator)*
