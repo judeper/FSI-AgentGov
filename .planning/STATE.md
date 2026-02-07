@@ -1,8 +1,8 @@
 # Project State: FSI-AgentGov
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-07
 **Milestone:** v5 — Session Security Configurator
-**Status:** ROADMAP CREATED
+**Status:** IN PROGRESS
 
 ## Project Reference
 
@@ -25,9 +25,9 @@ v9: Integration (ELM + Dashboard + cross-solution)
 ## Current Position
 
 **Phase:** 1 of 4 (PowerShell Core)
-**Plan:** Not started (ready to plan)
-**Status:** Ready to plan Phase 1
-**Last activity:** 2026-02-06 — Roadmap created with 4 phases, 19 requirements mapped
+**Plan:** 1 of 4 complete (01-01-PLAN.md)
+**Status:** In progress - Phase 1
+**Last activity:** 2026-02-07 — Completed 01-01-PLAN.md (solution scaffold)
 
 **Progress:**
 ```
@@ -35,7 +35,7 @@ v1: [=========================] 8/8 phases (35 plans) — SHIPPED
 v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [.........................] 0/4 phases — ROADMAP CREATED
+v5: [█........................] 1/4 plans Phase 1 — IN PROGRESS
 ```
 
 ## Performance Metrics
@@ -50,6 +50,11 @@ v5: [.........................] 0/4 phases — ROADMAP CREATED
 ### Decisions Made
 
 See PROJECT.md Key Decisions table for full history.
+
+**v5 Phase 1 decisions:**
+- Private helpers follow ACV/CAA patterns (Connect-GraphSession with tenant reuse, Test-BreakGlassExclusion with group membership resolution, Compare-SessionBaseline with minute normalization)
+- All step-up policies default to report-only mode for safe deployment
+- Zone session controls: Zone 1 (8h/standard MFA), Zone 2 (4h/passwordless), Zone 3 (1h/phishing-resistant/compliant device)
 
 ### Key Constraints
 
@@ -67,12 +72,13 @@ None.
 
 ## Session Continuity
 
-### Last Session Summary (2026-02-06)
+### Last Session Summary (2026-02-07)
 
 **What happened:**
-- Completed research (HIGH confidence across all 4 dimensions)
-- Created ROADMAP.md with 4 phases, 19 requirements mapped
-- Updated STATE.md and REQUIREMENTS.md traceability
+- Completed 01-01-PLAN.md (solution scaffold)
+- Created 3 private helper scripts in FSI-AgentGov-Solutions
+- Created 7 JSON templates (auth contexts, step-up policies, baselines)
+- 2 commits to FSI-AgentGov-Solutions: d5423d5 (chore), a93d49b (feat)
 
 ### Context for Next Session
 
@@ -81,16 +87,18 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/research/SUMMARY.md` — Research findings and pitfalls
+   - `.planning/phases/01-powershell-core/01-01-SUMMARY.md` — What was built
 
 2. **Current state:**
-   - v5 milestone: Roadmap created, ready to plan Phase 1
-   - Phase 1 has 7 requirements (SCM-01 through SCM-07)
+   - v5 milestone: Phase 1 in progress (1 of 4 plans complete)
+   - Solution scaffold ready in FSI-AgentGov-Solutions/session-security-configurator/
+   - Private helpers available for dot-sourcing by orchestrator scripts
 
 3. **Next action:**
-   - `/gsd:plan-phase 1` to decompose Phase 1 into executable plans
+   - Continue Phase 1 with remaining plans (01-02, 01-03, 01-04)
+   - Plans will build orchestrator scripts using the private helpers
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-06 (roadmap created)*
+*Last session: 2026-02-07 (01-01 complete)*
