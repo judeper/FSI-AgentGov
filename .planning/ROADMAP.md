@@ -10,7 +10,7 @@ The Session Security Configurator automates Conditional Access session control e
 - Integer phases (1, 2, 3, 4): Planned milestone work
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: PowerShell Core** - Authentication context lifecycle, step-up policy deployment, zone validation, and safety controls
+- [x] **Phase 1: PowerShell Core** - Authentication context lifecycle, step-up policy deployment, zone validation, and safety controls
 - [ ] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
 - [ ] **Phase 3: Automation and Alerting** - Scheduled drift detection, Teams alerting, Power Automate flow, and baseline management
 - [ ] **Phase 4: Evidence Export and Framework Integration** - SHA-256 compliance export, Control 1.23 integration, and documentation suite
@@ -30,9 +30,9 @@ The Session Security Configurator automates Conditional Access session control e
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Solution scaffold, private helpers, and JSON templates
-- [ ] 01-02-PLAN.md — Deploy-AuthContexts.ps1 and Deploy-StepUpPolicies.ps1
-- [ ] 01-03-PLAN.md — Test-SessionCompliance.ps1 validation orchestrator
+- [x] 01-01-PLAN.md — Solution scaffold, private helpers, and JSON templates
+- [x] 01-02-PLAN.md — Deploy-AuthContexts.ps1 and Deploy-StepUpPolicies.ps1
+- [x] 01-03-PLAN.md — Test-SessionCompliance.ps1 validation orchestrator
 
 ### Phase 2: Dataverse Infrastructure
 **Goal**: Session baselines, validation history, and configuration thresholds are stored in Dataverse for persistent, queryable state across automated runs
@@ -85,7 +85,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. PowerShell Core | 0/3 | Planned | - |
+| 1. PowerShell Core | 3/3 | Complete | 2026-02-07 |
 | 2. Dataverse Infrastructure | 0/TBD | Not started | - |
 | 3. Automation and Alerting | 0/TBD | Not started | - |
 | 4. Evidence Export and Framework Integration | 0/TBD | Not started | - |
@@ -119,5 +119,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 ---
 *Roadmap created: 2026-02-06*
 *Phase 1 planned: 2026-02-06 (3 plans in 2 waves)*
+*Phase 1 complete: 2026-02-07 (3 plans executed, verified 5/5)*
 *Depth: comprehensive*
 *Phases: 4 (derived from requirement dependencies and ACV proven pattern)*

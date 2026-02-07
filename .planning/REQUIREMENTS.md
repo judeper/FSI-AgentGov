@@ -9,13 +9,13 @@ Requirements for the Session Security Configurator milestone. Automates Conditio
 
 ### Session Control Management
 
-- [ ] **SCM-01**: Deploy authentication contexts (c1-c5) for step-up operations with conflict detection for pre-existing contexts
-- [ ] **SCM-02**: Deploy step-up CA policies with zone-specific session controls (Zone 1: 8h, Zone 2: 4h/30min, Zone 3: 1h/15min)
-- [ ] **SCM-03**: Validate deployed CA policies match zone-specific session requirements with pass/fail/warning status per zone
-- [ ] **SCM-04**: All deployment operations support dry-run mode previewing changes before applying
-- [ ] **SCM-05**: Create/validate authentication strength policies (phishing-resistant MFA for Zone 3, passwordless for Zone 2)
-- [ ] **SCM-06**: Validate PIM settings for AI admin roles match Control 1.23 requirements (activation windows, approval, auth context)
-- [ ] **SCM-07**: Report-only mode enforcement with minimum 72-hour bake period before enforcement transition
+- [x] **SCM-01**: Deploy authentication contexts (c1-c5) for step-up operations with conflict detection for pre-existing contexts
+- [x] **SCM-02**: Deploy step-up CA policies with zone-specific session controls (Zone 1: 8h, Zone 2: 4h/30min, Zone 3: 1h/15min)
+- [x] **SCM-03**: Validate deployed CA policies match zone-specific session requirements with pass/fail/warning status per zone
+- [x] **SCM-04**: All deployment operations support dry-run mode previewing changes before applying
+- [x] **SCM-05**: Create/validate authentication strength policies (phishing-resistant MFA for Zone 3, passwordless for Zone 2)
+- [x] **SCM-06**: Validate PIM settings for AI admin roles match Control 1.23 requirements (activation windows, approval, auth context)
+- [x] **SCM-07**: Report-only mode enforcement with minimum 72-hour bake period before enforcement transition
 
 ### Drift Detection & Alerting
 
@@ -66,13 +66,13 @@ Deferred to post-v5 or v9 integration milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCM-01 | Phase 1 | Pending |
-| SCM-02 | Phase 1 | Pending |
-| SCM-03 | Phase 1 | Pending |
-| SCM-04 | Phase 1 | Pending |
-| SCM-05 | Phase 1 | Pending |
-| SCM-06 | Phase 1 | Pending |
-| SCM-07 | Phase 1 | Pending |
+| SCM-01 | Phase 1 | Complete |
+| SCM-02 | Phase 1 | Complete |
+| SCM-03 | Phase 1 | Complete |
+| SCM-04 | Phase 1 | Complete |
+| SCM-05 | Phase 1 | Complete |
+| SCM-06 | Phase 1 | Complete |
+| SCM-07 | Phase 1 | Complete |
 | DDA-01 | Phase 3 | Pending |
 | DDA-02 | Phase 3 | Pending |
 | DDA-03 | Phase 3 | Pending |
@@ -93,4 +93,4 @@ Deferred to post-v5 or v9 integration milestone.
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after roadmap creation*
+*Last updated: 2026-02-07 after Phase 1 execution*
