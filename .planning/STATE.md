@@ -104,6 +104,14 @@ See PROJECT.md Key Decisions table for full history.
 - **Report-only bake:** 72-hour minimum before enforcement transition
 - **Integration deferred:** ELM hooks and Dashboard feeds handled in v9
 
+### Pending Todos
+
+4 todos in `.planning/todos/pending/`:
+- Review Agent 365 meeting notes against framework
+- Review AI agent evaluation blog for framework applicability
+- Review February 2026 Power Platform and Copilot Studio updates
+- Investigate multi-source governance agent architecture *(consolidated from MCP server + Copilot Studio agent todos)*
+
 ### Blockers
 
 None.
