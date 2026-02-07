@@ -11,7 +11,7 @@ The Session Security Configurator automates Conditional Access session control e
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: PowerShell Core** - Authentication context lifecycle, step-up policy deployment, zone validation, and safety controls
-- [ ] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
+- [x] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
 - [ ] **Phase 3: Automation and Alerting** - Scheduled drift detection, Teams alerting, Power Automate flow, and baseline management
 - [ ] **Phase 4: Evidence Export and Framework Integration** - SHA-256 compliance export, Control 1.23 integration, and documentation suite
 
@@ -46,9 +46,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — SSC Dataverse client, requirements, and three-table schema deployment
-- [ ] 02-02-PLAN.md — Environment variables, connection references, and deploy.py orchestrator
-- [ ] 02-03-PLAN.md — Wire Phase 1 PowerShell scripts to read thresholds from Dataverse
+- [x] 02-01-PLAN.md — SSC Dataverse client, requirements, and three-table schema deployment
+- [x] 02-02-PLAN.md — Environment variables, connection references, and deploy.py orchestrator
+- [x] 02-03-PLAN.md — Wire Phase 1 PowerShell scripts to read thresholds from Dataverse
 
 ### Phase 3: Automation and Alerting
 **Goal**: Session security drift is automatically detected daily and operators receive classified alerts when configuration deviates from baselines
@@ -87,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. PowerShell Core | 3/3 | Complete | 2026-02-07 |
-| 2. Dataverse Infrastructure | 0/3 | Not started | - |
+| 2. Dataverse Infrastructure | 3/3 | Complete | 2026-02-07 |
 | 3. Automation and Alerting | 0/2 | Not started | - |
 | 4. Evidence Export and Framework Integration | 0/TBD | Not started | - |
 
@@ -122,6 +122,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 *Phase 1 planned: 2026-02-06 (3 plans in 2 waves)*
 *Phase 1 complete: 2026-02-07 (3 plans executed, verified 5/5)*
 *Phase 2 planned: 2026-02-07 (3 plans in 3 waves)*
+*Phase 2 complete: 2026-02-07 (3 plans executed in 3 waves)*
 *Phase 3 planned: 2026-02-07 (2 plans in 2 waves)*
 *Depth: comprehensive*
 *Phases: 4 (derived from requirement dependencies and ACV proven pattern)*
