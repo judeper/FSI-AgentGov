@@ -1,0 +1,10 @@
+# FSI-AgentGov - Codex CLI Project Configuration
+model = "gpt-5.2"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+model_reasoning_effort = "high"
+web_search = "cached"
+
+[features]
+shell_tool = true
+undo = true

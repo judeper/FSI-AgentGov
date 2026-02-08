@@ -164,6 +164,39 @@ For Claude Code users, detailed workflows are available as on-demand skills in `
 
 These skills provide step-by-step instructions and are loaded only when invoked.
 
+## Multi-Agent Configuration
+
+This repository supports three AI tools:
+
+| Tool | Config | Primary Role |
+|------|--------|-------------|
+| GitHub Copilot | `.github/agents/`, `.github/prompts/`, `.github/instructions/` | Documentation generation |
+| Claude Code | `.claude/CLAUDE.md`, `.claude/skills/` | Verification and QA |
+| Codex CLI | `.codex/config.toml` | Documentation generation |
+
+### Custom Agents (13)
+Located in `.github/agents/`: `doc-writer`, `doc-verifier`, plus 11 GSD workflow agents (`gsd-planner`, `gsd-executor`, `gsd-verifier`, `gsd-debugger`, `gsd-codebase-mapper`, `gsd-roadmapper`, `gsd-project-researcher`, `gsd-phase-researcher`, `gsd-research-synthesizer`, `gsd-integration-checker`, `gsd-plan-checker`).
+
+### GSD Prompts (27)
+Located in `.github/prompts/`. Use `/gsd:execute-phase`, `/gsd:plan-phase`, etc.
+
+### Instruction Files (12)
+Located in `.github/instructions/`. Auto-included by `applyTo` glob patterns.
+
+### VS Code Setup
+Add to your `.vscode/settings.json`:
+```json
+{
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "chat.promptFilesLocations": [".github/prompts"],
+  "chat.instructionsFilesLocations": [".github/instructions"]
+}
+```
+
+### Session Ownership
+Check `.planning/STATE.md` Active Tool field before writing to shared GSD state files.
+See `AGENTS.md` Multi-Agent Coordination section for full protocol.
+
 ## Build and Validate
 
 ```bash

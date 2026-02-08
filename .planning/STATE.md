@@ -118,6 +118,9 @@ None.
 
 ## Session Continuity
 
+**Active Tool:** claude-code
+**Session Started:** 2026-02-08
+
 ### Last Session Summary (2026-02-07)
 
 **What happened:**

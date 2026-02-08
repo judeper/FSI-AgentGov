@@ -4,7 +4,7 @@
 node_modules/
 .idea/
 .vscode/
-CLAUDE.md
+/CLAUDE.md
 *.swp
 *.swo
 
@@ -38,5 +38,5 @@ nul
 # Claude Code local settings
 .claude/settings.local.json
 
-# Research prompts (local only)
-prompts/
+# Research prompts (local only - root level, not .github/prompts/)
+/prompts/

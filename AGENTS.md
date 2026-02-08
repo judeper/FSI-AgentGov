@@ -1,26 +1,92 @@
 # AGENTS.md - Instructions for AI Agents
 
-This file provides guidance for autonomous AI agents working on this repository.
+This file provides guidance for autonomous AI agents working on this repository. It is tool-neutral and readable by Codex CLI, GitHub Copilot, and Claude Code.
+
+## Project Overview
+
+**FSI Agent Governance Framework v1.2.38** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
+
+- **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
+- **3-layer documentation** (Framework → Controls → Playbooks)
+- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
+- **Audience:** M365 administrators in US financial services
+
+**Full context:** See `.github/copilot-instructions.md` for complete repository structure and design decisions.
+
+**Companion Repository:** `FSI-AgentGov-Solutions` contains deployable solution artifacts (13 solutions covering 17 controls). See `docs/reference/solutions-index.md` for catalog.
 
 ## Before Making Changes
 
 1. **Read `.github/copilot-instructions.md`** for full repository context
-2. **Understand the task scope** - is it a control edit, nav update, or new feature?
-3. **Check related files** - controls often reference each other
+2. **Understand the task scope** — is it a control edit, nav update, or new feature?
+3. **Check related files** — controls often reference each other
+4. **Check session ownership** — see Multi-Agent Coordination below
 
-## Claude Code Skills
+## Multi-Agent Coordination
 
-For Claude Code, detailed workflows are available as on-demand skills in `.claude/skills/`:
+Three tools operate on this repository:
 
-| Skill | Use When |
-|-------|----------|
-| `/update-control` | Modifying existing control content |
-| `/add-control` | Adding a new control to a pillar |
-| `/update-excel` | Maintaining Excel checklist templates |
-| `/verify-ui` | Verifying portal screenshots match documentation |
-| `/review-learn-changes` | Reviewing Learn Monitor change reports and drafting documentation updates |
+| Tool | Primary Role | Config Location |
+|------|-------------|-----------------|
+| **Codex CLI** | Documentation generation | `.codex/config.toml` |
+| **GitHub Copilot** | Documentation writing, GSD workflows | `.github/agents/`, `.github/prompts/` |
+| **Claude Code** | Verification, QA, GSD workflows | `.claude/CLAUDE.md`, `.claude/skills/` |
 
-Use these skills for step-by-step guidance on common tasks.
+### Session Ownership Protocol
+
+Only one tool writes to GSD shared state files at a time.
+
+**Rules:**
+- Whichever tool starts a session owns GSD writes for that session
+- The session owner updates `STATE.md` with `Active Tool` at session start
+- Handoff requires the current owner to update STATE.md before the other tool begins
+- Both tools can always **read** all `.planning/` files
+- Only the session owner **writes** to `STATE.md`, `ROADMAP.md`, `config.json`
+- Phase artifacts (`PLAN.md`, `SUMMARY.md`, `RESEARCH.md`) are written by whichever tool executes the plan
+
+**Handoff format** (add to STATE.md Session Continuity section):
+```markdown
+**Active Tool:** copilot | claude-code | codex
+**Session Started:** YYYY-MM-DD HH:MM
+**Handoff Summary:** [What was done, what's next]
+```
+
+### Conflict Prevention
+
+- Before writing to `.planning/`, check `STATE.md` for `Active Tool`
+- If another tool owns the session, only read — do not write
+- If `Active Tool` is missing, claim the session by updating STATE.md
+- Phase execution artifacts are safe to write — they are scoped to the executing plan
+
+## GSD Planning Structure
+
+The `.planning/` directory contains project management state for the GSD (Get Stuff Done) workflow.
+
+```
+.planning/
+├── PROJECT.md          # Project identity, scope, key decisions
+├── ROADMAP.md          # Phase breakdown with success criteria
+├── STATE.md            # Current position, session continuity
+├── REQUIREMENTS.md     # Requirements with traceability matrix
+├── MILESTONES.md       # Historical milestone achievements
+├── config.json         # Workflow toggles and model profile
+├── phases/             # Phase execution artifacts
+│   └── {NN}-{kebab-name}/
+│       ├── {NN}-RESEARCH.md    # Phase research
+│       ├── {NN}-{PP}-PLAN.md   # Execution plans (PP = plan number)
+│       ├── {NN}-{PP}-SUMMARY.md # Execution summaries
+│       └── {NN}-VERIFICATION.md # Phase verification
+├── research/           # Cross-phase research documents
+├── codebase/           # Codebase analysis documents
+└── todos/pending/      # Deferred work items
+```
+
+**Naming conventions:**
+- Phase directories: `{NN}-{kebab-case-name}/` (e.g., `01-powershell-tech-debt/`)
+- Plan files: `{NN}-{PP}-PLAN.md` with YAML frontmatter (phase, plan, wave, dependencies)
+- Summary files: `{NN}-{PP}-SUMMARY.md` with dependency graph, tech stack, key files
+- This repo uses `.planning/` — NOT `.gsd/`
 
 ## Agent Workflows
 
@@ -29,87 +95,82 @@ Use these skills for step-by-step guidance on common tasks.
 1. Read `docs/templates/control-setup-template.md` for required structure
 2. Copy template to correct pillar folder: `docs/controls/pillar-{n}-{name}/`
 3. Name file: `{id}-{kebab-case-name}.md` (e.g., `1.20-new-control.md`)
-4. Fill all 10 sections (plus header and footer metadata) - do not skip any
+4. Fill all 10 sections (plus header and footer metadata) — do not skip any
 5. Update these files:
-   - `docs/controls/CONTROL-INDEX.md` - add the new control to the master index
-   - `mkdocs.yml` - add to navigation under correct pillar
+   - `docs/controls/CONTROL-INDEX.md` — add the new control to the master index
+   - `mkdocs.yml` — add to navigation under correct pillar
 6. Create `docs/images/{control-id}/EXPECTED.md` for screenshot specs
 7. Validate: `mkdocs build --strict`
 
 ### Update Existing Control
 
 1. Read current control file completely
-2. Preserve all 10 sections - do not remove any
+2. Preserve all 10 sections — do not remove any
 3. Update "Updated" in footer (Month-Year)
 4. If portal paths changed, update `docs/images/{control-id}/EXPECTED.md`
 5. Validate: `mkdocs build --strict`
 
 ### Verify Screenshots
 
-1. Read the control's `.md` file in `docs/controls/pillar-{n}-*/`
-2. Read `docs/images/{control-id}/EXPECTED.md` for required screenshots
-3. Read `docs/images/VERIFY.md` for detailed verification workflow
-4. Compare portal instructions in control doc against screenshot requirements
-5. Report: matches, discrepancies, or outdated UI elements
+See `docs/images/VERIFY.md` for the screenshot verification workflow.
 
 ### Update Navigation
 
-1. Edit `mkdocs.yml` - the `nav:` section defines site structure
-2. Maintain alphabetical/numerical order within pillars
-3. Validate: `mkdocs build --strict`
+Edit `mkdocs.yml` `nav:` section. Maintain numerical order within pillars. Validate: `mkdocs build --strict`
 
 ## Language Guidelines
 
 When writing control documentation:
-- **Avoid:** "ensures compliance", "guarantees", "will prevent"
-- **Use:** "supports compliance with", "helps meet", "required for"
+- **NEVER use:** "ensures compliance", "guarantees", "will prevent", "eliminates risk"
+- **ALWAYS use:** "supports compliance with", "helps meet", "required for", "recommended to", "aids in"
 - Include caveats about implementation requirements
+- Use canonical role names from `docs/reference/role-catalog.md`
 
 ## Validation Commands
 
 Always run before completing work:
 
 ```bash
-mkdocs build --strict          # Validates links and structure
-python scripts/verify_controls.py   # Validates control files
+mkdocs build --strict              # Validates links and structure
+python scripts/verify_controls.py  # Validates control files
 ```
 
-## Files to Never Modify Without Permission
-
-- `LICENSE` - Legal file
-- `SECURITY.md` - Security policy
-- `CODE_OF_CONDUCT.md` - Community standards
+Additional validations (when applicable):
+```bash
+python scripts/verify_excel_templates.py        # After template changes
+python scripts/compile_researcher_package.py    # After pillar control changes
+```
 
 ## Advanced Implementations
 
-Advanced implementations are complex multi-control solutions in `docs/playbooks/advanced-implementations/`.
+Complex multi-control solutions in `docs/playbooks/advanced-implementations/`:
 
-### Platform Change Governance
+- **Platform Change Governance** — Dataverse-based Message Center change management
+- **Environment Lifecycle Management** — Automated environment provisioning with zone classification
 
-Location: `docs/playbooks/advanced-implementations/platform-change-governance/`
+Both have companion deployment scripts in FSI-AgentGov-Solutions.
 
-A Dataverse-based solution for operationalizing Microsoft Message Center changes with regulatory-aligned audit trails. Includes:
-- Architecture documentation (Dataverse schema, security model)
-- Two implementation paths (Dataverse-only vs. Dataverse + Azure DevOps)
-- Hands-on labs
-- Evidence standards for regulatory examinations
+## Files to Never Modify Without Permission
 
-**Companion Repository:** FSI-AgentGov-Solutions contains deployment scripts and solution files.
-
-### Environment Lifecycle Management
-
-Location: `docs/playbooks/advanced-implementations/environment-lifecycle-management/`
-
-Automated environment provisioning with zone classification, Copilot Studio intake agent, and append-only audit trail. Includes:
-- Architecture documentation (Dataverse schema, zone classification)
-- Automated deployment scripts (via FSI-AgentGov-Solutions)
-- Hands-on labs
-- Evidence and audit standards
-
-**Companion Repository:** FSI-AgentGov-Solutions contains ELM deployment scripts.
+- `LICENSE` — Legal file
+- `SECURITY.md` — Security policy
+- `CODE_OF_CONDUCT.md` — Community standards
 
 ## Error Handling
 
 If you encounter:
 - **Broken links:** Check `mkdocs.yml` nav entries match actual file paths
 - **Missing sections in controls:** Refer to `docs/templates/control-setup-template.md`
+- **Build failures:** Run `mkdocs build --strict` and fix reported issues
+- **GSD state conflicts:** Check `STATE.md` for session ownership before writing
+
+## Tool-Specific Configuration
+
+| Tool | Config | Details |
+|------|--------|---------|
+| **Claude Code** | `.claude/CLAUDE.md` | Full project context, skills, hooks |
+| **Claude Code Skills** | `.claude/skills/` | On-demand workflows (`/update-control`, `/add-control`, etc.) |
+| **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy |
+| **Copilot Agents** | `.github/agents/` | Custom agents (doc-writer, GSD workflow agents) |
+| **Copilot Prompts** | `.github/prompts/` | GSD commands adapted for Copilot |
+| **Copilot Instructions** | `.github/instructions/` | Auto-included rules by file path |
