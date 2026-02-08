@@ -1,7 +1,7 @@
 ---
 name: "gsd:complete-milestone"
 description: "Archive completed milestone and prepare for next version"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal"]
+tools: ["read", "edit", "search", "execute"]
 ---
 
 <objective>

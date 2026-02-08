@@ -1,7 +1,7 @@
 ---
 name: "gsd:new-milestone"
 description: "Start a new milestone cycle — update PROJECT.md and route to requirements"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal"]
+tools: ["read", "edit", "search", "execute"]
 ---
 
 <objective>

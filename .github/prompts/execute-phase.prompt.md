@@ -1,7 +1,7 @@
 ---
 name: "gsd:execute-phase"
 description: "Execute all plans in a phase with wave-based parallelization"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal", "runSubagent", "todos"]
+tools: ["read", "edit", "search", "execute", "agent", "todo"]
 ---
 
 <objective>

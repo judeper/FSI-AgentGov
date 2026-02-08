@@ -1,7 +1,7 @@
 ---
 name: "gsd:progress"
 description: "Check project progress, show context, and route to next action"
-tools: ["readFile", "listDirectory", "textSearch"]
+tools: ["read", "search"]
 ---
 
 <objective>

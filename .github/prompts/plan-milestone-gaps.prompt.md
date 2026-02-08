@@ -1,7 +1,7 @@
 ---
 name: "gsd:plan-milestone-gaps"
 description: "Create phases to close all gaps identified by milestone audit"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal"]
+tools: ["read", "edit", "search", "execute"]
 ---
 
 <objective>

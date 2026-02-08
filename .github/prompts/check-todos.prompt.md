@@ -1,7 +1,7 @@
 ---
 name: "gsd:check-todos"
 description: "List pending todos and select one to work on"
-tools: ["readFile", "listDirectory", "textSearch"]
+tools: ["read", "search"]
 ---
 
 <objective>

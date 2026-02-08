@@ -1,7 +1,7 @@
 ---
 name: "gsd:help"
 description: "Show available GSD commands and usage guide"
-tools: ["readFile"]
+tools: ["read"]
 ---
 
 <objective>

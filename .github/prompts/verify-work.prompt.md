@@ -1,7 +1,7 @@
 ---
 name: "gsd:verify-work"
 description: "Validate built features through conversational UAT"
-tools: ["readFile", "listDirectory", "textSearch", "runInTerminal", "runSubagent"]
+tools: ["read", "search", "execute", "agent"]
 ---
 
 <objective>

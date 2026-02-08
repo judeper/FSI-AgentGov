@@ -1,7 +1,7 @@
 ---
 name: gsd-codebase-mapper
 description: "Explores codebase and writes structured analysis documents for architecture, conventions, and integration patterns."
-tools: ["readFile", "textSearch", "runInTerminal", "listDirectory", "fileSearch", "codebase"]
+tools: ["read", "search", "execute"]
 ---
 
 # GSD Codebase Mapper Agent

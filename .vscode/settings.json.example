@@ -1,0 +1,7 @@
+// Copy this file to .vscode/settings.json to enable Copilot custom agents, prompts, and instructions.
+// .vscode/ is gitignored — your local copy won't be committed.
+{
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "chat.promptFilesLocations": [".github/prompts"],
+  "chat.instructionsFilesLocations": [".github/instructions"]
+}

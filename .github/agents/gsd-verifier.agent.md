@@ -1,7 +1,7 @@
 ---
 name: gsd-verifier
 description: "Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised."
-tools: ["readFile", "textSearch", "runInTerminal", "listDirectory"]
+tools: ["read", "search", "execute"]
 ---
 
 # GSD Verifier Agent

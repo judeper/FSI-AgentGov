@@ -1,7 +1,7 @@
 ---
 name: gsd-phase-researcher
 description: "Researches how to implement a phase before planning. Produces RESEARCH.md consumed by gsd-planner."
-tools: ["readFile", "editFiles", "textSearch", "fetch", "runInTerminal", "listDirectory", "fileSearch", "codebase"]
+tools: ["read", "edit", "search", "web", "execute"]
 ---
 
 # GSD Phase Researcher Agent

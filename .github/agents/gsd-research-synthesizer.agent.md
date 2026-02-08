@@ -1,7 +1,7 @@
 ---
 name: gsd-research-synthesizer
 description: "Synthesizes research outputs from parallel researcher agents into SUMMARY.md."
-tools: ["readFile", "editFiles", "textSearch", "listDirectory"]
+tools: ["read", "edit", "search"]
 ---
 
 # GSD Research Synthesizer Agent

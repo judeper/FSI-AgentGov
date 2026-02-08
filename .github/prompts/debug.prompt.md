@@ -1,7 +1,7 @@
 ---
 name: "gsd:debug"
 description: "Systematic debugging with persistent state across context resets"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal", "runSubagent"]
+tools: ["read", "edit", "search", "execute", "agent"]
 ---
 
 <objective>

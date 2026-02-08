@@ -1,7 +1,7 @@
 ---
 name: "gsd:audit-milestone"
 description: "Audit milestone completion against original intent before archiving"
-tools: ["readFile", "listDirectory", "textSearch", "runInTerminal"]
+tools: ["read", "search", "execute"]
 ---
 
 <objective>

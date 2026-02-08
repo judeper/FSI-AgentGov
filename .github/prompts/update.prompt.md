@@ -1,7 +1,7 @@
 ---
 name: "gsd:update"
 description: "Update GSD to latest version with changelog display"
-tools: ["readFile", "editFiles", "runInTerminal", "fetch"]
+tools: ["read", "edit", "execute", "web"]
 ---
 
 <objective>

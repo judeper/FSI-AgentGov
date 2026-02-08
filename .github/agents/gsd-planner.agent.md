@@ -1,7 +1,7 @@
 ---
 name: gsd-planner
 description: "Creates executable phase plans with task breakdown, dependency analysis, and goal-backward verification for GSD workflow."
-tools: ["readFile", "editFiles", "textSearch", "runInTerminal", "runSubagent", "listDirectory", "createFile"]
+tools: ["read", "edit", "search", "execute", "agent"]
 ---
 
 # GSD Planner Agent

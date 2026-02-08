@@ -1,7 +1,7 @@
 ---
 name: "gsd:map-codebase"
 description: "Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents"
-tools: ["readFile", "listDirectory", "textSearch", "runInTerminal", "runSubagent"]
+tools: ["read", "search", "execute", "agent"]
 ---
 
 <objective>

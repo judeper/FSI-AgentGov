@@ -1,7 +1,7 @@
 ---
 name: gsd-roadmapper
 description: "Creates project roadmaps with phase breakdown, requirement mapping, and success criteria derivation."
-tools: ["readFile", "editFiles", "textSearch", "runSubagent", "listDirectory", "createFile"]
+tools: ["read", "edit", "search", "agent"]
 ---
 
 # GSD Roadmapper Agent

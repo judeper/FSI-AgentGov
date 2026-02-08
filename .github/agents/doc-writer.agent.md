@@ -1,7 +1,7 @@
 ---
 name: doc-writer
 description: "Generates and expands FSI-AgentGov governance documentation following the three-layer architecture, 10-section control template, and regulatory language rules."
-tools: ["readFile", "editFiles", "textSearch", "runInTerminal", "createFile", "listDirectory"]
+tools: ["read", "edit", "search", "execute"]
 ---
 
 # Doc Writer Agent

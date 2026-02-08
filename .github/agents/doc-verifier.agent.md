@@ -1,7 +1,7 @@
 ---
 name: doc-verifier
 description: "Reviews FSI-AgentGov documentation for regulatory language compliance, template adherence, cross-reference accuracy, and build validation."
-tools: ["readFile", "textSearch", "runInTerminal", "listDirectory"]
+tools: ["read", "search", "execute"]
 ---
 
 # Doc Verifier Agent

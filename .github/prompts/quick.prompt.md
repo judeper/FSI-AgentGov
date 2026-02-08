@@ -1,7 +1,7 @@
 ---
 name: "gsd:quick"
 description: "Execute a quick task with GSD guarantees (atomic commits, state tracking) but skip optional agents"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal"]
+tools: ["read", "edit", "search", "execute"]
 ---
 
 <objective>

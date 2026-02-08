@@ -1,7 +1,7 @@
 ---
 name: "gsd:discuss-phase"
 description: "Gather phase context through adaptive questioning before planning"
-tools: ["readFile", "listDirectory", "textSearch"]
+tools: ["read", "search"]
 ---
 
 <objective>

@@ -1,7 +1,7 @@
 ---
 name: "gsd:list-phase-assumptions"
 description: "Surface assumptions about a phase approach before planning"
-tools: ["readFile", "listDirectory", "textSearch"]
+tools: ["read", "search"]
 ---
 
 <objective>

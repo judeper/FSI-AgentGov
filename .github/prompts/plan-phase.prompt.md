@@ -1,7 +1,7 @@
 ---
 name: "gsd:plan-phase"
 description: "Create detailed execution plan for a phase (PLAN.md) with verification loop"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal", "runSubagent"]
+tools: ["read", "edit", "search", "execute", "agent"]
 ---
 
 <objective>

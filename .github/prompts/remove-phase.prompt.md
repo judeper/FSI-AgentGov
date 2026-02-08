@@ -1,7 +1,7 @@
 ---
 name: "gsd:remove-phase"
 description: "Remove a future phase from roadmap and renumber subsequent phases"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal"]
+tools: ["read", "edit", "search", "execute"]
 ---
 
 <objective>

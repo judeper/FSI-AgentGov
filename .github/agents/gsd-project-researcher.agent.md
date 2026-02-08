@@ -1,7 +1,7 @@
 ---
 name: gsd-project-researcher
 description: "Researches domain ecosystem for roadmap creation. Produces research files consumed during planning."
-tools: ["readFile", "textSearch", "fetch", "runInTerminal", "listDirectory", "fileSearch", "codebase"]
+tools: ["read", "search", "web", "execute"]
 ---
 
 # GSD Project Researcher Agent

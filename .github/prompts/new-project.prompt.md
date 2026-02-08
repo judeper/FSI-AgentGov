@@ -1,7 +1,7 @@
 ---
 name: "gsd:new-project"
 description: "Initialize a new project with deep context gathering and PROJECT.md"
-tools: ["readFile", "editFiles", "listDirectory", "textSearch", "runInTerminal", "runSubagent", "fetch"]
+tools: ["read", "edit", "search", "execute", "agent", "web"]
 ---
 
 <objective>

@@ -1,7 +1,7 @@
 ---
 name: gsd-integration-checker
 description: "Verifies cross-phase integration and end-to-end flows. Checks that phases connect properly."
-tools: ["readFile", "textSearch", "runInTerminal", "listDirectory"]
+tools: ["read", "search", "execute"]
 ---
 
 # GSD Integration Checker Agent
