@@ -23,6 +23,10 @@ Multi-agent AI CLI configuration (Codex CLI, GitHub Copilot, Claude Code), Copil
 - **`.vscode/settings.json.example`** - Recommended VS Code settings for Copilot integration
 - **Session Ownership Protocol** - Multi-agent coordination in AGENTS.md preventing GSD state conflicts
 
+**Maintainer Onboarding:**
+
+- **Maintainer Machine Setup guide** in `CONTRIBUTING.md` — Prerequisites, repository setup, GSD workflow explanation (no install needed), Claude Code + claude-mem setup, gitignored file transfer table, verification checklist
+
 **Solutions Index:**
 
 - **Agent Observability Foundation** (v1.1.0) - Added to solutions-index.md with detail section
