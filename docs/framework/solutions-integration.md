@@ -18,7 +18,7 @@ flowchart TB
         P4[Pillar 4: SharePoint<br/>7 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (13 Deployable Automation Solutions)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (16 Deployable Automation Solutions)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]
@@ -33,6 +33,9 @@ flowchart TB
         COI[COI Testing<br/>Framework]
         HT[Hallucination<br/>Tracker]
         DR[DR Testing<br/>Framework]
+        AOF[Agent Observability<br/>Foundation]
+        ACV[Audit Configuration<br/>Validator]
+        SSC[Session Security<br/>Configurator]
     end
 
     P2 --> ELM
@@ -49,6 +52,9 @@ flowchart TB
     P2 --> COI
     P3 --> HT
     P2 --> DR
+    P3 --> AOF
+    P1 --> ACV
+    P1 --> SSC
 ```
 
 ---
@@ -445,8 +451,8 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ## Summary Statistics
 
-**Solutions:** 13 deployable automation solutions
-**Control Coverage:** 27 of 62 controls (43.5%) have direct solution support
+**Solutions:** 16 deployable automation solutions
+**Control Coverage:** 28+ of 62 controls (~45%) have direct solution support
 **Status Distribution:**
 - Completed: 4 solutions (ELM, MCM, PGC, FINRA Supervision Workflow validated)
 - Work In Progress: 6 solutions

@@ -34,7 +34,7 @@ FSI Agent Governance Framework v1.2.38 - A governance framework for Microsoft 36
 ### Navigation Philosophy (Three-Layer Model)
 - **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
 - **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
-- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 248 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 251 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
 - **Getting Started:** Admin onboarding only (no repo structure info)
 - **Downloads:** Role-based Excel checklists for admins

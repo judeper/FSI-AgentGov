@@ -30,6 +30,8 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Planned | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
 | [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
+| [Agent Observability Foundation](#agent-observability-foundation) | v1.1.0 | Completed | Telemetry infrastructure for Copilot Studio agent monitoring | 3.2, 3.9, 2.9 |
+| [Session Security Configurator](#session-security-configurator) | v1.0.0 | Work In Progress | Authentication context lifecycle and step-up session policies | 1.23, 1.11, 1.18 |
 
 ### Status Legend
 
@@ -346,6 +348,52 @@ Automated validation of Microsoft 365 and Power Platform audit configurations to
 
 ---
 
+### Agent Observability Foundation
+
+Provides telemetry infrastructure for monitoring Copilot Studio agent performance, usage patterns, and operational health.
+
+**Components:**
+- KQL query library for agent telemetry
+- Azure Monitor workbooks for agent health dashboards
+- Power BI integration for executive reporting
+- Alert rules for anomaly detection
+
+**Regulatory Alignment:**
+- FINRA 3120 (Supervisory Control Testing)
+- OCC 2011-12 (Model Risk Reporting)
+- SOX 404 (Internal Controls Monitoring)
+
+**Related Controls:**
+- [3.2 - Usage Analytics and Activity Monitoring](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md)
+- [3.9 - Microsoft Sentinel Integration](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
+
+**Repository Link:** [agent-observability-foundation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation)
+
+---
+
+### Session Security Configurator
+
+Manages authentication context lifecycle and step-up session policies for zone-based access controls.
+
+**Components:**
+- Conditional Access authentication context configuration
+- Zone-based session lifetime policies (8h/4h/1h)
+- Sign-in frequency enforcement
+- Session security drift detection
+
+**Regulatory Alignment:**
+- GLBA 501(b) (Information Safeguards)
+- SOX 404 (IT General Controls)
+- NIST 800-53 AC-12 (Session Termination)
+
+**Related Controls:**
+- [1.23 - Step-Up Authentication](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md)
+- [1.11 - Conditional Access and MFA](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
+
+**Repository Link:** [session-security-configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -376,7 +424,9 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | COI Testing Framework | v1.0.0 | February 2026 |
 | Hallucination Tracker | v1.0.0 | February 2026 |
 | DR Testing Framework | v1.0.0 | February 2026 |
+| Agent Observability Foundation | v1.1.0 | February 2026 |
+| Session Security Configurator | v1.0.0 | February 2026 |
 
 ---
 
-*FSI Agent Governance Framework v1.2.37 - February 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*
