@@ -6,6 +6,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.39] — February 8, 2026 (Multi-Agent Config + Documentation Accuracy)
+
+### Overview
+
+Multi-agent AI CLI configuration (Codex CLI, GitHub Copilot, Claude Code), Copilot tool alias corrections, and comprehensive documentation accuracy sweep fixing stale file counts across both repositories.
+
+### Added
+
+**Multi-Agent Configuration:**
+
+- **`.codex/config.toml`** - Codex CLI configuration with model, sandbox, and approval settings
+- **`.github/agents/` (13 agents)** - Custom Copilot agents for doc-writer, doc-verifier, and 11 GSD workflow roles
+- **`.github/prompts/` (27 prompts)** - GSD workflow commands adapted for Copilot Chat
+- **`.github/instructions/` (12 files)** - Auto-included rules by file path glob patterns
+- **`.vscode/settings.json.example`** - Recommended VS Code settings for Copilot integration
+- **Session Ownership Protocol** - Multi-agent coordination in AGENTS.md preventing GSD state conflicts
+
+**Solutions Index:**
+
+- **Agent Observability Foundation** (v1.1.0) - Added to solutions-index.md with detail section
+- **Session Security Configurator** (v1.0.0) - Added to solutions-index.md with detail section
+- Both solutions added to solutions-integration.md mermaid diagram and CLAUDE.md companion table
+
+### Changed
+
+**Tool Alias Corrections:**
+
+- Replaced verbose tool names (`readFile`, `editFiles`, `textSearch`, `runInTerminal`, `createFile`, `listDirectory`) with Copilot-recognized aliases (`read`, `edit`, `search`, `execute`) across 37 agent/prompt files
+- Added Copilot tool alias platform notes to AGENTS.md documenting `web`/`todo` VS Code vs GitHub.com differences
+
+**Documentation Accuracy (8 files across 2 repos):**
+
+| Metric | Old Value | New Value | Files Updated |
+|--------|-----------|-----------|---------------|
+| Solutions count | 13 | 16 | 7 files |
+| Control playbooks | 248 | 251 | 4 files |
+| Total playbook files | 254 | 282 | 1 file |
+| Advanced impl docs | 27 | 31 | 1 file |
+| Learn monitor URLs | 209 | 207 | 5 files |
+| Control coverage | 17 controls / 27.4% | 28+ controls / ~45% | 3 files |
+
+**Planning Artifacts Cleanup:**
+
+- Archived v2-v4 milestone docs to `.planning/milestones/archived/`
+- Deleted 11 completed v1-v4 phase directories (113 files)
+
+---
+
 ## [1.2.38] — February 5, 2026 (v2 Milestone - Solutions & Architecture)
 
 ### Overview
