@@ -174,3 +174,9 @@ If you encounter:
 | **Copilot Agents** | `.github/agents/` | Custom agents (doc-writer, GSD workflow agents) |
 | **Copilot Prompts** | `.github/prompts/` | GSD commands adapted for Copilot |
 | **Copilot Instructions** | `.github/instructions/` | Auto-included rules by file path |
+
+### Copilot Tool Alias Notes
+
+Agent and prompt files use GitHub Copilot's recognized built-in aliases: `read`, `edit`, `search`, `execute`, `agent`, `web`, `todo`. Unrecognized names are silently ignored (falling back to unrestricted access).
+
+**Platform differences:** The `web` and `todo` aliases are supported in VS Code Copilot Chat but are currently not applicable to the GitHub.com Copilot coding agent. Prompts that reference these tools should be resilient without them — they enhance the workflow in VS Code but are safely ignored on GitHub.com.
