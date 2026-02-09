@@ -59,6 +59,37 @@ Only one tool writes to GSD shared state files at a time.
 - If `Active Tool` is missing, claim the session by updating STATE.md
 - Phase execution artifacts are safe to write — they are scoped to the executing plan
 
+### Codex CLI Model Selection
+
+Pick the cheapest model that can hold the relevant context in one pass and will not invent control IDs, file paths, or implementation steps. Three named profiles are defined in `.codex/config.toml`:
+
+| Profile | Model | Reasoning | Use When |
+|---------|-------|-----------|----------|
+| `budget` | gpt-5.1-codex-mini | low | Typos, single-file edits, heading normalization |
+| *(default)* | gpt-5.1-codex | high | Multi-file control + playbook updates, bounded solution work |
+| `quality` | gpt-5.3-codex | xhigh | Net-new solution design, cross-repo alignment, multi-control reasoning |
+
+Activate with `codex --profile budget` or `codex --profile quality`. The default (no flag) uses gpt-5.1-codex.
+
+**Task examples:**
+
+| Task | Profile |
+|------|---------|
+| Fix typos, normalize headings, tighten wording in framework docs | `--profile budget` |
+| Update a single control doc without touching playbooks | `--profile budget` |
+| Update a control and its 4 playbooks | Default |
+| Add a new solution folder patterned after an existing one | Default |
+| Net-new solution design mapped to multiple controls | `--profile quality` |
+| Cross-repo alignment (solution control mappings vs control catalog) | `--profile quality` (plan) → default (edit) |
+
+**Workflow:**
+1. Run a "plan-only" prompt first — get the file list and diff outline before generating changes
+2. Simple patches (1–2 files): `codex --profile budget`; multi-file: use the default
+3. One control (or one solution) per commit for reviewable diffs
+4. Run `mkdocs build --strict` / `verify_controls.py` after each change set; escalate to `--profile quality` when validation failures need cross-file reasoning
+
+> **Note:** Profiles control the LLM model and reasoning effort. GSD model profiles (`quality`/`balanced`/`budget` in `.planning/config.json`) control workflow behavior — research depth, verification thoroughness. They are complementary: pick a Codex profile for the LLM, and a GSD profile for the workflow.
+
 ## GSD Planning Structure
 
 The `.planning/` directory contains project management state for the GSD (Get Stuff Done) workflow.

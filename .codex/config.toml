@@ -1,9 +1,21 @@
 # FSI-AgentGov - Codex CLI Project Configuration
-model = "gpt-5.2"
+# Default to mid-tier Codex. See AGENTS.md "Codex CLI Model Selection"
+# for when to use --profile budget (simple edits) or --profile quality (cross-file design).
+model = "gpt-5.1-codex"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 model_reasoning_effort = "high"
 web_search = "cached"
+
+# Profiles: codex --profile <name>
+# See AGENTS.md "Codex CLI Model Selection" for task-to-profile mapping.
+[profiles.budget]
+model = "gpt-5.1-codex-mini"
+model_reasoning_effort = "low"
+
+[profiles.quality]
+model = "gpt-5.3-codex"
+model_reasoning_effort = "xhigh"
 
 [features]
 shell_tool = true
