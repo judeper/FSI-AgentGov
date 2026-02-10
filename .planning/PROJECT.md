@@ -8,18 +8,19 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v9 Cross-Solution Integration
+## Current Milestone: v10 Conditional Access Automation
 
-**Goal:** Wire the 5 Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compliance Dashboard for unified compliance visibility, add ELM provisioning hooks for automatic downstream solution initialization, and deliver unified evidence export for quarterly regulatory examinations.
+**Goal:** Enhance validated CA policy deployment scripts with Tier 2 governance infrastructure — Dataverse persistence, Power Automate automation, drift detection, alerting, SHA-256 evidence export — creating a complete policy lifecycle management solution for Controls 1.11, 1.23, and 1.18.
 
 **Target deliverables:**
-- Canonical option set contract and status mapping reference for cross-solution standardization
-- Shared integration constants module (IntegrationConfig.psm1) with solution-to-control mappings
-- PowerShell sync script (Sync-SolutionAssessments.ps1) that pulls Tier 2 validation results into CD assessments
-- CD-SolutionFeedCollector Power Automate flow for daily automated dashboard feeds
-- ELM-SolutionInitializer child flow for post-provisioning ACV auto-registration
-- Unified evidence export (Export-UnifiedComplianceEvidence.ps1) with SHA-256 chain integrity
-- Integration architecture framework document and updated solutions-index.md
+- CAAClient PowerShell module with Tier 2 conventions (module structure, error handling, help comments)
+- 8 CA policy templates validated against current Graph API schema
+- Zone lookup integration with ELM Dataverse for zone-appropriate policy deployment
+- Dataverse tables for policy baselines, validation history (immutable), and violations
+- Power Automate daily compliance scan and drift detection flows
+- Teams adaptive card alerting with zone-based severity classification
+- SHA-256 integrity-hashed evidence export for FINRA/SEC examination support
+- Control 1.11 framework integration and Compliance Dashboard feed
 
 ## Current State (v7 Shipped)
 
@@ -96,7 +97,7 @@ Capabilities delivered:
 - v8: File Upload Security Configurator — MIME type restriction enforcement
 - v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Current milestone: v9 — Cross-Solution Integration (IN PROGRESS)**
+**Current milestone: v10 — Conditional Access Automation (IN PROGRESS)**
 
 ### Out of Scope
 

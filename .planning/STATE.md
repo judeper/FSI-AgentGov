@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-10
-**Milestone:** v9 — Cross-Solution Integration
-**Status:** SHIPPED — Phase 5/5, Plan 16/16
+**Milestone:** v10 — Conditional Access Automation
+**Status:** PLANNING — Phase 1/4
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-10 20:00
-**Handoff Summary:** v9 Integration milestone SHIPPED. All 5 phases complete: schema normalization, dashboard feeds, ELM hooks, evidence export, documentation. 18/18 requirements satisfied. mkdocs build --strict passes.
+**Session Started:** 2026-02-10 21:00
+**Handoff Summary:** v10 Conditional Access Automation milestone initiated. Worktree created on feature/conditional-access-automation branch. Requirements (18) and roadmap (4 phases) defined. Companion repo has validated scripts — framework integration work planned.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v9 — Cross-Solution Integration. Wiring 5 Tier 2 solutions (ACV, SSC, AAM, CMM, FUS) into Compliance Dashboard, adding ELM provisioning hooks, and delivering unified evidence export.
+**Current focus:** v10 — Conditional Access Automation. Enhancing validated CA policy scripts with Tier 2 governance infrastructure (Dataverse, Power Automate, drift detection, evidence export) for Controls 1.11, 1.23, 1.18.
 
 ## Milestone Series Plan
 
@@ -27,14 +27,15 @@ v7: Content Moderation Governance Monitor — SHIPPED
 v7.1: Framework Currency Reviews — COMPLETE
 v8: File Upload Security Configurator — SHIPPED
 v9: Integration (ELM + Dashboard + cross-solution) — SHIPPED
+v10: Conditional Access Automation — IN PROGRESS
 ```
 
 ## Current Position
 
-**Phase:** 5 of 5
-**Plan:** 16/16
-**Status:** v9 SHIPPED
-**Last activity:** 2026-02-10 — All phases complete, mkdocs build --strict passes
+**Phase:** 1 of 4
+**Plan:** 0/3
+**Status:** PLANNED
+**Last activity:** 2026-02-10 — v10 milestone initiated, requirements and roadmap defined
 
 **Progress:**
 ```
@@ -48,6 +49,7 @@ v7: [=========================] 4/4 phases (12 plans) — SHIPPED
 v7.1: [=========================] 2/2 phases (5/5 plans) — COMPLETE
 v8: [=========================] 4/4 phases (12/12 plans) — SHIPPED
 v9: [=========================] 5/5 phases (16/16 plans) — SHIPPED
+v10: [                         ] 0/4 phases — PLANNING
 ```
 
 ## Performance Metrics
@@ -55,7 +57,7 @@ v9: [=========================] 5/5 phases (16/16 plans) — SHIPPED
 **Cumulative (v1-v9):**
 - Phases: 47 complete (8 + 5 + 7 + 4 + 4 + 4 + 4 + 2 + 4 + 5)
 - Plans: 159 complete (35 + 17 + 27 + 11 + 12 + 12 + 12 + 5 + 12 + 16)
-- Requirements: 225 total (33 + 13 + 44 + 28 + 19 + 18 + 18 + 17 + 17 + 18)
+- Requirements: 243 total (33 + 13 + 44 + 28 + 19 + 18 + 18 + 17 + 17 + 18 + 18)
 
 ## Accumulated Context
 
