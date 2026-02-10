@@ -21,6 +21,9 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Work In Progress | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
 | [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Work In Progress | Automated validation of tenant and environment audit configurations | 1.7 |
+| [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
+| [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Work In Progress | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
+| [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.0.0 | Work In Progress | CA policy deployment and compliance monitoring for AI workloads | 1.11, 1.23, 1.18 |
 | [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
@@ -346,6 +349,85 @@ Automated validation of Microsoft 365 and Power Platform audit configurations to
 
 ---
 
+### Session Security Configurator
+
+Automates session security validation and configuration deployment per governance zone. Validates authentication contexts, CA policies, PIM integration, break-glass accounts, and conflict settings with daily drift detection.
+
+**Components:**
+
+- PowerShell scripts for 5-dimension validation (session controls, auth strength, PIM, break-glass, conflict audit)
+- Authentication context deployment (c1-c5) with conflict detection
+- Zone-specific CA policy templates with 72-hour bake period enforcement
+- Power Automate flows for daily drift detection with Teams adaptive card alerts
+- Dataverse tables for validation history and compliance tracking
+- Evidence export with SHA-256 integrity hashing
+
+**Regulatory Alignment:**
+
+- GLBA 501(b) (Safeguards - Session Security)
+- FINRA 4511 (Books and Records - Access Controls)
+- SOX 404 (Internal Controls - Authentication)
+- NIST SP 800-63B (Authentication Assurance Levels)
+
+**Related Controls:**
+
+- [1.23 - Step-Up Authentication](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md)
+- [1.11 - Conditional Access and MFA](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
+
+**Repository Link:** [session-security-configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator)
+
+---
+
+### Agent Access Governance Monitor
+
+Automated detection of overly permissive agent access configurations across Power Platform environments. Validates agent sharing, authoring, and publishing settings against governance zone requirements with daily drift detection and compliance evidence export.
+
+**Components:**
+
+- PowerShell scripts for zone-based agent access validation
+- Daily scheduled drift detection via Power Automate
+- Teams adaptive card alerts with severity classification (Critical/High/Warning/Info)
+- Dataverse tables for access baselines, validation history, and violations
+- Evidence export with SHA-256 integrity hashing
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — Agent Access Controls)
+- SOX 404 (Internal Controls — Configuration Governance)
+- SEC 17a-3/4 (Recordkeeping — Access Configuration)
+- GLBA 501(b) (Safeguards — Agent Sharing Controls)
+
+**Related Control:** [3.8 - Copilot Hub and Governance Dashboard](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
+
+**Repository Link:** [agent-access-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)
+
+---
+
+### Content Moderation Governance Monitor
+
+Automated detection of non-compliant content moderation settings for Copilot Studio agents across Power Platform environments. Validates per-agent moderation levels (Low/Medium/High) against governance zone requirements with daily drift detection and compliance evidence export.
+
+**Components:**
+
+- PowerShell scripts for per-agent content moderation validation
+- Daily scheduled drift detection via Power Automate
+- Teams adaptive card alerts with severity classification (Critical/High/Medium/Warning)
+- Dataverse tables for moderation baselines, validation history, and violations
+- Evidence export with SHA-256 integrity hashing
+
+**Regulatory Alignment:**
+
+- FINRA 3110 (Supervisory Controls — Content Moderation Governance)
+- SOX 404 (Internal Controls — Configuration Governance)
+- GLBA 501(b) (Safeguards — Content Safety Controls)
+- SEC AI Priorities (Responsible AI governance)
+
+**Related Control(s):** [1.8 - Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
+
+**Repository Link:** [content-moderation-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -362,6 +444,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 | Solution | Current | Last Updated |
 |----------|---------|--------------|
+| Agent Access Governance Monitor | v1.0.0 | February 2026 |
 | Audit Configuration Validator | v1.0.0 | February 2026 |
 | Environment Lifecycle Management | v1.1.2 | January 2026 |
 | Message Center Monitor | v2.1.1 | January 2026 |
@@ -369,9 +452,11 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Deny Event Correlation Report | v1.1.0 | January 2026 |
 | FINRA Supervision Workflow | v1.0.0 | February 2026 |
 | Conditional Access Automation | v1.0.0 | February 2026 |
+| Content Moderation Governance Monitor | v1.0.0 | February 2026 |
 | Compliance Dashboard | v1.0.0 | February 2026 |
 | Segregation of Duties Detector | v1.0.0 | February 2026 |
 | Scope Drift Monitor | v1.1.0 | February 2026 |
+| Session Security Configurator | v1.0.0 | February 2026 |
 | RAG Source Validator | v1.0.0 | February 2026 |
 | COI Testing Framework | v1.0.0 | February 2026 |
 | Hallucination Tracker | v1.0.0 | February 2026 |
