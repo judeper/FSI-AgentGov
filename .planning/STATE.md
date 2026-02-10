@@ -1,28 +1,28 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-09
-**Milestone:** v5 — Session Security Configurator
-**Status:** COMPLETE — All 4 phases executed (12 plans)
+**Milestone:** v6 — Agent Access Governance Monitor
+**Status:** IN PROGRESS — Phase 2 complete, ready to plan Phase 3
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-09 12:00
-**Handoff Summary:** v5 milestone complete. All 4 phases executed with 12 plans.
+**Session Started:** 2026-02-09 14:00
+**Handoff Summary:** v6 Phase 3 (Automation and Alerting) planned. Research complete, 3 plans across 3 waves created and verified by plan-checker (APPROVED). Ready to execute.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v5 — Session Security Configurator (Control 1.23)
+**Current focus:** v6 — Agent Access Governance Monitor (Control 3.8)
 
 ## Milestone Series Plan
 
 ```
 v4: Audit Configuration Validator — SHIPPED
 v5: Session Security Configurator — SHIPPED
-v6: Agent Access Governance Monitor (NEXT)
+v6: Agent Access Governance Monitor (IN PROGRESS)
 v7: Content Moderation Governance Monitor
 v8: File Upload Security Configurator
 v9: Integration (ELM + Dashboard + cross-solution)
@@ -30,10 +30,10 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 4 of 4 (Evidence Export and Framework Integration)
-**Plan:** 3/3 — All plans executed
-**Status:** Phase 4 complete (3 plans in 2 waves)
-**Last activity:** 2026-02-09 — Executed Phase 4 plans (04-SSC-01, 04-SSC-02, 04-SSC-03)
+**Phase:** 3 of 4 (Automation and Alerting) — PLANNED
+**Plan:** 0/3 — Plans created, ready to execute
+**Status:** Phase 3 planned, research + 3 plans + plan-checker verification complete
+**Last activity:** 2026-02-09 — Planned Phase 3 (3 plans, 3 waves, APPROVED by plan-checker)
 
 **Progress:**
 ```
@@ -41,15 +41,16 @@ v1: [=========================] 8/8 phases (35 plans) — SHIPPED
 v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [=========================] 4/4 phases (12 plans) — COMPLETE
+v5: [=========================] 4/4 phases (12 plans) — SHIPPED
+v6: [============             ] 2/4 phases (6 plans) — IN PROGRESS
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v5):**
-- Phases: 28 total (8 + 5 + 7 + 4 + 4)
-- Plans: 102 total (35 + 17 + 27 + 11 + 12)
-- Requirements: 137 total (33 + 13 + 44 + 28 + 19)
+**Cumulative (v1-v6):**
+- Phases: 30 complete (8 + 5 + 7 + 4 + 4 + 2)
+- Plans: 108 complete (35 + 17 + 27 + 11 + 12 + 6)
+- Requirements: 155 total (33 + 13 + 44 + 28 + 19 + 18)
 
 ## Accumulated Context
 
@@ -57,56 +58,16 @@ v5: [=========================] 4/4 phases (12 plans) — COMPLETE
 
 See PROJECT.md Key Decisions table for full history.
 
-**v5 Phase 1 decisions:**
-- Private helpers follow ACV/CAA patterns (Connect-GraphSession with tenant reuse, Test-BreakGlassExclusion with group membership resolution, Compare-SessionBaseline with minute normalization)
-- All step-up policies default to report-only mode for safe deployment
-- Zone session controls: Zone 1 (8h/standard MFA), Zone 2 (4h/passwordless), Zone 3 (1h/phishing-resistant/compliant device)
-- Deploy-AuthContexts.ps1: ABORTS on ID conflicts unless -Force specified
-- Deploy-StepUpPolicies.ps1: ABORTS if any policy created < 72h ago when -EnablePolicies used
-- Pre-deployment conflict audit WARNS but does NOT abort (operators may have intentional overlaps)
-- Zone 3 deploys both v1.0 API policy and Beta API risky-user reauthentication policy
-- Test-SessionCompliance.ps1: 5-dimension validation (session controls, auth strength, PIM, break-glass, conflict audit)
-- Break-glass validation failures are CRITICAL and force overall status to Failed regardless of other validators
-- PIM validation can be skipped with -SkipPimValidation when permissions limited
-
-**v5 Phase 2 decisions (02-01):**
-- SSCClient adapts ACVClient pattern with SSC_ env var prefix (proven reliability from ACV v4)
-- Reuse fsi_acv_zone and fsi_acv_severity option sets from ACV with existence check (cross-solution consistency)
-- ValidationHistory is OrganizationOwned for immutability (regulatory requirement — tamper-proof audit log)
-- Three-table design: SessionBaseline (user-owned config), ValidationHistory (org-owned audit), DriftViolation (user-owned alerts)
-
-**v5 Phase 2 decisions (02-02):**
-- Environment variables use Decimal type (100000001) for numeric sign-in frequency minutes
-- Environment variables use String type (100000000) for authentication strength names
-- Zone defaults match Phase 1 baselines: Zone 1 (480m/standard), Zone 2 (240m/passwordless), Zone 3 (60m/phishing-resistant)
-- Connection references follow fsi_cr_ naming convention for consistency with ACV
-- deploy.py provides post-deployment guidance on security roles (ValidationHistory immutability) and connection binding
-- Selective deployment flags enable incremental deployments (--tables-only, --vars-only, --refs-only)
-
-**v5 Phase 2 decisions (02-03):**
-- Get-DataverseThreshold.ps1 returns $null on failure without throwing - caller handles fallback
-- AccessToken parameter optional - helper attempts to extract from current Graph context via Get-MgContext
-- Dataverse Web API query uses OData $filter with startswith() to retrieve all zone env vars in single call
-- Baseline override happens after JSON load but before validation - preserves existing behavior when -DataverseUrl omitted
-
-**v5 Phase 3 decisions (03-01):**
-- Inline Get-DriftStatus function within runbook (not separate helper file) - drift detection specific to runbook context
-- Drift detection fails open (returns DriftDetected=true on Dataverse query errors) to avoid suppressing alerts
-- Single active baseline per zone enforced - Invoke-BaselineCapture.ps1 deactivates previous before creating new
-- WhatIf mode in Invoke-BaselineCapture.ps1 allows operators to preview before committing to baseline
-
-**v5 Phase 3 decisions (03-02):**
-- Inline adaptive card JSON with nested replace() calls (Power Automate pattern, ACV v4 proven)
-- Teams card posted only for Failed/Error severity; email sent for all drift alerts (balance alert noise vs visibility)
-- ConfigPath parameter added to runbook job invocation for future multi-tenant extensibility
-
-**v5 Phase 4 decisions (04-SSC-01/02/03):**
-- Evidence JSON structure: metadata, summary, validations sections (ACV pattern adapted for SSC)
-- SHA-256 companion file uses standard two-space format for cross-platform compatibility
-- Get-SSCValidationResults.ps1 handles @odata.nextLink pagination for large result sets
-- Control 1.23 tip admonition placed between Related Controls and Implementation Playbooks (framework convention)
-- solutions-index.md catalog entry includes regulatory alignment (GLBA, FINRA, SOX, NIST)
-- Documentation suite (4 docs) follows ACV pattern for consistency
+**v6 Research decisions:**
+- Focus on Power Platform environment settings first (full API support)
+- M365 Admin agent settings are portal-only (no Graph API) - defer to manual baseline workflow
+- Zone lookup via ELM Dataverse table with naming convention fallback
+- Reuse ACV option sets (fsi_acv_zone, fsi_acv_severity) for cross-solution consistency
+- Three-table design: AccessBaseline, ValidationHistory, Violation
+- Environment variable prefix: fsi_AAM_* (Agent Access Monitor)
+- Grace period: 48 hours for newly provisioned environments
+- Severity classification: Zone 3 CRITICAL, Zone 2 HIGH, Zone 1 INFO
+- Detect-only for Zone 3 (no auto-remediation per SOX/FINRA)
 
 ### Key Constraints
 
@@ -133,19 +94,18 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-09
+**Session Started:** 2026-02-09 14:00
 
 ### Last Session Summary (2026-02-09)
 
 **What happened:**
-- Executed Phase 3 Plan 3 (Gap closure: Dataverse ValidationHistory write)
-- Added Write_Validation_History HTTP action to session-validation-flow.json (MSI auth, Dataverse Web API POST)
-- Updated Check_Alert_Required runAfter with continue-on-failure semantics
-- Updated FLOW_SETUP.md with 4 insertions (overview bullet, Managed Identity prerequisite, verification step, troubleshooting section)
-- 1 commit to FSI-AgentGov-Solutions: a23026d
-- Self-check: PASSED (JSON valid, all patterns verified, gaps closed)
-- Duration: 3min
-- **Phase 3 COMPLETE** - all 4 success criteria verified, DDA-03 satisfied
+- Started v6 milestone: Agent Access Governance Monitor
+- Archived v5 ROADMAP and REQUIREMENTS to milestones/ folder
+- Created v6 research document (.planning/research/v6-agent-access-monitor-research.md)
+- Created v6 REQUIREMENTS.md with 18 requirements across 4 phases
+- Created v6 ROADMAP.md with 4 phases and 12 planned plans
+- Updated STATE.md for v6 milestone
+- Research findings: Power Platform APIs fully supported, M365 Admin settings portal-only
 
 ### Context for Next Session
 
@@ -154,21 +114,20 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/03-automation-and-alerting/03-03-SUMMARY.md` — Gap closure summary
+   - `.planning/research/v6-agent-access-monitor-research.md` — Technical research
 
 2. **Current state:**
-   - v5 milestone: Phase 1-3 complete (3/4 phases, 9 plans done)
-   - Phase 1: 3 main scripts, 3 private helpers, 7 JSON templates
-   - Phase 2: Dataverse schema (3 tables), env vars (6 vars), connection refs (3 refs), deploy orchestrator
-   - Phase 3: Runbook wrapper, baseline capture, adaptive card, validation flow with audit trail
-   - All artifacts in FSI-AgentGov-Solutions/session-security-configurator/
+   - v6 milestone: Research and roadmap complete, ready to plan Phase 1
+   - 18 requirements mapped across 4 phases
+   - Primary control: 3.8 (Copilot Hub and Governance Dashboard)
+   - Key APIs: Power Platform Admin PowerShell (Get-AdminPowerAppEnvironment)
+   - Solution will be created in FSI-AgentGov-Solutions/agent-access-monitor/
 
 3. **Next action:**
-   - Plan Phase 4: Evidence Export and Framework Integration
-   - Requirements: CEV-01 (SHA-256 evidence export), CEV-02 (Control 1.23 integration), CEV-03 (documentation suite)
-   - Run: `/gsd-plan-phase 4`
+   - Plan Phase 1: PowerShell Core
+   - Requirements: ACV-01 through ACV-06
 
 ---
 
 *State initialized: 2026-02-05*
-*Last session: 2026-02-07 (Phase 3 Plan 2 executed — Daily validation flow and adaptive card, Phase 3 in progress)*
+*v6 milestone started: 2026-02-09*
