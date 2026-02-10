@@ -12,7 +12,7 @@ The Content Moderation Governance Monitor automates validation and drift detecti
 - Integer phases (1, 2, 3, 4): Planned milestone work
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: PowerShell Core** - Agent enumeration, content moderation level query, zone compliance validation, and severity classification
+- [x] **Phase 1: PowerShell Core** - Agent enumeration, content moderation level query, zone compliance validation, and severity classification
 - [ ] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
 - [ ] **Phase 3: Automation and Alerting** - Scheduled drift detection, Teams alerting, Power Automate flow, and baseline management
 - [ ] **Phase 4: Evidence Export and Framework Integration** - SHA-256 compliance export, Control 1.8 integration, and documentation suite
@@ -32,9 +32,9 @@ The Content Moderation Governance Monitor automates validation and drift detecti
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Solution scaffold, private helpers, and zone lookup logic
-- [ ] 01-02-PLAN.md — Get-AgentModerationSettings.ps1 and Compare-ModerationCompliance.ps1
-- [ ] 01-03-PLAN.md — Test-ContentModerationCompliance.ps1 validation orchestrator
+- [x] 01-01-PLAN.md — Solution scaffold, private helpers, and zone lookup logic
+- [x] 01-02-PLAN.md — Get-AgentModerationSettings.ps1 and Compare-ModerationCompliance.ps1
+- [x] 01-03-PLAN.md — Test-ContentModerationCompliance.ps1 validation orchestrator
 
 ### Phase 2: Dataverse Infrastructure
 **Goal**: Moderation baselines, validation history, and configuration thresholds are stored in Dataverse for persistent, queryable state across automated runs
@@ -90,7 +90,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. PowerShell Core | 0/3 | Pending | — |
+| 1. PowerShell Core | 3/3 | Complete | 2026-02-10 |
 | 2. Dataverse Infrastructure | 0/3 | Pending | — |
 | 3. Automation and Alerting | 0/3 | Pending | — |
 | 4. Evidence Export and Framework Integration | 0/3 | Pending | — |
