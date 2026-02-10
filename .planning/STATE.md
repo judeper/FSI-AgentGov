@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-10
-**Milestone:** v9 — Cross-Solution Integration
-**Status:** SHIPPED — Phase 5/5, Plan 16/16
+**Milestone:** v10 — Deny Event Correlation Report
+**Status:** IN PROGRESS — Phase 1 complete (3/3 plans), 4 phases remaining
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-10 20:00
-**Handoff Summary:** v9 Integration milestone SHIPPED. All 5 phases complete: schema normalization, dashboard feeds, ELM hooks, evidence export, documentation. 18/18 requirements satisfied. mkdocs build --strict passes.
+**Session Started:** 2026-02-10 21:00
+**Handoff Summary:** Phase 1 COMPLETE. All 3 plans executed across 3 waves. Entra ID auth migrated, DECClient.psm1 created, all scripts hardened. Verification passed. Ready for `/gsd-plan-phase 2`.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v9 — Cross-Solution Integration. Wiring 5 Tier 2 solutions (ACV, SSC, AAM, CMM, FUS) into Compliance Dashboard, adding ELM provisioning hooks, and delivering unified evidence export.
+**Current focus:** v10 — Deny Event Correlation Report. Completing DEC from WIP to production-ready with Entra ID auth, Dataverse persistence, Power Automate orchestration, Teams alerting, evidence export, and Compliance Dashboard integration.
 
 ## Milestone Series Plan
 
@@ -27,35 +27,42 @@ v7: Content Moderation Governance Monitor — SHIPPED
 v7.1: Framework Currency Reviews — COMPLETE
 v8: File Upload Security Configurator — SHIPPED
 v9: Integration (ELM + Dashboard + cross-solution) — SHIPPED
+v10: Deny Event Correlation Report — IN PROGRESS
 ```
 
 ## Current Position
 
-**Phase:** 5 of 5
-**Plan:** 16/16
-**Status:** v9 SHIPPED
-**Last activity:** 2026-02-10 — All phases complete, mkdocs build --strict passes
+**Phase:** 1 of 5 — COMPLETE
+**Plan:** 3/3
+**Status:** v10 PHASE 1 COMPLETE — Auth & Script Modernization done
+**Last activity:** 2026-02-10 — Phase 1 executed (3 plans, 3 waves), verification PASSED
 
 **Progress:**
 ```
-v1: [=========================] 8/8 phases (35 plans) — SHIPPED
-v2: [=========================] 5/5 phases (17 plans) — SHIPPED
-v3: [=========================] 7/7 phases (27 plans) — SHIPPED
-v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [=========================] 4/4 phases (12 plans) — SHIPPED
-v6: [=========================] 4/4 phases (12 plans) — SHIPPED
-v7: [=========================] 4/4 phases (12 plans) — SHIPPED
-v7.1: [=========================] 2/2 phases (5/5 plans) — COMPLETE
-v8: [=========================] 4/4 phases (12/12 plans) — SHIPPED
-v9: [=========================] 5/5 phases (16/16 plans) — SHIPPED
+v1:  [=========================] 8/8 phases (35 plans) — SHIPPED
+v2:  [=========================] 5/5 phases (17 plans) — SHIPPED
+v3:  [=========================] 7/7 phases (27 plans) — SHIPPED
+v4:  [=========================] 4/4 phases (11 plans) — SHIPPED
+v5:  [=========================] 4/4 phases (12 plans) — SHIPPED
+v6:  [=========================] 4/4 phases (12 plans) — SHIPPED
+v7:  [=========================] 4/4 phases (12 plans) — SHIPPED
+v7.1:[=========================] 2/2 phases (5/5 plans) — COMPLETE
+v8:  [=========================] 4/4 phases (12/12 plans) — SHIPPED
+v9:  [=========================] 5/5 phases (16/16 plans) — SHIPPED
+v10: [=====                    ] 1/5 phases (3/15 plans) — IN PROGRESS
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v9):**
+**Cumulative (v1-v9, shipped):**
 - Phases: 47 complete (8 + 5 + 7 + 4 + 4 + 4 + 4 + 2 + 4 + 5)
 - Plans: 159 complete (35 + 17 + 27 + 11 + 12 + 12 + 12 + 5 + 12 + 16)
 - Requirements: 225 total (33 + 13 + 44 + 28 + 19 + 18 + 18 + 17 + 17 + 18)
+
+**v10 (in progress):**
+- Phases: 1/5 complete
+- Plans: 3/15 complete
+- Requirements: 3/19 complete (3 AUTH done | 4 DVS + 3 ORC + 5 EVI + 4 DOC remaining)
 
 ## Accumulated Context
 
@@ -63,20 +70,18 @@ v9: [=========================] 5/5 phases (16/16 plans) — SHIPPED
 
 See PROJECT.md Key Decisions table for full history.
 
-**v9 decisions:**
-- Zone values: 1=Zone 1, 2=Zone 2, 3=Zone 3 as canonical (matching ELM/CD convention, not ACV's 100000001…)
-- Severity values: 1=Passed, 2=Warning, 3=GracePeriod, 4=Failed, 5=Error as canonical standard
-- Daily batch feeds (not real-time) — sufficient for governance monitoring cadence
-- ELM ProvisioningCompleted event triggers ACV auto-registration (other solutions register on first scan)
-- Unified evidence export aggregates per-solution packages into master package with hash chain
-- 5 Tier 2 solutions feed 7 controls: ACV→1.7, SSC→1.23+1.11, AAM→3.8, CMM→1.8, FUS→1.14
-- Integration code lives in cross-solution-integration/ directory in FSI-AgentGov-Solutions
+**v10 decisions:**
+- Single-file DECClient.psm1 module (matching v6-v8 pattern) rather than per-function .ps1 files
+- ExchangeOnline supports both certificate and client secret auth via Key Vault
+- Phase 2 stubs defined with full parameter signatures for forward compatibility
+- Solution artifacts staged in maintainers-local/ for transfer to FSI-AgentGov-Solutions
 
 ### Key Constraints
 
-- **No real-time:** Batch/daily feeds sufficient — no Dataverse webhook infrastructure
-- **ELM scope:** Only ACV auto-registration on provisioning; other solutions register on first scan
-- **Option set owners:** ACV owns fsi_acv_zone and fsi_acv_severity definitions; other solutions reference them
+- **x-api-key deadline:** App Insights x-api-key deprecated March 31, 2026 — AUTH-01 is time-critical
+- **No real-time:** Daily batch extraction cadence sufficient for governance reporting
+- **Option set reuse:** DEC reuses ACV option sets (fsi_acv_zone, fsi_acv_severity) per cross-solution standard
+- **Existing artifacts:** 4 scripts + 4 KQL queries + 3 docs already exist in FSI-AgentGov-Solutions
 - **FSI language rules:** All documentation must use regulatory-safe language
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
 
@@ -87,10 +92,11 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-10 20:00
-**Handoff Summary:** v9 Integration milestone started. Planning artifacts created. 5 phases, 16 plans, 18 requirements. Ready for Phase 1: Schema Normalization & Integration Constants.
+**Session Started:** 2026-02-10 21:00
+**Handoff Summary:** Phase 1 execution complete. 3 plans across 3 waves. Verification PASSED (all 4 success criteria met). Next: `/gsd-plan-phase 2` (Dataverse Infrastructure).
 
 ---
 
 *State initialized: 2026-02-05*
-*v9 milestone started: 2026-02-10*
+*v9 milestone shipped: 2026-02-10*
+*v10 milestone started: 2026-02-10*
