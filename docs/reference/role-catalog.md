@@ -30,6 +30,9 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Entra Security Reader** | Read-only security visibility | Security Reader |
 | **AI Administrator** | Manage M365 Copilot settings, AI services, connector delegation, Copilot feature access controls, and agent governance settings | Microsoft 365 AI Administrator |
 
+!!! note "Agent 365 Role Limitations (February 2026)"
+    Agent 365 administrative access is currently limited to Entra Global Admin and AI Administrator roles only. No fine-grained or read-only administrative roles are planned for GA. Microsoft is collecting feedback on role granularity requirements. Organizations should plan Agent 365 governance workflows around these two roles and use Entra Privileged Identity Management (PIM) for just-in-time elevation where possible.
+
 !!! note "Defender XDR Administrator"
     "Defender XDR Administrator" is informal terminology used in community and operational contexts. There is no distinct Microsoft Entra built-in role named "Defender XDR Administrator." The official role for managing Microsoft Defender XDR is **Entra Security Admin** (Security Administrator). This framework uses "Entra Security Admin" as the canonical name and accepts "Defender XDR Admin" as a normalization alias. See [Microsoft Learn: Manage access to Defender XDR](https://learn.microsoft.com/en-us/defender-xdr/m365d-permissions) for authoritative role documentation.
 
