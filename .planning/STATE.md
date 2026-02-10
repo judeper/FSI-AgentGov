@@ -1,28 +1,28 @@
 # Project State: FSI-AgentGov
 
-**Last Updated:** 2025-07-17
-**Milestone:** v6 — Agent Access Governance Monitor
-**Status:** IN PROGRESS — Phase 3 complete, ready to plan Phase 4
+**Last Updated:** 2026-02-09
+**Milestone:** v7 — Content Moderation Governance Monitor
+**Status:** IN PROGRESS — Phase 1 planning
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2025-07-17 
-**Handoff Summary:** v6 Phase 4 (Evidence Export and Framework Integration) planned. Research completed, 3 plans created across 2 waves, plan checker APPROVED. Ready to execute Phase 4.
+**Session Started:** 2026-02-09
+**Handoff Summary:** v6 milestone SHIPPED. Starting v7 — Content Moderation Governance Monitor (Control 1.8). Bootstrapped ROADMAP.md and REQUIREMENTS.md. Planning Phase 1.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v6 — Agent Access Governance Monitor (Control 3.8)
+**Current focus:** v7 — Content Moderation Governance Monitor (Control 1.8)
 
 ## Milestone Series Plan
 
 ```
 v4: Audit Configuration Validator — SHIPPED
 v5: Session Security Configurator — SHIPPED
-v6: Agent Access Governance Monitor (IN PROGRESS)
+v6: Agent Access Governance Monitor (SHIPPED)
 v7: Content Moderation Governance Monitor
 v8: File Upload Security Configurator
 v9: Integration (ELM + Dashboard + cross-solution)
@@ -30,10 +30,10 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 4 of 4 (Evidence Export and Framework Integration) — PLANNED
-**Plan:** 0/3 — Plans created, ready for execution
-**Status:** Phase 4 planned (3 plans, 2 waves), plan checker APPROVED
-**Last activity:** 2025-07-17 — Planned Phase 4 (research + 3 plans: AAM-01, AAM-02, AAM-03)
+**Phase:** 1 of 4 (PowerShell Core) — PLANNING
+**Plan:** 0/3 — Planning in progress
+**Status:** v7 milestone started — Phase 1 research and planning
+**Last activity:** 2026-02-09 — Bootstrapped v7 ROADMAP.md, REQUIREMENTS.md
 
 **Progress:**
 ```
@@ -42,14 +42,15 @@ v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
 v5: [=========================] 4/4 phases (12 plans) — SHIPPED
-v6: [==================       ] 3/4 phases (9 plans) — IN PROGRESS
+v6: [=========================] 4/4 phases (12 plans) — SHIPPED
+v7: [                         ] 0/4 phases (0 plans) — IN PROGRESS
 ```
 
 ## Performance Metrics
 
 **Cumulative (v1-v6):**
-- Phases: 31 complete (8 + 5 + 7 + 4 + 4 + 3)
-- Plans: 111 complete (35 + 17 + 27 + 11 + 12 + 9)
+- Phases: 32 complete (8 + 5 + 7 + 4 + 4 + 4)
+- Plans: 114 complete (35 + 17 + 27 + 11 + 12 + 12)
 - Requirements: 155 total (33 + 13 + 44 + 28 + 19 + 18)
 
 ## Accumulated Context
@@ -94,16 +95,19 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2025-07-17
+**Session Started:** 2026-02-09
+**Handoff Summary:** v7 milestone bootstrapped. Phase 1 research complete, 3 plans created across 3 waves, plan checker verified, all issues resolved. Ready for execution.
 
-### Last Session Summary (2025-07-17)
+### Last Session Summary (2026-02-09)
 
 **What happened:**
-- Executed all 3 plans of Phase 3 (Automation and Alerting) across 3 waves
-- Wave 1 (Plan 03-01): Fixed AAMClient.psm1 (Save-AAMBaseline, Get-AAMLastValidation), fixed PS5.1 encoding issues (em dashes, ?? operators) in Start-AccessValidationRunbook.ps1 and Invoke-AccessBaselineCapture.ps1. 3 atomic commits (da31a5f, b20e8f1, 8b184b5)
-- Wave 2 (Plan 03-02): Created adaptive-card-access-alert.json (Schema 1.4), access-validation-flow.json (daily 6AM UTC with audit-before-alert pattern), FLOW_SETUP.md (7-step guide). 1 atomic commit (25b29d6)
-- Wave 3 (Plan 03-03): Verified drift detection logic (3 settings, direction classification, edge cases), verified Dataverse write path (column mapping matches schema), found and fixed ZoneSummary structural mismatch (flat → enriched), added CHANGELOG v0.3.0. 1 atomic commit (71e58a7)
-- Phase verification: mkdocs build --strict passed, verify_controls.py passed, end-to-end structural consistency confirmed (27 adaptive card placeholders mapped to runbook output)
+- Archived v6 ROADMAP.md and REQUIREMENTS.md to milestones/
+- Created v7 REQUIREMENTS.md (18 requirements: CMV-01-06, DDA-01-04, CEV-01-03, INF-01-05)
+- Created v7 ROADMAP.md (4 phases following ACV/SSC/AAM pattern)
+- Ran Phase 1 research (API approach, Dataverse bot table schema, risk assessment)
+- Created 3 Phase 1 plans: scaffold (W1), core scripts (W2), orchestrator (W3)
+- Plan checker found 2 blocking + 2 minor issues; all 4 fixed
+- Key architectural decision: per-agent query (not per-environment) via Dataverse Web API
 
 ### Context for Next Session
 
@@ -112,21 +116,18 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/03-automation-and-alerting-v6/03-VERIFICATION.md` — Phase 3 results
+   - `.planning/phases/01-powershell-core-v7/01-RESEARCH.md` — API approach and risks
 
 2. **Current state:**
-   - v6 milestone: Phase 3 complete, Phase 4 not yet planned
-   - 9 of 12 plans executed across 3 phases
-   - All Phase 3 code committed to FSI-AgentGov-Solutions (4 commits total)
-   - Deferred: entity set name standardization, end-to-end tenant test
+   - v7 milestone: Phase 1 planned (3 plans across 3 waves)
+   - Phase 1 plans: 01-01 (scaffold, W1), 01-02 (core scripts, W2), 01-03 (orchestrator, W3)
+   - No plans executed yet
 
 3. **Next action:**
-   - Plan Phase 4: Evidence Export and Framework Integration
-   - Requirements: CEV-01, CEV-02, CEV-03
-   - Key deliverables: SHA-256 evidence export, Control 3.8 tip admonition, documentation suite
+   - Execute Phase 1: `/gsd-execute-phase 1`
+   - Begin with Wave 1 (01-01-PLAN.md: scaffold, helpers, schema discovery)
 
 ---
 
 *State initialized: 2026-02-05*
-*v6 milestone started: 2026-02-09*
-*Phase 3 completed: 2025-07-17*
+*v7 milestone started: 2026-02-09*

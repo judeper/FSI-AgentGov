@@ -1,78 +1,74 @@
-# Requirements: Session Security Configurator (v5)
+# Requirements: Content Moderation Governance Monitor (v7)
 
-**Defined:** 2026-02-06
+**Defined:** 2026-02-09
 **Core Value:** Documentation and solutions that US FSI customers trust.
 
-## v5 Requirements
+## v7 Requirements
 
-Requirements for the Session Security Configurator milestone. Automates Conditional Access session control enforcement per governance zone for Control 1.23.
+Requirements for the Content Moderation Governance Monitor milestone. Automates validation and drift detection of Copilot Studio agent content moderation levels per governance zone for Control 1.8.
 
-### Session Control Management
+### Content Moderation Validation
 
-- [x] **SCM-01**: Deploy authentication contexts (c1-c5) for step-up operations with conflict detection for pre-existing contexts
-- [x] **SCM-02**: Deploy step-up CA policies with zone-specific session controls (Zone 1: 8h, Zone 2: 4h/30min, Zone 3: 1h/15min)
-- [x] **SCM-03**: Validate deployed CA policies match zone-specific session requirements with pass/fail/warning status per zone
-- [x] **SCM-04**: All deployment operations support dry-run mode previewing changes before applying
-- [x] **SCM-05**: Create/validate authentication strength policies (phishing-resistant MFA for Zone 3, passwordless for Zone 2)
-- [x] **SCM-06**: Validate PIM settings for AI admin roles match Control 1.23 requirements (activation windows, approval, auth context)
-- [x] **SCM-07**: Report-only mode enforcement with minimum 72-hour bake period before enforcement transition
+- [ ] **CMV-01**: Enumerate all Copilot Studio agents across Power Platform environments and retrieve generative AI configuration including content moderation level (Low/Medium/High)
+- [ ] **CMV-02**: Validate content moderation levels against zone-specific requirements (Zone 1: Medium minimum, Zone 2: High, Zone 3: High)
+- [ ] **CMV-03**: Classify violations by severity (Zone 3 agent with Low = CRITICAL, Zone 3 with Medium = HIGH, Zone 2 with Low = HIGH, Zone 2 with Medium = MEDIUM, Zone 1 with Low = HIGH) with regulatory impact context
+- [ ] **CMV-04**: All validation operations support dry-run mode previewing violations before persisting
+- [ ] **CMV-05**: Filter agents by status (published/draft) and exclude sandbox/trial environments from validation
+- [ ] **CMV-06**: Zone lookup via ELM Dataverse table with naming convention fallback (matching ACV/SSC/AAM pattern)
 
 ### Drift Detection & Alerting
 
-- [ ] **DDA-01**: Detect session control drift (sign-in frequency weakened, auth strength downgraded, policy disabled, exclusions added)
-- [ ] **DDA-02**: Teams adaptive card alerts with severity classification for detected drift
-- [ ] **DDA-03**: Dataverse immutable validation history for all drift scan results
-- [ ] **DDA-04**: Baseline capture and comparison with zone-parameterized thresholds from environment variables
+- [ ] **DDA-01**: Detect content moderation setting drift (level weakened from baseline — e.g., High to Medium or Low)
+- [ ] **DDA-02**: Teams adaptive card alerts with severity classification matching zone and moderation violation type
+- [ ] **DDA-03**: Dataverse immutable validation history for all scan results and violated agents
+- [ ] **DDA-04**: Baseline capture and comparison with per-agent moderation level snapshots and active baseline tracking
 
 ### Compliance & Evidence
 
-- [ ] **CEV-01**: SHA-256 integrity-hashed compliance evidence export for session security configuration
-- [ ] **CEV-02**: Control 1.23 framework integration (tip admonition on control page + solutions-index.md catalog entry)
+- [ ] **CEV-01**: SHA-256 integrity-hashed compliance evidence export for content moderation configuration validation
+- [ ] **CEV-02**: Control 1.8 framework integration (tip admonition on control page + solutions-index.md catalog entry)
 - [ ] **CEV-03**: Documentation suite (prerequisites, schema, configuration, troubleshooting)
 
 ### Infrastructure
 
-- [ ] **INF-01**: Dataverse tables for session baselines, validation history, and drift violations (reuse ACV option sets)
-- [ ] **INF-02**: Environment variables for zone-specific session thresholds (fsi_SSC_* prefix)
+- [ ] **INF-01**: Dataverse tables for moderation baselines, validation history, and violations (reuse ACV option sets)
+- [ ] **INF-02**: Environment variables for zone-specific moderation thresholds (fsi_CMM_* prefix)
 - [ ] **INF-03**: Connection references for Dataverse, Office 365, Teams (fsi_cr_* naming)
-- [ ] **INF-04**: Power Automate scheduled daily drift scan flow
-- [ ] **INF-05**: Python deployment scripts (idempotent, dry-run support) following ACV pattern
+- [ ] **INF-04**: Power Automate scheduled daily moderation scan flow
+- [ ] **INF-05**: Python deployment scripts (idempotent, dry-run support) following ACV/SSC/AAM pattern
 
 ## Future Requirements
 
-Deferred to post-v5 or v9 integration milestone.
+Deferred to post-v7 or v9 integration milestone.
 
 ### Post-MVP Enhancements
 
-- **SCM-08**: Authentication context-to-operation mapping validation (verify step-ups actually trigger in production)
-- **DDA-05**: Step-up session activity dashboard data (metrics for Power BI/Compliance Dashboard)
-- **CEV-04**: Continuous Access Evaluation (CAE) configuration validation
-- **CEV-05**: Token protection validation for Zone 3 sessions
-- **DDA-06**: Auto-remediation opt-in for Zone 1/Zone 2 drift (with approval workflow)
+- **CMV-07**: Application Insights RAI telemetry correlation (ContentFiltered events tied to agent moderation level)
+- **DDA-05**: Per-agent moderation change history timeline
+- **CEV-04**: Multi-tenant support for MSP/hosting scenarios
+- **CMV-08**: Content moderation effectiveness scoring (filter trigger rate vs. moderation level)
+- **DDA-06**: Dashboard integration for aggregated moderation compliance metrics
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| General CA policy deployment engine | Conditional Access Automation solution handles policy lifecycle |
-| Auto-remediation of Zone 3 policies | Too risky for FSI; detect-only meets regulatory requirements |
-| MFA method registration management | IAM operational concern, outside session configuration scope |
-| Application-level auth context integration | Agent development team responsibility, not infrastructure |
-| Real-time policy enforcement agent | Microsoft Entra ID enforces CA policies; this solution validates configuration |
-| Context-to-operation mapping | Requires production usage data; cannot validate without deployed agents |
-| Dashboard activity metrics | Defer to v9 integration milestone with Compliance Dashboard |
+| Auto-remediation of moderation levels | Too risky for FSI; detect-only meets regulatory requirements |
+| Real-time moderation event capture | Batch/scheduled detection sufficient for governance |
+| Third-party content safety integration | Separate concern covered by webhook threat detection in Control 1.8 |
+| Custom content filter category tuning | Beyond governance scope; Copilot Studio feature management |
+| Agent-level Application Insights setup | Covered by existing Control 1.8 documentation; not solution scope |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCM-01 | Phase 1 | Complete |
-| SCM-02 | Phase 1 | Complete |
-| SCM-03 | Phase 1 | Complete |
-| SCM-04 | Phase 1 | Complete |
-| SCM-05 | Phase 1 | Complete |
-| SCM-06 | Phase 1 | Complete |
-| SCM-07 | Phase 1 | Complete |
+| CMV-01 | Phase 1 | Pending |
+| CMV-02 | Phase 1 | Pending |
+| CMV-03 | Phase 1 | Pending |
+| CMV-04 | Phase 1 | Pending |
+| CMV-05 | Phase 1 | Pending |
+| CMV-06 | Phase 1 | Pending |
 | DDA-01 | Phase 3 | Pending |
 | DDA-02 | Phase 3 | Pending |
 | DDA-03 | Phase 3 | Pending |
@@ -87,10 +83,9 @@ Deferred to post-v5 or v9 integration milestone.
 | INF-05 | Phase 2 | Pending |
 
 **Coverage:**
-- v5 requirements: 19 total
-- Mapped to phases: 19
+- v7 requirements: 18 total
+- Mapped to phases: 18
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-02-06*
-*Last updated: 2026-02-07 after Phase 1 execution*
+*Requirements defined: 2026-02-09*
