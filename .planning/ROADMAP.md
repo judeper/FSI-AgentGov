@@ -11,7 +11,7 @@ A maintenance milestone that addresses 4 pending todos to keep the FSI Agent Gov
 **Phase Numbering:**
 - Integer phases (1, 2): Planned milestone work
 
-- [ ] **Phase 1: Parallel Documentation Updates** — 4 subagents execute simultaneously: Dataverse deprecation warnings, Agent 365 GA updates, evaluation framework enhancements, and multi-source agent investigation
+- [x] **Phase 1: Parallel Documentation Updates** — 4 subagents execute simultaneously: Dataverse deprecation warnings, Agent 365 GA updates, evaluation framework enhancements, and multi-source agent investigation
 - [ ] **Phase 2: Validation and Cleanup** — Build validation, FSI language compliance, and todo closure
 
 ## Phase Details
@@ -29,10 +29,10 @@ A maintenance milestone that addresses 4 pending todos to keep the FSI Agent Gov
 **Plans**: 4 plans (Wave 1 — all parallel, zero file conflicts)
 
 Plans:
-- [ ] 01-01-PLAN.md — Dataverse Purview audit deprecation: Control 1.7 warning, 1.10/2.1 review, regulatory-mappings.md update (FCR-01, FCR-02, FCR-03)
-- [ ] 01-02-PLAN.md — Agent 365 GA readiness: architecture doc, controls 1.11/2.12/3.8/1.5/1.6/1.8, role-catalog, preview admonitions (FCR-04, FCR-05, FCR-06, FCR-07, FCR-08)
-- [ ] 01-03-PLAN.md — Evaluation framework enhancements: controls 2.18/2.8/3.1, verification-testing playbook (FCR-09, FCR-10, FCR-11, FCR-12)
-- [ ] 01-04-PLAN.md — Multi-source governance agent investigation: Options A/B/C analysis, recommendation report (FCR-13, FCR-14)
+- [x] 01-01-PLAN.md — Dataverse Purview audit deprecation: Control 1.7 warning, 1.10/2.1 review, regulatory-mappings.md update (FCR-01, FCR-02, FCR-03)
+- [x] 01-02-PLAN.md — Agent 365 GA readiness: architecture doc, controls 1.11/2.12/3.8/1.5/1.6/1.8, role-catalog, preview admonitions (FCR-04, FCR-05, FCR-06, FCR-07, FCR-08)
+- [x] 01-03-PLAN.md — Evaluation framework enhancements: controls 2.18/2.8/3.1, verification-testing playbook (FCR-09, FCR-10, FCR-11, FCR-12)
+- [x] 01-04-PLAN.md — Multi-source governance agent investigation: Options A/B/C analysis, recommendation report (FCR-13, FCR-14)
 
 ### Phase 2: Validation and Cleanup
 **Goal**: All Phase 1 changes validated (build passes, language rules followed), all 4 todo files moved to done
@@ -56,7 +56,7 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Parallel Documentation Updates | 0/4 | Planned | — |
+| 1. Parallel Documentation Updates | 4/4 | Complete | 2026-02-10 |
 | 2. Validation and Cleanup | 0/1 | Planned | — |
 
 ## Coverage
