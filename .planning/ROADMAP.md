@@ -12,7 +12,7 @@ A maintenance milestone that addresses 4 pending todos to keep the FSI Agent Gov
 - Integer phases (1, 2): Planned milestone work
 
 - [x] **Phase 1: Parallel Documentation Updates** — 4 subagents execute simultaneously: Dataverse deprecation warnings, Agent 365 GA updates, evaluation framework enhancements, and multi-source agent investigation
-- [ ] **Phase 2: Validation and Cleanup** — Build validation, FSI language compliance, and todo closure
+- [x] **Phase 2: Validation and Cleanup** — Build validation, FSI language compliance, and todo closure
 
 ## Phase Details
 
@@ -47,7 +47,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Build validation, language audit, todo closure, state update (FCR-15, FCR-16, FCR-17)
+- [x] 02-01-PLAN.md — Build validation, language audit, todo closure, state update (FCR-15, FCR-16, FCR-17)
 
 ## Progress
 
@@ -57,7 +57,7 @@ Phases execute in numeric order: 1 → 2
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Parallel Documentation Updates | 4/4 | Complete | 2026-02-10 |
-| 2. Validation and Cleanup | 0/1 | Planned | — |
+| 2. Validation and Cleanup | 1/1 | Complete | 2026-02-10 |
 
 ## Coverage
 
