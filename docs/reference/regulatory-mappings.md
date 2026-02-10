@@ -27,6 +27,9 @@ Requires firms to maintain records of all agent activities and communications.
 !!! warning "Agent Logs as Communications"
     Agent conversation logs typically fall under the 3-year communications retention (SEC 17a-4(b)(4)), not the 6-year financial records period. If agent interactions generate or modify financial records, those outputs follow the 6-year period.
 
+!!! warning "Dataverse Audit Event Changes — May 2026"
+    Starting May 2026, Dataverse will no longer include before-and-after field change values in audit events sent to Microsoft Purview. Organizations relying on Purview audit events for Dataverse field-level change records to support FINRA 4511 recordkeeping requirements should transition to Dataverse API-based retrieval before May 2026. See [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for implementation guidance.
+
 ### Applicable Controls
 
 | Control | Requirement | Mapping |
@@ -244,6 +247,9 @@ Requires SEC-registered firms to maintain records for varying periods: 3 years f
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Evidence retention |
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Knowledge source records |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot usage logging |
+
+!!! warning "Dataverse Audit Event Changes — May 2026"
+    Starting May 2026, Dataverse will no longer include before-and-after field change values in audit events sent to Microsoft Purview. Organizations relying on Purview audit events for Dataverse field-level change records to support SEC 17a-4 record retention requirements should transition to Dataverse API-based retrieval before May 2026. This may affect the completeness of audit records for agent interactions involving Dataverse entities. See [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for implementation guidance.
 
 ### Record Categories
 
