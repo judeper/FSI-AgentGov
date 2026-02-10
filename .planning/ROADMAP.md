@@ -13,7 +13,7 @@ The Content Moderation Governance Monitor automates validation and drift detecti
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: PowerShell Core** - Agent enumeration, content moderation level query, zone compliance validation, and severity classification
-- [ ] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
+- [x] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
 - [ ] **Phase 3: Automation and Alerting** - Scheduled drift detection, Teams alerting, Power Automate flow, and baseline management
 - [ ] **Phase 4: Evidence Export and Framework Integration** - SHA-256 compliance export, Control 1.8 integration, and documentation suite
 
@@ -48,9 +48,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — CMM Dataverse client, requirements, and three-table schema deployment
-- [ ] 02-02-PLAN.md — Environment variables, connection references, and deploy.py orchestrator
-- [ ] 02-03-PLAN.md — Wire Phase 1 PowerShell scripts to read thresholds from Dataverse
+- [x] 02-01-PLAN.md — CMM Dataverse client, requirements, and three-table schema deployment
+- [x] 02-02-PLAN.md — Environment variables, connection references, and deploy.py orchestrator
+- [x] 02-03-PLAN.md — Wire Phase 1 PowerShell scripts to read thresholds from Dataverse
 
 ### Phase 3: Automation and Alerting
 **Goal**: Content moderation violations are automatically detected daily and operators receive classified alerts when agent moderation settings deviate from zone requirements
@@ -91,7 +91,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. PowerShell Core | 3/3 | Complete | 2026-02-10 |
-| 2. Dataverse Infrastructure | 0/3 | Pending | — |
+| 2. Dataverse Infrastructure | 3/3 | Complete | 2026-02-10 |
 | 3. Automation and Alerting | 0/3 | Pending | — |
 | 4. Evidence Export and Framework Integration | 0/3 | Pending | — |
 
