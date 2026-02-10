@@ -1,14 +1,14 @@
 # Project State: FSI-AgentGov
 
-**Last Updated:** 2026-02-09
+**Last Updated:** 2025-07-17
 **Milestone:** v6 — Agent Access Governance Monitor
-**Status:** IN PROGRESS — Phase 2 complete, ready to plan Phase 3
+**Status:** IN PROGRESS — Phase 3 complete, ready to plan Phase 4
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-09 14:00
-**Handoff Summary:** v6 Phase 3 (Automation and Alerting) planned. Research complete, 3 plans across 3 waves created and verified by plan-checker (APPROVED). Ready to execute.
+**Session Started:** 2025-07-17 
+**Handoff Summary:** v6 Phase 4 (Evidence Export and Framework Integration) planned. Research completed, 3 plans created across 2 waves, plan checker APPROVED. Ready to execute Phase 4.
 
 ## Project Reference
 
@@ -30,10 +30,10 @@ v9: Integration (ELM + Dashboard + cross-solution)
 
 ## Current Position
 
-**Phase:** 3 of 4 (Automation and Alerting) — PLANNED
-**Plan:** 0/3 — Plans created, ready to execute
-**Status:** Phase 3 planned, research + 3 plans + plan-checker verification complete
-**Last activity:** 2026-02-09 — Planned Phase 3 (3 plans, 3 waves, APPROVED by plan-checker)
+**Phase:** 4 of 4 (Evidence Export and Framework Integration) — PLANNED
+**Plan:** 0/3 — Plans created, ready for execution
+**Status:** Phase 4 planned (3 plans, 2 waves), plan checker APPROVED
+**Last activity:** 2025-07-17 — Planned Phase 4 (research + 3 plans: AAM-01, AAM-02, AAM-03)
 
 **Progress:**
 ```
@@ -42,14 +42,14 @@ v2: [=========================] 5/5 phases (17 plans) — SHIPPED
 v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
 v5: [=========================] 4/4 phases (12 plans) — SHIPPED
-v6: [============             ] 2/4 phases (6 plans) — IN PROGRESS
+v6: [==================       ] 3/4 phases (9 plans) — IN PROGRESS
 ```
 
 ## Performance Metrics
 
 **Cumulative (v1-v6):**
-- Phases: 30 complete (8 + 5 + 7 + 4 + 4 + 2)
-- Plans: 108 complete (35 + 17 + 27 + 11 + 12 + 6)
+- Phases: 31 complete (8 + 5 + 7 + 4 + 4 + 3)
+- Plans: 111 complete (35 + 17 + 27 + 11 + 12 + 9)
 - Requirements: 155 total (33 + 13 + 44 + 28 + 19 + 18)
 
 ## Accumulated Context
@@ -94,18 +94,16 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-09 14:00
+**Session Started:** 2025-07-17
 
-### Last Session Summary (2026-02-09)
+### Last Session Summary (2025-07-17)
 
 **What happened:**
-- Started v6 milestone: Agent Access Governance Monitor
-- Archived v5 ROADMAP and REQUIREMENTS to milestones/ folder
-- Created v6 research document (.planning/research/v6-agent-access-monitor-research.md)
-- Created v6 REQUIREMENTS.md with 18 requirements across 4 phases
-- Created v6 ROADMAP.md with 4 phases and 12 planned plans
-- Updated STATE.md for v6 milestone
-- Research findings: Power Platform APIs fully supported, M365 Admin settings portal-only
+- Executed all 3 plans of Phase 3 (Automation and Alerting) across 3 waves
+- Wave 1 (Plan 03-01): Fixed AAMClient.psm1 (Save-AAMBaseline, Get-AAMLastValidation), fixed PS5.1 encoding issues (em dashes, ?? operators) in Start-AccessValidationRunbook.ps1 and Invoke-AccessBaselineCapture.ps1. 3 atomic commits (da31a5f, b20e8f1, 8b184b5)
+- Wave 2 (Plan 03-02): Created adaptive-card-access-alert.json (Schema 1.4), access-validation-flow.json (daily 6AM UTC with audit-before-alert pattern), FLOW_SETUP.md (7-step guide). 1 atomic commit (25b29d6)
+- Wave 3 (Plan 03-03): Verified drift detection logic (3 settings, direction classification, edge cases), verified Dataverse write path (column mapping matches schema), found and fixed ZoneSummary structural mismatch (flat → enriched), added CHANGELOG v0.3.0. 1 atomic commit (71e58a7)
+- Phase verification: mkdocs build --strict passed, verify_controls.py passed, end-to-end structural consistency confirmed (27 adaptive card placeholders mapped to runbook output)
 
 ### Context for Next Session
 
@@ -114,20 +112,21 @@ If resuming this project:
 1. **Read these files first:**
    - `.planning/STATE.md` — Current position
    - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/research/v6-agent-access-monitor-research.md` — Technical research
+   - `.planning/phases/03-automation-and-alerting-v6/03-VERIFICATION.md` — Phase 3 results
 
 2. **Current state:**
-   - v6 milestone: Research and roadmap complete, ready to plan Phase 1
-   - 18 requirements mapped across 4 phases
-   - Primary control: 3.8 (Copilot Hub and Governance Dashboard)
-   - Key APIs: Power Platform Admin PowerShell (Get-AdminPowerAppEnvironment)
-   - Solution will be created in FSI-AgentGov-Solutions/agent-access-monitor/
+   - v6 milestone: Phase 3 complete, Phase 4 not yet planned
+   - 9 of 12 plans executed across 3 phases
+   - All Phase 3 code committed to FSI-AgentGov-Solutions (4 commits total)
+   - Deferred: entity set name standardization, end-to-end tenant test
 
 3. **Next action:**
-   - Plan Phase 1: PowerShell Core
-   - Requirements: ACV-01 through ACV-06
+   - Plan Phase 4: Evidence Export and Framework Integration
+   - Requirements: CEV-01, CEV-02, CEV-03
+   - Key deliverables: SHA-256 evidence export, Control 3.8 tip admonition, documentation suite
 
 ---
 
 *State initialized: 2026-02-05*
 *v6 milestone started: 2026-02-09*
+*Phase 3 completed: 2025-07-17*
