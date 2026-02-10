@@ -29,10 +29,30 @@ Organizations need **both sources** for complete deny event visibility.
 
 ### Prerequisites
 
-- Azure subscription
-- Application Insights resource (or create new)
+#### Azure Resources
+
+- Azure subscription with an Application Insights resource (or permissions to create one)
 - Copilot Studio Premium license
-- Agent editing permissions
+- Agent editing permissions in Copilot Studio
+
+#### Entra ID Authentication (Required)
+
+The following resources are required for automated telemetry extraction. API key (`x-api-key`) authentication is deprecated and will stop working on **March 31, 2026**.
+
+| Prerequisite | Purpose |
+|-------------|---------|
+| **Entra ID App Registration** | Service principal for unattended authentication |
+| **Monitoring Reader role** | Assigned to the App Registration on the Application Insights resource |
+| **Azure Key Vault** | Stores the service principal client secret securely |
+| **Az.Accounts 3.0+** | PowerShell module for `Connect-AzAccount` / `Get-AzAccessToken` |
+| **Az.KeyVault 5.0+** | PowerShell module for `Get-AzKeyVaultSecret` |
+| **PowerShell 7.0+** | Required runtime version |
+
+??? note "Setting Up the App Registration"
+    1. In **Entra ID** > **App registrations**, create a new registration (e.g., `sp-appinsights-rai`)
+    2. Create a **Client secret** and store it in Azure Key Vault
+    3. In the **Application Insights** resource, assign the **Monitoring Reader** role to the App Registration
+    4. Record the **Tenant ID**, **Client ID**, **Key Vault name**, and **Secret name** for script parameters
 
 ### Step 1: Create or Identify Application Insights Resource
 
@@ -158,61 +178,98 @@ customEvents
 
 ## PowerShell Extraction via REST API
 
-!!! danger "x-api-key Deprecation - March 31, 2026"
-    The Application Insights API key (`x-api-key`) authentication method is deprecated and will stop working on **March 31, 2026**. After this date, the `Export-RaiTelemetry.ps1` script below will fail.
+### Entra ID Authentication (Current)
 
-    **Required Migration:**
+The `Export-RaiTelemetry.ps1` script authenticates using an Entra ID service principal with a bearer token. This is the supported method for automated Application Insights queries.
 
-    - Switch to **Entra ID (Azure AD) authentication** using service principals or managed identities
-    - Use `Connect-AzAccount` and bearer token authentication instead of API keys
-    - See [FSI-AgentGov-Solutions DEC v1.1.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) for updated scripts with Entra ID authentication
+**Authentication flow:**
 
-    **Timeline:**
-
-    | Date | Impact |
-    |------|--------|
-    | Now | Begin migration planning |
-    | March 31, 2026 | API keys stop working |
+1. Retrieve client secret from Azure Key Vault
+2. Authenticate service principal via `Connect-AzAccount`
+3. Acquire bearer token via `Get-AzAccessToken`
+4. Call Application Insights REST API with `Authorization: Bearer` header
 
 ### Export-RaiTelemetry.ps1
 
-!!! warning "Legacy Script"
-    This script uses the deprecated x-api-key authentication. Use for reference only. See the deprecation warning above for migration guidance.
-
 ```powershell
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName="Az.Accounts"; ModuleVersion="3.0.0" }, @{ ModuleName="Az.KeyVault"; ModuleVersion="5.0.0" }
+
 <#
 .SYNOPSIS
-    Exports RAI telemetry from Application Insights
+    Exports RAI telemetry from Application Insights using Entra ID authentication.
 .PARAMETER AppInsightsAppId
     Application Insights Application ID
-.PARAMETER ApiKey
-    Application Insights API key (read access) - DEPRECATED March 31, 2026
-.PARAMETER StartDate
-    Start of time window
+.PARAMETER TenantId
+    Entra ID tenant ID for service principal authentication
+.PARAMETER ClientId
+    App Registration (client) ID with Monitoring Reader role
+.PARAMETER KeyVaultName
+    Azure Key Vault containing the client secret
+.PARAMETER SecretName
+    Name of the Key Vault secret for the service principal
+.PARAMETER DaysBack
+    Number of days of telemetry to retrieve (default: 1)
 .PARAMETER OutputPath
     Path for CSV export
 #>
+[CmdletBinding()]
 param(
     [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
     [string]$AppInsightsAppId,
 
     [Parameter(Mandatory)]
-    [string]$ApiKey,
+    [ValidateNotNullOrEmpty()]
+    [string]$TenantId,
 
-    [DateTime]$StartDate = (Get-Date).AddDays(-1),
-    [DateTime]$EndDate = (Get-Date),
+    [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
+    [string]$ClientId,
+
+    [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
+    [string]$KeyVaultName,
+
+    [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
+    [string]$SecretName,
+
+    [ValidateRange(1, 90)]
+    [int]$DaysBack = 1,
+
+    [ValidateNotNullOrEmpty()]
     [string]$OutputPath = ".\RaiTelemetry-$(Get-Date -Format 'yyyy-MM-dd').csv"
 )
 
-# WARNING: x-api-key authentication deprecated - migrate to Entra ID before March 31, 2026
-$headers = @{
-    "x-api-key" = $ApiKey
+# --- Authenticate via Entra ID ---
+try {
+    Write-Verbose "Retrieving client secret from Key Vault '$KeyVaultName'..."
+    $secret = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SecretName -ErrorAction Stop
+
+    Write-Verbose "Authenticating service principal '$ClientId'..."
+    $credential = [PSCredential]::new($ClientId, $secret.SecretValue)
+    Connect-AzAccount -ServicePrincipal -TenantId $TenantId -Credential $credential -ErrorAction Stop | Out-Null
+
+    Write-Verbose "Acquiring bearer token..."
+    $token = (Get-AzAccessToken -ResourceUrl "https://api.applicationinsights.io" -ErrorAction Stop).Token
+    $headers = @{ "Authorization" = "Bearer $token" }
+}
+catch {
+    Write-Error "Authentication failed: $_"
+    return [PSCustomObject]@{
+        Status = 'Error'; ErrorType = 'AuthenticationFailure'
+        Message = "$_"; Timestamp = (Get-Date -Format 'o')
+    }
 }
 
-# KQL query (URL encoded)
+# --- Build and execute KQL query ---
+$startDate = (Get-Date).AddDays(-$DaysBack).ToString("yyyy-MM-dd")
+$endDate   = (Get-Date).ToString("yyyy-MM-dd")
+
 $query = @"
 customEvents
-| where timestamp between(datetime('$($StartDate.ToString("yyyy-MM-dd"))') .. datetime('$($EndDate.ToString("yyyy-MM-dd"))'))
+| where timestamp between(datetime('$startDate') .. datetime('$endDate'))
 | where name == "MicrosoftCopilotStudio"
 | extend eventType = tostring(customDimensions["EventType"])
 | where eventType == "ContentFiltered"
@@ -225,20 +282,18 @@ customEvents
 | project timestamp, agentId, sessionId, filterReason, filterCategory, filterSeverity
 "@
 
-$encodedQuery = [System.Web.HttpUtility]::UrlEncode($query)
-$uri = "https://api.applicationinsights.io/v1/apps/$AppInsightsAppId/query?query=$encodedQuery"
-
-Write-Host "Querying Application Insights..."
+$apiUrl = "https://api.applicationinsights.io/v1/apps/$AppInsightsAppId/query"
+$body   = @{ query = $query } | ConvertTo-Json
 
 try {
-    $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+    $response = Invoke-RestMethod -Uri $apiUrl -Headers $headers `
+        -Method Post -Body $body -ContentType "application/json" -ErrorAction Stop
 
-    # Convert response to objects
     $columns = $response.tables[0].columns.name
-    $rows = $response.tables[0].rows
+    $rows    = $response.tables[0].rows
 
     $results = foreach ($row in $rows) {
-        $obj = @{}
+        $obj = [ordered]@{}
         for ($i = 0; $i -lt $columns.Count; $i++) {
             $obj[$columns[$i]] = $row[$i]
         }
@@ -246,14 +301,53 @@ try {
     }
 
     Write-Host "RAI events found: $($results.Count)"
-
-    $results | Export-Csv -Path $OutputPath -NoTypeInformation
-    Write-Host "Exported to: $OutputPath"
+    if ($results.Count -gt 0) {
+        $results | Export-Csv -Path $OutputPath -NoTypeInformation
+        Write-Host "Exported to: $OutputPath"
+    }
 }
 catch {
-    Write-Error "Failed to query Application Insights: $_"
+    Write-Error "Query failed: $_"
 }
 ```
+
+!!! tip "Full Script"
+    The complete script with structured error handling, token refresh, and verbose logging is available in [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/scripts).
+
+### Migration from x-api-key (v1.x)
+
+If you are upgrading from the v1.x script that used `x-api-key` authentication:
+
+| Step | Action |
+|------|--------|
+| 1 | Create an Entra ID App Registration (see Prerequisites above) |
+| 2 | Assign **Monitoring Reader** role on the Application Insights resource |
+| 3 | Store the client secret in Azure Key Vault |
+| 4 | Replace script parameters: remove `-ApiKey`, add `-TenantId`, `-ClientId`, `-KeyVaultName`, `-SecretName` |
+| 5 | Install required modules: `Install-Module Az.Accounts, Az.KeyVault` |
+| 6 | Update any scheduled task or automation runbook invocations |
+
+!!! warning "Legacy x-api-key Script (Deprecated)"
+    The previous version of this script used `x-api-key` header authentication. This method is **deprecated as of March 31, 2026** and will stop working after that date. The legacy script is preserved below for reference only.
+
+??? note "Legacy Script (x-api-key — DO NOT USE in production)"
+    ```powershell
+    # DEPRECATED — x-api-key authentication stops working March 31, 2026
+    param(
+        [Parameter(Mandatory)]
+        [string]$AppInsightsAppId,
+
+        [Parameter(Mandatory)]
+        [string]$ApiKey,  # DEPRECATED
+
+        [DateTime]$StartDate = (Get-Date).AddDays(-1),
+        [DateTime]$EndDate = (Get-Date),
+        [string]$OutputPath = ".\RaiTelemetry-$(Get-Date -Format 'yyyy-MM-dd').csv"
+    )
+
+    $headers = @{ "x-api-key" = $ApiKey }
+    # ... remainder of legacy script omitted for brevity
+    ```
 
 ---
 
@@ -316,4 +410,4 @@ The exported CSV includes:
 
 ---
 
-*FSI Agent Governance Framework v1.2.33 - February 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*
