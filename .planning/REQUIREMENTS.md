@@ -67,29 +67,28 @@ Zero file overlaps between the 4 todos — all can execute in parallel:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CMV-01 | Phase 1 | Pending |
-| CMV-02 | Phase 1 | Pending |
-| CMV-03 | Phase 1 | Pending |
-| CMV-04 | Phase 1 | Pending |
-| CMV-05 | Phase 1 | Pending |
-| CMV-06 | Phase 1 | Pending |
-| DDA-01 | Phase 3 | Pending |
-| DDA-02 | Phase 3 | Pending |
-| DDA-03 | Phase 3 | Pending |
-| DDA-04 | Phase 3 | Pending |
-| CEV-01 | Phase 4 | Pending |
-| CEV-02 | Phase 4 | Pending |
-| CEV-03 | Phase 4 | Pending |
-| INF-01 | Phase 2 | Pending |
-| INF-02 | Phase 2 | Pending |
-| INF-03 | Phase 2 | Pending |
-| INF-04 | Phase 3 | Pending |
-| INF-05 | Phase 2 | Pending |
+| FCR-01 | Phase 1 | Pending |
+| FCR-02 | Phase 1 | Pending |
+| FCR-03 | Phase 1 | Pending |
+| FCR-04 | Phase 1 | Pending |
+| FCR-05 | Phase 1 | Pending |
+| FCR-06 | Phase 1 | Pending |
+| FCR-07 | Phase 1 | Pending |
+| FCR-08 | Phase 1 | Pending |
+| FCR-09 | Phase 1 | Pending |
+| FCR-10 | Phase 1 | Pending |
+| FCR-11 | Phase 1 | Pending |
+| FCR-12 | Phase 1 | Pending |
+| FCR-13 | Phase 1 | Pending |
+| FCR-14 | Phase 1 | Pending |
+| FCR-15 | Phase 2 | Pending |
+| FCR-16 | Phase 2 | Pending |
+| FCR-17 | Phase 2 | Pending |
 
 **Coverage:**
-- v7 requirements: 18 total
-- Mapped to phases: 18
+- v7.1 requirements: 17 total
+- Mapped to phases: 17
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-02-09*
+*Traceability updated: 2026-02-10*
