@@ -178,7 +178,7 @@ This repository supports three AI tools:
 Located in `.github/agents/`: `doc-writer`, `doc-verifier`, plus 11 GSD workflow agents (`gsd-planner`, `gsd-executor`, `gsd-verifier`, `gsd-debugger`, `gsd-codebase-mapper`, `gsd-roadmapper`, `gsd-project-researcher`, `gsd-phase-researcher`, `gsd-research-synthesizer`, `gsd-integration-checker`, `gsd-plan-checker`).
 
 ### GSD Prompts (27)
-Located in `.github/prompts/`. Use `/gsd:execute-phase`, `/gsd:plan-phase`, etc.
+Located in `.github/prompts/`. Use `/gsd-execute-phase`, `/gsd-plan-phase`, etc.
 
 ### Instruction Files (12)
 Located in `.github/instructions/`. Auto-included by `applyTo` glob patterns.
@@ -188,10 +188,29 @@ Add to your `.vscode/settings.json`:
 ```json
 {
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-  "chat.promptFilesLocations": [".github/prompts"],
-  "chat.instructionsFilesLocations": [".github/instructions"]
+  "chat.promptFilesLocations": {
+    ".github/prompts": true
+  },
+  "chat.instructionsFilesLocations": {
+    ".github/instructions": true
+  }
 }
 ```
+
+### If `/gsd-*` prompts don't show up
+
+If built-in slash commands appear but the workspace prompts under `.github/prompts/` do not, the repo structure is usually fine and the issue is typically one of these:
+
+- **Workspace Trust / Restricted Mode**: prompt files may be skipped when the workspace isn't trusted.
+- **Outdated VS Code**: prompt files are a relatively new feature; update VS Code to a current stable release.
+- **Load/parse errors**: a specific prompt file can fail to load due to malformed YAML frontmatter.
+- **Org policy**: some enterprises restrict chat customization features.
+
+Fastest way to see the exact reason:
+
+1. Open the **Chat** view.
+2. **Right-click** in the Chat view and select **Diagnostics**.
+3. In the diagnostics report, look for **Prompt files** and confirm your workspace prompts are listed as **Loaded** (or read the error message if they are **Skipped/Failed**).
 
 ### Session Ownership
 Check `.planning/STATE.md` Active Tool field before writing to shared GSD state files.

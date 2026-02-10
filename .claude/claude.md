@@ -15,7 +15,7 @@
 
 ### Companion Repository
 
-**FSI-AgentGov-Solutions** (`/Users/admin/dev/FSI-AgentGov-Solutions`) contains deployable solution artifacts:
+**FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`) contains deployable solution artifacts:
 
 | Solution | Version | Description |
 |----------|---------|-------------|
@@ -70,7 +70,7 @@ pwd
 git rev-parse --show-toplevel
 
 # To commit to FSI-AgentGov-Solutions while working in FSI-AgentGov:
-cd /Users/admin/dev/FSI-AgentGov-Solutions
+cd C:/dev/FSI-AgentGov-Solutions
 git add <specific-files>
 git commit -m "message"
 cd -  # return to previous directory

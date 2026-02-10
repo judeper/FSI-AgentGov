@@ -1,5 +1,5 @@
 ---
-name: "gsd:insert-phase"
+name: "gsd-insert-phase"
 description: "Insert urgent work as decimal phase (e.g., 2.1) between existing phases"
 tools: ["read", "edit", "search"]
 ---
@@ -40,7 +40,7 @@ Verify both adjacent phases exist.
 
 **Phase {N.N}: {Name}** inserted between Phase {N} and Phase {N+1}.
 
-`/gsd:plan-phase {N.N}` — Create execution plans
+`/gsd-plan-phase {N.N}` — Create execution plans
 ```
 </step>
 

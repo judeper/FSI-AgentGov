@@ -102,6 +102,41 @@ After completing these steps, verify:
 - [ ] PIM configured for admin roles
 - [ ] Access reviews scheduled
 - [ ] Column-level security enforced
+- [ ] All agent actions have "Ask the user before running this action" enabled (Copilot Studio > Agent > Actions)
+- [ ] Connected agent access disabled for all agents unless explicitly approved (Copilot Studio > Agent > Settings > Connected Agents)
+- [ ] Admin count is below 10 per environment (PPAC > Environment > Users + Permissions)
+
+---
+
+## Step 7: Configure Agent Action Consent
+
+1. Open **Copilot Studio** ([https://copilotstudio.microsoft.com](https://copilotstudio.microsoft.com))
+2. Navigate to **Agents** and select each agent
+3. Go to **Actions** and locate each configured action
+4. For every action, enable **"Ask the user before running this action"**
+5. Where available, set "How do you want to ask the user?" to **"You create the message"** and configure a clear, human-written description of what the action will do
+6. Repeat for all agents in Zone 2 and Zone 3 environments
+
+### Step 8: Configure Connected Agent Governance
+
+1. In Copilot Studio, select each agent
+2. Navigate to **Settings** > under **Connected Agents** (Preview)
+3. Locate the toggle **"Let other agents connect to and use this one"**
+4. Set to **Disabled** by default
+5. Enable only with:
+   - Documented business justification
+   - Cross-agent data handling review
+   - Compliance officer sign-off
+6. Document all approved inter-agent connections and review quarterly
+
+### Step 9: Review Environment Admin Roles
+
+1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
+2. Navigate to **Environments** > select the target environment > **Settings** > **Users + Permissions** > **Users**
+3. Review all users with **System Administrator** role
+4. For any assignment that is not justified, select the user > **Manage Roles** > remove System Administrator
+5. Ensure fewer than 10 administrators per environment
+6. Document all admin role assignments with business justification
 
 ---
 

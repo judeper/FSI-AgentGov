@@ -1,5 +1,5 @@
 ---
-name: "gsd:discuss-phase"
+name: "gsd-discuss-phase"
 description: "Gather phase context through adaptive questioning before planning"
 tools: ["read", "search"]
 ---
@@ -44,8 +44,8 @@ Write discussion outcomes to `.planning/phases/{NN}-{name}/{NN}-CONTEXT.md` if s
 ```
 ## Phase {N} Context Gathered
 
-`/gsd:plan-phase {N}` — Create execution plans
-`/gsd:research-phase {N}` — Research before planning
+`/gsd-plan-phase {N}` — Create execution plans
+`/gsd-research-phase {N}` — Research before planning
 ```
 </step>
 

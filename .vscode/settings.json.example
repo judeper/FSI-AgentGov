@@ -2,6 +2,10 @@
 // .vscode/ is gitignored — your local copy won't be committed.
 {
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-  "chat.promptFilesLocations": [".github/prompts"],
-  "chat.instructionsFilesLocations": [".github/instructions"]
+  "chat.promptFilesLocations": {
+    ".github/prompts": true
+  },
+  "chat.instructionsFilesLocations": {
+    ".github/instructions": true
+  }
 }

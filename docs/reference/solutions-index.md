@@ -34,6 +34,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Planned | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
 | [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
+| [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Work In Progress | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
 
 ### Status Legend
 
@@ -460,6 +461,33 @@ Automated detection of non-compliant content moderation settings for Copilot Stu
 
 ---
 
+### Cross-Solution Integration
+
+Wires five Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compliance Dashboard for automated compliance scoring, adds ELM provisioning hooks for environment auto-registration, and provides unified evidence export with SHA-256 hash chain for audit packages.
+
+**Components:**
+
+- IntegrationConfig.psm1 — shared configuration module with solution-to-control mappings and status translation
+- Sync-SolutionAssessments.ps1 — batch pipeline for Compliance Dashboard feeds
+- cd-solution-feed-collector.json — Power Automate alternative for dashboard feeds
+- elm-solution-initializer.json — event-driven ELM provisioning hook
+- Register-ProvisionedEnvironment.ps1 — PowerShell ACV registration alternative
+- Export-UnifiedComplianceEvidence.ps1 — unified evidence export pipeline
+- Test-UnifiedEvidenceIntegrity.ps1 — evidence integrity verification
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — consolidated governance evidence)
+- SEC 17a-3/4 (Recordkeeping — unified compliance reporting)
+- SOX 302/404 (Internal Controls — cross-solution governance visibility)
+- OCC 2011-12 (Model Risk Management — integrated monitoring evidence)
+
+**Related Controls:** 1.7, 1.23, 1.11, 3.8, 1.8, 1.14
+
+**Repository Link:** [cross-solution-integration](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -494,6 +522,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Hallucination Tracker | v1.0.0 | February 2026 |
 | DR Testing Framework | v1.0.0 | February 2026 |
 | File Upload Security Configurator | v1.0.0 | February 2026 |
+| Cross-Solution Integration | v1.0.0 | February 2026 |
 
 ---
 

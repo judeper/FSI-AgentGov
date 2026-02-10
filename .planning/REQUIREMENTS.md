@@ -1,86 +1,92 @@
-# Requirements: File Upload Security Configurator (v8)
+# Requirements: Cross-Solution Integration (v9)
 
 **Defined:** 2026-02-10
 **Core Value:** Documentation and solutions that US FSI customers trust.
 
-## v8 Requirements
+## v9 Requirements
 
-Automated validation and enforcement of file upload security settings for Copilot Studio agents per governance zone. The solution detects agents with file upload capabilities enabled beyond their zone's security posture requirements, provides drift detection for configuration changes, and exports compliance evidence with SHA-256 integrity hashing for regulatory examinations.
+Cross-solution integration wiring that connects the 5 Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compliance Dashboard for unified compliance visibility, adds ELM provisioning hooks for automatic downstream solution initialization, and provides a unified compliance evidence export for regulatory examinations.
 
-**Target control:** 1.14 (Data Minimization and Agent Scope Control) — file uploads expand agent data intake beyond declared operational scope.
+**Goal:** Transition from standalone solutions to an integrated governance platform where environment provisioning cascades to solution initialization, daily validations feed the compliance dashboard, and quarterly evidence rolls up into a single regulatory package.
 
-### File Upload Validation (FUS)
+### Schema Normalization (SCH)
 
-- [ ] **FUS-01**: PowerShell script enumerates all Copilot Studio agents across Power Platform environments and retrieves file upload enabled/disabled status from Dataverse bot table metadata
-- [ ] **FUS-02**: Zone classification logic determines expected file upload policy per environment (Zone 1: Allowed, Zone 2: Restricted with approval, Zone 3: Disabled by default)
-- [ ] **FUS-03**: Compliance comparison evaluates each agent's file upload status against zone baseline with severity classification (Critical/High/Medium/Warning)
-- [ ] **FUS-04**: Orchestrator script combines enumeration, comparison, and reporting in a single execution with dry-run mode, environment filtering, and multiple output formats (Table/Json/Object)
-- [ ] **FUS-05**: Content moderation cross-check validates that agents with file uploads enabled have minimum content moderation levels (Zone 2: High, Zone 3: Highest) to protect against malicious file content
+- [ ] **SCH-01**: Document canonical option set contract specifying that `fsi_acv_zone` uses values 1=Zone 1, 2=Zone 2, 3=Zone 3 (matching ELM/CD convention) and `fsi_acv_severity` uses values 1=Passed, 2=Warning, 3=GracePeriod, 4=Failed, 5=Error as the cross-solution standard
+- [ ] **SCH-02**: Create solution status mapping reference defining how each Tier 2 solution's `overall_status` translates to Compliance Dashboard `fsi_status` (1=Compliant, 2=Partial, 3=Non-Compliant) with documented logic per solution
+- [ ] **SCH-03**: Create shared integration constants module (`IntegrationConfig.psm1`) with canonical mappings, table names, control-to-solution assignments, and evidence type definitions
 
-### Drift Detection & Alerting (DDA)
+### Compliance Dashboard Feed (CDF)
 
-- [ ] **DDA-01**: Dataverse tables store file upload baselines, validation results, and violations with organization-owned security for immutable history
-- [ ] **DDA-02**: Python deployment scripts create Dataverse schema, environment variables (fsi_FUS_ prefix), and connection references following proven Tier 2 pattern
-- [ ] **DDA-03**: PowerShell baseline capture script records current file upload settings per agent as the compliance reference point
-- [ ] **DDA-04**: Power Automate daily validation flow orchestrates file upload compliance checks with configurable schedule
-- [ ] **DDA-05**: Teams adaptive card alerts notify administrators of file upload policy violations with zone context and remediation guidance
-- [ ] **DDA-06**: Azure Automation runbook wrapper enables scheduled unattended validation with credential management
+- [ ] **CDF-01**: Power Automate flow definition `CD-SolutionFeedCollector` that queries each Tier 2 solution's validation history table daily, maps results to `fsi_controlassessment` records, and upserts compliance scores
+- [ ] **CDF-02**: Solution-to-control mapping table documenting which controls each solution feeds (ACV→1.7, SSC→1.23/1.11, AAM→3.8, CMM→1.8, FUS→1.14) with assessment logic per mapping
+- [ ] **CDF-03**: PowerShell script `Sync-SolutionAssessments.ps1` that can run standalone or from Azure Automation to pull latest validation results from all Tier 2 solutions and create/update CD assessments
+- [ ] **CDF-04**: Evidence auto-registration in `fsi_complianceevidence` when Tier 2 solutions produce SHA-256 evidence packages, with evidence type set to "Test Result" and hash preserved
+- [ ] **CDF-05**: Update CD-ScoreCalculator flow to recognize automated assessments (source=solution) vs manual assessments (source=assessor) with appropriate weighting
 
-### Compliance & Evidence (CEV)
+### ELM Provisioning Hooks (ELM)
 
-- [ ] **CEV-01**: Evidence export script generates JSON compliance evidence with SHA-256 integrity hash companion files for SEC 17a-4(f) support
-- [ ] **CEV-02**: Control 1.14 updated with tip admonition linking to File Upload Security Configurator solution and solutions-index.md catalog entry added
-- [ ] **CEV-03**: Complete documentation suite — README, PREREQUISITES, SCHEMA, EVIDENCE_EXPORT, FLOW_SETUP, TROUBLESHOOTING, CHANGELOG
+- [ ] **ELM-01**: Power Automate child flow `ELM-SolutionInitializer` triggered by ProvisioningCompleted log entry that cascades to downstream solution registration
+- [ ] **ELM-02**: ACV environment auto-registration — creates `fsi_environmentregistry` record with zone from ELM request when new environment is provisioned
+- [ ] **ELM-03**: Integration configuration specifying which downstream solutions receive provisioning events and what data is passed (environment ID, name, zone, URL, security group)
 
-### Infrastructure (INF)
+### Unified Evidence Export (UEV)
 
-- [ ] **INF-01**: Solution follows Tier 2 pattern reusing proven helpers (Get-ZoneClassification, Connect-EnvironmentDataverse, Test-ParameterValidation) with FUS-specific client module (FUSClient.psm1)
-- [ ] **INF-02**: Dataverse schema reuses existing ACV option sets (fsi_acv_zone, fsi_acv_severity) for consistency across solutions
-- [ ] **INF-03**: Test-EvidenceIntegrity.ps1 reused from proven pattern for SHA-256 hash verification
+- [ ] **UEV-01**: PowerShell script `Export-UnifiedComplianceEvidence.ps1` that orchestrates evidence collection from all Tier 2 solutions and produces a master evidence package with manifest
+- [ ] **UEV-02**: Master evidence manifest JSON with solution inventory, per-solution SHA-256 hashes, collection timestamps, and overall compliance summary
+- [ ] **UEV-03**: Evidence chain validation script `Test-UnifiedEvidenceIntegrity.ps1` that verifies all solution evidence packages and the master manifest hash chain
+
+### Documentation & Framework (DOC)
+
+- [ ] **DOC-01**: Integration architecture document in framework docs describing cross-solution data flow, feed mechanisms, and evidence aggregation
+- [ ] **DOC-02**: Updated solutions-index.md reflecting integration status for all connected solutions with "Dashboard Feed" and "ELM Hook" badges
+- [ ] **DOC-03**: Updated Compliance Dashboard README with Tier 2 solution feed documentation, mapping table, and setup instructions
+- [ ] **DOC-04**: Complete integration solution documentation suite (README, PREREQUISITES, CONFIGURATION, TROUBLESHOOTING, CHANGELOG) in FSI-AgentGov-Solutions
 
 ## Future Requirements
 
-- Auto-remediation of non-compliant file upload settings (deferred — requires approval workflow per SOX/FINRA change control)
-- File type allowlist enforcement when Copilot Studio exposes per-agent file type configuration API
-- Integration with Environment Lifecycle Management for new environment provisioning (deferred to v9)
-- Compliance Dashboard feed integration (deferred to v9)
+- Real-time event-driven feeds via Dataverse webhooks (currently batch/daily)
+- Auto-remediation orchestration across solutions when dashboard score drops below threshold
+- Cross-solution correlation analysis (e.g., file upload enabled + low moderation = compound risk)
+- Power BI unified cross-solution workbook with drill-through to solution-specific details
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Auto-remediation | Too risky without approval workflow; validation-only meets regulatory requirements |
-| Per-agent file type restriction | Copilot Studio does not expose per-agent file type configuration — platform-level only |
-| v9 Integration | Separate milestone for cross-solution wiring |
-| New controls | Enhance existing Control 1.14, not create new control |
+| Auto-remediation | Too risky without approval workflow; deferred per SOX/FINRA change control |
+| Real-time streaming | Batch/daily cadence is sufficient for governance monitoring |
+| New controls | v9 wires existing controls, not creating new ones |
+| Power BI template | Existing TMDL import path is functional workaround |
+| Non-Tier 2 solution feeds | SDM, FINRA, and others can be added in future increments |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FUS-01 | Phase 1 | Pending |
-| FUS-02 | Phase 1 | Pending |
-| FUS-03 | Phase 1 | Pending |
-| FUS-04 | Phase 1 | Pending |
-| FUS-05 | Phase 1 | Pending |
-| DDA-01 | Phase 2 | Pending |
-| DDA-02 | Phase 2 | Pending |
-| DDA-03 | Phase 2 | Pending |
-| DDA-04 | Phase 3 | Pending |
-| DDA-05 | Phase 3 | Pending |
-| DDA-06 | Phase 3 | Pending |
-| CEV-01 | Phase 4 | Pending |
-| CEV-02 | Phase 4 | Pending |
-| CEV-03 | Phase 4 | Pending |
-| INF-01 | Phase 1 | Pending |
-| INF-02 | Phase 2 | Pending |
-| INF-03 | Phase 4 | Pending |
+| SCH-01 | Phase 1 | Pending |
+| SCH-02 | Phase 1 | Pending |
+| SCH-03 | Phase 1 | Pending |
+| CDF-01 | Phase 2 | Pending |
+| CDF-02 | Phase 2 | Pending |
+| CDF-03 | Phase 2 | Pending |
+| CDF-04 | Phase 2 | Pending |
+| CDF-05 | Phase 2 | Pending |
+| ELM-01 | Phase 3 | Pending |
+| ELM-02 | Phase 3 | Pending |
+| ELM-03 | Phase 3 | Pending |
+| UEV-01 | Phase 4 | Pending |
+| UEV-02 | Phase 4 | Pending |
+| UEV-03 | Phase 4 | Pending |
+| DOC-01 | Phase 5 | Pending |
+| DOC-02 | Phase 5 | Pending |
+| DOC-03 | Phase 5 | Pending |
+| DOC-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v8 requirements: 17 total
-- Mapped to phases: 17
+- v9 requirements: 18 total
+- Mapped to phases: 18
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-10*
-*Previous REQUIREMENTS.md archived with v7.1 milestone*
+*Previous REQUIREMENTS.md archived with v8 milestone*

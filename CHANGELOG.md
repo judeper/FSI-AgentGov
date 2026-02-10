@@ -6,6 +6,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.39] — February 2026 (Security Configuration Hardening)
+
+### Overview
+
+Proactive security configuration hardening across 7 controls and 7 portal walkthrough playbooks. Adds 27 configuration points covering agent authentication, audit logging, content moderation, RBAC, environment provisioning, and AI feature governance — addressing settings commonly surfaced by security posture management assessments.
+
+### Added
+
+**Configuration Hardening Baseline (New Advanced Implementation):**
+
+- Consolidated 27-item hardening checklist with portal paths, expected values, and zone-specific requirements
+- Manual attestation procedures with evidence collection templates
+- Integration guidance for existing solutions (Audit Configuration Validator, Environment Lifecycle Management)
+
+**Control Updates (7 controls updated to v1.3):**
+
+| Control | Key Additions |
+|---------|--------------|
+| 1.1 — Restrict Agent Publishing | Agent authentication mode, sign-in enforcement, sharing scope, AI-featured publishing, unapproved agent blocking |
+| 1.7 — Audit Logging | Dataverse environment-level auditing, log retention ≥180 days, tenant-level auditing policy |
+| 1.8 — Runtime Protection | Content moderation level configuration with zone-specific requirements (High for Zone 2/3) |
+| 1.18 — RBAC | Agent action user consent, connected agent governance, environment admin count limits |
+| 2.1 — Managed Environments | Environment creation restriction, routing, tenant isolation, security group assignment |
+| 3.7 — Security Posture Assessment | Configuration drift monitoring with 13-row cross-control hardening table |
+| 3.8 — Copilot Hub Dashboard | 9 AI feature toggles (AI Prompts, Generative Actions, File Analysis, etc.), transcript access, DLP for publishing |
+
+**Playbook Updates (7 portal walkthroughs):**
+
+- 1.1: Steps 6-9 (agent auth, sharing, AI publishing, blocking)
+- 1.7: Dataverse audit configuration steps
+- 1.8: Content moderation validation items
+- 1.18: Steps 7-9 (action consent, connected agents, admin roles)
+- 2.1: Steps 7-10 (env creation, routing, tenant isolation, security groups)
+- 3.7: Step 9 (configuration hardening baseline review)
+- 3.8: Part 4 with Steps 11-15 (AI toggles, transcripts, DLP)
+
+---
+
 ## [1.2.38] — February 5, 2026 (v2 Milestone - Solutions & Architecture)
 
 ### Overview

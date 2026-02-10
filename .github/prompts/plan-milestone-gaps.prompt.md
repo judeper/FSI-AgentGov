@@ -1,5 +1,5 @@
 ---
-name: "gsd:plan-milestone-gaps"
+name: "gsd-plan-milestone-gaps"
 description: "Create phases to close all gaps identified by milestone audit"
 tools: ["read", "edit", "search", "execute"]
 ---
@@ -19,7 +19,7 @@ This is the FSI-AgentGov adapted version. All paths use `.planning/` (not `.gsd/
 <process>
 
 <step name="read_audit">
-Read the milestone audit report (from `/gsd:audit-milestone`).
+Read the milestone audit report (from `/gsd-audit-milestone`).
 Identify unmet requirements and verified gaps.
 </step>
 
@@ -37,7 +37,7 @@ For each gap or group of related gaps:
 
 {count} phases added to close {gap_count} gaps.
 
-`/gsd:plan-phase {N}` — Plan the first gap closure phase
+`/gsd-plan-phase {N}` — Plan the first gap closure phase
 ```
 </step>
 

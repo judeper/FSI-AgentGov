@@ -1,5 +1,5 @@
 ---
-name: "gsd:progress"
+name: "gsd-progress"
 description: "Check project progress, show context, and route to next action"
 tools: ["read", "search"]
 ---
@@ -51,11 +51,11 @@ Show progress overview:
 <step name="route_next">
 Based on current state, suggest next action:
 
-- If current phase has unexecuted plans: `/gsd:execute-phase {X}`
-- If current phase needs planning: `/gsd:plan-phase {X}`
-- If current phase needs research: `/gsd:research-phase {X}`
-- If milestone complete: `/gsd:complete-milestone`
-- If no roadmap exists: `/gsd:new-milestone`
+- If current phase has unexecuted plans: `/gsd-execute-phase {X}`
+- If current phase needs planning: `/gsd-plan-phase {X}`
+- If current phase needs research: `/gsd-research-phase {X}`
+- If milestone complete: `/gsd-complete-milestone`
+- If no roadmap exists: `/gsd-new-milestone`
 </step>
 
 </process>

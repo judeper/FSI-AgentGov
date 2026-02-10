@@ -1,5 +1,5 @@
 ---
-name: "gsd:check-todos"
+name: "gsd-check-todos"
 description: "List pending todos and select one to work on"
 tools: ["read", "search"]
 ---

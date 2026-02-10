@@ -1,5 +1,5 @@
 ---
-name: "gsd:plan-phase"
+name: "gsd-plan-phase"
 description: "Create detailed execution plan for a phase (PLAN.md) with verification loop"
 tools: ["read", "edit", "search", "execute", "agent"]
 ---
@@ -192,7 +192,7 @@ git commit -m "docs({phase}): create phase execution plans"
 |------|------|-------|--------------------|
 | {PP} | {W} | {title} | {list} |
 
-`/gsd:execute-phase {X}`
+`/gsd-execute-phase {X}`
 ```
 </step>
 

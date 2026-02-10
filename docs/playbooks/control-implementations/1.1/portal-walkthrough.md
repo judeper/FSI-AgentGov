@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.1 - Restrict Agent Publishing by Authorization
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Portal:** Power Platform Admin Center, Microsoft Entra Admin Center
 **Estimated Time:** 15-30 minutes
 
@@ -145,6 +145,53 @@ If your organization exposes Copilot Studio agents through Microsoft 365 integra
 
 ---
 
+## Step 6: Configure Agent-Level Authentication (Copilot Studio)
+
+For each Copilot Studio agent, configure authentication settings to prevent unauthorized or anonymous interactions:
+
+1. Open **Copilot Studio** ([https://copilotstudio.microsoft.com](https://copilotstudio.microsoft.com))
+2. Navigate to **Agents** and select the target agent
+3. Go to **Settings** (right side of the agent header) > **Security**
+4. Configure authentication:
+   - Change authentication from "No Authentication" to **"Authenticate with Microsoft"** (recommended for internal agents) or **"Authenticate Manually"** (for OAuth-based scenarios)
+   - If using "Authenticate Manually," enable **"Require users to sign in"** to prevent anonymous interactions
+5. Set authentication enforcement timing:
+   - Enable **"Require users to sign in"** to enforce authentication at the start of every session
+   - Do **not** use "As Needed" — this allows unauthenticated session starts that create audit log gaps
+6. Select **Save**
+
+**Repeat for every agent in Zone 2 and Zone 3 environments.**
+
+### Step 7: Restrict Agent Sharing Scope (Copilot Studio)
+
+1. In Copilot Studio, select the target agent
+2. Navigate to **Channels** > **Share Settings**
+3. Verify the agent is **not** shared with:
+   - "Anyone" (public access)
+   - "Any (multi-tenant)" (cross-tenant access)
+4. Restrict sharing to:
+   - **Copilot Readers** (for limited general access to low-risk agents)
+   - **Specific Security Groups** (for restricted access based on role)
+5. Document exceptions for any agents intentionally shared broadly (requires risk acceptance)
+
+### Step 8: Control AI-Featured Agent Publishing (Tenant Level)
+
+1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
+2. Navigate to **Manage** > **Tenant Settings**
+3. Locate **"Publish bots with AI features"**
+4. Set to **Disabled** until governance review confirms AI feature controls are in place
+5. Select **Save**
+
+### Step 9: Block Unapproved Shared Agents (M365 Admin Center)
+
+1. Sign in to **M365 Admin Center** ([https://admin.microsoft.com](https://admin.microsoft.com))
+2. Navigate to **Copilot** > **Agents & connectors** > **Agent Inventory**
+3. Review all agents listed in the inventory
+4. For any agent that has not been through the approval workflow, select **Block**
+5. Document blocking decisions and notify agent owners
+
+---
+
 ## Validation
 
 After completing these steps, verify:
@@ -154,6 +201,11 @@ After completing these steps, verify:
 - [ ] Copilot Studio access restricted to specific security groups
 - [ ] Managed Environment enabled with sharing limits configured
 - [ ] Unauthorized users cannot create/publish agents (test with non-member account)
+- [ ] All agents have authentication enabled (not "No Authentication")
+- [ ] Agents using manual authentication have "Require users to sign in" enabled
+- [ ] No agents are shared with unrestricted access ("Anyone" or "Any multi-tenant")
+- [ ] "Publish bots with AI features" is disabled at tenant level
+- [ ] Unapproved agents are blocked in M365 Admin Center Agent Inventory
 
 ---
 

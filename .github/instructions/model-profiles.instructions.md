@@ -35,7 +35,7 @@ Update `.planning/config.json`:
 }
 ```
 
-Or use the `/gsd:set-profile` command.
+Or use the `/gsd-set-profile` command.
 
 ## Workflow Toggles
 

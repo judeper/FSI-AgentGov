@@ -1,5 +1,5 @@
 ---
-name: "gsd:new-milestone"
+name: "gsd-new-milestone"
 description: "Start a new milestone cycle — update PROJECT.md and route to requirements"
 tools: ["read", "edit", "search", "execute"]
 ---
@@ -52,8 +52,8 @@ Archive previous milestone to MILESTONES.md if not already done.
 **{version}: {name}** — {requirement_count} requirements
 
 Next steps:
-- `/gsd:plan-milestone-gaps` — Create phases from requirements
-- `/gsd:add-phase` — Manually add phases to roadmap
+- `/gsd-plan-milestone-gaps` — Create phases from requirements
+- `/gsd-add-phase` — Manually add phases to roadmap
 ```
 </step>
 

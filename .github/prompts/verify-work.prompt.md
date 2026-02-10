@@ -1,5 +1,5 @@
 ---
-name: "gsd:verify-work"
+name: "gsd-verify-work"
 description: "Validate built features through conversational UAT"
 tools: ["read", "search", "execute", "agent"]
 ---
@@ -46,8 +46,8 @@ python scripts/verify_controls.py
 </step>
 
 <step name="route">
-- All passed: `/gsd:progress`
-- Gaps found: `/gsd:plan-phase {N} --gaps`
+- All passed: `/gsd-progress`
+- Gaps found: `/gsd-plan-phase {N} --gaps`
 - Manual testing needed: Guide user through verification checklist
 </step>
 

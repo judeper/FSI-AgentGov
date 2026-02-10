@@ -8,17 +8,18 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v8 File Upload Security Configurator
+## Current Milestone: v9 Cross-Solution Integration
 
-**Goal:** Automated validation of Copilot Studio agent file upload settings against governance zone policies, targeting Control 1.14 (Data Minimization and Agent Scope Control). File uploads expand agent data intake beyond declared operational scope — FSI organizations must validate that agents accepting file uploads comply with zone-specific security posture requirements.
+**Goal:** Wire the 5 Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compliance Dashboard for unified compliance visibility, add ELM provisioning hooks for automatic downstream solution initialization, and deliver unified evidence export for quarterly regulatory examinations.
 
 **Target deliverables:**
-- PowerShell module (FUSClient.psm1) for per-agent file upload enumeration and compliance comparison
-- Dataverse persistence with immutable validation history and baseline capture
-- Power Automate daily validation with Teams alerting and Azure Automation runbook support
-- SHA-256 integrity-hashed evidence export for SEC 17a-4(f) regulatory support
-- Control 1.14 framework integration (tip admonition) and solutions-index.md catalog entry
-- Content moderation cross-check (agents with file uploads enabled must meet minimum moderation level)
+- Canonical option set contract and status mapping reference for cross-solution standardization
+- Shared integration constants module (IntegrationConfig.psm1) with solution-to-control mappings
+- PowerShell sync script (Sync-SolutionAssessments.ps1) that pulls Tier 2 validation results into CD assessments
+- CD-SolutionFeedCollector Power Automate flow for daily automated dashboard feeds
+- ELM-SolutionInitializer child flow for post-provisioning ACV auto-registration
+- Unified evidence export (Export-UnifiedComplianceEvidence.ps1) with SHA-256 chain integrity
+- Integration architecture framework document and updated solutions-index.md
 
 ## Current State (v7 Shipped)
 
@@ -95,7 +96,7 @@ Capabilities delivered:
 - v8: File Upload Security Configurator — MIME type restriction enforcement
 - v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Current milestone: v8 — File Upload Security Configurator (IN PROGRESS)**
+**Current milestone: v9 — Cross-Solution Integration (IN PROGRESS)**
 
 ### Out of Scope
 
@@ -171,15 +172,19 @@ Capabilities delivered:
 | AI Administrator expanded scope | Comprehensive governance role beyond basic Copilot management | ✓ Good |
 | 5 separate milestones for 5 solutions | Each solution is self-contained milestone; cleaner scope, faster cycles | ✓ Good |
 | Enhance existing controls (not new ones) | Keep 62-control structure; add automation sections to existing controls | ✓ Good |
-| Separate integration milestone (v9) | Build all 5 solutions first, then wire ELM + Dashboard in v9 | — Pending |
+| Separate integration milestone (v9) | Build all 5 solutions first, then wire ELM + Dashboard in v9 | ✓ Good |
 | Dual validation strategy (cmdlet + canary) | Prevents false positives from audit lag; canary verifies actual audit pipeline | ✓ Good |
 | Organization-owned Dataverse tables | Immutable audit history; security roles remove Write/Delete post-deployment | ✓ Good |
 | Auto-remediation deferred to v4.1+ | Too risky without approval workflow; validation-only meets SEC 17a-4(f) | ✓ Good |
 
 | v7.1 maintenance milestone | Interstitial docs review before v8; todos have time-sensitive items | ✓ Good |
-| v8 binary validation model | File upload is enabled/disabled per agent, not multi-level; solution validates on/off status per zone | — Pending |
-| v8 Control 1.14 as primary | Data minimization — file uploads expand data intake beyond declared scope | — Pending |
-| v8 content moderation cross-check | Agents with file uploads enabled must meet minimum moderation level by zone | — Pending |
+| v8 binary validation model | File upload is enabled/disabled per agent, not multi-level; solution validates on/off status per zone | ✓ Good |
+| v8 Control 1.14 as primary | Data minimization — file uploads expand data intake beyond declared scope | ✓ Good |
+| v8 content moderation cross-check | Agents with file uploads enabled must meet minimum moderation level by zone | ✓ Good |
+| v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
+| v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
+| v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
+| v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | — Pending |
 
 ---
-*Last updated: 2026-02-10 after v8 milestone start*
+*Last updated: 2026-02-10 after v9 milestone start*

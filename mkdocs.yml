@@ -562,6 +562,7 @@ nav:
         - Evidence and Audit: playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md
       - SharePoint Copilot Pre-Flight:
         - Overview: playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md
+      - Configuration Hardening Baseline: playbooks/advanced-implementations/configuration-hardening-baseline/index.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md

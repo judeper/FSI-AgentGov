@@ -1,5 +1,5 @@
 ---
-name: "gsd:new-project"
+name: "gsd-new-project"
 description: "Initialize a new project with deep context gathering and PROJECT.md"
 tools: ["read", "edit", "search", "execute", "agent", "web"]
 ---
@@ -192,8 +192,8 @@ Create or update `.planning/PROJECT.md` using this template:
 
 | Repository | Contains | Path |
 |-----------|----------|------|
-| FSI-AgentGov | Documentation, framework | /Users/admin/dev/FSI-AgentGov |
-| FSI-AgentGov-Solutions | Deployable artifacts | /Users/admin/dev/FSI-AgentGov-Solutions |
+| FSI-AgentGov | Documentation, framework | C:/dev/FSI-AgentGov |
+| FSI-AgentGov-Solutions | Deployable artifacts | C:/dev/FSI-AgentGov-Solutions |
 
 ## Research Summary
 
@@ -237,7 +237,7 @@ Create or update `.planning/STATE.md` with initial project state:
 Research completed: {topic_count} topics, {confidence} overall confidence
 Key risk: {top_risk_from_pitfalls}
 
-`/gsd:new-milestone` — Define the first milestone and create ROADMAP.md
+`/gsd-new-milestone` — Define the first milestone and create ROADMAP.md
 ```
 </step>
 

@@ -13,8 +13,11 @@ CONTROL_INDEX_PATH = DOCS_DIR / "controls" / "CONTROL-INDEX.md"
 REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
 PILLARS_DIR = DOCS_DIR / "controls"
 
-CANON_UPDATED = "Updated: January 2026"
-CANON_VERSION = "Version: v1.2"
+CANON_UPDATED = "Updated: February 2026"
+CANON_VERSION = "Version: v1.3"
+# Also accept previous canonical values for controls not yet updated
+_ACCEPTED_UPDATED = ["Updated: January 2026", "Updated: February 2026"]
+_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3"]
 CANON_UI_STATUS_PREFIX = "UI Verification Status:"
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"
@@ -114,11 +117,11 @@ def validate_control_file(path: Path):
     if ROLES_SECTION not in content:
         failures.append("missing Roles & Responsibilities section")
 
-    if CANON_UPDATED not in content:
-        failures.append(f"missing canonical '{CANON_UPDATED}' in footer")
+    if not any(v in content for v in _ACCEPTED_UPDATED):
+        failures.append(f"missing canonical update date in footer (accepted: {_ACCEPTED_UPDATED})")
 
-    if CANON_VERSION not in content:
-        failures.append(f"missing canonical '{CANON_VERSION}' in footer")
+    if not any(v in content for v in _ACCEPTED_VERSION):
+        failures.append(f"missing canonical version in footer (accepted: {_ACCEPTED_VERSION})")
 
     if CANON_UI_STATUS_PREFIX not in content:
         failures.append("missing UI Verification Status in footer")

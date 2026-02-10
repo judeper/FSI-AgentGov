@@ -86,7 +86,7 @@ All documentation must follow regulatory language rules:
 ### Cross-Repository Work
 When plans span both repos:
 1. Implement FSI-AgentGov-Solutions changes first
-2. Commit in that repo: `cd /Users/admin/dev/FSI-AgentGov-Solutions && git add ... && git commit`
+2. Commit in that repo: `cd C:/dev/FSI-AgentGov-Solutions && git add ... && git commit`
 3. Implement FSI-AgentGov documentation
 4. Commit in this repo
 5. Reference cross-repo commits in SUMMARY.md

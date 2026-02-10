@@ -5,6 +5,15 @@
 !!! warning "Preview Features - Verify Before Implementing"
     This document covers both generally available and preview features as of February 2026. Agent 365 Unified Control Plane and Agent 365 Observability are in preview through the Microsoft 365 Frontier program. All other features (Entra Agent ID, Conditional Access for agents, M365 Admin Center Agent Settings and Registry) are generally available. Verify current GA status at Microsoft Learn before implementing preview capabilities in production.
 
+    **Known Limitations (February 2026):**
+
+    - **Declarative agent deployment:** Export/import is required for org-wide deployment; direct publish is under consideration. Admins can block or delete declarative agents but cannot deploy them org-wide from the registry.
+    - **Shadow AI discovery:** Planned for post-GA using Entra and Defender capabilities, including agents hosted on non-Microsoft cloud platforms.
+    - **Licensing:** Feature-to-license mappings are not finalized; current preview access may not reflect final licensing requirements.
+    - **Multi-tenant API:** Not committed; Agent 365 focuses on single-tenant governance only.
+    - **Agent onboarding:** Known activation bugs are being addressed; fixes are rolling out.
+    - **Foundry agents:** Azure AI Foundry agents are expected to appear in the Agent 365 registry at GA.
+
 ---
 
 ## Overview
@@ -590,6 +599,29 @@ graph TD
 ## Migration Roadmap
 
 Financial services organizations should adopt Agent 365 capabilities in phases, balancing early access to governance improvements with production stability requirements. This roadmap adopts a **"prepare now, migrate later"** approach with actionable steps readers can take before GA.
+
+### Agent 365 Platform Status — February 2026
+
+The following status reflects findings from the February 2026 governance review and Microsoft Frontier program engagement:
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **Entra Agent ID** | GA | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
+| **Conditional Access for Agents** | GA | Agent-specific risk signals and custom security attribute policies |
+| **M365 Admin Center Agent Settings** | GA | Agent sharing controls, templates, user access policies |
+| **M365 Admin Center Agent Registry** | GA | Copilot Studio agents visible; Foundry agents expected at full GA; declarative agents appear but lack org-wide deployment capability |
+| **Agent 365 Unified Control Plane** | Preview (Frontier) | Centralized registry, security posture, cross-platform policies |
+| **Agent 365 Observability** | Preview (Frontier) | Application Insights integration, OpenTelemetry, unified telemetry |
+
+**Key Findings:**
+
+- **Declarative agent deployment limitations:** Administrators can view and block declarative agents in the registry, but org-wide deployment requires export/import workflows. Direct publish from the registry is under consideration but not yet available.
+- **Agent registry visibility:** Copilot Studio agents are fully visible; Azure AI Foundry agents are expected to be included in the registry at GA. Declarative agents appear in the registry but with limited administrative actions compared to Copilot Studio agents.
+- **Shadow AI discovery roadmap:** Microsoft plans post-GA capabilities for discovering agents hosted on non-Microsoft cloud platforms (GCP, AWS) using Entra and Defender signals.
+- **Licensing caveats:** Feature-to-license mappings for Agent 365 are not finalized. Current preview access through the Frontier program may not reflect final licensing requirements. Organizations should not assume current preview entitlements will carry over to GA.
+- **Multi-tenant scope:** Agent 365 is focused on single-tenant governance. Multi-tenant API support is not committed for GA.
+- **Agent onboarding bugs:** Known activation issues are affecting some tenants; Microsoft is rolling out fixes. Organizations experiencing onboarding failures should contact their Frontier program representative.
+- **Observability for supervision:** Agent 365 Observability integration with supervision evidence collection (supporting FINRA 3110 requirements) remains in preview. Organizations should continue using existing Application Insights solutions for production supervision evidence until Observability reaches GA.
 
 ### Phase 1: Foundation (Available Now with GA Features)
 

@@ -1,5 +1,5 @@
 ---
-name: "gsd:complete-milestone"
+name: "gsd-complete-milestone"
 description: "Archive completed milestone and prepare for next version"
 tools: ["read", "edit", "search", "execute"]
 ---
@@ -21,7 +21,7 @@ This is the FSI-AgentGov adapted version. All paths use `.planning/` (not `.gsd/
 
 <step name="verify_completion">
 Confirm all phases are marked complete in ROADMAP.md.
-If not, suggest `/gsd:audit-milestone` first.
+If not, suggest `/gsd-audit-milestone` first.
 </step>
 
 <step name="archive">
@@ -44,7 +44,7 @@ git commit -m "docs: complete milestone {version}"
 
 Next in series: {next_version} — {next_name}
 
-`/gsd:new-milestone` — Define the next milestone
+`/gsd-new-milestone` — Define the next milestone
 ```
 </step>
 

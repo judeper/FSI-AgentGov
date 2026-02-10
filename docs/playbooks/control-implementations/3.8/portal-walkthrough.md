@@ -352,8 +352,81 @@ After completing the configuration, verify:
 5. [ ] Agent registry displays all deployed agents with accurate metadata
 6. [ ] PPAC Copilot Settings configured with FSI recommendations applied
 7. [ ] Ownerless agents identified and assigned owners
+8. [ ] AI Prompts toggle disabled in PPAC for Zone 2/3 environments
+9. [ ] Generative Actions disabled for agents without documented approval
+10. [ ] File Analysis disabled for agents without data classification review
+11. [ ] Model Knowledge disabled for agents handling sensitive data
+12. [ ] Semantic Search disabled for agents without approved and scoped knowledge bases
+13. [ ] Conversational transcript access restricted to authorized personnel
+14. [ ] DLP policies block agent publishing connectors in restricted environments
 
-**Expected Result:** Copilot and Agent governance dashboards provide visibility into agent deployments, and settings enforce organizational policies.
+**Expected Result:** Copilot and Agent governance dashboards provide visibility into agent deployments, settings enforce organizational policies, and AI feature toggles are governed per zone requirements.
+
+---
+
+## Part 4: PPAC Copilot Studio AI Feature Controls
+
+### Step 11: Configure AI Feature Toggles Per Environment
+
+**Portal Path:** PPAC > Environments > [Select Environment] > Settings > Product > Features
+
+1. Navigate to the environment settings in PPAC
+2. Review and configure each AI feature toggle:
+
+| Toggle | Action for Zone 2/3 |
+|--------|---------------------|
+| **AI Prompts** | Set to **Off** unless approved |
+
+3. Select **Save**
+
+### Step 12: Configure Per-Environment Generative AI Features
+
+**Portal Path:** PPAC > Environments > [Select Environment] > Generative AI features
+
+1. Navigate to the environment's Generative AI features page
+2. Review and configure each feature:
+
+| Feature | Action for Zone 2/3 |
+|---------|---------------------|
+| **Generative AI features** | Restrict by default |
+| **Move Data Across Regions** | Set to **Off** |
+| **Bing Search** | Set to **Off** |
+| **Microsoft 365 Services** | Review with compliance before enabling |
+
+3. Select **Save**
+
+### Step 13: Configure Agent-Level AI Settings (Copilot Studio)
+
+1. Open **Copilot Studio** ([https://copilotstudio.microsoft.com](https://copilotstudio.microsoft.com))
+2. For each agent in Zone 2/3 environments:
+   - Go to **Overview** > **Orchestration** > disable **Generative Actions** toggle
+   - Go to **Settings** > **Generative AI** > disable **File processing** toggle
+   - Go to **Settings** > **Generative AI** > disable **Use model knowledge** toggle
+   - Go to **Settings** > **Generative AI** > disable **Use semantic search** toggle
+3. Enable any of these only with:
+   - Documented business justification
+   - Data classification review
+   - Risk assessment with mitigating controls
+   - Compliance officer sign-off
+   - Quarterly re-attestation
+
+### Step 14: Configure Conversational Transcript Access
+
+**Portal Path:** PPAC > Environments > [Select Environment] > Settings > Product > Features > Copilot Studio Agents
+
+1. Navigate to the environment's Features settings
+2. Under **Copilot Studio Agents**, configure transcript access controls
+3. Restrict access to authorized personnel only (compliance, governance, security teams)
+
+### Step 15: Configure DLP for Agent Publishing Connectors
+
+1. In PPAC, navigate to **Data policies**
+2. Select or create a DLP policy for the target environment
+3. Block the following connectors in environments where agent publishing should be restricted:
+   - **Copilot Studio for Microsoft Teams**
+   - **M365 Copilot channel**
+4. Select **Save**
+5. See [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for comprehensive DLP policy configuration
 
 ---
 
@@ -361,4 +434,4 @@ After completing the configuration, verify:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.3*

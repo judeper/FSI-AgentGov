@@ -1,5 +1,5 @@
 ---
-name: "gsd:audit-milestone"
+name: "gsd-audit-milestone"
 description: "Audit milestone completion against original intent before archiving"
 tools: ["read", "search", "execute"]
 ---
@@ -67,8 +67,8 @@ Archive / Fix gaps first
 </step>
 
 <step name="offer_next">
-If ready: `/gsd:complete-milestone`
-If gaps: `/gsd:plan-milestone-gaps`
+If ready: `/gsd-complete-milestone`
+If gaps: `/gsd-plan-milestone-gaps`
 </step>
 
 </process>

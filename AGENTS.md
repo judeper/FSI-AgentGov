@@ -180,3 +180,12 @@ If you encounter:
 Agent and prompt files use GitHub Copilot's recognized built-in aliases: `read`, `edit`, `search`, `execute`, `agent`, `web`, `todo`. Unrecognized names are silently ignored (falling back to unrestricted access).
 
 **Platform differences:** The `web` and `todo` aliases are supported in VS Code Copilot Chat but are currently not applicable to the GitHub.com Copilot coding agent. Prompts that reference these tools should be resilient without them — they enhance the workflow in VS Code but are safely ignored on GitHub.com.
+
+## Troubleshooting: prompt files not showing in `/`
+
+If you type `/` in Copilot Chat and don"t see the workspace prompt files from `.github/prompts/`:
+
+- Open the **Chat view** and use **Diagnostics** (right-click inside Chat → **Diagnostics**) to see whether prompt files were **Loaded**, **Skipped**, or **Failed**, and why.
+- Check **Workspace Trust**: if VS Code shows **Restricted Mode**, trust the workspace and reload.
+- Confirm you"re on a recent VS Code version that supports prompt files (prompt files are `.prompt.md` and show up as slash commands).
+- If your org restricts chat customization, the diagnostics view typically indicates policy-based blocking.

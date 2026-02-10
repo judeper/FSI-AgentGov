@@ -180,8 +180,44 @@ For broker-dealers, the October 2022 SEC amendments (effective May 2023) now all
 
 ---
 
+## Dataverse Environment-Level Audit Configuration
+
+### Step 1: Enable Environment-Level Auditing
+
+1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
+2. Navigate to **Environments** and select the target environment
+3. Select **Settings** > expand **Audit and logs** > select **Audit settings**
+4. Enable **"Start Auditing"** to begin capturing Dataverse entity changes, user sign-ins, and security events
+5. Select **Save**
+
+**Repeat for every environment in your tenant.**
+
+### Step 2: Configure Audit Log Retention Period
+
+1. In the same **Audit settings** page, locate **"Retain these logs for"**
+2. Open the dropdown and set the retention period:
+   - Zone 1 (Personal): **180 days** minimum
+   - Zone 2 (Team): **365 days** minimum
+   - Zone 3 (Enterprise): **730 days** minimum (or select "Custom" / "Forever")
+3. For custom values, select **"Custom"** and enter the number of days
+4. Select **Save**
+
+!!! warning "Retention Below 180 Days"
+    Setting retention below 180 days does not meet minimum FSI regulatory requirements. If you observe any environment with retention below 180 days, remediate immediately.
+
+### Step 3: Enable Tenant-Level Dataverse Auditing Policy
+
+1. In Power Platform Admin Center, navigate to **Security** > **Compliance** > **Auditing**
+2. Enable the **"Turn on Auditing"** checkbox
+3. Additionally enable:
+   - **"User Sign-In"** — captures sign-in events across Dataverse environments
+   - **"Activity"** — captures entity-level activity and changes
+4. Select **Save**
+
+---
+
 [Back to Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.3*

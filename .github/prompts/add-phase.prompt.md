@@ -1,5 +1,5 @@
 ---
-name: "gsd:add-phase"
+name: "gsd-add-phase"
 description: "Add phase to end of current milestone in roadmap"
 tools: ["read", "edit", "search"]
 ---
@@ -46,8 +46,8 @@ Create phase directory: `.planning/phases/{NN}-{kebab-name}/`
 
 **Phase {N}: {Name}** added to roadmap.
 
-`/gsd:plan-phase {N}` — Create execution plans
-`/gsd:discuss-phase {N}` — Gather context before planning
+`/gsd-plan-phase {N}` — Create execution plans
+`/gsd-discuss-phase {N}` — Gather context before planning
 ```
 </step>
 

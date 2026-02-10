@@ -247,6 +247,47 @@ After completing these steps, verify:
 - [ ] Maker welcome content displays correctly (use preview)
 - [ ] Data policies are applied and visible
 - [ ] Cross-tenant restrictions configured appropriately
+- [ ] Environment creation restricted to authorized admins only (PPAC > Tenant Settings)
+- [ ] Environment routing configured for correct region (PPAC > Tenant Settings > Environment Routing)
+- [ ] Tenant isolation enabled (PPAC > Security > Identity and access > Tenant Isolation)
+- [ ] Security groups assigned to all Zone 2/3 environments
+
+---
+
+## Step 7: Restrict Environment Creation
+
+1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
+2. Navigate to **Manage** > **Tenant Settings**
+3. For each of the following, select **"Only specific admins"**:
+   - **Developer environment assignments**
+   - **Production environment assignments**
+   - **Trial environment assignments**
+4. Select **Save**
+
+!!! warning "Uncontrolled Environment Sprawl"
+    If left as "Everyone," any user can create trial or developer environments that may store sensitive data outside of governance controls.
+
+### Step 8: Configure Environment Routing
+
+1. In **PPAC > Manage > Tenant Settings > Environment Routing**
+2. Configure routing rules to direct new environments to the correct region
+3. Align with data residency requirements for your jurisdiction
+4. Select **Save**
+
+### Step 9: Enable Tenant Isolation
+
+1. In **PPAC > Security > Identity and access > Tenant Isolation**
+2. Enable **"Restrict Cross-Tenant Connections"**
+3. Configure explicit exceptions by Tenant ID and direction only for trusted partner tenants
+4. Select **Save**
+
+### Step 10: Assign Environment Security Groups
+
+1. In **PPAC > Environments**, select each Zone 2/3 environment
+2. Select **Edit** and locate the **Security group** field
+3. Assign the appropriate Entra ID security group to restrict who can access the environment
+4. Select **Save**
+5. Repeat for all Zone 2 and Zone 3 environments
 
 ---
 

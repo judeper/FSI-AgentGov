@@ -18,7 +18,7 @@ flowchart TB
         P4[Pillar 4: SharePoint<br/>7 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (13 Deployable Automation Solutions)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (14 Deployable Automation Solutions)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]
@@ -33,6 +33,7 @@ flowchart TB
         COI[COI Testing<br/>Framework]
         HT[Hallucination<br/>Tracker]
         DR[DR Testing<br/>Framework]
+        CSI[Cross-Solution<br/>Integration]
     end
 
     P2 --> ELM
@@ -49,6 +50,10 @@ flowchart TB
     P2 --> COI
     P3 --> HT
     P2 --> DR
+    P1 --> CSI
+    P3 --> CSI
+    CSI --> CD
+    CSI --> ELM
 ```
 
 ---
@@ -325,6 +330,96 @@ Automated disaster recovery testing for AI agent infrastructure.
 
 ---
 
+## Cross-Solution Integration Layer
+
+The **Cross-Solution Integration** layer wires five Tier 2 governance solutions into the Compliance Dashboard, adds ELM provisioning hooks, and delivers unified evidence export. This enables automated compliance scoring and consolidated audit evidence across all deployed solutions.
+
+### Integration Architecture
+
+```mermaid
+flowchart TB
+    subgraph Tier2["Tier 2 Solutions"]
+        ACV[Audit Config<br/>Validator<br/>→ Control 1.7]
+        SSC[Session Security<br/>Configurator<br/>→ Controls 1.23, 1.11]
+        AAM[Agent Access<br/>Monitor<br/>→ Control 3.8]
+        CMM[Content Moderation<br/>Monitor<br/>→ Control 1.8]
+        FUS[File Upload<br/>Security<br/>→ Control 1.14]
+    end
+
+    subgraph Integration["Cross-Solution Integration"]
+        SYNC[Sync-Solution<br/>Assessments.ps1]
+        FLOW[CD Solution Feed<br/>Collector Flow]
+        CONFIG[IntegrationConfig<br/>Module]
+        EXPORT[Unified Evidence<br/>Export]
+    end
+
+    subgraph Targets["Target Solutions"]
+        CD[Compliance<br/>Dashboard]
+        ELM[Environment<br/>Lifecycle Mgmt]
+    end
+
+    ACV --> SYNC
+    SSC --> SYNC
+    AAM --> SYNC
+    CMM --> SYNC
+    FUS --> SYNC
+
+    ACV --> FLOW
+    SSC --> FLOW
+    AAM --> FLOW
+    CMM --> FLOW
+    FUS --> FLOW
+
+    SYNC --> CD
+    FLOW --> CD
+    CONFIG --> SYNC
+    CONFIG --> FLOW
+    CONFIG --> EXPORT
+
+    ELM -->|ProvisioningCompleted| ACV
+
+    ACV --> EXPORT
+    SSC --> EXPORT
+    AAM --> EXPORT
+    CMM --> EXPORT
+    FUS --> EXPORT
+```
+
+### Integration Components
+
+| Component | Type | Purpose |
+|-----------|------|---------|
+| **IntegrationConfig.psm1** | PowerShell Module | Shared configuration — solution-to-control mappings, status translation, canonical zone/severity values |
+| **Sync-SolutionAssessments.ps1** | PowerShell Script | Batch pipeline — queries Tier 2 validation tables, translates status, upserts CD assessment records |
+| **cd-solution-feed-collector.json** | Power Automate Flow | Scheduled daily flow — alternative to PowerShell for organizations preferring low-code |
+| **elm-solution-initializer.json** | Power Automate Flow | Event-driven — triggers on ELM ProvisioningCompleted to auto-register environments in ACV |
+| **Register-ProvisionedEnvironment.ps1** | PowerShell Script | Manual/scripted ACV registration — PowerShell alternative to the ELM flow |
+| **Export-UnifiedComplianceEvidence.ps1** | PowerShell Script | Exports governance data from all 5 solutions into auditor-ready package with SHA-256 hash chain |
+| **Test-UnifiedEvidenceIntegrity.ps1** | PowerShell Script | Verifies evidence package integrity by recalculating and comparing all hashes |
+
+### Data Flow Summary
+
+| Source | Target | Mechanism | Frequency |
+|--------|--------|-----------|-----------|
+| 5 Tier 2 solutions | Compliance Dashboard | Sync script or PA flow | Daily |
+| ELM provisioning log | ACV environment registry | PA flow or PS script | Event-driven |
+| 5 Tier 2 solutions | Evidence export | PS script | On-demand |
+
+### Status Translation
+
+Each Tier 2 solution stores compliance status in different formats. The integration layer normalizes all to the Compliance Dashboard's four-value scale:
+
+| CD Status | Value | Meaning |
+|-----------|-------|---------|
+| Compliant | 1 | All validations pass |
+| Partially Compliant | 2 | Some validations pass |
+| Non-Compliant | 3 | Critical failures detected |
+| Not Assessed | 4 | No recent validation data |
+
+**Repository Link:** [cross-solution-integration](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
+
+---
+
 ## Zone Applicability Matrix
 
 | Solution | Zone 1 | Zone 2 | Zone 3 | Notes |
@@ -342,6 +437,7 @@ Automated disaster recovery testing for AI agent infrastructure.
 | COI Testing | — | ✓ | ✓ | Customer-facing recommendations only |
 | Hallucination Tracker | — | ✓ | ✓ | Customer-facing agents require tracking |
 | DR Testing | — | — | ✓ | Production disaster recovery only |
+| Cross-Solution Integration | ✓ | ✓ | ✓ | Organization-wide — feeds CD, evidence export |
 
 ---
 
@@ -400,6 +496,11 @@ FSI-AgentGov-Solutions/
 ├── coi-testing/                          # v1.0.0 (Planned)
 ├── hallucination-tracker/                # v1.0.0 (Planned)
 ├── dr-testing-framework/                 # v1.0.0 (Planned)
+├── cross-solution-integration/           # v1.0.0 (Work In Progress)
+│   ├── flows/                            # Power Automate flow templates
+│   ├── scripts/powershell/               # PowerShell modules and scripts
+│   ├── docs/                             # Integration documentation
+│   └── evidence/                         # Evidence export staging
 ├── scripts/
 │   └── hooks/
 └── .claude/
@@ -445,17 +546,17 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ## Summary Statistics
 
-**Solutions:** 13 deployable automation solutions
-**Control Coverage:** 27 of 62 controls (43.5%) have direct solution support
+**Solutions:** 14 deployable automation solutions (including cross-solution integration layer)
+**Control Coverage:** 28 of 62 controls (45.2%) have direct solution support
 **Status Distribution:**
 - Completed: 4 solutions (ELM, MCM, PGC, FINRA Supervision Workflow validated)
-- Work In Progress: 6 solutions
+- Work In Progress: 7 solutions (including Cross-Solution Integration)
 - Planned: 3 solutions
 
 **Pillar Support:**
-- Pillar 1 (Security): 3 solutions
+- Pillar 1 (Security): 4 solutions (+ cross-solution integration)
 - Pillar 2 (Management): 8 solutions
-- Pillar 3 (Reporting): 3 solutions
+- Pillar 3 (Reporting): 4 solutions (+ cross-solution integration)
 - Pillar 4 (SharePoint): 0 solutions
 
 ---

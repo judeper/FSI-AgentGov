@@ -125,10 +125,36 @@ For enhanced security visibility:
 
 ---
 
+## Step 9: Perform Configuration Hardening Baseline Review
+
+Conduct a periodic review of security-critical settings that may drift between native PPAC recommendation reviews:
+
+1. Open **Copilot Studio** and verify:
+   - All agents have authentication enabled (not "No Authentication")
+   - Content moderation is set to High for Zone 2/3 agents
+   - Agent action consent is enabled for all actions
+   - Connected agent access is disabled unless approved
+   - AI feature toggles (Generative Actions, File Analysis, Model Knowledge, Semantic Search) are disabled unless approved
+
+2. Open **PPAC > Tenant Settings** and verify:
+   - Environment creation restricted to authorized admins
+   - Tenant isolation enabled
+   - Environment routing configured
+
+3. Open **PPAC > Environment > Settings** for each environment and verify:
+   - Dataverse auditing is enabled with adequate retention
+   - Security groups are assigned
+
+4. Document findings and archive as evidence for audit readiness
+
+See [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md) for the complete checklist and automated verification scripts.
+
+---
+
 ---
 
 [Back to Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.3*

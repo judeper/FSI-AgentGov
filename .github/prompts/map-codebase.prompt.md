@@ -1,5 +1,5 @@
 ---
-name: "gsd:map-codebase"
+name: "gsd-map-codebase"
 description: "Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents"
 tools: ["read", "search", "execute", "agent"]
 ---

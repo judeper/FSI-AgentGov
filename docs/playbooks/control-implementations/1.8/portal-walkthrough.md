@@ -403,6 +403,8 @@ After completing the configuration, verify:
 12. [ ] Native Microsoft Defender integration enabled for Zone 2/3 environments
 13. [ ] AI agent inventory populated in Defender portal (within 24 hours)
 14. [ ] Defender XDR alerts generated for blocked actions
+15. [ ] Content moderation level set to High for all Zone 2/3 agents (Copilot Studio > Agent > Settings > Generative AI > Content moderation)
+16. [ ] No agents have content moderation set below Medium without documented risk acceptance
 
 **Expected Result:** Adversarial inputs are detected and blocked at runtime, security alerts fire within defined SLAs, all events flow to SIEM for correlation, and Defender threat detection evaluates tool invocations in real-time.
 

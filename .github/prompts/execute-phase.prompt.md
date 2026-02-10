@@ -1,5 +1,5 @@
 ---
-name: "gsd:execute-phase"
+name: "gsd-execute-phase"
 description: "Execute all plans in a phase with wave-based parallelization"
 tools: ["read", "edit", "search", "execute", "agent", "todo"]
 ---
@@ -242,7 +242,7 @@ Task(
 
 Route by verification status:
 - `passed` → update roadmap, celebrate
-- `gaps_found` → report gaps, offer `/gsd:plan-phase {X} --gaps`
+- `gaps_found` → report gaps, offer `/gsd-plan-phase {X} --gaps`
 </step>
 
 <step name="fsi_build_validation">
@@ -277,7 +277,7 @@ If more phases remain:
 
 **Phase {X+1}: {Name}** — {Goal}
 
-`/gsd:plan-phase {X+1}`
+`/gsd-plan-phase {X+1}`
 ```
 
 If milestone complete:
@@ -286,7 +286,7 @@ MILESTONE COMPLETE!
 
 All {N} phases executed across {plan_count} plans.
 
-`/gsd:complete-milestone`
+`/gsd-complete-milestone`
 ```
 </step>
 

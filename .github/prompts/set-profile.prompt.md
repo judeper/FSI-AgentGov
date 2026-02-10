@@ -1,5 +1,5 @@
 ---
-name: "gsd:set-profile"
+name: "gsd-set-profile"
 description: "Switch model profile for GSD agents (quality/balanced/budget)"
 tools: ["read", "edit"]
 ---
