@@ -1,5 +1,73 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v7 Content Moderation Governance Monitor (Shipped: 2026-02-10)
+
+**Delivered:** Automated validation and drift detection of Copilot Studio agent content moderation levels per governance zone for Control 1.8, with Dataverse-backed persistent state, Power Automate daily scanning, and SHA-256 compliance evidence export.
+
+**Phases completed:** 1-4 (12 plans total)
+
+**Key accomplishments:**
+
+- Built per-agent content moderation level enumeration via Copilot Studio bot metadata queries
+- Established zone compliance validation (Zone 1: Medium min, Zone 2: High, Zone 3: High) with severity classification
+- Created Dataverse infrastructure with moderation baselines, validation history, and violation tables (reusing ACV option sets)
+- Deployed Power Automate daily drift detection with Teams adaptive card alerts
+- Delivered SHA-256 integrity-hashed compliance evidence export for FINRA/SEC examination support
+- Integrated into framework (Control 1.8 tip admonition + solutions-index.md catalog entry)
+
+**Stats:**
+
+- 4 phases, 12 plans, 18 requirements (100% satisfied)
+- 1 day (2026-02-10)
+
+**What's next:** v7.1 — Framework Currency Reviews
+
+---
+
+## v6 Agent Access Governance Monitor (Shipped: 2026-02-10)
+
+**Delivered:** Automated detection of unrestricted agent access across Power Platform environments with zone-based validation, drift detection, and compliance evidence export for Control 1.11.
+
+**Phases completed:** 1-4 (12 plans total)
+
+**Key accomplishments:**
+
+- Built environment-level agent access setting validation with zone compliance rules
+- Established Dataverse infrastructure reusing ACV option sets (fsi_acv_zone, fsi_acv_severity)
+- Created daily automated scan with Teams alerting and 48-hour grace period for new environments
+- Delivered compliance evidence export with SHA-256 integrity hashing
+- Detect-only mode for Zone 3 (no auto-remediation per SOX/FINRA change control)
+
+**Stats:**
+
+- 4 phases, 12 plans, 18 requirements (100% satisfied)
+
+**What's next:** v7 — Content Moderation Governance Monitor
+
+---
+
+## v5 Session Security Configurator (Shipped: 2026-02-09)
+
+**Delivered:** Automated session security enforcement (inactivity timeouts, sign-in frequency, session lifetime) per governance zone with drift detection and compliance reporting for Control 1.23.
+
+**Phases completed:** 1-4 (12 plans total)
+
+**Key accomplishments:**
+
+- Built zone-specific session lifetime enforcement (8h / 4h / 1h per Control 1.23)
+- Conditional Access policy deployment and validation
+- Session security drift detection with alerting
+- Compliance evidence export for regulatory examinations
+- Control 1.23 framework integration
+
+**Stats:**
+
+- 4 phases, 12 plans, 19 requirements (100% satisfied)
+
+**What's next:** v6 — Agent Access Governance Monitor
+
+---
+
 ## v4 Audit Configuration Validator (Shipped: 2026-02-06)
 
 **Delivered:** Automated audit configuration validation solution for M365 and Power Platform environments with continuous monitoring, drift detection, multi-channel alerting, and SEC 17a-4(f) compliance evidence export.

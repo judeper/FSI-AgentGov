@@ -1,39 +1,40 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-10
-**Milestone:** v7 — Content Moderation Governance Monitor
-**Status:** COMPLETE — All 4 phases executed (12 plans)
+**Milestone:** v7.1 — Framework Currency Reviews
+**Status:** PLANNING — Milestone defined, requirements written, roadmap needed
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-10 14:00
-**Handoff Summary:** v7 milestone COMPLETE. All 4 phases executed across 12 plans. Evidence export, framework integration, and documentation suite delivered.
+**Session Started:** 2026-02-10 15:00
+**Handoff Summary:** v7 archived to MILESTONES.md. v7.1 milestone created with 17 requirements across 4 work streams. Ready for roadmap creation.
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-06)
+See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v7 — Content Moderation Governance Monitor (Control 1.8)
+**Current focus:** v7.1 — Framework Currency Reviews (4 pending todos: Dataverse deprecation, Agent 365 GA, evaluation blog, multi-source agent investigation)
 
 ## Milestone Series Plan
 
 ```
 v4: Audit Configuration Validator — SHIPPED
 v5: Session Security Configurator — SHIPPED
-v6: Agent Access Governance Monitor (SHIPPED)
-v7: Content Moderation Governance Monitor
+v6: Agent Access Governance Monitor — SHIPPED
+v7: Content Moderation Governance Monitor — SHIPPED
+v7.1: Framework Currency Reviews — IN PROGRESS
 v8: File Upload Security Configurator
 v9: Integration (ELM + Dashboard + cross-solution)
 ```
 
 ## Current Position
 
-**Phase:** 4 of 4 (Evidence Export and Framework Integration) — COMPLETE
-**Plan:** 3/3 — All plans executed
-**Status:** v7 milestone complete
-**Last activity:** 2026-02-10 — Phase 4 executed: evidence export scripts, Control 1.8 tip, solutions-index entry, documentation suite
+**Phase:** 0 of 0 (roadmap not yet created)
+**Plan:** 0/0
+**Status:** Milestone defined, awaiting roadmap
+**Last activity:** 2026-02-10 — v7.1 milestone created, v7 archived, requirements defined (17 requirements)
 
 **Progress:**
 ```
@@ -43,15 +44,16 @@ v3: [=========================] 7/7 phases (27 plans) — SHIPPED
 v4: [=========================] 4/4 phases (11 plans) — SHIPPED
 v5: [=========================] 4/4 phases (12 plans) — SHIPPED
 v6: [=========================] 4/4 phases (12 plans) — SHIPPED
-v7: [=========================] 4/4 phases (12 plans) — COMPLETE
+v7: [=========================] 4/4 phases (12 plans) — SHIPPED
+v7.1: [                         ] 0/0 phases (0 plans) — PLANNING
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v6):**
-- Phases: 32 complete (8 + 5 + 7 + 4 + 4 + 4)
-- Plans: 114 complete (35 + 17 + 27 + 11 + 12 + 12)
-- Requirements: 155 total (33 + 13 + 44 + 28 + 19 + 18)
+**Cumulative (v1-v7):**
+- Phases: 36 complete (8 + 5 + 7 + 4 + 4 + 4 + 4)
+- Plans: 126 complete (35 + 17 + 27 + 11 + 12 + 12 + 12)
+- Requirements: 173 total (33 + 13 + 44 + 28 + 19 + 18 + 18)
 
 ## Accumulated Context
 
@@ -59,34 +61,27 @@ v7: [=========================] 4/4 phases (12 plans) — COMPLETE
 
 See PROJECT.md Key Decisions table for full history.
 
-**v6 Research decisions:**
-- Focus on Power Platform environment settings first (full API support)
-- M365 Admin agent settings are portal-only (no Graph API) - defer to manual baseline workflow
-- Zone lookup via ELM Dataverse table with naming convention fallback
-- Reuse ACV option sets (fsi_acv_zone, fsi_acv_severity) for cross-solution consistency
-- Three-table design: AccessBaseline, ValidationHistory, Violation
-- Environment variable prefix: fsi_AAM_* (Agent Access Monitor)
-- Grace period: 48 hours for newly provisioned environments
-- Severity classification: Zone 3 CRITICAL, Zone 2 HIGH, Zone 1 INFO
-- Detect-only for Zone 3 (no auto-remediation per SOX/FINRA)
+**v7.1 decisions:**
+- Maintenance milestone (not a solution build) — docs-only, no cross-repo work needed
+- Version v7.1 (not v8) — interstitial maintenance before next solution milestone
+- All 4 todos target non-overlapping files — full parallelism possible across subagents
+- Investigation todo (#4) produces recommendation only — no build commitment
 
 ### Key Constraints
 
-- **Cross-repository work:** Solutions in FSI-AgentGov-Solutions, docs in FSI-AgentGov
-- **Solution pattern:** Tier 2 (PowerShell + Dataverse + Power Automate)
-- **ACV option set reuse:** fsi_acv_zone and fsi_acv_severity shared across solutions
-- **Detect-only for Zone 3:** No auto-remediation; SOX/FINRA change control requirement
-- **Break-glass validation:** Every deployment operation must validate break-glass exclusions
-- **Report-only bake:** 72-hour minimum before enforcement transition
-- **Integration deferred:** ELM hooks and Dashboard feeds handled in v9
+- **Docs-only milestone:** No solution code changes, no cross-repo work
+- **Full parallelism:** 4 work streams have zero file overlaps
+- **Critical deadline:** Dataverse Purview audit deprecation takes effect May 2026
+- **FSI language rules:** All control updates must use regulatory-safe language
+- **Build validation:** mkdocs build --strict + verify_controls.py must pass
 
 ### Pending Todos
 
-4 todos in `.planning/todos/pending/`:
-- Review Agent 365 meeting notes against framework
-- Review AI agent evaluation blog for framework applicability
-- Review February 2026 Power Platform and Copilot Studio updates
-- Investigate multi-source governance agent architecture *(consolidated from MCP server + Copilot Studio agent todos)*
+4 todos being addressed by this milestone:
+- Review Agent 365 meeting notes against framework → FCR-04 through FCR-08
+- Review AI agent evaluation blog for framework applicability → FCR-09 through FCR-12
+- Review February 2026 Power Platform and Copilot Studio updates → FCR-01 through FCR-03
+- Investigate multi-source governance agent architecture → FCR-13, FCR-14
 
 ### Blockers
 
@@ -95,39 +90,10 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-09
-**Handoff Summary:** v7 milestone bootstrapped. Phase 1 research complete, 3 plans created across 3 waves, plan checker verified, all issues resolved. Ready for execution.
-
-### Last Session Summary (2026-02-09)
-
-**What happened:**
-- Archived v6 ROADMAP.md and REQUIREMENTS.md to milestones/
-- Created v7 REQUIREMENTS.md (18 requirements: CMV-01-06, DDA-01-04, CEV-01-03, INF-01-05)
-- Created v7 ROADMAP.md (4 phases following ACV/SSC/AAM pattern)
-- Ran Phase 1 research (API approach, Dataverse bot table schema, risk assessment)
-- Created 3 Phase 1 plans: scaffold (W1), core scripts (W2), orchestrator (W3)
-- Plan checker found 2 blocking + 2 minor issues; all 4 fixed
-- Key architectural decision: per-agent query (not per-environment) via Dataverse Web API
-
-### Context for Next Session
-
-If resuming this project:
-
-1. **Read these files first:**
-   - `.planning/STATE.md` — Current position
-   - `.planning/ROADMAP.md` — Phase structure and success criteria
-   - `.planning/phases/01-powershell-core-v7/01-RESEARCH.md` — API approach and risks
-
-2. **Current state:**
-   - v7 milestone: Phase 1 planned (3 plans across 3 waves)
-   - Phase 1 plans: 01-01 (scaffold, W1), 01-02 (core scripts, W2), 01-03 (orchestrator, W3)
-   - No plans executed yet
-
-3. **Next action:**
-   - Execute Phase 1: `/gsd-execute-phase 1`
-   - Begin with Wave 1 (01-01-PLAN.md: scaffold, helpers, schema discovery)
+**Session Started:** 2026-02-10 15:00
+**Handoff Summary:** v7 milestone SHIPPED and archived to MILESTONES.md (along with v5, v6). v7.1 — Framework Currency Reviews milestone created with 17 requirements. REQUIREMENTS.md written. Ready for roadmap creation via /gsd-plan-milestone-gaps.
 
 ---
 
 *State initialized: 2026-02-05*
-*v7 milestone started: 2026-02-09*
+*v7.1 milestone started: 2026-02-10*

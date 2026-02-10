@@ -1,63 +1,67 @@
-# Requirements: Content Moderation Governance Monitor (v7)
+# Requirements: Framework Currency Reviews (v7.1)
 
-**Defined:** 2026-02-09
+**Defined:** 2026-02-10
 **Core Value:** Documentation and solutions that US FSI customers trust.
 
-## v7 Requirements
+## v7.1 Requirements
 
-Requirements for the Content Moderation Governance Monitor milestone. Automates validation and drift detection of Copilot Studio agent content moderation levels per governance zone for Control 1.8.
+Maintenance milestone to address 4 pending todos: critical Dataverse audit deprecation, Agent 365 GA readiness review, evaluation framework enhancements, and multi-source governance agent investigation.
 
-### Content Moderation Validation
+### Dataverse Audit Deprecation (Critical — May 2026 deadline)
 
-- [ ] **CMV-01**: Enumerate all Copilot Studio agents across Power Platform environments and retrieve generative AI configuration including content moderation level (Low/Medium/High)
-- [ ] **CMV-02**: Validate content moderation levels against zone-specific requirements (Zone 1: Medium minimum, Zone 2: High, Zone 3: High)
-- [ ] **CMV-03**: Classify violations by severity (Zone 3 agent with Low = CRITICAL, Zone 3 with Medium = HIGH, Zone 2 with Low = HIGH, Zone 2 with Medium = MEDIUM, Zone 1 with Low = HIGH) with regulatory impact context
-- [ ] **CMV-04**: All validation operations support dry-run mode previewing violations before persisting
-- [ ] **CMV-05**: Filter agents by status (published/draft) and exclude sandbox/trial environments from validation
-- [ ] **CMV-06**: Zone lookup via ELM Dataverse table with naming convention fallback (matching ACV/SSC/AAM pattern)
+- [ ] **FCR-01**: Control 1.7 updated with deprecation warning admonition for Dataverse Purview audit event changes (before-and-after field values removed May 2026), including guidance to use Dataverse APIs as alternative
+- [ ] **FCR-02**: regulatory-mappings.md updated with Dataverse API alternative approach for SEC 17a-4 / FINRA 4511 recordkeeping requirements affected by the deprecation
+- [ ] **FCR-03**: Controls 1.10 and 2.1 reviewed and updated if Dataverse audit deprecation affects their guidance (retention completeness, release channel impact)
 
-### Drift Detection & Alerting
+### Agent 365 GA Readiness Review
 
-- [ ] **DDA-01**: Detect content moderation setting drift (level weakened from baseline — e.g., High to Medium or Low)
-- [ ] **DDA-02**: Teams adaptive card alerts with severity classification matching zone and moderation violation type
-- [ ] **DDA-03**: Dataverse immutable validation history for all scan results and violated agents
-- [ ] **DDA-04**: Baseline capture and comparison with per-agent moderation level snapshots and active baseline tracking
+- [ ] **FCR-04**: agent-365-architecture.md updated to reflect meeting notes (GA readiness, deployment limitations for declarative agents, shadow AI discovery roadmap, licensing caveats)
+- [ ] **FCR-05**: Controls 1.11, 2.12, 3.8 updated with Agent 365 meeting findings (agent registry visibility, admin deployment constraints, observability integration status)
+- [ ] **FCR-06**: role-catalog.md updated with Agent 365 admin role limitations (Global Admin + AI Admin only, no fine-grained roles at GA, feedback status)
+- [ ] **FCR-07**: Controls referencing Defender integration (1.5, 1.6, 1.8) reviewed against meeting notes on blocked prompt visibility gaps and security event inconsistencies
+- [ ] **FCR-08**: Preview/Frontier program admonitions across affected controls updated to reflect current GA timeline signals
 
-### Compliance & Evidence
+### AI Agent Evaluation Framework Enhancements
 
-- [ ] **CEV-01**: SHA-256 integrity-hashed compliance evidence export for content moderation configuration validation
-- [ ] **CEV-02**: Control 1.8 framework integration (tip admonition on control page + solutions-index.md catalog entry)
-- [ ] **CEV-03**: Documentation suite (prerequisites, schema, configuration, troubleshooting)
+- [ ] **FCR-09**: Control 2.18 (Agent Testing) enhanced with reference to Copilot Studio's built-in 8-step evaluation framework and grader types
+- [ ] **FCR-10**: Control 2.8 (Change Management) enhanced with regression detection via sequential evaluation comparisons
+- [ ] **FCR-11**: Control 3.1 (Operational Monitoring) enhanced with comparative monitoring pattern for tracking agent quality over time
+- [ ] **FCR-12**: Verification-testing playbook for 2.18 enhanced with evaluation methodology guidance
 
-### Infrastructure
+### Multi-Source Governance Agent Investigation
 
-- [ ] **INF-01**: Dataverse tables for moderation baselines, validation history, and violations (reuse ACV option sets)
-- [ ] **INF-02**: Environment variables for zone-specific moderation thresholds (fsi_CMM_* prefix)
-- [ ] **INF-03**: Connection references for Dataverse, Office 365, Teams (fsi_cr_* naming)
-- [ ] **INF-04**: Power Automate scheduled daily moderation scan flow
-- [ ] **INF-05**: Python deployment scripts (idempotent, dry-run support) following ACV/SSC/AAM pattern
+- [ ] **FCR-13**: Investigation report produced with clear build/don't-build/defer recommendation for multi-source citation agent architecture (Options A/B/C evaluated)
+- [ ] **FCR-14**: If recommendation is "build" or "defer," estimated effort, maintenance cost, and recommended approach documented for inclusion in v10+ planning
 
-## Future Requirements
+### Validation
 
-Deferred to post-v7 or v9 integration milestone.
+- [ ] **FCR-15**: All documentation changes pass `mkdocs build --strict` and `python scripts/verify_controls.py`
+- [ ] **FCR-16**: All updated controls follow FSI language rules (no "ensures compliance", "guarantees", etc.)
+- [ ] **FCR-17**: All 4 pending todo files moved to `.planning/todos/done/` upon completion
 
-### Post-MVP Enhancements
+## File Conflict Analysis
 
-- **CMV-07**: Application Insights RAI telemetry correlation (ContentFiltered events tied to agent moderation level)
-- **DDA-05**: Per-agent moderation change history timeline
-- **CEV-04**: Multi-tenant support for MSP/hosting scenarios
-- **CMV-08**: Content moderation effectiveness scoring (filter trigger rate vs. moderation level)
-- **DDA-06**: Dashboard integration for aggregated moderation compliance metrics
+Zero file overlaps between the 4 todos — all can execute in parallel:
+
+| Todo | Write Targets |
+|------|--------------|
+| Dataverse deprecation | control-1.7, 1.10, 2.1, regulatory-mappings.md, monitoring-config.yaml |
+| Agent 365 review | agent-365-architecture.md, control-1.11, 2.12, 3.8, role-catalog.md, 1.5, 1.6, 1.8 |
+| Evaluation blog | control-2.18, 2.8, 3.1, playbook verification-testing/2.18 |
+| Multi-source agent | Investigation output only (.planning/ artifact) |
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Auto-remediation of moderation levels | Too risky for FSI; detect-only meets regulatory requirements |
-| Real-time moderation event capture | Batch/scheduled detection sufficient for governance |
-| Third-party content safety integration | Separate concern covered by webhook threat detection in Control 1.8 |
-| Custom content filter category tuning | Beyond governance scope; Copilot Studio feature management |
-| Agent-level Application Insights setup | Covered by existing Control 1.8 documentation; not solution scope |
+| New controls | v7.1 is a currency review, not a control addition milestone |
+| Solution code changes | No solution artifacts modified; docs-only milestone |
+| v8 File Upload Security Configurator | Separate solution milestone (follows v7.1) |
+| Implementation of multi-source agent | v7.1 only investigates; build deferred to v10+ |
+
+---
+*Requirements defined: 2026-02-10*
+*Previous REQUIREMENTS.md archived with v7 milestone*
 
 ## Traceability
 

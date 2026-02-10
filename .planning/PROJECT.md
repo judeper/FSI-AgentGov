@@ -8,19 +8,18 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v5 Session Security Configurator
+## Current Milestone: v7.1 Framework Currency Reviews
 
-**Goal:** Automate session security enforcement (inactivity timeouts, sign-in frequency, session lifetime) per governance zone, with drift detection and compliance reporting for Control 1.23.
+**Goal:** Address 4 pending maintenance todos to keep the framework current: critical Dataverse audit deprecation warning, Agent 365 GA readiness updates, AI evaluation framework enhancements, and multi-source governance agent investigation.
 
-**Target features:**
-- Zone-specific session lifetime enforcement (8h / 4h / 1h per Control 1.23)
-- Sign-in frequency configuration per authentication context (15min / 30min / 1h)
-- Conditional Access policy deployment and validation
-- Session security drift detection with alerting
-- Compliance evidence export for regulatory examinations
-- Control 1.23 framework integration (tip admonition + solutions-index.md)
+**Target deliverables:**
+- Control 1.7 deprecation warning for Dataverse Purview audit event changes (May 2026 deadline)
+- Agent 365 architecture and related controls updated with meeting notes (GA readiness, role limitations, Defender gaps)
+- Controls 2.18, 2.8, 3.1 enhanced with Copilot Studio evaluation framework references
+- Investigation recommendation for multi-source governance agent architecture (build/defer/don't-build)
+- All 4 pending todos closed
 
-## Current State (v4 Shipped)
+## Current State (v7 Shipped)
 
 **Framework Version:** 1.2.38 (February 2026)
 
@@ -29,9 +28,12 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v2: PowerShell security fixes, documentation architecture (breadcrumbs + playbook discovery), monitoring config externalization, Compliance Dashboard v1.0.0, Scope Drift Monitor v1.1.0
 - v3: Agent Observability Foundation solution, Agent 365/Entra Agent ID documentation, Q1 2026 control enhancements (virtual connectors, DSPM, AI Feature Access, SharePoint Restricted Search), role catalog expansion
 - v4: Audit Configuration Validator v1.0.0 — automated tenant/environment audit validation with drift detection, multi-channel alerting, and SHA-256 evidence export
+- v5: Session Security Configurator — inactivity timeout automation per zone with drift detection and compliance reporting
+- v6: Agent Access Governance Monitor — unrestricted agent access detection with zone-based validation and evidence export
+- v7: Content Moderation Governance Monitor — per-agent moderation level validation with drift detection and SHA-256 evidence export
 
 **Solutions Status:**
-- 7 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator
+- 10 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor
 - 1 Validated: FINRA Supervision Workflow
 - 4 Work In Progress: Deny Event Correlation Report, Conditional Access Automation, Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
@@ -91,7 +93,7 @@ Capabilities delivered:
 - v8: File Upload Security Configurator — MIME type restriction enforcement
 - v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Current milestone: v5 — Session Security Configurator (IN PROGRESS)**
+**Current milestone: v7.1 — Framework Currency Reviews (IN PROGRESS)**
 
 ### Out of Scope
 
@@ -117,7 +119,7 @@ Capabilities delivered:
 
 **Repository Structure:**
 - **FSI-AgentGov** (this repo): MkDocs-based documentation site with 62 controls, playbooks, and framework guidance
-- **FSI-AgentGov-Solutions** (`/Users/admin/dev/FSI-AgentGov-Solutions`): Companion repo with deployable solutions (PowerShell, Power Automate, Dataverse schemas)
+- **FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`): Companion repo with deployable solutions (PowerShell, Power Automate, Dataverse schemas)
 
 **Target audience:**
 - US financial sector Microsoft 365 administrators
@@ -172,5 +174,7 @@ Capabilities delivered:
 | Organization-owned Dataverse tables | Immutable audit history; security roles remove Write/Delete post-deployment | ✓ Good |
 | Auto-remediation deferred to v4.1+ | Too risky without approval workflow; validation-only meets SEC 17a-4(f) | ✓ Good |
 
+| v7.1 maintenance milestone | Interstitial docs review before v8; todos have time-sensitive items | — Pending |
+
 ---
-*Last updated: 2026-02-06 after v5 milestone start*
+*Last updated: 2026-02-10 after v7.1 milestone start*
