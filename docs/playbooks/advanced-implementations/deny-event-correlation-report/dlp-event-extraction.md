@@ -61,52 +61,100 @@ When creating DLP policies in Microsoft Purview, the "Microsoft 365 Copilot and 
 
 ---
 
+## Prerequisites
+
+### Entra ID App Registration
+
+Before running the extraction script, configure an Entra ID App Registration with Exchange Online access:
+
+| Requirement | Value |
+|-------------|-------|
+| **App Registration** | Create in Entra ID > App registrations |
+| **API Permission** | Office 365 Exchange Online > Application > `Exchange.ManageAsApp` |
+| **Admin Consent** | Required (tenant admin) |
+| **Entra Role** | Purview Audit Reader or Purview Compliance Admin |
+| **Key Vault** | Store client secret in Azure Key Vault |
+
+---
+
 ## PowerShell Extraction Script
 
-### Daily DLP Export for Copilot
+### Daily DLP Export with Entra ID Authentication
+
+The modernized script uses the `DECClient.psm1` shared module for secure authentication. Credentials are retrieved from Azure Key Vault — no hardcoded secrets.
 
 ```powershell
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName="ExchangeOnlineManagement"; ModuleVersion="3.0.0" }
+
 <#
 .SYNOPSIS
-    Exports DLP events for Copilot policy location
+    Exports DLP events for the Copilot policy location.
 .DESCRIPTION
-    Extracts DlpRuleMatch events where Workload is Copilot-related
-.PARAMETER StartDate
-    Start of time window (default: yesterday)
-.PARAMETER EndDate
-    End of time window (default: today)
+    Uses Entra ID service principal authentication via DECClient module.
+    Retrieves credentials from Azure Key Vault — no hardcoded secrets.
+.PARAMETER TenantId
+    Entra ID tenant ID for service principal authentication.
+.PARAMETER ClientId
+    App Registration client ID with Exchange.ManageAsApp permission.
+.PARAMETER KeyVaultName
+    Azure Key Vault containing the service principal credentials.
+.PARAMETER DaysBack
+    Days of data to retrieve (default: 1, max: 90).
 .PARAMETER OutputPath
-    Path for CSV export
+    Path for exported file.
+.PARAMETER OutputFormat
+    Export format: CSV or JSON (default: CSV).
 #>
+[CmdletBinding()]
 param(
-    [DateTime]$StartDate = (Get-Date).AddDays(-1),
-    [DateTime]$EndDate = (Get-Date),
-    [string]$OutputPath = ".\DlpCopilotEvents-$(Get-Date -Format 'yyyy-MM-dd').csv"
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$TenantId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$ClientId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$KeyVaultName,
+    [ValidateNotNullOrEmpty()][string]$CertificateThumbprint,
+    [ValidateRange(1, 90)][int]$DaysBack = 1,
+    [ValidateScript({ Test-Path (Split-Path $_) })][string]$OutputPath,
+    [ValidateSet('CSV','JSON')][string]$OutputFormat = 'CSV'
 )
 
-# Connect to Exchange Online
-if (-not (Get-Command Search-UnifiedAuditLog -ErrorAction SilentlyContinue)) {
-    Connect-ExchangeOnline -ShowBanner:$false
+$ErrorActionPreference = 'Stop'
+
+# Import shared authentication module
+Import-Module "$PSScriptRoot/private/DECClient.psm1" -Force
+
+# Connect to Exchange Online via Entra ID service principal
+$connectParams = @{
+    TenantId     = $TenantId
+    ClientId     = $ClientId
+    KeyVaultName = $KeyVaultName
+}
+if ($CertificateThumbprint) {
+    $connectParams['CertificateThumbprint'] = $CertificateThumbprint
+}
+$connectResult = Connect-DECExchangeOnline @connectParams
+if ($connectResult.Status -ne 'Success') {
+    Write-Error "Connection failed: $($connectResult.Message)"
+    return
 }
 
-Write-Host "Searching for DLP events from $StartDate to $EndDate..."
-
 # Search for DlpRuleMatch events
+$startDate = (Get-Date).AddDays(-$DaysBack).Date
+$endDate   = (Get-Date).Date
 $allDlpEvents = @()
 $sessionId = [Guid]::NewGuid().ToString()
 
 do {
     $results = Search-UnifiedAuditLog `
         -RecordType DlpRuleMatch `
-        -StartDate $StartDate `
-        -EndDate $EndDate `
+        -StartDate $startDate `
+        -EndDate $endDate `
         -SessionId $sessionId `
         -SessionCommand ReturnLargeSet `
         -ResultSize 5000
 
     if ($results) {
         $allDlpEvents += $results
-        Write-Host "Retrieved $($allDlpEvents.Count) events..."
+        Write-Verbose "Retrieved $($allDlpEvents.Count) events..."
     }
 } while ($results.Count -eq 5000)
 
@@ -116,7 +164,6 @@ Write-Host "Total DLP events: $($allDlpEvents.Count)"
 $copilotDlpEvents = $allDlpEvents | ForEach-Object {
     $auditData = $_.AuditData | ConvertFrom-Json
 
-    # Check if Copilot workload or Copilot-named policy
     $isCopilotRelated = (
         $auditData.Workload -eq "MicrosoftCopilot" -or
         $auditData.Workload -match "Copilot" -or
@@ -124,37 +171,46 @@ $copilotDlpEvents = $allDlpEvents | ForEach-Object {
     )
 
     if ($isCopilotRelated) {
-        # Extract policy and rule details
-        $policyNames = ($auditData.PolicyDetails | ForEach-Object { $_.PolicyName }) -join "; "
-        $ruleNames = ($auditData.PolicyDetails.Rules | ForEach-Object { $_.RuleName }) -join "; "
-        $actions = ($auditData.PolicyDetails.Rules.Actions | Select-Object -Unique) -join "; "
-
-        # Extract SIT matches
+        $policyNames = ($auditData.PolicyDetails |
+            ForEach-Object { $_.PolicyName }) -join "; "
+        $ruleNames = ($auditData.PolicyDetails.Rules |
+            ForEach-Object { $_.RuleName }) -join "; "
+        $actions = ($auditData.PolicyDetails.Rules.Actions |
+            Select-Object -Unique) -join "; "
         $sitMatches = ($auditData.SensitiveInfoTypeData | ForEach-Object {
             "$($_.SensitiveInfoTypeName) (Count: $($_.Count), Confidence: $($_.Confidence)%)"
         }) -join "; "
 
         [PSCustomObject]@{
-            Timestamp = $_.CreationDate
-            UserId = $auditData.UserId
-            Workload = $auditData.Workload
-            PolicyNames = $policyNames
-            RuleNames = $ruleNames
-            Actions = $actions
+            Timestamp          = $_.CreationDate
+            UserId             = $auditData.UserId
+            Workload           = $auditData.Workload
+            PolicyNames        = $policyNames
+            RuleNames          = $ruleNames
+            Actions            = $actions
             SensitiveInfoTypes = $sitMatches
-            Severity = ($auditData.PolicyDetails.Rules | Select-Object -ExpandProperty Severity -First 1)
-            HasOverride = ($auditData.ExceptionInfo -ne $null)
-            RawAuditData = $_.AuditData
+            Severity           = ($auditData.PolicyDetails.Rules |
+                Select-Object -ExpandProperty Severity -First 1)
+            HasOverride        = ($null -ne $auditData.ExceptionInfo)
+            RawAuditData       = $_.AuditData
         }
     }
 }
 
 Write-Host "Copilot DLP events found: $($copilotDlpEvents.Count)"
 
-# Export to CSV
-$copilotDlpEvents | Export-Csv -Path $OutputPath -NoTypeInformation
+# Export results
+if ($OutputFormat -eq 'JSON') {
+    $copilotDlpEvents | ConvertTo-Json -Depth 10 |
+        Set-Content -Path $OutputPath -Encoding UTF8
+} else {
+    $copilotDlpEvents | Export-Csv -Path $OutputPath -NoTypeInformation
+}
 Write-Host "Exported to: $OutputPath"
 ```
+
+!!! warning "Deprecated: Legacy Authentication"
+    The v1.x script used interactive `Connect-ExchangeOnline` with user credentials. This approach does not support unattended automation and does not meet FSI security standards. Use the Entra ID service principal pattern shown above.
 
 ---
 
@@ -254,4 +310,4 @@ Action: Warn with justification
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*

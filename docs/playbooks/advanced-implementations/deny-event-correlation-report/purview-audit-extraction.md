@@ -49,55 +49,103 @@ When a Copilot or Copilot Studio agent encounters a policy block, the audit reco
 
 ---
 
+## Prerequisites
+
+### Entra ID App Registration
+
+Before running the extraction script, configure an Entra ID App Registration with Exchange Online access:
+
+| Requirement | Value |
+|-------------|-------|
+| **App Registration** | Create in Entra ID > App registrations |
+| **API Permission** | Office 365 Exchange Online > Application > `Exchange.ManageAsApp` |
+| **Admin Consent** | Required (tenant admin) |
+| **Entra Role** | Purview Audit Reader or Purview Compliance Admin |
+| **Key Vault** | Store client secret in Azure Key Vault |
+
+!!! tip "Certificate-Based Authentication (Recommended)"
+    For production deployments, use certificate-based authentication instead of client secrets. Pass the `-CertificateThumbprint` parameter to skip Key Vault secret retrieval.
+
+---
+
 ## PowerShell Extraction Script
 
-### Basic Daily Export
+### Daily Export with Entra ID Authentication
+
+The modernized script uses the `DECClient.psm1` shared module for secure authentication. Credentials are retrieved from Azure Key Vault — no hardcoded secrets.
 
 ```powershell
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName="ExchangeOnlineManagement"; ModuleVersion="3.0.0" }
+
 <#
 .SYNOPSIS
-    Exports CopilotInteraction deny events from Purview Audit Log
+    Exports CopilotInteraction deny events from Purview Audit Log.
 .DESCRIPTION
-    Extracts events where Status=failure, PolicyDetails present,
-    or XPIA/Jailbreak detected
-.PARAMETER StartDate
-    Start of time window (default: yesterday)
-.PARAMETER EndDate
-    End of time window (default: today)
+    Uses Entra ID service principal authentication via DECClient module.
+    Retrieves credentials from Azure Key Vault — no hardcoded secrets.
+.PARAMETER TenantId
+    Entra ID tenant ID for service principal authentication.
+.PARAMETER ClientId
+    App Registration client ID with Exchange.ManageAsApp permission.
+.PARAMETER KeyVaultName
+    Azure Key Vault containing the service principal credentials.
+.PARAMETER DaysBack
+    Days of data to retrieve (default: 1, max: 90).
 .PARAMETER OutputPath
-    Path for CSV export
+    Path for exported file.
+.PARAMETER OutputFormat
+    Export format: CSV or JSON (default: CSV).
 #>
+[CmdletBinding()]
 param(
-    [DateTime]$StartDate = (Get-Date).AddDays(-1),
-    [DateTime]$EndDate = (Get-Date),
-    [string]$OutputPath = ".\CopilotDenyEvents-$(Get-Date -Format 'yyyy-MM-dd').csv"
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$TenantId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$ClientId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$KeyVaultName,
+    [ValidateNotNullOrEmpty()][string]$CertificateThumbprint,
+    [ValidateRange(1, 90)][int]$DaysBack = 1,
+    [ValidateScript({ Test-Path (Split-Path $_) })][string]$OutputPath,
+    [ValidateSet('CSV','JSON')][string]$OutputFormat = 'CSV'
 )
 
-# Connect to Exchange Online (required for Search-UnifiedAuditLog)
-if (-not (Get-Command Search-UnifiedAuditLog -ErrorAction SilentlyContinue)) {
-    Connect-ExchangeOnline -ShowBanner:$false
+$ErrorActionPreference = 'Stop'
+
+# Import shared authentication module
+Import-Module "$PSScriptRoot/private/DECClient.psm1" -Force
+
+# Connect to Exchange Online via Entra ID service principal
+$connectParams = @{
+    TenantId     = $TenantId
+    ClientId     = $ClientId
+    KeyVaultName = $KeyVaultName
+}
+if ($CertificateThumbprint) {
+    $connectParams['CertificateThumbprint'] = $CertificateThumbprint
+}
+$connectResult = Connect-DECExchangeOnline @connectParams
+if ($connectResult.Status -ne 'Success') {
+    Write-Error "Connection failed: $($connectResult.Message)"
+    return
 }
 
-Write-Host "Searching for CopilotInteraction events from $StartDate to $EndDate..."
-
 # Search with pagination (50K limit per query)
+$startDate = (Get-Date).AddDays(-$DaysBack).Date
+$endDate   = (Get-Date).Date
 $allEvents = @()
 $sessionId = [Guid]::NewGuid().ToString()
-$resultIndex = 0
 
 do {
     $results = Search-UnifiedAuditLog `
         -RecordType CopilotInteraction `
-        -StartDate $StartDate `
-        -EndDate $EndDate `
+        -StartDate $startDate `
+        -EndDate $endDate `
         -SessionId $sessionId `
         -SessionCommand ReturnLargeSet `
         -ResultSize 5000
 
     if ($results) {
         $allEvents += $results
-        $resultIndex = $results[-1].ResultIndex
-        Write-Host "Retrieved $($allEvents.Count) events..."
+        Write-Verbose "Retrieved $($allEvents.Count) events..."
     }
 } while ($results.Count -eq 5000)
 
@@ -110,51 +158,53 @@ $denyEvents = $allEvents | ForEach-Object {
     $isDeny = $false
     $denyReason = @()
 
-    # Check AccessedResources for failures
     foreach ($resource in $auditData.AccessedResources) {
         if ($resource.Status -eq "failure") {
-            $isDeny = $true
-            $denyReason += "ResourceFailure"
+            $isDeny = $true; $denyReason += "ResourceFailure"
         }
         if ($resource.PolicyDetails) {
             $isDeny = $true
             $denyReason += "PolicyBlock:$($resource.PolicyDetails.PolicyName)"
         }
         if ($resource.XPIADetected -eq $true) {
-            $isDeny = $true
-            $denyReason += "XPIA"
+            $isDeny = $true; $denyReason += "XPIA"
         }
     }
 
-    # Check Messages for jailbreak
     foreach ($message in $auditData.Messages) {
         if ($message.JailbreakDetected -eq $true) {
-            $isDeny = $true
-            $denyReason += "Jailbreak"
+            $isDeny = $true; $denyReason += "Jailbreak"
         }
     }
 
     if ($isDeny) {
         [PSCustomObject]@{
-            Timestamp = $_.CreationDate
-            UserId = $auditData.UserId
-            Operation = $auditData.Operation
-            AgentId = $auditData.AgentId
-            AgentName = $auditData.AgentName
-            AppHost = $auditData.AppHost
-            DenyReason = ($denyReason -join "; ")
+            Timestamp     = $_.CreationDate
+            UserId        = $auditData.UserId
+            Operation     = $auditData.Operation
+            AgentId       = $auditData.AgentId
+            AgentName     = $auditData.AgentName
+            AppHost       = $auditData.AppHost
+            DenyReason    = ($denyReason -join "; ")
             ResourceCount = ($auditData.AccessedResources | Measure-Object).Count
-            RawAuditData = $_.AuditData
+            RawAuditData  = $_.AuditData
         }
     }
 }
 
 Write-Host "Deny events found: $($denyEvents.Count)"
 
-# Export to CSV
-$denyEvents | Export-Csv -Path $OutputPath -NoTypeInformation
+# Export results
+if ($OutputFormat -eq 'JSON') {
+    $denyEvents | ConvertTo-Json -Depth 10 | Set-Content -Path $OutputPath -Encoding UTF8
+} else {
+    $denyEvents | Export-Csv -Path $OutputPath -NoTypeInformation
+}
 Write-Host "Exported to: $OutputPath"
 ```
+
+!!! warning "Deprecated: Legacy Authentication"
+    The v1.x script used interactive `Connect-ExchangeOnline` with user credentials. This approach does not support unattended automation and does not meet FSI security standards. Use the Entra ID service principal pattern shown above.
 
 ---
 
@@ -234,4 +284,4 @@ Use these fields for correlation with DLP and RAI telemetry:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*

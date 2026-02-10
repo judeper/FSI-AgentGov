@@ -63,12 +63,14 @@ flowchart TB
 
 ### Service Accounts
 
-Create a dedicated service account for automated extraction:
+Create a dedicated Entra ID App Registration for automated extraction:
 
-1. Create user: `svc-deny-report@contoso.com`
-2. Assign: Purview Audit Reader
-3. Configure: Password never expires or use managed identity
-4. Store credentials in Azure Key Vault
+1. Create App Registration in **Entra ID** > **App registrations**
+2. Add API permission: **Office 365 Exchange Online** > **Application** > `Exchange.ManageAsApp`
+3. Grant admin consent (tenant admin)
+4. Assign Entra role: **Purview Audit Reader**
+5. Create a client secret or upload a certificate
+6. Store credentials in Azure Key Vault
 
 ---
 
@@ -110,23 +112,37 @@ az keyvault create `
     --resource-group rg-fsi-governance `
     --location eastus
 
-# Store Exchange Online credentials
+# Store Exchange Online App Registration client secret
 az keyvault secret set `
     --vault-name kv-fsi-governance `
-    --name "ExoServiceAccount" `
-    --value "svc-deny-report@contoso.com"
+    --name "sp-exchangeonline" `
+    --value "<app-registration-client-secret>"
 
+# Store App Insights service principal client secret
 az keyvault secret set `
     --vault-name kv-fsi-governance `
-    --name "ExoServicePassword" `
-    --value "YourSecurePassword"
-
-# Store App Insights API key
-az keyvault secret set `
-    --vault-name kv-fsi-governance `
-    --name "AppInsightsApiKey" `
-    --value "YourApiKey"
+    --name "sp-appinsights" `
+    --value "<appinsights-sp-client-secret>"
 ```
+
+!!! warning "No Hardcoded Credentials"
+    Never store user passwords or API keys directly in scripts. All credentials must be retrieved from Azure Key Vault at runtime using `Get-AzKeyVaultSecret`. The `ConvertTo-SecureString -AsPlainText -Force` pattern is prohibited — use `PSCredential` constructed from Key Vault `SecretValue` instead.
+
+### Key Vault Prerequisites
+
+The following secrets must be configured in Azure Key Vault before running extraction scripts:
+
+| Secret Name | Purpose | When Required |
+|-------------|---------|---------------|
+| `sp-exchangeonline` | Exchange Online App Registration client secret | When not using certificate auth |
+| `sp-appinsights` | Application Insights service principal client secret | Always (for RAI telemetry) |
+
+**Required RBAC roles on the Key Vault:**
+
+| Role | Assigned To | Purpose |
+|------|-------------|---------|
+| Key Vault Secrets User | Automation service principal | Read secrets at runtime |
+| Key Vault Administrator | Governance admin | Manage secret lifecycle |
 
 ### Step 1.3: Configure Application Insights
 
@@ -155,7 +171,8 @@ az automation account create `
 $modules = @(
     "ExchangeOnlineManagement",
     "Az.Storage",
-    "Az.KeyVault"
+    "Az.KeyVault",
+    "Az.Accounts"
 )
 
 foreach ($module in $modules) {
@@ -167,62 +184,101 @@ foreach ($module in $modules) {
 }
 ```
 
-### Step 2.2: Create Orchestration Runbook
+### Step 2.2: Deploy DECClient Module
+
+Upload the `DECClient.psm1` shared module to the Automation Account:
+
+1. In Azure portal, navigate to **Automation Account** > **Modules**
+2. Select **Add a module** > **Browse from gallery** or upload custom
+3. Upload `DECClient.psm1` from the solution's `scripts/private/` directory
+4. Verify module is imported successfully
+
+### Step 2.3: Create Orchestration Runbook
 
 Create runbook `Invoke-DailyDenyReport`:
 
 ```powershell
+#Requires -Version 7.0
+#Requires -Modules @{ ModuleName="Az.Accounts"; ModuleVersion="3.0.0" }, @{ ModuleName="Az.KeyVault"; ModuleVersion="5.0.0" }, @{ ModuleName="ExchangeOnlineManagement"; ModuleVersion="3.0.0" }
+
 <#
 .SYNOPSIS
-    Daily orchestration for deny event extraction
+    Daily orchestration for deny event extraction.
 .DESCRIPTION
-    Runs all three extraction scripts and uploads to blob storage
+    Runs all three extraction scripts using Entra ID service principal
+    authentication via DECClient module. Credentials retrieved from Azure
+    Key Vault — no hardcoded secrets. Uploads results to blob storage.
 #>
-
+[CmdletBinding()]
 param(
-    [string]$KeyVaultName = "kv-fsi-governance",
-    [string]$StorageAccountName = "stfsigovernance",
-    [string]$ContainerName = "deny-events"
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$TenantId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$ClientId,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$KeyVaultName,
+    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$AppInsightsAppId,
+    [ValidateNotNullOrEmpty()][string]$AppInsightsSecretName = 'sp-appinsights',
+    [ValidateNotNullOrEmpty()][string]$CertificateThumbprint,
+    [ValidateNotNullOrEmpty()][string]$StorageAccountName = "stfsigovernance",
+    [ValidateNotNullOrEmpty()][string]$ContainerName = "deny-events",
+    [ValidateRange(1, 90)][int]$DaysBack = 1,
+    [ValidateSet('CSV','JSON')][string]$OutputFormat = 'CSV',
+    [switch]$DryRun
 )
 
-# Get credentials from Key Vault
-$exoUser = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name "ExoServiceAccount" -AsPlainText
-$exoPass = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name "ExoServicePassword" -AsPlainText
-$appInsightsKey = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name "AppInsightsApiKey" -AsPlainText
+$ErrorActionPreference = 'Stop'
 
-# Connect to Exchange Online
-$securePass = ConvertTo-SecureString $exoPass -AsPlainText -Force
-$credential = New-Object PSCredential($exoUser, $securePass)
-Connect-ExchangeOnline -Credential $credential -ShowBanner:$false
+# Import shared authentication module
+Import-Module "$PSScriptRoot/private/DECClient.psm1" -Force
 
-# Date range
-$startDate = (Get-Date).AddDays(-1).Date
-$endDate = (Get-Date).Date
-$dateStamp = $startDate.ToString("yyyy-MM-dd")
+# Validate connections via DECClient
+$connectParams = @{
+    TenantId     = $TenantId
+    ClientId     = $ClientId
+    KeyVaultName = $KeyVaultName
+    Services     = @('ExchangeOnline', 'AppInsights')
+    DryRun       = $DryRun
+}
+if ($CertificateThumbprint) {
+    $connectParams['CertificateThumbprint'] = $CertificateThumbprint
+}
+$connectResult = Connect-DECServices @connectParams
 
-# Create temp directory
+if ($DryRun) {
+    Write-Output "[DryRun] Validation complete. Errors: $($connectResult.Errors.Count)"
+    return
+}
+
+# Date range and output setup
+$dateStamp = (Get-Date).AddDays(-$DaysBack).ToString("yyyy-MM-dd")
+$ext = if ($OutputFormat -eq 'JSON') { 'json' } else { 'csv' }
 $tempDir = Join-Path $env:TEMP "DenyReport-$dateStamp"
 New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
 # Run extraction scripts
 Write-Output "Extracting CopilotInteraction deny events..."
-& .\Export-CopilotDenyEvents.ps1 -StartDate $startDate -EndDate $endDate `
-    -OutputPath "$tempDir\CopilotDenyEvents-$dateStamp.csv"
+& .\Export-CopilotDenyEvents.ps1 -TenantId $TenantId -ClientId $ClientId `
+    -KeyVaultName $KeyVaultName -DaysBack $DaysBack `
+    -OutputPath "$tempDir\CopilotDenyEvents-$dateStamp.$ext" `
+    -OutputFormat $OutputFormat
 
 Write-Output "Extracting DLP events..."
-& .\Export-DlpCopilotEvents.ps1 -StartDate $startDate -EndDate $endDate `
-    -OutputPath "$tempDir\DlpCopilotEvents-$dateStamp.csv"
+& .\Export-DlpCopilotEvents.ps1 -TenantId $TenantId -ClientId $ClientId `
+    -KeyVaultName $KeyVaultName -DaysBack $DaysBack `
+    -OutputPath "$tempDir\DlpCopilotEvents-$dateStamp.$ext" `
+    -OutputFormat $OutputFormat
 
 Write-Output "Extracting RAI telemetry..."
-& .\Export-RaiTelemetry.ps1 -ApiKey $appInsightsKey `
-    -AppInsightsAppId $env:AppInsightsAppId `
-    -StartDate $startDate -EndDate $endDate `
-    -OutputPath "$tempDir\RaiTelemetry-$dateStamp.csv"
+& .\Export-RaiTelemetry.ps1 -AppInsightsAppId $AppInsightsAppId `
+    -TenantId $TenantId -ClientId $ClientId `
+    -KeyVaultName $KeyVaultName -SecretName $AppInsightsSecretName `
+    -DaysBack $DaysBack `
+    -OutputPath "$tempDir\RaiTelemetry-$dateStamp.$ext" `
+    -OutputFormat $OutputFormat
 
 # Upload to blob storage
-$storageContext = New-AzStorageContext -StorageAccountName $StorageAccountName -UseConnectedAccount
+$storageContext = New-AzStorageContext -StorageAccountName $StorageAccountName `
+    -UseConnectedAccount
 
-Get-ChildItem $tempDir -Filter "*.csv" | ForEach-Object {
+Get-ChildItem $tempDir -Filter "*.$ext" | ForEach-Object {
     Set-AzStorageBlobContent `
         -File $_.FullName `
         -Container $ContainerName `
@@ -233,13 +289,13 @@ Get-ChildItem $tempDir -Filter "*.csv" | ForEach-Object {
 }
 
 # Cleanup
-Disconnect-ExchangeOnline -Confirm:$false
+Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
 Remove-Item $tempDir -Recurse -Force
 
 Write-Output "Daily deny report complete for $dateStamp"
 ```
 
-### Step 2.3: Schedule Runbook
+### Step 2.4: Schedule Runbook
 
 ```powershell
 # Create daily schedule
@@ -326,8 +382,9 @@ az automation job schedule create `
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| "No audit data returned" | Permission or date range | Verify Audit Reader role; check date range |
-| "App Insights query failed" | Invalid API key | Regenerate API key in Azure portal |
+| "No audit data returned" | Permission or date range | Verify Purview Audit Reader role; check date range |
+| "App Insights query failed" | Token or permission issue | Verify Monitoring Reader role on App Insights; check Key Vault secret |
+| "Key Vault access denied" | Missing RBAC | Grant Key Vault Secrets User role to the service principal |
 | "Blob upload failed" | Storage permissions | Grant Storage Blob Data Contributor role |
 | "Power BI refresh failed" | Credential expiry | Update credentials in dataset settings |
 
@@ -351,7 +408,8 @@ az automation job schedule create `
 
 ### Monthly Tasks
 
-- [ ] Rotate API keys if required by policy
+- [ ] Rotate Key Vault secrets if required by policy
+- [ ] Review certificate expiry for certificate-based authentication
 - [ ] Review storage costs
 - [ ] Archive old data beyond retention period
 
@@ -373,4 +431,4 @@ For issues with this solution:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*
