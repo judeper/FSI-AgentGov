@@ -25,11 +25,11 @@ tech-stack:
     - Adaptive Cards v1.4 for Teams notifications
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/tenant-validation-flow.json
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/environment-validation-flow.json
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-tenant-alert.json
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-environment-alert.json
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/FLOW_SETUP.md
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/tenant-validation-flow.json
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/environment-validation-flow.json
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-tenant-alert.json
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-environment-alert.json
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/FLOW_SETUP.md
   modified: []
 decisions:
   - decision: Flow definitions as JSON templates (not screenshots or manual steps only)
@@ -353,11 +353,11 @@ None - plan executed exactly as written.
 ## Files Changed
 
 **Created:**
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/tenant-validation-flow.json` (659 lines)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/environment-validation-flow.json` (670 lines)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-tenant-alert.json` (118 lines)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-environment-alert.json` (131 lines)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/FLOW_SETUP.md` (589 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/tenant-validation-flow.json` (659 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/environment-validation-flow.json` (670 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-tenant-alert.json` (118 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/adaptive-card-environment-alert.json` (131 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/FLOW_SETUP.md` (589 lines)
 
 **Total:** 2,167 lines (1,329 lines JSON flow definitions + 249 lines adaptive cards + 589 lines documentation)
 

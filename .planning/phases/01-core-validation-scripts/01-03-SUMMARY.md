@@ -26,7 +26,7 @@ tech-stack:
     - Parameter inheritance via hashtable splatting
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
   modified: []
 key-decisions:
   - decision: Isolated validator execution with try-catch per validator
@@ -121,7 +121,7 @@ _Note: Task 2 had no commit because all verification checks passed without requi
 ## Files Created/Modified
 
 ### Created
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1` - Main orchestrator that administrators run for complete tenant audit validation. Executes three validators with isolated error handling, produces colored console summary table, optionally exports JSON results.
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1` - Main orchestrator that administrators run for complete tenant audit validation. Executes three validators with isolated error handling, produces colored console summary table, optionally exports JSON results.
 
 ### Modified
 None

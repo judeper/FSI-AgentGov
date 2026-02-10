@@ -8,16 +8,17 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v7.1 Framework Currency Reviews
+## Current Milestone: v8 File Upload Security Configurator
 
-**Goal:** Address 4 pending maintenance todos to keep the framework current: critical Dataverse audit deprecation warning, Agent 365 GA readiness updates, AI evaluation framework enhancements, and multi-source governance agent investigation.
+**Goal:** Automated validation of Copilot Studio agent file upload settings against governance zone policies, targeting Control 1.14 (Data Minimization and Agent Scope Control). File uploads expand agent data intake beyond declared operational scope — FSI organizations must validate that agents accepting file uploads comply with zone-specific security posture requirements.
 
 **Target deliverables:**
-- Control 1.7 deprecation warning for Dataverse Purview audit event changes (May 2026 deadline)
-- Agent 365 architecture and related controls updated with meeting notes (GA readiness, role limitations, Defender gaps)
-- Controls 2.18, 2.8, 3.1 enhanced with Copilot Studio evaluation framework references
-- Investigation recommendation for multi-source governance agent architecture (build/defer/don't-build)
-- All 4 pending todos closed
+- PowerShell module (FUSClient.psm1) for per-agent file upload enumeration and compliance comparison
+- Dataverse persistence with immutable validation history and baseline capture
+- Power Automate daily validation with Teams alerting and Azure Automation runbook support
+- SHA-256 integrity-hashed evidence export for SEC 17a-4(f) regulatory support
+- Control 1.14 framework integration (tip admonition) and solutions-index.md catalog entry
+- Content moderation cross-check (agents with file uploads enabled must meet minimum moderation level)
 
 ## Current State (v7 Shipped)
 
@@ -31,6 +32,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v5: Session Security Configurator — inactivity timeout automation per zone with drift detection and compliance reporting
 - v6: Agent Access Governance Monitor — unrestricted agent access detection with zone-based validation and evidence export
 - v7: Content Moderation Governance Monitor — per-agent moderation level validation with drift detection and SHA-256 evidence export
+- v7.1: Framework Currency Reviews — Dataverse deprecation, Agent 365 GA, evaluation framework, multi-source agent investigation
 
 **Solutions Status:**
 - 10 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor
@@ -93,7 +95,7 @@ Capabilities delivered:
 - v8: File Upload Security Configurator — MIME type restriction enforcement
 - v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Current milestone: v7.1 — Framework Currency Reviews (IN PROGRESS)**
+**Current milestone: v8 — File Upload Security Configurator (IN PROGRESS)**
 
 ### Out of Scope
 
@@ -174,7 +176,10 @@ Capabilities delivered:
 | Organization-owned Dataverse tables | Immutable audit history; security roles remove Write/Delete post-deployment | ✓ Good |
 | Auto-remediation deferred to v4.1+ | Too risky without approval workflow; validation-only meets SEC 17a-4(f) | ✓ Good |
 
-| v7.1 maintenance milestone | Interstitial docs review before v8; todos have time-sensitive items | — Pending |
+| v7.1 maintenance milestone | Interstitial docs review before v8; todos have time-sensitive items | ✓ Good |
+| v8 binary validation model | File upload is enabled/disabled per agent, not multi-level; solution validates on/off status per zone | — Pending |
+| v8 Control 1.14 as primary | Data minimization — file uploads expand data intake beyond declared scope | — Pending |
+| v8 content moderation cross-check | Agents with file uploads enabled must meet minimum moderation level by zone | — Pending |
 
 ---
-*Last updated: 2026-02-10 after v7.1 milestone start*
+*Last updated: 2026-02-10 after v8 milestone start*

@@ -35,9 +35,9 @@ tech-stack:
 
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentAudit.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentRetention.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentAuditValidation.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentAudit.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentRetention.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentAuditValidation.ps1
   modified: []
 
 key-decisions:
@@ -321,9 +321,9 @@ All requirements (EVAL-01 through EVAL-05, EVID-03) covered. All design decision
 ## Self-Check: PASSED
 
 **Files created (all exist):**
-- ✅ /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentAudit.ps1
-- ✅ /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentRetention.ps1
-- ✅ /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentAuditValidation.ps1
+- ✅ C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentAudit.ps1
+- ✅ C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-EnvironmentRetention.ps1
+- ✅ C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentAuditValidation.ps1
 
 **Commits (all exist):**
 - ✅ 6080f49 — feat(02-03): add per-environment audit and retention validators

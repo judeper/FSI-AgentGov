@@ -187,13 +187,13 @@ None at this stage - Dataverse infrastructure deployment is automated via deploy
 ## Self-Check: PASSED
 
 All files created successfully:
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/acv_client.py
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_dataverse_schema.py
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_environment_variables.py
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_connection_references.py
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/deploy.py
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/README.md
-- FOUND: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/CHANGELOG.md
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/acv_client.py
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_dataverse_schema.py
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_environment_variables.py
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_connection_references.py
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/deploy.py
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/README.md
+- FOUND: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/CHANGELOG.md
 
 All commits verified:
 - FOUND: e717db1

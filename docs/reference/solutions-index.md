@@ -20,6 +20,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Completed | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Work In Progress | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
+| [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Work In Progress | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
 | [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Work In Progress | Automated validation of tenant and environment audit configurations | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Work In Progress | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
@@ -117,6 +118,37 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 **Framework Playbook:** [Deny Event Correlation Report](../playbooks/advanced-implementations/deny-event-correlation-report/index.md)
 
 **Repository Link:** [deny-event-correlation-report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
+
+---
+
+### File Upload Security Configurator
+
+Automated per-agent file upload validation against zone governance policies. Detects binary drift (enabled/disabled changes), cross-checks content moderation levels, and exports SHA-256 compliance evidence packages.
+
+**Components:**
+
+- PowerShell scripts for per-agent file upload setting retrieval and compliance comparison
+- Daily scheduled drift detection via Power Automate with Azure Automation runbook
+- Teams adaptive card alerts with severity classification (Critical/High/Warning/Info)
+- Dataverse tables for file upload baselines, validation history, and violations
+- Zone-based policy enforcement (Zone 1: Allowed, Zone 2: Restricted, Zone 3: Disabled by default)
+- Content moderation cross-check (minimum level per zone when uploads enabled)
+- Evidence export with SHA-256 integrity hashing
+
+**Regulatory Alignment:**
+
+- GLBA 501(b) (Safeguards — Data Intake Controls)
+- FINRA 4511 (Books and Records — File Upload Configuration)
+- SOX 404 (Internal Controls — Data Minimization)
+- SEC 17a-3/4 (Recordkeeping — Configuration Governance)
+
+**Related Controls:**
+
+- [1.14 - Data Minimization and Agent Scope Control](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md)
+- [1.8 - Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
+- [1.4 - Advanced Connector Policies](../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md)
+
+**Repository Link:** [file-upload-security](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)
 
 ---
 
@@ -461,6 +493,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | COI Testing Framework | v1.0.0 | February 2026 |
 | Hallucination Tracker | v1.0.0 | February 2026 |
 | DR Testing Framework | v1.0.0 | February 2026 |
+| File Upload Security Configurator | v1.0.0 | February 2026 |
 
 ---
 

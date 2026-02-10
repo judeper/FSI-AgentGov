@@ -66,7 +66,7 @@ scripts/
 
 **Example:**
 ```powershell
-# Source: /Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1
+# Source: C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
@@ -611,12 +611,12 @@ Things that couldn't be fully resolved:
 ### Primary (HIGH confidence)
 
 - **FSI-AgentGov-Solutions repo structure** - Examined existing solution patterns
-  - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/scripts/provision.py` - Python SDK provisioning patterns
-  - `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1` - PowerShell deployment example
-  - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/workbooks/README.md` - Workbook deployment documentation
-  - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/alerts/README.md` - Alert deployment order and dependencies
-  - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/prerequisites.md` - Prerequisites checklist structure
-- **ARM template structure** - `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/alerts/ALRT-01-high-failure-rate.json` - Fixed GUID idempotency pattern
+  - `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/scripts/provision.py` - Python SDK provisioning patterns
+  - `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1` - PowerShell deployment example
+  - `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/workbooks/README.md` - Workbook deployment documentation
+  - `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/alerts/README.md` - Alert deployment order and dependencies
+  - `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/prerequisites.md` - Prerequisites checklist structure
+- **ARM template structure** - `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/alerts/ALRT-01-high-failure-rate.json` - Fixed GUID idempotency pattern
 - **Phase 1-4 artifacts** - 16 plans completed, providing comprehensive reference material
 
 ### Secondary (MEDIUM confidence)

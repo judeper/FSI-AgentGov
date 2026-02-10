@@ -1,90 +1,126 @@
-# Roadmap: Framework Currency Reviews (v7.1)
+# Roadmap: File Upload Security Configurator (v8)
 
 ## Overview
 
-A maintenance milestone that addresses 4 pending todos to keep the FSI Agent Governance Framework current. Unlike solution milestones (v4–v9), this is a docs-only milestone with no cross-repo work. The key architectural insight is that all 4 work streams target non-overlapping files, enabling full subagent parallelism — 4 plans execute simultaneously in a single wave.
+Automated validation of Copilot Studio agent file upload settings per governance zone, for Control 1.14 (Data Minimization and Agent Scope Control). File uploads expand agent data intake beyond declared operational scope — FSI organizations must validate that agents accepting file uploads comply with zone-specific security posture requirements. Follows the proven ACV/SSC/AAM/CMM Tier 2 solution pattern with 4–phase build progression: PowerShell core → Dataverse infrastructure → automation and alerting → evidence export and framework integration.
 
-**Critical item:** Dataverse Purview audit event deprecation (May 2026) requires immediate Control 1.7 update with alternative guidance.
+**Key insight:** Unlike content moderation (multi-level setting), file upload is primarily a binary setting (enabled/disabled) per agent. The solution validates that agents in restrictive zones do not have file uploads enabled, and that agents with file uploads enabled meet minimum content moderation levels. This makes the validation logic simpler but still requires per-agent enumeration.
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (1, 2): Planned milestone work
+- Integer phases (1, 2, 3, 4): Planned milestone work
 
-- [x] **Phase 1: Parallel Documentation Updates** — 4 subagents execute simultaneously: Dataverse deprecation warnings, Agent 365 GA updates, evaluation framework enhancements, and multi-source agent investigation
-- [x] **Phase 2: Validation and Cleanup** — Build validation, FSI language compliance, and todo closure
+- [x] **Phase 1: PowerShell Core** — Per-agent file upload enumeration, zone compliance comparison, and orchestrator with dry-run mode
+- [x] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, deployment scripts, and baseline capture
+- [x] **Phase 3: Automation and Alerting** — Daily validation flow, Teams adaptive card alerts, Azure Automation runbook
+- [x] **Phase 4: Evidence Export and Framework Integration** — SHA-256 evidence export, Control 1.14 tip admonition, solutions-index.md entry, docs suite
 
 ## Phase Details
 
-### Phase 1: Parallel Documentation Updates
-**Goal**: All 4 pending todos resolved with documentation updates applied to the framework — Dataverse audit deprecation warning on Control 1.7, Agent 365 architecture and controls updated for GA readiness, evaluation framework references added to testing/monitoring controls, and multi-source agent investigation recommendation produced
+### Phase 1: PowerShell Core
+**Goal**: Operator can run a single command to enumerate all Copilot Studio agents, check file upload status per zone policy, and get a compliance report with severity classifications — all from a standalone PowerShell session
 **Depends on**: Nothing (first phase)
-**Requirements**: FCR-01 through FCR-14
+**Requirements**: FUS-01, FUS-02, FUS-03, FUS-04, FUS-05, INF-01
 **Success Criteria** (what must be TRUE):
-  1. Control 1.7 contains a deprecation warning admonition about Dataverse Purview audit event changes (May 2026) with guidance to use Dataverse APIs as alternative, and regulatory-mappings.md reflects the change for SEC 17a-4 / FINRA 4511
-  2. agent-365-architecture.md reflects Agent 365 meeting notes including GA readiness status, declarative agent deployment limitations, shadow AI discovery roadmap, and licensing caveats
-  3. Controls 1.11, 2.12, 3.8 are updated with Agent 365 findings; role-catalog.md reflects AI Admin limitations; Defender-referencing controls (1.5, 1.6, 1.8) note security event inconsistencies; preview admonitions reflect GA timeline
-  4. Controls 2.18, 2.8, 3.1 reference Copilot Studio's evaluation framework capabilities; verification-testing playbook for 2.18 includes evaluation methodology guidance
-  5. Investigation report exists with clear build/don't-build/defer recommendation for multi-source governance agent architecture, with estimated effort if applicable
-**Plans**: 4 plans (Wave 1 — all parallel, zero file conflicts)
+  1. `Get-AgentFileUploadSettings` enumerates agents across environments and returns FileUploadEnabled status per agent
+  2. `Compare-FileUploadCompliance` evaluates each agent's settings against zone baselines with severity classification (Critical/High/Medium/Warning)
+  3. `Test-FileUploadCompliance` orchestrates end-to-end validation with dry-run mode and multiple output formats
+  4. Content moderation cross-check flags agents with file uploads enabled but insufficient moderation level
+  5. FUSClient.psm1 module provides Dataverse bot table queries for file upload metadata
+  6. Solution scaffold follows Tier 2 pattern with proven helpers (Get-ZoneClassification, Connect-EnvironmentDataverse, Test-ParameterValidation)
+**Plans**: 3 plans
 
 Plans:
-- [x] 01-01-PLAN.md — Dataverse Purview audit deprecation: Control 1.7 warning, 1.10/2.1 review, regulatory-mappings.md update (FCR-01, FCR-02, FCR-03)
-- [x] 01-02-PLAN.md — Agent 365 GA readiness: architecture doc, controls 1.11/2.12/3.8/1.5/1.6/1.8, role-catalog, preview admonitions (FCR-04, FCR-05, FCR-06, FCR-07, FCR-08)
-- [x] 01-03-PLAN.md — Evaluation framework enhancements: controls 2.18/2.8/3.1, verification-testing playbook (FCR-09, FCR-10, FCR-11, FCR-12)
-- [x] 01-04-PLAN.md — Multi-source governance agent investigation: Options A/B/C analysis, recommendation report (FCR-13, FCR-14)
+- [x] 01-01-PLAN.md — Solution scaffold, FUSClient module, and zone lookup logic (FUS-01, FUS-02, INF-01)
+- [x] 01-02-PLAN.md — Compliance comparison and content moderation cross-check (FUS-03, FUS-05)
+- [x] 01-03-PLAN.md — Orchestrator with dry-run mode and multi-format output (FUS-04)
 
-### Phase 2: Validation and Cleanup
-**Goal**: All Phase 1 changes validated (build passes, language rules followed), all 4 todo files moved to done
+### Phase 2: Dataverse Infrastructure
+**Goal**: Operator can deploy Dataverse tables, capture baselines, and have persistent validation history for audit trail
 **Depends on**: Phase 1
-**Requirements**: FCR-15, FCR-16, FCR-17
+**Requirements**: DDA-01, DDA-02, DDA-03, INF-02
 **Success Criteria** (what must be TRUE):
-  1. `mkdocs build --strict` passes with zero errors
-  2. `python scripts/verify_controls.py` passes with zero errors
-  3. All updated controls use FSI-safe language (no "ensures compliance", "guarantees", "will prevent", "eliminates risk")
-  4. All 4 todo files moved from `.planning/todos/pending/` to `.planning/todos/done/`
-  5. STATE.md and ROADMAP.md updated with completion status
-**Plans**: 1 plan
+  1. Dataverse tables created: fsi_fileupload_baseline, fsi_fileupload_validation, fsi_fileupload_violation
+  2. Environment variables with fsi_FUS_ prefix and connection references deployed
+  3. Baseline capture records current file upload settings per agent as compliance reference
+  4. Schema reuses existing ACV option sets (fsi_acv_zone, fsi_acv_severity) for cross-solution consistency
+**Plans**: 3 plans
 
 Plans:
-- [x] 02-01-PLAN.md — Build validation, language audit, todo closure, state update (FCR-15, FCR-16, FCR-17)
+- [x] 02-01-PLAN.md — Dataverse schema, environment variables, connection references (DDA-01, DDA-02, INF-02)
+- [x] 02-02-PLAN.md — FUSClient.psm1 Dataverse CRUD operations for baselines and validations (DDA-01)
+- [x] 02-03-PLAN.md — Baseline capture and Python deployment orchestrator (DDA-03)
+
+### Phase 3: Automation and Alerting
+**Goal**: Daily automated file upload compliance validation with Teams alerting and Azure Automation support
+**Depends on**: Phase 2
+**Requirements**: DDA-04, DDA-05, DDA-06
+**Success Criteria** (what must be TRUE):
+  1. Power Automate flow runs daily, triggers file upload compliance validation, stores results in Dataverse
+  2. Teams adaptive card alerts include file upload status, zone context, severity, and remediation guidance
+  3. Azure Automation runbook wrapper supports scheduled unattended execution
+**Plans**: 3 plans
+
+Plans:
+- [x] 03-01-PLAN.md — Power Automate daily validation flow definition (DDA-04)
+- [x] 03-02-PLAN.md — Teams adaptive card template and alerting logic (DDA-05)
+- [x] 03-03-PLAN.md — Azure Automation runbook wrapper (DDA-06)
+
+### Phase 4: Evidence Export and Framework Integration
+**Goal**: Compliance evidence export with SHA-256 integrity hashing and framework integration (control tip, solutions-index, docs)
+**Depends on**: Phase 3
+**Requirements**: CEV-01, CEV-02, CEV-03, INF-03
+**Success Criteria** (what must be TRUE):
+  1. Evidence export generates JSON with SHA-256 hash companion files for SEC 17a-4(f) support
+  2. Control 1.14 contains tip admonition linking to File Upload Security Configurator solution
+  3. solutions-index.md has catalog entry for File Upload Security Configurator
+  4. Complete docs suite: README, PREREQUISITES, SCHEMA, EVIDENCE_EXPORT, FLOW_SETUP, TROUBLESHOOTING, CHANGELOG
+**Plans**: 3 plans
+
+Plans:
+- [x] 04-FUS-01-PLAN.md — Evidence export and integrity verification scripts (CEV-01, INF-03)
+- [x] 04-FUS-02-PLAN.md — Control 1.14 tip admonition and solutions-index.md entry (CEV-02)
+- [x] 04-FUS-03-PLAN.md — Documentation suite and CHANGELOG (CEV-03)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2
+Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Parallel Documentation Updates | 4/4 | Complete | 2026-02-10 |
-| 2. Validation and Cleanup | 1/1 | Complete | 2026-02-10 |
+| 1. PowerShell Core | 3/3 | Complete | 2026-02-10 |
+| 2. Dataverse Infrastructure | 3/3 | Complete | 2026-02-10 |
+| 3. Automation and Alerting | 3/3 | Complete | 2026-02-10 |
+| 4. Evidence Export and Framework Integration | 3/3 | Complete | 2026-02-10 |
 
 ## Coverage
 
 | Requirement | Phase | Plan | Description |
 |-------------|-------|------|-------------|
-| FCR-01 | Phase 1 | 01-01 | Control 1.7 Dataverse deprecation warning |
-| FCR-02 | Phase 1 | 01-01 | regulatory-mappings.md Dataverse API alternative |
-| FCR-03 | Phase 1 | 01-01 | Controls 1.10, 2.1 review for deprecation impact |
-| FCR-04 | Phase 1 | 01-02 | agent-365-architecture.md GA update |
-| FCR-05 | Phase 1 | 01-02 | Controls 1.11, 2.12, 3.8 Agent 365 updates |
-| FCR-06 | Phase 1 | 01-02 | role-catalog.md AI Admin limitations |
-| FCR-07 | Phase 1 | 01-02 | Defender controls (1.5, 1.6, 1.8) review |
-| FCR-08 | Phase 1 | 01-02 | Preview/Frontier admonition updates |
-| FCR-09 | Phase 1 | 01-03 | Control 2.18 evaluation framework reference |
-| FCR-10 | Phase 1 | 01-03 | Control 2.8 regression detection enhancement |
-| FCR-11 | Phase 1 | 01-03 | Control 3.1 comparative monitoring enhancement |
-| FCR-12 | Phase 1 | 01-03 | Playbook 2.18 evaluation methodology |
-| FCR-13 | Phase 1 | 01-04 | Multi-source agent investigation report |
-| FCR-14 | Phase 1 | 01-04 | Effort estimate and approach recommendation |
-| FCR-15 | Phase 2 | 02-01 | Build validation (mkdocs + verify_controls) |
-| FCR-16 | Phase 2 | 02-01 | FSI language rules compliance |
-| FCR-17 | Phase 2 | 02-01 | Todo files moved to done |
+| FUS-01 | Phase 1 | 01-01 | Agent enumeration and file upload status retrieval |
+| FUS-02 | Phase 1 | 01-01 | Zone classification for file upload policy |
+| FUS-03 | Phase 1 | 01-02 | Compliance comparison with severity classification |
+| FUS-04 | Phase 1 | 01-03 | Orchestrator with dry-run and multi-format output |
+| FUS-05 | Phase 1 | 01-02 | Content moderation cross-check for file upload agents |
+| INF-01 | Phase 1 | 01-01 | Tier 2 scaffold with shared helpers |
+| DDA-01 | Phase 2 | 02-01 | Dataverse tables for persistent state |
+| DDA-02 | Phase 2 | 02-01 | Python deployment scripts |
+| DDA-03 | Phase 2 | 02-03 | Baseline capture script |
+| INF-02 | Phase 2 | 02-01 | ACV option set reuse |
+| DDA-04 | Phase 3 | 03-01 | Power Automate daily validation flow |
+| DDA-05 | Phase 3 | 03-02 | Teams adaptive card alerts |
+| DDA-06 | Phase 3 | 03-03 | Azure Automation runbook wrapper |
+| CEV-01 | Phase 4 | 04-FUS-01 | SHA-256 evidence export |
+| CEV-02 | Phase 4 | 04-FUS-02 | Control 1.14 and solutions-index integration |
+| CEV-03 | Phase 4 | 04-FUS-03 | Documentation suite |
+| INF-03 | Phase 4 | 04-FUS-01 | Evidence integrity verification |
 
 **Total: 17/17 requirements mapped. No orphans.**
 
 ---
 *Roadmap created: 2026-02-10*
 *Depth: comprehensive*
-*Phases: 2 (parallel documentation + validation)*
+*Phases: 4 (PowerShell core → Dataverse → automation → evidence/integration)*
 

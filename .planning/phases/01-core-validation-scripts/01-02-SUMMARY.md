@@ -21,8 +21,8 @@ tech-stack:
     - Catch-all policy detection
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-MailboxAudit.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-PurviewRetention.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-MailboxAudit.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-PurviewRetention.ps1
   modified: []
 key-decisions:
   - decision: Handle AuditDisabled inverted logic explicitly
@@ -203,8 +203,8 @@ The mailbox audit and Purview retention validation scripts are complete and read
 ## Self-Check: PASSED
 
 All created files verified to exist:
-- [x] /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-MailboxAudit.ps1
-- [x] /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-PurviewRetention.ps1
+- [x] C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-MailboxAudit.ps1
+- [x] C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-PurviewRetention.ps1
 
 All commits verified to exist:
 - [x] c00445a - Task 1 (mailbox audit validator)

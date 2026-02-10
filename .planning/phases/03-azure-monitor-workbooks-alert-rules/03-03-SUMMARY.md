@@ -208,14 +208,14 @@ az deployment group create \
 
 ```bash
 # Error Diagnostics validation
-$ cd /Users/admin/dev/FSI-AgentGov-Solutions && python3 -c "..."
+$ cd C:/dev/FSI-AgentGov-Solutions && python3 -c "..."
 Template: Valid (5 items)
 dev: Valid
 prod: Valid
 ALL CHECKS PASSED
 
 # Usage Overview validation
-$ cd /Users/admin/dev/FSI-AgentGov-Solutions && python3 -c "..."
+$ cd C:/dev/FSI-AgentGov-Solutions && python3 -c "..."
 Template: Valid (5 items)
 dev: Valid
 prod: Valid

@@ -1,5 +1,54 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v8 File Upload Security Configurator (Shipped: 2026-02-10)
+
+**Delivered:** Automated per-agent file upload validation against zone governance policies for Control 1.14 (Data Minimization and Agent Scope Control). Binary drift detection (enabled/disabled changes), content moderation cross-check, Teams alerting, and SHA-256 compliance evidence export.
+
+**Phases completed:** 1-4 (12 plans total)
+
+**Key accomplishments:**
+
+- Built per-agent file upload setting enumeration via Dataverse bot table queries with FUSClient.psm1 module
+- Established zone compliance validation (Zone 1: Allowed, Zone 2: Restricted, Zone 3: Disabled by default) with severity classification
+- Content moderation cross-check validates minimum moderation level when file uploads are enabled
+- Created Dataverse infrastructure with file upload baselines, validation history, and violation tables (reusing ACV option sets)
+- Deployed Power Automate daily drift detection with Teams adaptive card alerts and Azure Automation runbook
+- Delivered SHA-256 integrity-hashed compliance evidence export for SEC 17a-4(f) examination support
+- Complete docs suite: PREREQUISITES, SCHEMA, EVIDENCE_EXPORT, FLOW_SETUP, TROUBLESHOOTING
+- Integrated into framework (Control 1.14 tip admonition + solutions-index.md catalog entry)
+
+**Stats:**
+
+- 4 phases, 12 plans, 17 requirements (100% satisfied)
+- 1 day (2026-02-10)
+
+**What's next:** v9 — Integration (ELM + Dashboard + cross-solution)
+
+---
+
+## v7.1 Framework Currency Reviews (Completed: 2026-02-10)
+
+**Delivered:** Maintenance milestone addressing 4 pending todos to keep the framework current: Dataverse audit deprecation warning on Control 1.7, Agent 365 GA readiness updates across controls and architecture docs, Copilot Studio evaluation framework enhancements, and multi-source governance agent investigation recommendation (deferred to v10+).
+
+**Phases completed:** 1-2 (5 plans total)
+
+**Key accomplishments:**
+
+- Control 1.7 updated with deprecation warning for Dataverse Purview audit event changes (May 2026 deadline), regulatory-mappings.md updated with Dataverse API alternatives
+- agent-365-architecture.md updated with GA readiness, deployment limitations, shadow AI discovery, licensing caveats
+- Controls 1.11, 2.12, 3.8 updated with Agent 365 findings; role-catalog.md notes AI Admin limitations; Defender controls (1.5, 1.6, 1.8) reviewed
+- Controls 2.18, 2.8, 3.1 enhanced with Copilot Studio evaluation framework references; verification-testing playbook for 2.18 enhanced
+- Multi-source governance agent investigation completed — recommendation: defer to v10+
+
+**Stats:**
+
+- 2 phases, 5 plans, 17 requirements (100% satisfied)
+- 1 day (2026-02-10)
+
+**What's next:** v8 — File Upload Security Configurator
+
+---
+
 ## v7 Content Moderation Governance Monitor (Shipped: 2026-02-10)
 
 **Delivered:** Automated validation and drift detection of Copilot Studio agent content moderation levels per governance zone for Control 1.8, with Dataverse-backed persistent state, Power Automate daily scanning, and SHA-256 compliance evidence export.

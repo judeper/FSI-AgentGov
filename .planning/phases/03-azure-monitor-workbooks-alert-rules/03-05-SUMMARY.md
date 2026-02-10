@@ -177,13 +177,13 @@ Created comprehensive documentation for Phase 3 deliverables: workbooks, alert r
 
 ```bash
 # Task 1 verification
-$ cd /Users/admin/dev/FSI-AgentGov-Solutions && python3 -c "..."
+$ cd C:/dev/FSI-AgentGov-Solutions && python3 -c "..."
 agent-observability-foundation/workbooks/README.md: Valid (148 lines, no forbidden language)
 agent-observability-foundation/alerts/README.md: Valid (262 lines, no forbidden language)
 ALL CHECKS PASSED
 
 # Task 2 verification
-$ cd /Users/admin/dev/FSI-AgentGov-Solutions && python3 -c "..."
+$ cd C:/dev/FSI-AgentGov-Solutions && python3 -c "..."
 Alert tuning guide: Valid (204 lines)
 Solution README: Updated with workbooks and alerts
 ALL CHECKS PASSED

@@ -29,9 +29,9 @@ tech-stack:
 
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-PowerPlatform.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Write-ValidationResult.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentDiscovery.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-PowerPlatform.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Write-ValidationResult.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentDiscovery.ps1
   modified: []
 
 key-decisions:
@@ -201,9 +201,9 @@ Created EVAL-04 script implementing three-phase discovery:
 
 | File | Purpose | LOC |
 |------|---------|-----|
-| `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-PowerPlatform.ps1` | Auth helper for Power Platform Admin API and Dataverse Web API | 298 |
-| `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Write-ValidationResult.ps1` | Append-only Dataverse validation result writer | 314 |
-| `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentDiscovery.ps1` | Environment discovery with registry sync (EVAL-04) | 436 |
+| `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-PowerPlatform.ps1` | Auth helper for Power Platform Admin API and Dataverse Web API | 298 |
+| `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Write-ValidationResult.ps1` | Append-only Dataverse validation result writer | 314 |
+| `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentDiscovery.ps1` | Environment discovery with registry sync (EVAL-04) | 436 |
 
 All files follow regulatory-safe language guidelines (no "ensures", "guarantees", "will prevent", "eliminates risk").
 
@@ -347,9 +347,9 @@ None. Plan executed exactly as written. All required features implemented, all v
 
 ### Files Created
 ```
-✓ /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-PowerPlatform.ps1
-✓ /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Write-ValidationResult.ps1
-✓ /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentDiscovery.ps1
+✓ C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-PowerPlatform.ps1
+✓ C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Write-ValidationResult.ps1
+✓ C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-EnvironmentDiscovery.ps1
 ```
 
 ### Commits Verified

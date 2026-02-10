@@ -986,8 +986,8 @@ Things that couldn't be fully resolved:
 - [Microsoft Learn - Create flows that post adaptive cards to Microsoft Teams](https://learn.microsoft.com/en-us/power-automate/create-adaptive-cards) - Official adaptive card documentation
 - [Microsoft Learn - Overview of adaptive cards for Teams](https://learn.microsoft.com/en-us/power-automate/overview-adaptive-cards) - Adaptive card capabilities and patterns
 - [Microsoft Learn - Run a cloud flow on a schedule](https://learn.microsoft.com/en-us/power-automate/run-scheduled-tasks) - Recurrence trigger configuration
-- ACV v4 implementation - `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/` - Established pattern for FSI-AgentGov solutions
-- ACV Phase 3 docs - `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/FLOW_SETUP.md` - Flow creation guide with drift detection
+- ACV v4 implementation - `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/` - Established pattern for FSI-AgentGov solutions
+- ACV Phase 3 docs - `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/FLOW_SETUP.md` - Flow creation guide with drift detection
 - ACV runbook wrapper - `Start-TenantValidationRunbook.ps1` - Runbook pattern with JSON output and drift integration
 
 ### Secondary (MEDIUM confidence)

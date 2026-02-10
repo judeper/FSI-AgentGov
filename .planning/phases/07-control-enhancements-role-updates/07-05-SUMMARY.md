@@ -329,7 +329,7 @@ None - plan executed exactly as written.
 **Result:** PASSED (0 errors, 0 warnings)
 **Output:**
 ```
-INFO    -  Building documentation to directory: /Users/admin/dev/FSI-AgentGov/site
+INFO    -  Building documentation to directory: C:/dev/FSI-AgentGov/site
 INFO    -  Documentation built in 30.81 seconds
 ```
 

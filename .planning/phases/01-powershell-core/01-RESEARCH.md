@@ -91,7 +91,7 @@ session-security-configurator/
 **Example:**
 ```powershell
 # Source: Existing ACV solution pattern
-# From: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
+# From: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
 
 # Orchestrator loads validators
 $scriptRoot = $PSScriptRoot
@@ -116,7 +116,7 @@ if ($statuses -contains "Failed") {
 **Example:**
 ```powershell
 # Source: Existing CAA solution pattern
-# From: /Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1
+# From: C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1
 
 $existingPolicy = Get-MgIdentityConditionalAccessPolicy -Filter "displayName eq '$policyName'" -ErrorAction SilentlyContinue
 
@@ -146,7 +146,7 @@ else {
 **Example:**
 ```powershell
 # Source: Existing CAA solution pattern
-# From: /Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1
+# From: C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1
 
 if ($DryRun) {
     Write-Host "  [DRY RUN] Would create policy" -ForegroundColor Yellow
@@ -172,7 +172,7 @@ if (-not $DryRun) {
 **Example:**
 ```powershell
 # Source: Existing ACV solution pattern
-# From: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
+# From: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
 
 $results = @{
     Timestamp = (Get-Date -Format "o")
@@ -203,7 +203,7 @@ if ($statuses -contains "Failed") {
 **Example:**
 ```powershell
 # Source: Existing ACV solution pattern
-# From: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
+# From: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
 
 Write-Host "`n╔══════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host "║  M365 Tenant Audit Configuration Validation     ║" -ForegroundColor Cyan
@@ -226,7 +226,7 @@ Write-Host "Result: $($results.OverallStatus)" -ForegroundColor $statusColor
 **Example:**
 ```powershell
 # Source: Existing ACV solution pattern
-# From: /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
+# From: C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Invoke-TenantAuditValidation.ps1
 
 # Build common authentication parameter hashtable
 $authParams = @{}

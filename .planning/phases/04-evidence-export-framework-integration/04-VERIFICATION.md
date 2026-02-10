@@ -260,4 +260,4 @@ All 6 commits present with descriptive messages following conventional commits f
 _Verified: 2026-02-06T23:45:00Z_
 _Verifier: Claude (gsd-verifier)_
 _Verification Type: Goal-backward (initial)_
-_Codebase: /Users/admin/dev/FSI-AgentGov + /Users/admin/dev/FSI-AgentGov-Solutions_
+_Codebase: C:/dev/FSI-AgentGov + C:/dev/FSI-AgentGov-Solutions_

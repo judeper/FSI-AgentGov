@@ -86,7 +86,7 @@ No blockers, warnings, or notable patterns found.
 **Verification scan command:**
 ```bash
 grep -rn "TODO\|FIXME\|placeholder\|return null\|return {}\|return \[\]" \
-  /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/*.ps1
+  C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/*.ps1
 ```
 **Result:** No matches (exit code 1 = no patterns found)
 

@@ -638,25 +638,25 @@ Before marking architecture complete:
 
 **HIGH Confidence (Read directly from solution code):**
 
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/README.md` -- v1.0.0 architecture, phased build pattern
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_dataverse_schema.py` -- Option set definitions, table structure, publisher prefix pattern
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_environment_variables.py` -- Environment variable naming convention
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_connection_references.py` -- Connection reference naming
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Compare-ValidationBaseline.ps1` -- Drift detection pattern
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Export-AuditValidationEvidence.ps1` -- Evidence export with SHA-256
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/tenant-validation-flow.json` -- Power Automate flow structure
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/README.md` -- CAA scope, zone requirements, session controls in templates
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1` -- Policy deployment scope
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Test-PolicyCompliance.ps1` -- Compliance check scope
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/docs/compliance-monitoring.md` -- Drift detection and evidence export scope
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/templates/CA-CopilotStudio-Zone3.json` -- Session controls in templates (signInFrequency, persistentBrowser)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/templates/CA-CopilotStudio-Zone1.json` -- Zone 1 session controls
-- `/Users/admin/dev/FSI-AgentGov-Solutions/conditional-access-automation/CHANGELOG.md` -- WIP status, no session-specific features
-- `/Users/admin/dev/FSI-AgentGov-Solutions/scope-drift-monitor/README.md` -- Drift detection pattern, violation tracking
-- `/Users/admin/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/scripts/create_dataverse_schema.py` -- Zone option sets, ELM data model
-- `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/README.md` -- Dashboard architecture, evidence integration
-- `/Users/admin/dev/FSI-AgentGov-Solutions/compliance-dashboard/docs/dataverse-schema.md` -- `fsi_complianceevidence` table structure
-- `/Users/admin/dev/FSI-AgentGov/docs/controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md` -- Control 1.23 requirements, auth contexts (c1-c5), zone requirements
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/README.md` -- v1.0.0 architecture, phased build pattern
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_dataverse_schema.py` -- Option set definitions, table structure, publisher prefix pattern
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_environment_variables.py` -- Environment variable naming convention
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/create_connection_references.py` -- Connection reference naming
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Compare-ValidationBaseline.ps1` -- Drift detection pattern
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Export-AuditValidationEvidence.ps1` -- Evidence export with SHA-256
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/src/tenant-validation-flow.json` -- Power Automate flow structure
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/README.md` -- CAA scope, zone requirements, session controls in templates
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Deploy-CAPolicies.ps1` -- Policy deployment scope
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/scripts/Test-PolicyCompliance.ps1` -- Compliance check scope
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/docs/compliance-monitoring.md` -- Drift detection and evidence export scope
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/templates/CA-CopilotStudio-Zone3.json` -- Session controls in templates (signInFrequency, persistentBrowser)
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/templates/CA-CopilotStudio-Zone1.json` -- Zone 1 session controls
+- `C:/dev/FSI-AgentGov-Solutions/conditional-access-automation/CHANGELOG.md` -- WIP status, no session-specific features
+- `C:/dev/FSI-AgentGov-Solutions/scope-drift-monitor/README.md` -- Drift detection pattern, violation tracking
+- `C:/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/scripts/create_dataverse_schema.py` -- Zone option sets, ELM data model
+- `C:/dev/FSI-AgentGov-Solutions/compliance-dashboard/README.md` -- Dashboard architecture, evidence integration
+- `C:/dev/FSI-AgentGov-Solutions/compliance-dashboard/docs/dataverse-schema.md` -- `fsi_complianceevidence` table structure
+- `C:/dev/FSI-AgentGov/docs/controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md` -- Control 1.23 requirements, auth contexts (c1-c5), zone requirements
 
 **MEDIUM Confidence (Training data, verify with official docs):**
 

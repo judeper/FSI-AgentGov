@@ -69,10 +69,10 @@ Each task was committed atomically to FSI-AgentGov-Solutions:
 ## Files Created/Modified
 
 ### Created
-- `/Users/admin/dev/FSI-AgentGov-Solutions/session-security-configurator/scripts/private/Get-DataverseThreshold.ps1` (223 lines) - Queries Dataverse Web API for fsi_SSC_Zone{1,2,3}SignInFrequencyMinutes and fsi_SSC_Zone{1,2,3}AuthStrength environment variable values. Returns hashtable with SignInFrequencyMinutes, AuthStrength, and Source properties. Returns $null on failure without throwing (graceful degradation).
+- `C:/dev/FSI-AgentGov-Solutions/session-security-configurator/scripts/private/Get-DataverseThreshold.ps1` (223 lines) - Queries Dataverse Web API for fsi_SSC_Zone{1,2,3}SignInFrequencyMinutes and fsi_SSC_Zone{1,2,3}AuthStrength environment variable values. Returns hashtable with SignInFrequencyMinutes, AuthStrength, and Source properties. Returns $null on failure without throwing (graceful degradation).
 
 ### Modified
-- `/Users/admin/dev/FSI-AgentGov-Solutions/session-security-configurator/scripts/Test-SessionCompliance.ps1` (+54 lines) - Added -DataverseUrl and -DataverseToken parameters. Dot-sources Get-DataverseThreshold.ps1. After loading local JSON baseline, queries Dataverse if -DataverseUrl provided and overrides $baseline.signInFrequencyMinutes and $baseline.authenticationStrength with Dataverse values. Falls back to local baseline with warning when Dataverse unavailable.
+- `C:/dev/FSI-AgentGov-Solutions/session-security-configurator/scripts/Test-SessionCompliance.ps1` (+54 lines) - Added -DataverseUrl and -DataverseToken parameters. Dot-sources Get-DataverseThreshold.ps1. After loading local JSON baseline, queries Dataverse if -DataverseUrl provided and overrides $baseline.signInFrequencyMinutes and $baseline.authenticationStrength with Dataverse values. Falls back to local baseline with warning when Dataverse unavailable.
 
 ## Decisions Made
 

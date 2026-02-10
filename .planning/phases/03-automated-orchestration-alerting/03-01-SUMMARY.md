@@ -21,9 +21,9 @@ tech-stack:
     - Fail-open error handling (drift=true on baseline query failure)
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Compare-ValidationBaseline.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-TenantValidationRunbook.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-EnvironmentValidationRunbook.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Compare-ValidationBaseline.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-TenantValidationRunbook.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-EnvironmentValidationRunbook.ps1
   modified: []
 decisions:
   - decision: Drift detection compares numeric severity values (Passed=1, Error=5)
@@ -301,9 +301,9 @@ None - plan executed exactly as written.
 ## Files Changed
 
 **Created:**
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Compare-ValidationBaseline.ps1` (298 lines)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-TenantValidationRunbook.ps1` (252 lines)
-- `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-EnvironmentValidationRunbook.ps1` (281 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Compare-ValidationBaseline.ps1` (298 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-TenantValidationRunbook.ps1` (252 lines)
+- `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Start-EnvironmentValidationRunbook.ps1` (281 lines)
 
 **Total:** 831 lines of PowerShell code
 

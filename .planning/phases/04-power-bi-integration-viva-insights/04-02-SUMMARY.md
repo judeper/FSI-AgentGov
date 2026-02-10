@@ -393,7 +393,7 @@ None - plan executed exactly as written.
 
 ## Files Created
 
-All files created in `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/`:
+All files created in `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/`:
 
 **DAX Measures:**
 - `semantic-model/measures/CoreMetrics.tmdl` - 19 measures across 6 categories (233 lines)

@@ -362,7 +362,7 @@ None - plan executed exactly as written.
 
 ## Files Created
 
-All files created in `/Users/admin/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/semantic-model/`:
+All files created in `C:/dev/FSI-AgentGov-Solutions/agent-observability-foundation/power-bi/semantic-model/`:
 
 **Database & Model:**
 - `database.tmdl` - Database-level definition

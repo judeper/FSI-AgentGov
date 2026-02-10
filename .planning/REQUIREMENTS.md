@@ -1,94 +1,86 @@
-# Requirements: Framework Currency Reviews (v7.1)
+# Requirements: File Upload Security Configurator (v8)
 
 **Defined:** 2026-02-10
 **Core Value:** Documentation and solutions that US FSI customers trust.
 
-## v7.1 Requirements
+## v8 Requirements
 
-Maintenance milestone to address 4 pending todos: critical Dataverse audit deprecation, Agent 365 GA readiness review, evaluation framework enhancements, and multi-source governance agent investigation.
+Automated validation and enforcement of file upload security settings for Copilot Studio agents per governance zone. The solution detects agents with file upload capabilities enabled beyond their zone's security posture requirements, provides drift detection for configuration changes, and exports compliance evidence with SHA-256 integrity hashing for regulatory examinations.
 
-### Dataverse Audit Deprecation (Critical — May 2026 deadline)
+**Target control:** 1.14 (Data Minimization and Agent Scope Control) — file uploads expand agent data intake beyond declared operational scope.
 
-- [ ] **FCR-01**: Control 1.7 updated with deprecation warning admonition for Dataverse Purview audit event changes (before-and-after field values removed May 2026), including guidance to use Dataverse APIs as alternative
-- [ ] **FCR-02**: regulatory-mappings.md updated with Dataverse API alternative approach for SEC 17a-4 / FINRA 4511 recordkeeping requirements affected by the deprecation
-- [ ] **FCR-03**: Controls 1.10 and 2.1 reviewed and updated if Dataverse audit deprecation affects their guidance (retention completeness, release channel impact)
+### File Upload Validation (FUS)
 
-### Agent 365 GA Readiness Review
+- [ ] **FUS-01**: PowerShell script enumerates all Copilot Studio agents across Power Platform environments and retrieves file upload enabled/disabled status from Dataverse bot table metadata
+- [ ] **FUS-02**: Zone classification logic determines expected file upload policy per environment (Zone 1: Allowed, Zone 2: Restricted with approval, Zone 3: Disabled by default)
+- [ ] **FUS-03**: Compliance comparison evaluates each agent's file upload status against zone baseline with severity classification (Critical/High/Medium/Warning)
+- [ ] **FUS-04**: Orchestrator script combines enumeration, comparison, and reporting in a single execution with dry-run mode, environment filtering, and multiple output formats (Table/Json/Object)
+- [ ] **FUS-05**: Content moderation cross-check validates that agents with file uploads enabled have minimum content moderation levels (Zone 2: High, Zone 3: Highest) to protect against malicious file content
 
-- [ ] **FCR-04**: agent-365-architecture.md updated to reflect meeting notes (GA readiness, deployment limitations for declarative agents, shadow AI discovery roadmap, licensing caveats)
-- [ ] **FCR-05**: Controls 1.11, 2.12, 3.8 updated with Agent 365 meeting findings (agent registry visibility, admin deployment constraints, observability integration status)
-- [ ] **FCR-06**: role-catalog.md updated with Agent 365 admin role limitations (Global Admin + AI Admin only, no fine-grained roles at GA, feedback status)
-- [ ] **FCR-07**: Controls referencing Defender integration (1.5, 1.6, 1.8) reviewed against meeting notes on blocked prompt visibility gaps and security event inconsistencies
-- [ ] **FCR-08**: Preview/Frontier program admonitions across affected controls updated to reflect current GA timeline signals
+### Drift Detection & Alerting (DDA)
 
-### AI Agent Evaluation Framework Enhancements
+- [ ] **DDA-01**: Dataverse tables store file upload baselines, validation results, and violations with organization-owned security for immutable history
+- [ ] **DDA-02**: Python deployment scripts create Dataverse schema, environment variables (fsi_FUS_ prefix), and connection references following proven Tier 2 pattern
+- [ ] **DDA-03**: PowerShell baseline capture script records current file upload settings per agent as the compliance reference point
+- [ ] **DDA-04**: Power Automate daily validation flow orchestrates file upload compliance checks with configurable schedule
+- [ ] **DDA-05**: Teams adaptive card alerts notify administrators of file upload policy violations with zone context and remediation guidance
+- [ ] **DDA-06**: Azure Automation runbook wrapper enables scheduled unattended validation with credential management
 
-- [ ] **FCR-09**: Control 2.18 (Agent Testing) enhanced with reference to Copilot Studio's built-in 8-step evaluation framework and grader types
-- [ ] **FCR-10**: Control 2.8 (Change Management) enhanced with regression detection via sequential evaluation comparisons
-- [ ] **FCR-11**: Control 3.1 (Operational Monitoring) enhanced with comparative monitoring pattern for tracking agent quality over time
-- [ ] **FCR-12**: Verification-testing playbook for 2.18 enhanced with evaluation methodology guidance
+### Compliance & Evidence (CEV)
 
-### Multi-Source Governance Agent Investigation
+- [ ] **CEV-01**: Evidence export script generates JSON compliance evidence with SHA-256 integrity hash companion files for SEC 17a-4(f) support
+- [ ] **CEV-02**: Control 1.14 updated with tip admonition linking to File Upload Security Configurator solution and solutions-index.md catalog entry added
+- [ ] **CEV-03**: Complete documentation suite — README, PREREQUISITES, SCHEMA, EVIDENCE_EXPORT, FLOW_SETUP, TROUBLESHOOTING, CHANGELOG
 
-- [ ] **FCR-13**: Investigation report produced with clear build/don't-build/defer recommendation for multi-source citation agent architecture (Options A/B/C evaluated)
-- [ ] **FCR-14**: If recommendation is "build" or "defer," estimated effort, maintenance cost, and recommended approach documented for inclusion in v10+ planning
+### Infrastructure (INF)
 
-### Validation
+- [ ] **INF-01**: Solution follows Tier 2 pattern reusing proven helpers (Get-ZoneClassification, Connect-EnvironmentDataverse, Test-ParameterValidation) with FUS-specific client module (FUSClient.psm1)
+- [ ] **INF-02**: Dataverse schema reuses existing ACV option sets (fsi_acv_zone, fsi_acv_severity) for consistency across solutions
+- [ ] **INF-03**: Test-EvidenceIntegrity.ps1 reused from proven pattern for SHA-256 hash verification
 
-- [ ] **FCR-15**: All documentation changes pass `mkdocs build --strict` and `python scripts/verify_controls.py`
-- [ ] **FCR-16**: All updated controls follow FSI language rules (no "ensures compliance", "guarantees", etc.)
-- [ ] **FCR-17**: All 4 pending todo files moved to `.planning/todos/done/` upon completion
+## Future Requirements
 
-## File Conflict Analysis
-
-Zero file overlaps between the 4 todos — all can execute in parallel:
-
-| Todo | Write Targets |
-|------|--------------|
-| Dataverse deprecation | control-1.7, 1.10, 2.1, regulatory-mappings.md, monitoring-config.yaml |
-| Agent 365 review | agent-365-architecture.md, control-1.11, 2.12, 3.8, role-catalog.md, 1.5, 1.6, 1.8 |
-| Evaluation blog | control-2.18, 2.8, 3.1, playbook verification-testing/2.18 |
-| Multi-source agent | Investigation output only (.planning/ artifact) |
+- Auto-remediation of non-compliant file upload settings (deferred — requires approval workflow per SOX/FINRA change control)
+- File type allowlist enforcement when Copilot Studio exposes per-agent file type configuration API
+- Integration with Environment Lifecycle Management for new environment provisioning (deferred to v9)
+- Compliance Dashboard feed integration (deferred to v9)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| New controls | v7.1 is a currency review, not a control addition milestone |
-| Solution code changes | No solution artifacts modified; docs-only milestone |
-| v8 File Upload Security Configurator | Separate solution milestone (follows v7.1) |
-| Implementation of multi-source agent | v7.1 only investigates; build deferred to v10+ |
-
----
-*Requirements defined: 2026-02-10*
-*Previous REQUIREMENTS.md archived with v7 milestone*
+| Auto-remediation | Too risky without approval workflow; validation-only meets regulatory requirements |
+| Per-agent file type restriction | Copilot Studio does not expose per-agent file type configuration — platform-level only |
+| v9 Integration | Separate milestone for cross-solution wiring |
+| New controls | Enhance existing Control 1.14, not create new control |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FCR-01 | Phase 1 | Pending |
-| FCR-02 | Phase 1 | Pending |
-| FCR-03 | Phase 1 | Pending |
-| FCR-04 | Phase 1 | Pending |
-| FCR-05 | Phase 1 | Pending |
-| FCR-06 | Phase 1 | Pending |
-| FCR-07 | Phase 1 | Pending |
-| FCR-08 | Phase 1 | Pending |
-| FCR-09 | Phase 1 | Pending |
-| FCR-10 | Phase 1 | Pending |
-| FCR-11 | Phase 1 | Pending |
-| FCR-12 | Phase 1 | Pending |
-| FCR-13 | Phase 1 | Pending |
-| FCR-14 | Phase 1 | Pending |
-| FCR-15 | Phase 2 | Pending |
-| FCR-16 | Phase 2 | Pending |
-| FCR-17 | Phase 2 | Pending |
+| FUS-01 | Phase 1 | Pending |
+| FUS-02 | Phase 1 | Pending |
+| FUS-03 | Phase 1 | Pending |
+| FUS-04 | Phase 1 | Pending |
+| FUS-05 | Phase 1 | Pending |
+| DDA-01 | Phase 2 | Pending |
+| DDA-02 | Phase 2 | Pending |
+| DDA-03 | Phase 2 | Pending |
+| DDA-04 | Phase 3 | Pending |
+| DDA-05 | Phase 3 | Pending |
+| DDA-06 | Phase 3 | Pending |
+| CEV-01 | Phase 4 | Pending |
+| CEV-02 | Phase 4 | Pending |
+| CEV-03 | Phase 4 | Pending |
+| INF-01 | Phase 1 | Pending |
+| INF-02 | Phase 2 | Pending |
+| INF-03 | Phase 4 | Pending |
 
 **Coverage:**
-- v7.1 requirements: 17 total
+- v8 requirements: 17 total
 - Mapped to phases: 17
 - Unmapped: 0
 
 ---
-*Traceability updated: 2026-02-10*
+*Requirements defined: 2026-02-10*
+*Previous REQUIREMENTS.md archived with v7.1 milestone*

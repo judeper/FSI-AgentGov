@@ -22,9 +22,9 @@ tech-stack:
     - Dot-sourcing pattern for private helpers
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-AuditServices.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/New-CanaryEvent.ps1
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-UnifiedAuditLog.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-AuditServices.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/New-CanaryEvent.ps1
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-UnifiedAuditLog.ps1
   modified: []
 key-decisions:
   - decision: Use Exchange Online PowerShell for Get-AdminAuditLogConfig
@@ -188,9 +188,9 @@ The authentication and Unified Audit Log validation scripts are complete and rea
 ## Self-Check: PASSED
 
 All created files verified to exist:
-- [x] /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-AuditServices.ps1
-- [x] /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/New-CanaryEvent.ps1
-- [x] /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-UnifiedAuditLog.ps1
+- [x] C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/Connect-AuditServices.ps1
+- [x] C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/private/New-CanaryEvent.ps1
+- [x] C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-UnifiedAuditLog.ps1
 
 All commits verified to exist:
 - [x] e6e7655 - Task 1 (authentication helper and canary generator)

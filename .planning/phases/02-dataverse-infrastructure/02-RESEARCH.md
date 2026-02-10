@@ -55,7 +55,7 @@ export SSC_CLIENT_SECRET="<client-secret>"
 
 ### Recommended Project Structure
 
-Following ACV v4 pattern from `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/`:
+Following ACV v4 pattern from `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/`:
 
 ```
 session-security-configurator/
@@ -601,7 +601,7 @@ Things that couldn't be fully resolved:
 - [PyPI - MSAL](https://pypi.org/project/msal/) - MSAL Python 1.34.0+ package
 - [Microsoft Learn - Environment Variable Value table reference](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/reference/entities/environmentvariablevalue) - EnvironmentVariableValue schema
 - [Microsoft Learn - Use environment variables in solutions](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/environmentvariables) - Environment variable usage patterns
-- ACV v4 implementation - `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/` - Established pattern for FSI-AgentGov solutions
+- ACV v4 implementation - `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/` - Established pattern for FSI-AgentGov solutions
 
 ### Secondary (MEDIUM confidence)
 

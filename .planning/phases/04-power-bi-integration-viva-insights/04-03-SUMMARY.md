@@ -344,7 +344,7 @@ Verifying all claims in this summary...
 
 **Files created:**
 ```bash
-cd /Users/admin/dev/FSI-AgentGov-Solutions
+cd C:/dev/FSI-AgentGov-Solutions
 ls agent-observability-foundation/power-bi/kql-views/vw_session_fact.kql → EXISTS
 ls agent-observability-foundation/power-bi/kql-views/vw_event_fact.kql → EXISTS
 ls agent-observability-foundation/power-bi/kql-views/vw_dim_agent.kql → EXISTS
@@ -355,7 +355,7 @@ ls agent-observability-foundation/power-bi/README.md → EXISTS
 
 **Commits exist:**
 ```bash
-cd /Users/admin/dev/FSI-AgentGov-Solutions
+cd C:/dev/FSI-AgentGov-Solutions
 git log --oneline | grep a389902 → FOUND
 git log --oneline | grep c393dd8 → FOUND
 ```

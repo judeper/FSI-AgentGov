@@ -126,7 +126,7 @@ audit-configuration-validator/
 **When to use:** All Dataverse operations (schema creation, querying, writing validation results)
 **Example:**
 ```python
-# Source: /Users/admin/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/scripts/elm_client.py
+# Source: C:/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/scripts/elm_client.py
 import msal
 import requests
 
@@ -376,7 +376,7 @@ Verified patterns from official sources and reference implementations:
 
 ### Creating Global Option Set (Choice Field)
 ```python
-# Source: /Users/admin/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/scripts/create_dataverse_schema.py
+# Source: C:/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/scripts/create_dataverse_schema.py
 OPTIONSET_SEVERITY = {
     "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
     "Name": "fsi_acv_severity",
@@ -586,8 +586,8 @@ Things that couldn't be fully resolved:
 - [Manage Dataverse auditing - Microsoft Learn](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing) - Per-environment audit configuration
 - [Use environment variables in Power Platform solutions - Microsoft Learn](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/environmentvariables) - Environment variable creation and usage
 - [Use a connection reference in a solution - Microsoft Learn](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/create-connection-reference) - Connection reference patterns
-- Local codebase: `/Users/admin/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/` - Tier 2 solution reference implementation
-- Local codebase: `/Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-UnifiedAuditLog.ps1` - Phase 1 validation patterns
+- Local codebase: `C:/dev/FSI-AgentGov-Solutions/environment-lifecycle-management/` - Tier 2 solution reference implementation
+- Local codebase: `C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/scripts/Test-UnifiedAuditLog.ps1` - Phase 1 validation patterns
 
 ### Secondary (MEDIUM confidence)
 - WebSearch: "Dataverse Web API create tables PowerShell 2026" - Verified with official Microsoft Learn samples

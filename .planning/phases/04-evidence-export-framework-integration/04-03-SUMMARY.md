@@ -14,10 +14,10 @@ tech-stack:
   patterns: []
 key-files:
   created:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/evidence-export-guide.md
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/evidence-export-guide.md
   modified:
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/README.md
-    - /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/CHANGELOG.md
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/README.md
+    - C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/CHANGELOG.md
 key-decisions:
   - decision: "README status changed to v1.0.0 — Complete (from In Development Phase 2)"
     rationale: "All 4 phases complete (validators, infrastructure, automation, evidence export)"
@@ -169,7 +169,7 @@ None. Phase 4 documentation complete. All solution documentation (README, CHANGE
 
 Evidence export guide exists:
 ```
--rw-r--r--@ 1 admin  staff   8.1K Feb  6 18:30 /Users/admin/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/evidence-export-guide.md
+-rw-r--r--@ 1 admin  staff   8.1K Feb  6 18:30 C:/dev/FSI-AgentGov-Solutions/audit-configuration-validator/docs/evidence-export-guide.md
 ```
 
 README updated to v1.0.0:
