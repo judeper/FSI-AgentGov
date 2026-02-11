@@ -1,6 +1,6 @@
 # Agent Usage & Performance Workbook
 
-**Status:** In Development — February 2026
+**Status:** Complete — February 2026
 **Related Controls:** 3.1, 3.2, 3.3, 3.7, 3.8
 
 ---
@@ -42,8 +42,8 @@ See the [Telemetry Schema Reference](telemetry-schema.md) for detailed prerequis
 
 ---
 
-!!! info "Development Status"
-    The deployment guide and customization guide are now available alongside the telemetry schema reference. The KQL query library documentation is planned for a future update.
+!!! success "Solution Complete"
+    The Agent Usage & Performance Workbook is fully integrated into the FSI Agent Governance Framework. All documentation — telemetry schema, deployment guide, and customization guide — is available. Controls 2.9, 3.2, and 3.9 include cross-references to this workbook.
 
 ---
 

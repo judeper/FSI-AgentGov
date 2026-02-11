@@ -36,7 +36,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
 | [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.0.0 | Completed | PowerShell verification script and 27-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
-| [Agent Usage & Performance Workbook](#agent-usage--performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
+| [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
 
 ### Status Legend
 
