@@ -1,5 +1,29 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v14 SSPM Control Coverage Remediation (Completed: 2026-02-11)
+
+**Delivered:** Remediated SSPM control coverage gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8) identified by SSPM alert-to-control mapping analysis. Aligned all 27 in-scope SSPM alerts to framework coverage (controls, playbooks, verification criteria), created a PowerShell hardening baseline verification script, and updated reference catalogs.
+
+**Phases completed:** 1-4 (8 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Control SSPM Alignment (2 plans):** Bumped Control 3.7 to v1.3, audited 27 SSPM alert configuration points against verification criteria in 7 controls, added GLIC cross-reference advisory notes to Controls 1.1 and 1.11
+- **Phase 2 — Hardening Baseline Production (2 plans):** Added automation feasibility classification (Automated/Semi-Automated/Manual Attestation) to 27-item checklist, created `Invoke-HardeningBaselineCheck.ps1` PowerShell verification script for automatable items (audit logging, environment provisioning), documented evidence export procedures with SHA-256 hash pattern and zone-specific review cadence
+- **Phase 3 — Playbook Remediation (2 plans):** Remediated 7 portal-walkthrough playbooks with SSPM-detectable portal steps, updated 7 verification-testing playbooks with 31 SSPM-informed test cases, added Configuration Hardening Baseline cross-links to Section 8 of all 7 SSPM-mapped controls
+- **Phase 4 — Reference Updates & Validation (2 plans):** Added Configuration Hardening Baseline to solutions-index.md, updated solutions-coverage-gaps.md (20→23 covered controls, 32.3%→37.1%), enhanced CONTROL-INDEX.md with Hardening Baseline references for all 7 controls, all validations pass (mkdocs build --strict, verify_controls.py 62/62, verify_language_rules.py 487 files 0 violations)
+
+**Stats:**
+
+- 4 phases, 8 plans, 13 requirements (100% satisfied — CTL-3, HBL-3, PLB-3, REF-2, VAL-2)
+- Source: SSPM alert-to-control mapping analysis — 42 alerts analyzed, 27 in-scope
+- Controls modified: 1.1, 1.7, 1.8, 1.11, 1.18, 2.1, 3.7, 3.8
+- 1 day (2026-02-11)
+
+**What's next:** Deferred v13 (Agent Usage & Performance Workbook) or new milestone.
+
+---
+
 ## v13 Agent Usage & Performance Workbook (Deferred: 2026-02-11)
 
 **Status:** DEFERRED — Roadmap was created (3 phases, 6 plans, 11 requirements) but no phases were executed. Shelved to prioritize v14 (SSPM Control Coverage Remediation).
@@ -346,4 +370,4 @@
 
 ---
 
-*Last updated: 2026-02-11 after v12 milestone*
+*Last updated: 2026-02-11 after v14 milestone*
