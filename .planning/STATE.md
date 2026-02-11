@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
-**Last Updated:** 2026-02-10
-**Milestone:** v10 — Conditional Access Automation
-**Status:** SHIPPED — All 4 phases COMPLETE, 14 plans, 18/18 requirements satisfied
+**Last Updated:** 2026-02-11
+**Milestone:** v11 — Technical Remediation
+**Status:** EXECUTING — Phases 1-4 complete, Phase 5 next
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-10 23:00
-**Handoff Summary:** v10 milestone SHIPPED. All 4 phases complete (14 plans), 18/18 requirements satisfied. Worktree ready for merge.
+**Session Started:** 2026-02-11 00:00
+**Handoff Summary:** Phase 4 (Cross-Reference & Link Integrity) executed — 2 plans, 1 wave, all 6 requirements (XRL-01–06) complete. Verification passed. Build passes mkdocs build --strict. Phase 5 (Script & Code Fixes) ready for execution.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v10 — Conditional Access Automation. Enhancing validated CA policy scripts with Tier 2 governance infrastructure (Dataverse, Power Automate, drift detection, evidence export) for Controls 1.11, 1.23, 1.18.
+**Current focus:** v11 — Technical Remediation. Fixing runtime bugs, regulatory inaccuracies, terminology drift, cross-reference gaps, and script errors identified by comprehensive documentation audit.
 
 ## Milestone Series Plan
 
@@ -28,36 +28,33 @@ v7.1: Framework Currency Reviews — COMPLETE
 v8: File Upload Security Configurator — SHIPPED
 v9: Integration (ELM + Dashboard + cross-solution) — SHIPPED
 v10: Conditional Access Automation — SHIPPED
+v11: Technical Remediation — IN PROGRESS
 ```
 
 ## Current Position
 
-**Phase:** 4 of 4 — COMPLETE
-**Plan:** 4/4
-**Status:** All phases complete — v10 SHIPPED
-**Last activity:** 2026-02-10 — v10 closed out: all 4 phases verified, state files updated, milestone archived
+**Phase:** 5 of 6 — Script & Code Fixes
+**Plan:** 0/2 (ready for planning)
+**Status:** Phases 1-4 complete, Phase 5 next
+**Last activity:** 2026-02-11 — Phase 4 executed (2 plans, 6 requirements, verification passed)
 
 **Progress:**
 ```
-v1: [=========================] 8/8 phases (35 plans) — SHIPPED
-v2: [=========================] 5/5 phases (17 plans) — SHIPPED
-v3: [=========================] 7/7 phases (27 plans) — SHIPPED
-v4: [=========================] 4/4 phases (11 plans) — SHIPPED
-v5: [=========================] 4/4 phases (12 plans) — SHIPPED
-v6: [=========================] 4/4 phases (12 plans) — SHIPPED
-v7: [=========================] 4/4 phases (12 plans) — SHIPPED
-v7.1: [=========================] 2/2 phases (5/5 plans) — COMPLETE
-v8: [=========================] 4/4 phases (12/12 plans) — SHIPPED
-v9: [=========================] 5/5 phases (16/16 plans) — SHIPPED
-v10: [=========================] 4/4 phases (14/14 plans) — SHIPPED
+v1-v10: [=========================] SHIPPED (see MILESTONES.md)
+v11:    [================         ] 4/6 phases (32/38 requirements)
 ```
 
 ## Performance Metrics
 
 **Cumulative (v1-v10):**
-- Phases: 51 complete (8 + 5 + 7 + 4 + 4 + 4 + 4 + 2 + 4 + 5 + 4)
-- Plans: 173 complete (35 + 17 + 27 + 11 + 12 + 12 + 12 + 5 + 12 + 16 + 14)
-- Requirements: 261 total (33 + 13 + 44 + 28 + 19 + 18 + 18 + 17 + 17 + 18 + 18 + 18)
+- Phases: 51 complete
+- Plans: 173 complete
+- Requirements: 261 total
+
+**v11 scope:**
+- 6 phases, 12 plans, 85 tasks, 38 requirements defined
+- Findings: 20 Critical/High, 36 Medium, 51 Low
+- Two-worktree parallel execution model (A/B tracks per phase)
 
 ## Accumulated Context
 
@@ -65,22 +62,20 @@ v10: [=========================] 4/4 phases (14/14 plans) — SHIPPED
 
 See PROJECT.md Key Decisions table for full history.
 
-**v9 decisions:**
-- Zone values: 1=Zone 1, 2=Zone 2, 3=Zone 3 as canonical (matching ELM/CD convention, not ACV's 100000001…)
-- Severity values: 1=Passed, 2=Warning, 3=GracePeriod, 4=Failed, 5=Error as canonical standard
-- Daily batch feeds (not real-time) — sufficient for governance monitoring cadence
-- ELM ProvisioningCompleted event triggers ACV auto-registration (other solutions register on first scan)
-- Unified evidence export aggregates per-solution packages into master package with hash chain
-- 5 Tier 2 solutions feed 7 controls: ACV→1.7, SSC→1.23+1.11, AAM→3.8, CMM→1.8, FUS→1.14
-- Integration code lives in cross-solution-integration/ directory in FSI-AgentGov-Solutions
+**v11 decisions:**
+- Zone 1/2/3 chosen as canonical governance terminology (replacing Tier/Level variants across all playbooks)
+- DEC deployment guide: full v2.0 rewrite (not patch of v1.x CSV/Blob content)
+- CAA policy naming: align validation scripts to FSI-* playbook convention (not CA-* pattern)
+- Version footers: per-doc edit tracking (not uniform framework stamp)
+- Two-worktree parallelism: A/B tracks target non-overlapping files per phase
 
 ### Key Constraints
 
 - **No real-time:** Batch/daily feeds sufficient — no Dataverse webhook infrastructure
-- **ELM scope:** Only ACV auto-registration on provisioning; other solutions register on first scan
-- **Option set owners:** ACV owns fsi_acv_zone and fsi_acv_severity definitions; other solutions reference them
 - **FSI language rules:** All documentation must use regulatory-safe language
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
+- **Two worktrees:** A and B tracks within each phase must not touch overlapping files
+- **DEC staging:** Files in maintainers-local/solutions-staging/ are gitignored — changes there don't affect builds but must be consistent
 
 ### Blockers
 
@@ -89,11 +84,11 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-10 23:00
-**Handoff Summary:** v10 milestone SHIPPED. All 4 phases complete (14 plans), 18/18 requirements satisfied. Worktree ready for merge and deletion.
+**Session Started:** 2026-02-11 00:00
+**Handoff Summary:** Phases 1-3 complete. 26 requirements executed across ~40 files. Build validated (mkdocs build --strict passes). Phase 4 (XRL-01–06) ready for execution.
 
 ---
 
 *State initialized: 2026-02-05*
-*v10 milestone started: 2026-02-10*
-*v10 milestone shipped: 2026-02-10*
+*v11 milestone started: 2026-02-10*
+*Phases 1-3 completed: 2026-02-11*
