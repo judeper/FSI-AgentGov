@@ -1,163 +1,49 @@
-# Technology Stack
+# Codebase Analysis: Technology Stack
 
-**Analysis Date:** 2026-02-02
+**Generated:** 2026-02-11
+**Scope:** Full repository technology analysis
 
-## Languages
+## Summary
 
-**Primary:**
-- Python 3.9+ - Validation scripts, monitoring, documentation processing
-- Markdown - Framework, controls, playbooks, reference documentation (primary format)
-- YAML - MkDocs configuration, GitHub Actions workflows, metadata
+FSI-AgentGov is a documentation-centric governance framework built with MkDocs Material, using Python for validation/monitoring tooling and PowerShell for Microsoft 365 tenant automation. The repository has 4 GitHub Actions CI/CD workflows, a unified monitoring framework for tracking Microsoft Learn and regulatory changes, and a Conditional Access Automation (CAA) module targeting PowerShell 7+ with Microsoft Graph SDK dependencies.
 
-**Secondary:**
-- PowerShell - Playbook automation scripts for Power Platform and M365 administration
-- KQL (Kusto Query Language) - Microsoft Sentinel analysis queries
-- SQL/T-SQL - Dataverse queries (advanced implementations only)
-- JSON - Configuration, metadata, API payloads, state files
+## Languages & Frameworks
 
-## Runtime
+| Language | Usage | File Count |
+|----------|-------|------------|
+| **Markdown** | Primary deliverable - 62 controls, 248 playbooks, framework docs | ~400+ files |
+| **Python 3.9+** (CI targets 3.11) | Validation scripts, monitoring adapters, Dataverse client | ~15 scripts |
+| **PowerShell 7.0+** (Core only) | Conditional Access Automation, compliance testing | ~8 scripts/modules |
+| **YAML** | MkDocs config, CI/CD workflows, monitoring config | ~6 files |
+| **JSON** | Power Automate flows, Adaptive Cards, state files | 3 solution artifacts + state |
 
-**Environment:**
-- Python 3.11 (GitHub Actions workflows)
-- Python 3.9+ (local development)
+## Build Tools
 
-**Package Manager:**
-- pip - Python dependency management
-- No lockfile requirement (minimal, standard library-first approach)
+- **MkDocs Material** with light/dark mode, navigation.instant, search.suggest
+- **Build:** `mkdocs build --strict` | **Deploy:** `mkdocs gh-deploy --force`
+- **Excluded from build:** images/, scripts/, templates/, select reference files
 
-## Frameworks
+## Dependencies
 
-**Core:**
-- MkDocs Material - Static documentation site generation and publishing
-  - Version: Latest (installed via pip install mkdocs-material)
-  - Purpose: Renders Markdown docs to HTML, serves GitHub Pages site
+### Python (scripts/requirements.txt)
+- pyyaml >=6.0, msal >=1.30.0, requests >=2.32.0, openpyxl >=3.1.0
+- Core validation scripts use only Python stdlib
 
-**Validation & Automation:**
-- Dataclasses (Python stdlib) - Data modeling for validation scripts
-- Pathlib (Python stdlib) - Cross-platform file operations
-- Logging (Python stdlib) - Structured logging for monitoring scripts
+### PowerShell
+- Microsoft.Graph.Identity.SignIns >=2.0.0, Microsoft.Graph.Applications >=2.0.0
 
-**CI/CD:**
-- GitHub Actions - Workflow automation (daily monitor, link checks, docs publishing)
-- GitHub Pages - Static site hosting (https://judeper.github.io/FSI-AgentGov/)
+## CI/CD (4 GitHub Actions Workflows)
+- publish_docs.yml: Build + deploy to GitHub Pages
+- learn-monitor.yml: Daily Microsoft Learn change detection
+- regulatory-monitor.yml: Weekly Federal Register + FINRA monitoring
+- link-check.yml: Markdown link validation + verify_controls.py
 
-## Key Dependencies
+## Recommendations
 
-**Critical:**
-- requests 2.28+ - HTTP requests for Learn Monitor and external integrations
-- beautifulsoup4 4.12+ - HTML parsing for Learn documentation content analysis
-- mkdocs-material - MkDocs Material theme for documentation site
-
-**Development/Optional:**
-- pyyaml 6.0+ - YAML parsing for mkdocs.yml validation
-- markdown 3.4+ - Markdown parsing for content validation
-- openpyxl 3.1+ - Excel template management for admin checklists
-- pytest 7.0+ - Test framework for script validation
-- black 23.0+ - Code formatting for Python scripts
-- flake8 6.0+ - Linting for Python scripts
-
-**External Services (via API/SDK, not local dependencies):**
-- Microsoft Graph API - Message Center, Defender, reporting data
-- Microsoft Sentinel API - SIEM query execution
-- Application Insights REST API - RAI telemetry extraction
-- Purview Audit API - CopilotInteraction events, XPIA detection
-- Exchange Online Management (PowerShell) - Audit log extraction
-
-## Configuration
-
-**Environment:**
-- `.github/copilot-instructions.md` - Central Claude Code instructions (v1.2.37)
-- `.claude/CLAUDE.md` - Comprehensive project documentation and rules
-- `.claude/settings.json` - Team-shared Claude Code settings (hooks, permissions)
-- `.claude/settings.local.json` - Local Claude Code overrides (not committed)
-
-**Build:**
-- `mkdocs.yml` - Site navigation, theme, markdown extensions, validation rules
-- `.github/workflows/mlc-config.json` - Markdown link checker configuration
-- `.github/workflows/*.yml` - Three CI/CD workflows (link-check, publish_docs, learn-monitor)
-
-**Documentation Build:**
-- `mkdocs build --strict` - Validates all docs before publishing; zero warnings required
-- MkDocs 1.6+ validation: nav links, anchors, absolute links
-
-## Platform Requirements
-
-**Development:**
-- macOS, Linux, or Windows with Python 3.9+
-- Git for version control
-- Text editor or IDE (any)
-- pip for dependency installation
-- Optional: mkdocs-material for local preview (`mkdocs serve`)
-
-**Production:**
-- Deployment target: GitHub Pages (static hosting)
-- HTTPS only
-- Published from main branch after successful CI checks
-
-**CI/CD Environment:**
-- Ubuntu latest (GitHub Actions)
-- Python 3.11 environment with pip
-- Network access to: github.com, learn.microsoft.com, graph.microsoft.com
-
-## External APIs & Services
-
-**Microsoft Learn Monitoring:**
-- Monitors 209 Microsoft Learn URLs daily via `learn_monitor.py`
-- Uses requests library to fetch page content
-- Detects: UI changes, deprecations, dates, feature status
-- Generates change reports to `reports/learn-changes/`
-
-**GitHub Actions Integration:**
-- Scheduled workflows: Daily (Learn Monitor @ 6 AM UTC), Weekly (Link check @ 2 AM UTC Sunday)
-- Workflows store state in `data/learn-monitor-state.json`
-- Creates PRs with change reports for human review
-
-**Optional: Local Secret Management:**
-- Azure Key Vault (used in FSI-AgentGov-Solutions for webhook secrets)
-- Entra ID app registrations (for API authentication)
-
-## Build & Validation Commands
-
-```bash
-# Build documentation (must pass with zero errors)
-mkdocs build --strict
-
-# Preview locally
-mkdocs serve
-
-# Validate control structure
-python scripts/verify_controls.py
-
-# Validate Excel templates
-python scripts/verify_excel_templates.py
-
-# Check Microsoft Learn URLs for changes
-python scripts/learn_monitor.py --dry-run --limit 5
-
-# Run all validation
-python scripts/validate_before_push.py
-```
-
-## Cross-Repository Integration
-
-This repository (`FSI-AgentGov`) integrates with `FSI-AgentGov-Solutions` for deployable implementations:
-
-**Solution Dependencies (separate repo):**
-- Power Automate flows (cloud-native, no dependencies)
-- PowerShell scripts (requires ExchangeOnlineManagement, Az modules)
-- Python scripts (requires msal, requests, azure-identity)
-- Dataverse schemas (Power Platform native)
-- Power BI dashboards (Power BI service)
-
-**Technology Stack in FSI-AgentGov-Solutions:**
-- Python 3.10+ (automation scripts)
-- PowerShell 7+ (deployment and configuration)
-- YAML (flow definitions)
-- DAX (Power BI measures)
-- Dataverse (primary data store)
-- Power Automate (workflow automation)
-- Power BI (reporting and visualization)
-
----
-
-*Stack analysis: 2026-02-02*
+1. Pin mkdocs-material version in CI
+2. Consolidate dependency files (beautifulsoup4 not in requirements.txt)
+3. Add unit tests for monitoring framework and CAA logic
+4. Add pyproject.toml for modern Python tooling
+5. PowerShell module manifest exports no functions (placeholders)
+6. Node.js markdown-link-check has no package.json
+7. Test Python 3.9 in CI if backward compatibility intended

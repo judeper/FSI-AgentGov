@@ -8,20 +8,21 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v12 Quality & Consistency Polish
+## Current Milestone: v14 SSPM Control Coverage Remediation
 
-**Goal:** Fix residual issues surfaced by post-v11 codebase mapping: user-facing broken links, terminology drift completion, quality automation infrastructure, and housekeeping.
+**Goal:** Complete SSPM-driven control coverage by remediating gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8), validating all 27 in-scope SSPM alerts have proper framework coverage (controls, playbooks, verification criteria), creating a PowerShell hardening baseline verification script, and ensuring cross-reference integrity between the configuration hardening baseline and individual controls.
 
-**Source:** Codebase mapping analysis (2026-02-11) across 4 dimensions (tech, arch, quality, concerns).
+**Source:** SSPM alert-to-control mapping analysis (maintainers-local/sspm-alert-mapping.md) — 42 alerts analyzed, 27 in-scope.
 
 **Target deliverables:**
-- Zero user-facing broken links on published GitHub Pages site
-- Complete Azure AD and Tier/Level terminology normalization
-- Solution status metadata consistent across all reference docs
-- Automated FSI language rule enforcement in CI
-- verify_controls.py integrated into CI pipeline
-- Template and validation scripts synced to current conventions
-- Stale root files cleaned up
+- Control 3.7 bumped to v1.3 with full hardening baseline section
+- All 27 SSPM alert config points verified against verification criteria in 7 controls
+- GLIC advisory cross-references added to Controls 1.1 and 1.11
+- 7 portal-walkthrough + 7 verification-testing playbooks remediated for SSPM coverage
+- Hardening baseline enhanced with automation feasibility classification
+- PowerShell verification script for automatable baseline items (audit, environment)
+- Evidence export procedures and zone-specific review cadence
+- Solutions catalog and coverage gap updates for hardening baseline
 
 ## Current State (v10 Shipped)
 
@@ -102,7 +103,7 @@ Comprehensive fix of 107 findings and 42 gaps identified by full technical audit
 - Phase 5: Script & Code Fixes (PowerShell bugs, non-existent cmdlets)
 - Phase 6: Gap Backfill & Design Improvements (missing guides, inter-linking)
 
-**Current milestone: v12 — Quality & Consistency Polish (DEFINING)**
+**Current milestone: v14 — SSPM Control Coverage Remediation (DEFINING)**
 
 ### Out of Scope
 

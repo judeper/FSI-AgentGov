@@ -1,206 +1,63 @@
-# Architecture
+# Codebase Analysis: Architecture
 
-**Analysis Date:** 2026-02-02
+**Generated:** 2026-02-11
+**Scope:** Full repository architecture analysis
 
-## Pattern Overview
+## Summary
 
-**Overall:** Three-Layer Documentation-Driven Architecture with Governance Framework Pattern
+FSI-AgentGov is a documentation-centric governance framework (v1.2.38) for Microsoft 365 AI agents in US financial services, built with MkDocs Material and published to GitHub Pages. The repository implements a rigorous three-layer documentation model (Framework -> Controls -> Playbooks) spanning 62 controls across 4 pillars, with 251 playbook files providing step-by-step implementation guidance. A companion repository (FSI-AgentGov-Solutions) houses 19 deployable Power Platform solutions.
 
-**Key Characteristics:**
-- MkDocs Material-based static documentation site as primary deliverable
-- Three-layer content architecture: Framework → Controls → Playbooks
-- Templated control structure (10-section standard format) with validation enforcement
-- Regulatory compliance mapping across 62 controls and 4 pillars
-- Companion solutions repository with automated deployable artifacts
-- Python-based validation and monitoring automation
+## Directory Structure
 
-## Layers
+| Directory | Purpose |
+|-----------|---------|
+| docs/ | All publishable documentation content (MkDocs source) |
+| scripts/ | Validation, monitoring, and maintenance scripts (Python/PowerShell) |
+| src/ | Adaptive card and Power Automate flow JSON definitions |
+| data/ | Runtime state (learn-monitor-state.json) |
+| releases/ | Release artifacts by version |
+| reports/ | Generated documentation review and learn-changes reports |
+| site/ | MkDocs build output (generated) |
+| maintainers-local/ | Local-only maintainer artifacts (gitignored) |
+| .planning/ | GSD project management workflow state |
+| .github/ | Copilot agents, prompts, instructions, CI workflows |
 
-**Framework Layer:**
-- Purpose: Governance principles, zones, operating models, regulatory context
-- Location: `docs/framework/`
-- Contains: Strategic guidance documents (11 files), regulatory frameworks, adoption roadmaps, zone definitions
-- Depends on: No internal dependencies; references regulatory sources (FINRA, SEC, etc.)
-- Used by: Controls reference framework guidance; external stakeholders reference for governance strategy
+## Three-Layer Documentation Model
 
-**Control Catalog Layer:**
-- Purpose: Technical specifications for 62 granular governance controls
-- Location: `docs/controls/pillar-{1-4}-{pillar-name}/`
-- Contains: 62 control documents organized by pillar (1.1-1.24, 2.1-2.21, 3.1-3.10, 4.1-4.7)
-- Depends on: Framework layer for regulatory/governance context; role-catalog for canonical role names
-- Used by: Playbooks reference controls for implementation; Control Index for cross-referencing
+- **Layer 1 (Framework):** 12 files in docs/framework/ - governance principles, strategy, organizational context (WHY)
+- **Layer 2 (Controls):** 62 files across 4 pillar directories - technical specifications with 10-section format (WHAT)
+- **Layer 3 (Playbooks):** 251 files in docs/playbooks/ - step-by-step implementation procedures (HOW)
 
-**Playbook Implementation Layer:**
-- Purpose: Step-by-step implementation guides for each control
-- Location: `docs/playbooks/control-implementations/{control-id}/`
-- Contains: 4 playbooks per control (248 files total): portal-walkthrough.md, powershell-setup.md, verification-testing.md, troubleshooting.md
-- Depends on: Parent control specification; reference materials (portal paths, role names)
-- Used by: Practitioners following implementation procedures
+**Linkage:** Controls link to playbooks via Section 8. Playbooks link back to parent controls. Framework docs provide conceptual context.
 
-**Advanced Implementation Layer:**
-- Purpose: Complex multi-control solutions and specialized workflows
-- Location: `docs/playbooks/advanced-implementations/`
-- Contains: 11 multi-control solution playbooks (platform-change-governance, environment-lifecycle-management, agent-365-observability, etc.) plus specialized guidance
-- Depends on: Multiple controls; framework architecture knowledge
-- Used by: Advanced governance scenarios; integrated compliance workflows
+## Control Organization
 
-**Reference & Support Layer:**
-- Purpose: Lookup tables, FAQs, mapping documents, evidence standards
-- Location: `docs/reference/`
-- Contains: 20 reference documents including role-catalog.md, regulatory-mappings.md, solutions-index.md, license-requirements.md
-- Depends on: Control and framework content
-- Used by: Cross-cutting lookups; regulatory audit evidence
+| Pillar | Count | Focus |
+|--------|-------|-------|
+| Pillar 1 - Security | 24 | DLP, encryption, access control, audit logging |
+| Pillar 2 - Management | 21 | Environments, change management, testing, risk |
+| Pillar 3 - Reporting | 10 | Inventory, analytics, compliance reporting |
+| Pillar 4 - SharePoint | 7 | Content governance, access reviews, grounding |
 
-## Data Flow
+## Navigation (mkdocs.yml - 598 lines)
 
-**Content Creation Flow:**
+Home > Disclaimer > Getting Started (2) > Framework (12) > Control Catalog (62) > Playbooks (251) > Reference (19) > Downloads (6)
 
-1. **Framework Input** → Regulatory requirements (FINRA 4511, SEC 17a-4, GLBA, etc.) and governance strategy
-2. **Framework Documentation** → Creates governance principles in `docs/framework/`
-3. **Control Design** → Maps framework to 62 specific controls with 10-section template
-4. **Control Documentation** → Creates control specifications in `docs/controls/pillar-*/`
-5. **Validation** → `scripts/verify_controls.py` checks all 62 controls for required sections, metadata, links
-6. **Playbook Creation** → Develops 4 implementation guides per control
-7. **Build & Publish** → MkDocs compiles to static site; `mkdocs build --strict` enforces link/structure validation
-8. **Deploy** → GitHub Actions publishes to GitHub Pages
+## Multi-Agent Architecture
 
-**Governance Zone Application Flow:**
+- 13 custom Copilot agents in .github/agents/
+- 28 prompt files in .github/prompts/
+- 12 instruction files in .github/instructions/
+- 5 Claude Code skills in .claude/skills/
+- Session ownership protocol via .planning/STATE.md
 
-1. Organization defines zone classification (Personal/Team/Enterprise)
-2. Each control document includes Zone-Specific Requirements table (Zone 1/2/3)
-3. Playbooks reference zone requirements in portal walkthrough steps
-4. Solutions implement zone-based routing (e.g., environment-lifecycle-management)
+## Planning Infrastructure
 
-**Audit Evidence Flow:**
+47 phase directories under .planning/phases/ from v1-v11 development history. 18 milestone archives in .planning/milestones/.
 
-1. Controls specify verification criteria (test cases, config checks)
-2. Verification playbooks (`verification-testing.md` files) provide evidence collection procedures
-3. Advanced playbooks (e.g., DEC solution) aggregate evidence across controls
-4. Learn Monitor (`scripts/learn_monitor.py`) tracks Microsoft documentation changes requiring framework updates
+## Recommendations
 
-**State Management:**
-
-- `data/learn-monitor-state.json` - Hash state of 209 monitored Microsoft Learn URLs; updated daily
-- `reports/learn-changes/` - Change reports generated by Learn Monitor workflow
-- Control metadata maintained in front-matter YAML; no external state required for control definitions
-- MkDocs site generation is stateless; outputs to `site/` directory
-
-## Key Abstractions
-
-**Control ID System:**
-
-- Purpose: Hierarchical identifier linking controls to implementation guides
-- Pattern: Pillar.Number format (1.1-1.24, 2.1-2.21, 3.1-3.10, 4.1-4.7)
-- Examples: `Control 1.5 (DLP and Sensitivity Labels)`, `Control 2.12 (Supervision and Oversight)`
-- Used for: Navigation structure; playbook directory organization; cross-references
-
-**Zone Classification:**
-
-- Purpose: Risk-based governance tier system for organizations
-- Pattern: 3-level classification (Zone 1: Personal Productivity, Zone 2: Team Collaboration, Zone 3: Enterprise Managed)
-- Examples: Zone 1 requires baseline monitoring; Zone 3 requires approval gates + compliance review
-- Impact: Each control specifies different requirements per zone in a standard table format
-
-**Pillar Organization:**
-
-- Purpose: Group related controls by governance domain
-- Pattern: 4 pillars (Security: 24 controls, Management: 21, Reporting: 10, SharePoint: 7)
-- Rationale: Separates data protection (Pillar 1) from operational governance (Pillar 2) from visibility (Pillar 3) from content management (Pillar 4)
-
-**10-Section Control Template:**
-
-- Purpose: Standardized control specification format enforced by validation scripts
-- Pattern: Objective → Why It Matters → Description → Key Config Points → Zone Requirements → Roles & Responsibilities → Related Controls → Implementation Guides → Verification Criteria → Additional Resources
-- Enforcement: `scripts/verify_controls.py` checks all 62 controls conform to this structure
-- Examples: `docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`
-
-**Playbook Four-Document Pattern:**
-
-- Purpose: Complete implementation journey for each control
-- Pattern: Portal walkthrough (UI steps) + PowerShell setup (automation) + Verification testing (validation) + Troubleshooting (common issues)
-- Benefits: Covers manual, scripted, and testing approaches
-- Location: Each control ID has 4 files in `docs/playbooks/control-implementations/{id}/`
-
-## Entry Points
-
-**Documentation Site:**
-- Location: `docs/index.md` (compiled to GitHub Pages)
-- Triggers: Pushed to main branch via GitHub Actions (`publish_docs.yml`)
-- Responsibilities: Entry point for users; hosts all governance content
-
-**Quick Start Path:**
-- Location: `docs/getting-started/quick-start.md`
-- Triggers: New user accessing site
-- Responsibilities: Overview of framework, governance zones, high-level implementation path
-
-**Control Index:**
-- Location: `docs/controls/CONTROL-INDEX.md`
-- Triggers: Users looking for specific controls or implementation references
-- Responsibilities: Master list of all 62 controls with links to specifications and playbooks
-
-**Learn Monitor Automation:**
-- Location: `scripts/learn_monitor.py` (scheduled daily) and `.github/workflows/learn-monitor.yml`
-- Triggers: Daily at 6:00 AM UTC; monitors 209 Microsoft Learn URLs
-- Responsibilities: Detect breaking changes in Microsoft documentation; create PRs with required framework updates
-
-**Control Update Skill:**
-- Location: `.claude/skills/update-control.md`
-- Triggers: Claude Code operator runs `/update-control`
-- Responsibilities: Step-by-step workflow for modifying control content
-
-## Error Handling
-
-**Strategy:** Validation-first with build-time enforcement
-
-**Patterns:**
-
-1. **Build Validation** - `mkdocs build --strict` enforces:
-   - No broken internal links (all control references resolvable)
-   - No absolute links where relative links should exist
-   - Navigation file completeness (no orphaned documents)
-
-2. **Control Structure Validation** - `scripts/verify_controls.py` enforces:
-   - All 62 controls present and valid
-   - All 10 required sections present in each control
-   - Required metadata fields: Control ID, Pillar, Regulatory Reference
-   - No legacy/outdated version markers
-   - Links to playbooks resolve correctly
-
-3. **Excel Template Validation** - `scripts/verify_excel_templates.py` ensures:
-   - Excel templates match control specifications
-   - Zone mappings accurate
-   - Regulatory references current
-
-4. **Link Checker** - GitHub Actions workflow (weekly) validates all external markdown links
-
-5. **Graceful Degradation** - If Learn Monitor detects breaking Microsoft Learn links:
-   - Links remain in documentation with deprecation warnings
-   - PR created with evidence of breakage
-   - Content updated to reflect alternatives
-
-## Cross-Cutting Concerns
-
-**Logging:** None - static documentation site generates no runtime logs
-
-**Validation:** Multi-layered validation enforced before publication:
-- Python scripts (`verify_controls.py`, `verify_excel_templates.py`) run locally before commit
-- GitHub Actions validates during CI/CD (`link-check.yml`, `publish_docs.yml`)
-- MkDocs strict mode blocks any build with broken links
-
-**Authentication:** Not applicable - GitHub Pages serves static content publicly
-
-**Regulatory Compliance:** Core to architecture:
-- All controls cross-referenced to specific regulations (FINRA, SEC, SOX, GLBA, OCC, Fed, CFTC)
-- Zone-specific requirements enforced at documentation level
-- Playbooks provide evidence collection procedures for regulatory audits
-- Advanced implementations (e.g., DEC solution) aggregate compliance evidence
-
-**External Integration:** GitHub-based workflow:
-- MkDocs site version published to GitHub Pages
-- Companion FSI-AgentGov-Solutions repository referenced for deployable artifacts
-- Learn Monitor periodically checks Microsoft Learn for breaking changes
-- GitHub Actions automates validation, link checking, and publication
-
----
-
-*Architecture analysis: 2026-02-02*
+1. Archive completed phase directories to reduce 47-directory sprawl
+2. Playbook count (251) exceeds documented 248 - update references
+3. Confirm excluded docs (CONTROL-INDEX.md, regulatory-mappings.md, raci-matrix.md) don't create dead links
+4. Solutions integration bidirectional linking is well-implemented

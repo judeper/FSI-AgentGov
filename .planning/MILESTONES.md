@@ -1,5 +1,17 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v13 Agent Usage & Performance Workbook (Deferred: 2026-02-11)
+
+**Status:** DEFERRED — Roadmap was created (3 phases, 6 plans, 11 requirements) but no phases were executed. Shelved to prioritize v14 (SSPM Control Coverage Remediation).
+
+**Planned scope:** Deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap for FSI organizations.
+
+**Deferred deliverables:** Workbook JSON template (3 tabs), KQL queries, framework integration (Controls 3.2, 3.9, 2.9), deployment guide, customization guide, ALM scenario documentation.
+
+**Pending todo:** [Agent Usage & Performance Workbook for Enterprise ALM](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) — to be picked up in a future milestone.
+
+---
+
 ## v12 Quality & Consistency Polish (Completed: 2026-02-11)
 
 **Delivered:** Closed 16 polish-level gaps identified by codebase mapping analysis after v11 Technical Remediation. Fixed user-facing broken links, completed Azure AD → Microsoft Entra ID rename and Tier → Zone terminology sweeps, built quality automation infrastructure (language linter, CI integration), and performed housekeeping (stale file cleanup, screenshot specs, Excel count fix).

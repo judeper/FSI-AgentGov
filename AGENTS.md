@@ -14,7 +14,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 **Full context:** See `.github/copilot-instructions.md` for complete repository structure and design decisions.
 
-**Companion Repository:** `FSI-AgentGov-Solutions` contains deployable solution artifacts (13 solutions covering 17 controls). See `docs/reference/solutions-index.md` for catalog.
+**Companion Repository:** `FSI-AgentGov-Solutions` contains deployable solution artifacts (19 solutions covering 28 controls). See `docs/reference/solutions-index.md` for catalog.
 
 ## Before Making Changes
 
