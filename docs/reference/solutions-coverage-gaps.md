@@ -9,9 +9,9 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 | Metric | Value |
 |--------|-------|
 | Total Controls | 62 |
-| Controls with Deployable Solutions | 17 |
-| Controls Without Solutions | 45 |
-| Overall Solution Coverage | 27.4% |
+| Controls with Deployable Solutions | 20 |
+| Controls Without Solutions | 42 |
+| Overall Solution Coverage | 32.3% |
 
 !!! info "Important Context"
     Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
@@ -20,14 +20,16 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 ## Current Solution Coverage
 
-### Covered Controls (17 of 62)
+### Covered Controls (20 of 62)
 
 | Control ID | Control Name | Solution |
 |------------|--------------|----------|
+| 1.4 | Advanced Connector Policies | [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security) |
 | 1.5 | DLP and Sensitivity Labels | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [Scope Drift Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor) |
 | 1.7 | Comprehensive Audit Logging | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) |
+| 1.8 | Runtime Protection | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security) |
 | 1.11 | Conditional Access and MFA | [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) |
-| 1.14 | Data Minimization | [Scope Drift Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor) |
+| 1.14 | Data Minimization | [Scope Drift Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor), [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security) |
 | 2.1 | Managed Environments | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management), [Segregation of Duties Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) |
 | 2.2 | Environment Groups | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
 | 2.3 | Change Management | [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Governance Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup), [Segregation of Duties Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) |
@@ -40,17 +42,18 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 | 2.18 | Conflict of Interest Testing | [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) |
 | 3.3 | Compliance Reporting | [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) |
 | 3.4 | Incident Reporting | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
+| 3.8 | Copilot Hub | [Agent Access Governance Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor) |
 | 3.10 | Hallucination Feedback | [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) |
 
 ### Coverage by Pillar
 
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
-| **Pillar 1 - Security** | 24 | 4 | 20 | 16.7% |
+| **Pillar 1 - Security** | 24 | 6 | 18 | 25.0% |
 | **Pillar 2 - Management** | 21 | 10 | 11 | 47.6% |
-| **Pillar 3 - Reporting** | 10 | 3 | 7 | 30.0% |
+| **Pillar 3 - Reporting** | 10 | 4 | 6 | 40.0% |
 | **Pillar 4 - SharePoint** | 7 | 0 | 7 | 0.0% |
-| **Total** | 62 | 17 | 45 | 27.4% |
+| **Total** | 62 | 20 | 42 | 32.3% |
 
 ---
 
@@ -66,9 +69,9 @@ These controls are fully addressed through Microsoft admin portal configuration.
 |---------|--------------|----------------|
 | 1.1 | Restrict Agent Publishing | Power Platform Admin Center settings |
 | 1.2 | Agent Registry | Integrated Apps management in M365 Admin |
-| 1.4 | Advanced Connector Policies | PPAC connector classification |
+| ~~1.4~~ | ~~Advanced Connector Policies~~ | ~~PPAC connector classification~~ **Now has [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
 | 1.6 | DSPM for AI | Purview compliance portal |
-| 1.8 | Runtime Protection | Defender for Cloud Apps |
+| ~~1.8~~ | ~~Runtime Protection~~ | ~~Defender for Cloud Apps~~ **Now has [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) and [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
 | 1.9 | Data Retention | Purview retention policies |
 | 1.10 | Communication Compliance | Purview Communication Compliance |
 | ~~1.11~~ | ~~Conditional Access~~ | ~~Entra ID Conditional Access policies~~ **Now has [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
@@ -84,7 +87,7 @@ These controls are fully addressed through Microsoft admin portal configuration.
 | 3.1 | Agent Inventory | PPAC + CoE Starter Kit |
 | 3.2 | Usage Analytics | PPAC Analytics |
 | 3.7 | PPAC Security Posture | PPAC native dashboard |
-| 3.8 | Copilot Hub | M365 Admin Center Copilot Hub |
+| ~~3.8~~ | ~~Copilot Hub~~ | ~~M365 Admin Center Copilot Hub~~ **Now has [Agent Access Governance Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)** |
 | 4.1-4.7 | SharePoint Controls | SharePoint Advanced Management |
 
 ### Category 2: Custom Solution Recommended
@@ -138,9 +141,9 @@ These 32 controls apply to Zone 3 (Enterprise Managed) agents and Tier 1 (Critic
 | Control | Control Name | Gap Category | Regulatory Impact |
 |---------|--------------|--------------|-------------------|
 | 1.3 | SharePoint Content Governance | Custom Recommended | Data exposure risk |
-| 1.4 | Advanced Connector Policies | Native Feature | - |
+| ~~1.4~~ | ~~Advanced Connector Policies~~ | ~~Native Feature~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
 | 1.6 | DSPM for AI | Native Feature | - |
-| 1.8 | Runtime Protection | Native Feature | - |
+| ~~1.8~~ | ~~Runtime Protection~~ | ~~Native Feature~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
 | 1.9 | Data Retention | Native Feature | SEC 17a-4, FINRA 4511 |
 | 1.10 | Communication Compliance | Native Feature | FINRA 3110 |
 | ~~1.11~~ | ~~Conditional Access~~ | ~~Native Feature~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
@@ -315,13 +318,21 @@ Some controls are covered by multiple solutions, providing redundancy.
 
 **Recommendation:** Deploy both solutions. They address different aspects of change management—external platform changes vs. internal deployment governance.
 
-### Controls 1.5 and 1.7
+### Controls 1.5, 1.7, and 1.8
 
 | Solution | Controls |
 |----------|----------|
-| Deny Event Correlation Report | 1.5 (DLP), 1.7 (Audit), 3.4 (Incident) |
+| Deny Event Correlation Report | 1.5 (DLP), 1.7 (Audit), 1.8 (Runtime Protection), 3.4 (Incident) |
 
-**Note:** The Deny Event Correlation Report provides unified visibility across multiple controls by correlating events from Purview Audit, DLP, and Application Insights.
+**Note:** The Deny Event Correlation Report provides unified visibility across multiple controls by correlating events from Purview Audit, DLP, Defender for Cloud Apps, and Application Insights.
+
+### Controls 1.4, 1.8, and 1.14
+
+| Solution | Controls |
+|----------|----------|
+| File Upload Security Configurator | 1.4 (Connector Policies), 1.8 (Runtime Protection), 1.14 (Data Minimization) |
+
+**Note:** The File Upload Security Configurator validates per-agent file upload settings against zone governance policies, covering connector-level restrictions, runtime threat detection, and data minimization controls.
 
 ---
 
@@ -345,4 +356,4 @@ Some controls are covered by multiple solutions, providing redundancy.
 
 ---
 
-*FSI Agent Governance Framework v1.2.36 - February 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*
