@@ -38,7 +38,7 @@ The framework recommends a structured 3-phase adoption approach:
 
 ---
 
-## 🚀 For New Users (10 minutes)
+## For New Users (10 minutes)
 
 ### Step 1: Understand the Framework Structure (3 min)
 
@@ -46,7 +46,7 @@ The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
 
-1. Security (23 controls) - Protect data
+1. Security (24 controls) - Protect data
 2. Management (21 controls) - Govern lifecycle
 3. Reporting (10 controls) - Monitor activities
 4. SharePoint (7 controls) - Govern SharePoint
@@ -77,22 +77,22 @@ Ask these questions:
 
 Check which regulations apply to your organization:
 
-- ✅ FINRA? (broker-dealers)
-- ✅ SEC? (investment advisers, public companies)
-- ✅ SOX? (public companies)
-- ✅ GLBA? (all financial institutions)
-- ✅ OCC? (national banks)
-- ✅ Federal Reserve? (bank holding companies, state member banks)
-- ✅ FDIC? (state non-member banks, savings associations)
-- ✅ NCUA? (credit unions)
-- ✅ State insurance regulator? (insurers)
-- ✅ NYDFS Part 500? (NY-licensed institutions)
+- FINRA? (broker-dealers)
+- SEC? (investment advisers, public companies)
+- SOX? (public companies)
+- GLBA? (all financial institutions)
+- OCC? (national banks)
+- Federal Reserve? (bank holding companies, state member banks)
+- FDIC? (state non-member banks, savings associations)
+- NCUA? (credit unions)
+- State insurance regulator? (insurers)
+- NYDFS Part 500? (NY-licensed institutions)
 
 Result: You've identified your primary US regulators. Consult your Compliance Officer to confirm.
 
 ---
 
-## 📋 For Implementation (20 minutes)
+## For Implementation (20 minutes)
 
 ### Quick Implementation Checklist
 
@@ -133,7 +133,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-## 🎯 Common Scenarios
+## Common Scenarios
 
 ### Scenario 1: Single Zone 1 Agent (Personal)
 
@@ -213,7 +213,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-## 📚 Where to Find Things
+## Where to Find Things
 
 | Question | Answer |
 |----------|--------|
@@ -230,7 +230,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-## 🔑 Key Terms (Quick Version)
+## Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
 - **Control:** Governance requirement (61 total)
@@ -243,7 +243,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-## ✅ Next Steps
+## Next Steps
 
 1. **Read [Zones Guide](../framework/zones-and-tiers.md)** (understand zones)
 2. **Review [Regulatory Framework](../framework/regulatory-framework.md)** (find your regulations)
@@ -253,7 +253,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-## 💬 Still Questions?
+## Still Questions?
 
 - Check **[FAQ](../reference/faq.md)** for common questions
 - Review **[Glossary](../reference/glossary.md)** for terms
