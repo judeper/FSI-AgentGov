@@ -19,7 +19,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Environment Lifecycle Management](#environment-lifecycle-management) | v1.1.2 | Completed | Automated Power Platform environment provisioning with zone-based governance classification | 2.1, 2.2, 2.15 |
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Completed | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
-| [Deny Event Correlation Report](#deny-event-correlation-report) | v1.1.0 | Work In Progress | Daily deny event correlation across Purview Audit, DLP, and Application Insights | 1.5, 1.7, 3.4 |
+| [Deny Event Correlation Report](#deny-event-correlation-report) | v2.0.0 | Completed | Daily deny event correlation across Purview Audit, DLP, and Application Insights with Dataverse persistence, Power Automate orchestration, and evidence export | 1.5, 1.7, 1.8, 3.4 |
 | [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Work In Progress | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
 | [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Work In Progress | Automated validation of tenant and environment audit configurations | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
@@ -104,17 +104,38 @@ Discovers personal deployment pipelines across environments and notifies owners 
 
 ### Deny Event Correlation Report
 
-Aggregates and correlates deny events from multiple Microsoft sources to provide unified visibility into blocked agent activities.
+!!! success "Production Ready"
+    v2.0.0 includes PowerShell extraction scripts, shared module, Dataverse infrastructure, Power Automate orchestration flow, Teams/email alerting, and SHA-256 integrity-hashed evidence export pipeline.
 
-**Data Sources:**
-- Purview Unified Audit Log
-- DLP policy violations
-- Application Insights RAI telemetry
+Aggregates and correlates deny events from multiple Microsoft sources to provide unified visibility into blocked agent activities with daily trend analysis, anomaly detection, and zone-based alerting.
 
 **Components:**
-- Power BI report template
-- Data extraction scripts
-- Correlation logic
+
+- PowerShell extraction scripts for Purview Audit, Purview DLP, and Application Insights
+- Shared PowerShell module (FSIGovernance.DEC) with common logging, hashing, and Dataverse functions
+- Dataverse schema (5 tables) for deny events, correlation results, alert history, and configuration
+- Daily correlation engine with 7-day trend analysis and volume anomaly detection
+- Power Automate orchestration flow with Azure Automation runbook integration
+- Zone-based alerting with Teams adaptive cards and email notifications
+- SHA-256 integrity-hashed evidence export with regulatory alignment mapping
+- Zone-based retention enforcement (90d/365d/730d)
+- Power BI dashboard template for deny event trends and zone compliance
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records)
+- FINRA 3110 (Supervision)
+- FINRA 25-07 (AI Governance)
+- SEC 17a-3/4 (Recordkeeping)
+- SOX 302/404 (Internal Controls)
+- GLBA 501(b) (Safeguards)
+
+**Related Controls:**
+
+- [1.5 - DLP and Sensitivity Labels](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
+- [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+- [1.8 - Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
+- [3.4 - Incident Reporting](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
 
 **Framework Playbook:** [Deny Event Correlation Report](../playbooks/advanced-implementations/deny-event-correlation-report/index.md)
 
@@ -509,7 +530,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Environment Lifecycle Management | v1.1.2 | January 2026 |
 | Message Center Monitor | v2.1.1 | January 2026 |
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
-| Deny Event Correlation Report | v1.1.0 | January 2026 |
+| Deny Event Correlation Report | v2.0.0 | February 2026 |
 | FINRA Supervision Workflow | v1.0.0 | February 2026 |
 | Conditional Access Automation | v1.0.0 | February 2026 |
 | Content Moderation Governance Monitor | v1.0.0 | February 2026 |
