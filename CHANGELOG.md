@@ -6,6 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.40] — February 2026 (Conditional Access Automation)
+
+### Overview
+
+Conditional Access Automation (CAA) solution promoted to Completed (v1.1.0). Adds CA policy deployment, compliance monitoring, drift detection, and SHA-256 evidence export for AI workloads across Controls 1.11, 1.23, and 1.18.
+
+### Added
+
+**Conditional Access Automation Solution (v1.1.0):**
+
+| Component | Description |
+|-----------|-------------|
+| CAAClient PowerShell Module | Core module with private helpers (CAAClient.psm1, Compare-PolicyBaseline.ps1, Get-PolicyBaseline.ps1, Get-CAAValidationResults.ps1) |
+| 8 CA Policy Templates | Zone-specific JSON policy templates for AI workload conditional access |
+| Azure Automation Runbook | Start-CAAValidationRunbook.ps1 — daily compliance validation wrapper |
+| Test-PolicyCompliance.ps1 | Policy compliance testing with Dataverse integration |
+| Daily Compliance Flow | Power Automate flow definition for scheduled CA policy scanning |
+| ELM Provisioning Hook | Power Automate child flow for zone-appropriate CA deployment on environment creation |
+| Teams Adaptive Card | Severity-classified compliance alerts (Critical/High/Warning by zone) |
+| SHA-256 Evidence Export | Integrity-hashed compliance evidence packages for FINRA/SEC examinations |
+| Dataverse Schema | Three-table design (baselines, validation history, violations) with deployment scripts |
+| Python Deployment Scripts | Idempotent Dataverse infrastructure provisioning (schema, env vars, connection refs, orchestrator) |
+
+**Framework Integration:**
+
+- Control 1.11 updated with CAA solution tip admonition linking to companion repo
+- solutions-index.md updated: CAA promoted from Work In Progress to Completed with full component catalog
+- Solutions status: now 6 Completed (was 5)
+
+### Changed
+
+- solutions-index.md footer version updated to v1.2.40
+
+---
+
 ## [1.2.39] — February 2026 (Security Configuration Hardening)
 
 ### Overview

@@ -26,7 +26,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Work In Progress | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
-| [Conditional Access Automation](#conditional-access-automation) | v1.0.0 | Work In Progress | CA policy deployment and compliance monitoring for AI workloads | 1.11, 1.23, 1.18 |
+| [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
 | [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
@@ -199,14 +199,22 @@ Automates the supervision workflow for AI agent outputs to support FINRA Rule 31
 
 ### Conditional Access Automation
 
-Automates Conditional Access policy deployment and compliance monitoring for AI workloads, implementing Zero Trust access controls across governance zones.
+!!! success "Production Ready"
+    v1.1.0 includes PowerShell module, Azure Automation runbook, Power Automate flows, Dataverse persistence, drift detection, Teams alerting, and SHA-256 evidence export.
+
+Automates Conditional Access policy deployment and compliance monitoring for AI workloads, implementing Zero Trust access controls across governance zones with persistent state management, daily compliance scanning, and drift detection.
 
 **Components:**
+- CAAClient PowerShell module with 8 Dataverse functions
 - 8 CA policy templates for Copilot Studio, Agent Builder, M365 Copilot
-- PowerShell scripts for deployment, compliance testing, drift detection
-- Zone-based policy requirements (risk-based → always MFA → compliant device)
+- Azure Automation runbook for unattended daily compliance validation
+- Power Automate daily compliance scan flow with Dataverse persistence
+- ELM provisioning hook for automatic CA policy deployment
+- Dataverse tables for baselines, validation history (immutable), and violations
+- Teams adaptive card alerts with zone-based severity (CRITICAL/HIGH/WARNING)
+- Multi-dimensional drift detection (state, conditions, grants, sessions, additions/removals)
+- SHA-256 evidence export with integrity hashing for FINRA/SEC examination support
 - Break-glass account exclusion enforcement
-- ELM integration for new environment provisioning
 
 **Security Alignment:**
 - NIST 800-53 AC-2, IA-2
@@ -217,6 +225,7 @@ Automates Conditional Access policy deployment and compliance monitoring for AI 
 **Related Controls:**
 - [1.11 - Conditional Access and MFA](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
 - [1.23 - Step-Up Authentication](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md)
+- [1.18 - RBAC for Agent Management](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)
 
 **Repository Link:** [conditional-access-automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
 
@@ -532,7 +541,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
 | Deny Event Correlation Report | v2.0.0 | February 2026 |
 | FINRA Supervision Workflow | v1.0.0 | February 2026 |
-| Conditional Access Automation | v1.0.0 | February 2026 |
+| Conditional Access Automation | v1.1.0 | February 2026 |
 | Content Moderation Governance Monitor | v1.0.0 | February 2026 |
 | Compliance Dashboard | v1.0.0 | February 2026 |
 | Segregation of Duties Detector | v1.0.0 | February 2026 |
@@ -547,4 +556,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.37 - February 2026*
+*FSI Agent Governance Framework v1.2.40 - February 2026*

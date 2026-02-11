@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-10
-**Milestone:** v10 — Deny Event Correlation Report
-**Status:** COMPLETE — All 5 phases executed, verification PASSED
+**Milestone:** v10 — Conditional Access Automation
+**Status:** EXECUTING — Phases 3-4 COMPLETE (Phases 1-2 pending)
 
 ## Session Ownership
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-10 22:00
-**Handoff Summary:** Phase 5 COMPLETE (3/3 plans across 2 waves). Control tip admonitions on 1.5/1.7/1.8/3.4, solutions-index v2.0.0, DEC docs suite (7 docs), playbook v2.0.0 refresh. Verification PASSED. v10 milestone COMPLETE.
+**Handoff Summary:** Phase 4 (Evidence Export & Framework Integration) COMPLETE. All 4 plans executed across 2 waves, verification PASSED. Phases 1-2 pending (scripts + Dataverse infra) before v10 can ship.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v10 — Deny Event Correlation Report. Completing DEC from WIP to production-ready with Entra ID auth, Dataverse persistence, Power Automate orchestration, Teams alerting, evidence export, and Compliance Dashboard integration.
+**Current focus:** v10 — Conditional Access Automation. Enhancing validated CA policy scripts with Tier 2 governance infrastructure (Dataverse, Power Automate, drift detection, evidence export) for Controls 1.11, 1.23, 1.18.
 
 ## Milestone Series Plan
 
@@ -27,42 +27,37 @@ v7: Content Moderation Governance Monitor — SHIPPED
 v7.1: Framework Currency Reviews — COMPLETE
 v8: File Upload Security Configurator — SHIPPED
 v9: Integration (ELM + Dashboard + cross-solution) — SHIPPED
-v10: Deny Event Correlation Report — IN PROGRESS
+v10: Conditional Access Automation — IN PROGRESS
 ```
 
 ## Current Position
 
-**Phase:** 5 of 5 — COMPLETE
-**Plan:** 3/3
-**Status:** v10 ALL PHASES COMPLETE — 15/15 plans executed across 5 phases, all verifications PASSED
-**Last activity:** 2026-02-10 — Phase 5 executed: 05-01 (control tip admonitions + solutions-index v2.0.0), 05-02 (DEC solution docs suite: 7 docs), 05-03 (playbook v2.0.0 refresh + build validation)
+**Phase:** 4 of 4 — COMPLETE
+**Plan:** 4/4
+**Status:** Phase 4 complete — 4 plans across 2 waves, verification PASSED
+**Last activity:** 2026-02-10 — Phase 4 executed: SHA-256 evidence export, Control 1.11 tip, solutions-index update, companion docs, CD feed integration
 
 **Progress:**
 ```
-v1:  [=========================] 8/8 phases (35 plans) — SHIPPED
-v2:  [=========================] 5/5 phases (17 plans) — SHIPPED
-v3:  [=========================] 7/7 phases (27 plans) — SHIPPED
-v4:  [=========================] 4/4 phases (11 plans) — SHIPPED
-v5:  [=========================] 4/4 phases (12 plans) — SHIPPED
-v6:  [=========================] 4/4 phases (12 plans) — SHIPPED
-v7:  [=========================] 4/4 phases (12 plans) — SHIPPED
-v7.1:[=========================] 2/2 phases (5/5 plans) — COMPLETE
-v8:  [=========================] 4/4 phases (12/12 plans) — SHIPPED
-v9:  [=========================] 5/5 phases (16/16 plans) — SHIPPED
-v10: [=========================] 5/5 phases (15/15 plans) — COMPLETE
+v1: [=========================] 8/8 phases (35 plans) — SHIPPED
+v2: [=========================] 5/5 phases (17 plans) — SHIPPED
+v3: [=========================] 7/7 phases (27 plans) — SHIPPED
+v4: [=========================] 4/4 phases (11 plans) — SHIPPED
+v5: [=========================] 4/4 phases (12 plans) — SHIPPED
+v6: [=========================] 4/4 phases (12 plans) — SHIPPED
+v7: [=========================] 4/4 phases (12 plans) — SHIPPED
+v7.1: [=========================] 2/2 phases (5/5 plans) — COMPLETE
+v8: [=========================] 4/4 phases (12/12 plans) — SHIPPED
+v9: [=========================] 5/5 phases (16/16 plans) — SHIPPED
+v10: [=============            ] 2/4 phases — Phases 3-4 COMPLETE, Phases 1-2 pending
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v9, shipped):**
+**Cumulative (v1-v9):**
 - Phases: 47 complete (8 + 5 + 7 + 4 + 4 + 4 + 4 + 2 + 4 + 5)
 - Plans: 159 complete (35 + 17 + 27 + 11 + 12 + 12 + 12 + 5 + 12 + 16)
-- Requirements: 225 total (33 + 13 + 44 + 28 + 19 + 18 + 18 + 17 + 17 + 18)
-
-**v10 (complete):**
-- Phases: 5/5 complete
-- Plans: 15/15 complete
-- Requirements: 19/19 complete (3 AUTH done | 4 DVS done | 3 ORC done | 5 EVI done | 4 DOC done)
+- Requirements: 243 total (33 + 13 + 44 + 28 + 19 + 18 + 18 + 17 + 17 + 18 + 18)
 
 ## Accumulated Context
 
@@ -70,18 +65,20 @@ v10: [=========================] 5/5 phases (15/15 plans) — COMPLETE
 
 See PROJECT.md Key Decisions table for full history.
 
-**v10 decisions:**
-- Single-file DECClient.psm1 module (matching v6-v8 pattern) rather than per-function .ps1 files
-- ExchangeOnline supports both certificate and client secret auth via Key Vault
-- Phase 2 stubs defined with full parameter signatures for forward compatibility
-- Solution artifacts staged in maintainers-local/ for transfer to FSI-AgentGov-Solutions
+**v9 decisions:**
+- Zone values: 1=Zone 1, 2=Zone 2, 3=Zone 3 as canonical (matching ELM/CD convention, not ACV's 100000001…)
+- Severity values: 1=Passed, 2=Warning, 3=GracePeriod, 4=Failed, 5=Error as canonical standard
+- Daily batch feeds (not real-time) — sufficient for governance monitoring cadence
+- ELM ProvisioningCompleted event triggers ACV auto-registration (other solutions register on first scan)
+- Unified evidence export aggregates per-solution packages into master package with hash chain
+- 5 Tier 2 solutions feed 7 controls: ACV→1.7, SSC→1.23+1.11, AAM→3.8, CMM→1.8, FUS→1.14
+- Integration code lives in cross-solution-integration/ directory in FSI-AgentGov-Solutions
 
 ### Key Constraints
 
-- **x-api-key deadline:** App Insights x-api-key deprecated March 31, 2026 — AUTH-01 is time-critical
-- **No real-time:** Daily batch extraction cadence sufficient for governance reporting
-- **Option set reuse:** DEC reuses ACV option sets (fsi_acv_zone, fsi_acv_severity) per cross-solution standard
-- **Existing artifacts:** 4 scripts + 4 KQL queries + 3 docs already exist in FSI-AgentGov-Solutions
+- **No real-time:** Batch/daily feeds sufficient — no Dataverse webhook infrastructure
+- **ELM scope:** Only ACV auto-registration on provisioning; other solutions register on first scan
+- **Option set owners:** ACV owns fsi_acv_zone and fsi_acv_severity definitions; other solutions reference them
 - **FSI language rules:** All documentation must use regulatory-safe language
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
 
@@ -93,10 +90,9 @@ None.
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-10 22:00
-**Handoff Summary:** Phase 4 COMPLETE. All 3 plans executed across 2 waves: 04-01 (evidence export + SHA-256 + regulatory alignment), 04-02 (IntegrationConfig DEC extension — 6 solutions, 8 functions), 04-03 (Sync-SolutionAssessments DEC feed + Control 1.7 overlap). Verification passed all 5 success criteria. Next: `/gsd-plan-phase 5` (Documentation & Framework Integration) or `/gsd-execute-phase 5` if plans already exist.
+**Handoff Summary:** Phase 4 (Evidence Export & Framework Integration) COMPLETE. All 4 plans executed across 2 waves, verification PASSED. Phases 3-4 shipped. Phases 1-2 (Script Modernization + Dataverse Infrastructure) pending before v10 can fully ship.
 
 ---
 
 *State initialized: 2026-02-05*
-*v9 milestone shipped: 2026-02-10*
 *v10 milestone started: 2026-02-10*

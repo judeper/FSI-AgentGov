@@ -8,19 +8,19 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v10 Deny Event Correlation Report
+## Current Milestone: v10 Conditional Access Automation
 
-**Goal:** Complete the Deny Event Correlation Report (DEC) solution from WIP v1.1.0 to production-ready v2.0.0. Migrate from deprecated x-api-key to Entra ID authentication, add Dataverse persistence, Power Automate orchestration, Teams alerting, zone-based analysis, SHA-256 evidence export, and Compliance Dashboard integration.
+**Goal:** Enhance validated CA policy deployment scripts with Tier 2 governance infrastructure — Dataverse persistence, Power Automate automation, drift detection, alerting, SHA-256 evidence export — creating a complete policy lifecycle management solution for Controls 1.11, 1.23, and 1.18.
 
 **Target deliverables:**
-- Entra ID authentication migration for App Insights (replacing x-api-key before March 31, 2026 deadline)
-- DECClient.psm1 shared module with authentication, connection management, and extraction functions
-- Dataverse schema for deny events, correlation summaries, and alert history (reusing ACV option sets)
-- DEC-DailyOrchestrator Power Automate flow for daily extraction and correlation
-- Teams adaptive card alerting for high-severity deny patterns and volume anomalies
-- SHA-256 evidence export (Export-DenyEventEvidence.ps1) for regulatory examinations
-- Compliance Dashboard integration via v9 IntegrationConfig extension (DEC → Controls 1.5, 1.7, 3.4)
-- Framework control tip admonitions and updated solutions-index.md
+- CAAClient PowerShell module with Tier 2 conventions (module structure, error handling, help comments)
+- 8 CA policy templates validated against current Graph API schema
+- Zone lookup integration with ELM Dataverse for zone-appropriate policy deployment
+- Dataverse tables for policy baselines, validation history (immutable), and violations
+- Power Automate daily compliance scan and drift detection flows
+- Teams adaptive card alerting with zone-based severity classification
+- SHA-256 integrity-hashed evidence export for FINRA/SEC examination support
+- Control 1.11 framework integration and Compliance Dashboard feed
 
 ## Current State (v7 Shipped)
 
@@ -35,13 +35,12 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v6: Agent Access Governance Monitor — unrestricted agent access detection with zone-based validation and evidence export
 - v7: Content Moderation Governance Monitor — per-agent moderation level validation with drift detection and SHA-256 evidence export
 - v7.1: Framework Currency Reviews — Dataverse deprecation, Agent 365 GA, evaluation framework, multi-source agent investigation
-- v8: File Upload Security Configurator — per-agent file upload validation with drift detection and SHA-256 evidence export
-- v9: Cross-Solution Integration — ELM hooks, Dashboard feeds, unified evidence export for 5 Tier 2 solutions
 
 **Solutions Status:**
-- 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Cross-Solution Integration, FINRA Supervision Workflow
-- 3 Work In Progress: Deny Event Correlation Report (v10 — IN PROGRESS), Conditional Access Automation, Segregation Detector
-- 4 Planned: RAG Source Validator, COI Testing, Hallucination Tracker, DR Testing Framework
+- 10 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor
+- 1 Validated: FINRA Supervision Workflow
+- 4 Work In Progress: Deny Event Correlation Report, Conditional Access Automation, Segregation Detector, RAG Source Validator
+- 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
 ## Requirements
 
@@ -91,22 +90,14 @@ Capabilities delivered:
 
 **v5-v9 Milestone Series: Customer-Requested Automation Solutions**
 
-6 automation solutions addressing customer-identified gaps, plus integration milestone — all shipped:
-- v5: Session Security Configurator — SHIPPED
-- v6: Agent Access Governance Monitor — SHIPPED
-- v7: Content Moderation Governance Monitor — SHIPPED
-- v8: File Upload Security Configurator — SHIPPED
-- v9: Cross-Solution Integration — SHIPPED
+4 remaining automation solutions addressing customer-identified gaps, plus integration milestone:
+- v5: Session Security Configurator — inactivity timeout automation per zone
+- v6: Agent Access Governance Monitor — unrestricted agent access detection
+- v7: Content Moderation Governance Monitor — AI content moderation policy enforcement
+- v8: File Upload Security Configurator — MIME type restriction enforcement
+- v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
 
-**Current milestone: v10 — Deny Event Correlation Report (IN PROGRESS)**
-
-Complete DEC from WIP v1.1.0 to production-ready v2.0.0 with:
-- Entra ID authentication migration (x-api-key deprecated March 31, 2026)
-- Dataverse persistence for deny events and correlation summaries
-- Power Automate daily orchestration and Teams alerting
-- SHA-256 evidence export for regulatory examinations
-- Compliance Dashboard integration via v9 infrastructure
-- Framework control tip admonitions (Controls 1.5, 1.7, 1.8, 3.4)
+**Current milestone: v10 — Conditional Access Automation (IN PROGRESS)**
 
 ### Out of Scope
 
@@ -117,12 +108,12 @@ Complete DEC from WIP v1.1.0 to production-ready v2.0.0 with:
 - GDPR Article 22 — US FSI scope only, no EU regulatory coverage
 - Third-party observability platforms — Microsoft-native stack only
 
-### Deferred to v11+
+### Deferred to v10+
 
 - MCP server for governance framework
 - Copilot Studio agent for governance Q&A
-- Complete remaining WIP solutions (Conditional Access Automation, Segregation Detector)
-- Complete Planned solutions (RAG Source Validator, COI Testing, Hallucination Tracker, DR Testing)
+- Complete remaining WIP solutions (Deny Event, Conditional Access, Segregation Detector, RAG Validator)
+- Complete Planned solutions (COI Testing, Hallucination Tracker, DR Testing)
 - Navigation auto-generation with Awesome Pages plugin (risk of breaking pedagogical structure)
 - .pbit Power BI template file (TMDL import path is functional workaround)
 - Dynamic threshold tuning (requires 2-week production baseline)
@@ -191,14 +182,10 @@ Complete DEC from WIP v1.1.0 to production-ready v2.0.0 with:
 | v8 binary validation model | File upload is enabled/disabled per agent, not multi-level; solution validates on/off status per zone | ✓ Good |
 | v8 Control 1.14 as primary | Data minimization — file uploads expand data intake beyond declared scope | ✓ Good |
 | v8 content moderation cross-check | Agents with file uploads enabled must meet minimum moderation level by zone | ✓ Good |
-| v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | ✓ Good |
-| v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | ✓ Good |
-| v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | ✓ Good |
-| v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | ✓ Good |
-| v10 Entra ID auth migration | x-api-key deprecated March 31, 2026; must migrate before deadline | — Pending |
-| v10 Dataverse persistence | Transform CSV-export pipeline to Dataverse-backed solution matching v4-v8 pattern | — Pending |
-| v10 DEC → Controls 1.5, 1.7, 3.4 | Dashboard feed maps deny event coverage to Defender, Audit, and Deny Reporting controls | — Pending |
-| v10 reuse ACV option sets | DEC uses fsi_acv_zone and fsi_acv_severity per cross-solution standard from v9 | — Pending |
+| v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
+| v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
+| v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
+| v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | — Pending |
 
 ---
 *Last updated: 2026-02-10 after v9 milestone start*

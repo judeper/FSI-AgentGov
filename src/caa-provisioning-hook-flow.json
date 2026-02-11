@@ -1,0 +1,1380 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_conditionalaccessautomation",
+        "tier": "NotSpecified"
+      },
+      "shared_office365": {
+        "connectionName": "shared_office365",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_office365",
+        "connectionReferenceLogicalName": "fsi_cr_office365_conditionalaccessautomation",
+        "tier": "NotSpecified"
+      },
+      "shared_teams": {
+        "connectionName": "shared_teams",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_teams",
+        "connectionReferenceLogicalName": "fsi_cr_teams_conditionalaccessautomation",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "EnvironmentId": {
+                  "title": "EnvironmentId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Power Platform environment GUID from ELM ProvisioningCompleted event.",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "EnvironmentName": {
+                  "title": "EnvironmentName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Display name of the provisioned environment.",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "Zone": {
+                  "title": "Zone",
+                  "type": "number",
+                  "x-ms-dynamically-added": true,
+                  "description": "Governance zone classification (1 = Personal Productivity, 2 = Team Collaboration, 3 = Enterprise Managed).",
+                  "x-ms-content-hint": "NUMBER"
+                },
+                "ProvisionedBy": {
+                  "title": "ProvisionedBy",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "UPN or identity that triggered the provisioning.",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "ProvisionedAt": {
+                  "title": "ProvisionedAt",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "ISO 8601 timestamp when provisioning completed.",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "EnvironmentId",
+                "EnvironmentName",
+                "Zone",
+                "ProvisionedBy",
+                "ProvisionedAt"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "manual-trigger-elm-provisioning"
+          }
+        }
+      },
+      "actions": {
+        "Initialize_DataverseUrl": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "DataverseUrl",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Dataverse environment URL (e.g., https://org.crm.dynamics.com). Set via environment variable fsi_CAA_DataverseUrl."
+        },
+        "Initialize_TenantId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TenantId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_DataverseUrl": [
+              "Succeeded"
+            ]
+          },
+          "description": "Entra ID tenant GUID. Set via environment variable fsi_CAA_TenantId."
+        },
+        "Initialize_ClientId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ClientId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TenantId": [
+              "Succeeded"
+            ]
+          },
+          "description": "App registration client ID for certificate-based Graph auth. Set via environment variable fsi_CAA_ClientId."
+        },
+        "Initialize_CertificateThumbprint": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "CertificateThumbprint",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ClientId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Certificate thumbprint for unattended authentication. Set via environment variable fsi_CAA_CertificateThumbprint."
+        },
+        "Initialize_SubscriptionId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "SubscriptionId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_CertificateThumbprint": [
+              "Succeeded"
+            ]
+          },
+          "description": "Azure subscription ID containing the Automation account. Set via environment variable fsi_CAA_SubscriptionId."
+        },
+        "Initialize_ResourceGroup": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ResourceGroup",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_SubscriptionId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Azure resource group containing the Automation account. Set via environment variable fsi_CAA_ResourceGroup."
+        },
+        "Initialize_AutomationAccount": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "AutomationAccount",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ResourceGroup": [
+              "Succeeded"
+            ]
+          },
+          "description": "Azure Automation account name. Set via environment variable fsi_CAA_AutomationAccount."
+        },
+        "Initialize_TeamsGroupId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsGroupId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_AutomationAccount": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams team/group ID for alert notifications. Set via environment variable fsi_CAA_TeamsGroupId."
+        },
+        "Initialize_TeamsChannelId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsChannelId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsGroupId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams channel ID for alert notifications. Set via environment variable fsi_CAA_TeamsChannelId."
+        },
+        "Initialize_ComplianceDistributionList": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ComplianceDistributionList",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsChannelId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Email distribution list for compliance alert routing. Set via environment variable fsi_CAA_ComplianceDistributionList."
+        },
+        "Initialize_VerificationStatus": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "VerificationStatus",
+                "type": "string",
+                "value": "Error"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ComplianceDistributionList": [
+              "Succeeded"
+            ]
+          },
+          "description": "Child flow output: Passed, Failed, or Error."
+        },
+        "Initialize_GapsFound": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "GapsFound",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_VerificationStatus": [
+              "Succeeded"
+            ]
+          },
+          "description": "Count of compliance gaps detected during zone verification."
+        },
+        "Initialize_AlertSent": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "AlertSent",
+                "type": "boolean",
+                "value": false
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_GapsFound": [
+              "Succeeded"
+            ]
+          },
+          "description": "Whether an alert was dispatched to Teams/email."
+        },
+        "Initialize_Severity": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Severity",
+                "type": "string",
+                "value": "Error"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_AlertSent": [
+              "Succeeded"
+            ]
+          },
+          "description": "Severity classification: Critical (Zone 3), High (Zone 2), Warning (Zone 1), or Passed."
+        },
+        "Compute_Zone_Severity": {
+          "type": "Compose",
+          "inputs": "@if(equals(triggerBody()?['Zone'], 3), 'Critical', if(equals(triggerBody()?['Zone'], 2), 'High', 'Warning'))",
+          "runAfter": {
+            "Initialize_Severity": [
+              "Succeeded"
+            ]
+          },
+          "description": "Map zone to severity: Zone 3 → Critical, Zone 2 → High, Zone 1 → Warning."
+        },
+        "Compute_Zone_Container_Style": {
+          "type": "Compose",
+          "inputs": "@if(equals(triggerBody()?['Zone'], 3), 'attention', if(equals(triggerBody()?['Zone'], 2), 'warning', 'accent'))",
+          "runAfter": {
+            "Initialize_Severity": [
+              "Succeeded"
+            ]
+          },
+          "description": "Map zone to adaptive card container style: Zone 3 → attention, Zone 2 → warning, Zone 1 → accent."
+        },
+        "Compute_Zone_Label": {
+          "type": "Compose",
+          "inputs": "@if(equals(triggerBody()?['Zone'], 3), 'Zone 3 — Enterprise Managed', if(equals(triggerBody()?['Zone'], 2), 'Zone 2 — Team Collaboration', 'Zone 1 — Personal Productivity'))",
+          "runAfter": {
+            "Initialize_Severity": [
+              "Succeeded"
+            ]
+          },
+          "description": "Human-readable zone label for alert messages."
+        },
+        "Scope_Try": {
+          "type": "Scope",
+          "actions": {
+            "Generate_Job_Id": {
+              "type": "Compose",
+              "inputs": "@guid()",
+              "runAfter": {},
+              "description": "Generate a unique GUID for the Azure Automation job."
+            },
+            "Create_Automation_Job": {
+              "type": "Http",
+              "inputs": {
+                "method": "PUT",
+                "uri": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Automation/automationAccounts/@{variables('AutomationAccount')}/jobs/@{outputs('Generate_Job_Id')}?api-version=2023-11-01",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": {
+                  "properties": {
+                    "runbook": {
+                      "name": "Start-CAAValidationRunbook"
+                    },
+                    "parameters": {
+                      "TenantId": "@{variables('TenantId')}",
+                      "ClientId": "@{variables('ClientId')}",
+                      "CertificateThumbprint": "@{variables('CertificateThumbprint')}",
+                      "ConfigPath": "config.json",
+                      "DataverseUrl": "@{variables('DataverseUrl')}",
+                      "Zone": "@{triggerBody()?['Zone']}",
+                      "Scope": "Targeted"
+                    }
+                  }
+                },
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://management.azure.com"
+                }
+              },
+              "runAfter": {
+                "Generate_Job_Id": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Start zone-scoped Azure Automation runbook with -Zone and -Scope Targeted for provisioning verification."
+            },
+            "Wait_Loop": {
+              "type": "Until",
+              "expression": "@contains(createArray('Completed','Failed','Suspended'), body('Get_Job_Status')?['properties']?['status'])",
+              "limit": {
+                "count": 60,
+                "timeout": "PT30M"
+              },
+              "actions": {
+                "Delay_30_Seconds": {
+                  "type": "Wait",
+                  "inputs": {
+                    "interval": {
+                      "count": 30,
+                      "unit": "Second"
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "Get_Job_Status": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "GET",
+                    "uri": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Automation/automationAccounts/@{variables('AutomationAccount')}/jobs/@{outputs('Generate_Job_Id')}?api-version=2023-11-01",
+                    "authentication": {
+                      "type": "ManagedServiceIdentity",
+                      "audience": "https://management.azure.com"
+                    }
+                  },
+                  "runAfter": {
+                    "Delay_30_Seconds": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Create_Automation_Job": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Poll Azure Automation job status every 30 seconds until completed, failed, or suspended (30-minute timeout for provisioning hook)."
+            },
+            "Check_Job_Status": {
+              "type": "If",
+              "expression": {
+                "equals": [
+                  "@body('Get_Job_Status')?['properties']?['status']",
+                  "Completed"
+                ]
+              },
+              "actions": {
+                "Get_Job_Output": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "GET",
+                    "uri": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Automation/automationAccounts/@{variables('AutomationAccount')}/jobs/@{outputs('Generate_Job_Id')}/output?api-version=2023-11-01",
+                    "authentication": {
+                      "type": "ManagedServiceIdentity",
+                      "audience": "https://management.azure.com"
+                    }
+                  },
+                  "runAfter": {},
+                  "description": "Retrieve the runbook output JSON from the completed Azure Automation job."
+                },
+                "Parse_Results": {
+                  "type": "ParseJson",
+                  "inputs": {
+                    "content": "@body('Get_Job_Output')",
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "CheckedAt": {
+                          "type": "string"
+                        },
+                        "TenantId": {
+                          "type": "string"
+                        },
+                        "TotalPolicies": {
+                          "type": "integer"
+                        },
+                        "PassedCount": {
+                          "type": "integer"
+                        },
+                        "FailedCount": {
+                          "type": "integer"
+                        },
+                        "WarningCount": {
+                          "type": "integer"
+                        },
+                        "DriftCount": {
+                          "type": "integer"
+                        },
+                        "OverallSeverity": {
+                          "type": "integer"
+                        },
+                        "OverallStatus": {
+                          "type": "string"
+                        },
+                        "ComplianceRate": {
+                          "type": "number"
+                        },
+                        "AlertRequired": {
+                          "type": "boolean"
+                        },
+                        "AlertSeverity": {
+                          "type": "string"
+                        },
+                        "ScanScope": {
+                          "type": "string"
+                        },
+                        "ProvisioningTriggered": {
+                          "type": "boolean"
+                        },
+                        "ZoneSummary": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Zone": {
+                                "type": "integer"
+                              },
+                              "Total": {
+                                "type": "integer"
+                              },
+                              "Passed": {
+                                "type": "integer"
+                              },
+                              "Severity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "Zone",
+                              "Total",
+                              "Passed",
+                              "Severity"
+                            ]
+                          }
+                        },
+                        "Violations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "PolicyId": {
+                                "type": "string"
+                              },
+                              "PolicyName": {
+                                "type": "string"
+                              },
+                              "ViolationType": {
+                                "type": "string"
+                              },
+                              "Zone": {
+                                "type": "integer"
+                              },
+                              "ExpectedValue": {
+                                "type": "string"
+                              },
+                              "ActualValue": {
+                                "type": "string"
+                              },
+                              "Severity": {
+                                "type": "integer"
+                              },
+                              "SeverityLabel": {
+                                "type": "string"
+                              },
+                              "RegulatoryContext": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "PolicyId",
+                              "PolicyName",
+                              "ViolationType",
+                              "Zone",
+                              "Severity",
+                              "SeverityLabel"
+                            ]
+                          }
+                        },
+                        "DriftItems": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "PolicyId": {
+                                "type": "string"
+                              },
+                              "PolicyName": {
+                                "type": "string"
+                              },
+                              "DriftType": {
+                                "type": "string"
+                              },
+                              "Dimension": {
+                                "type": "string"
+                              },
+                              "Direction": {
+                                "type": "string"
+                              },
+                              "BaselineValue": {
+                                "type": "string"
+                              },
+                              "CurrentValue": {
+                                "type": "string"
+                              },
+                              "Zone": {
+                                "type": "integer"
+                              },
+                              "Severity": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "PolicyId",
+                              "PolicyName",
+                              "DriftType",
+                              "Zone",
+                              "Severity"
+                            ]
+                          }
+                        },
+                        "Error": {
+                          "type": "string"
+                        },
+                        "ErrorDetails": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "CheckedAt",
+                        "TenantId",
+                        "TotalPolicies",
+                        "PassedCount",
+                        "FailedCount",
+                        "WarningCount",
+                        "DriftCount",
+                        "OverallSeverity",
+                        "OverallStatus",
+                        "ComplianceRate",
+                        "AlertRequired",
+                        "AlertSeverity",
+                        "ZoneSummary",
+                        "Violations",
+                        "DriftItems"
+                      ]
+                    }
+                  },
+                  "runAfter": {
+                    "Get_Job_Output": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Parse the structured JSON output from Start-CAAValidationRunbook (zone-scoped, targeted scan)."
+                },
+                "Evaluate_Verification_Outcome": {
+                  "type": "If",
+                  "expression": {
+                    "equals": [
+                      "@body('Parse_Results')?['FailedCount']",
+                      0
+                    ]
+                  },
+                  "actions": {
+                    "Set_Status_Passed": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "VerificationStatus",
+                        "value": "Passed"
+                      },
+                      "runAfter": {}
+                    },
+                    "Set_Severity_Passed": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "Severity",
+                        "value": "Passed"
+                      },
+                      "runAfter": {
+                        "Set_Status_Passed": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Set_Status_Failed": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "VerificationStatus",
+                          "value": "Failed"
+                        },
+                        "runAfter": {}
+                      },
+                      "Set_Gaps_Count": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "GapsFound",
+                          "value": "@body('Parse_Results')?['FailedCount']"
+                        },
+                        "runAfter": {
+                          "Set_Status_Failed": [
+                            "Succeeded"
+                          ]
+                        }
+                      },
+                      "Set_Severity_From_Zone": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "Severity",
+                          "value": "@{outputs('Compute_Zone_Severity')}"
+                        },
+                        "runAfter": {
+                          "Set_Gaps_Count": [
+                            "Succeeded"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Parse_Results": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Determine verification outcome: Passed (no failures) or Failed (gaps found — severity mapped from zone)."
+                },
+                "Verify_Dataverse_Record": {
+                  "type": "Scope",
+                  "actions": {
+                    "List_Validation_Records": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "fsi_capolicyvalidationhistories",
+                          "$filter": "fsi_validation_time ge @{body('Parse_Results')?['CheckedAt']}",
+                          "$top": 1
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords"
+                        }
+                      },
+                      "runAfter": {},
+                      "description": "Query Dataverse to verify the runbook wrote the validation history record with Targeted scope tag."
+                    },
+                    "Check_Record_Missing": {
+                      "type": "If",
+                      "expression": {
+                        "equals": [
+                          "@length(outputs('List_Validation_Records')?['body/value'])",
+                          0
+                        ]
+                      },
+                      "actions": {
+                        "Create_Fallback_Record": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "entityName": "fsi_capolicyvalidationhistories",
+                              "item/fsi_name": "CAA Provisioning Verification - @{triggerBody()?['EnvironmentName']} - @{body('Parse_Results')?['CheckedAt']}",
+                              "item/fsi_validation_time": "@body('Parse_Results')?['CheckedAt']",
+                              "item/fsi_tenant_id": "@body('Parse_Results')?['TenantId']",
+                              "item/fsi_total_policies": "@body('Parse_Results')?['TotalPolicies']",
+                              "item/fsi_passed_count": "@body('Parse_Results')?['PassedCount']",
+                              "item/fsi_failed_count": "@body('Parse_Results')?['FailedCount']",
+                              "item/fsi_warning_count": "@body('Parse_Results')?['WarningCount']",
+                              "item/fsi_drift_count": "@body('Parse_Results')?['DriftCount']",
+                              "item/fsi_overall_severity": "@body('Parse_Results')?['OverallSeverity']",
+                              "item/fsi_overall_status": "@body('Parse_Results')?['OverallStatus']",
+                              "item/fsi_compliance_rate": "@body('Parse_Results')?['ComplianceRate']",
+                              "item/fsi_alert_severity": "@body('Parse_Results')?['AlertSeverity']",
+                              "item/fsi_result_json": "@{string(body('Parse_Results'))}",
+                              "item/fsi_source": "ProvisioningHookFallback",
+                              "item/fsi_scan_scope": "Targeted"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord"
+                            }
+                          },
+                          "runAfter": {},
+                          "description": "Fallback: create validation history record with Targeted scope if the runbook failed to write to Dataverse."
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      },
+                      "runAfter": {
+                        "List_Validation_Records": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Parse_Results": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Verify the runbook wrote an immutable validation history record to Dataverse with Targeted scope tag."
+                },
+                "Write_Violations_to_Dataverse": {
+                  "type": "If",
+                  "expression": {
+                    "greater": [
+                      "@length(body('Parse_Results')?['Violations'])",
+                      0
+                    ]
+                  },
+                  "actions": {
+                    "Apply_to_Each_Violation": {
+                      "type": "Foreach",
+                      "foreach": "@body('Parse_Results')?['Violations']",
+                      "actions": {
+                        "Create_Violation_Record": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "entityName": "fsi_capolicyviolations",
+                              "item/fsi_name": "Provisioning Violation - @{items('Apply_to_Each_Violation')?['PolicyName']} - @{items('Apply_to_Each_Violation')?['ViolationType']}",
+                              "item/fsi_policy_id": "@items('Apply_to_Each_Violation')?['PolicyId']",
+                              "item/fsi_policy_name": "@items('Apply_to_Each_Violation')?['PolicyName']",
+                              "item/fsi_violation_type": "@items('Apply_to_Each_Violation')?['ViolationType']",
+                              "item/fsi_zone": "@items('Apply_to_Each_Violation')?['Zone']",
+                              "item/fsi_expected_value": "@items('Apply_to_Each_Violation')?['ExpectedValue']",
+                              "item/fsi_actual_value": "@items('Apply_to_Each_Violation')?['ActualValue']",
+                              "item/fsi_severity": "@items('Apply_to_Each_Violation')?['Severity']",
+                              "item/fsi_severity_label": "@items('Apply_to_Each_Violation')?['SeverityLabel']",
+                              "item/fsi_regulatory_context": "@items('Apply_to_Each_Violation')?['RegulatoryContext']",
+                              "item/fsi_detected_at": "@body('Parse_Results')?['CheckedAt']",
+                              "item/fsi_scan_trigger": "Provisioning",
+                              "item/fsi_environment_id": "@triggerBody()?['EnvironmentId']",
+                              "item/fsi_environment_name": "@triggerBody()?['EnvironmentName']"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord"
+                            }
+                          },
+                          "description": "Create Dataverse violation record tagged as provisioning-triggered for audit trail."
+                        }
+                      },
+                      "runAfter": {},
+                      "operationOptions": "Sequential",
+                      "description": "Write each compliance gap as a fsi_CAPolicyViolation record tagged with provisioning context."
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "runAfter": {
+                    "Evaluate_Verification_Outcome": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Write individual violation records to Dataverse when gaps are found, tagged as provisioning-triggered."
+                },
+                "Check_Alert_Required": {
+                  "type": "If",
+                  "expression": {
+                    "equals": [
+                      "@body('Parse_Results')?['AlertRequired']",
+                      true
+                    ]
+                  },
+                  "actions": {
+                    "Compose_Provisioning_Alert_Card": {
+                      "type": "Compose",
+                      "inputs": {
+                        "type": "AdaptiveCard",
+                        "version": "1.4",
+                        "body": [
+                          {
+                            "type": "Container",
+                            "id": "headerSection",
+                            "style": "@{outputs('Compute_Zone_Container_Style')}",
+                            "bleed": true,
+                            "items": [
+                              {
+                                "type": "ColumnSet",
+                                "columns": [
+                                  {
+                                    "type": "Column",
+                                    "width": "stretch",
+                                    "items": [
+                                      {
+                                        "type": "TextBlock",
+                                        "text": "[PROVISIONING] CA Policy Verification — @{variables('VerificationStatus')}",
+                                        "weight": "Bolder",
+                                        "size": "Large",
+                                        "wrap": true
+                                      },
+                                      {
+                                        "type": "TextBlock",
+                                        "text": "CAA Provisioning Hook · @{body('Parse_Results')?['CheckedAt']}",
+                                        "spacing": "None",
+                                        "isSubtle": true,
+                                        "wrap": true
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Column",
+                                    "width": "auto",
+                                    "verticalContentAlignment": "Center",
+                                    "items": [
+                                      {
+                                        "type": "TextBlock",
+                                        "text": "@{if(equals(triggerBody()?['Zone'], 3), '⛔ CRITICAL', if(equals(triggerBody()?['Zone'], 2), '🔴 HIGH', '🟡 WARNING'))}",
+                                        "weight": "Bolder",
+                                        "size": "ExtraLarge",
+                                        "color": "@{if(equals(triggerBody()?['Zone'], 3), 'Attention', if(equals(triggerBody()?['Zone'], 2), 'Warning', 'Accent'))}",
+                                        "horizontalAlignment": "Right"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Container",
+                            "id": "provisioningContext",
+                            "items": [
+                              {
+                                "type": "TextBlock",
+                                "text": "Provisioning Context",
+                                "weight": "Bolder",
+                                "size": "Medium",
+                                "spacing": "Medium",
+                                "separator": true
+                              },
+                              {
+                                "type": "FactSet",
+                                "facts": [
+                                  {
+                                    "title": "Environment",
+                                    "value": "@{triggerBody()?['EnvironmentName']}"
+                                  },
+                                  {
+                                    "title": "Environment ID",
+                                    "value": "@{triggerBody()?['EnvironmentId']}"
+                                  },
+                                  {
+                                    "title": "Zone",
+                                    "value": "@{outputs('Compute_Zone_Label')}"
+                                  },
+                                  {
+                                    "title": "Provisioned By",
+                                    "value": "@{triggerBody()?['ProvisionedBy']}"
+                                  },
+                                  {
+                                    "title": "Provisioned At",
+                                    "value": "@{triggerBody()?['ProvisionedAt']}"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Container",
+                            "id": "verificationSummarySection",
+                            "items": [
+                              {
+                                "type": "TextBlock",
+                                "text": "Verification Summary",
+                                "weight": "Bolder",
+                                "size": "Medium",
+                                "spacing": "Medium",
+                                "separator": true
+                              },
+                              {
+                                "type": "ColumnSet",
+                                "columns": [
+                                  {
+                                    "type": "Column",
+                                    "width": "stretch",
+                                    "items": [
+                                      {
+                                        "type": "FactSet",
+                                        "facts": [
+                                          {
+                                            "title": "Status",
+                                            "value": "@{body('Parse_Results')?['OverallStatus']}"
+                                          },
+                                          {
+                                            "title": "Total Policies",
+                                            "value": "@{body('Parse_Results')?['TotalPolicies']}"
+                                          },
+                                          {
+                                            "title": "Compliance Rate",
+                                            "value": "@{body('Parse_Results')?['ComplianceRate']}%"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Column",
+                                    "width": "stretch",
+                                    "items": [
+                                      {
+                                        "type": "FactSet",
+                                        "facts": [
+                                          {
+                                            "title": "Passed",
+                                            "value": "@{body('Parse_Results')?['PassedCount']}"
+                                          },
+                                          {
+                                            "title": "Failed",
+                                            "value": "@{body('Parse_Results')?['FailedCount']}"
+                                          },
+                                          {
+                                            "title": "Scan Scope",
+                                            "value": "Targeted (Provisioning)"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Container",
+                            "id": "violationsSection",
+                            "separator": true,
+                            "$when": "@{greater(length(body('Parse_Results')?['Violations']), 0)}",
+                            "items": [
+                              {
+                                "type": "TextBlock",
+                                "text": "Compliance Gaps (@{length(body('Parse_Results')?['Violations'])})",
+                                "weight": "Bolder",
+                                "size": "Medium",
+                                "color": "Attention",
+                                "spacing": "Medium",
+                                "separator": true
+                              }
+                            ]
+                          }
+                        ],
+                        "actions": [
+                          {
+                            "type": "Action.OpenUrl",
+                            "title": "View in Entra Portal",
+                            "url": "https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/ConditionalAccessBlade/~/Policies"
+                          },
+                          {
+                            "type": "Action.OpenUrl",
+                            "title": "View Environment",
+                            "url": "https://admin.powerplatform.microsoft.com/environments/@{triggerBody()?['EnvironmentId']}/hub"
+                          },
+                          {
+                            "type": "Action.OpenUrl",
+                            "title": "View Documentation",
+                            "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-1-security/1.11-conditional-access-policies/"
+                          }
+                        ],
+                        "msteams": {
+                          "width": "Full"
+                        }
+                      },
+                      "runAfter": {},
+                      "description": "Compose provisioning-context adaptive card with zone-appropriate severity styling."
+                    },
+                    "Post_Provisioning_Teams_Alert": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "poster": "Flow bot",
+                          "location": "Channel",
+                          "body/recipient/groupId": "@variables('TeamsGroupId')",
+                          "body/recipient/channelId": "@variables('TeamsChannelId')",
+                          "body/messageBody": "@{string(outputs('Compose_Provisioning_Alert_Card'))}"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                          "connectionName": "shared_teams",
+                          "operationId": "PostCardToConversation"
+                        }
+                      },
+                      "runAfter": {
+                        "Compose_Provisioning_Alert_Card": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Post provisioning verification alert to the designated Teams channel."
+                    },
+                    "Send_Provisioning_Alert_Email": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "emailMessage/To": "@variables('ComplianceDistributionList')",
+                          "emailMessage/Subject": "[@{outputs('Compute_Zone_Severity')}] CA Policy Verification — @{triggerBody()?['EnvironmentName']} (@{outputs('Compute_Zone_Label')})",
+                          "emailMessage/Body": "<html><body><h2>CA Policy Provisioning Verification — @{variables('VerificationStatus')}</h2><p><strong>Severity:</strong> @{outputs('Compute_Zone_Severity')}</p><p><strong>Checked At:</strong> @{body('Parse_Results')?['CheckedAt']}</p><hr/><h3>Provisioning Context</h3><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr><td><strong>Environment</strong></td><td>@{triggerBody()?['EnvironmentName']}</td></tr><tr><td><strong>Environment ID</strong></td><td>@{triggerBody()?['EnvironmentId']}</td></tr><tr><td><strong>Zone</strong></td><td>@{outputs('Compute_Zone_Label')}</td></tr><tr><td><strong>Provisioned By</strong></td><td>@{triggerBody()?['ProvisionedBy']}</td></tr><tr><td><strong>Provisioned At</strong></td><td>@{triggerBody()?['ProvisionedAt']}</td></tr></table><h3>Verification Summary</h3><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr><td><strong>Total Policies</strong></td><td>@{body('Parse_Results')?['TotalPolicies']}</td></tr><tr><td><strong>Passed</strong></td><td>@{body('Parse_Results')?['PassedCount']}</td></tr><tr><td><strong>Failed</strong></td><td>@{body('Parse_Results')?['FailedCount']}</td></tr><tr><td><strong>Compliance Rate</strong></td><td>@{body('Parse_Results')?['ComplianceRate']}%</td></tr><tr><td><strong>Scan Scope</strong></td><td>Targeted (Provisioning)</td></tr></table><br/><p>Review CA policies in the <a href='https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/ConditionalAccessBlade/~/Policies'>Entra Portal</a>.</p><p>View environment in the <a href='https://admin.powerplatform.microsoft.com/environments/@{triggerBody()?['EnvironmentId']}/hub'>Power Platform Admin Center</a>.</p><p><em>This alert was generated by the CAA Provisioning Hook flow.</em></p></body></html>",
+                          "emailMessage/Importance": "High"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                          "connectionName": "shared_office365",
+                          "operationId": "SendEmailV2"
+                        }
+                      },
+                      "runAfter": {
+                        "Compose_Provisioning_Alert_Card": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Send provisioning verification alert email with zone-specific severity."
+                    },
+                    "Set_AlertSent_True": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "AlertSent",
+                        "value": true
+                      },
+                      "runAfter": {
+                        "Post_Provisioning_Teams_Alert": [
+                          "Succeeded"
+                        ],
+                        "Send_Provisioning_Alert_Email": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "runAfter": {
+                    "Evaluate_Verification_Outcome": [
+                      "Succeeded"
+                    ],
+                    "Verify_Dataverse_Record": [
+                      "Succeeded"
+                    ],
+                    "Write_Violations_to_Dataverse": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Route alerts only when AlertRequired is true — gaps found in zone CA policy coverage."
+                }
+              },
+              "else": {
+                "actions": {
+                  "Set_Status_Error_Job_Failed": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "VerificationStatus",
+                      "value": "Error"
+                    },
+                    "runAfter": {}
+                  },
+                  "Set_Severity_Error": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "Severity",
+                      "value": "@{outputs('Compute_Zone_Severity')}"
+                    },
+                    "runAfter": {
+                      "Set_Status_Error_Job_Failed": [
+                        "Succeeded"
+                      ]
+                    }
+                  },
+                  "Send_Provisioning_Job_Failure_Email": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "emailMessage/To": "@variables('ComplianceDistributionList')",
+                        "emailMessage/Subject": "[CRITICAL] Provisioning CA Verification Failed — @{triggerBody()?['EnvironmentName']}",
+                        "emailMessage/Body": "<html><body><h2>[CRITICAL] Provisioning CA Verification Job Failed</h2><p>The CA policy verification triggered by environment provisioning did not complete successfully.</p><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr><td><strong>Environment</strong></td><td>@{triggerBody()?['EnvironmentName']}</td></tr><tr><td><strong>Environment ID</strong></td><td>@{triggerBody()?['EnvironmentId']}</td></tr><tr><td><strong>Zone</strong></td><td>@{outputs('Compute_Zone_Label')}</td></tr><tr><td><strong>Job ID</strong></td><td>@{outputs('Generate_Job_Id')}</td></tr><tr><td><strong>Job Status</strong></td><td>@{body('Get_Job_Status')?['properties']?['status']}</td></tr><tr><td><strong>Automation Account</strong></td><td>@{variables('AutomationAccount')}</td></tr></table><br/><p>Please check the <a href='https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Automation%2FAutomationAccounts'>Azure Automation account</a> for detailed error information.</p><p><em>This alert was generated by the CAA Provisioning Hook flow.</em></p></body></html>",
+                        "emailMessage/Importance": "High"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                        "connectionName": "shared_office365",
+                        "operationId": "SendEmailV2"
+                      }
+                    },
+                    "runAfter": {
+                      "Set_Severity_Error": [
+                        "Succeeded"
+                      ]
+                    },
+                    "description": "Send CRITICAL email when the provisioning verification runbook fails."
+                  },
+                  "Post_Provisioning_Job_Failure_Teams": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "groupId": "@variables('TeamsGroupId')",
+                        "channelId": "@variables('TeamsChannelId')",
+                        "message/body/content": "<p><strong>[CRITICAL] Provisioning CA Verification Job Failed</strong></p><p>The CA policy verification triggered by environment provisioning did not complete successfully.</p><p><strong>Environment:</strong> @{triggerBody()?['EnvironmentName']}</p><p><strong>Zone:</strong> @{outputs('Compute_Zone_Label')}</p><p><strong>Job ID:</strong> @{outputs('Generate_Job_Id')}</p><p><strong>Status:</strong> @{body('Get_Job_Status')?['properties']?['status']}</p><p>Check the Azure Automation account for details.</p>"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                        "connectionName": "shared_teams",
+                        "operationId": "PostMessageToChannelV3"
+                      }
+                    },
+                    "runAfter": {
+                      "Set_Severity_Error": [
+                        "Succeeded"
+                      ]
+                    },
+                    "description": "Post CRITICAL provisioning job failure notification to Teams channel."
+                  },
+                  "Set_AlertSent_True_JobFail": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "AlertSent",
+                      "value": true
+                    },
+                    "runAfter": {
+                      "Send_Provisioning_Job_Failure_Email": [
+                        "Succeeded"
+                      ],
+                      "Post_Provisioning_Job_Failure_Teams": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Wait_Loop": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Branch based on Azure Automation job status: Completed → parse results, verify Dataverse, write violations, route alerts; Failed/Suspended → send CRITICAL notification."
+            }
+          },
+          "runAfter": {
+            "Compute_Zone_Severity": [
+              "Succeeded"
+            ],
+            "Compute_Zone_Container_Style": [
+              "Succeeded"
+            ],
+            "Compute_Zone_Label": [
+              "Succeeded"
+            ]
+          },
+          "description": "Main execution scope: run zone-scoped Azure Automation verification, parse results, write violations, and route alerts."
+        },
+        "Scope_Catch": {
+          "type": "Scope",
+          "actions": {
+            "Set_Status_Error_Flow": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "VerificationStatus",
+                "value": "Error"
+              },
+              "runAfter": {}
+            },
+            "Send_Flow_Error_Email": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "emailMessage/To": "@variables('ComplianceDistributionList')",
+                  "emailMessage/Subject": "[CRITICAL] CAA Provisioning Hook — Flow Failure",
+                  "emailMessage/Body": "<html><body><h2>[CRITICAL] CAA Provisioning Hook — Flow Failure</h2><p>The CAA provisioning hook flow encountered an unexpected error during CA policy verification.</p><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr><td><strong>Environment</strong></td><td>@{triggerBody()?['EnvironmentName']}</td></tr><tr><td><strong>Environment ID</strong></td><td>@{triggerBody()?['EnvironmentId']}</td></tr><tr><td><strong>Zone</strong></td><td>@{triggerBody()?['Zone']}</td></tr><tr><td><strong>Flow Run ID</strong></td><td>@{workflow()['run']['name']}</td></tr><tr><td><strong>Timestamp</strong></td><td>@{utcNow()}</td></tr></table><br/><p>Please investigate the flow run history in the <a href='https://make.powerautomate.com'>Power Automate portal</a> for detailed error information.</p><p><em>This alert was generated by the CAA Provisioning Hook flow error handler.</em></p></body></html>",
+                  "emailMessage/Importance": "High"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Set_Status_Error_Flow": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Send CRITICAL error email when any unexpected failure occurs in the provisioning hook flow."
+            }
+          },
+          "runAfter": {
+            "Scope_Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "description": "Error handling scope: catches unexpected failures in Scope_Try and sends CRITICAL notification."
+        },
+        "Return_Output": {
+          "type": "Response",
+          "kind": "Button",
+          "inputs": {
+            "statusCode": 200,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "VerificationStatus": {
+                  "title": "VerificationStatus",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Passed, Failed, or Error.",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "GapsFound": {
+                  "title": "GapsFound",
+                  "type": "number",
+                  "x-ms-dynamically-added": true,
+                  "description": "Count of compliance gaps detected.",
+                  "x-ms-content-hint": "NUMBER"
+                },
+                "AlertSent": {
+                  "title": "AlertSent",
+                  "type": "boolean",
+                  "x-ms-dynamically-added": true,
+                  "description": "Whether an alert was dispatched.",
+                  "x-ms-content-hint": "BOOLEAN"
+                },
+                "Severity": {
+                  "title": "Severity",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Critical, High, Warning, or Passed.",
+                  "x-ms-content-hint": "TEXT"
+                }
+              }
+            },
+            "body": {
+              "VerificationStatus": "@variables('VerificationStatus')",
+              "GapsFound": "@variables('GapsFound')",
+              "AlertSent": "@variables('AlertSent')",
+              "Severity": "@variables('Severity')"
+            }
+          },
+          "runAfter": {
+            "Scope_Try": [
+              "Succeeded"
+            ],
+            "Scope_Catch": [
+              "Succeeded",
+              "Skipped"
+            ]
+          },
+          "description": "Return verification results to the parent ELM flow: VerificationStatus, GapsFound, AlertSent, Severity."
+        }
+      }
+    },
+    "displayName": "CAA - Provisioning Hook",
+    "description": "Child flow triggered by ELM ProvisioningCompleted event. Runs zone-scoped CA policy compliance verification, writes violations to Dataverse, and routes severity-classified alerts. Supports compliance with FINRA 4511/3110, SEC 17a-3/4, SOX 302/404. Part of the FSI Agent Governance — Conditional Access Automation solution.",
+    "state": "Started"
+  },
+  "schemaVersion": "1.0.0.0"
+}

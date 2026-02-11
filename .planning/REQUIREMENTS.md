@@ -1,96 +1,94 @@
-# Requirements: Deny Event Correlation Report (v10)
+# Requirements: Conditional Access Automation (v10)
 
 **Defined:** 2026-02-10
 **Core Value:** Documentation and solutions that US FSI customers trust.
 
 ## v10 Requirements
 
-Complete the Deny Event Correlation Report solution from WIP (v1.1.0) to production-ready (v2.0.0). The existing solution has basic extraction scripts and KQL queries but outputs to CSV/blob storage with deprecated x-api-key authentication. The v2.0.0 upgrade adds Entra ID authentication (replacing x-api-key before March 31, 2026 deadline), Dataverse persistence for deny event records and correlation results, Power Automate daily orchestration, Teams alerting for high-severity deny patterns, zone-based analysis, SHA-256 evidence export, and Compliance Dashboard integration via v9 infrastructure.
+Requirements for the Conditional Access Automation milestone. Enhances existing CA policy deployment scripts with Tier 2 governance infrastructure — Dataverse persistence, Power Automate automation, drift detection, alerting, SHA-256 evidence export, and framework integration for Controls 1.11, 1.23, and 1.18.
 
-**Goal:** Transform DEC from a standalone CSV-export pipeline into a fully integrated governance solution with persistent state, automated orchestration, compliance evidence, and dashboard visibility — matching the production quality of v4-v8 Tier 2 solutions.
+**Existing assets (companion repo):** Deploy-CAPolicies.ps1, Register-ServicePrincipal.ps1, Test-PolicyCompliance.ps1, 8 zone-specific policy templates, 5 documentation files. Status: Validated.
 
-### Authentication & Script Modernization (AUTH)
+### Script Modernization & Core (SMC)
 
-- [ ] **AUTH-01**: Migrate `Export-RaiTelemetry.ps1` from deprecated x-api-key to Entra ID (bearer token) authentication using `Connect-AzAccount` + `Get-AzAccessToken` before the March 31, 2026 deadline
-- [ ] **AUTH-02**: Create `DECClient.psm1` shared module with Entra ID authentication helpers, connection management, and reusable extraction functions for all three data sources (Purview Audit, DLP, App Insights)
-- [ ] **AUTH-03**: Update all extraction scripts to use `#Requires` statements and consistent credential handling via Azure Key Vault (matching v4-v8 security patterns)
+- [ ] **SMC-01**: CAA PowerShell module structure following Tier 2 conventions (`#Requires`, `ErrorAction`, help comments, CAAClient module pattern matching ACV/SSC/AAM)
+- [ ] **SMC-02**: Validate and update 8 CA policy templates against current Graph API Conditional Access policy schema (`/policies/conditionalAccessPolicies`)
+- [ ] **SMC-03**: Zone lookup integration with ELM Dataverse table or naming convention fallback for zone-appropriate policy deployment
+- [ ] **SMC-04**: Dry-run mode for all deployment and compliance operations with preview output showing what would change
+- [ ] **SMC-05**: Policy drift detection comparing currently deployed CA policies against template baselines (enabled→disabled, conditions changed, controls weakened)
 
-### Dataverse Infrastructure (DVS)
+### Dataverse Infrastructure (INF)
 
-- [ ] **DVS-01**: Design and document Dataverse schema with tables for deny event records (`fsi_denyevent`), daily correlation summaries (`fsi_denycorrelation`), and alert history (`fsi_denyalert`), reusing ACV option sets (`fsi_acv_zone`, `fsi_acv_severity`)
-- [ ] **DVS-02**: Implement deny event ingestion — extraction scripts write normalized deny events to `fsi_denyevent` with source type, agent ID, deny reason, zone, severity, and timestamp
-- [ ] **DVS-03**: Implement correlation logic that groups deny events by agent, zone, and time window, producing daily correlation summaries with event counts, severity distribution, and trend indicators
-- [ ] **DVS-04**: Zone-based retention rules: Zone 1 = 90 days, Zone 2 = 365 days, Zone 3 = 730 days (SEC 17a-4 compliance)
+- [ ] **INF-01**: Dataverse tables for CA policy baselines, validation history (immutable), and policy violations reusing `fsi_acv_zone` and `fsi_acv_severity` option sets
+- [ ] **INF-02**: Environment variables for zone-specific CA policy configuration (`fsi_CAA_*` prefix) including MFA strength, device compliance, session lifetime thresholds
+- [ ] **INF-03**: Connection references for Dataverse, Office 365, Teams, and Microsoft Graph (`fsi_cr_*` naming convention)
+- [ ] **INF-04**: Python deployment scripts (idempotent, dry-run support) following ACV/SSC/AAM pattern with schema deployment, environment variables, and connection references
 
-### Orchestration & Alerting (ORC)
+### Automation & Alerting (AUT)
 
-- [ ] **ORC-01**: Power Automate flow `DEC-DailyOrchestrator` that triggers daily to run all three extraction scripts via Azure Automation, write results to Dataverse, and generate correlation summaries
-- [ ] **ORC-02**: Teams adaptive card alerting for high-severity deny patterns: volume anomalies (>2σ from 7-day baseline), new agent deny events (first-time denials), and Zone 3 critical blocks
-- [ ] **ORC-03**: Alert severity classification matching cross-solution standard: Critical (Zone 3 jailbreak/XPIA), High (volume anomaly or Zone 2 policy block), Warning (Zone 1 RAI filter), Info (routine DLP match)
+- [ ] **AUT-01**: Power Automate daily compliance scan flow executing Test-PolicyCompliance logic against all tracked environments per zone
+- [ ] **AUT-02**: Drift detection identifying unauthorized CA policy modifications outside automation (policy disabled, conditions weakened, grant controls changed)
+- [ ] **AUT-03**: Teams adaptive card alerts with severity classification (Zone 3 CRITICAL, Zone 2 HIGH, Zone 1 WARNING) and violation details
+- [ ] **AUT-04**: ELM provisioning hook for auto-deploying zone-appropriate CA policies to newly provisioned environments
 
-### Evidence Export & Dashboard Integration (EVI)
+### Evidence & Framework Integration (EFR)
 
-- [ ] **EVI-01**: SHA-256 integrity-hashed evidence export script `Export-DenyEventEvidence.ps1` producing timestamped examination packages with deny events, correlation summaries, and trend analysis
-- [ ] **EVI-02**: Evidence package includes regulatory alignment mapping (which deny events satisfy which FINRA/SEC requirements) for examiner self-service
-- [ ] **EVI-03**: Register DEC evidence packages with unified evidence export (v9 `Export-UnifiedComplianceEvidence.ps1`) via IntegrationConfig extension
-- [ ] **EVI-04**: Extend v9 `IntegrationConfig.psm1` with DEC solution mapping: DEC → Controls 1.5 (Defender), 1.7 (Audit Logging), 3.4 (Deny Event Reporting)
-- [ ] **EVI-05**: Extend `Sync-SolutionAssessments.ps1` to query `fsi_denycorrelation` daily summaries and translate to Compliance Dashboard assessment records per mapped control
-
-### Documentation & Framework (DOC)
-
-- [ ] **DOC-01**: Add tip admonitions to Controls 1.5, 1.7, 1.8, and 3.4 referencing the DEC v2.0.0 solution with deployment links
-- [ ] **DOC-02**: Update `solutions-index.md` status from "Work In Progress" to "Completed" with v2.0.0 version, updated component list, and regulatory alignment section
-- [ ] **DOC-03**: Complete DEC solution documentation suite in FSI-AgentGov-Solutions (README, PREREQUISITES, SCHEMA, EVIDENCE_EXPORT, FLOW_SETUP, TROUBLESHOOTING, CHANGELOG)
-- [ ] **DOC-04**: Update framework playbook `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` to reflect v2.0.0 architecture with Dataverse persistence and Power Automate orchestration
+- [ ] **EFR-01**: SHA-256 integrity-hashed compliance evidence export for CA policy configurations, validation results, and drift detection history
+- [ ] **EFR-02**: Control 1.11 framework integration (tip admonition linking to Conditional Access Automation solution with deployment and compliance monitoring guidance)
+- [ ] **EFR-03**: solutions-index.md catalog entry update (Work In Progress → Completed) with version, description, related controls (1.11, 1.23, 1.18)
+- [ ] **EFR-04**: Documentation suite completion in companion repo (prerequisites, Dataverse schema, deployment guide, troubleshooting, CHANGELOG)
+- [ ] **EFR-05**: Compliance Dashboard feed integration for Control 1.11 automated assessment scoring via v9 integration pattern
 
 ## Future Requirements
 
-- Real-time deny event streaming via Event Hub for sub-minute detection
-- Auto-escalation to compliance officer when deny pattern matches known regulatory scenario
-- Cross-solution correlation: deny events + file upload violations + moderation blocks = compound risk score
-- Power BI Premium real-time dataset for sub-hourly refresh (currently 8x/day with Pro license)
-- Defender CloudAppEvents UPIA/XPIA integration as fourth data source
+Deferred to post-v10.
+
+### Post-MVP Enhancements
+
+- **SMC-06**: Agentic User / Entra Agent ID CA policy templates for agent identity authentication (preview feature — pending GA)
+- **AUT-05**: PIM-triggered CA policy activation for Zone 3 role elevation scenarios
+- **AUT-06**: Auto-remediation of drift violations with approval workflow (Zone 1/2 only)
+- **EFR-06**: Power BI compliance dashboard for CA policy coverage visualization
+- **INF-05**: Multi-tenant support for MSP scenarios with tenant-isolated baselines
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Auto-remediation | Cannot auto-block agents based on deny patterns without human review |
-| Real-time streaming | Daily batch cadence sufficient for governance monitoring |
-| New controls | v10 enhances existing controls, not creating new ones |
-| Power BI .pbit template | Existing TMDL import path is functional workaround |
-| Defender CloudAppEvents source | Optional fourth source; deferred to future enhancement |
-| Non-US regulatory mappings | US FSI scope only |
+| Auto-remediation of Zone 3 policies | Too risky for FSI; detect-only meets regulatory requirements |
+| Named location management | Separate infrastructure concern; CA Automation focuses on policy lifecycle |
+| Legacy authentication management beyond AI apps | Broader tenant security, not agent-specific |
+| Real-time policy change detection | Batch/daily cadence sufficient for governance monitoring |
+| Non-Microsoft IdP integration | Microsoft-native stack only per project constraints |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| DVS-01 | Phase 2 | Pending |
-| DVS-02 | Phase 2 | Pending |
-| DVS-03 | Phase 2 | Pending |
-| DVS-04 | Phase 2 | Pending |
-| ORC-01 | Phase 3 | Pending |
-| ORC-02 | Phase 3 | Pending |
-| ORC-03 | Phase 3 | Pending |
-| EVI-01 | Phase 4 | Pending |
-| EVI-02 | Phase 4 | Pending |
-| EVI-03 | Phase 4 | Pending |
-| EVI-04 | Phase 4 | Pending |
-| EVI-05 | Phase 4 | Pending |
-| DOC-01 | Phase 5 | Pending |
-| DOC-02 | Phase 5 | Pending |
-| DOC-03 | Phase 5 | Pending |
-| DOC-04 | Phase 5 | Pending |
+| SMC-01 | Phase 1 | Pending |
+| SMC-02 | Phase 1 | Pending |
+| SMC-03 | Phase 1 | Pending |
+| SMC-04 | Phase 1 | Pending |
+| SMC-05 | Phase 1 | Pending |
+| INF-01 | Phase 2 | Pending |
+| INF-02 | Phase 2 | Pending |
+| INF-03 | Phase 2 | Pending |
+| INF-04 | Phase 2 | Pending |
+| AUT-01 | Phase 3 | Pending |
+| AUT-02 | Phase 3 | Pending |
+| AUT-03 | Phase 3 | Pending |
+| AUT-04 | Phase 3 | Pending |
+| EFR-01 | Phase 4 | Pending |
+| EFR-02 | Phase 4 | Pending |
+| EFR-03 | Phase 4 | Pending |
+| EFR-04 | Phase 4 | Pending |
+| EFR-05 | Phase 4 | Pending |
 
 **Coverage:**
-- v10 requirements: 19 total
-- Mapped to phases: 19
+- v10 requirements: 18 total
+- Mapped to phases: 18
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-10*
-*Previous REQUIREMENTS.md archived with v9 milestone*
+*Previous REQUIREMENTS.md archived as v9-REQUIREMENTS.md*

@@ -25,3 +25,7 @@ pyyaml>=6.0            # YAML parsing for monitoring-config.yaml
 # pytest>=7.0          # Testing framework
 # black>=23.0          # Code formatting
 # flake8>=6.0          # Linting
+
+# Required for Dataverse deployment (Conditional Access Automation)
+msal>=1.30.0           # MSAL authentication for Dataverse Web API
+requests>=2.32.0       # HTTP client for Dataverse REST calls
