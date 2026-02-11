@@ -11,7 +11,7 @@ Closes 16 gaps identified by codebase mapping analysis after v11 Technical Remed
 ## Phases
 
 - [x] **Phase 1: Broken Links & Content Consistency** — Fix excluded-doc links, publish missing nav entries, complete Azure AD rename and Zone normalization *(7/7 criteria passed — gap closure complete)*
-- [ ] **Phase 2: Quality Automation & Infrastructure** — Create language linter, add CI validation, sync template conventions, enhance playbook verification
+- [x] **Phase 2: Quality Automation & Infrastructure** — Create language linter, add CI validation, sync template conventions, enhance playbook verification *(5/5 criteria passed)*
 - [ ] **Phase 3: Housekeeping** — Remove stale output files, create missing EXPECTED.md specs, fix Excel count, update milestone history
 
 ## Phase Details
@@ -49,8 +49,8 @@ Plans:
 **Plans:** 2 (A = Linter + CI, B = Templates + validation — no file overlap)
 
 Plans:
-- [ ] 02-01-PLAN.md — Language Linter & CI Integration (QAI-01, QAI-02) — Worktree A
-- [ ] 02-02-PLAN.md — Template & Validation Script Updates (QAI-03, QAI-04, QAI-05) — Worktree B
+- [x] 02-01-PLAN.md — Language Linter & CI Integration (QAI-01, QAI-02) — Worktree A ✅
+- [x] 02-02-PLAN.md — Template & Validation Script Updates (QAI-03, QAI-04, QAI-05) — Worktree B ✅
 
 ### Phase 3: Housekeeping
 **Goal:** Clean up stale artifacts, create missing screenshot specs, fix Excel validation count, and update milestone history
@@ -72,7 +72,7 @@ Plans:
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
 | 1. Broken Links & Content Consistency | 4/4 | Complete (7/7 criteria passed) |
-| 2. Quality Automation & Infrastructure | 0/2 | Not started |
+| 2. Quality Automation & Infrastructure | 2/2 | Complete (5/5 criteria passed) |
 | 3. Housekeeping | 0/2 | Not started |
 
 ## Parallel Execution Guide
