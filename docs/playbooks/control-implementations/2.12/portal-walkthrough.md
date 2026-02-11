@@ -67,7 +67,7 @@ Define sampling rates by zone:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **WSP Coverage** | Awareness | Documented procedures | Full addendum |
 | **HITL** | None | High-risk topics | All generative answers |

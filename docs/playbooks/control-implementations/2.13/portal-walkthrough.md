@@ -94,7 +94,7 @@ Document procedures for regulatory examination:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Retention** | 3 years | 6 years | 6-7 years |
 | **Metadata** | Basic | Comprehensive | Full taxonomy |
@@ -120,7 +120,7 @@ Libraries:
 
 Retention:
   Default: 6 years
-  SEC 17a-4 content: 7 years (WORM or audit-trail alternative)
+  SEC 17a-4 content: 7 years (6-year requirement + 1-year buffer; WORM or audit-trail alternative)
   Permanent: Board approvals, critical decisions
 
 Auto-Labeling:

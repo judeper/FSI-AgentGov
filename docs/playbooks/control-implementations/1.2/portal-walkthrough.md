@@ -29,7 +29,7 @@ Before building the registry, define the required metadata fields for FSI compli
 | Description | Yes | Purpose and function | `Handles retail banking inquiries` |
 | Owner | Yes | Responsible individual | `jane.smith@contoso.com` |
 | Business Unit | Yes | Owning department | `Retail Banking` |
-| Zone Classification | Yes | Governance zone | `Tier 3 - Enterprise` |
+| Zone Classification | Yes | Governance zone | `Zone 3 - Enterprise` |
 | Environment | Yes | Deployment location | `Production-Enterprise` |
 | Data Sources | Yes | Connected data | `SharePoint, CRM` |
 | Connectors Used | Yes | External integrations | `SharePoint, Dataverse` |
@@ -158,7 +158,7 @@ Create a scheduled flow to refresh the registry:
 
 1. Navigate to [Power Automate](https://make.powerautomate.com)
 2. Create a **Scheduled cloud flow**
-3. Set schedule: Weekly (or daily for Tier 3)
+3. Set schedule: Weekly (or daily for Zone 3)
 4. Add actions:
    - Connect to Power Platform Admin connector
    - List all apps in target environments

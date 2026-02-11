@@ -35,10 +35,10 @@ As of early 2025, **data policy enforcement for Copilot Studio is enabled by def
    - **Copilot Studio** (agent interactions)
    - Optional: **Devices** if Endpoint DLP is in scope
 7. Configure conditions using SITs and/or sensitivity labels
-8. Choose actions appropriate to governance tier:
-   - **Tier 1**: Audit only
-   - **Tier 2**: Warn user, log event
-   - **Tier 3**: Block access, notify compliance
+8. Choose actions appropriate to governance zone:
+   - **Zone 1**: Audit only
+   - **Zone 2**: Warn user, log event
+   - **Zone 3**: Block access, notify compliance
 9. Start in **Test with notifications**
 10. Save and allow time for propagation
 
@@ -354,8 +354,8 @@ Conditions:
   - Sensitive info types: SSN, Account Numbers, Credit Card
   - OR Sensitivity label: Confidential, Highly Confidential
 Actions:
-  - Tier 1-2: Warn user, log event
-  - Tier 3: Block access, notify compliance
+  - Zone 1-2: Warn user, log event
+  - Zone 3: Block access, notify compliance
 ```
 
 ### Financial Data Protection
@@ -367,19 +367,19 @@ Conditions:
   - Sensitive info types: Financial statements, Trading data
   - Sensitivity label: Highly Confidential
 Actions:
-  - Tier 2: Warn, log event, incident report
-  - Tier 3: Block, notify security team
+  - Zone 2: Warn, log event, incident report
+  - Zone 3: Block, notify security team
 ```
 
 ---
 
-## Governance Tier Configuration
+## Governance Zone Configuration
 
-| Tier | DLP Mode | Label Requirement | Oversharing Review |
+| Zone | DLP Mode | Label Requirement | Oversharing Review |
 |------|----------|-------------------|-------------------|
-| Tier 1 | Audit only | Optional | Annual |
-| Tier 2 | Warn | Recommended | Quarterly |
-| Tier 3 | Block | **Mandatory** | Monthly |
+| Zone 1 | Audit only | Optional | Annual |
+| Zone 2 | Warn | Recommended | Quarterly |
+| Zone 3 | Block | **Mandatory** | Monthly |
 
 ---
 

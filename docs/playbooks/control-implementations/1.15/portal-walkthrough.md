@@ -35,7 +35,7 @@
    - OneDrive for Business
    - Microsoft Teams
 
-### Step 3: Configure Customer Key (Optional - Tier 2/3)
+### Step 3: Configure Customer Key (Optional - Zone 2/3)
 
 #### 3a: Create Azure Key Vaults
 
@@ -43,7 +43,7 @@
 2. Create first Key Vault:
    - Name: `kv-m365-cmk-primary`
    - Region: Primary region
-   - SKU: Premium (HSM-backed for Tier 3)
+   - SKU: Premium (HSM-backed for Zone 3)
    - Enable soft delete and purge protection
 
 3. Create second Key Vault in different region:
@@ -95,7 +95,7 @@
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Transit Encryption** | TLS 1.2 | TLS 1.2+ | TLS 1.3 + mTLS |
 | **At-Rest Encryption** | Microsoft-managed | Customer Key (Standard) | Customer Key (HSM) |

@@ -17,10 +17,10 @@
 | 7 | Review Agent collections | Global and Quarantined visible |
 | 8 | Check Sign-in logs (Is Agent: Yes) | Agent sign-ins logged |
 | 9 | Open recent maker sign-in | Applied CA Policies shows policy and result |
-| 10 | Validate Tier 3 auth details | FIDO2 or Certificate-based shown |
+| 10 | Validate Zone 3 auth details | FIDO2 or Certificate-based shown |
 | 11 | Review CA audit logs | Policy create/modify events logged |
 | 12 | Run What if for break-glass | No CA policies apply |
-| 13 | Export Tier 3 sign-in record | JSON includes CA and auth details |
+| 13 | Export Zone 3 sign-in record | JSON includes CA and auth details |
 
 ---
 
@@ -36,7 +36,7 @@
 
 ### Test 2: Phishing-Resistant MFA
 
-1. Sign in as Tier 3 agent creator
+1. Sign in as Zone 3 agent creator
 2. Attempt to access Power Platform
 3. **Expected:** FIDO2/Certificate auth required
 4. Complete phishing-resistant auth
@@ -101,9 +101,9 @@
 
 ---
 
-## Authentication Methods by Tier
+## Authentication Methods by Zone
 
-| Method | Tier 1 | Tier 2 | Tier 3 |
+| Method | Zone 1 | Zone 2 | Zone 3 |
 |--------|--------|--------|--------|
 | SMS/Voice | Allowed | Not recommended | Blocked |
 | Authenticator App | Allowed | Allowed | Limited |
@@ -114,10 +114,10 @@
 
 ## Confirmation Checklist
 
-- [ ] CA policies created for all governance tiers
+- [ ] CA policies created for all governance zones
 - [ ] Break-glass accounts excluded and verified
 - [ ] Named locations configured
-- [ ] Authentication methods configured per tier
+- [ ] Authentication methods configured per zone
 - [ ] Authentication strengths defined
 - [ ] Agent ID dashboard reviewed
 - [ ] Agent sponsors assigned (Zone 2/3)

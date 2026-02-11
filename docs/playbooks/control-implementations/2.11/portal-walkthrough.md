@@ -65,7 +65,7 @@ Define metrics to measure:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Testing Frequency** | Annual | Pre-deployment | Pre-deployment + Quarterly |
 | **Test Dataset Size** | 500/group | 1,000/group | 2,000/group |

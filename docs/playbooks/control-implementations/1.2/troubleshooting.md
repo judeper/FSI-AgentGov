@@ -122,7 +122,7 @@
 
 **Resolution:**
 - Establish ownership transfer process in offboarding
-- Assign backup owners for all Tier 2-3 agents
+- Assign backup owners for all Zone 2-3 agents
 - Flag orphaned agents for immediate reassignment
 - Add "Backup Owner" field to registry schema
 

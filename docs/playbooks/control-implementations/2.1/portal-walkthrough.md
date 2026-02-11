@@ -9,7 +9,7 @@
 - [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] Target environment(s) identified
-- [ ] Governance tier classification determined
+- [ ] Governance zone classification determined
 - [ ] Environment region is United States (US-only requirement)
 - [ ] DLP policies created and ready to apply
 - [ ] Maker welcome content drafted
@@ -58,13 +58,13 @@ Expand **Copilot Studio** section to configure agent sharing:
 - "Only share with individuals (no security groups)" - Prevents sharing with security groups
 - "Limit the number of viewers who can access each agent" - Set numeric limit
 
-**Governance Tier Recommendations:**
+**Governance Zone Recommendations:**
 
-| Tier | Editors | Viewers | Individuals Only | Viewer Limit |
+| Zone | Editors | Viewers | Individuals Only | Viewer Limit |
 |------|---------|---------|------------------|--------------|
-| Tier 1 | Disabled | Disabled | N/A | N/A |
-| Tier 2 | Enabled | Enabled | No | No limit |
-| Tier 3 | Disabled | Enabled | No | Consider limit |
+| Zone 1 | Disabled | Disabled | N/A | N/A |
+| Zone 2 | Enabled | Enabled | No | No limit |
+| Zone 3 | Disabled | Enabled | No | Consider limit |
 
 > **Note:** Sharing limits do not apply when agent authentication is set to "No authentication". Always enable authentication for shared/enterprise agents.
 
@@ -153,7 +153,7 @@ Managed Environments complement **Environment Groups** and **Environment Routing
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|--------------------|
 | **Managed Environment** | Enabled for non-personal | Enabled for all non-personal | **Mandatory** |
 | **Sharing Limits - Apps** | Unlimited | 50 users | Security groups only |
@@ -241,7 +241,7 @@ Managed Environment Configuration:
 After completing these steps, verify:
 
 - [ ] Managed Environment card shows enabled status
-- [ ] Sharing limits configured per governance tier
+- [ ] Sharing limits configured per governance zone
 - [ ] Solution checker set to appropriate enforcement level
 - [ ] Usage insights enabled with correct recipients
 - [ ] Maker welcome content displays correctly (use preview)

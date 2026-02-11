@@ -103,11 +103,11 @@
 
 ### FSI Retention Requirements
 
-| Tier | Minimum Retention | Recommended |
+| Zone | Minimum Retention | Recommended |
 |------|-------------------|-------------|
-| Tier 1 | 180 days (Standard) | 1 year |
-| Tier 2 | 1 year | 7 years |
-| Tier 3 | 7 years | 10 years |
+| Zone 1 | 180 days (Standard) | 1 year |
+| Zone 2 | 1 year | 7 years |
+| Zone 3 | 7 years | 10 years |
 
 ---
 

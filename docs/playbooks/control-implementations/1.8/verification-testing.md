@@ -13,7 +13,7 @@
 | 3 | Validate egress controls | Blocked connector/tool invocation logged |
 | 4 | Verify alert configuration | FSI alerts created and enabled |
 | 5 | Test content moderation | Appropriate moderation response |
-| 6 | Validate SIEM integration (Tier 3) | Events streaming within SLA |
+| 6 | Validate SIEM integration (Zone 3) | Events streaming within SLA |
 | 7 | Verify external threat detection | Webhook receives requests (if enabled) |
 | 8 | Verify Additional Threat Detection config | App ID and endpoint configured correctly |
 | 9 | Test Defender webhook connectivity | Webhook responds within 1 second |
@@ -242,7 +242,7 @@
 - [ ] Content moderation is enabled
 - [ ] Egress controls are in place
 - [ ] Alert policies are created and enabled
-- [ ] SIEM integration is functional (Tier 2-3)
+- [ ] SIEM integration is functional (Zone 2-3)
 - [ ] Incident response playbook is documented
 - [ ] Evidence artifacts collected and stored
 - [ ] Additional threat detection enabled for Zone 2/3 environments

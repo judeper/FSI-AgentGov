@@ -69,7 +69,7 @@
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Step-Up Required** | Not required | Data export, API | All sensitive actions |
 | **Session Frequency** | 8 hours | 4 hours | 1 hour |

@@ -64,7 +64,7 @@ Create inventory of agent content locations:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Case Creation** | As needed | Documented process | Approval workflow |
 | **Legal Hold** | As needed | Case-by-case | Standing holds |

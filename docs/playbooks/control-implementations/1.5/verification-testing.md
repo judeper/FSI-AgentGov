@@ -12,7 +12,7 @@
 | 2 | Verify AI locations selected | Copilot/Copilot Studio included |
 | 3 | Confirm SIT readiness (Control 1.13) | SITs exist and match sanitized test data |
 | 4 | Create sanitized test content + apply labels | Files/messages prepared; labels applied |
-| 5 | Run AI test prompts and agent scenarios | Blocked/warned/audited per tier |
+| 5 | Run AI test prompts and agent scenarios | Blocked/warned/audited per zone |
 | 6 | (Optional) Run Endpoint DLP tests | Endpoint actions enforce as configured |
 | 7 | Check DSPM for AI > Policies | AI-related DLP policies visible |
 | 8 | Check audit logs / incident reports | DLP events and reports captured |
@@ -25,7 +25,7 @@ Use non-production, sanitized data. Do not use real customer data.
 
 | Test ID | Scenario | Input | Expected |
 |---------|----------|-------|----------|
-| AI-01 | Prompt includes SSN | Prompt text includes SSN-formatted value | Tier 2: warning + log; Tier 3: block + incident |
+| AI-01 | Prompt includes SSN | Prompt text includes SSN-formatted value | Zone 2: warning + log; Zone 3: block + incident |
 | AI-02 | Prompt includes ABA routing | Prompt includes routing-formatted value | Same as AI-01 |
 | AI-03 | Retrieval from labeled content | Agent grounds on Highly Confidential file | Block per label rule; event logged |
 | AI-04 | Retrieval from Confidential content | Agent grounds on Confidential content | Warn or allow-with-audit; event logged |

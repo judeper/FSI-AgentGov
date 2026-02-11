@@ -52,7 +52,7 @@
 
 ### FSI Recommended Settings
 
-| Method | Tier 1 | Tier 2 | Tier 3 |
+| Method | Zone 1 | Zone 2 | Zone 3 |
 |--------|--------|--------|--------|
 | Passkey (FIDO2) | Enable | Enable | **Required** |
 | Microsoft Authenticator | Enable | Enable | Limited |
@@ -61,7 +61,7 @@
 
 1. Navigate to **Authentication methods** > **Policies**
 2. Enable FIDO2/Passkey for enterprise users
-3. Disable SMS and Voice for Tier 2-3 users
+3. Disable SMS and Voice for Zone 2-3 users
 4. Enable Certificate-based authentication for enterprise
 
 ---

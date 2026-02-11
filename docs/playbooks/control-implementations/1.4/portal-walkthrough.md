@@ -95,7 +95,7 @@ For each allowed connector, set the policy to **allow only the minimum required 
 ACP is not a replacement for DLP. Use DLP to define **data loss prevention boundaries** (Business / Non-Business / Blocked).
 
 1. In Power Platform Admin Center, go to **Policies** > **Data policies**
-2. Select an existing policy aligned to your regulated tier, or select **New policy**
+2. Select an existing policy aligned to your regulated zone, or select **New policy**
 3. Configure connector groups:
    - **Business**: enterprise/tenant-approved connectors required by agents
    - **Non-Business**: generally prohibited for regulated agent environments
@@ -117,9 +117,9 @@ ACP is not a replacement for DLP. Use DLP to define **data loss prevention bound
 
 ---
 
-## Configuration Matrix by Governance Tier
+## Configuration Matrix by Governance Zone
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|--------------------|
 | **Connector approach** | DLP-based blocking | ACP allowlist | Strict ACP allowlist |
 | **Social media** | Block via DLP | Block via ACP | Block via ACP |

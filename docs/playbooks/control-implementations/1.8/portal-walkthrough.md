@@ -35,7 +35,7 @@
 2. Go to **Features** > **Agent capabilities**
 3. Configure security settings:
 
-| Setting | Recommended | Tier 3 |
+| Setting | Recommended | Zone 3 |
 |---------|-------------|--------|
 | Allow AI-generated responses | On | On (with guardrails) |
 | Moderation and safety | Enabled | Enabled - Strict |
@@ -81,7 +81,7 @@ For each agent:
 2. Navigate to **Settings** > **Security**
 3. Configure:
 
-| Setting | Tier 1 | Tier 2 | Tier 3 |
+| Setting | Zone 1 | Zone 2 | Zone 3 |
 |---------|--------|--------|--------|
 | Authentication | Optional | Required | Required + MFA |
 | Secure input | Off | On | On |
@@ -102,7 +102,7 @@ For each agent:
 | Requirement | Details |
 |-------------|---------|
 | **Licensing** | Microsoft Defender for Cloud Apps (included in Microsoft 365 E5) |
-| **Roles** | Power Platform Administrator + Entra Security Admin (Defender XDR access) |
+| **Roles** | Power Platform Admin + Entra Security Admin (Defender XDR access) |
 | **Connector** | Microsoft 365 App Connector must be configured in Defender portal |
 
 ### Step 5a: Configure Microsoft Defender Portal
@@ -213,7 +213,7 @@ CloudAppEvents
 
 Before configuring Additional Threat Detection, ensure:
 
-- Power Platform Administrator role (or Entra Global Admin)
+- Power Platform Admin role (or Entra Global Admin)
 - Microsoft Entra application registered for webhook authentication
 - Webhook endpoint URL from your security provider (third-party or custom)
 

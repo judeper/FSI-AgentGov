@@ -1,4 +1,4 @@
-# Portal Walkthrough: Control 2.2 - Environment Groups and Tier Classification
+# Portal Walkthrough: Control 2.2 - Environment Groups and Zone Classification
 
 **Last Updated:** January 2026
 **Portal:** Power Platform Admin Center
@@ -8,7 +8,7 @@
 
 - [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-- [ ] Governance tier definitions documented (Tier 1/2/3)
+- [ ] Governance zone definitions documented (Zone 1/2/3)
 - [ ] Inventory of existing environments and classifications
 - [ ] All target environments are Managed Environments ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md))
 - [ ] DLP policies reviewed for compatibility
@@ -24,17 +24,17 @@
 2. Navigate to **Manage** > **Environment groups**
 3. Click **+ New group**
 4. Enter group name (e.g., "FSI-Team-Collaboration")
-5. Add description with tier classification (Tier 1/2/3), business scope, and change authority
+5. Add description with zone classification (Zone 1/2/3), business scope, and change authority
 6. Click **Save**
 
 **Recommended Group Structure for FSI:**
 
-| Group Name | Governance Tier | Description |
+| Group Name | Governance Zone | Description |
 |------------|-----------------|-------------|
-| FSI-Personal-Dev | Tier 1 | Personal productivity environments - non-sensitive data only |
-| FSI-Team-Collaboration | Tier 2 | Team collaboration environments - internal/confidential data |
-| FSI-Enterprise-Production | Tier 3 | Enterprise production - all classifications, maximum governance |
-| FSI-Enterprise-NonProd | Tier 3 | UAT/staging - same rules as production for pre-deployment testing |
+| FSI-Personal-Dev | Zone 1 | Personal productivity environments - non-sensitive data only |
+| FSI-Team-Collaboration | Zone 2 | Team collaboration environments - internal/confidential data |
+| FSI-Enterprise-Production | Zone 3 | Enterprise production - all classifications, maximum governance |
+| FSI-Enterprise-NonProd | Zone 3 | UAT/staging - same rules as production for pre-deployment testing |
 
 ### Step 2: Add Environments to Groups
 
@@ -56,9 +56,9 @@
 
 ---
 
-## Rule Configuration by Governance Tier
+## Rule Configuration by Governance Zone
 
-### Tier 1 - Personal Productivity Rules
+### Zone 1 - Personal Productivity Rules
 
 **Allowed data:** Non-sensitive only (no regulated customer data). Use synthetic/sample data when possible.
 
@@ -71,7 +71,7 @@
 | Preview and experimental AI models | **Enabled** | Allows learning with low-risk features |
 | Computer Use | **Disabled** | High-risk feature - always disabled |
 
-### Tier 2 - Team Collaboration Rules
+### Zone 2 - Team Collaboration Rules
 
 **Expected ownership:** Named group owner and approval trail for rule changes.
 
@@ -86,7 +86,7 @@
 | Enable External Models | **Disabled** | Prevents external AI model usage |
 | Computer Use | **Disabled** | High-risk feature - always disabled |
 
-### Tier 3 - Enterprise Managed Rules
+### Zone 3 - Enterprise Managed Rules
 
 **Change control:** Treat rule changes as controlled changes (ticket + peer review + recorded testing results).
 
@@ -155,9 +155,9 @@ Organization: Contoso Financial Services
 
 environment_groups:
   - name: "FSI-Enterprise-Production"
-    description: "Enterprise production environments - maximum governance (Tier 3)"
+    description: "Enterprise production environments - maximum governance (Zone 3)"
     tier: "Production"
-    governance_tier: "Enterprise Managed"
+    governance_zone: "Enterprise Managed"
 
     rules:
       # Sharing Rules
@@ -205,11 +205,11 @@ environment_groups:
 After completing configuration, verify:
 
 - [ ] Environment groups created with appropriate names and descriptions
-- [ ] Environments added to correct groups based on tier classification
-- [ ] Rules configured per governance tier requirements
+- [ ] Environments added to correct groups based on zone classification
+- [ ] Rules configured per governance zone requirements
 - [ ] Rules published and status shows "Published" with date
 - [ ] Computer Use rule disabled for all groups
-- [ ] External Models rule disabled for Tier 2/3 groups
+- [ ] External Models rule disabled for Zone 2/3 groups
 - [ ] Test environment inherits rules when added to group
 
 ---
