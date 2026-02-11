@@ -40,3 +40,7 @@ nul
 
 # Research prompts (local only - root level, not .github/prompts/)
 /prompts/
+
+# Build/verify output files (scratch artifacts)
+/build_*.txt
+/verify_*.txt

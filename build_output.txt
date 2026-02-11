@@ -1,8 +1,0 @@
-INFO    -  Cleaning site directory
-INFO    -  Building documentation to directory: C:\dev\worktrees\conditional-access-automation\site
-INFO    -  Doc file 'controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md' contains a link to 'reference/regulatory-mappings.md' which is excluded from the built site.
-INFO    -  Doc file 'getting-started/quick-start.md' contains a link to 'controls/CONTROL-INDEX.md' which is excluded from the built site.
-INFO    -  Doc file 'reference/faq.md' contains a link to 'controls/CONTROL-INDEX.md' which is excluded from the built site.
-INFO    -  Doc file 'reference/nist-ai-rmf-crosswalk.md' contains a link to 'reference/regulatory-mappings.md' which is excluded from the built site.
-INFO    -  Doc file 'reference/solutions-coverage-gaps.md' contains a link to 'controls/CONTROL-INDEX.md' which is excluded from the built site.
-INFO    -  Documentation built in 27.91 seconds
