@@ -392,7 +392,7 @@ stages:
                     targetType: 'inline'
                     script: |
                       # Run automated security checks
-                      $scanResult = Invoke-SecurityScan -AgentId $(AgentId)
+                      $scanResult = Invoke-SecurityScan -AgentId $(AgentId)  # PSEUDOCODE — cmdlet does not exist yet
                       if ($scanResult.CriticalFindings -gt 0) {
                         throw "Security scan failed with critical findings"
                       }
@@ -453,6 +453,11 @@ stages:
 
 ### Security Scan Automation
 
+!!! warning "Pseudocode — Not Production Ready"
+    The following PowerShell uses conceptual cmdlets that do not exist in
+    current Power Platform admin modules (as of February 2026). They illustrate
+    the intended automation pattern for when agent-level admin cmdlets become available.
+
 ```powershell
 function Invoke-AgentSecurityScan {
     param(
@@ -461,7 +466,7 @@ function Invoke-AgentSecurityScan {
     )
 
     # Export agent for analysis
-    $agent = Get-AdminPowerAppAgent -AgentId $AgentId -EnvironmentId $EnvironmentId
+    $agent = Get-AdminPowerAppAgent -AgentId $AgentId -EnvironmentId $EnvironmentId  # PSEUDOCODE — -AgentId parameter does not exist yet
 
     $scanResults = @{
         AgentId = $AgentId
@@ -470,7 +475,7 @@ function Invoke-AgentSecurityScan {
     }
 
     # Check for hardcoded credentials
-    $topics = Get-AdminPowerAppAgentTopics -AgentId $AgentId
+    $topics = Get-AdminPowerAppAgentTopics -AgentId $AgentId  # PSEUDOCODE — cmdlet does not exist yet
     foreach ($topic in $topics) {
         $content = $topic.Content | ConvertFrom-Json
         if ($content -match '(password|secret|key|token)\s*[:=]\s*["\x27][^"\x27]+["\x27]') {
@@ -484,7 +489,7 @@ function Invoke-AgentSecurityScan {
     }
 
     # Check connector permissions
-    $connectors = Get-AdminPowerAppAgentConnectors -AgentId $AgentId
+    $connectors = Get-AdminPowerAppAgentConnectors -AgentId $AgentId  # PSEUDOCODE — cmdlet does not exist yet
     foreach ($connector in $connectors) {
         if ($connector.Permissions -contains "FullAccess") {
             $scanResults.Findings += @{
@@ -522,12 +527,17 @@ function Invoke-AgentSecurityScan {
 
 ### DLP Compliance Check
 
+!!! warning "Pseudocode — Not Production Ready"
+    The following PowerShell uses conceptual cmdlets that do not exist in
+    current Power Platform admin modules (as of February 2026). They illustrate
+    the intended automation pattern for when agent-level admin cmdlets become available.
+
 ```powershell
 function Test-DlpPolicyCompliance {
     param([string]$AgentId)
 
-    $connectors = Get-AdminPowerAppAgentConnectors -AgentId $AgentId
-    $policies = Get-DlpPolicy -EnvironmentName (Get-AdminPowerAppAgent -AgentId $AgentId).EnvironmentId
+    $connectors = Get-AdminPowerAppAgentConnectors -AgentId $AgentId  # PSEUDOCODE — cmdlet does not exist yet
+    $policies = Get-DlpPolicy -EnvironmentName (Get-AdminPowerAppAgent -AgentId $AgentId).EnvironmentId  # PSEUDOCODE — -AgentId parameter does not exist yet
 
     $violations = @()
 
@@ -613,9 +623,14 @@ Configure adaptive cards for gate notifications:
 
 ### Escalation Flow
 
+!!! warning "Pseudocode — Not Production Ready"
+    The following PowerShell uses conceptual cmdlets that do not exist in
+    current Power Platform admin modules (as of February 2026). They illustrate
+    the intended automation pattern for when agent-level admin cmdlets become available.
+
 ```powershell
 # Escalation check - runs daily
-$overdueRequests = Get-DataverseRecords -Table "fsi_gaterequest" `
+$overdueRequests = Get-DataverseRecords -Table "fsi_gaterequest" `  # PSEUDOCODE — cmdlet does not exist yet
     -Filter "fsi_status eq 'InReview' and fsi_submittedon lt @{addDays(utcNow(), -3)}"
 
 foreach ($request in $overdueRequests) {
@@ -624,11 +639,11 @@ foreach ($request in $overdueRequests) {
     switch ($daysPending.Days) {
         { $_ -ge 5 } {
             # Escalate to AI Governance Lead
-            Send-EscalationNotification -To "ai-governance-lead@contoso.com" -Request $request -Level 2
+            Send-EscalationNotification -To "ai-governance-lead@contoso.com" -Request $request -Level 2  # PSEUDOCODE — cmdlet does not exist yet
         }
         { $_ -ge 3 } {
             # Reminder to approvers
-            Send-ReminderNotification -To $request.Approvers -Request $request
+            Send-ReminderNotification -To $request.Approvers -Request $request  # PSEUDOCODE — cmdlet does not exist yet
         }
     }
 }

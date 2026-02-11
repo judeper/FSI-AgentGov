@@ -108,11 +108,16 @@ Required artifacts before promotion.
 
 Evaluate existing agents against gate requirements:
 
+!!! warning "Pseudocode — Not Production Ready"
+    The following PowerShell uses conceptual cmdlets that do not exist in
+    current Power Platform admin modules (as of February 2026). They illustrate
+    the intended automation pattern for when agent-level admin cmdlets become available.
+
 ```powershell
 # Export agents lacking gate documentation
-Get-AdminPowerAppAgent | ForEach-Object {
+Get-AdminPowerAppAgent | ForEach-Object {  # PSEUDOCODE — cmdlet does not exist yet
     $agent = $_
-    $metadata = Get-AdminPowerAppAgentMetadata -AgentId $agent.Id
+    $metadata = Get-AdminPowerAppAgentMetadata -AgentId $agent.Id  # PSEUDOCODE — cmdlet does not exist yet
 
     [PSCustomObject]@{
         AgentName = $agent.DisplayName
