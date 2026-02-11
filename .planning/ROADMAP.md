@@ -13,7 +13,7 @@ The Conditional Access Automation solution extends existing validated scripts (D
 **Phase Numbering:**
 - Integer phases (1, 2, 3, 4): Planned milestone work
 
-- [ ] **Phase 1: Script Modernization & Core Validation** — Module structure, template validation, zone integration, drift detection core
+- [x] **Phase 1: Script Modernization & Core Validation** — Module structure, template validation, zone integration, drift detection core
 - [ ] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, connection references, deployment scripts
 - [ ] **Phase 3: Automation & Alerting** — Daily compliance scan flow, drift detection, Teams alerting, ELM provisioning hook
 - [ ] **Phase 4: Evidence Export & Framework Integration** — SHA-256 evidence export, Control 1.11 integration, solutions-index, documentation, CD feed
@@ -33,9 +33,9 @@ The Conditional Access Automation solution extends existing validated scripts (D
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Solution scaffold, module manifest, and private helpers (SMC-01, SMC-03)
-- [ ] 01-02-PLAN.md — Template validation and script refactoring with dry-run (SMC-02, SMC-04)
-- [ ] 01-03-PLAN.md — Policy drift detection scripts (SMC-05)
+- [x] 01-01-PLAN.md — Solution scaffold, module manifest, and private helpers (SMC-01, SMC-03)
+- [x] 01-02-PLAN.md — Template validation and script refactoring with dry-run (SMC-02, SMC-04)
+- [x] 01-03-PLAN.md — Policy drift detection scripts (SMC-05)
 
 ### Phase 2: Dataverse Infrastructure
 **Goal**: CA policy baselines, validation history, and violation records are stored in Dataverse for persistent, queryable state across automated runs
@@ -78,7 +78,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Script Modernization & Core | — | Not Started | — |
+| 1. Script Modernization & Core | 3/3 | Complete | 2026-02-10 |
 | 2. Dataverse Infrastructure | — | Not Started | — |
 | 3. Automation & Alerting | — | Not Started | — |
 | 4. Evidence Export & Framework Integration | — | Not Started | — |
