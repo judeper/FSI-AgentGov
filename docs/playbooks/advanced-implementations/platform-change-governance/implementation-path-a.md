@@ -23,7 +23,7 @@ Path A implements the complete Platform Change Governance solution using Dataver
 
 - [ ] Power Platform environment (Developer, Sandbox, or Production)
 - [ ] Dataverse System Admin or Power Platform Admin role
-- [ ] Azure AD app registration created (for Graph API access)
+- [ ] Microsoft Entra app registration created (for Graph API access)
 - [ ] `ServiceMessage.Read.All` application permission granted with admin consent
 - [ ] Microsoft 365 E3/E5 licenses
 
@@ -263,9 +263,11 @@ mc_startdatetime: @{items('Apply_to_each')?['startDateTime']}
 mc_enddatetime: @{items('Apply_to_each')?['endDateTime']}
 mc_actionrequiredby: @{items('Apply_to_each')?['actionRequiredByDateTime']}
 mc_body: @{items('Apply_to_each')?['body']?['content']}
-mc_state: New (only if creating new)
 mc_lastmodifieddatetime: @{items('Apply_to_each')?['lastModifiedDateTime']}
 ```
+
+!!! warning "mc_state handling"
+    Do **not** set `mc_state` on the upsert action — this would reset records that have progressed through the triage workflow back to New. Instead, configure a Dataverse business rule to default `mc_state` to **New** only on record creation.
 
 **Action 6: Send Notification (Optional)**
 
@@ -345,7 +347,7 @@ Create environment variables for deployment flexibility:
 
 | Variable | Type | Default Value | Description |
 |----------|------|---------------|-------------|
-| MCG_TenantId | Text | (tenant GUID) | Azure AD tenant |
+| MCG_TenantId | Text | (tenant GUID) | Microsoft Entra ID tenant |
 | MCG_ClientId | Text | (app GUID) | App registration client ID |
 | MCG_ClientSecret | Secret | (stored in Key Vault) | App registration secret |
 | MCG_PollingIntervalMinutes | Number | 15 | Ingestion polling interval |

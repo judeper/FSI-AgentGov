@@ -108,7 +108,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | **Reports** | **Reports** > **Usage** |
 | **Settings** | **Settings** > **Org settings** |
 | Security & Privacy | **Settings** > **Org settings** > **Security & privacy** |
-| **Azure AD Admin Center** | **Admin centers** > **Identity** (opens Entra) |
+| **Microsoft Entra admin center** | **Admin centers** > **Identity** (opens Entra) |
 | **Compliance Admin Center** | **Admin centers** > **Compliance** (opens Purview) |
 | **SharePoint Admin Center** | **Admin centers** > **SharePoint** |
 | **Power Platform Admin** | **Admin centers** > **Power Platform** |

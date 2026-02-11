@@ -26,7 +26,7 @@ Connect-MgGraph -Scopes "User.Read.All", "LearningContent.Read.All"
     Identifies users who need AI governance training based on role assignments
 
 .DESCRIPTION
-    Queries Azure AD for users with specific roles that require training
+    Queries Microsoft Entra ID for users with specific roles that require training
 
 .EXAMPLE
     .\Get-TrainingRequiredUsers.ps1

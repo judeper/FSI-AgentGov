@@ -56,7 +56,7 @@ Wait 15-30 minutes for propagation.
 
 - Add agent service account to sensitivity label permissions
 - Grant "Viewer" permission level minimum
-- Verify service account can authenticate to Azure AD
+- Verify service account can authenticate to Microsoft Entra ID
 - Check for any Conditional Access policies blocking access
 
 ---

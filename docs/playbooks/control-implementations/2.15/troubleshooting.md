@@ -73,7 +73,7 @@
 - Add environments to the group if empty
 - Create routing rules if none exist
 - Fix rule conditions to match actual user attributes
-- Verify security groups exist in Azure AD
+- Verify security groups exist in Microsoft Entra ID
 
 ---
 
@@ -113,7 +113,7 @@
    - Requires Power Platform Admin role
 
 2. Check rule syntax:
-   - Security group must be valid Azure AD group
+   - Security group must be valid Microsoft Entra ID group
    - Domain patterns must be valid
 
 3. Check for validation errors in the UI

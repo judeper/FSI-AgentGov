@@ -166,7 +166,7 @@ A: The framework includes 62 controls across four pillars:
 - **Pillar 3 - Reporting:** 10 controls (3.1-3.10) covering inventory, monitoring, incidents, Sentinel
 - **Pillar 4 - SharePoint:** 7 controls (4.1-4.7) covering SharePoint-specific governance
 
-See [Control Index](../controls/CONTROL-INDEX.md) for the complete list.
+See [Control Index](../controls/index.md) for the complete list.
 
 ### Q: How do I monitor my Power Platform security posture?
 

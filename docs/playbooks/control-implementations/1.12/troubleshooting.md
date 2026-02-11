@@ -44,7 +44,7 @@
 2. Check field mappings are correct
 3. Validate test user has resignation date
 4. Review connector logs for errors
-5. Ensure Azure AD integration is active
+5. Ensure Microsoft Entra ID integration is active
 
 ---
 

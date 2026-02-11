@@ -55,7 +55,7 @@
    - SharePoint sites (sensitive sites)
    - Sensitivity labels (Confidential, MNPI)
    - Sensitive info types (Financial SITs)
-6. **Triggering event:** HR connector (resignation date) or Azure AD deletion
+6. **Triggering event:** HR connector (resignation date) or Microsoft Entra ID deletion
 7. **Indicators:**
    - Downloading content from SharePoint
    - Sending email with attachments outside org

@@ -351,7 +351,7 @@ Some controls are covered by multiple solutions, providing redundancy.
 - [Solutions Index](solutions-index.md) - Complete FSI-AgentGov-Solutions catalog
 - [Solutions Integration](../framework/solutions-integration.md) - How solutions map to framework pillars
 - [Solutions Architecture Guide](solutions-architecture-guide.md) - Enterprise scalability patterns
-- [CONTROL-INDEX](../controls/CONTROL-INDEX.md) - Full control reference with implementation links
+- [Control Index](../controls/index.md) - Full control reference with implementation links
 - [Adoption Roadmap](../framework/adoption-roadmap.md) - Phased implementation guidance
 
 ---

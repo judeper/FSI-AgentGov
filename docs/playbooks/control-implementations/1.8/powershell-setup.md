@@ -59,7 +59,7 @@ The following script automates the creation of an Entra app registration with Fe
     3. Outputs the Application ID for Power Platform configuration
 
 .PARAMETER TenantId
-    Your Azure AD tenant ID (GUID format)
+    Your Microsoft Entra ID tenant ID (GUID format)
 
 .PARAMETER WebhookEndpoint
     The full HTTPS URL of your security provider webhook
@@ -435,7 +435,7 @@ PowerPlatformAdminActivity
     4. Generates security analysis report
 
 .PARAMETER TenantId
-    Azure AD tenant ID for webhook configuration (optional)
+    Microsoft Entra ID tenant ID for webhook configuration (optional)
 
 .PARAMETER OutputPath
     Path for security reports (default: current directory)

@@ -93,7 +93,7 @@ PAX includes three specialized processors for different data sources:
   - AuditLog.Read.All (minimum)
   - User.Read.All (for Entra enrichment)
   - CopilotInteraction.Read.All (for content capture)
-- Appropriate Azure AD app registration
+- Appropriate Microsoft Entra app registration
 
 ### FSI Use Cases
 

@@ -187,7 +187,7 @@ OfficeActivity
 | summarize Count = count() by OfficeWorkload
 | order by Count desc
 
-// Check Azure AD sign-in data
+// Check Microsoft Entra ID sign-in data
 SigninLogs
 | summarize Count = count() by bin(TimeGenerated, 1d)
 | order by TimeGenerated desc
@@ -238,8 +238,8 @@ Expected tables for full governance coverage:
 |-------|---------|--------------|
 | `PowerPlatformAdminActivity` | Power Platform admin actions | Controls 2.1, 2.2, 3.1 |
 | `OfficeActivity` | Microsoft 365 audit events | Controls 1.7, 3.2 |
-| `SigninLogs` | Azure AD sign-ins | Control 1.11 |
-| `AuditLogs` | Azure AD directory changes | Control 1.18 |
+| `SigninLogs` | Microsoft Entra ID sign-ins | Control 1.11 |
+| `AuditLogs` | Microsoft Entra ID directory changes | Control 1.18 |
 | `SecurityAlert` | Sentinel alerts | Control 3.9 |
 
 ---
@@ -288,7 +288,7 @@ Connect-ExchangeOnline -CertificateThumbprint "THUMBPRINT" -AppId "APP-ID" -Orga
 
 1. Verify diagnostic settings are configured:
    - Azure Portal → Monitor → Diagnostic settings
-   - Ensure Power Platform, Office 365, and Azure AD logs are sent to workspace
+   - Ensure Power Platform, Office 365, and Microsoft Entra ID logs are sent to workspace
 
 2. Check data ingestion latency (typically 5-15 minutes):
 

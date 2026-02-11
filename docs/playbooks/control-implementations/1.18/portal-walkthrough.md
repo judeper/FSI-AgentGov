@@ -56,7 +56,7 @@
 
 1. Open [Microsoft Entra Admin Center](https://entra.microsoft.com)
 2. Navigate to **Identity governance** > **Privileged Identity Management**
-3. Select **Azure AD roles** > **Roles**
+3. Select **Microsoft Entra roles** > **Roles**
 4. Configure PIM for Power Platform Admin:
    - Maximum activation duration: 4 hours
    - Require approval: Yes (CISO/Security Lead)
