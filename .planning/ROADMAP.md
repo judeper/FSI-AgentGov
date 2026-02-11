@@ -12,7 +12,7 @@ Closes 16 gaps identified by codebase mapping analysis after v11 Technical Remed
 
 - [x] **Phase 1: Broken Links & Content Consistency** — Fix excluded-doc links, publish missing nav entries, complete Azure AD rename and Zone normalization *(7/7 criteria passed — gap closure complete)*
 - [x] **Phase 2: Quality Automation & Infrastructure** — Create language linter, add CI validation, sync template conventions, enhance playbook verification *(5/5 criteria passed)*
-- [ ] **Phase 3: Housekeeping** — Remove stale output files, create missing EXPECTED.md specs, fix Excel count, update milestone history
+- [x] **Phase 3: Housekeeping** — Remove stale output files, create missing EXPECTED.md specs, fix Excel count, update milestone history *(4/4 criteria passed)*
 
 ## Phase Details
 
@@ -64,8 +64,8 @@ Plans:
 **Plans:** 2 (A = Stale files + Excel fix, B = EXPECTED.md + history — no file overlap)
 
 Plans:
-- [ ] 03-01-PLAN.md — Stale File Cleanup & Excel Fix (HSK-01, HSK-04) — Worktree A
-- [ ] 03-02-PLAN.md — Screenshot Specs & Milestone History (HSK-02, HSK-03) — Worktree B
+- [x] 03-01-PLAN.md — Stale File Cleanup & Excel Fix (HSK-01, HSK-04) — Worktree A ✅
+- [x] 03-02-PLAN.md — Screenshot Specs & Milestone History (HSK-02, HSK-03) — Worktree B ✅
 
 ## Progress
 
@@ -73,7 +73,7 @@ Plans:
 |-------|---------------|--------|
 | 1. Broken Links & Content Consistency | 4/4 | Complete (7/7 criteria passed) |
 | 2. Quality Automation & Infrastructure | 2/2 | Complete (5/5 criteria passed) |
-| 3. Housekeeping | 0/2 | Not started |
+| 3. Housekeeping | 2/2 | Complete (4/4 criteria passed) |
 
 ## Parallel Execution Guide
 
