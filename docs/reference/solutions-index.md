@@ -36,6 +36,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
 | [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.0.0 | Completed | PowerShell verification script and 27-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
+| [Agent Usage & Performance Workbook](#agent-usage--performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
 
 ### Status Legend
 
@@ -562,6 +563,36 @@ Consolidates security-critical configuration settings across Power Platform, Cop
 
 ---
 
+### Agent Usage & Performance Workbook
+
+!!! info "Framework-Integrated Tool"
+    This workbook is included in the FSI-AgentGov framework repository at `src/agent-usage-workbook.json`. It does not require the companion FSI-AgentGov-Solutions repository.
+
+Deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap for FSI organizations where production Analytics tab access is restricted.
+
+**Components:**
+
+- Azure Monitor Workbook JSON template (`src/agent-usage-workbook.json`)
+- 3-tab layout: Usage & Business Value, Performance & Errors, Operational Health
+- Parameterized Application Insights resource ID with zone-aware thresholds
+- KQL query library targeting native Copilot Studio customEvents telemetry
+
+**Regulatory Alignment:**
+
+- Supports compliance with FINRA 3110 supervisory review requirements through operational visibility dashboards
+- Aids in meeting OCC 2011-12 model risk management requirements through performance monitoring
+- Supports Fed SR 11-7 model validation via error rate and anomaly detection indicators
+
+**Related Controls:**
+
+- [Control 2.9: Agent Performance Monitoring and Optimization](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md)
+- [Control 3.2: Usage Analytics and Activity Monitoring](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md)
+- [Control 3.9: Microsoft Sentinel Integration](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
+
+**Framework Playbook:** [Agent Usage & Performance Workbook](../playbooks/advanced-implementations/agent-usage-workbook/index.md)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -598,6 +629,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | File Upload Security Configurator | v1.0.0 | February 2026 |
 | Cross-Solution Integration | v1.0.0 | February 2026 |
 | Configuration Hardening Baseline | v1.0.0 | February 2026 |
+| Agent Usage & Performance Workbook | v1.0.0 | February 2026 |
 
 ---
 
