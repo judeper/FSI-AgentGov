@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-11
-**Milestone:** v14 — SSPM Control Coverage Remediation
-**Status:** COMPLETE — 4/4 phases complete, 13/13 requirements delivered
+**Milestone:** v15 — Agent Usage & Performance Workbook
+**Status:** PLANNED — 12 requirements, 4 phases, 8 plans
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-11 18:00
-**Handoff Summary:** Phase 4 executed — 2/2 plans complete (Wave 1 sequential, Wave 2 validation). 3 files modified with reference catalog updates. All validations pass (mkdocs build --strict, verify_controls.py 62/62, verify_language_rules.py 487 files 0 violations). v14 milestone COMPLETE — 13/13 requirements delivered across 4 phases.
+**Session Started:** 2026-02-11 19:00
+**Handoff Summary:** v15 roadmap created with 4 phases and 8 plans covering all 12 requirements. Phase directories created. Prior v13 research (01-workbook-template-kql/) available for reuse. Next: `/gsd-plan-phase 1` to plan the first phase (Telemetry Research & KQL Query Library).
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v14 — Remediate SSPM control coverage gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8).
+**Current focus:** v15 — Deployable Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility (ALM separation-of-duties gap).
 
 ## Milestone Series Plan
 
@@ -30,22 +30,22 @@ v9: Integration (ELM + Dashboard + cross-solution) — SHIPPED
 v10: Conditional Access Automation — SHIPPED
 v11: Technical Remediation — COMPLETE
 v12: Quality & Consistency Polish — COMPLETE
-v13: Agent Usage & Performance Workbook — DEFERRED
+v13: Agent Usage & Performance Workbook — DEFERRED (superseded by v15)
 v14: SSPM Control Coverage Remediation — COMPLETE
+v15: Agent Usage & Performance Workbook — DEFINING
 ```
 
 ## Current Position
 
-**Phase:** 4 of 4 — COMPLETE (2/2 plans executed)
-**Plan:** —
-**Status:** Phase 4 complete. All 4 requirements delivered (REF-01, REF-02, VAL-01, VAL-02). Verification passed. v14 milestone COMPLETE.
-**Last activity:** 2026-02-11 — Phase 4 executed (2 plans Wave 1+2 sequential, verification passed)
+**Phase:** 1 — Telemetry Research & KQL Query Library (planned)
+**Plan:** 01-01 + 01-02 ready for execution
+**Status:** Phase 1 planned — 2 plans across 1 wave (parallel). Plan checker APPROVED.
+**Last activity:** 2026-02-11 — Phase 1 plans created and verified
 
 **Progress:**
 ```
-v1-v12: [=========================] COMPLETE (see MILESTONES.md)
-v13:    [DEFERRED                 ] Shelved for v14 priority
-v14:    [=========================] 4/4 phases (13/13 requirements)
+v1-v14: [=========================] COMPLETE (see MILESTONES.md)
+v15:    [>                        ] PLANNED — 4 phases, 0/8 plans complete
 ```
 
 ## Performance Metrics
@@ -55,17 +55,19 @@ v14:    [=========================] 4/4 phases (13/13 requirements)
 - Plans: 201 complete
 - Requirements: 336 delivered
 
+**v15 Target:**
+- Requirements: 12 (7 High, 4 Medium, 1 validation)
+
 ## Accumulated Context
 
 ### Decisions Made
 
 See PROJECT.md Key Decisions table for full history.
 
-**v14 decisions:**
-- v13 (Agent Usage & Performance Workbook) deferred to prioritize SSPM remediation
-- 4-phase structure: CTL alignment → HBL baseline → PLB playbooks → REF+VAL catalog/validation
-- Phases 1+2 parallelizable (non-overlapping file sets: control files vs. baseline/scripts)
-- Phase 1 Plan A/B sequential (both touch Control 1.1)
+**v15 decisions:**
+- v15 picks up deferred v13 scope (Agent Usage & Performance Workbook) — renumbered to maintain series continuity
+- Solution targets Application Insights as data source (not Dataverse or direct API)
+- Azure Monitor Workbook format chosen over Power BI for RBAC-scoped access without additional licensing
 
 **v11 decisions:**
 - Zone 1/2/3 chosen as canonical governance terminology (replacing Tier/Level variants across all playbooks)
@@ -90,13 +92,13 @@ None.
 
 | Date | Todo | Priority |
 |------|------|----------|
-| 2026-02-11 | [Agent Usage & Performance Workbook for Enterprise ALM](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | High (deferred to post-v14) |
+| 2026-02-11 | [Agent Usage & Performance Workbook for Enterprise ALM](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | High — **picked up as v15** |
 
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-11 17:00
-**Handoff Summary:** v14 roadmap created with 4 phases (8 plans) covering 13 requirements. Phases 1+2 parallelizable. Next: `/gsd-plan-phase 1` to plan the first gap closure phase.
+**Session Started:** 2026-02-11 19:00
+**Handoff Summary:** v15 milestone defined with 12 requirements from deferred v13 todo. REQUIREMENTS.md created. PROJECT.md updated. v14 already archived in MILESTONES.md. Next: `/gsd-plan-milestone-gaps` to create phases from requirements, or `/gsd-add-phase` to manually add phases.
 
 ---
 
