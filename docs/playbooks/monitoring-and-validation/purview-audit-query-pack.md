@@ -127,6 +127,24 @@ Microsoft notes you can identify if Copilot referenced the public web by checkin
 
 ## 8) DLP correlation queries (Copilot policy location)
 
+!!! warning "Pagination Required for Large Tenants"
+    `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
+    In high-volume FSI environments, queries may silently truncate results.
+    Use session-based pagination for production evidence collection:
+
+    ```powershell
+    $sessionId = [guid]::NewGuid().ToString()
+    $allResults = @()
+    do {
+        $batch = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+            -RecordType <RecordType> -SessionId $sessionId `
+            -SessionCommand ReturnLargeSet -ResultSize 5000
+        $allResults += $batch
+    } while ($batch.Count -eq 5000)
+    ```
+
+    See [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) for details.
+
 Microsoft Purview DLP supports a dedicated **Microsoft 365 Copilot and Copilot Chat** policy location. DLP events for this location appear in the Unified Audit Log with RecordType `DlpRuleMatch`.
 
 ### 8.1 DLP events for Copilot location

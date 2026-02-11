@@ -334,6 +334,11 @@ OfficeActivity
 
 For environments without Microsoft Sentinel, use the Unified Audit Log search.
 
+!!! warning "Pagination"
+    `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
+    Use `-SessionId` and `-SessionCommand ReturnLargeSet` for pagination in
+    high-volume environments. See [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog).
+
 ### PowerShell: Agent Lifecycle Events
 
 ```powershell

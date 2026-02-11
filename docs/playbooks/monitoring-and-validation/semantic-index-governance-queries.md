@@ -150,6 +150,11 @@ function Get-HighRiskIndexedContent {
 
 ### Query 3: Monitor Copilot Restriction Changes
 
+!!! warning "Pagination"
+    `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
+    Use `-SessionId` and `-SessionCommand ReturnLargeSet` for pagination in
+    high-volume environments. See [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog).
+
 ```powershell
 # ============================================================
 # Monitor Changes to Copilot Restriction Settings

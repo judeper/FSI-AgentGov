@@ -106,6 +106,11 @@ function Export-CopilotStudioAnalytics {
 
 ### Query Audit Logs for Agent Activity
 
+!!! warning "Pagination"
+    `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
+    Use `-SessionId` and `-SessionCommand ReturnLargeSet` for pagination in
+    high-volume environments. See [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog).
+
 ```powershell
 # Query unified audit log for Copilot Studio activities
 function Get-AgentAuditLogs {

@@ -31,6 +31,24 @@ Get-SPOTenant | Select-Object SharingCapability, ConditionalAccessPolicy
 
 ## Search Audit Logs for SharePoint Events
 
+!!! warning "Pagination Required for Large Tenants"
+    `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
+    In high-volume FSI environments, queries may silently truncate results.
+    Use session-based pagination for production evidence collection:
+
+    ```powershell
+    $sessionId = [guid]::NewGuid().ToString()
+    $allResults = @()
+    do {
+        $batch = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+            -RecordType <RecordType> -SessionId $sessionId `
+            -SessionCommand ReturnLargeSet -ResultSize 5000
+        $allResults += $batch
+    } while ($batch.Count -eq 5000)
+    ```
+
+    See [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) for details.
+
 ```powershell
 # Define search parameters
 $startDate = (Get-Date).AddDays(-30)
