@@ -53,7 +53,7 @@ Pick one model for the entire program to ensure reporting consistency.
 **Notes**
 - “Trigger condition” must be measurable (avoid subjective language).
 - “Auto action” must be explicit (Block, Throttle, Require Review, Log Only).
-- “Required evidence” must reference the specific logs/artifacts (Gap 2 decision log + Purview audit references where applicable).
+- "Required evidence" must reference the specific logs/artifacts ([Decision Log Schema](decision-log-schema.md) + Purview audit references where applicable).
 
 ---
 
@@ -110,7 +110,7 @@ For each S1/S2 escalation:
 - Repeat event rate (“recurrence”)
 - Mean time to detect (MTTD) and mean time to respond (MTTR)
 
-These feed the “Real-time Compliance Dashboard” spec (Gap 7) and compliance reporting controls in your Reporting pillar. <sup>[3]</sup>
+These feed the [Real-time Compliance Dashboard](../monitoring-and-validation/real-time-compliance-dashboard.md) and compliance reporting controls in your Reporting pillar. <sup>[3]</sup>
 
 ---
 

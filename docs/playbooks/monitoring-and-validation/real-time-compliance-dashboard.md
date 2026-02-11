@@ -29,7 +29,7 @@ Use for:
 
 Purview audit records include `AccessedResources` (with `SensitivityLabelId`, `PolicyDetails`, and `XPIADetected` flags) and agent identifiers like `AgentId`, `AgentName`, and `AgentVersion`. <sup>[16]</sup>
 
-### S2) Decision logs (Gap 2)
+### S2) [Decision Logs](../governance-operations/decision-log-schema.md)
 Use for:
 - reasoning and confidence
 - action attempts and results
@@ -78,7 +78,7 @@ Dashboards should avoid exposing prompt content by default; rely on IDs and meta
 - Count of policy restricted/blocked resources (via `PolicyDetails`) <sup>[16]</sup>
 - DLP rule match counts (if integrated via DSPM/Activity Explorer—optional)
 
-### 4.4 Scope creep / drift (Gap 3)
+### 4.4 Scope creep / drift ([Scope Creep Detection](scope-creep-detection.md))
 - Drift events by type (new SiteUrl, new connector, new action category)
 - Drift severity (S1/S2/S3)
 - Top agents by drift rate
@@ -94,7 +94,7 @@ Dashboards should avoid exposing prompt content by default; rely on IDs and meta
 - MTTR for S1 and S2 incidents
 - Override rate (and top reasons)
 
-### 4.7 Confidence and quality (Gap 4)
+### 4.7 Confidence and quality ([Confidence and Routing](../advanced-implementations/confidence-and-routing.md))
 - Distribution of confidence bands (High/Med/Low)
 - Low-confidence rate by agent
 - Review outcomes for Low confidence (approved/rejected/modified)

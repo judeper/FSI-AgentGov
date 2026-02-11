@@ -28,7 +28,7 @@
   - `AccessedResources` including `SiteUrl`, `ID`, `Type`, `Action`, `Status`, `SensitivityLabelId`, and `PolicyDetails` <sup>[16]</sup>
   - Optional: `XPIADetected` for cross prompt injection detection <sup>[16]</sup>
 
-### T3) Decision logs (Gap 2)
+### T3) [Decision Logs](../governance-operations/decision-log-schema.md)
 - decision_id, confidence band, routing, action_result, policy IDs invoked, tool calls
 
 ### T4) Platform configuration & access control state
@@ -115,7 +115,7 @@ Every D1–D3 event must map to an Escalation Matrix entry:
 
 ---
 
-## Metrics and reporting (Gap 7 dashboard feeders)
+## Metrics and reporting ([Real-time Compliance Dashboard](real-time-compliance-dashboard.md) feeders)
 
 Minimum metrics per agent (weekly):
 - drift_events_total

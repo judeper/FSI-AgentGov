@@ -139,7 +139,7 @@ Before the main provisioning steps, initialize variables that will be used throu
 | Variable Name | Type | Expression |
 |---------------|------|------------|
 | `pollCount` | Integer | `0` |
-| `environmentGroupName` | String | `@{if(equals(triggerBody()?['er_zone'], 1), 'FSI-Zone1-PersonalProductivity', if(equals(triggerBody()?['er_zone'], 2), 'FSI-Zone2-TeamCollaboration', 'FSI-Zone3-EnterpriseManagedEnvironment'))}` |
+| `environmentGroupName` | String | `@{if(equals(triggerBody()?['er_zone'], 1), 'FSI-Personal-Dev', if(equals(triggerBody()?['er_zone'], 2), 'FSI-Team-Collaboration', 'FSI-Enterprise-Production'))}` |
 | `resolvedGroupId` | String | `""` (populated after Environment Group lookup) |
 | `auditRetentionDays` | Integer | `@{if(equals(triggerBody()?['er_zone'], 3), 2557, if(equals(triggerBody()?['er_zone'], 2), 365, 180))}` |
 | `sessionTimeoutMinutes` | Integer | `@{if(equals(triggerBody()?['er_zone'], 3), 120, if(equals(triggerBody()?['er_zone'], 2), 480, 1440))}` |
@@ -454,9 +454,12 @@ Extract the group ID:
 
 | Zone | Environment Group Name |
 |------|----------------------|
-| Zone 1 | `FSI-Zone1-PersonalProductivity` |
-| Zone 2 | `FSI-Zone2-TeamCollaboration` |
-| Zone 3 | `FSI-Zone3-EnterpriseManagedEnvironment` |
+| Zone 1 | `FSI-Personal-Dev` |
+| Zone 2 | `FSI-Team-Collaboration` |
+| Zone 3 | `FSI-Enterprise-Production` |
+
+!!! warning "Migration Note: Environment Group Naming"
+    Previous versions of this guide used longer naming conventions (`FSI-Zone1-PersonalProductivity`, `FSI-Zone2-TeamCollaboration`, `FSI-Zone3-EnterpriseManagedEnvironment`). Existing deployments using the old names should update their environment group display names in Power Platform admin center or update the `environmentGroupName` variable mapping in their provisioning flows to match the Control 2.2 canonical convention shown above.
 
 **Retry Configuration:**
 

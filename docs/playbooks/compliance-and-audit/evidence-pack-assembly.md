@@ -99,10 +99,10 @@ One-page executive summary:
 
 ### 4.2 IDENTITY (02-IDENTITY/)
 Include the four core templates:
-- **Agent Inventory Entry** (from `templates/agent-inventory-entry.md`)
-- **Action Authorization Matrix** (from `templates/action-authorization-matrix.md`)
-- **Per-Agent Data Policy** (from `templates/per-agent-data-policy.md`)
-- **Escalation Matrix** (from `templates/escalation-matrix.md`)
+- **Agent Inventory Entry** (from [Agent Inventory Entry](../agent-lifecycle/agent-inventory-entry.md))
+- **Action Authorization Matrix** (from [Action Authorization Matrix](../governance-operations/action-authorization-matrix.md))
+- **Per-Agent Data Policy** (from [Per-Agent Data Policy](../agent-lifecycle/per-agent-data-policy.md))
+- **Escalation Matrix** (from [Escalation Matrix](../governance-operations/escalation-matrix.md))
 
 All must be current versions as of the evidence date.
 
@@ -124,7 +124,7 @@ Purview Copilot audit export for the date range:
 Microsoft Purview audit logs for Copilot/AI interactions include `AccessedResources` with sensitivity label IDs and policy restriction details, making them the canonical "what happened" source. <sup>[19]</sup>
 
 ### 4.5 DECISION LOGS (05-DECISION-LOGS/)
-Structured reasoning logs (from `templates/decision-log-schema.md`):
+Structured reasoning logs (from [Decision Log Schema](../governance-operations/decision-log-schema.md)):
 - Export of decision log records for the date range
 - Schema documentation
 - Sample redacted decision records (3–5 examples showing High/Med/Low confidence routing)
@@ -139,9 +139,9 @@ Validation evidence:
 
 ### 4.7 MONITORING (07-MONITORING/)
 Continuous controls evidence:
-- Dashboard snapshot (from `specs/real-time-compliance-dashboard.md`)
-- Drift events summary (from `specs/scope-creep-detection.md`)
-- Escalation summary (from `templates/escalation-matrix.md`)
+- Dashboard snapshot (from [Real-time Compliance Dashboard](../monitoring-and-validation/real-time-compliance-dashboard.md))
+- Drift events summary (from [Scope Creep Detection](../monitoring-and-validation/scope-creep-detection.md))
+- Escalation summary (from [Escalation Matrix](../governance-operations/escalation-matrix.md))
 - SLA adherence metrics
 
 ### 4.8 INCIDENTS (08-INCIDENTS/)
@@ -153,7 +153,7 @@ If any S1/S2 events occurred:
 
 ### 4.9 RISK ASSESSMENTS (09-RISK-ASSESSMENTS/)
 Supporting risk artifacts:
-- Supply chain risk register entry (from `templates/supply-chain-risk-register-entry.md`)
+- Supply chain risk register entry (from [Supply Chain Risk Register Entry](../regulatory-modules/supply-chain-risk-register-entry.md))
 - Bias/fairness assessment (from control 2.11) <sup>[3]</sup>
 - Threat model / security review
 - BC/DR assessment
@@ -162,7 +162,7 @@ Supporting risk artifacts:
 Explicit control-to-regulation mapping:
 - FINRA: which controls map to Rule 3110 supervision, recordkeeping (4510/4511), communications (2210)
 - SEC: which controls map to Advisers Act 206(4)-7 compliance rule, recordkeeping
-- Colorado AI Act: impact assessment if applicable (from `templates/colorado-ai-impact-assessment.md`)
+- Colorado AI Act: impact assessment if applicable (from [Colorado AI Impact Assessment](../regulatory-modules/colorado-ai-impact-assessment.md))
 
 ---
 

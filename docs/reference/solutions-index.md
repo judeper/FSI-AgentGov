@@ -125,7 +125,7 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 
 - FINRA 4511 (Books and Records)
 - FINRA 3110 (Supervision)
-- FINRA 25-07 (AI Governance)
+- FINRA 25-07 (Communications Recordkeeping)
 - SEC 17a-3/4 (Recordkeeping)
 - SOX 302/404 (Internal Controls)
 - GLBA 501(b) (Safeguards)
@@ -556,4 +556,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.40 - February 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*

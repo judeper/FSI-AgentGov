@@ -553,7 +553,9 @@ Build the Power Automate flow that provisions environments using Service Princip
    - Location: `triggerBody()?['er_region']`
    - Display Name: `triggerBody()?['er_environmentname']`
    - Environment Type: `triggerBody()?['er_environmenttype']`
-   - Security Group ID: `triggerBody()?['er_securitygroupid']`
+
+!!! warning "Security Group Binding"
+    The Power Platform for Admins V2 connector does **not** support `SecurityGroupId` at environment creation time. After the environment is created and the polling loop confirms success (Step 3.5), add an **Update Environment** action or BAP API call to bind the security group using `triggerBody()?['er_securitygroupid']`. The security group GUID should be the Entra ID Object ID of the target security group.
 
 ### Step 3.5: Implement Polling Loop
 
@@ -581,9 +583,9 @@ Build the Power Automate flow that provisions environments using Service Princip
 3. Use **Compose** to select group based on zone:
 
 ```json
-@{if(equals(triggerBody()?['er_zone'], 1), 'FSI-Zone1-PersonalProductivity',
-    if(equals(triggerBody()?['er_zone'], 2), 'FSI-Zone2-TeamCollaboration',
-    'FSI-Zone3-EnterpriseManagedEnvironment'))}
+@{if(equals(triggerBody()?['er_zone'], 1), 'FSI-Personal-Dev',
+    if(equals(triggerBody()?['er_zone'], 2), 'FSI-Team-Collaboration',
+    'FSI-Enterprise-Production'))}
 ```
 
 ### Step 3.8: Add Error Handling
@@ -641,9 +643,9 @@ Environment Groups must exist before environments can be assigned. Create these 
 
 | Group Name | Description | DLP Policies |
 |------------|-------------|--------------|
-| `FSI-Zone1-PersonalProductivity` | Personal productivity environments | Standard DLP |
-| `FSI-Zone2-TeamCollaboration` | Team collaboration environments | Enhanced DLP |
-| `FSI-Zone3-EnterpriseManagedEnvironment` | Enterprise managed environments | Restrictive DLP |
+| `FSI-Personal-Dev` | Personal productivity environments | Standard DLP |
+| `FSI-Team-Collaboration` | Team collaboration environments | Enhanced DLP |
+| `FSI-Enterprise-Production` | Enterprise managed environments | Restrictive DLP |
 
 4. For each group, configure:
    - **Rules:** Add DLP policies appropriate to the zone
@@ -708,13 +710,13 @@ Environment Groups must exist before environments can be assigned. Create these 
    - [ ] Agent classifies as Zone 3
    - [ ] Zone flags: CUSTOMER_PII, FINANCIAL_TRANSACTIONS
    - [ ] Requires security group
-   - [ ] Requires zone rationale
+   - [ ] Requires zone rationale — a free-text justification for why this workload requires enterprise-managed governance (e.g., "Environment will process quarterly financial reports containing customer account data")
 
 4. Complete remaining prompts
 5. **As Approver:** Approve with Compliance review
 6. **Verify environment configuration:**
    - [ ] Managed Environment: Enabled
-   - [ ] Environment Group: FSI-Zone3-EnterpriseManagedEnvironment
+   - [ ] Environment Group: FSI-Enterprise-Production
    - [ ] Audit retention: 2557 days (7 years)
    - [ ] Session timeout: 120 minutes
 

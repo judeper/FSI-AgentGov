@@ -82,7 +82,7 @@ Regardless of confidence band, escalate/block if:
 
 ---
 
-## 5) Logging requirements (tie to Gap 2 decision logs)
+## 5) Logging requirements (tie to [Decision Log Schema](../governance-operations/decision-log-schema.md))
 
 For each material interaction:
 - `confidence_band` (required)
