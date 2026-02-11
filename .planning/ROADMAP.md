@@ -16,7 +16,7 @@ The Conditional Access Automation solution extends existing validated scripts (D
 - [ ] **Phase 1: Script Modernization & Core Validation** — Module structure, template validation, zone integration, drift detection core
 - [ ] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, connection references, deployment scripts
 - [x] **Phase 3: Automation & Alerting** — Daily compliance scan flow, drift detection, Teams alerting, ELM provisioning hook
-- [ ] **Phase 4: Evidence Export & Framework Integration** — SHA-256 evidence export, Control 1.11 integration, solutions-index, documentation, CD feed
+- [x] **Phase 4: Evidence Export & Framework Integration** — SHA-256 evidence export, Control 1.11 integration, solutions-index, documentation, CD feed
 
 ## Phase Details
 
@@ -68,6 +68,7 @@ Plans:
 **Status:** COMPLETE (2026-02-10) — 4/4 plans, 2 waves, verification PASSED
 
 ### Phase 4: Evidence Export & Framework Integration
+**Status:** COMPLETE (2026-02-10) — 4/4 plans, 2 waves, verification PASSED
 **Goal**: CA policy compliance evidence is exportable for regulatory examinations and the solution is fully integrated into the FSI-AgentGov framework documentation and Compliance Dashboard
 **Depends on**: Phase 3
 **Requirements**: EFR-01, EFR-02, EFR-03, EFR-04, EFR-05
@@ -80,10 +81,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — SHA-256 evidence export scripts (EFR-01)
-- [ ] 04-02-PLAN.md — Control 1.11 tip admonition and solutions-index.md update (EFR-02, EFR-03)
-- [ ] 04-03-PLAN.md — Companion repo documentation suite and CHANGELOG (EFR-04)
-- [ ] 04-04-PLAN.md — Compliance Dashboard feed integration (EFR-05)
+- [x] 04-01-PLAN.md — SHA-256 evidence export scripts (EFR-01)
+- [x] 04-02-PLAN.md — Control 1.11 tip admonition and solutions-index.md update (EFR-02, EFR-03)
+- [x] 04-03-PLAN.md — Companion repo documentation suite and CHANGELOG (EFR-04)
+- [x] 04-04-PLAN.md — Compliance Dashboard feed integration (EFR-05)
 
 ## Progress
 
@@ -94,8 +95,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|---------------|--------|-----------|
 | 1. Script Modernization & Core | — | Not Started | — |
 | 2. Dataverse Infrastructure | — | Not Started | — |
-| 3. Automation & Alerting | — | Not Started | — |
-| 4. Evidence Export & Framework Integration | — | Not Started | — |
+| 3. Automation & Alerting | 4/4 | Complete | 2026-02-10 |
+| 4. Evidence Export & Framework Integration | 4/4 | Complete | 2026-02-10 |
 
 ## Coverage
 
