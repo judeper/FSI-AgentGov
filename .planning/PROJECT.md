@@ -8,21 +8,22 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v10 Conditional Access Automation
+## Current Milestone: v12 Quality & Consistency Polish
 
-**Goal:** Enhance validated CA policy deployment scripts with Tier 2 governance infrastructure — Dataverse persistence, Power Automate automation, drift detection, alerting, SHA-256 evidence export — creating a complete policy lifecycle management solution for Controls 1.11, 1.23, and 1.18.
+**Goal:** Fix residual issues surfaced by post-v11 codebase mapping: user-facing broken links, terminology drift completion, quality automation infrastructure, and housekeeping.
+
+**Source:** Codebase mapping analysis (2026-02-11) across 4 dimensions (tech, arch, quality, concerns).
 
 **Target deliverables:**
-- CAAClient PowerShell module with Tier 2 conventions (module structure, error handling, help comments)
-- 8 CA policy templates validated against current Graph API schema
-- Zone lookup integration with ELM Dataverse for zone-appropriate policy deployment
-- Dataverse tables for policy baselines, validation history (immutable), and violations
-- Power Automate daily compliance scan and drift detection flows
-- Teams adaptive card alerting with zone-based severity classification
-- SHA-256 integrity-hashed evidence export for FINRA/SEC examination support
-- Control 1.11 framework integration and Compliance Dashboard feed
+- Zero user-facing broken links on published GitHub Pages site
+- Complete Azure AD and Tier/Level terminology normalization
+- Solution status metadata consistent across all reference docs
+- Automated FSI language rule enforcement in CI
+- verify_controls.py integrated into CI pipeline
+- Template and validation scripts synced to current conventions
+- Stale root files cleaned up
 
-## Current State (v7 Shipped)
+## Current State (v10 Shipped)
 
 **Framework Version:** 1.2.38 (February 2026)
 
@@ -35,11 +36,14 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v6: Agent Access Governance Monitor — unrestricted agent access detection with zone-based validation and evidence export
 - v7: Content Moderation Governance Monitor — per-agent moderation level validation with drift detection and SHA-256 evidence export
 - v7.1: Framework Currency Reviews — Dataverse deprecation, Agent 365 GA, evaluation framework, multi-source agent investigation
+- v8: File Upload Security Configurator — per-agent MIME type restriction enforcement with drift detection
+- v9: Cross-Solution Integration — ELM hooks, Compliance Dashboard feeds, unified evidence export
+- v10: Conditional Access Automation — CA policy lifecycle management with drift detection and evidence export
 
 **Solutions Status:**
-- 10 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor
+- 12 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation
 - 1 Validated: FINRA Supervision Workflow
-- 4 Work In Progress: Deny Event Correlation Report, Conditional Access Automation, Segregation Detector, RAG Source Validator
+- 3 Work In Progress: Deny Event Correlation Report, Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
 ## Requirements
@@ -88,16 +92,17 @@ Capabilities delivered:
 
 ### Active
 
-**v5-v9 Milestone Series: Customer-Requested Automation Solutions**
+**v11: Technical Remediation**
 
-4 remaining automation solutions addressing customer-identified gaps, plus integration milestone:
-- v5: Session Security Configurator — inactivity timeout automation per zone
-- v6: Agent Access Governance Monitor — unrestricted agent access detection
-- v7: Content Moderation Governance Monitor — AI content moderation policy enforcement
-- v8: File Upload Security Configurator — MIME type restriction enforcement
-- v9: Integration — ELM hooks, Compliance Dashboard feeds, cross-solution wiring
+Comprehensive fix of 107 findings and 42 gaps identified by full technical audit:
+- Phase 1: Critical Runtime Fixes (CAA + DEC solution bugs)
+- Phase 2: Regulatory & Technical Accuracy (citations, control counts, solution contradictions)
+- Phase 3: Terminology & Version Normalization (Zone/Tier/Level, role names, footers)
+- Phase 4: Cross-Reference & Link Integrity (solution mappings, path errors)
+- Phase 5: Script & Code Fixes (PowerShell bugs, non-existent cmdlets)
+- Phase 6: Gap Backfill & Design Improvements (missing guides, inter-linking)
 
-**Current milestone: v10 — Conditional Access Automation (IN PROGRESS)**
+**Current milestone: v12 — Quality & Consistency Polish (DEFINING)**
 
 ### Out of Scope
 
@@ -186,6 +191,10 @@ Capabilities delivered:
 | v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
 | v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
 | v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | — Pending |
+| v11 Zone 1/2/3 as canonical | Controls use Zones, playbooks mix Tiers/Levels — standardize on Zones with mapping note | — Pending |
+| v11 DEC v2.0 full rewrite | Deployment guide describes v1.x CSV/Blob — v2.0 Dataverse is completely different | — Pending |
+| v11 CAA FSI-* policy naming | Playbook templates use FSI-* convention — align validation scripts to match | — Pending |
+| v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-10 after v9 milestone start*
+*Last updated: 2026-02-10 after v11 milestone start*
