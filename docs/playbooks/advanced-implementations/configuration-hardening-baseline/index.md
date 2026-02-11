@@ -28,62 +28,67 @@ Financial services organizations face continuous configuration drift risk across
 
 ## Master Configuration Hardening Checklist
 
+!!! info "Automation Feasibility"
+    - **Automated** — Fully queryable via Power Platform Admin Connector or Dataverse API; validated by `Invoke-HardeningBaselineCheck.ps1`
+    - **Semi-Automated** — Queryable via Copilot Studio Management API or PPAC REST API (limited GA availability); may require emerging API access
+    - **Manual Attestation** — No API access currently; requires portal screenshot and attestation record
+
 ### Agent Authentication and Access (Control 1.1)
 
-| # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity |
-|---|---------|-------------|---------------------------|----------|
-| 1 | Agent authentication mode | Copilot Studio > Agent > Settings > Security | Not "No Authentication" | High |
-| 2 | Require users to sign in (manual auth) | Copilot Studio > Agent > Settings > Security | Enabled | High |
-| 3 | Authentication enforcement timing | Copilot Studio > Agent > Settings > Security | "Always" (not "As Needed") | High |
-| 4 | Agent sharing scope | Copilot Studio > Agent > Channels > Share Settings | Copilot Readers or Security Groups (not "Anyone") | High |
-| 5 | Publish bots with AI features | PPAC > Tenant Settings | Disabled (until governance review) | High |
-| 6 | Unapproved shared agents blocked | M365 Admin > Copilot > Agents & connectors > Agent Inventory | Blocked | High |
+| # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
+|---|---------|-------------|---------------------------|----------|------------|
+| 1 | Agent authentication mode | Copilot Studio > Agent > Settings > Security | Not "No Authentication" | High | Semi-Automated |
+| 2 | Require users to sign in (manual auth) | Copilot Studio > Agent > Settings > Security | Enabled | High | Semi-Automated |
+| 3 | Authentication enforcement timing | Copilot Studio > Agent > Settings > Security | "Always" (not "As Needed") | High | Semi-Automated |
+| 4 | Agent sharing scope | Copilot Studio > Agent > Channels > Share Settings | Copilot Readers or Security Groups (not "Anyone") | High | Semi-Automated |
+| 5 | Publish bots with AI features | PPAC > Tenant Settings | Disabled (until governance review) | High | Automated |
+| 6 | Unapproved shared agents blocked | M365 Admin > Copilot > Agents & connectors > Agent Inventory | Blocked | High | Semi-Automated |
 
 ### Audit Logging (Control 1.7)
 
-| # | Setting | Portal Path | Expected Value | Severity |
-|---|---------|-------------|----------------|----------|
-| 7 | Environment-level auditing | PPAC > Environment > Settings > Audit and logs | "Start Auditing" enabled | High |
-| 8 | Audit log retention period | PPAC > Environment > Audit settings > "Retain these logs for" | ≥ 180 days (Zone 1), ≥ 365 days (Zone 2), ≥ 730 days (Zone 3) | High |
-| 9 | Tenant-level Dataverse auditing | PPAC > Security > Compliance > Auditing | "Turn on Auditing" enabled with User Sign-In and Activity | Medium |
+| # | Setting | Portal Path | Expected Value | Severity | Automation |
+|---|---------|-------------|----------------|----------|------------|
+| 7 | Environment-level auditing | PPAC > Environment > Settings > Audit and logs | "Start Auditing" enabled | High | Automated |
+| 8 | Audit log retention period | PPAC > Environment > Audit settings > "Retain these logs for" | ≥ 180 days (Zone 1), ≥ 365 days (Zone 2), ≥ 730 days (Zone 3) | High | Automated |
+| 9 | Tenant-level Dataverse auditing | PPAC > Security > Compliance > Auditing | "Turn on Auditing" enabled with User Sign-In and Activity | Medium | Automated |
 
 ### Content Moderation (Control 1.8)
 
-| # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity |
-|---|---------|-------------|---------------------------|----------|
-| 10 | Content moderation level | Copilot Studio > Agent > Settings > Generative AI > Content moderation | High | High |
+| # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
+|---|---------|-------------|---------------------------|----------|------------|
+| 10 | Content moderation level | Copilot Studio > Agent > Settings > Generative AI > Content moderation | High | High | Manual Attestation |
 
 ### RBAC and Agent Governance (Control 1.18)
 
-| # | Setting | Portal Path | Expected Value | Severity |
-|---|---------|-------------|----------------|----------|
-| 11 | Agent action user consent | Copilot Studio > Agent > Actions | "Ask the user before running this action" enabled for all actions | High |
-| 12 | Connected agent access | Copilot Studio > Agent > Settings > Connected Agents | Disabled unless explicitly approved | High |
-| 13 | Environment admin count | PPAC > Environment > Users + Permissions | < 10 System Administrators per environment | Medium |
+| # | Setting | Portal Path | Expected Value | Severity | Automation |
+|---|---------|-------------|----------------|----------|------------|
+| 11 | Agent action user consent | Copilot Studio > Agent > Actions | "Ask the user before running this action" enabled for all actions | High | Manual Attestation |
+| 12 | Connected agent access | Copilot Studio > Agent > Settings > Connected Agents | Disabled unless explicitly approved | High | Manual Attestation |
+| 13 | Environment admin count | PPAC > Environment > Users + Permissions | < 10 System Administrators per environment | Medium | Semi-Automated |
 
 ### Environment Provisioning (Control 2.1)
 
-| # | Setting | Portal Path | Expected Value | Severity |
-|---|---------|-------------|----------------|----------|
-| 14 | Environment creation restriction | PPAC > Tenant Settings > Dev/Prod/Trial environment assignments | "Only specific admins" | High |
-| 15 | Environment routing | PPAC > Tenant Settings > Environment Routing | Configured for correct region | Medium |
-| 16 | Tenant isolation | PPAC > Security > Identity and access > Tenant Isolation | "Restrict Cross-Tenant Connections" enabled | High |
-| 17 | Environment security groups | PPAC > Environment details > Security group | Assigned for all Zone 2/3 environments | High |
+| # | Setting | Portal Path | Expected Value | Severity | Automation |
+|---|---------|-------------|----------------|----------|------------|
+| 14 | Environment creation restriction | PPAC > Tenant Settings > Dev/Prod/Trial environment assignments | "Only specific admins" | High | Automated |
+| 15 | Environment routing | PPAC > Tenant Settings > Environment Routing | Configured for correct region | Medium | Automated |
+| 16 | Tenant isolation | PPAC > Security > Identity and access > Tenant Isolation | "Restrict Cross-Tenant Connections" enabled | High | Automated |
+| 17 | Environment security groups | PPAC > Environment details > Security group | Assigned for all Zone 2/3 environments | High | Automated |
 
 ### AI Feature Access (Control 3.8)
 
-| # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity |
-|---|---------|-------------|---------------------------|----------|
-| 18 | AI Prompts | PPAC > Environment > Settings > Features | Off (unless approved) | Medium |
-| 19 | Generative Actions | Copilot Studio > Agent > Overview > Orchestration | Off (unless approved) | High |
-| 20 | File Analysis | Copilot Studio > Agent > Settings > Generative AI > File processing | Off (unless approved) | Medium |
-| 21 | Model Knowledge | Copilot Studio > Agent > Settings > Generative AI | Off for sensitive data agents | Medium |
-| 22 | Semantic Search | Copilot Studio > Agent > Settings > Generative AI | Off (unless approved) | High |
-| 23 | Generative AI features (per-env) | PPAC > Environment > Generative AI features | Restrict by default | Medium |
-| 24 | Move Data Across Regions | PPAC > Environment > Generative AI features | Off | High |
-| 25 | Bing Search | PPAC > Environment > Generative AI features | Off | Medium |
-| 26 | Conversational transcript access | PPAC > Environment > Features > Copilot Studio Agents | Restricted to authorized personnel | Medium |
-| 27 | DLP for agent publishing connectors | PPAC > Data policies | Block Copilot Studio for Teams and M365 Copilot channel in restricted environments | High |
+| # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
+|---|---------|-------------|---------------------------|----------|------------|
+| 18 | AI Prompts | PPAC > Environment > Settings > Features | Off (unless approved) | Medium | Semi-Automated |
+| 19 | Generative Actions | Copilot Studio > Agent > Overview > Orchestration | Off (unless approved) | High | Manual Attestation |
+| 20 | File Analysis | Copilot Studio > Agent > Settings > Generative AI > File processing | Off (unless approved) | Medium | Manual Attestation |
+| 21 | Model Knowledge | Copilot Studio > Agent > Settings > Generative AI | Off for sensitive data agents | Medium | Manual Attestation |
+| 22 | Semantic Search | Copilot Studio > Agent > Settings > Generative AI | Off (unless approved) | High | Manual Attestation |
+| 23 | Generative AI features (per-env) | PPAC > Environment > Generative AI features | Restrict by default | Medium | Semi-Automated |
+| 24 | Move Data Across Regions | PPAC > Environment > Generative AI features | Off | High | Semi-Automated |
+| 25 | Bing Search | PPAC > Environment > Generative AI features | Off | Medium | Semi-Automated |
+| 26 | Conversational transcript access | PPAC > Environment > Features > Copilot Studio Agents | Restricted to authorized personnel | Medium | Semi-Automated |
+| 27 | DLP for agent publishing connectors | PPAC > Data policies | Block Copilot Studio for Teams and M365 Copilot channel in restricted environments | High | Semi-Automated |
 
 ---
 
@@ -94,6 +99,35 @@ Financial services organizations face continuous configuration drift risk across
 | **Zone 1** | Monthly | Power Platform Admin | Checklist completion record |
 | **Zone 2** | Bi-weekly | Power Platform Admin + AI Governance Lead | Checklist + screenshot evidence |
 | **Zone 3** | Weekly | Power Platform Admin + Compliance Officer | Checklist + screenshot evidence + attestation statement |
+
+### Escalation Triggers
+
+The following conditions require an immediate out-of-cycle baseline review regardless of the scheduled cadence:
+
+- **Configuration drift detected** — Automated checks report a previously passing item now failing
+- **Regulatory examination notification** — Receipt of examination letter or regulatory inquiry
+- **Security incident** — Any incident involving agent or Power Platform components
+- **SSPM posture score degradation** — PPAC security recommendations score drops below threshold
+- **New SSPM alert type** — Vendor adds new alert category requiring baseline coverage assessment
+
+### Review Scope Matrix
+
+| Cadence | Items Reviewed | Evidence Type |
+|---------|---------------|---------------|
+| Weekly (Zone 3) | All 27 items | Script + attestation |
+| Bi-weekly (Zone 2) | All 27 items | Script + attestation |
+| Monthly (Zone 1) | High-severity items (items 1–9, 14, 16–17) | Script report |
+| Quarterly | Full baseline + evidence package export | Complete package |
+| Annual | Baseline review + classification update | Assessment report |
+
+### Compliance Calendar Integration
+
+Align baseline reviews with quarterly regulatory examination preparation cycles:
+
+1. **Week 1 of quarter** — Run full automated baseline check and compile evidence package
+2. **Week 2 of quarter** — Complete manual attestation for non-automated items
+3. **Week 3 of quarter** — Review gaps and remediate findings
+4. **Week 4 of quarter** — Archive evidence package with SHA-256 integrity hash for examination readiness
 
 ---
 
@@ -141,6 +175,7 @@ This hardening baseline complements existing FSI-AgentGov solutions:
 | **Audit Configuration Validator** | Validates items 7-9 (audit logging settings) automatically |
 | **Environment Lifecycle Management** | Validates items 14-17 (environment provisioning) at creation time |
 | **Compliance Dashboard** | Aggregate hardening baseline results into compliance posture scoring |
+| **Hardening Baseline Verification Script** | Validates items 7–9 (audit logging) and 14–17 (environment provisioning) with automated pass/fail and evidence export |
 
 ### Planned Solution: Agent Security Configuration Validator
 
@@ -153,6 +188,99 @@ A new solution is planned to automate validation of Copilot Studio agent-level s
 
 ---
 
+## Evidence Export for Regulatory Examination
+
+### Evidence Package Overview
+
+The hardening baseline supports two evidence collection modes:
+
+- **Automated evidence** — Generated by `Invoke-HardeningBaselineCheck.ps1` for items 7–9 (audit logging) and 14–17 (environment provisioning). The script produces a timestamped JSON report with pass/fail status per item.
+- **Manual attestation evidence** — Compiled by reviewers for items without API access (items 1–6, 10–12, 18–27). Follows the attestation record format in the Manual Attestation Procedures section above.
+
+Both modes produce evidence packages suitable for regulatory examination preparation under FINRA 4511 and SEC 17a-4 requirements.
+
+### Automated Evidence Collection
+
+Run the hardening baseline verification script with evidence export:
+
+```powershell
+.\scripts\governance\Invoke-HardeningBaselineCheck.ps1 `
+    -OutputFormat JSON `
+    -OutputPath .\evidence\hardening-baseline-$(Get-Date -Format 'yyyy-MM-dd').json `
+    -IncludeEvidence
+```
+
+### SHA-256 Integrity Hash
+
+Each evidence export includes a SHA-256 integrity hash for tamper detection. The hash is computed over the results JSON before the hash field is populated:
+
+```powershell
+# Hash computation pattern (performed automatically by the script)
+$resultsJson = $baselineResults | ConvertTo-Json -Depth 10 -Compress
+$hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+    [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
+)
+$integrityHash = [BitConverter]::ToString($hashBytes) -replace '-'
+```
+
+Examiners can verify evidence integrity by recomputing the hash against the exported JSON (excluding the `IntegrityHash` field).
+
+### Evidence Package JSON Structure
+
+```json
+{
+  "Metadata": {
+    "CheckedAt": "2026-02-11T14:30:00Z",
+    "ScriptVersion": "1.0.0",
+    "EnvironmentsScanned": 3,
+    "IntegrityHash": "A1B2C3..."
+  },
+  "Summary": {
+    "TotalChecks": 7,
+    "Passed": 5,
+    "Failed": 2,
+    "Skipped": 0,
+    "OverallStatus": "GapsFound"
+  },
+  "Checks": [ ... ],
+  "Gaps": [ ... ]
+}
+```
+
+### Manual Attestation Evidence
+
+For items requiring manual attestation, compile evidence packages using the attestation record format documented in the Manual Attestation Procedures section. Each attestation record should include:
+
+1. **Screenshot** of the portal setting at the documented path
+2. **Attestation record** with reviewer name, date, observed value, and pass/fail determination
+3. **Exception documentation** for any approved deviations from expected values
+
+Store manual attestation records alongside automated evidence exports for a complete evidence package.
+
+### Storage Recommendations
+
+| Storage Option | Use Case | Retention Feature |
+|----------------|----------|-------------------|
+| **SharePoint compliance library** | Organizations with M365 E5 | Retention labels with regulatory record classification |
+| **Azure Blob with immutable storage** | Organizations requiring WORM compliance | Time-based immutability policies for SEC 17a-4 |
+| **On-premises file share** | Air-gapped environments | File system ACLs with audit logging |
+
+### Retention Guidance
+
+Evidence retention periods should align with applicable regulatory requirements:
+
+| Regulation | Minimum Retention | Applies To |
+|------------|-------------------|------------|
+| **FINRA 4511** | 6 years | Broker-dealer communications and records |
+| **SEC 17a-3/4** | 3–6 years (varies by record type) | Books and records of securities firms |
+| **SOX 302/404** | 7 years | Internal control documentation |
+| **OCC 2011-12** | Per institution policy (typically 5+ years) | Model risk management records |
+
+!!! warning "Retention Advisory"
+    Organizations should consult with their compliance and legal teams to determine the appropriate retention period based on their specific regulatory obligations. The periods listed above represent minimum requirements and may not cover all applicable regulations.
+
+---
+
 ## Related Resources
 
 - [Control 3.7: PPAC Security Posture Assessment](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) — Native PPAC posture scoring
@@ -161,4 +289,4 @@ A new solution is planned to automate validation of Copilot Studio agent-level s
 
 ---
 
-*Updated: February 2026 | Version: v1.0*
+*Updated: February 2026 | Version: v1.1*
