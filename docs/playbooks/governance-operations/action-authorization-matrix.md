@@ -2,7 +2,7 @@
 
 **Purpose:** Provide an auditable, enforceable definition of what an agent *may* and *may not* do, including hard limits and escalation triggers.  
 **Applies to:** Zone 3 agents by default; Zone 2 agents when they can initiate workflows/actions or touch sensitive systems/data.  
-**Related controls (examples):** 1.14 (Agent scope control), 1.18 (RBAC), 2.12 (Supervision & oversight), 3.1 (Inventory/registration). <sup>[3]</sup>
+**Related controls (examples):** 1.14 (Agent scope control), 1.18 (RBAC), 2.12 (Supervision & oversight), 3.1 (Inventory/registration).
 
 ---
 
@@ -119,10 +119,10 @@ Point to the agent’s detailed data policy (Template: Per-agent Data Handling P
 
 ## 9) Logging and evidence requirements
 
-> Copilot Studio activities can be audited via Microsoft Purview audit logs, with additional transcript access via DSPM for AI in some cases. [web:112][web:107]
+> Copilot Studio activities can be audited via Microsoft Purview audit logs, with additional transcript access via DSPM for AI in some cases.
 
 Minimum evidence for Zone 3:
-- Audit logging enabled and verified (Purview audit). [web:112]
+- Audit logging enabled and verified (Purview audit).
 - Decision logs (schema from Decision Log template) stored immutably.
 - Scope drift logs + alerts are retained and reviewable.
 - Quarterly AAM review evidence (sign-off).
@@ -151,4 +151,4 @@ Minimum evidence for Zone 3:
 - **Change ticket ID / PR link:**
 - **Version:**
 
-> Any update to allowed/prohibited actions should go through formal change management (align to your existing management controls). <sup>[3]</sup>
+> Any update to allowed/prohibited actions should go through formal change management (align to your existing management controls).

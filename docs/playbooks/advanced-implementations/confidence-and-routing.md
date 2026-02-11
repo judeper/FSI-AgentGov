@@ -2,8 +2,8 @@
 
 **Purpose:** Ensure agent outputs are handled according to risk by capturing **confidence/uncertainty** and enforcing routing rules (review, escalation, block) based on zone, action type, and confidence.  
 **Applies to:** Zone 3 (required), Zone 2 (recommended), Zone 1 (baseline banding recommended).  
-**Regulatory driver:** FINRA highlights that AI agents may perform multi-step reasoning that reduces transparency/explainability and may act autonomously beyond authority, reinforcing the need for governance, oversight, and guardrails. [web:87]  
-**Evidence driver:** Microsoft Purview Copilot audit records include structured interaction metadata and can include message-level flags like `JailbreakDetected` (prompt jailbreak attempt) and resource-level `XPIADetected` (cross prompt injection attack detection) that are useful “uncertainty/risk signals” for routing. [web:118]
+**Regulatory driver:** FINRA highlights that AI agents may perform multi-step reasoning that reduces transparency/explainability and may act autonomously beyond authority, reinforcing the need for governance, oversight, and guardrails.  
+**Evidence driver:** Microsoft Purview Copilot audit records include structured interaction metadata and can include message-level flags like `JailbreakDetected` (prompt jailbreak attempt) and resource-level `XPIADetected` (cross prompt injection attack detection) that are useful "uncertainty/risk signals" for routing.
 
 ---
 
@@ -40,11 +40,11 @@ Confidence should be computed from a **policy-driven heuristic** (even if the mo
 
 ### C2) Policy and boundary signals
 - Any DLP/policy blocks (PolicyDetails present)
-- Any restricted label encountered in `AccessedResources.SensitivityLabelId` [web:118]
+- Any restricted label encountered in `AccessedResources.SensitivityLabelId`
 
 ### C3) Attack/abuse signals (risk, not “confidence”)
-- Any prompt message flagged `JailbreakDetected == true` [web:118]
-- Any resource flagged `XPIADetected == true` [web:118]
+- Any prompt message flagged `JailbreakDetected == true`
+- Any resource flagged `XPIADetected == true`
 
 ### C4) Task type + criticality
 - Informational vs recommendation vs execute
@@ -75,8 +75,8 @@ Confidence should be computed from a **policy-driven heuristic** (even if the mo
 Regardless of confidence band, escalate/block if:
 - Prohibited action attempted (AAM violation)
 - Restricted label boundary crossed
-- `JailbreakDetected == true` for prompt message [web:118]
-- `XPIADetected == true` for accessed resource [web:118]
+- `JailbreakDetected == true` for prompt message
+- `XPIADetected == true` for accessed resource
 - Scope drift detected (connector/site drift)
 - Missing required sources for a regulated recommendation (“unsupported claim”)
 
@@ -92,8 +92,8 @@ For each material interaction:
 - `review_required` boolean + reviewer outcome if applicable
 
 Also log whether:
-- jailbreak signal observed [web:118]
-- XPIA signal observed [web:118]
+- jailbreak signal observed
+- XPIA signal observed
 
 ---
 
@@ -122,7 +122,7 @@ Also log whether:
 - Adjust confidence heuristics and thresholds
 - Record changes via change management
 
-FINRA underscores governance/testing/monitoring expectations for GenAI use and the need for supervisory processes under FINRA Rule 3110. [web:86]
+FINRA underscores governance/testing/monitoring expectations for GenAI use and the need for supervisory processes under FINRA Rule 3110.
 
 ---
 

@@ -2,10 +2,10 @@
 
 **Purpose:** Define a *structured*, auditable “decision object” for each material agent recommendation or action, so you can evidence supervision, traceability, and review outcomes.  
 **Applies to:** Zone 3 (required), Zone 2 (recommended for medium/high impact agents).  
-**Related controls (examples):** 1.7 Audit logging, 2.5 QA/validation, 2.9 Performance monitoring, 3.2 Usage analytics, 3.3 Compliance reporting. <sup>[3]</sup>
+**Related controls (examples):** 1.7 Audit logging, 2.5 QA/validation, 2.9 Performance monitoring, 3.2 Usage analytics, 3.3 Compliance reporting.
 
-> Implementation note (Copilot Studio): Copilot Studio activities are available in Microsoft Purview Audit, and user interaction events (CopilotInteraction) include a transcript thread ID; full chat text is not in the Purview Audit event itself and is retrieved via DSPM for AI in supported scenarios. <sup>[6]</sup>  
-> Implementation note (DSPM for AI): DSPM for AI depends on Purview auditing being enabled and has prerequisites and collection/policy concepts that affect whether prompt/response content is captured and visible. <sup>[7]</sup>
+> Implementation note (Copilot Studio): Copilot Studio activities are available in Microsoft Purview Audit, and user interaction events (CopilotInteraction) include a transcript thread ID; full chat text is not in the Purview Audit event itself and is retrieved via DSPM for AI in supported scenarios.  
+> Implementation note (DSPM for AI): DSPM for AI depends on Purview auditing being enabled and has prerequisites and collection/policy concepts that affect whether prompt/response content is captured and visible.
 
 ---
 
@@ -100,14 +100,14 @@ Each entry should look like:
 
 ## 4) Integration with Purview Audit and DSPM for AI
 
-Copilot Studio audit events are available in Microsoft Purview Audit, and user interaction events include metadata such as organization, user/resource IDs, and a transcript thread ID. <sup>[6]</sup>  
-The audit event itself does not contain the full transcript text; DSPM for AI can retrieve chat text related to certain events and surface resource links where supported. <sup>[6]</sup>  
-DSPM for AI prerequisites include Purview auditing being enabled and licensing/permissions requirements, and content capture depends on the policy configuration. <sup>[7]</sup>
+Copilot Studio audit events are available in Microsoft Purview Audit, and user interaction events include metadata such as organization, user/resource IDs, and a transcript thread ID.  
+The audit event itself does not contain the full transcript text; DSPM for AI can retrieve chat text related to certain events and surface resource links where supported.  
+DSPM for AI prerequisites include Purview auditing being enabled and licensing/permissions requirements, and content capture depends on the policy configuration.
 
 ### 4.1 Recommended linkage fields
-- purview_operation: e.g., `CopilotInteraction` (for interactions) <sup>[6]</sup>
+- purview_operation: e.g., `CopilotInteraction` (for interactions)
 - purview_event_id: the audit log entry GUID (if captured)
-- transcript_thread_id: if present in event metadata <sup>[6]</sup>
+- transcript_thread_id: if present in event metadata
 
 ---
 
