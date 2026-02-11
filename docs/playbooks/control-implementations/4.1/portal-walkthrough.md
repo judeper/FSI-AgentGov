@@ -37,6 +37,13 @@ For each identified site:
 5. Set the toggle to **On**
 6. Document the change in your governance records
 
+!!! warning "Reindexing Latency"
+    Enabling Restricted Content Discovery triggers a site reindexing process.
+    Full reindex completion can take **24-72 hours** depending on site size.
+    Information barriers and sensitivity label-based access restrictions will
+    not take effect until reindexing completes. Plan for this delay in your
+    rollout schedule. See [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) for details.
+
 **Repeat for all regulated/enterprise-managed sites.**
 
 ### Step 3: Configure Restricted SharePoint Search (RSS) - Allow-List Approach

@@ -43,6 +43,12 @@ Before starting, ensure you have:
    - **Restricted:** Content not included in Copilot results
 6. Click **Save**
 
+!!! warning "Reindexing After Scope Changes"
+    Changes to Copilot grounding scope (adding or removing sites, libraries)
+    may trigger partial reindexing. Updated semantic index boundaries become
+    effective only after reindex completion. Allow **24-48 hours** before
+    validating scope changes via test queries.
+
 ### Sites to Exclude
 
 Apply Restricted Content Discovery to:

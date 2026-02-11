@@ -40,6 +40,15 @@ Exclude sensitive sites from M365 Copilot via Restricted Content Discovery:
 4. Click **Settings**
 5. Under **Microsoft 365 Copilot**, set to **Restricted**
 
+!!! warning "EEEU Risk — Discovery Amplification"
+    Microsoft 365 Copilot can surface content shared with "Everyone except
+    external users" (EEEU) across the organization. This **discovery
+    amplification** means that content previously obscure (but technically
+    accessible) becomes easily discoverable through natural language queries.
+    Review and remediate EEEU sharing before enabling Copilot for sensitive
+    sites. Use [Control 4.2 (Site Access Reviews)](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md)
+    DAG reports to identify affected sites.
+
 **Categories to Exclude:**
 
 | Content Category | Risk Level | Recommendation |

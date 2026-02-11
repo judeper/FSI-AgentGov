@@ -32,6 +32,14 @@ Generate baseline permissions report:
    - Broad sharing links
 7. Prioritize team/enterprise sites and agent knowledge sources
 
+!!! warning "EEEU (Everyone Except External Users) Priority"
+    Sites shared with "Everyone except external users" represent the highest
+    oversharing risk for Copilot and should be prioritized for access review.
+    EEEU-shared content is accessible to all internal users including Copilot,
+    which can surface sensitive data in AI-generated responses. See
+    [Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md)
+    for EEEU risk assessment guidance.
+
 ### Step 2: Configure Site Attestation Policies
 
 Create attestation policy for regulated sites:
