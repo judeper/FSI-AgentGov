@@ -10,7 +10,7 @@ Closes 16 gaps identified by codebase mapping analysis after v11 Technical Remed
 
 ## Phases
 
-- [x] **Phase 1: Broken Links & Content Consistency** — Fix excluded-doc links, publish missing nav entries, complete Azure AD rename and Zone normalization *(6/7 criteria passed; ~80 Tier→Zone conversions remain in ~35 files — gap closure available)*
+- [x] **Phase 1: Broken Links & Content Consistency** — Fix excluded-doc links, publish missing nav entries, complete Azure AD rename and Zone normalization *(7/7 criteria passed — gap closure complete)*
 - [ ] **Phase 2: Quality Automation & Infrastructure** — Create language linter, add CI validation, sync template conventions, enhance playbook verification
 - [ ] **Phase 3: Housekeeping** — Remove stale output files, create missing EXPECTED.md specs, fix Excel count, update milestone history
 
@@ -33,8 +33,8 @@ Closes 16 gaps identified by codebase mapping analysis after v11 Technical Remed
 Plans:
 - [x] 01-01-PLAN.md — Navigation & Solution Doc Sync (BLK-01 through BLK-03, CSW-03, CSW-04) — Worktree A ✅
 - [x] 01-02-PLAN.md — Terminology Sweep (CSW-01, CSW-02) — Worktree B ✅ *(gap: ~80 additional Tier→Zone instances discovered)*
-- [ ] 01-03-PLAN.md — Control File Tier→Zone Sweep + Minor Fixes (CSW-02 gap closure) — Wave 1
-- [ ] 01-04-PLAN.md — Playbook File Tier→Zone Sweep (CSW-02 gap closure) — Wave 1
+- [x] 01-03-PLAN.md — Control File Tier→Zone Sweep + Minor Fixes (CSW-02 gap closure) — Wave 1 ✅
+- [x] 01-04-PLAN.md — Playbook File Tier→Zone Sweep (CSW-02 gap closure) — Wave 1 ✅
 
 ### Phase 2: Quality Automation & Infrastructure
 **Goal:** Build automated quality gates (language linter, CI integration) and align templates/validation scripts with current conventions
@@ -71,7 +71,7 @@ Plans:
 
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
-| 1. Broken Links & Content Consistency | 2/4 | Gap closure plans ready (01-03, 01-04) |
+| 1. Broken Links & Content Consistency | 4/4 | Complete (7/7 criteria passed) |
 | 2. Quality Automation & Infrastructure | 0/2 | Not started |
 | 3. Housekeeping | 0/2 | Not started |
 
