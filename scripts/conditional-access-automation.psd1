@@ -21,13 +21,11 @@
         'private/CAAClient.psm1'
     )
 
-    FunctionsToExport = @(
-        'Deploy-CAPolicies'
-        'Test-PolicyCompliance'
-        'Register-ServicePrincipal'
-        'Export-PolicyBaseline'
-        'Watch-PolicyDrift'
-    )
+    # Future module functions (not yet implemented):
+    #   Deploy-CAPolicies, Register-ServicePrincipal,
+    #   Export-PolicyBaseline, Watch-PolicyDrift
+    # Test-PolicyCompliance.ps1 is a standalone script (not a module function).
+    FunctionsToExport = @()
 
     CmdletsToExport   = @()
     VariablesToExport  = @()

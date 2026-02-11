@@ -140,14 +140,14 @@ $complianceResults = [PSCustomObject]@{
 # ─── Check 1: Policy Existence ───────────────────────────────────────
 Write-Verbose "Check 1: Policy Existence..."
 $expectedPolicies = @(
-    'CA-M365Copilot-AllZones'
-    'CA-BlockLegacyAuth-AI'
-    'CA-CopilotStudio-Zone1'
-    'CA-CopilotStudio-Zone2'
-    'CA-CopilotStudio-Zone3'
-    'CA-AgentBuilder-Zone2'
-    'CA-AgentBuilder-Zone3'
-    'CA-RequireCompliantDevice-Zone3'
+    'FSI-AllZones-BlockLegacyAuth'
+    'FSI-Z1-AgentCreators-BaselineMFA'
+    'FSI-Z2-AgentPublishers-PhishingResistant'
+    'FSI-Z2-AgentBuilder-MFA'
+    'FSI-Z3-EnterpriseAgentAdmin-Maximum'
+    'FSI-Z3-AgentBuilder-StrictMFA'
+    'FSI-Z3-RequireCompliantDevice'
+    'FSI-Z3-BreakGlass-EmergencyAccess'
 )
 
 $existenceResults = @()
@@ -225,6 +225,7 @@ foreach ($policy in $policies) {
     $session = $policy.SessionControls
     $hasSignInFreq = ($null -ne $session.SignInFrequency -and $session.SignInFrequency.IsEnabled)
     $persistBrowser = $session.PersistentBrowser.Mode
+    $isBlock = $policy.GrantControls.BuiltInControls -contains 'block'
 
     $zone = $null
     if ($policy.DisplayName -match 'Zone3') { $zone = 3 }
@@ -270,6 +271,10 @@ if ($BaselinePath) {
 } else {
     Write-Verbose "No baseline path provided — skipping drift analysis. Run Export-PolicyBaseline.ps1 to create a baseline."
 }
+
+# ─── Compute gap/drift counts (used by Dataverse persistence and Summary) ──
+$totalGaps = $complianceResults.Gaps.Count
+$driftCount = if ($complianceResults.DriftAnalysis) { $complianceResults.DriftAnalysis.Count } else { 0 }
 
 # ─── Dataverse Persistence (opt-in) ─────────────────────────────────────
 if ($PersistResults -and -not $DataverseUrl) {
@@ -395,8 +400,6 @@ elseif ($DataverseUrl -and $PersistResults) {
 }
 
 # ─── Summary ─────────────────────────────────────────────────────────
-$totalGaps = $complianceResults.Gaps.Count
-$driftCount = if ($complianceResults.DriftAnalysis) { $complianceResults.DriftAnalysis.Count } else { 0 }
 $complianceResults.Summary = [PSCustomObject]@{
     TotalPolicies = $policies.Count
     TotalChecks   = $complianceResults.Checks.Count
