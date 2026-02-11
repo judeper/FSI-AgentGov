@@ -794,7 +794,7 @@
                               "item/fsi_overall_status": "@body('Parse_Results')?['OverallStatus']",
                               "item/fsi_compliance_rate": "@body('Parse_Results')?['ComplianceRate']",
                               "item/fsi_alert_severity": "@body('Parse_Results')?['AlertSeverity']",
-                              "item/fsi_result_json": "@{string(body('Parse_Results'))}",
+                              "item/fsi_results_json": "@{string(body('Parse_Results'))}",
                               "item/fsi_source": "ProvisioningHookFallback",
                               "item/fsi_scan_scope": "Targeted"
                             },
@@ -1081,7 +1081,7 @@
                           {
                             "type": "Action.OpenUrl",
                             "title": "View Documentation",
-                            "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-1-security/1.11-conditional-access-policies/"
+                            "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/"
                           }
                         ],
                         "msteams": {

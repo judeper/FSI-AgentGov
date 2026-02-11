@@ -423,7 +423,7 @@
     {
       "type": "Action.OpenUrl",
       "title": "View Documentation",
-      "url": "${DocsBaseUrl}/controls/pillar-1-security/1.11-conditional-access-policies/"
+      "url": "${DocsBaseUrl}/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/"
     }
   ],
   "msteams": {
