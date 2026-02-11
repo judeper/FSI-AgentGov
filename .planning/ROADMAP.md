@@ -15,7 +15,7 @@ Comprehensive remediation of 107 findings and 42 gaps identified by full technic
 - [x] **Phase 3: Terminology & Version Normalization** — Standardize Zone/Tier/Level language, role names, and version footers across all docs
 - [x] **Phase 4: Cross-Reference & Link Integrity** — Fix broken cross-references, missing solution mappings, path errors
 - [x] **Phase 5: Script & Code Fixes** — Fix PowerShell bugs, non-existent cmdlets, parameter mismatches in scripts and playbooks
-- [ ] **Phase 6: Gap Backfill & Design Improvements** — Create missing deployment guides, operational playbooks, and inter-document linking
+- [x] **Phase 6: Gap Backfill & Design Improvements** — Create missing deployment guides, operational playbooks, and inter-document linking
 
 ## Phase Details
 
@@ -120,8 +120,8 @@ Plans:
 **Plans:** 2 (A = Gap backfill, B = Design improvements)
 
 Plans:
-- [ ] 06-01-PLAN.md — Gap Backfill (GBD-01 through GBD-04) — Worktree A
-- [ ] 06-02-PLAN.md — Design Improvements (GBD-05 through GBD-08) — Worktree B
+- [x] 06-01-PLAN.md — Gap Backfill (GBD-01 through GBD-04) — Worktree A
+- [x] 06-02-PLAN.md — Design Improvements (GBD-05 through GBD-08) — Worktree B
 
 ## Progress
 
@@ -132,7 +132,7 @@ Plans:
 | 3. Terminology & Version Normalization | 0/2 | Not started |
 | 4. Cross-Reference & Link Integrity | 2/2 | Complete |
 | 5. Script & Code Fixes | 2/2 | Complete |
-| 6. Gap Backfill & Design Improvements | 0/2 | Not started |
+| 6. Gap Backfill & Design Improvements | 2/2 | Complete |
 
 ## Parallel Execution Guide
 
