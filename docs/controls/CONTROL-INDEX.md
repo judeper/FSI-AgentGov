@@ -10,14 +10,14 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 
 | Control ID | Control Name | Implementation |
 |-----------|----------|----------------|
-| 1.1 | [Restrict Agent Publishing by Authorization](pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Portal / PowerShell |
+| 1.1 | [Restrict Agent Publishing by Authorization](pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Portal / PowerShell, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
 | 1.2 | [Agent Registry and Integrated Apps Management](pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Portal / PowerShell |
 | 1.3 | [SharePoint Content Governance and Permissions](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | Portal / PowerShell |
 | 1.4 | [Advanced Connector Policies (ACP)](pillar-1-security/1.4-advanced-connector-policies-acp.md) | Portal / PowerShell |
 | 1.5 | [Data Loss Prevention (DLP) and Sensitivity Labels](pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Portal / PowerShell, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
 | 1.6 | [Microsoft Purview: DSPM for AI](pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | Portal |
-| 1.7 | [Comprehensive Audit Logging and Compliance](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Portal / PowerShell, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
-| 1.8 | [Runtime Protection and External Threat Detection](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Portal |
+| 1.7 | [Comprehensive Audit Logging and Compliance](pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Portal / PowerShell, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
+| 1.8 | [Runtime Protection and External Threat Detection](pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Portal, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
 | 1.9 | [Data Retention and Deletion Policies](pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Portal / PowerShell |
 | 1.10 | [Communication Compliance Monitoring](pillar-1-security/1.10-communication-compliance-monitoring.md) | Portal |
 | 1.11 | [Conditional Access and Phishing-Resistant MFA](pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Portal / PowerShell |
@@ -27,7 +27,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.15 | [Encryption: Data in Transit and at Rest](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Portal |
 | 1.16 | [Information Rights Management (IRM) for Documents](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Portal / PowerShell |
 | 1.17 | [Endpoint Data Loss Prevention (Endpoint DLP)](pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) | Portal |
-| 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Portal / PowerShell |
+| 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Portal / PowerShell, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
 | 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | Portal / PowerShell |
 | 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Portal |
 | 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) | Portal |
@@ -39,7 +39,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 
 | Control ID | Control Name | Implementation |
 |-----------|----------|----------------|
-| 2.1 | [Managed Environments](pillar-2-management/2.1-managed-environments.md) | Portal / PowerShell, [ELM](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
+| 2.1 | [Managed Environments](pillar-2-management/2.1-managed-environments.md) | Portal / PowerShell, [ELM](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management), [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
 | 2.2 | [Environment Groups and Tier Classification](pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Portal / PowerShell, [ELM](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
 | 2.3 | [Change Management and Release Planning](pillar-2-management/2.3-change-management-and-release-planning.md) | Portal / PowerShell, [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) |
 | 2.4 | [Business Continuity and Disaster Recovery](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | Portal / PowerShell |
@@ -71,8 +71,8 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.4 | [Incident Reporting and Root Cause Analysis](pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Portal, [Deny Event Correlation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
 | 3.5 | [Cost Allocation and Budget Tracking](pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) | Portal |
 | 3.6 | [Orphaned Agent Detection and Remediation](pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Portal / PowerShell |
-| 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Portal |
-| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Portal |
+| 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Portal, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
+| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Portal, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/) |
 | 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Portal / PowerShell |
 | 3.10 | [Hallucination Feedback Loop](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Portal |
 

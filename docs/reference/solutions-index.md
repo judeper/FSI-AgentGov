@@ -35,6 +35,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
+| [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.0.0 | Completed | PowerShell verification script and 27-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
 
 ### Status Legend
 
@@ -518,6 +519,49 @@ Wires five Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compli
 
 ---
 
+### Configuration Hardening Baseline
+
+!!! success "Production Ready"
+    v1.0.0 includes 27-item hardening checklist, PowerShell verification script for automatable items, manual attestation procedures, evidence export with SHA-256 integrity hashing, and zone-specific review cadence guidance.
+
+Consolidates security-critical configuration settings across Power Platform, Copilot Studio, and M365 Admin Center into a single reviewable hardening baseline. Enables FSI organizations to verify their configuration posture across agent authentication, audit logging, content moderation, RBAC, environment governance, and AI feature access — addressing settings flagged by SSPM security posture assessments.
+
+!!! info "Framework-Integrated Tool"
+    Unlike other solutions in the FSI-AgentGov-Solutions repository, the Configuration Hardening Baseline is integrated directly into the FSI-AgentGov framework as a governance script and advanced implementation playbook.
+
+**Components:**
+
+- 27-item master configuration hardening checklist with automation feasibility classification
+- `Invoke-HardeningBaselineCheck.ps1` PowerShell verification script for automatable items (audit logging, environment provisioning)
+- Manual attestation procedures for agent-level settings without API access
+- Zone-specific review cadence (Weekly/Bi-weekly/Monthly) with escalation triggers
+- Evidence export with SHA-256 integrity hashing for regulatory examination readiness
+- Compliance calendar integration for quarterly examination preparation
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — Configuration Evidence)
+- SEC 17a-3/4 (Recordkeeping — Hardening Baseline Documentation)
+- SOX 302/404 (Internal Controls — Configuration Governance)
+- GLBA 501(b) (Safeguards — Security Posture Verification)
+- OCC 2011-12 (Model Risk Management — Infrastructure Controls)
+
+**Related Controls:**
+
+- [1.1 - Restrict Agent Publishing](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md)
+- [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+- [1.8 - Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
+- [1.18 - Application-Level RBAC](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)
+- [2.1 - Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md)
+- [3.7 - PPAC Security Posture Assessment](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md)
+- [3.8 - Copilot Hub](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
+
+**Framework Playbook:** [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md)
+
+**Script Location:** `scripts/governance/Invoke-HardeningBaselineCheck.ps1`
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -553,6 +597,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | DR Testing Framework | v1.0.0 | February 2026 |
 | File Upload Security Configurator | v1.0.0 | February 2026 |
 | Cross-Solution Integration | v1.0.0 | February 2026 |
+| Configuration Hardening Baseline | v1.0.0 | February 2026 |
 
 ---
 
