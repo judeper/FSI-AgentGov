@@ -14,7 +14,7 @@ The Conditional Access Automation solution extends existing validated scripts (D
 - Integer phases (1, 2, 3, 4): Planned milestone work
 
 - [x] **Phase 1: Script Modernization & Core Validation** — Module structure, template validation, zone integration, drift detection core
-- [ ] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, connection references, deployment scripts
+- [x] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, connection references, deployment scripts
 - [ ] **Phase 3: Automation & Alerting** — Daily compliance scan flow, drift detection, Teams alerting, ELM provisioning hook
 - [ ] **Phase 4: Evidence Export & Framework Integration** — SHA-256 evidence export, Control 1.11 integration, solutions-index, documentation, CD feed
 
@@ -82,7 +82,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Script Modernization & Core | 3/3 | Complete | 2026-02-10 |
-| 2. Dataverse Infrastructure | — | Planned | — |
+| 2. Dataverse Infrastructure | 3/3 | Complete | 2026-02-10 |
 | 3. Automation & Alerting | — | Not Started | — |
 | 4. Evidence Export & Framework Integration | — | Not Started | — |
 
