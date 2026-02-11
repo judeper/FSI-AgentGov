@@ -92,7 +92,7 @@ These controls are fully addressed through Microsoft admin portal configuration.
 
 ### Category 2: Custom Solution Recommended
 
-These controls would benefit from custom automation beyond native features. Prioritize based on Zone 3/Tier 1 risk.
+These controls would benefit from custom automation beyond native features. Prioritize based on Zone 3 / Priority Tier 1 risk.
 
 | Control | Control Name | Gap Type | Priority |
 |---------|--------------|----------|----------|
@@ -132,9 +132,9 @@ These controls are inherently process-based and cannot be fully automated. They 
 
 ---
 
-## High-Risk Gaps (Zone 3 / Tier 1)
+## High-Risk Gaps (Zone 3 / Priority Tier 1)
 
-These 32 controls apply to Zone 3 (Enterprise Managed) agents and Tier 1 (Critical) classifications. Gaps in these controls present elevated regulatory and operational risk.
+These 32 controls apply to Zone 3 (Enterprise Managed) agents and Priority Tier 1 (Critical) materiality classifications. Gaps in these controls present elevated regulatory and operational risk.
 
 ### Zone 3 Controls Without Solutions
 
@@ -211,7 +211,7 @@ One control has significant regulatory implications with no native Microsoft fea
 **Mitigation:**
 
 1. Document AI agents in your model inventory
-2. Classify agents by materiality (Tier 1/2/3)
+2. Classify agents by materiality tier (Tier 1/2/3)
 3. Establish model validation procedures appropriate to agent complexity
 4. Define model owner and validator roles with appropriate independence
 5. Implement ongoing performance monitoring (Control 2.9)
