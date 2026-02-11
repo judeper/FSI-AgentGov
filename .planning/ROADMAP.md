@@ -13,14 +13,15 @@ The Conditional Access Automation solution extends existing validated scripts (D
 **Phase Numbering:**
 - Integer phases (1, 2, 3, 4): Planned milestone work
 
-- [ ] **Phase 1: Script Modernization & Core Validation** — Module structure, template validation, zone integration, drift detection core
-- [ ] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, connection references, deployment scripts
+- [x] **Phase 1: Script Modernization & Core Validation** — Module structure, template validation, zone integration, drift detection core
+- [x] **Phase 2: Dataverse Infrastructure** — Persistent state tables, environment variables, connection references, deployment scripts
 - [x] **Phase 3: Automation & Alerting** — Daily compliance scan flow, drift detection, Teams alerting, ELM provisioning hook
 - [x] **Phase 4: Evidence Export & Framework Integration** — SHA-256 evidence export, Control 1.11 integration, solutions-index, documentation, CD feed
 
 ## Phase Details
 
 ### Phase 1: Script Modernization & Core Validation
+**Status:** COMPLETE (2026-02-10) — Retroactive closure; deliverables created organically across Phases 2–4
 **Goal**: Existing scripts are modernized to Tier 2 standards with module structure, zone lookup integration, and policy drift detection — operators can validate CA policy compliance and detect unauthorized changes using standalone scripts
 **Depends on**: Nothing (first phase)
 **Requirements**: SMC-01, SMC-02, SMC-03, SMC-04, SMC-05
@@ -30,14 +31,10 @@ The Conditional Access Automation solution extends existing validated scripts (D
   3. Zone lookup retrieves environment zone from ELM Dataverse table with naming convention fallback, enabling zone-appropriate policy deployment
   4. All deployment and compliance operations support dry-run mode with detailed preview output showing what would change
   5. Policy drift detection compares deployed CA policies against template baselines and identifies unauthorized modifications (enabled→disabled, conditions changed, controls weakened)
-**Plans**: 3 plans
-
-Plans:
-- [ ] 01-01-PLAN.md — Solution scaffold, module manifest, and private helpers (SMC-01, SMC-03)
-- [ ] 01-02-PLAN.md — Template validation and script refactoring with dry-run (SMC-02, SMC-04)
-- [ ] 01-03-PLAN.md — Policy drift detection scripts (SMC-05)
+**Plans**: No formal plans (deliverables built organically during Phases 2–4)
 
 ### Phase 2: Dataverse Infrastructure
+**Status:** COMPLETE (2026-02-10) — 3/3 plans, verification PASSED
 **Goal**: CA policy baselines, validation history, and violation records are stored in Dataverse for persistent, queryable state across automated runs
 **Depends on**: Phase 1
 **Requirements**: INF-01, INF-02, INF-03, INF-04
@@ -46,7 +43,12 @@ Plans:
   2. Environment variables for zone-specific CA policy thresholds (`fsi_CAA_*` prefix) deployed and consumed by Phase 1 scripts
   3. Connection references for Dataverse, Office 365, Teams, and Microsoft Graph deployed with `fsi_cr_*` naming convention
   4. Python deployment scripts are idempotent (safe to re-run) and support dry-run mode, following ACV/SSC/AAM pattern
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [x] 02-01-PLAN.md — CAA Dataverse Client, Requirements, and Three-Table Schema (INF-01)
+- [x] 02-02-PLAN.md — Environment Variables, Connection References, and Deploy Orchestrator (INF-02, INF-03)
+- [x] 02-03-PLAN.md — Wire Phase 1 PowerShell to Dataverse (INF-04)
 
 ### Phase 3: Automation & Alerting
 **Goal**: CA policy compliance is automatically validated daily with drift detection, and operators receive classified alerts when policies deviate from zone requirements or are modified outside automation
@@ -95,8 +97,8 @@ Original dependency chain: 1 → 2 → 3 → 4 (for runtime deployment)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Script Modernization & Core | — | Not Started | — |
-| 2. Dataverse Infrastructure | — | Not Started | — |
+| 1. Script Modernization & Core | organic | Complete (retroactive) | 2026-02-10 |
+| 2. Dataverse Infrastructure | 3/3 | Complete | 2026-02-10 |
 | 3. Automation & Alerting | 4/4 | Complete | 2026-02-10 |
 | 4. Evidence Export & Framework Integration | 4/4 | Complete | 2026-02-10 |
 
@@ -109,10 +111,10 @@ Original dependency chain: 1 → 2 → 3 → 4 (for runtime deployment)
 | SMC-03 | Phase 1 | 01-01 | Zone lookup ELM integration |
 | SMC-04 | Phase 1 | 01-02 | Dry-run mode for all operations |
 | SMC-05 | Phase 1 | 01-03 | Policy drift detection |
-| INF-01 | Phase 2 | TBD | Dataverse tables (baseline, history, violations) |
-| INF-02 | Phase 2 | TBD | Environment variables (fsi_CAA_*) |
-| INF-03 | Phase 2 | TBD | Connection references |
-| INF-04 | Phase 2 | TBD | Python deployment scripts |
+| INF-01 | Phase 2 | 02-01 | Dataverse tables (baseline, history, violations) |
+| INF-02 | Phase 2 | 02-02 | Environment variables (fsi_CAA_*) |
+| INF-03 | Phase 2 | 02-02 | Connection references |
+| INF-04 | Phase 2 | 02-03 | Python deployment scripts |
 | AUT-01 | Phase 3 | 03-01, 03-03 | Daily compliance scan flow |
 | AUT-02 | Phase 3 | 03-01 | Drift detection flow |
 | AUT-03 | Phase 3 | 03-02 | Teams adaptive card alerts |
