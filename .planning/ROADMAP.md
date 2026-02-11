@@ -1,138 +1,77 @@
-# Roadmap: Technical Remediation (v11)
+# Roadmap: Quality & Consistency Polish (v12)
 
 ## Overview
 
-Comprehensive remediation of 107 findings and 42 gaps identified by full technical audit of all solutions (CAA, DEC, ELM, PCG), framework docs, reference docs, operational playbooks, and control implementation playbooks. Organized by risk: runtime failures first, then regulatory accuracy, then consistency, then backfill.
+Closes 16 gaps identified by codebase mapping analysis after v11 Technical Remediation. Targets user-facing broken links, residual Azure AD / Tier terminology, quality automation infrastructure, and housekeeping. All gaps are polish-level — no new controls, solutions, or external URL work.
 
-**Audit scope:** 19 solutions, 62 controls, ~250 playbooks, 12 framework docs, 21 reference docs, 30 operational playbooks, ~25 scripts/artifacts.
+**Gap source:** Codebase mapping analysis (2026-02-11) across tech, architecture, quality, and concern dimensions.
 
-**Execution model:** Each phase has two plans (A/B) targeting non-overlapping file sets for parallel worktree execution. An operator can run two VS Code sessions simultaneously, one per worktree/branch.
+**Execution model:** Each phase has two plans (A/B) targeting non-overlapping file sets for parallel worktree execution.
 
 ## Phases
 
-- [x] **Phase 1: Critical Runtime Fixes** — Fix bugs that cause actual deployment/runtime failures in CAA and DEC solutions
-- [x] **Phase 2: Regulatory & Technical Accuracy** — Fix regulatory citation errors, control count mismatches, and solution technical contradictions
-- [x] **Phase 3: Terminology & Version Normalization** — Standardize Zone/Tier/Level language, role names, and version footers across all docs
-- [x] **Phase 4: Cross-Reference & Link Integrity** — Fix broken cross-references, missing solution mappings, path errors
-- [x] **Phase 5: Script & Code Fixes** — Fix PowerShell bugs, non-existent cmdlets, parameter mismatches in scripts and playbooks
-- [x] **Phase 6: Gap Backfill & Design Improvements** — Create missing deployment guides, operational playbooks, and inter-document linking
+- [x] **Phase 1: Broken Links & Content Consistency** — Fix excluded-doc links, publish missing nav entries, complete Azure AD rename and Zone normalization *(6/7 criteria passed; ~80 Tier→Zone conversions remain in ~35 files — gap closure available)*
+- [ ] **Phase 2: Quality Automation & Infrastructure** — Create language linter, add CI validation, sync template conventions, enhance playbook verification
+- [ ] **Phase 3: Housekeeping** — Remove stale output files, create missing EXPECTED.md specs, fix Excel count, update milestone history
 
 ## Phase Details
 
-### Phase 1: Critical Runtime Fixes
-**Goal:** Eliminate bugs that would cause runtime failures if CAA or DEC solutions are deployed as documented
-**Depends on:** Nothing (first phase, highest priority)
-**Requirements:** RTF-01 through RTF-10
+### Phase 1: Broken Links & Content Consistency
+**Goal:** Resolve user-facing broken links caused by exclude_docs and complete the Azure AD / Tier→Zone terminology sweeps started in v11
+**Depends on:** Nothing (highest user impact)
+**Requirements:** BLK-01 through BLK-03, CSW-01 through CSW-04
 **Success Criteria:**
-  1. CAA Dataverse column names match between flow JSON and schema Python script
-  2. CAA flows reference correct documentation URL slugs
-  3. CAA private helper scripts exist (or Test-PolicyCompliance.ps1 works standalone)
-  4. CAA policy naming convention is consistent between validation scripts and playbook templates
-  5. DEC severity and zone option set values match between correlation engine and schema
-  6. DEC deployment guide describes v2.0 Dataverse architecture (not v1.x CSV/Blob)
-  7. DEC Power BI playbook uses Dataverse connector (not CSV file sources)
-  8. DEC extraction scripts derive zone from agent metadata (not hardcoded '1')
-**Plans:** 2 (A = CAA, B = DEC — no file overlap)
+  1. No docs link to files excluded via exclude_docs (or exclusions removed)
+  2. regulatory-mappings.md reachable from site navigation (or all inbound links removed)
+  3. CONTROL-INDEX.md reachable from site navigation (or linking docs updated)
+  4. Zero "Azure AD" instances remain in published docs
+  5. Zero "Tier 1/2/3" or "Level 1/2/3" instances remain without mapping note
+  6. solutions-integration.md statuses and versions match solutions-index.md
+  7. Cross-Solution Integration status updated from WIP to Completed
+**Plans:** 2 (A = Navigation/config + solution sync, B = Terminology sweep — no file overlap)
 
 Plans:
-- [x] 01-01-PLAN.md — CAA Runtime Fixes (RTF-01 through RTF-05) — Worktree A
-- [x] 01-02-PLAN.md — DEC Runtime Fixes (RTF-06 through RTF-10) — Worktree B
+- [x] 01-01-PLAN.md — Navigation & Solution Doc Sync (BLK-01 through BLK-03, CSW-03, CSW-04) — Worktree A ✅
+- [x] 01-02-PLAN.md — Terminology Sweep (CSW-01, CSW-02) — Worktree B ✅ *(gap: ~80 additional Tier→Zone instances discovered)*
 
-### Phase 2: Regulatory & Technical Accuracy
-**Goal:** Fix regulatory citation errors and solution technical contradictions that affect compliance accuracy
+### Phase 2: Quality Automation & Infrastructure
+**Goal:** Build automated quality gates (language linter, CI integration) and align templates/validation scripts with current conventions
 **Depends on:** Nothing (independent of Phase 1)
-**Requirements:** RTA-01 through RTA-10
+**Requirements:** QAI-01 through QAI-05
 **Success Criteria:**
-  1. Pillar 1 control count reads "24" everywhere (not "23"), total reads "62" (not "61")
-  2. FINRA 25-07 references are corrected or clarified across all files
-  3. SEC 17a-3/4 retention periods distinguish 3-year communications from 6-year records
-  4. Zone 3 retention period is consistent (7 or 10 years) across all docs
-  5. ELM Lab 3 does not instruct users to pass SecurityGroupId at creation time
-  6. ELM zone rationale collected for Zone 2 (not just Zone 3)
-  7. PCG Lab ingestion uses upsert (not "Add a new row")
-  8. "Azure AD" replaced with "Microsoft Entra ID" across PCG playbooks
-**Plans:** 2 (A = Framework/Reference, B = Solution Playbooks — no file overlap)
+  1. scripts/verify_language_rules.py exists and catches prohibited FSI phrases
+  2. CI workflow includes verify_controls.py step
+  3. control-setup-template.md uses "Implementation Playbooks" heading and current footer
+  4. verify_templates.py checks current canonical footer values
+  5. verify_controls.py validates that 4 standard playbook files exist per control
+**Plans:** 2 (A = Linter + CI, B = Templates + validation — no file overlap)
 
 Plans:
-- [x] 02-01-PLAN.md — Framework & Reference Accuracy (RTA-01 through RTA-05) — Worktree A
-- [x] 02-02-PLAN.md — Solution Playbook Accuracy (RTA-06 through RTA-10) — Worktree B
+- [ ] 02-01-PLAN.md — Language Linter & CI Integration (QAI-01, QAI-02) — Worktree A
+- [ ] 02-02-PLAN.md — Template & Validation Script Updates (QAI-03, QAI-04, QAI-05) — Worktree B
 
-### Phase 3: Terminology & Version Normalization
-**Goal:** Standardize governance terminology (Zone/Tier/Level), role names, and version footers across all docs
-**Depends on:** Nothing (independent, but best after Phase 2)
-**Requirements:** TVN-01 through TVN-06
+### Phase 3: Housekeeping
+**Goal:** Clean up stale artifacts, create missing screenshot specs, fix Excel validation count, and update milestone history
+**Depends on:** Phase 1 (terminology sweep may touch some overlapping files)
+**Requirements:** HSK-01 through HSK-04
 **Success Criteria:**
-  1. All playbooks use "Zone 1/2/3" (no "Tier" or "Level" variants without mapping note)
-  2. Role names match role-catalog.md canonical names across all playbooks
-  3. All footer version strings updated to current framework version
-  4. Framework document count accurate in index.md
-  5. Glossary includes Agent 365, Entra Agent ID, Blueprint, Sponsor terms
-**Plans:** 2 (A = Terminology, B = Version/Metadata — minimal file overlap)
+  1. Stale root output files deleted or gitignored (build_*.txt, verify_*.txt)
+  2. EXPECTED.md files exist for all 10 missing controls (1.22–1.24, 2.17–2.21, 3.10, 4.7)
+  3. v11 REQUIREMENTS.md checkboxes reflect actual delivery status
+  4. verify_excel_templates.py expects 62 controls (not 61)
+**Plans:** 2 (A = Stale files + Excel fix, B = EXPECTED.md + history — no file overlap)
 
 Plans:
-- [x] 03-01-PLAN.md — Governance Terminology Standardization (TVN-01 through TVN-03) — Worktree A
-- [x] 03-02-PLAN.md — Version & Metadata Normalization (TVN-04 through TVN-06) — Worktree B
-
-### Phase 4: Cross-Reference & Link Integrity
-**Goal:** Fix broken cross-references, missing solution mappings, and path errors across controls, playbooks, and reference docs
-**Depends on:** Phase 2 (uses corrected control counts/names)
-**Requirements:** XRL-01 through XRL-06
-**Success Criteria:**
-  1. CAA solution referenced in Controls 1.23 and 1.18
-  2. DEC coverage includes Control 1.8 in solutions-coverage-gaps.md
-  3. Evidence-pack-assembly.md paths point to actual file locations
-  4. Legacy "Gap N" references replaced with actual playbook/control names
-  5. ELM environment group names consistent between provisioning and Control 2.2
-  6. Solutions-index version numbers match actual solution versions
-**Plans:** 2 (A = Solution cross-refs, B = Navigation & naming — minimal overlap)
-
-Plans:
-- [x] 04-01-PLAN.md — Solution Cross-Reference Fixes (XRL-01 through XRL-03) — Worktree A
-- [x] 04-02-PLAN.md — Navigation & Naming Fixes (XRL-04 through XRL-06) — Worktree B
-
-### Phase 5: Script & Code Fixes
-**Goal:** Fix PowerShell bugs, non-existent cmdlets, and parameter mismatches in scripts and playbooks
-**Depends on:** Phase 1 (CAA/DEC scripts already fixed)
-**Requirements:** SCF-01 through SCF-06
-**Success Criteria:**
-  1. Test-PolicyCompliance.ps1 $isBlock variable scoped correctly
-  2. CAA module manifest exports only existing functions
-  3. 4.7 PowerShell SKU filter uses SkuPartNumber (not SkuId regex)
-  4. Non-existent cmdlets in promotion gates marked as pseudocode or replaced
-  5. Cross-solution integration parameter names aligned (SolutionId vs Solution)
-  6. Search-UnifiedAuditLog pagination warnings added to audit query playbooks
-**Plans:** 2 (A = PowerShell/Script bugs, B = Config & Schema gaps)
-
-Plans:
-- [x] 05-01-PLAN.md — PowerShell & Script Bugs (SCF-01 through SCF-04) — Worktree A
-- [x] 05-02-PLAN.md — Config, Schema & Documentation (SCF-05 through SCF-06) — Worktree B
-
-### Phase 6: Gap Backfill & Design Improvements
-**Goal:** Create missing deployment guides, operational playbooks, and design improvements identified during audit
-**Depends on:** Phases 1-5 (build on corrected foundation)
-**Requirements:** GBD-01 through GBD-08 (advisory — scope to be refined)
-**Success Criteria:**
-  1. CAA end-to-end deployment guide exists
-  2. ELM approval flow implementation documented
-  3. Pillar 4 portal walkthroughs include parent control caveats (reindexing, EEEU, discovery amplification)
-  4. DSPM policy pack has portal deployment steps
-  5. Spec-level playbooks interlinked (confidence <-> HITL <-> explainability)
-**Plans:** 2 (A = Gap backfill, B = Design improvements)
-
-Plans:
-- [x] 06-01-PLAN.md — Gap Backfill (GBD-01 through GBD-04) — Worktree A
-- [x] 06-02-PLAN.md — Design Improvements (GBD-05 through GBD-08) — Worktree B
+- [ ] 03-01-PLAN.md — Stale File Cleanup & Excel Fix (HSK-01, HSK-04) — Worktree A
+- [ ] 03-02-PLAN.md — Screenshot Specs & Milestone History (HSK-02, HSK-03) — Worktree B
 
 ## Progress
 
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
-| 1. Critical Runtime Fixes | 2/2 | Complete |
-| 2. Regulatory & Technical Accuracy | 2/2 | Complete |
-| 3. Terminology & Version Normalization | 2/2 | Complete |
-| 4. Cross-Reference & Link Integrity | 2/2 | Complete |
-| 5. Script & Code Fixes | 2/2 | Complete |
-| 6. Gap Backfill & Design Improvements | 2/2 | Complete |
+| 1. Broken Links & Content Consistency | 2/2 | Complete (6/7 criteria; gap closure available) |
+| 2. Quality Automation & Infrastructure | 0/2 | Not started |
+| 3. Housekeeping | 0/2 | Not started |
 
 ## Parallel Execution Guide
 
@@ -140,73 +79,40 @@ Each phase's two plans target **non-overlapping files** and can run in parallel 
 
 | Phase | Plan A (Worktree A) | Plan B (Worktree B) |
 |-------|---------------------|---------------------|
-| 1 | CAA: src/*.json, scripts/*.py, scripts/*.ps1, scripts/private/ | DEC: docs/playbooks/advanced-implementations/deny-event-*, maintainers-local/solutions-staging/deny-event-* |
-| 2 | Framework: docs/framework/*, docs/reference/*, docs/getting-started/* | Solutions: docs/playbooks/advanced-implementations/environment-*, platform-change-*, docs/controls/pillar-2-management/* |
-| 3 | Playbooks: docs/playbooks/control-implementations/*, docs/reference/role-catalog.md | Metadata: all file footers (version strings), docs/framework/index.md, docs/reference/glossary.md |
-| 4 | References: docs/controls/pillar-1-security/1.23*, 1.18*, docs/reference/solutions-coverage-gaps.md | Navigation: docs/playbooks/compliance-and-audit/*, docs/playbooks/advanced-implementations/platform-change-governance/*, docs/reference/solutions-index.md |
-| 5 | Scripts: scripts/Test-PolicyCompliance.ps1, scripts/conditional-access-automation.psd1, docs/playbooks/control-implementations/4.7/* | Config: maintainers-local/solutions-staging/cross-solution-integration/*, docs/playbooks/monitoring-and-validation/* |
-| 6 | Guides: docs/playbooks/advanced-implementations/ (new files), docs/playbooks/control-implementations/4.1-4.7/* | Design: docs/playbooks/advanced-implementations/ (linking), docs/getting-started/quick-start.md, docs/playbooks/governance-operations/* |
+| 1 | mkdocs.yml, docs/reference/solutions-integration.md, docs/reference/solutions-index.md, docs/getting-started/quick-start.md, docs/getting-started/faq.md, docs/reference/solutions-coverage-gaps.md | docs/reference/portal-paths-quick-reference.md, docs/scripts/script-validation-guide.md, docs/playbooks/control-implementations/2.15/*, 2.14/*, 1.8/*, 1.18/*, 4.1/*, 3.2/*, docs/framework/governance-fundamentals.md, docs/playbooks/control-implementations/2.17/* |
+| 2 | scripts/verify_language_rules.py (new), .github/workflows/publish_docs.yml | docs/templates/control-setup-template.md, scripts/verify_templates.py, scripts/verify_controls.py |
+| 3 | .gitignore, scripts/verify_excel_templates.py, root *.txt files (delete) | docs/images/{1.22,1.23,1.24,2.17,2.18,2.19,2.20,2.21,3.10,4.7}/EXPECTED.md (new), .planning/milestones/v11-REQUIREMENTS.md |
 
 **Worktree setup:**
 ```bash
-git worktree add ../FSI-AgentGov-WTA -b v11/phase-N-track-a
-git worktree add ../FSI-AgentGov-WTB -b v11/phase-N-track-b
+git worktree add ../FSI-AgentGov-WTA -b v12/phase-N-track-a
+git worktree add ../FSI-AgentGov-WTB -b v12/phase-N-track-b
 ```
 
 ## Coverage
 
 | Requirement | Phase | Plan | Description |
 |-------------|-------|------|-------------|
-| RTF-01 | 1 | 01-01 | Fix fsi_result_json column name in flow JSON |
-| RTF-02 | 1 | 01-01 | Add 6 missing Dataverse columns to schema |
-| RTF-03 | 1 | 01-01 | Fix documentation URL slug in 3 CAA artifacts |
-| RTF-04 | 1 | 01-01 | Create 3 missing private helper scripts |
-| RTF-05 | 1 | 01-01 | Align CA policy naming (FSI-* convention) |
-| RTF-06 | 1 | 01-02 | Fix DEC severity option set mismatch |
-| RTF-07 | 1 | 01-02 | Fix DEC zone option set value mismatch |
-| RTF-08 | 1 | 01-02 | Rewrite DEC deployment guide for v2.0 |
-| RTF-09 | 1 | 01-02 | Update DEC Power BI playbook to Dataverse |
-| RTF-10 | 1 | 01-02 | Fix hardcoded zone in DEC extraction scripts |
-| RTA-01 | 2 | 02-01 | Fix Pillar 1 count (23->24) and total (61->62) |
-| RTA-02 | 2 | 02-01 | Audit/fix FINRA 25-07 references |
-| RTA-03 | 2 | 02-01 | Fix SEC 17a-3/4 retention period |
-| RTA-04 | 2 | 02-01 | Resolve Zone 3 retention conflict (7 vs 10 yr) |
-| RTA-05 | 2 | 02-01 | Fix solution count inconsistencies, CFTC 1.31 |
-| RTA-06 | 2 | 02-02 | Fix ELM Lab 3 SecurityGroup + Zone Rationale |
-| RTA-07 | 2 | 02-02 | Fix ELM non-existent Get-CrmRolePrivilege |
-| RTA-08 | 2 | 02-02 | Fix PCG upsert + state-setting + pagination |
-| RTA-09 | 2 | 02-02 | Replace Azure AD with Microsoft Entra ID in PCG |
-| RTA-10 | 2 | 02-02 | Fix DEC column names, table count, module name |
-| TVN-01 | 3 | 03-01 | Standardize Zone 1/2/3 in all playbooks |
-| TVN-02 | 3 | 03-01 | Normalize role names to role-catalog canonical |
-| TVN-03 | 3 | 03-01 | Add Zone/Tier/Level mapping note |
-| TVN-04 | 3 | 03-02 | Align all version footers to v1.2.38 |
-| TVN-05 | 3 | 03-02 | Add glossary entries for Agent 365 terms |
-| TVN-06 | 3 | 03-02 | Fix framework doc count, ELM footer versions |
-| XRL-01 | 4 | 04-01 | Add CAA ref to Controls 1.23, 1.18 |
-| XRL-02 | 4 | 04-01 | Add Control 1.8 to DEC coverage gaps |
-| XRL-03 | 4 | 04-01 | Add AAM, FUS to solutions-coverage-gaps.md |
-| XRL-04 | 4 | 04-02 | Fix evidence-pack-assembly.md paths |
-| XRL-05 | 4 | 04-02 | Replace "Gap N" with actual references |
-| XRL-06 | 4 | 04-02 | Fix ELM env group names, PCG version, etc. |
-| SCF-01 | 5 | 05-01 | Fix $isBlock scope in Test-PolicyCompliance.ps1 |
-| SCF-02 | 5 | 05-01 | Fix CAA module manifest export list |
-| SCF-03 | 5 | 05-01 | Fix 4.7 PowerShell SKU filter |
-| SCF-04 | 5 | 05-01 | Mark pseudocode cmdlets in promotion gates |
-| SCF-05 | 5 | 05-02 | Fix cross-solution integration parameter names |
-| SCF-06 | 5 | 05-02 | Add audit log pagination warnings |
-| GBD-01 | 6 | 06-01 | Create CAA end-to-end deployment guide |
-| GBD-02 | 6 | 06-01 | Document ELM approval flow implementation |
-| GBD-03 | 6 | 06-01 | Backfill P4 portal walkthrough caveats |
-| GBD-04 | 6 | 06-01 | Add DSPM portal deployment steps |
-| GBD-05 | 6 | 06-02 | Interlink spec-level playbooks |
-| GBD-06 | 6 | 06-02 | FAQ timeline reconciliation note |
-| GBD-07 | 6 | 06-02 | Fix footnote markers in governance-ops |
-| GBD-08 | 6 | 06-02 | Remove quick-start emojis (optional) |
+| BLK-01 | 1 | 01-01 | Fix 5 docs linking to exclude_docs files |
+| BLK-02 | 1 | 01-01 | Add regulatory-mappings.md to nav (or remove inbound links) |
+| BLK-03 | 1 | 01-01 | Add CONTROL-INDEX.md to nav (or redirect links) |
+| CSW-01 | 1 | 01-02 | Complete Azure AD → Microsoft Entra ID rename |
+| CSW-02 | 1 | 01-02 | Complete Tier/Level → Zone normalization |
+| CSW-03 | 1 | 01-01 | Sync solutions-integration.md with solutions-index.md |
+| CSW-04 | 1 | 01-01 | Update Cross-Solution Integration status to Completed |
+| QAI-01 | 2 | 02-01 | Create verify_language_rules.py linter |
+| QAI-02 | 2 | 02-01 | Add verify_controls.py to CI workflow |
+| QAI-03 | 2 | 02-02 | Sync control-setup-template.md with conventions |
+| QAI-04 | 2 | 02-02 | Update verify_templates.py for current footers |
+| QAI-05 | 2 | 02-02 | Add playbook existence check to verify_controls.py |
+| HSK-01 | 3 | 03-01 | Delete/gitignore stale root output files |
+| HSK-02 | 3 | 03-02 | Create 10 missing EXPECTED.md files |
+| HSK-03 | 3 | 03-02 | Update v11 REQUIREMENTS.md checkboxes |
+| HSK-04 | 3 | 03-01 | Fix Excel expected count 61→62 |
 
-**Total: 38/38 requirements mapped. No orphans.**
+**Total: 16/16 requirements mapped. No orphans.**
 
 ---
-*Roadmap created: 2026-02-10*
+*Roadmap created: 2026-02-11*
 *Depth: comprehensive*
-*Phases: 6 (runtime -> regulatory -> terminology -> xrefs -> scripts -> gaps)*
+*Phases: 3 (links+consistency -> automation -> housekeeping)*
