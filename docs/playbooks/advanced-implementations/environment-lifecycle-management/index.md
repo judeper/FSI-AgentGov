@@ -194,6 +194,7 @@ This creates tables, columns, security roles, business rules, views, and field s
 |----------|---------|
 | [Architecture](architecture.md) | Dataverse schema, Service Principal lifecycle, security model, fault tolerance |
 | [Copilot Intake Agent](implementation-copilot-intake.md) | Conversational intake configuration and zone classification |
+| [Approval Flow](implementation-approval.md) | Approval routing by zone with multi-level support |
 | [Provisioning Flows](implementation-provisioning.md) | Power Automate provisioning with baseline configuration |
 | [Labs](labs.md) | Hands-on exercises (Labs 1-4) |
 | [Evidence and Audit](evidence-and-audit.md) | Evidence standards mapping, ProvisioningLog access controls, examination response |
