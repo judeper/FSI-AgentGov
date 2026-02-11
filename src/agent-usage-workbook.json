@@ -1,0 +1,552 @@
+{
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json",
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# FSI Agent Usage & Performance Workbook\n\n**Version:** 1.0 | **Framework:** FSI Agent Governance v1.2\n\nThis workbook provides telemetry visibility into Microsoft 365 Copilot Studio agent usage, performance, and error patterns. It supports compliance with FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, and Fed SR 11-7 by surfacing agent interaction data from Application Insights.\n\n> **Note:** This workbook reads telemetry from Application Insights. Ensure your Copilot Studio agents are configured to export telemetry to the connected Application Insights resource."
+      },
+      "name": "header"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "a1b2c3d4-0001-0001-0001-000000000001",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time Range",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                { "durationMs": 3600000 },
+                { "durationMs": 14400000 },
+                { "durationMs": 43200000 },
+                { "durationMs": 86400000 },
+                { "durationMs": 172800000 },
+                { "durationMs": 604800000 },
+                { "durationMs": 1209600000 },
+                { "durationMs": 2592000000 }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 86400000
+            }
+          },
+          {
+            "id": "a1b2c3d4-0001-0001-0001-000000000002",
+            "version": "KqlParameterItem/1.0",
+            "name": "AgentFilter",
+            "label": "Agent",
+            "type": 2,
+            "isRequired": false,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "customEvents\n| where customDimensions.designMode == \"False\"\n| distinct tostring(customDimensions.recipientName)\n| order by Column1 asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 0,
+            "resourceType": "microsoft.insights/components"
+          },
+          {
+            "id": "a1b2c3d4-0001-0001-0001-000000000003",
+            "version": "KqlParameterItem/1.0",
+            "name": "ChannelFilter",
+            "label": "Channel",
+            "type": 2,
+            "isRequired": false,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "customEvents\n| where customDimensions.designMode == \"False\"\n| distinct tostring(customDimensions.channelId)\n| order by Column1 asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 0,
+            "resourceType": "microsoft.insights/components"
+          },
+          {
+            "id": "a1b2c3d4-0001-0001-0001-000000000004",
+            "version": "KqlParameterItem/1.0",
+            "name": "MinutesSaved",
+            "label": "Est. Minutes Saved per Session",
+            "type": 1,
+            "isRequired": false,
+            "value": "5"
+          },
+          {
+            "id": "a1b2c3d4-0001-0001-0001-000000000005",
+            "version": "KqlParameterItem/1.0",
+            "name": "HourlyRate",
+            "label": "Hourly Rate (USD)",
+            "type": 1,
+            "isRequired": false,
+            "value": "75"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "global-parameters"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "a1b2c3d4-0002-0001-0001-000000000001",
+            "cellValue": "1",
+            "linkTarget": "parameter",
+            "linkLabel": "Usage & Business Value",
+            "subTarget": "selectedTab",
+            "style": "link"
+          },
+          {
+            "id": "a1b2c3d4-0002-0001-0001-000000000002",
+            "cellValue": "2",
+            "linkTarget": "parameter",
+            "linkLabel": "Performance & Errors",
+            "subTarget": "selectedTab",
+            "style": "link"
+          },
+          {
+            "id": "a1b2c3d4-0002-0001-0001-000000000003",
+            "cellValue": "3",
+            "linkTarget": "parameter",
+            "linkLabel": "Operational Health",
+            "subTarget": "selectedTab",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "tab-selector"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": 0,
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: Agent usage volume — daily session trend\n// SEC 17a-3: Recordkeeping evidence of agent interaction volume\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize Sessions = dcount(sessionId) by bin(timestamp, 1d)\n| render areachart",
+              "size": 0,
+              "title": "Session Volume Trend",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q01-session-volume-trend"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: User engagement tracking — daily active users\n// OCC 2011-12: Model risk — adoption metrics for agent governance\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend userId = tostring(customDimensions.fromId)\n| summarize DAU = dcount(userId) by bin(timestamp, 1d)\n| render timechart",
+              "size": 0,
+              "title": "Daily Active Users",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q02-daily-active-users"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: Adoption measurement — 30-day unique user count\n// SOX 302: Agent adoption metrics for management reporting\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend userId = tostring(customDimensions.fromId)\n| summarize MAU = dcount(userId)",
+              "size": 4,
+              "title": "Monthly Active Users",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "MAU",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "showBorder": true
+              }
+            },
+            "name": "query-Q03-monthly-active-users"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 3110: Supervisory compliance — channel distribution visibility\n// SEC 17a-4: Communication channel recordkeeping\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where name == \"BotMessageReceived\"\n| extend channel = tostring(customDimensions.channelId)\n| summarize Messages = count() by channel\n| render piechart",
+              "size": 1,
+              "title": "Channel Breakdown",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "piechart"
+            },
+            "name": "query-Q04-channel-breakdown"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: Topic usage analysis — agent capability utilization\n// OCC 2011-12: Model inventory — which agent capabilities are most used\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name == \"TopicStart\"\n| extend topicName = tostring(customDimensions.TopicName)\n| summarize Triggers = count() by topicName\n| top 10 by Triggers desc\n| render barchart",
+              "size": 1,
+              "title": "Top Topics by Engagement",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "barchart"
+            },
+            "name": "query-Q05-top-topics-by-engagement"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: Agent effectiveness — estimated resolution rate\n// SOX 404: Operational control effectiveness measurement\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize\n    HasTopicEnd = countif(name == \"TopicEnd\"),\n    HasTopicStart = countif(name == \"TopicStart\")\n    by sessionId\n| summarize\n    TotalSessions = count(),\n    ResolvedSessions = countif(HasTopicEnd > 0)\n| extend ResolutionRate = round(100.0 * ResolvedSessions / TotalSessions, 1)",
+              "size": 4,
+              "title": "Resolution Rate",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "ResolutionRate",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "showBorder": true
+              }
+            },
+            "name": "query-Q06-resolution-rate"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: Agent interaction depth — messages per session\n// OCC 2011-12: Agent complexity measurement\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name == \"BotMessageReceived\"\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize\n    TotalMessages = count(),\n    TotalSessions = dcount(sessionId)\n| extend AvgMessagesPerSession = round(1.0 * TotalMessages / TotalSessions, 1)",
+              "size": 4,
+              "title": "Average Messages per Session",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "AvgMessagesPerSession",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "showBorder": true
+              }
+            },
+            "name": "query-Q07-avg-messages-per-session"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// SOX 302: Business value reporting — agent ROI estimation\n// FINRA 4511: Usage volume for governance reporting\nlet MinutesPerSession = {MinutesSaved};\nlet HourlyRate = {HourlyRate};\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize TotalSessions = dcount(sessionId)\n| extend\n    EstHoursSaved = round(TotalSessions * MinutesPerSession / 60.0, 1),\n    EstFTEEquivalent = round(TotalSessions * MinutesPerSession / 60.0 / 160.0, 2),\n    EstCostAvoidance = round(TotalSessions * MinutesPerSession / 60.0 * HourlyRate, 0)",
+              "size": 1,
+              "title": "Business Value Summary",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "EstHoursSaved",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "secondaryContent": {
+                  "columnMatch": "EstCostAvoidance",
+                  "formatter": 0,
+                  "formatOptions": {
+                    "showIcon": true
+                  }
+                },
+                "showBorder": true
+              }
+            },
+            "name": "query-Q08-business-value-summary"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "1"
+      },
+      "name": "tab-usage-business-value"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": 0,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "> **Latency Estimation Note:** Response latency values (Q09) are estimated from timestamp deltas between consecutive `BotMessageReceived` and `BotMessageSend` events within a session. These are approximations — not precise instrumentation measurements. Network latency, message queuing, and event ordering may affect accuracy."
+            },
+            "name": "latency-estimation-caveat"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// OCC 2011-12: Model performance monitoring — response latency\n// Fed SR 11-7: Model risk — performance degradation detection\n// LIMITATION: Latency is estimated from timestamp deltas, not precise instrumentation\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name in (\"BotMessageReceived\", \"BotMessageSend\")\n| extend\n    sessionId = tostring(customDimensions.session_Id),\n    eventType = name\n| order by sessionId, timestamp asc\n| serialize\n| extend\n    prevEvent = prev(name),\n    prevTimestamp = prev(timestamp),\n    prevSession = prev(tostring(customDimensions.session_Id))\n| where name == \"BotMessageSend\" and prevEvent == \"BotMessageReceived\" and sessionId == prevSession\n| extend latencyMs = datetime_diff('millisecond', timestamp, prevTimestamp)\n| where latencyMs > 0 and latencyMs < 120000\n| summarize\n    P50 = percentile(latencyMs, 50),\n    P95 = percentile(latencyMs, 95),\n    P99 = percentile(latencyMs, 99)\n    by bin(timestamp, 5m)\n| render timechart",
+              "size": 0,
+              "title": "Response Latency P50/P95/P99",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q09-response-latency"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// OCC 2011-12: Operational risk — error volume monitoring\n// SOX 404: Control effectiveness — error rate trends\nexceptions\n| where timestamp {TimeRange}\n| summarize Errors = count() by bin(timestamp, 1h)\n| render areachart",
+              "size": 0,
+              "title": "Error Rate Trend",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q10-error-rate-trend"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// OCC 2011-12: Operational risk — error classification\n// Fed SR 11-7: Model risk — error categorization for root cause analysis\nexceptions\n| where timestamp {TimeRange}\n| extend errorType = coalesce(outerType, type, \"Unknown\")\n| summarize\n    Count = count(),\n    LastSeen = max(timestamp)\n    by errorType\n| order by Count desc\n| render barchart",
+              "size": 1,
+              "title": "Error Types Breakdown",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "barchart"
+            },
+            "name": "query-Q11-error-types-breakdown"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// SOX 404: Control effectiveness — connector reliability\n// OCC 2011-12: Third-party risk — external dependency success rates\ncustomEvents\n| where timestamp {TimeRange}\n| where name == \"Action\"\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend\n    actionName = tostring(customDimensions.TopicName),\n    success = customDimensions.type != \"error\"\n| summarize\n    Total = count(),\n    Successes = countif(success),\n    Failures = countif(not(success)),\n    SuccessRate = round(100.0 * countif(success) / count(), 2)\n    by actionName\n| order by SuccessRate asc",
+              "size": 1,
+              "title": "Connector/Action Success Rate",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "query-Q12-connector-action-success-rate"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 25-07: AI governance — generative AI usage monitoring\n// OCC 2011-12: Model risk — AI-powered response tracking\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name == \"GenerativeAnswers\"\n| summarize GenAIResponses = count() by bin(timestamp, 1h)\n| render timechart",
+              "size": 0,
+              "title": "Generative AI Usage Trend",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q13-generative-ai-usage-trend"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// SOX 404: Process control effectiveness — topic completion rates\n// OCC 2011-12: Model performance — per-topic success measurement\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name in (\"TopicStart\", \"TopicEnd\")\n| extend topicName = tostring(customDimensions.TopicName)\n| summarize\n    Starts = countif(name == \"TopicStart\"),\n    Completions = countif(name == \"TopicEnd\")\n    by topicName\n| extend CompletionRate = round(100.0 * Completions / Starts, 1)\n| where Starts > 5\n| order by CompletionRate asc",
+              "size": 1,
+              "title": "Topic Completion Rate",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "query-Q14-topic-completion-rate"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 25-07: AI governance — responsible AI event monitoring\n// GLBA 501(b): Information security — content safety events\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name == \"GenerativeAnswers\"\n| where customDimensions.type == \"contentFilter\" or customDimensions.Kind has \"filter\"\n| summarize RAIEvents = count()",
+              "size": 4,
+              "title": "RAI Content Filtering Events",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "RAIEvents",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "showBorder": true
+              }
+            },
+            "name": "query-Q15a-rai-content-filtering-count"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 25-07: AI governance — RAI event trend\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name == \"GenerativeAnswers\"\n| where customDimensions.type == \"contentFilter\" or customDimensions.Kind has \"filter\"\n| summarize RAIEvents = count() by bin(timestamp, 1h)\n| render timechart",
+              "size": 0,
+              "title": "RAI Content Filtering Trend",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q15b-rai-content-filtering-trend"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 3110: Supervisory escalation — agent escalation tracking\n// SOX 404: Control effectiveness — escalation volume trends\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| where name == \"TopicStart\"\n| extend topicName = tostring(customDimensions.TopicName)\n| where topicName has_any (\"Escalate\", \"Transfer\", \"Handoff\", \"Fallback\", \"End of Conversation\")\n| summarize EscalationSessions = dcount(tostring(customDimensions.session_Id)) by bin(timestamp, 1d)\n| render areachart",
+              "size": 0,
+              "title": "Fallback/Escalation Volume",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q16-fallback-escalation-volume"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "2"
+      },
+      "name": "tab-performance-errors"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": 0,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Operational Health\n\nOperational Health tab — populated in Plan 02-02"
+            },
+            "name": "tab3-placeholder"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "3"
+      },
+      "name": "tab-operational-health"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/microsoft.insights/components/{app-insights-name}"
+  ],
+  "isLocked": false
+}
