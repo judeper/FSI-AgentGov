@@ -1,13 +1,13 @@
 # Deny Event Correlation Report
 
-**Status:** January 2026 - FSI-AgentGov v1.2
-**Related Controls:** 1.7 (Audit Logging), 1.8 (Runtime Protection), 3.2 (Usage Analytics), 3.3 (Compliance Reporting)
+**Version:** v2.0.0 | **Status:** Production Ready | **Updated:** February 2026
+**Related Controls:** 1.5 (DLP & Sensitivity Labels), 1.7 (Audit Logging), 1.8 (Runtime Protection), 3.4 (Incident Reporting)
 
 ---
 
 ## Purpose
 
-This playbook provides a deployable solution for producing daily operational reports that correlate "deny/no content returned" events across three Microsoft data sources for Copilot and Copilot Studio agents. The solution addresses FSI regulatory requirements for demonstrating AI governance control effectiveness.
+This playbook provides a deployable solution for correlating "deny/no content returned" events across three Microsoft data sources for Copilot and Copilot Studio agents. The v2.0.0 architecture uses Dataverse for persistent storage, Power Automate for daily orchestration, Teams adaptive cards for severity-based alerting, anomaly detection for trend analysis, and SHA-256 integrity-hashed evidence export for regulatory examination readiness.
 
 **Applies to:** Zone 2/3 environments; recommended for any organization requiring daily evidence of AI agent deny events.
 
@@ -33,37 +33,59 @@ Financial services organizations need to demonstrate that their AI governance co
 
 ## Solution Overview
 
-A scheduled pipeline extracts deny events from all three sources and correlates them in Power BI for daily operational reporting.
+A daily automated pipeline extracts deny events from all three sources, persists them in Dataverse, runs correlation with 7-day trend analysis, evaluates alert thresholds, and delivers severity-based notifications via Teams adaptive cards — with SHA-256 hashed evidence packages available for regulatory examination.
 
 ```mermaid
 flowchart TB
-    subgraph Sources
+    subgraph Sources["Data Sources"]
         AUDIT[Microsoft Purview<br/>Unified Audit Log]
         DLP[Microsoft Purview<br/>DLP Events]
         APPINS[Application Insights<br/>RAI Telemetry]
     end
 
-    subgraph Extraction
-        PS1[PowerShell<br/>Export-CopilotDenyEvents]
-        PS2[PowerShell<br/>Export-DlpCopilotEvents]
-        PS3[PowerShell<br/>Export-RaiTelemetry]
+    subgraph Extraction["Extraction Scripts"]
+        PS1[Export-CopilotDenyEvents]
+        PS2[Export-DlpCopilotEvents]
+        PS3[Export-RaiTelemetry]
     end
 
-    subgraph Storage
-        BLOB[(Azure Blob<br/>or SharePoint)]
+    subgraph SharedModule["Shared Module"]
+        CLIENT[DECClient.psm1<br/>Entra ID Auth · Dataverse CRUD]
     end
 
-    subgraph Reporting
-        PBI[Power BI<br/>Correlation Dashboard]
+    subgraph Dataverse["Dataverse Persistence"]
+        EVENTS[(fsi_DenyEvent)]
+        CORR[(fsi_DenyCorrelation)]
+        ALERTS[(fsi_DenyAlert)]
+        HISTORY[(fsi_DenyValidationHistory)]
+    end
+
+    subgraph Processing["Correlation & Alerting"]
+        ENGINE[Correlation Engine<br/>7-Day Trend Analysis]
+        ALERTEVAL[Alert Evaluation<br/>4 Alert Types]
+    end
+
+    subgraph Output["Output"]
+        TEAMS[Teams Adaptive Cards<br/>Critical · High · Warning]
+        EVIDENCE[Evidence Export<br/>SHA-256 Hashed Packages]
+        DASHBOARD[Compliance Dashboard<br/>Power BI]
     end
 
     AUDIT --> PS1
     DLP --> PS2
     APPINS --> PS3
-    PS1 --> BLOB
-    PS2 --> BLOB
-    PS3 --> BLOB
-    BLOB --> PBI
+    PS1 --> CLIENT
+    PS2 --> CLIENT
+    PS3 --> CLIENT
+    CLIENT --> EVENTS
+    EVENTS --> ENGINE
+    ENGINE --> CORR
+    CORR --> ALERTEVAL
+    ALERTEVAL --> ALERTS
+    ALERTS --> TEAMS
+    CORR --> EVIDENCE
+    EVIDENCE --> HISTORY
+    CORR --> DASHBOARD
 ```
 
 ---
@@ -117,8 +139,10 @@ Copilot Studio agents configured with Application Insights log `ContentFiltered`
 | Regulation | Requirement | How This Solution Helps |
 |------------|-------------|------------------------|
 | **FINRA 3110** | AI supervision evidence | Daily evidence of controls actively blocking inappropriate content |
-| **FINRA 4511** | Records retention | Deny events exported to compliant storage |
+| **FINRA 4511** | Records retention | Deny events exported to compliant storage with zone-based retention |
+| **FINRA 25-07** | AI governance | Automated deny event monitoring supports AI governance oversight |
 | **SEC 17a-3/4** | Supervision evidence | Shows AI agent behavior is monitored and controlled |
+| **SOX 302/404** | Internal controls | Correlation engine provides evidence of functioning internal controls |
 | **GLBA 501(b)** | Safeguards evidence | DLP blocking demonstrates NPI protection |
 | **OCC 2011-12** | Model risk controls | RAI telemetry shows model guardrails are functioning |
 
@@ -130,10 +154,10 @@ This playbook extends four framework controls:
 
 | Control | How This Playbook Supports |
 |---------|---------------------------|
+| [1.5 - DLP and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Captures DLP deny events from the Copilot location policy |
 | [1.7 - Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Extracts CopilotInteraction and DLP events |
 | [1.8 - Runtime Protection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Captures RAI telemetry for content filtering |
-| [3.2 - Usage Analytics](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Provides daily operational monitoring |
-| [3.3 - Compliance Reporting](../../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Generates examination-ready evidence |
+| [3.4 - Incident Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Feeds severity-based alerts to incident reporting workflows |
 
 ---
 
@@ -143,12 +167,112 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 
 | Component | Description |
 |-----------|-------------|
-| **PowerShell Scripts** | Daily extraction from Purview and App Insights |
-| **KQL Queries** | Pre-built queries for all three data sources |
-| **Power BI Template** | Correlation dashboard with daily refresh |
-| **Documentation** | Prerequisites, deployment, troubleshooting |
+| **PowerShell Extraction Scripts (3)** | Export-RaiTelemetry, Export-CopilotDenyEvents, Export-DlpCopilotEvents |
+| **DECClient.psm1** | Shared module with Entra ID auth, Dataverse CRUD, 15 functions |
+| **Dataverse Schema (4 tables)** | fsi_DenyEvent, fsi_DenyCorrelation, fsi_DenyAlert, fsi_DenyValidationHistory |
+| **Correlation Engine** | Invoke-DenyEventCorrelation.ps1 with 7-day trend analysis |
+| **Alert Evaluation** | Invoke-DECAlertEvaluation.ps1 with 4 alert types |
+| **Power Automate Flow** | DEC-DailyOrchestrator with Azure Automation integration |
+| **Teams Adaptive Cards** | Severity-based alert templates (Critical/High/Warning) |
+| **Evidence Export** | Export-DenyEventEvidence.ps1 with SHA-256 hashing |
+| **Retention Management** | Set-DECRetentionRules.ps1 (90d/365d/730d by zone) |
+| **Deployment Scripts** | Python deployment orchestrator for Dataverse infrastructure |
 
-**Repository:** [deny-event-correlation-report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) (v1.0.0)
+**Repository:** [deny-event-correlation-report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) (v2.0.0)
+
+**Solution Documentation:**
+
+- [PREREQUISITES.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/PREREQUISITES.md) — Licensing, permissions, infrastructure requirements
+- [SCHEMA.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/SCHEMA.md) — Dataverse table definitions and relationships
+- [FLOW_SETUP.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/FLOW_SETUP.md) — Power Automate orchestration configuration
+- [EVIDENCE_EXPORT.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/EVIDENCE_EXPORT.md) — SHA-256 evidence package setup
+- [TROUBLESHOOTING.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/TROUBLESHOOTING.md) — Common issues and resolution steps
+
+---
+
+## Dataverse Architecture
+
+The v2.0.0 solution uses a 4-table Dataverse schema for persistent storage of deny events and correlation results.
+
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| **fsi_DenyEvent** | Raw deny events from all 3 sources | EventId, EventType, Timestamp, UserId, AgentId, Severity, Zone |
+| **fsi_DenyCorrelation** | Correlated event groups with trend data | CorrelationId, PrimaryEventId, CorrelationType, TrendDirection, AnomalyFlag |
+| **fsi_DenyAlert** | Generated alerts with routing metadata | AlertId, Severity, AlertType, RoutedTo, AcknowledgedAt |
+| **fsi_DenyValidationHistory** | Evidence export audit trail | ExportId, SHA256Hash, ExportTimestamp, RecordCount, RegulatoryMapping |
+
+**Relationships:** fsi_DenyEvent → fsi_DenyCorrelation (many-to-one), fsi_DenyCorrelation → fsi_DenyAlert (one-to-many), evidence exports reference fsi_DenyCorrelation records.
+
+**Option set reuse:** EventType, Severity, Zone, and AlertType option sets are shared across tables to maintain consistency.
+
+---
+
+## Daily Orchestration
+
+The DEC-DailyOrchestrator Power Automate flow coordinates the end-to-end pipeline:
+
+1. **Trigger** — Scheduled recurrence (daily at 02:00 UTC, configurable)
+2. **Azure Automation** — Invokes runbook that executes extraction scripts in sequence
+3. **Extraction** — Three PowerShell scripts extract deny events from Purview Audit, Purview DLP, and Application Insights via DECClient.psm1
+4. **Persistence** — DECClient.psm1 writes extracted events to fsi_DenyEvent in Dataverse
+5. **Correlation** — Invoke-DenyEventCorrelation.ps1 groups related events, calculates 7-day trends, flags anomalies
+6. **Alert Evaluation** — Invoke-DECAlertEvaluation.ps1 evaluates correlation results against alert thresholds
+7. **Notification** — Power Automate routes alerts to Teams channels and email based on severity
+8. **Evidence** — On-demand or scheduled evidence export generates SHA-256 hashed packages
+
+```mermaid
+flowchart LR
+    SCHED[Scheduled Trigger<br/>02:00 UTC] --> AUTO[Azure Automation<br/>Runbook]
+    AUTO --> EXT[Extraction<br/>3 Scripts]
+    EXT --> DV[Dataverse<br/>Persist Events]
+    DV --> CORR[Correlation<br/>7-Day Trends]
+    CORR --> ALERT[Alert<br/>Evaluation]
+    ALERT --> NOTIFY[Teams / Email<br/>Notifications]
+    CORR --> EVID[Evidence<br/>Export]
+```
+
+---
+
+## Alert Routing
+
+The alert evaluation engine classifies events into four severity levels with configurable routing:
+
+| Severity | Trigger Condition | Default Routing |
+|----------|-------------------|-----------------|
+| **Critical** | Volume anomaly > 3σ from 7-day baseline, or jailbreak/XPIA detected | Teams channel + email to Security Operations + Compliance |
+| **High** | Daily deny count exceeds zone threshold, or new policy block pattern | Teams channel + email to AI Governance team |
+| **Warning** | Deny volume trending upward > 25% week-over-week | Teams channel notification |
+| **Info** | Daily summary with no anomalies | Dashboard only (no push notification) |
+
+**Teams Adaptive Cards** include: event summary, affected agents, zone classification, trend sparkline, and one-click links to Compliance Dashboard and Dataverse records.
+
+---
+
+## Evidence Export
+
+The evidence export pipeline produces regulatory examination-ready packages:
+
+1. **Selection** — Query fsi_DenyCorrelation for target date range and zone
+2. **Assembly** — Compile correlated events with source metadata, policy details, and trend context
+3. **Hashing** — Generate SHA-256 hash for each evidence package to support tamper detection
+4. **Mapping** — Tag each package with applicable regulatory references (FINRA 4511, SEC 17a-4, etc.)
+5. **Storage** — Write package to compliant storage with fsi_DenyValidationHistory audit record
+
+Evidence packages support the [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) unified evidence integration, enabling cross-solution evidence aggregation.
+
+---
+
+## Zone-Based Retention
+
+Retention rules align with governance zone risk profiles:
+
+| Zone | Retention Period | Rationale |
+|------|-----------------|-----------|
+| **Zone 1** (Personal Productivity) | 90 days | Lower risk, individual use |
+| **Zone 2** (Team Collaboration) | 365 days | Moderate risk, shared data access |
+| **Zone 3** (Enterprise Managed) | 730 days | Highest risk, regulatory examination readiness |
+
+Set-DECRetentionRules.ps1 enforces retention policies by purging fsi_DenyEvent records beyond the zone-specific threshold while preserving correlated summaries in fsi_DenyCorrelation for the full retention period.
 
 ---
 
@@ -169,9 +293,10 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 ### Required
 
 - Microsoft 365 E5 or E5 Compliance (Audit Premium for extended retention)
-- Power BI Pro or Premium (for scheduled refresh)
-- Azure subscription (if using Azure Blob storage)
-- Permissions: Purview Audit Reader, Security Reader
+- Power Platform environment with Dataverse
+- Power Automate Premium license (for Azure Automation connector)
+- Azure subscription with Azure Automation account
+- Permissions: Purview Audit Reader, Security Reader, Dataverse System Customizer
 
 ### For RAI Telemetry (Optional but Recommended)
 
@@ -179,20 +304,31 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 - Copilot Studio Premium license
 - Each agent configured with App Insights connection string
 
+### For Alerting
+
+- Microsoft Teams channel for governance notifications
+- Exchange Online mailbox for email routing (optional)
+
 ---
 
 ## Scalability Considerations
 
-### Power BI Refresh Limits
+### Power Automate Orchestration
 
-| License | Scheduled Refreshes/Day | Refresh Latency |
-|---------|------------------------:|-----------------|
-| Power BI Pro | 8 | Every 3 hours max |
-| Power BI Premium Per User | 48 | Every 30 minutes max |
-| Power BI Premium Capacity | 48+ (unlimited via XMLA) | Near real-time possible |
+| License | Daily Runs | Run Duration Limit |
+|---------|-----------|-------------------|
+| Power Automate Premium | Unlimited | 30 days per run |
+| Power Automate per Flow | Unlimited | 30 days per run |
 
-!!! warning "Pro License Limitation"
-    With Power BI Pro, deny event reports can only refresh 8 times daily. For near-real-time monitoring of deny events, Premium capacity is required.
+### Dataverse Storage
+
+| Tier | Included Storage | Scaling |
+|------|-----------------|---------|
+| Per-app | 1 GB database + 1 GB file | Add capacity packs |
+| Per-user | 5 GB database + 5 GB file | Pooled across users |
+
+!!! warning "Storage Planning"
+    With three extraction sources running daily, plan for approximately 50-100 MB/month of Dataverse storage. Monitor usage in the Power Platform Admin Center and add capacity before reaching limits.
 
 ### Audit Log Query Limits
 
@@ -214,10 +350,11 @@ For complete scalability guidance, see the [Solutions Architecture Guide](../../
 
 1. **Read [Purview Audit Extraction](purview-audit-extraction.md)** to understand CopilotInteraction deny events
 2. **Configure [App Insights RAI Telemetry](app-insights-rai-telemetry.md)** for Copilot Studio agents
-3. **Deploy scripts** from FSI-AgentGov-Solutions repository
-4. **Import Power BI template** and configure data source connections
-5. **Schedule daily refresh** and configure alerts for high-severity events
+3. **Deploy Dataverse schema** from the FSI-AgentGov-Solutions repository
+4. **Configure Power Automate flow** using [FLOW_SETUP.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/FLOW_SETUP.md)
+5. **Set up Teams alerting** and configure severity routing
+6. **Schedule daily extraction** and verify correlation results in Compliance Dashboard
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*
