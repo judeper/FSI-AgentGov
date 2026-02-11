@@ -50,7 +50,7 @@ Plans:
 
 ### Phase 3: Automation & Alerting
 **Goal**: CA policy compliance is automatically validated daily with drift detection, and operators receive classified alerts when policies deviate from zone requirements or are modified outside automation
-**Depends on**: Phase 2
+**Depends on**: Phase 2 (runtime); Phase 3 artifacts (flow definitions, card templates, runbook) were authored ahead of Phase 1-2 completion
 **Requirements**: AUT-01, AUT-02, AUT-03, AUT-04
 **Success Criteria** (what must be TRUE):
   1. Power Automate daily compliance scan flow executes Test-PolicyCompliance logic against all tracked environments and writes results to immutable validation history
@@ -70,7 +70,7 @@ Plans:
 ### Phase 4: Evidence Export & Framework Integration
 **Status:** COMPLETE (2026-02-10) — 4/4 plans, 2 waves, verification PASSED
 **Goal**: CA policy compliance evidence is exportable for regulatory examinations and the solution is fully integrated into the FSI-AgentGov framework documentation and Compliance Dashboard
-**Depends on**: Phase 3
+**Depends on**: Phase 3 (runtime); Phase 4 artifacts (documentation, framework integration) were authored ahead of Phase 1-2 completion
 **Requirements**: EFR-01, EFR-02, EFR-03, EFR-04, EFR-05
 **Success Criteria** (what must be TRUE):
   1. Operator can export CA policy compliance evidence with SHA-256 integrity hashing producing a verifiable manifest for FINRA/SEC examination support
@@ -89,7 +89,9 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases 3-4 (artifact authoring, documentation, framework integration) were executed first as their deliverables don't require Phases 1-2 runtime infrastructure. Phases 1-2 (script modernization, Dataverse deployment) remain pending and will be executed when the companion repo scripts are tested against a live tenant.
+
+Original dependency chain: 1 → 2 → 3 → 4 (for runtime deployment)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|

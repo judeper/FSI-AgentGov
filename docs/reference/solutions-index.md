@@ -535,4 +535,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.37 - February 2026*
+*FSI Agent Governance Framework v1.2.40 - February 2026*
