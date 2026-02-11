@@ -553,10 +553,14 @@ nav:
         - OpenTelemetry Setup: playbooks/advanced-implementations/agent-365-observability/opentelemetry-setup.md
         - Application Insights Workbooks: playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks.md
         - Alerting Configuration: playbooks/advanced-implementations/agent-365-observability/alerting-configuration.md
+      - Conditional Access Automation:
+        - Overview: playbooks/advanced-implementations/conditional-access-automation/index.md
+        - Deployment Guide: playbooks/advanced-implementations/conditional-access-automation/deployment-guide.md
       - Environment Lifecycle Management:
         - Overview: playbooks/advanced-implementations/environment-lifecycle-management/index.md
         - Architecture: playbooks/advanced-implementations/environment-lifecycle-management/architecture.md
         - Copilot Intake Agent: playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md
+        - Approval Flow: playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md
         - Provisioning Flows: playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md
         - Labs: playbooks/advanced-implementations/environment-lifecycle-management/labs.md
         - Evidence and Audit: playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md
