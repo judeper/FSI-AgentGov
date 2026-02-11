@@ -46,9 +46,12 @@ Plans:
   2. Environment variables for zone-specific CA policy thresholds (`fsi_CAA_*` prefix) deployed and consumed by Phase 1 scripts
   3. Connection references for Dataverse, Office 365, Teams, and Microsoft Graph deployed with `fsi_cr_*` naming convention
   4. Python deployment scripts are idempotent (safe to re-run) and support dry-run mode, following ACV/SSC/AAM pattern
-**Plans**: TBD
+**Plans**: 3 plans
 
-### Phase 3: Automation & Alerting
+Plans:
+- [ ] 02-01-PLAN.md — CAA Dataverse client, requirements, and three-table schema (INF-01, INF-04)
+- [ ] 02-02-PLAN.md — Environment variables, connection references, deploy orchestrator (INF-02, INF-03, INF-04)
+- [ ] 02-03-PLAN.md — Wire Phase 1 PowerShell to Dataverse (INF-01, INF-02): Automation & Alerting
 **Goal**: CA policy compliance is automatically validated daily with drift detection, and operators receive classified alerts when policies deviate from zone requirements or are modified outside automation
 **Depends on**: Phase 2
 **Requirements**: AUT-01, AUT-02, AUT-03, AUT-04
@@ -79,7 +82,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Script Modernization & Core | 3/3 | Complete | 2026-02-10 |
-| 2. Dataverse Infrastructure | — | Not Started | — |
+| 2. Dataverse Infrastructure | — | Planned | — |
 | 3. Automation & Alerting | — | Not Started | — |
 | 4. Evidence Export & Framework Integration | — | Not Started | — |
 
@@ -92,10 +95,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | SMC-03 | Phase 1 | 01-01 | Zone lookup ELM integration |
 | SMC-04 | Phase 1 | 01-02 | Dry-run mode for all operations |
 | SMC-05 | Phase 1 | 01-03 | Policy drift detection |
-| INF-01 | Phase 2 | TBD | Dataverse tables (baseline, history, violations) |
-| INF-02 | Phase 2 | TBD | Environment variables (fsi_CAA_*) |
-| INF-03 | Phase 2 | TBD | Connection references |
-| INF-04 | Phase 2 | TBD | Python deployment scripts |
+| INF-01 | Phase 2 | 02-01, 02-03 | Dataverse tables (baseline, history, violations) |
+| INF-02 | Phase 2 | 02-02, 02-03 | Environment variables (fsi_CAA_*) |
+| INF-03 | Phase 2 | 02-02 | Connection references |
+| INF-04 | Phase 2 | 02-01, 02-02 | Python deployment scripts |
 | AUT-01 | Phase 3 | TBD | Daily compliance scan flow |
 | AUT-02 | Phase 3 | TBD | Drift detection flow |
 | AUT-03 | Phase 3 | TBD | Teams adaptive card alerts |
