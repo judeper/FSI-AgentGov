@@ -15,7 +15,7 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v15 — Deployable Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility (ALM separation-of-duties gap).
+**Current focus:** v15 complete. Ready for next milestone definition.
 
 ## Milestone Series Plan
 
@@ -32,7 +32,7 @@ v11: Technical Remediation — COMPLETE
 v12: Quality & Consistency Polish — COMPLETE
 v13: Agent Usage & Performance Workbook — DEFERRED (superseded by v15)
 v14: SSPM Control Coverage Remediation — COMPLETE
-v15: Agent Usage & Performance Workbook — IN PROGRESS (Phase 2 complete)
+v15: Agent Usage & Performance Workbook — COMPLETE
 ```
 
 ## Current Position
@@ -50,13 +50,13 @@ v15:    [=========================] COMPLETE — All 4 phases, 8/8 plans
 
 ## Performance Metrics
 
-**Cumulative (v1-v14):**
-- Phases: 64 complete
-- Plans: 201 complete
-- Requirements: 336 delivered
+**Cumulative (v1-v15):**
+- Phases: 68 complete
+- Plans: 209 complete
+- Requirements: 348 delivered
 
-**v15 Target:**
-- Requirements: 12 (7 High, 4 Medium, 1 validation)
+**v15 Delivered:**
+- Requirements: 12/12 (TEL-2, WBK-4, DEP-2, FRM-3, VAL-1)
 
 ## Accumulated Context
 

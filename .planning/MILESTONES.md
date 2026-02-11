@@ -1,5 +1,30 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v15 Agent Usage & Performance Workbook (Completed: 2026-02-11)
+
+**Delivered:** Deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap for FSI organizations where production Analytics tab access is restricted. Includes telemetry schema documentation, 3-tab workbook JSON template, deployment guide, customization guide, and full framework integration across 3 controls and the solutions catalog.
+
+**Phases completed:** 1-4 (8 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Telemetry Research & KQL Query Library (2 plans):** Documented native Copilot Studio Application Insights telemetry schema (customEvents types: BotMessageReceived, BotMessageSend, TopicStart, etc.), built parameterized KQL query library covering all 3 workbook tabs (~23 queries across Usage/Business Value, Performance/Errors, Operational Health)
+- **Phase 2 — Workbook Template Development (2 plans):** Built deployable `src/agent-usage-workbook.json` (46.7KB, 795 lines) with 3-tab layout, global parameters (time range, agent ID, channel), zone-aware thresholds on 6 KPI items, 25 query items (Q01-Q23), enhanced header with version and prerequisites
+- **Phase 3 — Deployment & Customization (2 plans):** Created deployment guide with RBAC configuration (Application Insights Reader role), manual import and ARM template instructions, validation checklist; created customization guide for extending workbook with custom telemetry panels, adjusting thresholds per zone, and integrating organization-specific KPIs
+- **Phase 4 — Framework Integration & Validation (2 plans):** Added tip admonitions to Controls 3.2, 3.9, 2.9 linking to workbook solution; added complete solutions-index.md catalog entry (overview row, detail section, version history); updated workbook playbook status to Complete; all validations pass (mkdocs build --strict, verify_controls.py 62/62, verify_language_rules.py 0 violations)
+
+**Stats:**
+
+- 4 phases, 8 plans, 12 requirements (100% satisfied — TEL-2, WBK-4, DEP-2, FRM-3, VAL-1)
+- Source: Deferred v13 todo — refined as v15 with 12 requirements
+- Key artifacts: `src/agent-usage-workbook.json`, telemetry-schema.md, deployment-guide.md, customization-guide.md
+- Controls modified: 2.9, 3.2, 3.9
+- 1 day (2026-02-11)
+
+**What's next:** Define next milestone or assess backlog.
+
+---
+
 ## v14 SSPM Control Coverage Remediation (Completed: 2026-02-11)
 
 **Delivered:** Remediated SSPM control coverage gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8) identified by SSPM alert-to-control mapping analysis. Aligned all 27 in-scope SSPM alerts to framework coverage (controls, playbooks, verification criteria), created a PowerShell hardening baseline verification script, and updated reference catalogs.
