@@ -11,7 +11,7 @@ Remediates SSPM control coverage gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.
 ## Phases
 
 - [x] **Phase 1: Control SSPM Alignment** — Bump 3.7 to v1.3, audit 27 SSPM alerts against verification criteria in 7 controls, add GLIC advisory cross-references
-- [ ] **Phase 2: Hardening Baseline Production** — Add automation feasibility classification, create PowerShell verification script, document evidence export procedures
+- [x] **Phase 2: Hardening Baseline Production** — Add automation feasibility classification, create PowerShell verification script, document evidence export procedures
 - [ ] **Phase 3: Playbook Remediation** — Remediate 7 portal-walkthrough and 7 verification-testing playbooks for SSPM coverage, add hardening baseline cross-links
 - [ ] **Phase 4: Reference Updates & Validation** — Update solutions catalog and CONTROL-INDEX, run final build and language validation
 
@@ -63,7 +63,7 @@ Remediates SSPM control coverage gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
 | 1. Control SSPM Alignment | 2/2 | Complete |
-| 2. Hardening Baseline Production | 0/2 | Not started |
+| 2. Hardening Baseline Production | 2/2 | Complete |
 | 3. Playbook Remediation | 0/2 | Not started |
 | 4. Reference Updates & Validation | 0/2 | Not started |
 
