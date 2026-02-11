@@ -27,8 +27,8 @@ The workbook is designed for M365 administrators, compliance officers, and AI go
 |----------|-------------|--------|
 | [Telemetry Schema Reference](telemetry-schema.md) | Application Insights telemetry schema for Copilot Studio — event types, customDimensions properties, channel identifiers, session tracking, and prerequisites | Available |
 | KQL Query Library | Complete query library powering all workbook visualizations | Planned (Phase 1) |
-| Deployment Guide | Step-by-step workbook deployment and configuration | Planned (Phase 3) |
-| Customization Guide | Adapting the workbook for organization-specific requirements | Planned (Phase 3) |
+| [Deployment Guide](deployment-guide.md) | Step-by-step workbook deployment, RBAC configuration, and validation | Available |
+| [Customization Guide](customization-guide.md) | Adapting the workbook for organization-specific requirements — thresholds, custom panels, KPIs | Available |
 
 ---
 
@@ -43,7 +43,7 @@ See the [Telemetry Schema Reference](telemetry-schema.md) for detailed prerequis
 ---
 
 !!! info "Development Status"
-    This solution is in development. The telemetry schema reference is available; the KQL query library, deployment guide, and customization guide will follow in subsequent phases.
+    The deployment guide and customization guide are now available alongside the telemetry schema reference. The KQL query library documentation is planned for a future update.
 
 ---
 

@@ -569,6 +569,8 @@ nav:
       - Agent Usage & Performance Workbook:
         - Overview: playbooks/advanced-implementations/agent-usage-workbook/index.md
         - Telemetry Schema Reference: playbooks/advanced-implementations/agent-usage-workbook/telemetry-schema.md
+        - Deployment Guide: playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md
+        - Customization Guide: playbooks/advanced-implementations/agent-usage-workbook/customization-guide.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md
