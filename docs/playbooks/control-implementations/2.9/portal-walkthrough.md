@@ -57,11 +57,11 @@
 4. Action: Query analytics for threshold violations
 5. Configure conditions by tier:
 
-| Tier | Error Rate Threshold | Response Time Threshold |
+| Zone | Error Rate Threshold | Response Time Threshold |
 |------|---------------------|------------------------|
-| Tier 1 | > 5% | > 30 seconds |
-| Tier 2 | > 2% | > 15 seconds |
-| Tier 3 | > 1% | > 5 seconds |
+| Zone 1 | > 5% | > 30 seconds |
+| Zone 2 | > 2% | > 15 seconds |
+| Zone 3 | > 1% | > 5 seconds |
 
 6. Send Teams notification or email when exceeded
 
@@ -89,7 +89,7 @@ Document and schedule performance reviews:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Analytics** | Basic | Standard | Full + anomaly detection |
 | **Alerting** | Error rate only | Error + response time | All metrics |
@@ -109,19 +109,19 @@ Analytics:
   Data Export: Azure Data Lake (daily)
   Retention: 365 days
 
-KPIs by Tier:
-  Tier 1 (Internal):
+KPIs by Zone:
+  Zone 1 (Personal Productivity):
     Error Rate: < 5%
     Response Time: < 30s
     Resolution Rate: > 70%
 
-  Tier 2 (Team):
+  Zone 2 (Team Collaboration):
     Error Rate: < 2%
     Response Time: < 15s
     Resolution Rate: > 85%
     CSAT: > 3.5/5
 
-  Tier 3 (Customer-Facing):
+  Zone 3 (Enterprise Managed):
     Error Rate: < 1%
     Response Time: < 5s
     Resolution Rate: > 95%

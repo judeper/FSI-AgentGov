@@ -183,7 +183,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 ### Level 2-3 - Recommended Testing
 
 - [ ] Pre-built alert rules enabled
-- [ ] Custom alerts configured for Tier 2+ agents
+- [ ] Custom alerts configured for Zone 2+ agents
 - [ ] Weekly dashboard reviews documented
 - [ ] Usage insights enabled for managed environments
 - [ ] Trend analysis reports generated
@@ -201,7 +201,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ## KPI Verification
 
-| KPI | Tier 1 Target | Tier 2 Target | Tier 3 Target | Actual | Status |
+| KPI | Zone 1 Target | Zone 2 Target | Zone 3 Target | Actual | Status |
 |-----|---------------|---------------|---------------|--------|--------|
 | Success rate | >80% | >90% | >95% | | |
 | Response time | <10s | <5s | <3s | | |

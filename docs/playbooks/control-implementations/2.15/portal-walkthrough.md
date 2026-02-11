@@ -75,7 +75,7 @@
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|--------------------|
 | **Environment Groups** | Optional | Recommended | **Required** |
 | **Routing Rules** | Basic (domain) | Security group based | **Role-based + approvals** |

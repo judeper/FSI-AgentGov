@@ -101,7 +101,7 @@ Record in your governance system:
 
 | Setting | Baseline | Recommended | Regulated |
 |---------|----------|-------------|-----------|
-| **RCD for sensitive sites** | Case-by-case | Tier 2+ sites | All Tier 3 sites |
+| **RCD for sensitive sites** | Case-by-case | Zone 2+ sites | All Zone 3 sites |
 | **Restricted site access (RAC)** | Not required | Recommended | Required |
 | **Review frequency** | Annual | Semi-annual | Quarterly |
 | **Approval required** | No | Yes | Governance committee |

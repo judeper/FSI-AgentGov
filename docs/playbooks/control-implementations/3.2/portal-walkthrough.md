@@ -52,7 +52,7 @@
 
 1. In the Alerts section, click **+ New alert rule**
 2. Configure the alert for FSI requirements:
-   - **Name:** `Tier 3 Agent Success Rate Below 95%`
+   - **Name:** `Zone 3 Agent Success Rate Below 95%`
    - **Condition:** Agent success rate drops below 95%
    - **Scope:** Enterprise managed agents only
    - **Severity:** Critical
@@ -67,7 +67,7 @@
 
 | Alert Name | Condition | Severity | Response SLA |
 |------------|-----------|----------|--------------|
-| Tier 3 Success Rate Below 95% | Success rate < 95% for enterprise agents | Critical | 1 hour |
+| Zone 3 Success Rate Below 95% | Success rate < 95% for enterprise agents | Critical | 1 hour |
 | Customer Data Access Anomaly | Data access > 3x average | Critical | Immediate |
 | After-Hours Activity | Activity outside business hours | Medium | Next business day |
 | High Error Rate | Error rate > 5% | High | 4 hours |
@@ -79,7 +79,7 @@
 
 | Metric | Description | Target |
 |--------|-------------|--------|
-| Agent session success rate | Percentage of successful sessions | >95% for Tier 3 |
+| Agent session success rate | Percentage of successful sessions | >95% for Zone 3 |
 | Recent sessions | List of recent interactions | Real-time monitoring |
 | Environment | Environment hosting the agent | Location tracking |
 | Managed status | Whether environment is managed | Governance status |
@@ -119,7 +119,7 @@
 |---------|-------------------|------------------------|---------------------|
 | **Dashboard review** | Monthly | Weekly | Daily |
 | **Pre-built alerts** | Optional | Enabled | All enabled |
-| **Custom alerts** | None | Tier-specific | Comprehensive |
+| **Custom alerts** | None | Zone-specific | Comprehensive |
 | **Success rate target** | >80% | >90% | >95% |
 | **Response SLA** | Next business day | 4 hours | 1 hour |
 | **Audit log retention** | 90 days | 1 year | 7 years |
@@ -128,7 +128,7 @@
 
 ## Key Performance Indicators
 
-| KPI | Tier 1 Target | Tier 2 Target | Tier 3 Target |
+| KPI | Zone 1 Target | Zone 2 Target | Zone 3 Target |
 |-----|---------------|---------------|---------------|
 | Success rate | >80% | >90% | >95% |
 | Response time | <10s | <5s | <3s |
@@ -153,7 +153,7 @@ After completing these steps, verify:
 
 - [ ] Monitor section is accessible
 - [ ] Pre-built alert rules are enabled
-- [ ] Custom alerts are configured for Tier 2+ agents
+- [ ] Custom alerts are configured for Zone 2+ agents
 - [ ] Copilot Studio dashboard shows agent metrics
 - [ ] Usage insights configured for Managed Environments
 - [ ] Notification recipients receive test alerts

@@ -71,7 +71,7 @@ Write-Host "`nExported $($analytics.Count) agents to AgentAnalytics_$(Get-Date -
     Checks agent error rates against defined thresholds
 
 .EXAMPLE
-    .\Test-AgentErrorRates.ps1 -Tier 2
+    .\Test-AgentErrorRates.ps1 -Tier 2  # Zone 2 governance classification
 #>
 
 param(

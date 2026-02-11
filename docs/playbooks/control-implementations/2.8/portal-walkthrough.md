@@ -89,7 +89,7 @@
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|-------------------|
 | **Role Separation** | Self-service | Creator ≠ Approver | Full 4-role separation |
 | **PIM** | Optional | Recommended | Required |

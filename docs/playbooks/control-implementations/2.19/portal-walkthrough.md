@@ -113,7 +113,7 @@ For Zone 3 agents with extended conversations:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|--------------------|
 | **Initial Disclosure** | Basic | Standard | **Comprehensive** |
 | **Periodic Reminder** | None | Optional | **Required** |

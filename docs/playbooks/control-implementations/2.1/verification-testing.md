@@ -205,7 +205,7 @@ Prepare signed attestation for control owner:
 I attest that:
 
 1. The environment [Environment Name] is configured as a Managed Environment
-2. Sharing limits are configured per governance tier [Tier 1/2/3]
+2. Sharing limits are configured per governance zone [Zone 1/2/3]
 3. Solution checker enforcement is set to [None/Warn/Block]
 4. Usage insights are enabled with recipients: [List recipients]
 5. Maker welcome content includes governance policy information

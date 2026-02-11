@@ -190,9 +190,9 @@
 
 ---
 
-### Issue: Tier Intent Unclear During Audit
+### Issue: Zone Intent Unclear During Audit
 
-**Symptoms:** Group names/descriptions don't clearly indicate Tier 1/2/3 purpose.
+**Symptoms:** Group names/descriptions don't clearly indicate Zone 1/2/3 purpose.
 
 **Diagnostic Steps:**
 
@@ -203,7 +203,7 @@
 **Resolution:**
 
 - Update group descriptions to include:
-  - Tier classification (Tier 1, 2, or 3)
+  - Zone classification (Zone 1, 2, or 3)
   - Allowed data scope
   - Change authority
 - Regenerate exports and capture updated screenshots
@@ -239,7 +239,7 @@ Get-AdminPowerAppEnvironment |
 ### Via Testing
 
 1. Add a test environment to a group
-2. Verify it inherits rules (e.g., try to share an agent in Tier 1)
+2. Verify it inherits rules (e.g., try to share an agent in Zone 1)
 3. Confirm expected blocking/allowing behavior
 
 ---

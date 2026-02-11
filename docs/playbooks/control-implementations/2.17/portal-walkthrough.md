@@ -96,7 +96,7 @@ For Zone 3 orchestrations, add human-in-the-loop checkpoints:
 
 ## Configuration by Governance Level
 
-| Setting | Baseline (Tier 1) | Recommended (Tier 2) | Regulated (Tier 3) |
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|--------------------|
 | **Max Delegation Depth** | 0 (none) | 2 levels | 3 levels |
 | **Circuit Breaker** | Optional | Recommended | **Required** |

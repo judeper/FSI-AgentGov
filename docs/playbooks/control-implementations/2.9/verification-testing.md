@@ -70,9 +70,9 @@ I attest that:
 
 1. Copilot Studio analytics is enabled and collecting data
 2. Performance KPIs are defined for each governance tier:
-   - Tier 1: Error rate < [X]%, Response time < [X]s
-   - Tier 2: Error rate < [X]%, Response time < [X]s, CSAT > [X]
-   - Tier 3: Error rate < [X]%, Response time < [X]s, CSAT > [X]
+   - Zone 1: Error rate < [X]%, Response time < [X]s
+   - Zone 2: Error rate < [X]%, Response time < [X]s, CSAT > [X]
+   - Zone 3: Error rate < [X]%, Response time < [X]s, CSAT > [X]
 3. Power BI dashboard is operational:
    - Workspace: [Name]
    - Refresh frequency: [Hourly/Daily]

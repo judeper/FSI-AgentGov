@@ -27,7 +27,7 @@
 
 1. Select 5 random agents from registry
 2. Verify all required fields are populated
-3. **EXPECTED:** 100% field completion for Tier 2-3 agents
+3. **EXPECTED:** 100% field completion for Zone 2-3 agents
 
 ### Test 5: Confirm Approval Workflow
 

@@ -1,4 +1,4 @@
-# Verification & Testing: Control 2.2 - Environment Groups and Tier Classification
+# Verification & Testing: Control 2.2 - Environment Groups and Zone Classification
 
 **Last Updated:** January 2026
 
@@ -8,7 +8,7 @@
 
 1. Sign in to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 2. Navigate to **Manage** > **Environment groups**
-3. Verify groups exist for each governance tier (Tier 1/2/3)
+3. Verify groups exist for each governance zone (Zone 1/2/3)
 4. **EXPECTED:** Groups listed with environment counts
 
 ### Test 2: Verify Group Membership
@@ -16,7 +16,7 @@
 1. Select an environment group
 2. Click **Environments** tab
 3. Verify environments are assigned to the correct tier group
-4. **EXPECTED:** Environments listed with appropriate tier classification
+4. **EXPECTED:** Environments listed with appropriate zone classification
 
 ### Test 3: Verify Rules Published
 
@@ -27,26 +27,26 @@
 
 ### Test 4: Test Rule Inheritance
 
-1. Add a new Managed Environment to a Tier 3 group
+1. Add a new Managed Environment to a Zone 3 group
 2. Navigate to the environment's settings
 3. Verify the environment inherits group rules (e.g., solution checker = Block)
 4. **EXPECTED:** New environment automatically inherits group rules
 
-### Test 5: Test Agent Sharing Restriction (Tier 1)
+### Test 5: Test Agent Sharing Restriction (Zone 1)
 
-1. In a Tier 1 environment, create a test agent
+1. In a Zone 1 environment, create a test agent
 2. Attempt to share the agent with another user
-3. **EXPECTED:** Sharing is blocked per Tier 1 rules (Editor/Viewer permissions disabled)
+3. **EXPECTED:** Sharing is blocked per Zone 1 rules (Editor/Viewer permissions disabled)
 
-### Test 6: Test Solution Checker Enforcement (Tier 3)
+### Test 6: Test Solution Checker Enforcement (Zone 3)
 
 1. Create a solution with known checker issues
-2. Attempt to import into a Tier 3 environment
+2. Attempt to import into a Zone 3 environment
 3. **EXPECTED:** Import is blocked if solution checker is set to Block
 
 ### Test 7: Test External Models Restriction
 
-1. In a Tier 2/3 environment, attempt to configure external AI model
+1. In a Zone 2/3 environment, attempt to configure external AI model
 2. **EXPECTED:** External models option is unavailable/blocked
 
 ### Test 8: Test Computer Use Restriction
@@ -61,16 +61,16 @@
 
 | Test ID | Scenario | Expected Result | Pass/Fail |
 |---------|----------|-----------------|-----------|
-| TC-2.2-01 | Verify environment groups exist | Groups for Tier 1/2/3 present | |
-| TC-2.2-02 | Check environments assigned to correct groups | Environments match tier classification | |
+| TC-2.2-01 | Verify environment groups exist | Groups for Zone 1/2/3 present | |
+| TC-2.2-02 | Check environments assigned to correct groups | Environments match zone classification | |
 | TC-2.2-03 | Verify rules are published | Status shows "Published" | |
 | TC-2.2-04 | Add new environment to group | Inherits rules automatically | |
-| TC-2.2-05 | Test Tier 1 sharing restrictions | Agent sharing blocked | |
-| TC-2.2-06 | Test Tier 3 solution checker | Non-compliant imports blocked | |
-| TC-2.2-07 | Test external models restriction | External models unavailable in Tier 2/3 | |
+| TC-2.2-05 | Test Zone 1 sharing restrictions | Agent sharing blocked | |
+| TC-2.2-06 | Test Zone 3 solution checker | Non-compliant imports blocked | |
+| TC-2.2-07 | Test external models restriction | External models unavailable in Zone 2/3 | |
 | TC-2.2-08 | Verify CUA disabled all zones | Computer Use feature unavailable | |
-| TC-2.2-09 | Test authentication requirement (Tier 2/3) | Agents require authentication | |
-| TC-2.2-10 | Verify unmanaged customizations blocked (Tier 3) | Unmanaged changes rejected | |
+| TC-2.2-09 | Test authentication requirement (Zone 2/3) | Agents require authentication | |
+| TC-2.2-10 | Verify unmanaged customizations blocked (Zone 3) | Unmanaged changes rejected | |
 
 ---
 
@@ -79,7 +79,7 @@
 ### Environment Group Documentation
 
 - [ ] Screenshot: Environment groups list showing all groups with counts
-- [ ] Screenshot: Each group's properties (name, description, tier classification)
+- [ ] Screenshot: Each group's properties (name, description, zone classification)
 - [ ] Export: Environment group inventory CSV with IDs and descriptions
 
 ### Group Membership
@@ -95,8 +95,8 @@
 
 ### Testing Evidence
 
-- [ ] Screenshot: Sharing attempt blocked in Tier 1 environment
-- [ ] Screenshot: Solution import blocked in Tier 3 environment (if applicable)
+- [ ] Screenshot: Sharing attempt blocked in Zone 1 environment
+- [ ] Screenshot: Solution import blocked in Zone 3 environment (if applicable)
 - [ ] Screenshot: External models unavailable in restricted environment
 
 ### Change Management
@@ -192,7 +192,7 @@ $environments | Group-Object EnvironmentGroupId | ForEach-Object {
 ## Attestation Statement Template
 
 ```markdown
-## Control 2.2 Attestation - Environment Groups and Tier Classification
+## Control 2.2 Attestation - Environment Groups and Zone Classification
 
 **Review Period:** [Start Date] to [End Date]
 **Control Owner:** [Name/Role]
@@ -200,21 +200,21 @@ $environments | Group-Object EnvironmentGroupId | ForEach-Object {
 
 I attest that:
 
-1. Environment groups have been created for each governance tier:
-   - Tier 1 (Personal Productivity): [Group Name]
-   - Tier 2 (Team Collaboration): [Group Name]
-   - Tier 3 (Enterprise Managed): [Group Name]
+1. Environment groups have been created for each governance zone:
+   - Zone 1 (Personal Productivity): [Group Name]
+   - Zone 2 (Team Collaboration): [Group Name]
+   - Zone 3 (Enterprise Managed): [Group Name]
 
-2. All production environments are assigned to appropriate tier groups
+2. All production environments are assigned to appropriate zone groups
 
 3. Rules are configured per FSI governance requirements:
-   - Tier 1: Sharing disabled, external models disabled, CUA disabled
-   - Tier 2: Authentication required, solution checker warn, CUA disabled
-   - Tier 3: All security rules enabled, solution checker block, CUA disabled
+   - Zone 1: Sharing disabled, external models disabled, CUA disabled
+   - Zone 2: Authentication required, solution checker warn, CUA disabled
+   - Zone 3: All security rules enabled, solution checker block, CUA disabled
 
 4. Computer-Using Agents (CUA) is disabled for all environment groups
 
-5. External AI models are disabled for Tier 2 and Tier 3 groups
+5. External AI models are disabled for Zone 2 and Zone 3 groups
 
 6. All rule changes during the review period are documented with approvals
 
