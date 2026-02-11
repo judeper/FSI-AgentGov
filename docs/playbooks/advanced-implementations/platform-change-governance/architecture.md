@@ -323,7 +323,7 @@ stateDiagram-v2
 | Native Message Center Event Triggers | Not available | Polling via Graph API required |
 | Idempotency Keys for ADO API | Not documented | Custom idempotency logic required |
 | Documented ADO ↔ Dataverse Template | Not available | Integration is custom implementation |
-| ADO Service Hook Retry Guarantees | Partial docs | Production needs reconciliation jobs |
+| ADO Service Hook Retry Assurances | Partial docs | Production needs reconciliation jobs |
 | Fabric → Message Center Connector | Not available | Custom pipeline required if using Fabric |
 
 ---

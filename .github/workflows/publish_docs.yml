@@ -53,6 +53,12 @@ jobs:
             
       - name: Install MkDocs and Material Theme
         run: pip install mkdocs-material
+
+      - name: Validate Control Structure
+        run: python scripts/verify_controls.py
+
+      - name: Validate Language Rules
+        run: python scripts/verify_language_rules.py
         
       - name: Validate Documentation
         run: mkdocs build --strict
