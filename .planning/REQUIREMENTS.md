@@ -1,92 +1,96 @@
-# Requirements: Cross-Solution Integration (v9)
+# Requirements: Deny Event Correlation Report (v10)
 
 **Defined:** 2026-02-10
 **Core Value:** Documentation and solutions that US FSI customers trust.
 
-## v9 Requirements
+## v10 Requirements
 
-Cross-solution integration wiring that connects the 5 Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compliance Dashboard for unified compliance visibility, adds ELM provisioning hooks for automatic downstream solution initialization, and provides a unified compliance evidence export for regulatory examinations.
+Complete the Deny Event Correlation Report solution from WIP (v1.1.0) to production-ready (v2.0.0). The existing solution has basic extraction scripts and KQL queries but outputs to CSV/blob storage with deprecated x-api-key authentication. The v2.0.0 upgrade adds Entra ID authentication (replacing x-api-key before March 31, 2026 deadline), Dataverse persistence for deny event records and correlation results, Power Automate daily orchestration, Teams alerting for high-severity deny patterns, zone-based analysis, SHA-256 evidence export, and Compliance Dashboard integration via v9 infrastructure.
 
-**Goal:** Transition from standalone solutions to an integrated governance platform where environment provisioning cascades to solution initialization, daily validations feed the compliance dashboard, and quarterly evidence rolls up into a single regulatory package.
+**Goal:** Transform DEC from a standalone CSV-export pipeline into a fully integrated governance solution with persistent state, automated orchestration, compliance evidence, and dashboard visibility — matching the production quality of v4-v8 Tier 2 solutions.
 
-### Schema Normalization (SCH)
+### Authentication & Script Modernization (AUTH)
 
-- [ ] **SCH-01**: Document canonical option set contract specifying that `fsi_acv_zone` uses values 1=Zone 1, 2=Zone 2, 3=Zone 3 (matching ELM/CD convention) and `fsi_acv_severity` uses values 1=Passed, 2=Warning, 3=GracePeriod, 4=Failed, 5=Error as the cross-solution standard
-- [ ] **SCH-02**: Create solution status mapping reference defining how each Tier 2 solution's `overall_status` translates to Compliance Dashboard `fsi_status` (1=Compliant, 2=Partial, 3=Non-Compliant) with documented logic per solution
-- [ ] **SCH-03**: Create shared integration constants module (`IntegrationConfig.psm1`) with canonical mappings, table names, control-to-solution assignments, and evidence type definitions
+- [ ] **AUTH-01**: Migrate `Export-RaiTelemetry.ps1` from deprecated x-api-key to Entra ID (bearer token) authentication using `Connect-AzAccount` + `Get-AzAccessToken` before the March 31, 2026 deadline
+- [ ] **AUTH-02**: Create `DECClient.psm1` shared module with Entra ID authentication helpers, connection management, and reusable extraction functions for all three data sources (Purview Audit, DLP, App Insights)
+- [ ] **AUTH-03**: Update all extraction scripts to use `#Requires` statements and consistent credential handling via Azure Key Vault (matching v4-v8 security patterns)
 
-### Compliance Dashboard Feed (CDF)
+### Dataverse Infrastructure (DVS)
 
-- [ ] **CDF-01**: Power Automate flow definition `CD-SolutionFeedCollector` that queries each Tier 2 solution's validation history table daily, maps results to `fsi_controlassessment` records, and upserts compliance scores
-- [ ] **CDF-02**: Solution-to-control mapping table documenting which controls each solution feeds (ACV→1.7, SSC→1.23/1.11, AAM→3.8, CMM→1.8, FUS→1.14) with assessment logic per mapping
-- [ ] **CDF-03**: PowerShell script `Sync-SolutionAssessments.ps1` that can run standalone or from Azure Automation to pull latest validation results from all Tier 2 solutions and create/update CD assessments
-- [ ] **CDF-04**: Evidence auto-registration in `fsi_complianceevidence` when Tier 2 solutions produce SHA-256 evidence packages, with evidence type set to "Test Result" and hash preserved
-- [ ] **CDF-05**: Update CD-ScoreCalculator flow to recognize automated assessments (source=solution) vs manual assessments (source=assessor) with appropriate weighting
+- [ ] **DVS-01**: Design and document Dataverse schema with tables for deny event records (`fsi_denyevent`), daily correlation summaries (`fsi_denycorrelation`), and alert history (`fsi_denyalert`), reusing ACV option sets (`fsi_acv_zone`, `fsi_acv_severity`)
+- [ ] **DVS-02**: Implement deny event ingestion — extraction scripts write normalized deny events to `fsi_denyevent` with source type, agent ID, deny reason, zone, severity, and timestamp
+- [ ] **DVS-03**: Implement correlation logic that groups deny events by agent, zone, and time window, producing daily correlation summaries with event counts, severity distribution, and trend indicators
+- [ ] **DVS-04**: Zone-based retention rules: Zone 1 = 90 days, Zone 2 = 365 days, Zone 3 = 730 days (SEC 17a-4 compliance)
 
-### ELM Provisioning Hooks (ELM)
+### Orchestration & Alerting (ORC)
 
-- [ ] **ELM-01**: Power Automate child flow `ELM-SolutionInitializer` triggered by ProvisioningCompleted log entry that cascades to downstream solution registration
-- [ ] **ELM-02**: ACV environment auto-registration — creates `fsi_environmentregistry` record with zone from ELM request when new environment is provisioned
-- [ ] **ELM-03**: Integration configuration specifying which downstream solutions receive provisioning events and what data is passed (environment ID, name, zone, URL, security group)
+- [ ] **ORC-01**: Power Automate flow `DEC-DailyOrchestrator` that triggers daily to run all three extraction scripts via Azure Automation, write results to Dataverse, and generate correlation summaries
+- [ ] **ORC-02**: Teams adaptive card alerting for high-severity deny patterns: volume anomalies (>2σ from 7-day baseline), new agent deny events (first-time denials), and Zone 3 critical blocks
+- [ ] **ORC-03**: Alert severity classification matching cross-solution standard: Critical (Zone 3 jailbreak/XPIA), High (volume anomaly or Zone 2 policy block), Warning (Zone 1 RAI filter), Info (routine DLP match)
 
-### Unified Evidence Export (UEV)
+### Evidence Export & Dashboard Integration (EVI)
 
-- [ ] **UEV-01**: PowerShell script `Export-UnifiedComplianceEvidence.ps1` that orchestrates evidence collection from all Tier 2 solutions and produces a master evidence package with manifest
-- [ ] **UEV-02**: Master evidence manifest JSON with solution inventory, per-solution SHA-256 hashes, collection timestamps, and overall compliance summary
-- [ ] **UEV-03**: Evidence chain validation script `Test-UnifiedEvidenceIntegrity.ps1` that verifies all solution evidence packages and the master manifest hash chain
+- [ ] **EVI-01**: SHA-256 integrity-hashed evidence export script `Export-DenyEventEvidence.ps1` producing timestamped examination packages with deny events, correlation summaries, and trend analysis
+- [ ] **EVI-02**: Evidence package includes regulatory alignment mapping (which deny events satisfy which FINRA/SEC requirements) for examiner self-service
+- [ ] **EVI-03**: Register DEC evidence packages with unified evidence export (v9 `Export-UnifiedComplianceEvidence.ps1`) via IntegrationConfig extension
+- [ ] **EVI-04**: Extend v9 `IntegrationConfig.psm1` with DEC solution mapping: DEC → Controls 1.5 (Defender), 1.7 (Audit Logging), 3.4 (Deny Event Reporting)
+- [ ] **EVI-05**: Extend `Sync-SolutionAssessments.ps1` to query `fsi_denycorrelation` daily summaries and translate to Compliance Dashboard assessment records per mapped control
 
 ### Documentation & Framework (DOC)
 
-- [ ] **DOC-01**: Integration architecture document in framework docs describing cross-solution data flow, feed mechanisms, and evidence aggregation
-- [ ] **DOC-02**: Updated solutions-index.md reflecting integration status for all connected solutions with "Dashboard Feed" and "ELM Hook" badges
-- [ ] **DOC-03**: Updated Compliance Dashboard README with Tier 2 solution feed documentation, mapping table, and setup instructions
-- [ ] **DOC-04**: Complete integration solution documentation suite (README, PREREQUISITES, CONFIGURATION, TROUBLESHOOTING, CHANGELOG) in FSI-AgentGov-Solutions
+- [ ] **DOC-01**: Add tip admonitions to Controls 1.5, 1.7, 1.8, and 3.4 referencing the DEC v2.0.0 solution with deployment links
+- [ ] **DOC-02**: Update `solutions-index.md` status from "Work In Progress" to "Completed" with v2.0.0 version, updated component list, and regulatory alignment section
+- [ ] **DOC-03**: Complete DEC solution documentation suite in FSI-AgentGov-Solutions (README, PREREQUISITES, SCHEMA, EVIDENCE_EXPORT, FLOW_SETUP, TROUBLESHOOTING, CHANGELOG)
+- [ ] **DOC-04**: Update framework playbook `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` to reflect v2.0.0 architecture with Dataverse persistence and Power Automate orchestration
 
 ## Future Requirements
 
-- Real-time event-driven feeds via Dataverse webhooks (currently batch/daily)
-- Auto-remediation orchestration across solutions when dashboard score drops below threshold
-- Cross-solution correlation analysis (e.g., file upload enabled + low moderation = compound risk)
-- Power BI unified cross-solution workbook with drill-through to solution-specific details
+- Real-time deny event streaming via Event Hub for sub-minute detection
+- Auto-escalation to compliance officer when deny pattern matches known regulatory scenario
+- Cross-solution correlation: deny events + file upload violations + moderation blocks = compound risk score
+- Power BI Premium real-time dataset for sub-hourly refresh (currently 8x/day with Pro license)
+- Defender CloudAppEvents UPIA/XPIA integration as fourth data source
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Auto-remediation | Too risky without approval workflow; deferred per SOX/FINRA change control |
-| Real-time streaming | Batch/daily cadence is sufficient for governance monitoring |
-| New controls | v9 wires existing controls, not creating new ones |
-| Power BI template | Existing TMDL import path is functional workaround |
-| Non-Tier 2 solution feeds | SDM, FINRA, and others can be added in future increments |
+| Auto-remediation | Cannot auto-block agents based on deny patterns without human review |
+| Real-time streaming | Daily batch cadence sufficient for governance monitoring |
+| New controls | v10 enhances existing controls, not creating new ones |
+| Power BI .pbit template | Existing TMDL import path is functional workaround |
+| Defender CloudAppEvents source | Optional fourth source; deferred to future enhancement |
+| Non-US regulatory mappings | US FSI scope only |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCH-01 | Phase 1 | Pending |
-| SCH-02 | Phase 1 | Pending |
-| SCH-03 | Phase 1 | Pending |
-| CDF-01 | Phase 2 | Pending |
-| CDF-02 | Phase 2 | Pending |
-| CDF-03 | Phase 2 | Pending |
-| CDF-04 | Phase 2 | Pending |
-| CDF-05 | Phase 2 | Pending |
-| ELM-01 | Phase 3 | Pending |
-| ELM-02 | Phase 3 | Pending |
-| ELM-03 | Phase 3 | Pending |
-| UEV-01 | Phase 4 | Pending |
-| UEV-02 | Phase 4 | Pending |
-| UEV-03 | Phase 4 | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| DVS-01 | Phase 2 | Pending |
+| DVS-02 | Phase 2 | Pending |
+| DVS-03 | Phase 2 | Pending |
+| DVS-04 | Phase 2 | Pending |
+| ORC-01 | Phase 3 | Pending |
+| ORC-02 | Phase 3 | Pending |
+| ORC-03 | Phase 3 | Pending |
+| EVI-01 | Phase 4 | Pending |
+| EVI-02 | Phase 4 | Pending |
+| EVI-03 | Phase 4 | Pending |
+| EVI-04 | Phase 4 | Pending |
+| EVI-05 | Phase 4 | Pending |
 | DOC-01 | Phase 5 | Pending |
 | DOC-02 | Phase 5 | Pending |
 | DOC-03 | Phase 5 | Pending |
 | DOC-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v9 requirements: 18 total
-- Mapped to phases: 18
+- v10 requirements: 19 total
+- Mapped to phases: 19
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-10*
-*Previous REQUIREMENTS.md archived with v8 milestone*
+*Previous REQUIREMENTS.md archived with v9 milestone*
