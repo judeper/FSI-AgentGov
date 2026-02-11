@@ -30,7 +30,7 @@ Implemented the deny event correlation engine that produces daily summaries grou
 |------|--------|-------|
 | `maintainers-local/.../private/DECClient.psm1` | Modified | 1768 (was 1297; +471) |
 | `maintainers-local/.../Invoke-DailyDenyReport.ps1` | Modified | 489 (was 430; +59) |
-| `maintainers-local/.../deploy.py` | Modified | 361 (was 280; +81) |
+| `maintainers-local/.../deploy.py` | Modified | 362 (was 280; +82, incl. argparse fix) |
 
 ## Files Created
 
@@ -70,6 +70,8 @@ Implemented the deny event correlation engine that produces daily summaries grou
 ## Deviations from Plan
 
 1. **No git commit**: All modified/created files are under `maintainers-local/` which is gitignored per repository design. Changes are saved locally but cannot be committed to git. The summary and planning files can be committed separately.
+
+2. **deploy.py argparse syntax fix**: deploy.py had a pre-existing syntax error — `group` variable was used before definition, and `add_argument()` had invalid kwargs (`retention_ps=args.retention_ps`, `key_vault_name=args.key_vault_name`). Fixed during Task 7 execution: moved `group = parser.add_mutually_exclusive_group()` before its first usage, removed invalid kwargs, wired `retention_ps` and `key_vault_name` through to `deploy()` call.
 
 ## Key Patterns Followed
 

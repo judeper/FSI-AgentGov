@@ -20,7 +20,7 @@ Complete the Deny Event Correlation Report (DEC) solution from WIP v1.1.0 to pro
 - Integer phases (1, 2, 3, 4, 5): Planned milestone work
 
 - [x] **Phase 1: Authentication & Script Modernization** — Entra ID migration, DECClient.psm1 module, #Requires statements, Key Vault credential handling ✅ COMPLETE (2026-02-10)
-- [ ] **Phase 2: Dataverse Infrastructure** — Schema design, deny event ingestion, correlation logic, zone-based retention
+- [x] **Phase 2: Dataverse Infrastructure** — Schema design, deny event ingestion, correlation logic, zone-based retention ✅ COMPLETE (2026-02-10)
 - [ ] **Phase 3: Orchestration & Alerting** — Power Automate daily orchestrator, Teams adaptive cards, severity classification
 - [ ] **Phase 4: Evidence Export & Dashboard Integration** — SHA-256 evidence export, IntegrationConfig extension, CD feed sync
 - [ ] **Phase 5: Documentation & Framework Integration** — Control tip admonitions, solutions-index update, DEC docs suite, playbook refresh
@@ -55,9 +55,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Dataverse schema design and table definitions (DVS-01)
-- [ ] 02-02-PLAN.md — Deny event ingestion: script updates to write to fsi_denyevent (DVS-02)
-- [ ] 02-03-PLAN.md — Correlation engine and zone-based retention rules (DVS-03, DVS-04)
+- [x] 02-01-PLAN.md — Dataverse schema design and table definitions (DVS-01)
+- [x] 02-02-PLAN.md — Deny event ingestion: script updates to write to fsi_denyevent (DVS-02)
+- [x] 02-03-PLAN.md — Correlation engine and zone-based retention rules (DVS-03, DVS-04)
 
 ### Phase 3: Orchestration & Alerting
 **Goal**: Automate daily deny event extraction and correlation with Power Automate orchestration and Teams alerting for high-severity patterns
@@ -116,7 +116,7 @@ Phase 1 (critical path) → Phase 2 → Phase 3 → Phase 4 → Phase 5
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Auth & Script Modernization | 3/3 | COMPLETE | 2026-02-10 |
-| 2. Dataverse Infrastructure | 0/3 | PENDING | — |
+| 2. Dataverse Infrastructure | 3/3 | COMPLETE | 2026-02-10 |
 | 3. Orchestration & Alerting | 0/3 | PENDING | — |
 | 4. Evidence & Dashboard | 0/3 | PENDING | — |
 | 5. Documentation & Framework | 0/3 | PENDING | — |
