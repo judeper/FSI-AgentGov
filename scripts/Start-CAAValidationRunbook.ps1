@@ -177,10 +177,12 @@ function script:New-DataverseAccessToken {
 # ─── Helper: Determine zone from policy display name ─────────────────
 function script:Get-PolicyZone {
     param([string]$DisplayName)
-    if ($DisplayName -match 'Zone3') { return 3 }
-    elseif ($DisplayName -match 'Zone2') { return 2 }
-    elseif ($DisplayName -match 'Zone1') { return 1 }
+    # FSI-Z{n} prefix convention (canonical)
+    if ($DisplayName -match '^FSI-Z(\d)') { return [int]$Matches[1] }
+    # AllZones defaults to highest zone for severity escalation
     elseif ($DisplayName -match 'AllZones') { return 3 }
+    # Legacy CA-*-Zone{n} pattern (backward compatibility)
+    elseif ($DisplayName -match 'Zone(\d)') { return [int]$Matches[1] }
     else { return 0 }
 }
 
@@ -278,14 +280,14 @@ try {
 
     # Expected policies from governance framework
     $expectedPolicies = @(
-        'CA-M365Copilot-AllZones'
-        'CA-BlockLegacyAuth-AI'
-        'CA-CopilotStudio-Zone1'
-        'CA-CopilotStudio-Zone2'
-        'CA-CopilotStudio-Zone3'
-        'CA-AgentBuilder-Zone2'
-        'CA-AgentBuilder-Zone3'
-        'CA-RequireCompliantDevice-Zone3'
+        'FSI-AllZones-BlockLegacyAuth'
+        'FSI-Z1-AgentCreators-BaselineMFA'
+        'FSI-Z2-AgentPublishers-PhishingResistant'
+        'FSI-Z2-AgentBuilder-MFA'
+        'FSI-Z3-EnterpriseAgentAdmin-Maximum'
+        'FSI-Z3-AgentBuilder-StrictMFA'
+        'FSI-Z3-RequireCompliantDevice'
+        'FSI-Z3-BreakGlass-EmergencyAccess'
     )
 
     # Filter expected policies by zone if specified
