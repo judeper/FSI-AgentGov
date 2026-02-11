@@ -35,8 +35,8 @@ Comprehensive remediation of 107 findings and 42 gaps identified by full technic
 **Plans:** 2 (A = CAA, B = DEC — no file overlap)
 
 Plans:
-- [ ] 01-01-PLAN.md — CAA Runtime Fixes (RTF-01 through RTF-05) — Worktree A
-- [ ] 01-02-PLAN.md — DEC Runtime Fixes (RTF-06 through RTF-10) — Worktree B
+- [x] 01-01-PLAN.md — CAA Runtime Fixes (RTF-01 through RTF-05) — Worktree A
+- [x] 01-02-PLAN.md — DEC Runtime Fixes (RTF-06 through RTF-10) — Worktree B
 
 ### Phase 2: Regulatory & Technical Accuracy
 **Goal:** Fix regulatory citation errors and solution technical contradictions that affect compliance accuracy
@@ -54,8 +54,8 @@ Plans:
 **Plans:** 2 (A = Framework/Reference, B = Solution Playbooks — no file overlap)
 
 Plans:
-- [ ] 02-01-PLAN.md — Framework & Reference Accuracy (RTA-01 through RTA-05) — Worktree A
-- [ ] 02-02-PLAN.md — Solution Playbook Accuracy (RTA-06 through RTA-10) — Worktree B
+- [x] 02-01-PLAN.md — Framework & Reference Accuracy (RTA-01 through RTA-05) — Worktree A
+- [x] 02-02-PLAN.md — Solution Playbook Accuracy (RTA-06 through RTA-10) — Worktree B
 
 ### Phase 3: Terminology & Version Normalization
 **Goal:** Standardize governance terminology (Zone/Tier/Level), role names, and version footers across all docs
@@ -70,8 +70,8 @@ Plans:
 **Plans:** 2 (A = Terminology, B = Version/Metadata — minimal file overlap)
 
 Plans:
-- [ ] 03-01-PLAN.md — Governance Terminology Standardization (TVN-01 through TVN-03) — Worktree A
-- [ ] 03-02-PLAN.md — Version & Metadata Normalization (TVN-04 through TVN-06) — Worktree B
+- [x] 03-01-PLAN.md — Governance Terminology Standardization (TVN-01 through TVN-03) — Worktree A
+- [x] 03-02-PLAN.md — Version & Metadata Normalization (TVN-04 through TVN-06) — Worktree B
 
 ### Phase 4: Cross-Reference & Link Integrity
 **Goal:** Fix broken cross-references, missing solution mappings, and path errors across controls, playbooks, and reference docs
@@ -87,8 +87,8 @@ Plans:
 **Plans:** 2 (A = Solution cross-refs, B = Navigation & naming — minimal overlap)
 
 Plans:
-- [ ] 04-01-PLAN.md — Solution Cross-Reference Fixes (XRL-01 through XRL-03) — Worktree A
-- [ ] 04-02-PLAN.md — Navigation & Naming Fixes (XRL-04 through XRL-06) — Worktree B
+- [x] 04-01-PLAN.md — Solution Cross-Reference Fixes (XRL-01 through XRL-03) — Worktree A
+- [x] 04-02-PLAN.md — Navigation & Naming Fixes (XRL-04 through XRL-06) — Worktree B
 
 ### Phase 5: Script & Code Fixes
 **Goal:** Fix PowerShell bugs, non-existent cmdlets, and parameter mismatches in scripts and playbooks
@@ -104,8 +104,8 @@ Plans:
 **Plans:** 2 (A = PowerShell/Script bugs, B = Config & Schema gaps)
 
 Plans:
-- [ ] 05-01-PLAN.md — PowerShell & Script Bugs (SCF-01 through SCF-04) — Worktree A
-- [ ] 05-02-PLAN.md — Config, Schema & Documentation (SCF-05 through SCF-06) — Worktree B
+- [x] 05-01-PLAN.md — PowerShell & Script Bugs (SCF-01 through SCF-04) — Worktree A
+- [x] 05-02-PLAN.md — Config, Schema & Documentation (SCF-05 through SCF-06) — Worktree B
 
 ### Phase 6: Gap Backfill & Design Improvements
 **Goal:** Create missing deployment guides, operational playbooks, and design improvements identified during audit
@@ -127,9 +127,9 @@ Plans:
 
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
-| 1. Critical Runtime Fixes | 0/2 | Not started |
-| 2. Regulatory & Technical Accuracy | 0/2 | Not started |
-| 3. Terminology & Version Normalization | 0/2 | Not started |
+| 1. Critical Runtime Fixes | 2/2 | Complete |
+| 2. Regulatory & Technical Accuracy | 2/2 | Complete |
+| 3. Terminology & Version Normalization | 2/2 | Complete |
 | 4. Cross-Reference & Link Integrity | 2/2 | Complete |
 | 5. Script & Code Fixes | 2/2 | Complete |
 | 6. Gap Backfill & Design Improvements | 2/2 | Complete |
