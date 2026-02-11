@@ -27,6 +27,18 @@
     Optional. Path to a previously exported baseline JSON file. When provided, enables
     Check 6 policy drift analysis comparing current state against saved baseline.
 
+.PARAMETER DataverseUrl
+    Optional. Dataverse environment URL (e.g., https://org.crm.dynamics.com). When provided
+    with -PersistResults, validation results and violations are written to Dataverse.
+
+.PARAMETER DataverseToken
+    Optional. OAuth2 bearer token for the Dataverse environment. Required when -DataverseUrl
+    is specified.
+
+.PARAMETER PersistResults
+    Optional switch. When set together with -DataverseUrl, writes validation history and
+    violation records to Dataverse for audit trail purposes.
+
 .EXAMPLE
     .\Test-PolicyCompliance.ps1 -TenantId $tid -ConfigPath .\config.json
 
@@ -35,6 +47,9 @@
 
 .EXAMPLE
     .\Test-PolicyCompliance.ps1 -TenantId $tid -ConfigPath .\config.json -BaselinePath .\baseline.json
+
+.EXAMPLE
+    .\Test-PolicyCompliance.ps1 -TenantId $tid -ConfigPath .\config.json -DataverseUrl 'https://org.crm.dynamics.com' -DataverseToken $token -PersistResults
 
 .OUTPUTS
     PSCustomObject with compliance check results, gaps, and optional drift analysis.
@@ -64,7 +79,16 @@ param(
     [string]$OutputPath,
 
     [Parameter()]
-    [string]$BaselinePath
+    [string]$BaselinePath,
+
+    [Parameter()]
+    [string]$DataverseUrl,
+
+    [Parameter()]
+    [string]$DataverseToken,
+
+    [Parameter()]
+    [switch]$PersistResults
 )
 
 # Import private helpers
@@ -245,6 +269,129 @@ if ($BaselinePath) {
     $complianceResults.Checks += [PSCustomObject]@{ Check = 'PolicyDrift'; Results = $driftResults }
 } else {
     Write-Verbose "No baseline path provided — skipping drift analysis. Run Export-PolicyBaseline.ps1 to create a baseline."
+}
+
+# ─── Dataverse Persistence (opt-in) ─────────────────────────────────────
+if ($PersistResults -and -not $DataverseUrl) {
+    Write-Warning "Cannot persist results: -DataverseUrl is required with -PersistResults"
+}
+elseif ($DataverseUrl -and -not $PersistResults) {
+    Write-Verbose "Dataverse URL provided but -PersistResults not specified. Results not persisted."
+}
+elseif ($DataverseUrl -and $PersistResults) {
+    Write-Verbose "Persisting results to Dataverse..."
+    try {
+        # Import CAAClient if not already loaded
+        $caaModule = Get-Module -Name CAAClient -ErrorAction SilentlyContinue
+        if (-not $caaModule) {
+            Import-Module "$PSScriptRoot/private/CAAClient.psm1" -Force -ErrorAction Stop
+        }
+
+        # Connect to Dataverse
+        Connect-CAADataverse -DataverseUrl $DataverseUrl -AccessToken $DataverseToken
+        $conn = Get-CAAConnection
+        if (-not $conn.IsConnected) {
+            Write-Warning "Dataverse connection failed — results will not be persisted."
+        }
+        else {
+            # Read operational parameters from Dataverse environment variables
+            $gracePeriodHours     = Get-CAAEnvironmentVariable -Name 'GracePeriodHours'
+            $baselineMaxAgeDays   = Get-CAAEnvironmentVariable -Name 'BaselineMaxAgeDays'
+            $driftSeverityEsc     = Get-CAAEnvironmentVariable -Name 'DriftSeverityEscalation'
+            $includeReportOnly    = Get-CAAEnvironmentVariable -Name 'IncludeReportOnlyPolicies'
+
+            Write-Verbose "Operational params — GracePeriodHours: $gracePeriodHours, BaselineMaxAgeDays: $baselineMaxAgeDays, DriftSeverityEscalation: $driftSeverityEsc, IncludeReportOnlyPolicies: $includeReportOnly"
+
+            # Generate correlation RunId
+            $runId = (New-Guid).ToString()
+
+            # Determine overall severity
+            $overallSeverity = if ($totalGaps -eq 0 -and $driftCount -eq 0) { 1 }
+                               elseif ($totalGaps -gt 0 -and $driftCount -eq 0) { 3 }
+                               elseif ($driftCount -gt 0) { 4 }
+                               else { 2 }
+
+            # Persist validation history
+            $resultsJson = $complianceResults | ConvertTo-Json -Depth 10
+            $passedPolicies = $policies.Count - $totalGaps
+            $historyId = Write-CAAValidationHistory `
+                -RunId $runId `
+                -TotalPolicies $policies.Count `
+                -PassedCount $passedPolicies `
+                -WarningCount 0 `
+                -FailedCount $totalGaps `
+                -DriftCount $driftCount `
+                -OverallSeverity $overallSeverity `
+                -ResultsJson $resultsJson `
+                -ValidatedBy ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name) `
+                -TenantId $TenantId
+
+            # Persist individual violations
+            $violationCount = 0
+            foreach ($gap in $complianceResults.Gaps) {
+                # Determine violation type and zone from gap description
+                $violationType = 'ComplianceGap'
+                $violationZone = 0
+                $violationPolicyName = 'Unknown'
+                $violationSeverity = 3
+
+                if ($gap -match 'Missing expected policy: (.+)') {
+                    $violationType = 'PolicyMissing'
+                    $violationPolicyName = $Matches[1]
+                    $violationSeverity = 4
+                }
+                elseif ($gap -match "Policy disabled: (.+)") {
+                    $violationType = 'PolicyDisabled'
+                    $violationPolicyName = $Matches[1]
+                    $violationSeverity = 4
+                }
+                elseif ($gap -match "Policy '([^']+)' missing break-glass") {
+                    $violationType = 'BreakGlassExclusionMissing'
+                    $violationPolicyName = $Matches[1]
+                    $violationSeverity = 4
+                }
+                elseif ($gap -match "Policy '([^']+)' has no MFA") {
+                    $violationType = 'GrantControlMissing'
+                    $violationPolicyName = $Matches[1]
+                    $violationSeverity = 4
+                }
+                elseif ($gap -match "Zone 3 policy '([^']+)'") {
+                    $violationType = 'SessionControlWeakened'
+                    $violationPolicyName = $Matches[1]
+                    $violationZone = 3
+                    $violationSeverity = 3
+                }
+                elseif ($gap -match 'Drift detected: ([^ ]+)') {
+                    $violationType = 'PolicyDrift'
+                    $violationPolicyName = $Matches[1]
+                    $violationSeverity = 4
+                }
+
+                # Determine zone from policy name if not already set
+                if ($violationZone -eq 0) {
+                    if ($violationPolicyName -match 'Zone3') { $violationZone = 3 }
+                    elseif ($violationPolicyName -match 'Zone2') { $violationZone = 2 }
+                    elseif ($violationPolicyName -match 'Zone1') { $violationZone = 1 }
+                }
+
+                $null = Write-CAAViolation `
+                    -RunId $runId `
+                    -PolicyId '' `
+                    -PolicyDisplayName $violationPolicyName `
+                    -ViolationType $violationType `
+                    -Zone $violationZone `
+                    -Severity $violationSeverity `
+                    -Description $gap `
+                    -TenantId $TenantId
+                $violationCount++
+            }
+
+            Write-Verbose "Persisted $($complianceResults.Checks.Count) results and $violationCount violations to Dataverse (RunId: $runId)"
+        }
+    }
+    catch {
+        Write-Warning "Dataverse persistence failed — $($_.Exception.Message). Compliance results are still available."
+    }
 }
 
 # ─── Summary ─────────────────────────────────────────────────────────

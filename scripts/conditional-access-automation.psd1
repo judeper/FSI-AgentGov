@@ -3,12 +3,12 @@
     # Controls: 1.11, 1.23, 1.18
 
     RootModule        = $null
-    ModuleVersion     = '1.0.0'
+    ModuleVersion     = '1.1.0'
     GUID              = 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d'
     Author            = 'FSI Agent Governance'
     CompanyName       = 'Microsoft'
     Copyright         = '(c) Microsoft. All rights reserved.'
-    Description       = 'FSI Agent Governance — Conditional Access Automation for Controls 1.11, 1.23, 1.18. Deploys and validates CA policies with zone-specific requirements, drift detection, and compliance reporting.'
+    Description       = 'FSI Agent Governance — Conditional Access Automation for Controls 1.11, 1.23, 1.18. Deploys and validates CA policies with zone-specific requirements, drift detection, compliance reporting, and Dataverse persistence for audit trail and operational state.'
     PowerShellVersion = '7.0'
     CompatiblePSEditions = @('Core')
 

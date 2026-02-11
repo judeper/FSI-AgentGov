@@ -1,5 +1,5 @@
 # CAAClient.psm1 — Dataverse Web API client for Conditional Access Automation
-# Phase 1 stubs — Phase 2 replaces with working implementations
+# Phase 2 — Working Dataverse Web API implementations
 
 # Module-scoped connection state
 $script:DataverseUrl = $null
@@ -29,7 +29,29 @@ function Connect-CAADataverse {
         [string]$AccessToken
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $script:DataverseUrl = $DataverseUrl.TrimEnd('/')
+    $script:AccessToken = $AccessToken
+    $script:Headers = @{
+        'Authorization' = "Bearer $AccessToken"
+        'OData-MaxVersion' = '4.0'
+        'OData-Version' = '4.0'
+        'Accept' = 'application/json'
+        'Prefer' = 'return=representation'
+    }
+
+    # Validate connectivity
+    $testUri = "$($script:DataverseUrl)/api/data/v9.2/organizations"
+    try {
+        $null = Invoke-RestMethod -Uri $testUri -Headers $script:Headers -Method Get
+        Write-Verbose "CAAClient: Connected to $($script:DataverseUrl)"
+    }
+    catch {
+        $script:DataverseUrl = $null
+        $script:AccessToken = $null
+        $script:Headers = $null
+        Write-Warning "CAAClient: Failed to connect to Dataverse — $($_.Exception.Message)"
+        return
+    }
 }
 
 function Get-CAAConnection {
@@ -46,7 +68,10 @@ function Get-CAAConnection {
     [CmdletBinding()]
     param()
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    return [PSCustomObject]@{
+        IsConnected = ($null -ne $script:DataverseUrl)
+        Url         = $script:DataverseUrl
+    }
 }
 
 function Get-CAAEnvironmentVariable {
@@ -68,7 +93,27 @@ function Get-CAAEnvironmentVariable {
         [string]$Name
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $schemaName = "fsi_CAA_$Name"
+    $uri = "$($script:DataverseUrl)/api/data/v9.2/environmentvariabledefinitions" +
+           "?`$filter=schemaname eq '$schemaName'" +
+           "&`$expand=environmentvariablevalues"
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Headers $script:Headers -Method Get
+        if ($response.value.Count -eq 0) {
+            Write-Warning "CAAClient: Environment variable '$schemaName' not found."
+            return $null
+        }
+        $definition = $response.value[0]
+        # Return override value if present, otherwise fall back to default
+        if ($definition.environmentvariablevalues -and $definition.environmentvariablevalues.Count -gt 0) {
+            return $definition.environmentvariablevalues[0].value
+        }
+        return $definition.defaultvalue
+    }
+    catch {
+        Write-Warning "CAAClient: Failed to query environment variable '$schemaName' — $($_.Exception.Message)"
+        return $null
+    }
 }
 
 function Get-CAAActiveBaseline {
@@ -94,7 +139,19 @@ function Get-CAAActiveBaseline {
         [string]$TenantId
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $filters = @('fsi_is_active eq true')
+    if ($PolicyId) { $filters += "fsi_policy_id eq '$PolicyId'" }
+    if ($TenantId) { $filters += "fsi_tenant_id eq '$TenantId'" }
+    $filterString = $filters -join ' and '
+    $uri = "$($script:DataverseUrl)/api/data/v9.2/fsi_capolicybaselines?`$filter=$filterString"
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Headers $script:Headers -Method Get
+        return $response.value
+    }
+    catch {
+        Write-Warning "CAAClient: Failed to query fsi_capolicybaselines — $($_.Exception.Message)"
+        return $null
+    }
 }
 
 function Write-CAAValidationHistory {
@@ -160,7 +217,32 @@ function Write-CAAValidationHistory {
         [string]$TenantId
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $uri = "$($script:DataverseUrl)/api/data/v9.2/fsi_capolicyvalidationhistory"
+    $body = @{
+        fsi_run_id           = $RunId
+        fsi_validation_time  = [DateTime]::UtcNow.ToString('o')
+        fsi_total_policies   = $TotalPolicies
+        fsi_passed_count     = $PassedCount
+        fsi_warning_count    = $WarningCount
+        fsi_failed_count     = $FailedCount
+        fsi_drift_count      = $DriftCount
+        fsi_overall_severity = $OverallSeverity
+        fsi_results_json     = $ResultsJson
+        fsi_validated_by     = $ValidatedBy
+        fsi_tenant_id        = $TenantId
+    }
+    try {
+        if ($PSCmdlet.ShouldProcess('fsi_capolicyvalidationhistory', "Create validation record $RunId")) {
+            $response = Invoke-RestMethod -Uri $uri -Headers $script:Headers -Method Post `
+                -Body ($body | ConvertTo-Json -Depth 10) -ContentType 'application/json'
+            Write-Verbose "CAAClient: Created validation history record $RunId"
+            return $response.fsi_capolicyvalidationhistoryid
+        }
+    }
+    catch {
+        Write-Warning "CAAClient: Failed to create validation history — $($_.Exception.Message)"
+        return $null
+    }
 }
 
 function Write-CAAViolation {
@@ -226,7 +308,32 @@ function Write-CAAViolation {
         [string]$TenantId
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $uri = "$($script:DataverseUrl)/api/data/v9.2/fsi_capolicyviolations"
+    $body = @{
+        fsi_run_id               = $RunId
+        fsi_policy_id            = $PolicyId
+        fsi_policy_display_name  = $PolicyDisplayName
+        fsi_violation_type       = $ViolationType
+        fsi_zone                 = $Zone
+        fsi_severity             = $Severity
+        fsi_tenant_id            = $TenantId
+        fsi_is_resolved          = $false
+    }
+    if ($ExpectedValue)  { $body['fsi_expected_value'] = $ExpectedValue }
+    if ($ActualValue)    { $body['fsi_actual_value']   = $ActualValue }
+    if ($Description)    { $body['fsi_description']    = $Description }
+    try {
+        if ($PSCmdlet.ShouldProcess('fsi_capolicyviolations', "Create violation for policy $PolicyDisplayName")) {
+            $response = Invoke-RestMethod -Uri $uri -Headers $script:Headers -Method Post `
+                -Body ($body | ConvertTo-Json -Depth 10) -ContentType 'application/json'
+            Write-Verbose "CAAClient: Created violation record for $PolicyDisplayName"
+            return $response.fsi_capolicyviolationid
+        }
+    }
+    catch {
+        Write-Warning "CAAClient: Failed to create violation — $($_.Exception.Message)"
+        return $null
+    }
 }
 
 function Save-CAABaseline {
@@ -297,7 +404,52 @@ function Save-CAABaseline {
         [string]$TenantId
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $entitySet = 'fsi_capolicybaselines'
+    try {
+        # Step 1: Deactivate existing active baselines for this policy
+        $deactivateFilter = "fsi_policy_id eq '$PolicyId' and fsi_is_active eq true"
+        $queryUri = "$($script:DataverseUrl)/api/data/v9.2/$entitySet?`$filter=$deactivateFilter"
+        $existing = Invoke-RestMethod -Uri $queryUri -Headers $script:Headers -Method Get
+
+        foreach ($record in $existing.value) {
+            $patchUri = "$($script:DataverseUrl)/api/data/v9.2/$entitySet($($record.fsi_capolicybaselineid))"
+            $patchBody = @{ fsi_is_active = $false } | ConvertTo-Json
+            if ($PSCmdlet.ShouldProcess($entitySet, "Deactivate baseline $($record.fsi_capolicybaselineid)")) {
+                $null = Invoke-RestMethod -Uri $patchUri -Headers $script:Headers -Method Patch `
+                    -Body $patchBody -ContentType 'application/json'
+                Write-Verbose "CAAClient: Deactivated baseline $($record.fsi_capolicybaselineid)"
+            }
+        }
+
+        # Step 2: Create new active baseline
+        $body = @{
+            fsi_policy_id            = $PolicyId
+            fsi_policy_display_name  = $PolicyDisplayName
+            fsi_policy_state         = $PolicyState
+            fsi_zone                 = $Zone
+            fsi_conditions_json      = $ConditionsJson
+            fsi_grant_controls_json  = $GrantControlsJson
+            fsi_baseline_hash        = $BaselineHash
+            fsi_is_active            = $true
+            fsi_captured_at          = [DateTime]::UtcNow.ToString('o')
+            fsi_captured_by          = $CapturedBy
+            fsi_tenant_id            = $TenantId
+        }
+        if ($SessionControlsJson)   { $body['fsi_session_controls_json']  = $SessionControlsJson }
+        if ($BreakGlassExclusions)  { $body['fsi_break_glass_exclusions'] = $BreakGlassExclusions }
+
+        $createUri = "$($script:DataverseUrl)/api/data/v9.2/$entitySet"
+        if ($PSCmdlet.ShouldProcess($entitySet, "Create baseline for policy $PolicyDisplayName")) {
+            $response = Invoke-RestMethod -Uri $createUri -Headers $script:Headers -Method Post `
+                -Body ($body | ConvertTo-Json -Depth 10) -ContentType 'application/json'
+            Write-Verbose "CAAClient: Created baseline for $PolicyDisplayName"
+            return $response.fsi_capolicybaselineid
+        }
+    }
+    catch {
+        Write-Warning "CAAClient: Failed to save baseline for $PolicyDisplayName — $($_.Exception.Message)"
+        return $null
+    }
 }
 
 function Get-CAALastValidation {
@@ -318,7 +470,22 @@ function Get-CAALastValidation {
         [string]$TenantId
     )
 
-    throw "Not implemented — requires Phase 2 Dataverse infrastructure"
+    $uri = "$($script:DataverseUrl)/api/data/v9.2/fsi_capolicyvalidationhistory" +
+           "?`$orderby=fsi_validation_time desc&`$top=1"
+    if ($TenantId) {
+        $uri += "&`$filter=fsi_tenant_id eq '$TenantId'"
+    }
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Headers $script:Headers -Method Get
+        if ($response.value.Count -eq 0) {
+            return $null
+        }
+        return $response.value[0]
+    }
+    catch {
+        Write-Warning "CAAClient: Failed to query last validation — $($_.Exception.Message)"
+        return $null
+    }
 }
 
 Export-ModuleMember -Function @(
