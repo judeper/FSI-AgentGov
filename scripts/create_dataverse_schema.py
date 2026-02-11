@@ -276,6 +276,7 @@ def _validation_history_table_definition() -> Dict[str, Any]:
 def _validation_history_columns() -> List[Dict[str, Any]]:
     """Additional columns for fsi_CAPolicyValidationHistory."""
     return [
+        _string_col("fsi_name", "Name", max_length=200, required=True),
         _datetime_col("fsi_validation_time", "Validation Time", required=True),
         _integer_col("fsi_total_policies", "Total Policies", required=True),
         _integer_col("fsi_passed_count", "Passed Count", required=True),
@@ -283,7 +284,12 @@ def _validation_history_columns() -> List[Dict[str, Any]]:
         _integer_col("fsi_failed_count", "Failed Count", required=True),
         _integer_col("fsi_drift_count", "Drift Count", required=True),
         _picklist_col("fsi_overall_severity", "Overall Severity", "fsi_acv_severity", required=True),
+        _string_col("fsi_overall_status", "Overall Status", max_length=50, required=True),
+        _string_col("fsi_compliance_rate", "Compliance Rate", max_length=20),
+        _picklist_col("fsi_alert_severity", "Alert Severity", "fsi_acv_severity"),
         _memo_col("fsi_results_json", "Results JSON", required=True),
+        _string_col("fsi_source", "Source", max_length=100),
+        _string_col("fsi_scan_scope", "Scan Scope", max_length=200),
         _string_col("fsi_validated_by", "Validated By", max_length=256, required=True),
         _string_col("fsi_tenant_id", "Tenant ID", max_length=50, required=True),
     ]
