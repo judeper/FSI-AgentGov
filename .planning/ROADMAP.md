@@ -14,7 +14,7 @@ Comprehensive remediation of 107 findings and 42 gaps identified by full technic
 - [x] **Phase 2: Regulatory & Technical Accuracy** — Fix regulatory citation errors, control count mismatches, and solution technical contradictions
 - [x] **Phase 3: Terminology & Version Normalization** — Standardize Zone/Tier/Level language, role names, and version footers across all docs
 - [x] **Phase 4: Cross-Reference & Link Integrity** — Fix broken cross-references, missing solution mappings, path errors
-- [ ] **Phase 5: Script & Code Fixes** — Fix PowerShell bugs, non-existent cmdlets, parameter mismatches in scripts and playbooks
+- [x] **Phase 5: Script & Code Fixes** — Fix PowerShell bugs, non-existent cmdlets, parameter mismatches in scripts and playbooks
 - [ ] **Phase 6: Gap Backfill & Design Improvements** — Create missing deployment guides, operational playbooks, and inter-document linking
 
 ## Phase Details
@@ -131,7 +131,7 @@ Plans:
 | 2. Regulatory & Technical Accuracy | 0/2 | Not started |
 | 3. Terminology & Version Normalization | 0/2 | Not started |
 | 4. Cross-Reference & Link Integrity | 2/2 | Complete |
-| 5. Script & Code Fixes | 0/2 | Not started |
+| 5. Script & Code Fixes | 2/2 | Complete |
 | 6. Gap Backfill & Design Improvements | 0/2 | Not started |
 
 ## Parallel Execution Guide
