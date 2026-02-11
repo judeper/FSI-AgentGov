@@ -33,16 +33,26 @@ Connect-SPOService -Url "https://tenant-admin.sharepoint.com"
 ## Inventory Copilot Licenses
 
 ```powershell
-# Get users with Copilot licenses
-# Note: SKU ID may vary - verify for your tenant
+# Step 1: Find Copilot SKU IDs from tenant subscriptions
+$copilotSkus = Get-MgSubscribedSku -All | Where-Object {
+    $_.SkuPartNumber -match 'Copilot'
+} | Select-Object -ExpandProperty SkuId
+
+if ($copilotSkus.Count -eq 0) {
+    Write-Warning "No Copilot SKUs found in tenant subscriptions"
+} else {
+    Write-Host "Found $($copilotSkus.Count) Copilot SKU(s)"
+}
+
+# Step 2: Filter users assigned those SKUs
 $licensedUsers = Get-MgUser -Filter "assignedLicenses/any()" -All |
     Where-Object {
         $_.AssignedLicenses | Where-Object {
-            $_.SkuId -match "copilot" -or $_.SkuId -match "Copilot"
+            $_.SkuId -in $copilotSkus
         }
     }
 
-Write-Host "Found $($licensedUsers.Count) users with potential Copilot licenses"
+Write-Host "Found $($licensedUsers.Count) users with Copilot licenses"
 
 # Export for documentation
 $licensedUsers | Select-Object DisplayName, UserPrincipalName, Id |
