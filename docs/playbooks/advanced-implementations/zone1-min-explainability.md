@@ -31,7 +31,7 @@ For each interaction (prompt-response pair or “session”):
 - `app_host` (e.g., Teams, Word, BizChat)
 - `operation` / `recordType` (e.g., CopilotInteraction)
 - `output_category` (informational / policy / research / admin help / other)
-- `confidence_band` (High/Med/Low) (policy-driven heuristic; see confidence spec)
+- `confidence_band` (High/Med/Low) (policy-driven heuristic; see [Confidence and Routing](confidence-and-routing.md))
 - `accessed_resources_count`
 - `labels_seen_summary` (counts by class, not the label IDs list if you want extra minimization)
 - `policy_block_count` (count of blocked/restricted resources)
@@ -121,3 +121,12 @@ Weekly:
 ---
 
 *FSI Agent Governance Framework v1.2 - January 2026*
+
+---
+
+## Related Specifications
+
+| Specification | Relationship |
+|--------------|-------------|
+| [Confidence and Routing](confidence-and-routing.md) | Defines the confidence scoring model whose outputs this spec requires to be displayed |
+| [Human-in-the-Loop Triggers](human-in-the-loop-triggers.md) | Defines escalation triggers that may need explainability context when presented to reviewers |

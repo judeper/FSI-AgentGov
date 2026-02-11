@@ -462,3 +462,12 @@ zone_3_hitl:
 ---
 
 *FSI Agent Governance Framework v1.2 - January 2026*
+
+---
+
+## Related Specifications
+
+| Specification | Relationship |
+|--------------|-------------|
+| [Confidence and Routing](confidence-and-routing.md) | Defines the confidence scoring model and routing thresholds that determine when HITL triggers activate |
+| [Zone 1 Minimum Explainability](zone1-min-explainability.md) | Specifies how HITL decisions and confidence scores are communicated to end users |

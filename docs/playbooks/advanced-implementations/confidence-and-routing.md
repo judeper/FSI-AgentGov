@@ -136,3 +136,12 @@ FINRA underscores governance/testing/monitoring expectations for GenAI use and t
 ---
 
 *FSI Agent Governance Framework v1.2 - January 2026*
+
+---
+
+## Related Specifications
+
+| Specification | Relationship |
+|--------------|-------------|
+| [Human-in-the-Loop Triggers](human-in-the-loop-triggers.md) | Defines when low-confidence responses require human review — uses confidence thresholds defined in this spec |
+| [Zone 1 Minimum Explainability](zone1-min-explainability.md) | Specifies minimum transparency requirements for confidence scores shown to users |
