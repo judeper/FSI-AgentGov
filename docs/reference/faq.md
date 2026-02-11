@@ -203,7 +203,7 @@ This enables real-time threat detection and automated response for production ag
 
 A: No. Each agent is in one zone. It may progress through zones:
 
-- Zone 1 (personal) → Zone 2 (team) → Zone 3 (production)
+- Zone 1 (Personal Productivity) → Zone 2 (Team Collaboration) → Zone 3 (Enterprise Managed)
 
 ### Q: What if an agent starts in Zone 1 but needs Zone 2 features?
 
@@ -340,6 +340,18 @@ A: No. The 8-week phased approach recommended:
 - **Phase 2 (Weeks 3-4):** Security baseline
 - **Phase 3 (Weeks 5-6):** Advanced governance
 - **Phase 4 (Weeks 7-8):** Finalization
+
+!!! info "Relationship to Adoption Roadmap"
+    The 8-week implementation phases described above correspond to **Phase 0
+    (Foundation)** in the [Adoption Roadmap](../framework/adoption-roadmap.md).
+    The roadmap extends the timeline further:
+
+    - **Phase 0 (0-60 days):** Foundation — corresponds to the FAQ phases above
+    - **Phase 1 (2-6 months):** Production Readiness — scaling governance to all zones
+    - **Phase 2 (6-12 months):** Advanced Governance — mature operations and continuous improvement
+
+    When planning your implementation, use the FAQ's 8-week breakdown for initial
+    deployment and the Adoption Roadmap for long-term program planning.
 
 See the [Implementation Checklist](../getting-started/checklist.md) for details.
 
@@ -536,7 +548,7 @@ See [Deny Event Correlation Report](../playbooks/advanced-implementations/deny-e
 A: Depends on regulation:
 
 - **FINRA 4511:** 6 years, first 2 years in easily accessible place
-- **SEC 17a-3/4:** 6 years, first 2 years readily accessible
+- **SEC 17a-3/4:** 3–6 years (3 years for communications, 6 years for financial records), first 2 years readily accessible
 - **SOX 404:** 7 years minimum
 - **GLBA:** 5-7 years
 - **OCC/SR 11-7:** Per model (typically 3+ years)
