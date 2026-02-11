@@ -47,21 +47,21 @@ v12:    [=========================] 3/3 phases (16/16 requirements)
 
 ## Performance Metrics
 
-**Cumulative (v1-v11):**
-- Phases: 57 complete
-- Plans: 185 complete
-- Requirements: 307 total
-
-**v12 scope:**
-- 16 requirements across 4 categories (BLK-3, CSW-4, QAI-5, HSK-4)
-- Source: codebase mapping analysis (2026-02-11)
-- Focus: user-facing link fixes, terminology completion, quality automation, housekeeping
+**Cumulative (v1-v12):**
+- Phases: 60 complete
+- Plans: 193 complete
+- Requirements: 323 total
 
 ## Accumulated Context
 
 ### Decisions Made
 
 See PROJECT.md Key Decisions table for full history.
+
+**v12 decisions:**
+- A/B worktree parallel execution model validated (non-overlapping file sets per phase)
+- Language linter built as standalone script (not MkDocs plugin) for CI flexibility
+- EXPECTED.md screenshot specs derived from control document content (not generic templates)
 
 **v11 decisions:**
 - Zone 1/2/3 chosen as canonical governance terminology (replacing Tier/Level variants across all playbooks)

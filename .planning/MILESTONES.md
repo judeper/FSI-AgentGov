@@ -1,5 +1,27 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v12 Quality & Consistency Polish (Completed: 2026-02-11)
+
+**Delivered:** Closed 16 polish-level gaps identified by codebase mapping analysis after v11 Technical Remediation. Fixed user-facing broken links, completed Azure AD → Microsoft Entra ID rename and Tier → Zone terminology sweeps, built quality automation infrastructure (language linter, CI integration), and performed housekeeping (stale file cleanup, screenshot specs, Excel count fix).
+
+**Phases completed:** 1-3 (8 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Broken Links & Content Consistency (4 plans):** Removed exclude_docs entries blocking regulatory-mappings.md and CONTROL-INDEX.md from navigation, fixed 5 docs linking to excluded files, synced solutions-integration.md with solutions-index.md, completed Azure AD → Microsoft Entra ID rename (zero instances remaining), completed Tier/Level → Zone normalization across all controls and playbooks (~80+ additional instances swept in gap closure)
+- **Phase 2 — Quality Automation & Infrastructure (2 plans):** Created scripts/verify_language_rules.py linter catching prohibited FSI phrases, added verify_controls.py step to CI publish workflow, synced control-setup-template.md heading and footer conventions, updated verify_templates.py for current canonical footer values, added playbook existence validation (4 files per control) to verify_controls.py
+- **Phase 3 — Housekeeping (2 plans):** Deleted 10 stale root output files (build_*.txt, verify_*.txt) and added .gitignore patterns, created EXPECTED.md screenshot specs for 10 missing controls (1.22-1.24, 2.17-2.21, 3.10, 4.7), updated v11 REQUIREMENTS.md checkboxes to reflect delivery status, fixed Excel expected control count from 61 to 62
+
+**Stats:**
+
+- 3 phases, 8 plans, 16 requirements (100% satisfied — BLK-3, CSW-4, QAI-5, HSK-4)
+- Gap source: codebase mapping analysis across tech, architecture, quality, and concern dimensions
+- 1 day (2026-02-11)
+
+**What's next:** Framework at production quality through v12. All polish gaps closed.
+
+---
+
 ## v11 Technical Remediation (Completed: 2026-02-11)
 
 **Delivered:** Comprehensive remediation of 107 findings and 42 gaps identified by full technical audit of all solutions (CAA, DEC, ELM, PCG), framework docs, reference docs, operational playbooks, control implementation playbooks, and scripts. Fixed runtime deployment failures, regulatory citation errors, terminology drift, cross-reference gaps, PowerShell bugs, and backfilled missing guides.
@@ -312,4 +334,4 @@
 
 ---
 
-*Last updated: 2026-02-11 after v11 milestone*
+*Last updated: 2026-02-11 after v12 milestone*
