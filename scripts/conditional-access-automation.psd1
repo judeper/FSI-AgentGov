@@ -3,7 +3,7 @@
     # Controls: 1.11, 1.23, 1.18
 
     RootModule        = $null
-    ModuleVersion     = '1.1.0'
+    ModuleVersion     = '1.2.0'
     GUID              = 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d'
     Author            = 'FSI Agent Governance'
     CompanyName       = 'Microsoft'
@@ -35,8 +35,9 @@
 
     PrivateData = @{
         PSData = @{
-            Tags       = @('ConditionalAccess', 'Governance', 'FSI', 'MFA', 'ZeroTrust')
-            ProjectUri = 'https://github.com/microsoft/fsi-agent-gov'
+            Tags         = @('ConditionalAccess', 'Governance', 'FSI', 'MFA', 'ZeroTrust')
+            ProjectUri   = 'https://github.com/microsoft/fsi-agent-gov'
+            ReleaseNotes = 'v1.2.0: Added Start-CAAValidationRunbook.ps1 — Azure Automation runbook wrapper for daily CA policy compliance validation with certificate-based auth, Dataverse drift detection, and structured JSON output. Added Compare-PolicyBaseline.ps1 and Get-PolicyBaseline.ps1 private helpers.'
         }
     }
 }
