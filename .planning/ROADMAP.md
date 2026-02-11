@@ -77,7 +77,13 @@ Plans:
   3. solutions-index.md catalog entry updated from Work In Progress to Completed with version, description, and related controls
   4. Complete documentation suite in companion repo covering prerequisites, Dataverse schema, deployment, troubleshooting, and CHANGELOG
   5. Compliance Dashboard receives automated Control 1.11 assessment scores via v9 integration feed pattern
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — SHA-256 evidence export scripts (EFR-01)
+- [ ] 04-02-PLAN.md — Control 1.11 tip admonition and solutions-index.md update (EFR-02, EFR-03)
+- [ ] 04-03-PLAN.md — Companion repo documentation suite and CHANGELOG (EFR-04)
+- [ ] 04-04-PLAN.md — Compliance Dashboard feed integration (EFR-05)
 
 ## Progress
 
@@ -108,11 +114,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | AUT-02 | Phase 3 | 03-01 | Drift detection flow |
 | AUT-03 | Phase 3 | 03-02 | Teams adaptive card alerts |
 | AUT-04 | Phase 3 | 03-04 | ELM provisioning hook |
-| EFR-01 | Phase 4 | TBD | SHA-256 evidence export |
-| EFR-02 | Phase 4 | TBD | Control 1.11 framework integration |
-| EFR-03 | Phase 4 | TBD | solutions-index.md update |
-| EFR-04 | Phase 4 | TBD | Documentation suite |
-| EFR-05 | Phase 4 | TBD | Compliance Dashboard feed |
+| EFR-01 | Phase 4 | 04-01 | SHA-256 evidence export |
+| EFR-02 | Phase 4 | 04-02 | Control 1.11 framework integration |
+| EFR-03 | Phase 4 | 04-02 | solutions-index.md update |
+| EFR-04 | Phase 4 | 04-03 | Documentation suite |
+| EFR-05 | Phase 4 | 04-04 | Compliance Dashboard feed |
 
 **Total: 18/18 requirements mapped. No orphans.**
 
