@@ -233,7 +233,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 ## Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (61 total)
+- **Control:** Governance requirement (62 total)
 - **Pillar:** Control category (Security, Management, Reporting, SharePoint)
 - **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
 - **MFA:** Multi-Factor Authentication (login security)

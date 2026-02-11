@@ -108,7 +108,7 @@ These controls would benefit from custom automation beyond native features. Prio
 | ~~2.16~~ | ~~RAG Source Integrity~~ | ~~Source validation automation~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)** |
 | 2.17 | Multi-Agent Orchestration | Orchestration limit enforcement | Medium |
 | ~~2.18~~ | ~~Conflict of Interest Testing~~ | ~~Automated COI detection~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)** |
-| ~~3.3~~ | ~~Compliance Reporting~~ | ~~Aggregated compliance dashboard~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** (beta) |
+| ~~3.3~~ | ~~Compliance Reporting~~ | ~~Aggregated compliance dashboard~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
 | 3.5 | Cost Allocation | Chargeback automation | Medium |
 | 3.6 | Orphaned Agent Detection | Automated remediation workflows | Medium |
 | 3.9 | Sentinel Integration | Custom data connectors | High |
@@ -168,7 +168,7 @@ These 32 controls apply to Zone 3 (Enterprise Managed) agents and Priority Tier 
 | ~~2.18~~ | ~~Conflict of Interest Testing~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)** |
 | 2.19 | AI Disclosure | Process Control | CFPB guidance |
 | 2.20 | Adversarial Testing | Process Control | Security posture |
-| ~~3.3~~ | ~~Compliance Reporting~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** (beta) |
+| ~~3.3~~ | ~~Compliance Reporting~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
 | 3.9 | Sentinel Integration | Custom Recommended | SIEM coverage |
 | ~~3.10~~ | ~~Hallucination Feedback~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)** |
 
@@ -235,7 +235,7 @@ Focus on controls with highest regulatory impact and broadest applicability.
 | 2 | 2.6 | Establish MRM governance for AI agents; create model inventory | Process + Documentation | 3 weeks |
 | 3 | 1.22 | Configure Information Barriers for research/trading separation | Portal Configuration | 1 week |
 | 4 | 1.11 | ~~Deploy Conditional Access policies for AI app access~~ **DONE** - Deploy [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) | Solution Available | - |
-| 5 | 3.3 | ~~Build compliance reporting dashboard using existing audit data~~ **DONE** - Deploy [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) (beta) | Solution Available | - |
+| 5 | 3.3 | ~~Build compliance reporting dashboard using existing audit data~~ **DONE** - Deploy [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) | Solution Available | - |
 
 ### Phase 2: Q2 2026 (Hardening)
 
@@ -285,7 +285,7 @@ Priority solutions for FSI-AgentGov-Solutions repository development, addressing
 |----------|---------------|-------------|--------|
 | ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
 | ~~**conditional-access-automation**~~ | 1.11 | ~~Entra ID Conditional Access policy templates and deployment automation for AI workloads~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 62 controls with zone-based filtering~~ | **[RELEASED v1.0.0-beta](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
+| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 62 controls with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
 
 ### P1 - High (Q2-Q3 2026) - ALL RELEASED ✓
 
