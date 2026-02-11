@@ -218,4 +218,54 @@ I attest that:
 
 ---
 
+## SSPM Configuration Verification
+
+!!! abstract "Security Posture Assessment Test Cases"
+
+    The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
+
+| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
+|---------|-------------------|-----------------|-------------|----------|
+| SSPM-2.1-01 | Environment creation restriction | Set to "Only specific admins" | PPAC > Settings > Environment creation | Screenshot |
+| SSPM-2.1-02 | Environment routing | Routing rules configured for new environments | PPAC > Settings > Environment routing | Screenshot |
+| SSPM-2.1-03 | Tenant isolation | Tenant isolation enabled | PPAC > Settings > Tenant isolation | Screenshot |
+| SSPM-2.1-04 | Security groups | Security groups assigned to Zone 2/3 environments | PPAC > Environments > {env} > Settings > Security groups | Screenshot |
+
+### Test Procedures
+
+**SSPM-2.1-01: Environment Creation Restriction**
+
+1. Navigate to **PPAC** > **Settings** > **Environment creation**
+2. Verify "Who can create production and sandbox environments" is set to **Only specific admins**
+3. **Pass criteria:** Environment creation is restricted — not set to "Everyone" or "All licensed users"
+4. **Evidence:** Screenshot showing environment creation restriction setting
+
+**SSPM-2.1-02: Environment Routing**
+
+1. Navigate to **PPAC** > **Settings** > **Environment routing**
+2. Verify routing rules are configured to direct new maker environments to managed environments
+3. **Pass criteria:** Routing rules are active and directing new environments per governance policy
+4. **Evidence:** Screenshot showing environment routing configuration with active rules
+
+**SSPM-2.1-03: Tenant Isolation**
+
+1. Navigate to **PPAC** > **Settings** > **Tenant isolation**
+2. Verify tenant isolation is **Enabled**
+3. Review any configured exceptions (allowlisted tenants)
+4. **Pass criteria:** Tenant isolation is enabled; any exceptions are documented and approved
+5. **Evidence:** Screenshot showing tenant isolation toggle and exception list
+
+**SSPM-2.1-04: Security Groups**
+
+1. Navigate to **PPAC** > **Environments** > select a Zone 2 or Zone 3 environment
+2. Open **Settings** > **Security groups** (or check the environment details panel)
+3. Verify a security group is assigned to restrict access
+4. Repeat for each Zone 2/3 environment
+5. **Pass criteria:** All Zone 2 and Zone 3 environments have a security group assigned — not "Open to all"
+6. **Evidence:** Screenshot showing security group assignment for each Zone 2/3 environment
+
+---
+
+*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*
+
 [Back to Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)

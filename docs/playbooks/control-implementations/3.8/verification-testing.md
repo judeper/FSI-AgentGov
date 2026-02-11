@@ -358,4 +358,99 @@ For audits, collect:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+## SSPM Configuration Verification
+
+!!! abstract "Security Posture Assessment Test Cases"
+
+    The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
+
+| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
+|---------|-------------------|-----------------|-------------|----------|
+| SSPM-3.8-01 | AI Prompts toggle | Disabled at tenant level | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-02 | Generative Actions toggle | Disabled at tenant level | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-03 | File Analysis Models | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-04 | Model Knowledge | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-05 | Semantic Search with AI | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-06 | Move Data Across Regions | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-07 | Bing Search | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
+| SSPM-3.8-08 | Transcript access | Restricted to compliance roles | M365 Admin > Copilot > Settings | Screenshot |
+| SSPM-3.8-09 | DLP for publishing | DLP policy enforcement active | PPAC > Policies > Data policies | Screenshot |
+
+### Test Procedures
+
+**SSPM-3.8-01: AI Prompts Toggle**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "AI Prompts" toggle
+3. Verify toggle is set to **Disabled** at the tenant level
+4. **Pass criteria:** AI Prompts toggle is off — makers cannot create AI prompt actions
+5. **Evidence:** Screenshot showing Power Platform Settings page with AI Prompts toggle state
+
+**SSPM-3.8-02: Generative Actions Toggle**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "Generative Actions" toggle
+3. Verify toggle is set to **Disabled** at the tenant level
+4. **Pass criteria:** Generative Actions toggle is off — generative AI actions are not available to makers
+5. **Evidence:** Screenshot showing Power Platform Settings page with Generative Actions toggle state
+
+**SSPM-3.8-03: File Analysis Models**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "File Analysis Models" toggle
+3. Verify toggle is set to **Disabled**
+4. **Pass criteria:** File Analysis Models is disabled — no automated file analysis via AI
+5. **Evidence:** Screenshot showing toggle state
+
+**SSPM-3.8-04: Model Knowledge**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "Model Knowledge" toggle
+3. Verify toggle is set to **Disabled**
+4. **Pass criteria:** Model Knowledge is disabled — agents cannot access general model knowledge
+5. **Evidence:** Screenshot showing toggle state
+
+**SSPM-3.8-05: Semantic Search with AI**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "Semantic Search with AI" toggle
+3. Verify toggle is set to **Disabled**
+4. **Pass criteria:** Semantic Search with AI is disabled — AI-powered search is not active
+5. **Evidence:** Screenshot showing toggle state
+
+**SSPM-3.8-06: Move Data Across Regions**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "Move Data Across Regions" toggle
+3. Verify toggle is set to **Disabled**
+4. **Pass criteria:** Cross-region data movement is disabled — data stays within the configured region
+5. **Evidence:** Screenshot showing toggle state
+
+**SSPM-3.8-07: Bing Search**
+
+1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
+2. Locate "Bing Search" toggle
+3. Verify toggle is set to **Disabled**
+4. **Pass criteria:** Bing Search is disabled — agents cannot query external web data via Bing
+5. **Evidence:** Screenshot showing toggle state
+
+**SSPM-3.8-08: Transcript Access**
+
+1. Navigate to **M365 Admin Center** > **Copilot** > **Settings**
+2. Review transcript access configuration
+3. Verify transcript access is restricted to compliance roles only (not all users or all admins)
+4. **Pass criteria:** Only designated compliance roles can access agent interaction transcripts
+5. **Evidence:** Screenshot showing transcript access control settings with role assignments
+
+**SSPM-3.8-09: DLP for Publishing**
+
+1. Navigate to **PPAC** > **Policies** > **Data policies**
+2. Verify at least one DLP policy is active and applies to the target environments
+3. Verify the policy blocks or restricts high-risk connectors
+4. Confirm DLP enforcement is active for agent publishing (agents cannot publish if they violate DLP)
+5. **Pass criteria:** DLP policy enforcement is active and applies to all governed environments
+6. **Evidence:** Screenshot showing DLP policy list with environment assignments and connector classifications
+
+---
+
+*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*

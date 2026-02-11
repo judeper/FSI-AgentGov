@@ -91,4 +91,55 @@ I attest that:
 
 ---
 
+## SSPM Configuration Verification
+
+!!! abstract "Security Posture Assessment Test Cases"
+
+    The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
+
+| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
+|---------|-------------------|-----------------|-------------|----------|
+| SSPM-1.18-01 | Agent action consent | Enabled for all published agents | PPAC > Environments > Settings > Features | Screenshot |
+| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | PPAC > Environments > Settings > Features | Screenshot |
+| SSPM-1.18-03 | Admin count | < 10 environment-level admins per environment | PPAC > Environments > Settings > Users + permissions > Security roles | Screenshot |
+| SSPM-1.18-04 | RPA admin roles | RPA/service accounts not assigned admin roles | PPAC > Environments > Settings > Users + permissions > Security roles | Screenshot |
+
+### Test Procedures
+
+**SSPM-1.18-01: Agent Action Consent**
+
+1. Navigate to **PPAC** > **Environments** > select environment > **Settings** > **Features**
+2. Locate "Agent action consent" setting
+3. Verify the setting is **Enabled** for all published agents
+4. **Pass criteria:** Agent action consent is enabled, requiring user consent before agent actions execute
+5. **Evidence:** Screenshot showing Features page with agent action consent toggle
+
+**SSPM-1.18-02: Connected Agents**
+
+1. Navigate to **PPAC** > **Environments** > select environment > **Settings** > **Features**
+2. Locate "Connected agents" setting
+3. Verify the setting is **Disabled** or restricted to an approved list of agents
+4. **Pass criteria:** Connected agents are disabled or limited to organization-approved agents only
+5. **Evidence:** Screenshot showing Features page with connected agents configuration
+
+**SSPM-1.18-03: Admin Count**
+
+1. Navigate to **PPAC** > **Environments** > select environment > **Settings** > **Users + permissions** > **Security roles**
+2. Open the "System Administrator" role
+3. Count the number of users assigned to the role
+4. **Pass criteria:** Fewer than 10 environment-level admins per environment
+5. **Evidence:** Screenshot showing security role membership with user count
+
+**SSPM-1.18-04: RPA Admin Roles**
+
+1. Navigate to **PPAC** > **Environments** > select environment > **Settings** > **Users + permissions** > **Security roles**
+2. Review the "System Administrator" and "Environment Admin" roles
+3. Verify no RPA or service accounts are assigned admin-level roles
+4. **Pass criteria:** All admin role members are named individuals — no service principals or RPA accounts
+5. **Evidence:** Screenshot showing admin role assignments with account types identified
+
+---
+
+*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*
+
 [Back to Control 1.18](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)

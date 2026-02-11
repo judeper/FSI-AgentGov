@@ -259,4 +259,36 @@
 
 ---
 
-*Updated: February 2026 | Version: v1.2*
+## SSPM Configuration Verification
+
+!!! abstract "Security Posture Assessment Test Cases"
+
+    The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
+
+| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
+|---------|-------------------|-----------------|-------------|----------|
+| SSPM-1.8-01 | Content moderation level | Set to High for Zone 2/3 agents | Copilot Studio > {Agent} > Settings > Content moderation | Screenshot |
+| SSPM-1.8-02 | Minimum moderation threshold | No agents below Medium without documented risk acceptance | Copilot Studio > {Agent} > Settings > Content moderation | Screenshot |
+
+### Test Procedures
+
+**SSPM-1.8-01: Content Moderation Level**
+
+1. Navigate to **Copilot Studio** > select a Zone 2 or Zone 3 agent > **Settings** > **Content moderation**
+2. Verify content moderation level is set to **High**
+3. Repeat for each Zone 2/3 agent in the environment
+4. **Pass criteria:** All Zone 2 and Zone 3 agents have content moderation set to High
+5. **Evidence:** Screenshot showing content moderation setting for each Zone 2/3 agent
+
+**SSPM-1.8-02: Minimum Moderation Threshold**
+
+1. Navigate to **Copilot Studio** > review all agents across all environments
+2. For each agent, check **Settings** > **Content moderation** level
+3. Identify any agents with moderation level below Medium
+4. If agents below Medium exist, verify documented risk acceptance is on file
+5. **Pass criteria:** No agents have moderation below Medium without a signed risk acceptance document
+6. **Evidence:** Screenshot of each agent's moderation level; risk acceptance documents (if applicable)
+
+---
+
+*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*

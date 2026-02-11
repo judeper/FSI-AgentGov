@@ -62,4 +62,48 @@
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+## SSPM Configuration Verification
+
+!!! abstract "Security Posture Assessment Test Cases"
+
+    The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
+
+| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
+|---------|-------------------|-----------------|-------------|----------|
+| SSPM-1.7-01 | Dataverse environment auditing | Enabled at environment level | PPAC > Environments > {env} > Settings > Audit and logs > Audit settings | Screenshot |
+| SSPM-1.7-02 | Audit log retention period | ≥ 180d (Zone 1), ≥ 365d (Zone 2), ≥ 730d (Zone 3) | PPAC > Environments > {env} > Settings > Audit and logs > Audit settings | Screenshot |
+| SSPM-1.7-03 | Tenant-level Dataverse auditing | Enabled with User Sign-In and Activity logging | M365 Admin > Settings > Org Settings > Auditing | Screenshot |
+
+### Test Procedures
+
+**SSPM-1.7-01: Dataverse Environment Auditing**
+
+1. Navigate to **PPAC** > **Environments** > select target environment > **Settings** > **Audit and logs** > **Audit settings**
+2. Verify "Start Auditing" is enabled
+3. Verify "Log access" and "Read logs" checkboxes are enabled
+4. **Pass criteria:** Auditing is enabled at the environment level with access logging active
+5. **Evidence:** Screenshot showing audit settings page with all toggles enabled
+
+**SSPM-1.7-02: Audit Log Retention Period**
+
+1. Navigate to **PPAC** > **Environments** > select target environment > **Settings** > **Audit and logs** > **Audit settings**
+2. Check the configured retention period
+3. Verify retention meets zone requirements:
+    - Zone 1 (Personal Productivity): ≥ 180 days
+    - Zone 2 (Team Collaboration): ≥ 365 days
+    - Zone 3 (Enterprise Managed): ≥ 730 days
+4. **Pass criteria:** Retention period meets or exceeds the zone-specific minimum
+5. **Evidence:** Screenshot showing retention configuration with zone classification documented
+
+**SSPM-1.7-03: Tenant-Level Dataverse Auditing**
+
+1. Navigate to **M365 Admin Center** > **Settings** > **Org Settings** > **Auditing**
+2. Verify unified audit logging is enabled
+3. Verify "User Sign-In Activity" logging is active
+4. Verify "Activity" logging is active
+5. **Pass criteria:** Tenant-level auditing is enabled with both sign-in and activity logging active
+6. **Evidence:** Screenshot showing Org Settings auditing page with all logging options enabled
+
+---
+
+*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*

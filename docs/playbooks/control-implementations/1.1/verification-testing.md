@@ -154,4 +154,69 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 
 ---
 
+## SSPM Configuration Verification
+
+!!! abstract "Security Posture Assessment Test Cases"
+
+    The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
+
+| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
+|---------|-------------------|-----------------|-------------|----------|
+| SSPM-1.1-01 | Agent authentication mode | Not set to "No Authentication" | Copilot Studio > Settings > Security > Authentication | Screenshot |
+| SSPM-1.1-02 | Manual auth sign-in requirement | "Require users to sign in" enabled | Copilot Studio > Settings > Security > Authentication | Screenshot |
+| SSPM-1.1-03 | Authentication enforcement | Set to "Always" | Copilot Studio > Settings > Security > Authentication | Screenshot |
+| SSPM-1.1-04 | Sharing scope | Not set to "Anyone with the link" | Copilot Studio > Settings > Security > Authentication | Screenshot |
+| SSPM-1.1-05 | AI feature publishing | "Publish bots with AI features" disabled | PPAC > Environments > Settings > Features | Screenshot |
+| SSPM-1.1-06 | Unapproved agent blocking | Unapproved agents blocked from Teams channels | Teams Admin Center > Manage Apps | Screenshot |
+
+### Test Procedures
+
+**SSPM-1.1-01: Agent Authentication Mode**
+
+1. Navigate to **Copilot Studio** > select agent > **Settings** > **Security** > **Authentication**
+2. Verify authentication mode is NOT set to "No Authentication"
+3. **Pass criteria:** Authentication is set to "Authenticate with Microsoft" or "Authenticate manually"
+4. **Evidence:** Screenshot showing authentication configuration panel
+
+**SSPM-1.1-02: Manual Auth Sign-In Requirement**
+
+1. Navigate to **Copilot Studio** > select agent > **Settings** > **Security** > **Authentication**
+2. For agents using manual authentication, verify "Require users to sign in" is enabled
+3. **Pass criteria:** Sign-in toggle is enabled for all manually-authenticated agents
+4. **Evidence:** Screenshot showing sign-in requirement toggle
+
+**SSPM-1.1-03: Authentication Enforcement**
+
+1. Navigate to **Copilot Studio** > select agent > **Settings** > **Security** > **Authentication**
+2. Verify authentication enforcement is set to "Always"
+3. **Pass criteria:** Enforcement is "Always" — not "Optional" or "None"
+4. **Evidence:** Screenshot showing enforcement setting
+
+**SSPM-1.1-04: Sharing Scope**
+
+1. Navigate to **Copilot Studio** > select agent > **Settings** > **Security** > **Authentication**
+2. Verify sharing scope is NOT set to "Anyone with the link"
+3. **Pass criteria:** Sharing is restricted to specific users or security groups
+4. **Evidence:** Screenshot showing sharing scope configuration
+
+**SSPM-1.1-05: AI Feature Publishing**
+
+1. Navigate to **PPAC** > **Environments** > select environment > **Settings** > **Features**
+2. Locate "Publish bots with AI features" toggle
+3. Verify toggle is set to **Off** (disabled)
+4. **Pass criteria:** AI feature publishing is disabled at environment level
+5. **Evidence:** Screenshot showing Features page with toggle state
+
+**SSPM-1.1-06: Unapproved Agent Blocking**
+
+1. Navigate to **Teams Admin Center** > **Manage Apps**
+2. Search for any unapproved Copilot Studio agents
+3. Verify unapproved agents are blocked from Teams channels
+4. **Pass criteria:** Only approved agents are available in Teams; unapproved agents show "Blocked" status
+5. **Evidence:** Screenshot showing app management page with agent status
+
+---
+
+*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*
+
 [Back to Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
