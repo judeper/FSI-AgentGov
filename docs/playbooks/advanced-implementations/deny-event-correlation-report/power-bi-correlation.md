@@ -6,64 +6,59 @@
 
 ## Overview
 
-This guide describes the Power BI data model and dashboard for correlating deny events across three sources: Purview CopilotInteraction, Purview DLP, and Application Insights RAI telemetry.
+This guide describes the Power BI data model and dashboard for visualizing deny event correlations across three sources: Purview CopilotInteraction, Purview DLP, and Application Insights RAI telemetry. The v2.0 data model connects to **Dataverse** tables (`fsi_denyevents`, `fsi_denycorrelations`, `fsi_denyalerts`) as the primary data source.
 
 ---
 
 ## Data Model Architecture
 
-### Source Tables
+### Dataverse Tables
 
 ```mermaid
 erDiagram
-    CopilotDenyEvents {
-        datetime Timestamp
-        string UserId
-        string AgentId
-        string AgentName
-        string DenyReason
-        string AppHost
+    fsi_denyevents {
+        uniqueidentifier fsi_deny_event_id PK
+        datetime fsi_event_timestamp
+        string fsi_agent_id
+        string fsi_session_id
+        string fsi_filter_reason
+        string fsi_filter_category
+        picklist fsi_filter_severity
+        picklist fsi_zone
+        string fsi_source_type
     }
 
-    DlpCopilotEvents {
-        datetime Timestamp
-        string UserId
-        string PolicyNames
-        string SensitiveInfoTypes
-        string Actions
-        string Severity
+    fsi_denycorrelations {
+        uniqueidentifier fsi_deny_correlation_id PK
+        datetime fsi_correlation_date
+        string fsi_agent_id
+        picklist fsi_zone
+        integer fsi_event_count
+        memo fsi_severity_distribution_json
+        memo fsi_trend_7day_json
     }
 
-    RaiTelemetry {
-        datetime Timestamp
-        string AgentId
-        string SessionId
-        string FilterReason
-        string FilterCategory
-        string FilterSeverity
+    fsi_denyalerts {
+        uniqueidentifier fsi_deny_alert_id PK
+        string fsi_alert_type
+        picklist fsi_alert_severity
+        string fsi_agent_id
+        picklist fsi_zone
+        datetime fsi_alert_timestamp
+        boolean fsi_acknowledged
     }
 
-    DenyEventCorrelation {
-        string CorrelationId
-        datetime PrimaryTimestamp
-        string UserId
-        string AgentId
-        string PrimarySource
-        string EventCategory
-    }
-
-    CopilotDenyEvents ||--o{ DenyEventCorrelation : correlates
-    DlpCopilotEvents ||--o{ DenyEventCorrelation : correlates
-    RaiTelemetry ||--o{ DenyEventCorrelation : correlates
+    fsi_denyevents ||--o{ fsi_denycorrelations : "grouped by agent+zone"
+    fsi_denycorrelations ||--o{ fsi_denyalerts : "triggers alerts"
 ```
 
-### Correlation Table
+### Correlation Logic
 
-The `DenyEventCorrelation` table joins events using:
+The `fsi_denycorrelations` table provides pre-computed daily summaries grouped by:
 
-1. **UserId** - Primary key for Purview events
-2. **AgentId** - Link between Purview and RAI telemetry
-3. **Timestamp window** - ±5 minutes for related events
+1. **AgentId** — Groups events per Copilot Studio agent
+2. **Zone** — Governance zone classification (Zone 1/2/3)
+3. **Time window** — Configurable correlation window (default 24 hours)
 
 ---
 
@@ -73,9 +68,9 @@ The `DenyEventCorrelation` table joins events using:
 
 | Source | Connection Type | Refresh Method |
 |--------|-----------------|----------------|
-| CopilotDenyEvents.csv | File/Blob | Daily scheduled |
-| DlpCopilotEvents.csv | File/Blob | Daily scheduled |
-| RaiTelemetry.csv | File/Blob | Daily scheduled |
+| fsi_denyevents (Dataverse) | Dataverse connector | Daily scheduled |
+| fsi_denycorrelations (Dataverse) | Dataverse connector | Daily scheduled |
+| fsi_denyalerts (Dataverse) | Dataverse connector | Daily scheduled |
 
 ### Recommended Refresh Schedule
 
@@ -92,9 +87,7 @@ The `DenyEventCorrelation` table joins events using:
 
 ```dax
 Total Deny Events =
-    COUNTROWS(CopilotDenyEvents) +
-    COUNTROWS(DlpCopilotEvents) +
-    COUNTROWS(RaiTelemetry)
+    COUNTROWS(fsi_denyevents)
 ```
 
 ### Deny Events by Category
@@ -102,25 +95,49 @@ Total Deny Events =
 ```dax
 Policy Block Count =
     CALCULATE(
-        COUNTROWS(CopilotDenyEvents),
-        CONTAINSSTRING(CopilotDenyEvents[DenyReason], "PolicyBlock")
+        COUNTROWS(fsi_denyevents),
+        CONTAINSSTRING(fsi_denyevents[fsi_filter_category], "PolicyViolation")
     )
 
 XPIA Count =
     CALCULATE(
-        COUNTROWS(CopilotDenyEvents),
-        CONTAINSSTRING(CopilotDenyEvents[DenyReason], "XPIA")
+        COUNTROWS(fsi_denyevents),
+        CONTAINSSTRING(fsi_denyevents[fsi_filter_category], "XPIA")
     )
 
 Jailbreak Count =
     CALCULATE(
-        COUNTROWS(CopilotDenyEvents),
-        CONTAINSSTRING(CopilotDenyEvents[DenyReason], "Jailbreak")
+        COUNTROWS(fsi_denyevents),
+        CONTAINSSTRING(fsi_denyevents[fsi_filter_category], "Jailbreak")
     )
 
-RAI Filter Count = COUNTROWS(RaiTelemetry)
+Content Safety Count =
+    CALCULATE(
+        COUNTROWS(fsi_denyevents),
+        CONTAINSSTRING(fsi_denyevents[fsi_filter_category], "ContentSafety")
+    )
+```
 
-DLP Match Count = COUNTROWS(DlpCopilotEvents)
+### Events by Source Type
+
+```dax
+Purview Audit Count =
+    CALCULATE(
+        COUNTROWS(fsi_denyevents),
+        fsi_denyevents[fsi_source_type] = "PurviewAudit"
+    )
+
+Purview DLP Count =
+    CALCULATE(
+        COUNTROWS(fsi_denyevents),
+        fsi_denyevents[fsi_source_type] = "PurviewDlp"
+    )
+
+RAI Telemetry Count =
+    CALCULATE(
+        COUNTROWS(fsi_denyevents),
+        fsi_denyevents[fsi_source_type] = "RaiTelemetry"
+    )
 ```
 
 ### Daily Trend
@@ -130,20 +147,28 @@ Daily Deny Trend =
     CALCULATE(
         [Total Deny Events],
         DATESINPERIOD(
-            'Date'[Date],
-            MAX('Date'[Date]),
+            fsi_denyevents[fsi_event_timestamp],
+            MAX(fsi_denyevents[fsi_event_timestamp]),
             -30,
             DAY
         )
     )
 ```
 
-### High Severity Count
+### High Severity Events
 
 ```dax
 High Severity Events =
-    CALCULATE(COUNTROWS(DlpCopilotEvents), DlpCopilotEvents[Severity] = "High") +
-    CALCULATE(COUNTROWS(RaiTelemetry), RaiTelemetry[FilterSeverity] = "High")
+    CALCULATE(
+        COUNTROWS(fsi_denyevents),
+        fsi_denyevents[fsi_filter_severity] = 4
+    ) -- fsi_acv_severity value 4 = Failed
+
+Active Alerts =
+    CALCULATE(
+        COUNTROWS(fsi_denyalerts),
+        fsi_denyalerts[fsi_acknowledged] = FALSE()
+    )
 ```
 
 ---
@@ -155,34 +180,36 @@ High Severity Events =
 | Visual | Data | Purpose |
 |--------|------|---------|
 | **KPI Card** | Total Deny Events (24h) | Quick health check |
-| **KPI Card** | High Severity Count | Immediate attention items |
-| **Pie Chart** | Events by Category | Distribution overview |
+| **KPI Card** | High Severity Events | Immediate attention items |
+| **KPI Card** | Active Alerts | Unacknowledged alert count |
+| **Pie Chart** | Events by Source Type | Distribution across PurviewAudit, PurviewDlp, RaiTelemetry |
 | **Line Chart** | Daily Trend (30 days) | Pattern identification |
 
 ### Page 2: Event Details
 
 | Visual | Data | Purpose |
 |--------|------|---------|
-| **Table** | All deny events (sortable) | Drill-down investigation |
-| **Bar Chart** | Events by Agent | Identify problematic agents |
-| **Bar Chart** | Events by User | Identify user patterns |
-| **Slicer** | Date range, Event type, Severity | Filtering |
+| **Table** | `fsi_denyevents` (sortable) | Drill-down investigation |
+| **Bar Chart** | Events by Agent (`fsi_agent_id`) | Identify problematic agents |
+| **Bar Chart** | Events by Zone | Zone-level distribution |
+| **Slicer** | Date range, Source type, Severity, Zone | Filtering |
 
 ### Page 3: Correlation Analysis
 
 | Visual | Data | Purpose |
 |--------|------|---------|
-| **Matrix** | UserId × Event Source | Multi-source correlation |
-| **Scatter Plot** | Timestamp vs Events | Temporal clustering |
-| **Table** | Correlated event groups | Related event investigation |
+| **Matrix** | Agent × Zone event counts | Multi-zone correlation |
+| **Line Chart** | 7-day trend per agent (from `fsi_trend_7day_json`) | Trend direction |
+| **Table** | `fsi_denycorrelations` summaries | Daily correlation review |
 
-### Page 4: Policy Effectiveness
+### Page 4: Alerts and Policy Effectiveness
 
 | Visual | Data | Purpose |
 |--------|------|---------|
-| **Bar Chart** | DLP policies triggered | Policy utilization |
-| **Table** | SITs detected with counts | Data exposure patterns |
-| **KPI Card** | Override rate | Policy friction measure |
+| **Table** | `fsi_denyalerts` (active) | Unacknowledged alerts |
+| **Bar Chart** | Alert type distribution | Volume anomaly vs new agent vs zone critical |
+| **KPI Card** | Alert acknowledgment rate | Operational responsiveness |
+| **Bar Chart** | Events by filter category | Policy effectiveness overview |
 
 ---
 
@@ -211,55 +238,102 @@ Action 3: Send email to Security Operations
 
 ## Power Query Transformations
 
-### CopilotDenyEvents Transformation
+### Deny Events Query (Dataverse)
 
 ```powerquery
 let
-    Source = Csv.Document(File.Contents("CopilotDenyEvents.csv")),
-    PromotedHeaders = Table.PromoteHeaders(Source),
-    ChangedTypes = Table.TransformColumnTypes(PromotedHeaders, {
-        {"Timestamp", type datetime},
-        {"UserId", type text},
-        {"AgentId", type text},
-        {"AgentName", type text},
-        {"DenyReason", type text},
-        {"AppHost", type text}
+    Source = CommonDataService.Database("https://your-org.crm.dynamics.com"),
+    DenyEvents = Source{[Name="fsi_denyevents"]}[Data],
+    SelectedColumns = Table.SelectColumns(DenyEvents, {
+        "fsi_deny_event_id", "fsi_event_timestamp", "fsi_agent_id",
+        "fsi_session_id", "fsi_filter_reason", "fsi_filter_category",
+        "fsi_filter_severity", "fsi_zone", "fsi_source_type"
     }),
-    AddedEventSource = Table.AddColumn(ChangedTypes, "EventSource", each "CopilotInteraction"),
-    AddedCategory = Table.AddColumn(AddedEventSource, "Category", each
-        if Text.Contains([DenyReason], "PolicyBlock") then "Policy Block"
-        else if Text.Contains([DenyReason], "XPIA") then "XPIA Detection"
-        else if Text.Contains([DenyReason], "Jailbreak") then "Jailbreak Attempt"
-        else "Resource Failure"
-    )
-in
-    AddedCategory
-```
-
-### Correlation Query
-
-```powerquery
-let
-    // Combine all events
-    AllEvents = Table.Combine({
-        Table.SelectColumns(CopilotDenyEvents, {"Timestamp", "UserId", "AgentId", "Category"}),
-        Table.SelectColumns(DlpCopilotEvents, {"Timestamp", "UserId", "Category"}),
-        Table.SelectColumns(RaiTelemetry, {"timestamp", "agentId", "filterCategory"})
+    RenamedColumns = Table.RenameColumns(SelectedColumns, {
+        {"fsi_event_timestamp", "Timestamp"},
+        {"fsi_agent_id", "AgentId"},
+        {"fsi_filter_reason", "DenyReason"},
+        {"fsi_filter_category", "Category"},
+        {"fsi_source_type", "SourceType"},
+        {"fsi_filter_severity", "Severity"},
+        {"fsi_zone", "Zone"}
     }),
-
-    // Add correlation window (round to 5-minute buckets)
-    AddedWindow = Table.AddColumn(AllEvents, "CorrelationWindow", each
-        DateTime.From(Number.RoundDown(Number.From([Timestamp]) * 288) / 288)
-    ),
-
-    // Group by user and window
-    Grouped = Table.Group(AddedWindow, {"UserId", "CorrelationWindow"}, {
-        {"Events", each _, type table},
-        {"EventCount", each Table.RowCount(_), Int64.Type}
+    TypedColumns = Table.TransformColumnTypes(RenamedColumns, {
+        {"Timestamp", type datetimezone}
     })
 in
-    Grouped
+    TypedColumns
 ```
+
+### Correlations Query (Dataverse)
+
+```powerquery
+let
+    Source = CommonDataService.Database("https://your-org.crm.dynamics.com"),
+    Correlations = Source{[Name="fsi_denycorrelations"]}[Data],
+    SelectedColumns = Table.SelectColumns(Correlations, {
+        "fsi_deny_correlation_id", "fsi_correlation_date", "fsi_agent_id",
+        "fsi_zone", "fsi_event_count", "fsi_severity_distribution_json",
+        "fsi_trend_7day_json"
+    }),
+    RenamedColumns = Table.RenameColumns(SelectedColumns, {
+        {"fsi_correlation_date", "CorrelationDate"},
+        {"fsi_agent_id", "AgentId"},
+        {"fsi_event_count", "EventCount"},
+        {"fsi_zone", "Zone"}
+    }),
+    // Parse trend JSON for 7-day direction
+    AddedTrendDirection = Table.AddColumn(RenamedColumns, "TrendDirection", each
+        try Json.Document([fsi_trend_7day_json])[Direction] otherwise "Unknown"
+    )
+in
+    AddedTrendDirection
+```
+
+### Alerts Query (Dataverse)
+
+```powerquery
+let
+    Source = CommonDataService.Database("https://your-org.crm.dynamics.com"),
+    Alerts = Source{[Name="fsi_denyalerts"]}[Data],
+    SelectedColumns = Table.SelectColumns(Alerts, {
+        "fsi_deny_alert_id", "fsi_alert_type", "fsi_alert_severity",
+        "fsi_agent_id", "fsi_zone", "fsi_alert_timestamp",
+        "fsi_alert_message", "fsi_acknowledged"
+    }),
+    RenamedColumns = Table.RenameColumns(SelectedColumns, {
+        {"fsi_alert_type", "AlertType"},
+        {"fsi_alert_severity", "Severity"},
+        {"fsi_agent_id", "AgentId"},
+        {"fsi_zone", "Zone"},
+        {"fsi_alert_timestamp", "AlertTimestamp"},
+        {"fsi_alert_message", "Message"},
+        {"fsi_acknowledged", "Acknowledged"}
+    })
+in
+    RenamedColumns
+```
+
+### Legacy Alternative: CSV Data Sources
+
+If your organization has not yet deployed the Dataverse schema, you can use CSV file exports as an interim data source. The extraction scripts support file export via the `-OutputPath` and `-OutputFormat` parameters.
+
+```powerquery
+// Example: CSV-based deny events (legacy)
+let
+    Source = Csv.Document(
+        File.Contents("C:\Reports\CopilotDenyEvents-2026-02-10.csv"),
+        [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]
+    ),
+    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+in
+    PromotedHeaders
+```
+
+!!! note "CSV Limitations"
+    CSV data sources do not support incremental refresh, cross-table
+    relationships, or automatic correlation summaries. Migrate to the
+    Dataverse connector for the full DEC experience.
 
 ---
 
@@ -269,20 +343,19 @@ in
 
 1. Download `DenyEventCorrelation.pbit` from FSI-AgentGov-Solutions
 2. Open in Power BI Desktop
-3. Configure data source paths:
-   - CopilotDenyEvents.csv location
-   - DlpCopilotEvents.csv location
-   - RaiTelemetry.csv location
-4. Refresh data
-5. Publish to Power BI Service
+3. Configure Dataverse connection:
+   - Dataverse Environment URL: `https://your-org.crm.dynamics.com`
+4. Authenticate with organizational account (Entra ID)
+5. Refresh data
+6. Publish to Power BI Service
 
-### Data Source Options
+### Data Source Configuration
 
-| Storage | Connection String |
-|---------|-------------------|
-| Local folder | `C:\DenyReports\` |
-| SharePoint | `https://contoso.sharepoint.com/sites/compliance/deny-reports/` |
-| Azure Blob | `https://contoso.blob.core.windows.net/deny-events/` |
+| Setting | Value |
+|---------|-------|
+| Connector | Dataverse |
+| Environment URL | `https://your-org.crm.dynamics.com` |
+| Authentication | Organizational account (Entra ID) |
 
 ---
 
@@ -317,4 +390,4 @@ The deny event data may contain:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.38 - February 2026*

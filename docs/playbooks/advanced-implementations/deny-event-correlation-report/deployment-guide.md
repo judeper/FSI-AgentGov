@@ -6,7 +6,7 @@
 
 ## Overview
 
-This guide provides end-to-end deployment instructions for the deny event correlation solution across your environment.
+This guide provides end-to-end deployment instructions for the Deny Event Correlation (DEC) solution v2.0. The v2.0 architecture uses Microsoft Dataverse as the central data store, replacing the v1.x Azure Blob Storage approach with a unified Power Platform data layer.
 
 ---
 
@@ -17,29 +17,37 @@ flowchart TB
     subgraph Prerequisites
         M365[M365 E5 License]
         PBI[Power BI Pro/Premium]
-        AZURE[Azure Subscription]
+        PP[Power Platform Environment]
     end
 
-    subgraph Phase1[Phase 1: Infrastructure]
-        STORAGE[Azure Blob Storage]
-        APPINS[Application Insights]
-        KEYVAULT[Azure Key Vault]
+    subgraph Phase1[Phase 1: Dataverse Schema]
+        SCHEMA[Deploy Tables via deploy.py]
+        CONNREF[Connection References]
+        ENVVAR[Environment Variables]
     end
 
     subgraph Phase2[Phase 2: Extraction]
         RUNBOOK[Azure Automation Runbook]
+        DECCLIENT[DECClient Module]
         SCHEDULE[Daily Schedule]
     end
 
-    subgraph Phase3[Phase 3: Reporting]
-        PBIWS[Power BI Workspace]
-        DATASET[Dataset + Refresh]
-        REPORT[Dashboard]
+    subgraph Phase3[Phase 3: Orchestration]
+        FLOW[Power Automate Flow Import]
+        FLOWCFG[Connection Binding]
+        FLOWTEST[Flow Validation]
+    end
+
+    subgraph Phase4[Phase 4: Alerting]
+        TEAMS[Teams Channel Config]
+        EMAIL[Email Notification]
+        ADAPTIVE[Adaptive Card Alerts]
     end
 
     Prerequisites --> Phase1
     Phase1 --> Phase2
     Phase2 --> Phase3
+    Phase3 --> Phase4
 ```
 
 ---
@@ -50,14 +58,15 @@ flowchart TB
 
 - [ ] Microsoft 365 E5 or E5 Compliance (for Audit Premium)
 - [ ] Power BI Pro (per-user) or Power BI Premium (capacity)
-- [ ] Azure subscription (for storage and automation)
+- [ ] Power Platform environment with Dataverse database provisioned
 
 ### Permissions
 
 | Task | Required Role |
 |------|---------------|
 | Search-UnifiedAuditLog | Purview Audit Reader or Purview Compliance Admin |
-| Application Insights API | Reader role on App Insights resource |
+| Application Insights API | Monitoring Reader on App Insights resource |
+| Dataverse table deployment | System Administrator or System Customizer on the target environment |
 | Azure Automation | Automation Contributor |
 | Power BI publish | Workspace Contributor or Admin |
 
@@ -67,46 +76,63 @@ Create a dedicated Entra ID App Registration for automated extraction:
 
 1. Create App Registration in **Entra ID** > **App registrations**
 2. Add API permission: **Office 365 Exchange Online** > **Application** > `Exchange.ManageAsApp`
-3. Grant admin consent (tenant admin)
-4. Assign Entra role: **Purview Audit Reader**
-5. Create a client secret or upload a certificate
-6. Store credentials in Azure Key Vault
+3. Add API permission: **Dataverse** > **Application** > `user_impersonation`
+4. Grant admin consent (tenant admin)
+5. Assign Entra role: **Purview Audit Reader**
+6. Create a client secret or upload a certificate
+7. Store credentials in Azure Key Vault
 
 ---
 
-## Phase 1: Infrastructure Setup
+## Phase 1: Dataverse Schema Deployment
 
-### Step 1.1: Create Azure Storage Account
+### Step 1.1: Run the Schema Deployment Script
 
-```powershell
-# Create resource group
-az group create --name rg-fsi-governance --location eastus
+The `deploy.py` script creates four Dataverse tables, shared option sets, connection references, and environment variables.
 
-# Create storage account
-az storage account create `
-    --name stfsigovernance `
-    --resource-group rg-fsi-governance `
-    --location eastus `
-    --sku Standard_LRS `
-    --kind StorageV2
+```bash
+# From the repository root
+cd maintainers-local/solutions-staging/deny-event-correlation-report
 
-# Create container for deny events
-az storage container create `
-    --name deny-events `
-    --account-name stfsigovernance
+# Install Python dependencies
+pip install -r requirements.txt
 
-# Enable immutable storage (for SEC 17a-4)
-az storage container immutability-policy create `
-    --resource-group rg-fsi-governance `
-    --account-name stfsigovernance `
-    --container-name deny-events `
-    --period 2555  # 7 years in days
+# Deploy schema to target environment
+python deploy.py \
+    --environment-url https://your-org.crm.dynamics.com \
+    --tenant-id <tenant-guid> \
+    --client-id <app-registration-client-id>
 ```
 
-### Step 1.2: Create Azure Key Vault
+The script creates:
+
+| Table | Description |
+|-------|-------------|
+| `fsi_DenyEvent` | Raw deny events from all three sources |
+| `fsi_DenyCorrelation` | Correlated event groups |
+| `fsi_DenyAlert` | Generated alerts from correlation patterns |
+| `fsi_DenyValidationHistory` | Validation and extraction audit trail |
+
+### Step 1.2: Verify Deployed Schema
+
+1. Navigate to **Power Apps** > **Tables** in your target environment
+2. Confirm all four tables are present with `fsi_` prefix
+3. Check that option sets `fsi_acv_zone` (0-3) and `fsi_acv_severity` (1-5) exist
+
+### Step 1.3: Configure Environment Variables
+
+Set these environment variables in the Power Platform environment:
+
+| Variable | Example Value | Purpose |
+|----------|---------------|---------|
+| `DEC_DataverseUrl` | `https://your-org.crm.dynamics.com` | Dataverse endpoint |
+| `DEC_TenantId` | `<tenant-guid>` | Entra ID tenant |
+| `DEC_KeyVaultName` | `kv-fsi-governance` | Azure Key Vault for credentials |
+
+### Step 1.4: Create Azure Key Vault
 
 ```powershell
-# Create Key Vault
+# Create Key Vault (if not already provisioned)
 az keyvault create `
     --name kv-fsi-governance `
     --resource-group rg-fsi-governance `
@@ -126,25 +152,9 @@ az keyvault secret set `
 ```
 
 !!! warning "No Hardcoded Credentials"
-    Never store user passwords or API keys directly in scripts. All credentials must be retrieved from Azure Key Vault at runtime using `Get-AzKeyVaultSecret`. The `ConvertTo-SecureString -AsPlainText -Force` pattern is prohibited — use `PSCredential` constructed from Key Vault `SecretValue` instead.
+    Never store user passwords or API keys directly in scripts. All credentials must be retrieved from Azure Key Vault at runtime using `Get-AzKeyVaultSecret`.
 
-### Key Vault Prerequisites
-
-The following secrets must be configured in Azure Key Vault before running extraction scripts:
-
-| Secret Name | Purpose | When Required |
-|-------------|---------|---------------|
-| `sp-exchangeonline` | Exchange Online App Registration client secret | When not using certificate auth |
-| `sp-appinsights` | Application Insights service principal client secret | Always (for RAI telemetry) |
-
-**Required RBAC roles on the Key Vault:**
-
-| Role | Assigned To | Purpose |
-|------|-------------|---------|
-| Key Vault Secrets User | Automation service principal | Read secrets at runtime |
-| Key Vault Administrator | Governance admin | Manage secret lifecycle |
-
-### Step 1.3: Configure Application Insights
+### Step 1.5: Configure Application Insights
 
 For each Zone 2/3 Copilot Studio agent:
 
@@ -170,7 +180,6 @@ az automation account create `
 # Import required modules
 $modules = @(
     "ExchangeOnlineManagement",
-    "Az.Storage",
     "Az.KeyVault",
     "Az.Accounts"
 )
@@ -195,7 +204,7 @@ Upload the `DECClient.psm1` shared module to the Automation Account:
 
 ### Step 2.3: Create Orchestration Runbook
 
-Create runbook `Invoke-DailyDenyReport`:
+The orchestration runbook runs all three extraction scripts and writes results to Dataverse via the DECClient module:
 
 ```powershell
 #Requires -Version 7.0
@@ -203,96 +212,61 @@ Create runbook `Invoke-DailyDenyReport`:
 
 <#
 .SYNOPSIS
-    Daily orchestration for deny event extraction.
+    Daily orchestration for deny event extraction and Dataverse ingestion.
 .DESCRIPTION
-    Runs all three extraction scripts using Entra ID service principal
-    authentication via DECClient module. Credentials retrieved from Azure
-    Key Vault — no hardcoded secrets. Uploads results to blob storage.
+    Runs all three extraction scripts (CopilotInteraction, DLP, RAI) using
+    Entra ID service principal authentication via DECClient module. Events
+    are written directly to Dataverse tables.
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$TenantId,
-    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$ClientId,
-    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$KeyVaultName,
-    [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$AppInsightsAppId,
-    [ValidateNotNullOrEmpty()][string]$AppInsightsSecretName = 'sp-appinsights',
-    [ValidateNotNullOrEmpty()][string]$CertificateThumbprint,
-    [ValidateNotNullOrEmpty()][string]$StorageAccountName = "stfsigovernance",
-    [ValidateNotNullOrEmpty()][string]$ContainerName = "deny-events",
-    [ValidateRange(1, 90)][int]$DaysBack = 1,
-    [ValidateSet('CSV','JSON')][string]$OutputFormat = 'CSV',
+    [Parameter(Mandatory)][string]$TenantId,
+    [Parameter(Mandatory)][string]$ClientId,
+    [Parameter(Mandatory)][string]$KeyVaultName,
+    [Parameter(Mandatory)][string]$DataverseEnvironmentUrl,
+    [Parameter(Mandatory)][string]$AppInsightsAppId,
+    [string]$AppInsightsSecretName = 'sp-appinsights',
+    [string]$CertificateThumbprint,
+    [ValidateSet('1','2','3')][string]$Zone,
+    [int]$DaysBack = 1,
     [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
-
-# Import shared authentication module
 Import-Module "$PSScriptRoot/private/DECClient.psm1" -Force
 
-# Validate connections via DECClient
-$connectParams = @{
+# Common parameters for all extraction scripts
+$commonParams = @{
     TenantId     = $TenantId
     ClientId     = $ClientId
     KeyVaultName = $KeyVaultName
-    Services     = @('ExchangeOnline', 'AppInsights')
-    DryRun       = $DryRun
+    DaysBack     = $DaysBack
+    WriteToDataverse       = $true
+    DataverseEnvironmentUrl = $DataverseEnvironmentUrl
 }
-if ($CertificateThumbprint) {
-    $connectParams['CertificateThumbprint'] = $CertificateThumbprint
-}
-$connectResult = Connect-DECServices @connectParams
+if ($Zone) { $commonParams['Zone'] = $Zone }
+if ($CertificateThumbprint) { $commonParams['CertificateThumbprint'] = $CertificateThumbprint }
 
-if ($DryRun) {
-    Write-Output "[DryRun] Validation complete. Errors: $($connectResult.Errors.Count)"
-    return
-}
-
-# Date range and output setup
-$dateStamp = (Get-Date).AddDays(-$DaysBack).ToString("yyyy-MM-dd")
-$ext = if ($OutputFormat -eq 'JSON') { 'json' } else { 'csv' }
-$tempDir = Join-Path $env:TEMP "DenyReport-$dateStamp"
-New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-
-# Run extraction scripts
+# Run extraction scripts — events written directly to Dataverse
 Write-Output "Extracting CopilotInteraction deny events..."
-& .\Export-CopilotDenyEvents.ps1 -TenantId $TenantId -ClientId $ClientId `
-    -KeyVaultName $KeyVaultName -DaysBack $DaysBack `
-    -OutputPath "$tempDir\CopilotDenyEvents-$dateStamp.$ext" `
-    -OutputFormat $OutputFormat
+& .\Export-CopilotDenyEvents.ps1 @commonParams
 
 Write-Output "Extracting DLP events..."
-& .\Export-DlpCopilotEvents.ps1 -TenantId $TenantId -ClientId $ClientId `
-    -KeyVaultName $KeyVaultName -DaysBack $DaysBack `
-    -OutputPath "$tempDir\DlpCopilotEvents-$dateStamp.$ext" `
-    -OutputFormat $OutputFormat
+& .\Export-DlpCopilotEvents.ps1 @commonParams
 
 Write-Output "Extracting RAI telemetry..."
+$raiParams = $commonParams.Clone()
+$raiParams.Remove('TenantId') # RAI uses AppInsightsAppId instead
 & .\Export-RaiTelemetry.ps1 -AppInsightsAppId $AppInsightsAppId `
-    -TenantId $TenantId -ClientId $ClientId `
-    -KeyVaultName $KeyVaultName -SecretName $AppInsightsSecretName `
-    -DaysBack $DaysBack `
-    -OutputPath "$tempDir\RaiTelemetry-$dateStamp.$ext" `
-    -OutputFormat $OutputFormat
+    -SecretName $AppInsightsSecretName @raiParams
 
-# Upload to blob storage
-$storageContext = New-AzStorageContext -StorageAccountName $StorageAccountName `
-    -UseConnectedAccount
+# Run correlation engine
+Write-Output "Running deny event correlation..."
+& .\Invoke-DenyEventCorrelation.ps1 -DataverseEnvironmentUrl $DataverseEnvironmentUrl `
+    -TenantId $TenantId -ClientId $ClientId -KeyVaultName $KeyVaultName
 
-Get-ChildItem $tempDir -Filter "*.$ext" | ForEach-Object {
-    Set-AzStorageBlobContent `
-        -File $_.FullName `
-        -Container $ContainerName `
-        -Blob "$dateStamp/$($_.Name)" `
-        -Context $storageContext `
-        -Force
-    Write-Output "Uploaded: $($_.Name)"
-}
-
-# Cleanup
 Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
-Remove-Item $tempDir -Recurse -Force
-
-Write-Output "Daily deny report complete for $dateStamp"
+Write-Output "Daily deny report complete."
 ```
 
 ### Step 2.4: Schedule Runbook
@@ -305,7 +279,7 @@ az automation schedule create `
     --name "DailyDenyReport" `
     --frequency Day `
     --interval 1 `
-    --start-time "2026-01-27T06:00:00Z"
+    --start-time "2026-02-15T06:00:00Z"
 
 # Link schedule to runbook
 az automation job schedule create `
@@ -317,38 +291,98 @@ az automation job schedule create `
 
 ---
 
-## Phase 3: Power BI Deployment
+## Phase 3: Power Automate Flow Import
 
-### Step 3.1: Import Template
+The DEC-DailyOrchestrator Power Automate flow automates daily extraction, correlation, alert evaluation, and notification routing. Full setup details are in the solutions-staging `FLOW_SETUP.md` guide.
+
+### Step 3.1: Import the Flow
+
+1. Locate the flow definition: `deny-event-correlation-report/templates/dec-daily-orchestrator-flow.json`
+2. Navigate to [Power Automate](https://make.powerautomate.com) and select the target environment
+3. Go to **My flows** → **Import** → **Import Package (Legacy)**
+4. Upload `dec-daily-orchestrator-flow.json`
+5. Map each connection reference:
+
+| Connection Reference | Connector |
+|---------------------|-----------|
+| `fsi_cr_dataverse_denyeventcorrelation` | Dataverse |
+| `fsi_cr_office365_denyeventcorrelation` | Office 365 Outlook |
+| `fsi_cr_teams_denyeventcorrelation` | Microsoft Teams |
+
+### Step 3.2: Configure Flow Parameters
+
+After import, edit the flow and verify these parameters match your environment:
+
+| Parameter | Value |
+|-----------|-------|
+| Automation Account Name | `aa-fsi-governance` |
+| Resource Group | `rg-fsi-governance` |
+| Runbook Name | `Invoke-DailyDenyReport` |
+| Subscription ID | Your Azure subscription ID |
+
+### Step 3.3: Bind Connection References
+
+1. Navigate to **Power Platform admin center** → **Environments** → select your environment
+2. Go to **Solutions** → locate the DEC solution
+3. Open each connection reference and bind to an active connection
+4. Verify connections show **Connected** status
+
+### Step 3.4: Enable and Test the Flow
+
+1. Turn on the flow
+2. Run a manual test: select **Test** → **Manually** → **Run flow**
+3. Verify the run history shows success for all actions
+4. Check that deny events and correlation records appear in Dataverse tables
+
+---
+
+## Phase 4: Teams and Email Alerting
+
+### Step 4.1: Configure Teams Channel
+
+1. Create or identify a Teams channel for DEC alert delivery (e.g., "FSI Governance Alerts")
+2. Record the **Group ID** (Team ID) and **Channel ID**
+3. Verify the Teams connection account has permission to post to the channel
+
+### Step 4.2: Set Alert Environment Variables
+
+Update the Dataverse environment variables for alert routing:
+
+| Variable | Value |
+|----------|-------|
+| `fsi_DEC_TeamsGroupId` | Teams group (team) GUID |
+| `fsi_DEC_TeamsChannelId` | Teams channel GUID |
+
+### Step 4.3: Configure Alert Thresholds
+
+The alert evaluation engine uses these settings:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `fsi_DEC_AnomalyThresholdSigma` | 2.0 | Standard deviations for volume anomaly alerts |
+
+Adjust the threshold based on your organization's baseline deny event volume. A lower value generates more alerts; a higher value reduces noise.
+
+### Step 4.4: Verify Alert Delivery
+
+1. Trigger a test alert by temporarily lowering the anomaly threshold
+2. Confirm the adaptive card appears in the configured Teams channel
+3. Confirm email notification arrives for the configured recipients
+4. Restore the anomaly threshold to the production value
+
+---
+
+## Phase 5: Power BI Deployment
+
+For detailed Power BI setup, data model, DAX measures, and dashboard configuration, see the dedicated [Power BI Correlation Dashboard](power-bi-correlation.md) playbook.
+
+### Quick Start
 
 1. Download `DenyEventCorrelation.pbit` from FSI-AgentGov-Solutions
-2. Open in Power BI Desktop
-3. When prompted, enter parameters:
-   - Storage Account URL: `https://stfsigovernance.blob.core.windows.net/deny-events/`
-   - Latest Date: `2026-01-26` (or current date)
-
-### Step 3.2: Configure Data Source Credentials
-
-1. In Power BI Desktop: **Transform Data** > **Data source settings**
-2. Select Azure Blob Storage source
-3. Configure authentication:
-   - Account key, or
-   - Azure AD (if configured)
-
-### Step 3.3: Publish to Service
-
-1. **Home** > **Publish**
-2. Select workspace: "FSI Governance Reports"
-3. After publish, open Power BI Service
-
-### Step 3.4: Configure Scheduled Refresh
-
-1. In Power BI Service, go to dataset settings
-2. **Scheduled refresh** > Enable
-3. Configure:
-   - Frequency: Daily
-   - Time: 7:00 AM (after extraction completes at 6 AM)
-4. **Data source credentials** > Edit credentials
+2. Open in Power BI Desktop and enter the Dataverse environment URL when prompted
+3. Authenticate with organizational account (Entra ID)
+4. Publish to Power BI Service workspace: "FSI Governance Reports"
+5. Configure scheduled refresh (daily, after extraction completes)
 
 ---
 
@@ -356,23 +390,54 @@ az automation job schedule create `
 
 ### Phase 1 Verification
 
-- [ ] Storage account created with immutable policy
+- [ ] Dataverse tables created (4 tables with `fsi_` prefix)
+- [ ] Option sets `fsi_acv_zone` and `fsi_acv_severity` exist
+- [ ] Environment variables configured in Power Platform
 - [ ] Key Vault contains all required secrets
-- [ ] Application Insights receiving Copilot Studio telemetry
+- [ ] Application Insights receiving Copilot Studio telemetry (Zone 2/3 agents)
 
 ### Phase 2 Verification
 
 - [ ] Automation account created with required modules
+- [ ] DECClient module imported into Automation Account
 - [ ] Runbook executes without errors (test run)
-- [ ] CSV files appear in blob storage after test run
+- [ ] Deny event records appear in Dataverse `fsi_DenyEvent` table after test run
+- [ ] Correlation records appear in `fsi_DenyCorrelation` table
 - [ ] Schedule created and linked to runbook
 
 ### Phase 3 Verification
 
-- [ ] Power BI template imported successfully
+- [ ] Power Automate flow imported and visible in the target environment
+- [ ] All three connection references bound to active connections
+- [ ] Flow parameters match Azure Automation configuration
+- [ ] Manual test run completes without errors
+- [ ] Flow run history shows all actions succeeded
+
+### Phase 4 Verification
+
+- [ ] Teams Group ID and Channel ID environment variables set
+- [ ] Anomaly threshold configured appropriately for environment
+- [ ] Test alert delivered to Teams channel as adaptive card
+- [ ] Test email notification received by configured recipients
+
+### Phase 5 Verification
+
+- [ ] Power BI template imported with Dataverse connector
 - [ ] Data refreshes without credential errors
 - [ ] Dashboard displays data from all three sources
 - [ ] Scheduled refresh configured and working
+
+---
+
+## Migration from v1.x (Azure Blob)
+
+If you are upgrading from the v1.x Azure Blob architecture:
+
+1. Deploy the Dataverse schema (Phase 1 above)
+2. Run a one-time backfill of historical data from Blob to Dataverse
+3. Update automation runbooks to use `--WriteToDataverse` flag
+4. Reconfigure Power BI to use Dataverse connector instead of Blob/CSV sources
+5. After validation, decommission Azure Blob storage containers
 
 ---
 
@@ -385,14 +450,15 @@ az automation job schedule create `
 | "No audit data returned" | Permission or date range | Verify Purview Audit Reader role; check date range |
 | "App Insights query failed" | Token or permission issue | Verify Monitoring Reader role on App Insights; check Key Vault secret |
 | "Key Vault access denied" | Missing RBAC | Grant Key Vault Secrets User role to the service principal |
-| "Blob upload failed" | Storage permissions | Grant Storage Blob Data Contributor role |
-| "Power BI refresh failed" | Credential expiry | Update credentials in dataset settings |
+| "Dataverse write failed" | Missing permission or schema | Verify System User role in Dataverse; confirm tables deployed |
+| "Power BI refresh failed" | Credential expiry | Update organizational account credentials in dataset settings |
 
 ### Log Locations
 
 | Component | Log Location |
 |-----------|--------------|
 | Azure Automation | Automation Account > Jobs > Output |
+| Dataverse writes | `fsi_DenyValidationHistory` table (validation audit trail) |
 | Power BI refresh | Dataset > Refresh history |
 | Application Insights | App Insights > Logs (KQL) |
 
@@ -404,14 +470,14 @@ az automation job schedule create `
 
 - [ ] Review runbook job history for failures
 - [ ] Check Power BI refresh history
-- [ ] Verify data completeness (compare event counts)
+- [ ] Verify data completeness in Dataverse (compare event counts)
 
 ### Monthly Tasks
 
 - [ ] Rotate Key Vault secrets if required by policy
 - [ ] Review certificate expiry for certificate-based authentication
-- [ ] Review storage costs
-- [ ] Archive old data beyond retention period
+- [ ] Review Dataverse storage usage
+- [ ] Archive data beyond retention period (per Zone 3 retention policy)
 
 ### Quarterly Tasks
 
