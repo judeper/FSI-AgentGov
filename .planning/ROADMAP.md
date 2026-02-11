@@ -12,7 +12,7 @@ Builds a deployable Azure Monitor Workbook template for Copilot Studio agent usa
 
 - [x] **Phase 1: Telemetry Research & KQL Query Library** — Confirm Application Insights telemetry schema from Copilot Studio, design parameterized KQL queries for all 3 workbook tabs ✅
 - [x] **Phase 2: Workbook Template Development** — Build the 3-tab Azure Monitor Workbook JSON template (Usage/Business Value, Performance/Errors, Operational Health) with zone-aware thresholds ✅
-- [ ] **Phase 3: Deployment & Customization** — RBAC configuration guide, ARM/manual deployment playbook, customization guide for extending workbook with custom telemetry
+- [x] **Phase 3: Deployment & Customization** — RBAC configuration guide, ARM/manual deployment playbook, customization guide for extending workbook with custom telemetry ✅
 - [ ] **Phase 4: Framework Integration & Validation** — Update Controls 3.2, 3.9, 2.9 with workbook references, add solutions-index.md entry, run build and language validation
 
 ## Phase Details
@@ -64,7 +64,7 @@ Builds a deployable Azure Monitor Workbook template for Copilot Studio agent usa
 |-------|---------------|--------|
 | 1. Telemetry Research & KQL Query Library | 2/2 | Complete ✅ |
 | 2. Workbook Template Development | 2/2 | Complete ✅ |
-| 3. Deployment & Customization | 0/2 | Not started |
+| 3. Deployment & Customization | 2/2 | Complete ✅ |
 | 4. Framework Integration & Validation | 0/2 | Not started |
 
 ## Parallel Execution Guide
