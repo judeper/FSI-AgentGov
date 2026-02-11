@@ -5,7 +5,7 @@
     {
       "type": 1,
       "content": {
-        "json": "# FSI Agent Usage & Performance Workbook\n\n**Version:** 1.0 | **Framework:** FSI Agent Governance v1.2\n\nThis workbook provides telemetry visibility into Microsoft 365 Copilot Studio agent usage, performance, and error patterns. It supports compliance with FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, and Fed SR 11-7 by surfacing agent interaction data from Application Insights.\n\n> **Note:** This workbook reads telemetry from Application Insights. Ensure your Copilot Studio agents are configured to export telemetry to the connected Application Insights resource."
+        "json": "# Agent Usage & Performance Workbook\n\n**Version:** v1.0.0 | **Framework:** FSI Agent Governance Framework v1.2.38\n\nThis workbook provides telemetry visibility into Microsoft 365 Copilot Studio agents, helping address the ALM separation-of-duties monitoring gap identified in Control 2.8. It surfaces agent interaction data from Application Insights to support compliance with FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, and Fed SR 11-7.\n\n| Tab | Focus | Key Metrics |\n|-----|-------|-------------|\n| **Usage & Business Value** | Adoption, engagement, ROI | Sessions, DAU/MAU, resolution rate, cost avoidance |\n| **Performance & Errors** | Latency, reliability, AI safety | P50/P95 latency, error trends, connector health, RAI events |\n| **Operational Health** | Anomaly detection, dependencies, DLP | Session anomalies, uptime, dependency health, DLP events |\n\n### Prerequisites\n\n- Application Insights resource connected to your Copilot Studio environment\n- Copilot Studio agent telemetry export enabled\n- Reader access to the Application Insights resource\n\n> **Zone Thresholds:** Default conditional formatting thresholds target **Zone 3 (Enterprise Managed)**. Adjust threshold values in the tile and grid settings for Zone 1 (Personal Productivity) or Zone 2 (Team Collaboration) per your organization's governance requirements."
       },
       "name": "header"
     },
@@ -262,7 +262,12 @@
                     "palette": "auto"
                   }
                 },
-                "showBorder": true
+                "showBorder": true,
+                "thresholds": [
+                  { "operator": ">=", "value": 80, "representation": "green" },
+                  { "operator": ">=", "value": 60, "representation": "yellow" },
+                  { "operator": "Default", "representation": "red" }
+                ]
               }
             },
             "name": "query-Q06-resolution-rate"
@@ -414,7 +419,23 @@
               "timeContextFromParameter": "TimeRange",
               "queryType": 0,
               "resourceType": "microsoft.insights/components",
-              "visualization": "table"
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "SuccessRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        { "operator": ">=", "thresholdValue": "95", "representation": "success", "text": "{0}{1}" },
+                        { "operator": ">=", "thresholdValue": "90", "representation": "warning", "text": "{0}{1}" },
+                        { "operator": "Default", "representation": "critical", "text": "{0}{1}" }
+                      ]
+                    }
+                  }
+                ]
+              }
             },
             "name": "query-Q12-connector-action-success-rate"
           },
@@ -448,7 +469,23 @@
               "timeContextFromParameter": "TimeRange",
               "queryType": 0,
               "resourceType": "microsoft.insights/components",
-              "visualization": "table"
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "CompletionRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        { "operator": ">=", "thresholdValue": "80", "representation": "success", "text": "{0}{1}" },
+                        { "operator": ">=", "thresholdValue": "60", "representation": "warning", "text": "{0}{1}" },
+                        { "operator": "Default", "representation": "critical", "text": "{0}{1}" }
+                      ]
+                    }
+                  }
+                ]
+              }
             },
             "name": "query-Q14-topic-completion-rate"
           },
@@ -531,9 +568,215 @@
           {
             "type": 1,
             "content": {
-              "json": "## Operational Health\n\nOperational Health tab — populated in Plan 02-02"
+              "json": "## Operational Health\n\nAnomaly detection, availability monitoring, dependency health, and security event visibility. Queries Q17 and Q19 use a fixed 14-day lookback for stable anomaly baselines and are not affected by the Time Range parameter."
             },
-            "name": "tab3-placeholder"
+            "name": "tab3-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// OCC 2011-12: Operational risk — anomalous usage pattern detection\n// Fed SR 11-7: Model risk — automated change detection\nlet lookback = 14d;\ncustomEvents\n| where timestamp > ago(lookback)\n| where customDimensions.designMode == \"False\"\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize Sessions = dcount(sessionId) by bin(timestamp, 1h)\n| make-series SessionSeries = sum(Sessions) default=0 on timestamp step 1h\n| extend (anomalies, score, baseline) = series_decompose_anomalies(SessionSeries, 1.5)\n| render anomalychart with (anomalycolumns=anomalies)",
+              "size": 0,
+              "title": "Session Volume Anomaly Detection",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q17-session-volume-anomaly-detection"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "> **Availability Proxy Note:** The uptime trend (Q18) uses session activity as a proxy for availability. It does not measure actual service uptime — gaps in the chart may reflect low usage periods rather than outages. For true availability monitoring, integrate with Azure Service Health or Copilot Studio service status."
+            },
+            "name": "availability-proxy-caveat"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// SOX 404: System availability — agent uptime monitoring\n// OCC 2011-12: Business continuity — service availability trend\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize SessionCount = dcount(sessionId) by bin(timestamp, 1h)\n| render timechart",
+              "size": 0,
+              "title": "Availability (Uptime Trend)",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q18-availability-uptime-trend"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// OCC 2011-12: Operational risk — exception spike detection\n// Fed SR 11-7: Model risk — automated error pattern detection\nlet lookback = 14d;\nexceptions\n| where timestamp > ago(lookback)\n| summarize Errors = count() by bin(timestamp, 1h)\n| make-series ErrorSeries = sum(Errors) default=0 on timestamp step 1h\n| extend (anomalies, score, baseline) = series_decompose_anomalies(ErrorSeries, 1.5)\n| render anomalychart with (anomalycolumns=anomalies)",
+              "size": 0,
+              "title": "Exception Spike Detection",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "query-Q19-exception-spike-detection"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 25-07: AI governance — generative AI quality assessment\n// OCC 2011-12: Model risk — AI response quality monitoring\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend sessionId = tostring(customDimensions.session_Id)\n| summarize\n    GenAnswerCount = countif(name == \"GenerativeAnswers\"),\n    TotalSessions = dcount(sessionId),\n    TopicStartCount = countif(name == \"TopicStart\"),\n    TopicEndCount = countif(name == \"TopicEnd\")\n| extend\n    GenAnswerRate = round(100.0 * GenAnswerCount / TotalSessions, 1),\n    EstFallbackRate = iff(TopicStartCount > 0,\n        round(100.0 * (TopicStartCount - TopicEndCount) / TopicStartCount, 1),\n        0.0)",
+              "size": 4,
+              "title": "Generative Answers Quality",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "GenAnswerRate",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "secondaryContent": {
+                  "columnMatch": "EstFallbackRate",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "showBorder": true,
+                "thresholds": [
+                  { "operator": "<", "value": 15, "representation": "green" },
+                  { "operator": "<", "value": 25, "representation": "yellow" },
+                  { "operator": "Default", "representation": "red" }
+                ]
+              }
+            },
+            "name": "query-Q20-generative-answers-quality"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// SOX 404: Third-party control effectiveness — external dependency monitoring\n// OCC 2011-12: Third-party risk — connector and API health\ndependencies\n| where timestamp {TimeRange}\n| summarize\n    TotalCalls = count(),\n    SuccessRate = round(100.0 * countif(success == true) / count(), 2),\n    AvgDurationMs = round(avg(duration), 1),\n    P95DurationMs = round(percentile(duration, 95), 1),\n    FailureCount = countif(success == false)\n    by name, target\n| order by SuccessRate asc",
+              "size": 1,
+              "title": "Dependency Health",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "SuccessRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        { "operator": ">=", "thresholdValue": "95", "representation": "success", "text": "{0}{1}" },
+                        { "operator": ">=", "thresholdValue": "90", "representation": "warning", "text": "{0}{1}" },
+                        { "operator": "Default", "representation": "critical", "text": "{0}{1}" }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "query-Q21-dependency-health"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "> **DLP/Security Events Note:** Query Q22 relies on custom telemetry properties (`dlpMatch`, `securityEvent`, `policyBlock`) that require additional configuration beyond default Copilot Studio telemetry. If your environment does not emit these custom event types, this section will show empty results. See the FSI Agent Governance Framework playbooks for DLP telemetry configuration guidance."
+            },
+            "name": "dlp-custom-telemetry-caveat"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// GLBA 501(b): Information security — DLP event monitoring\n// FINRA 3110: Supervisory compliance — security event visibility\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.type in (\"dlpMatch\", \"securityEvent\", \"policyBlock\")\n    or customDimensions.Kind has_any (\"DLP\", \"Security\", \"Policy\")\n| summarize DLPEvents = count()",
+              "size": 4,
+              "title": "DLP/Security Events",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "DLPEvents",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  }
+                },
+                "showBorder": true
+              }
+            },
+            "name": "query-Q22a-dlp-security-events-count"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// GLBA 501(b): DLP event detail for investigation\ncustomEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.type in (\"dlpMatch\", \"securityEvent\", \"policyBlock\")\n    or customDimensions.Kind has_any (\"DLP\", \"Security\", \"Policy\")\n| extend\n    eventType = tostring(customDimensions.type),\n    agentName = tostring(customDimensions.recipientName),\n    channel = tostring(customDimensions.channelId),\n    sessionId = tostring(customDimensions.session_Id)\n| project timestamp, agentName, eventType, channel, sessionId\n| order by timestamp desc\n| take 100",
+              "size": 1,
+              "title": "DLP/Security Event Detail",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "query-Q22b-dlp-security-events-detail"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "// FINRA 4511: Per-agent operational summary\n// OCC 2011-12: Model inventory — individual agent health assessment\n// SOX 404: Control effectiveness — per-agent monitoring\nlet sessionData = customEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where customDimensions.channelId in ({ChannelFilter}) or '*' in ({ChannelFilter})\n| extend\n    agentName = tostring(customDimensions.recipientName),\n    sessionId = tostring(customDimensions.session_Id)\n| summarize\n    Sessions = dcount(sessionId),\n    Messages = countif(name == \"BotMessageReceived\"),\n    TopicStarts = countif(name == \"TopicStart\"),\n    TopicEnds = countif(name == \"TopicEnd\"),\n    GenAIResponses = countif(name == \"GenerativeAnswers\")\n    by agentName;\nlet latencyData = customEvents\n| where timestamp {TimeRange}\n| where customDimensions.designMode == \"False\"\n| where customDimensions.recipientName in ({AgentFilter}) or '*' in ({AgentFilter})\n| where name in (\"BotMessageReceived\", \"BotMessageSend\")\n| extend\n    agentName = tostring(customDimensions.recipientName),\n    sessionId = tostring(customDimensions.session_Id)\n| order by sessionId, timestamp asc\n| serialize\n| extend\n    prevEvent = prev(name),\n    prevTimestamp = prev(timestamp),\n    prevSession = prev(tostring(customDimensions.session_Id)),\n    prevAgent = prev(tostring(customDimensions.recipientName))\n| where name == \"BotMessageSend\" and prevEvent == \"BotMessageReceived\" and sessionId == prevSession\n| extend latencyMs = datetime_diff('millisecond', timestamp, prevTimestamp)\n| where latencyMs > 0 and latencyMs < 120000\n| summarize\n    EstP50LatencyMs = percentile(latencyMs, 50),\n    EstP95LatencyMs = percentile(latencyMs, 95)\n    by agentName;\nlet errorData = exceptions\n| where timestamp {TimeRange}\n| summarize ErrorCount = count();\nsessionData\n| join kind=leftouter latencyData on agentName\n| extend\n    CompletionRate = iff(TopicStarts > 0, round(100.0 * TopicEnds / TopicStarts, 1), 0.0),\n    EstP50LatencyMs = coalesce(EstP50LatencyMs, 0),\n    EstP95LatencyMs = coalesce(EstP95LatencyMs, 0)\n| project\n    agentName,\n    Sessions,\n    Messages,\n    CompletionRate,\n    GenAIResponses,\n    EstP50LatencyMs,\n    EstP95LatencyMs\n| order by Sessions desc",
+              "size": 0,
+              "title": "Agent Health Summary",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "CompletionRate",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        { "operator": ">=", "thresholdValue": "80", "representation": "success", "text": "{0}{1}" },
+                        { "operator": ">=", "thresholdValue": "60", "representation": "warning", "text": "{0}{1}" },
+                        { "operator": "Default", "representation": "critical", "text": "{0}{1}" }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "query-Q23-agent-health-summary"
           }
         ]
       },
