@@ -76,7 +76,7 @@ def verify_markdown_template():
         "## Zone-Specific Requirements",
         "## Roles & Responsibilities",
         "## Related Controls",
-        "## Implementation Guides",
+        "## Implementation Playbooks",
         "## Verification Criteria",
         "## Additional Resources",
     ]
@@ -85,8 +85,8 @@ def verify_markdown_template():
         "**Control ID:**",
         "**Pillar:**",
         "**Regulatory Reference:**",
-        "Updated: January 2026",
-        "Version: v1.1",
+        "Updated: February 2026",
+        "Version: v1.3",
         "UI Verification Status:",
     ]
     

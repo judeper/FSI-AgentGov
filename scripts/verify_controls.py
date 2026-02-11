@@ -12,6 +12,14 @@ DOCS_DIR = Path("docs")
 CONTROL_INDEX_PATH = DOCS_DIR / "controls" / "CONTROL-INDEX.md"
 REG_MAPPINGS_PATH = DOCS_DIR / "reference" / "regulatory-mappings.md"
 PILLARS_DIR = DOCS_DIR / "controls"
+PLAYBOOKS_DIR = DOCS_DIR / "playbooks" / "control-implementations"
+
+REQUIRED_PLAYBOOK_FILES = [
+    "portal-walkthrough.md",
+    "powershell-setup.md",
+    "verification-testing.md",
+    "troubleshooting.md",
+]
 
 CANON_UPDATED = "Updated: February 2026"
 CANON_VERSION = "Version: v1.3"
@@ -133,6 +141,20 @@ def validate_control_file(path: Path):
 
     return failures
 
+
+def validate_playbook_files(control_id: str) -> list[str]:
+    """Validate that 4 standard playbook files exist for a control."""
+    failures = []
+    playbook_dir = PLAYBOOKS_DIR / control_id
+    if not playbook_dir.exists():
+        failures.append(f"playbook directory missing: {playbook_dir}")
+        return failures
+    for fname in REQUIRED_PLAYBOOK_FILES:
+        if not (playbook_dir / fname).exists():
+            failures.append(f"missing playbook: {playbook_dir / fname}")
+    return failures
+
+
 def verify_consistency():
     controls = parse_control_index()
     files = get_pillar_files()
@@ -178,6 +200,28 @@ def verify_consistency():
         print("✅ All control files meet required beta structure + footer standards.")
     else:
         print(f"\nERROR: {hard_failures} control files failed required validation.")
+        raise SystemExit(1)
+
+    # 3b) Validate playbook files exist per control
+    print("\n--- PLAYBOOK FILE VALIDATION ---\n")
+    playbook_failures = 0
+    for filename, rel_path, pillar in files:
+        # Extract control ID from filename (e.g., "1.1-restrict-agent-publishing.md" -> "1.1")
+        match = re.match(r"^(\d+\.\d+)-", filename)
+        if not match:
+            continue
+        control_id = match.group(1)
+        pb_issues = validate_playbook_files(control_id)
+        if pb_issues:
+            playbook_failures += 1
+            print(f"❌ {control_id}")
+            for issue in pb_issues:
+                print(f"   - {issue}")
+
+    if playbook_failures == 0:
+        print("✅ All controls have 4 standard playbook files.")
+    else:
+        print(f"\nERROR: {playbook_failures} controls missing playbook files.")
         raise SystemExit(1)
 
     # 4) Validate that all docs fragment links (#anchors) resolve.
