@@ -1,106 +1,95 @@
-# Roadmap: Unrestricted Agent Sharing Detector (v16)
+# Roadmap: Agent Security Configuration Governance (v17)
 
 ## Overview
 
-Continuous agent sharing compliance solution using BAP APIs to detect unsafe sharing configurations, record violations in Dataverse, drive remediation through Power Automate, and enforce time-bound exceptions via an Exception Manager app. Complements the existing Agent Access Governance Monitor (AAM = environment-level; UASD = per-agent).
+Automate per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8. Converts 6 manual-only SSPM checks to automated validation, creates the phantom `restrict-agent-publishing.ps1` governance script, and adds zone-policy compliance verification for agent access settings.
 
-**Source:** User-provided solution design spec. All APIs, tables, and flows implemented exactly as specified.
+**Source:** Three high-priority pending todos from v16 research addressing automation gaps where agent-level security checks are manual-only.
 
-**Execution model:** 5 phases, linear dependency chain. Within each phase, plans target non-overlapping file sets for parallel execution where possible.
+**Execution model:** 4 phases. Phases 1–3 are independent (parallel-eligible). Phase 4 depends on 1–3. Within each phase, plans target non-overlapping file sets for parallel execution.
 
 ## Phases
 
-- [x] **Phase 1: Solution Infrastructure** — Dataverse schema (5 tables), option sets (6 UASD-specific + 2 shared), environment variables, connection references, seed data
-- [x] **Phase 2: Detection Engine** — Detector flow, on-demand audit script, adaptive card template
-- [x] **Phase 3: Remediation & Exception Management** — Remediation flow, exception approval flow, Exception Manager canvas app, approved group import script
-- [ ] **Phase 4: Deployment & Operations** — Deployment scripts, violation export script, deployment guide documentation
-- [ ] **Phase 5: Framework Integration & Validation** — Solutions-index entry, control updates (1.1, 3.8), architecture docs, mkdocs nav, AAM status reconciliation, full validation
+- [x] **Phase 1: Agent Authentication Enforcement** — PowerShell script validating 6 SSPM items per agent, zone-based logic, drift detection, SHA-256 evidence export
+- [ ] **Phase 2: Publishing Restriction Governance** — `restrict-agent-publishing.ps1` validating 6 publishing criteria, SHA-256 evidence, hardening baseline integration
+- [ ] **Phase 3: Zone Access Validation** — M365 Admin Center agent access settings verification per zone, admin exclusion group validation, drift detection
+- [ ] **Phase 4: Framework Integration & Validation** — Controls 1.1/3.7/3.8 updates, solutions-index entry, hardening baseline reclassification, full build validation
 
 ## Phase Details
 
-### Phase 1: Solution Infrastructure
-**Goal:** Create all Dataverse tables, option sets, environment variables, and connection references needed by downstream phases
-**Depends on:** Nothing (foundational)
-**Requirements:** INFRA-01, INFRA-02, INFRA-03
+### Phase 1: Agent Authentication Enforcement
+**Goal:** Build PowerShell script that reads per-agent authentication configuration via BAP/PPAC REST endpoints and validates 6 SSPM items with zone-based logic and drift detection
+**Depends on:** Nothing (independent)
+**Requirements:** AUTH-01, AUTH-02, AUTH-03
 **Success Criteria:**
-  1. Schema script creates 5 tables with `fsi_` prefix, all columns per spec §2
-  2. `fsi_acv_zone` and `fsi_acv_severity` shared option sets referenced (not duplicated)
-  3. 6 solution-specific option sets created (`fsi_UASD_sharingscope`, `fsi_UASD_violationtype`, `fsi_UASD_violationstatus`, `fsi_UASD_exceptionstatus`, `fsi_UASD_authmode`, `fsi_UASD_dataclassification`)
-  4. 4 environment variables and 2 connection references defined
-  5. Seed policy row documented: `MaxIndividualSharesPerAgent = 100, Zone = All`
-**Plans:** 2 (A = schema script + option sets, B = env vars + connection refs + seed data)
+  1. `Test-AgentAuthConfiguration.ps1` connects to Power Platform, enumerates agents per environment, retrieves auth mode/enforcement/sharing settings
+  2. Validates SSPM-1.1-01 through SSPM-1.1-06 with zone-based logic — Zone 1 permissive (warn only), Zone 2/3 enforce "Always" auth timing, "No Authentication" flagged in all zones, sharing scope "Anyone" flagged in Zone 2/3
+  3. Drift detection compares against previous scan baseline with SHA-256 evidence hashing
+  4. JSON output structured for Dataverse ingestion with per-check pass/fail, evidence hashes, and timestamps
+  5. Follows established conventions: `#Requires -Version 7.0`, `ErrorAction Stop`, `-OutputFormat`/`-OutputPath` parameters
+**Plans:** 2 (A = script core + BAP API integration + 6 SSPM checks, B = drift detection + evidence export + JSON output)
 
-### Phase 2: Detection Engine
-**Goal:** Build the detection flow and on-demand audit script implementing all 5 violation rules
-**Depends on:** Phase 1 (tables must exist for Dataverse operations)
-**Requirements:** DET-01, DET-02, DET-03
+### Phase 2: Publishing Restriction Governance
+**Goal:** Create the `restrict-agent-publishing.ps1` governance script (currently phantom — listed in README but file does not exist) validating 6 publishing restriction criteria with SHA-256 evidence export
+**Depends on:** Nothing (independent)
+**Requirements:** PUB-01, PUB-02, PUB-03
 **Success Criteria:**
-  1. Detector flow JSON importable into Power Automate with correct trigger, BAP API calls, and Dataverse operations
-  2. All 5 violation rules implemented per spec §4.1 (ORG_WIDE_SHARING, PUBLIC_INTERNET_LINK, UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS)
-  3. `Invoke-SharingAudit.ps1` runs on-demand with `#Requires -Version 7.0`, standard header, `-OutputFormat`/`-OutputPath` parameters
-  4. Adaptive card template follows established pattern with severity-based styling
-**Plans:** 2 (A = detector flow JSON + adaptive card, B = `Invoke-SharingAudit.ps1`)
+  1. `restrict-agent-publishing.ps1` validates 6 publishing criteria: Environment Maker role removal, authorized security groups, Share with Everyone disabled, DLP connector blocking, Managed Environment sharing limits, approval workflow active (Zone 2/3)
+  2. SHA-256 evidence export and structured JSON output with per-check pass/fail, evidence hashes, timestamp; compatible with Dataverse ingestion patterns
+  3. Hardening baseline items 1–6 in `Invoke-HardeningBaselineCheck.ps1` reclassified from "Manual Attestation" to "Automated" or "Semi-Automated"; baseline script calls or references the new validation
+  4. Follows established conventions: `#Requires -Version 7.0`, `ErrorAction Stop`, standard parameters
+**Plans:** 2 (A = script core + 6 publishing criteria validation, B = hardening baseline integration + evidence export)
 
-### Phase 3: Remediation & Exception Management
-**Goal:** Build remediation workflow with approval-based principal overwrite and exception lifecycle management
-**Depends on:** Phase 1 (tables), conceptually Phase 2 (violations trigger remediation)
-**Requirements:** REM-01, REM-02, REM-03
+### Phase 3: Zone Access Validation
+**Goal:** Automate M365 Admin Center agent access settings verification per zone policy and admin exclusion group validation
+**Depends on:** Nothing (independent)
+**Requirements:** ZAV-01, ZAV-02, ZAV-03
 **Success Criteria:**
-  1. Remediation flow triggers on `fsi_SharingViolation` creation where status = Open
-  2. Exception check suppresses remediation for agents with active, non-expired exceptions
-  3. Default mode is Approval for ALL zones; auto only for PUBLIC_INTERNET_LINK when `fsi_UASD_AutoRemediatePublicLink = true`
-  4. BAP PATCH overwrites principals with approved security group(s) per spec §3.3
-  5. Exception Approval flow implements sequential dual approval (Security → Data Owner)
-  6. Exception Manager canvas app provides submission, status view, and expiration display
-  7. `Import-ApprovedSecurityGroups.ps1` upserts from CSV/JSON, idempotent
-**Plans:** 2 (A = remediation flow + exception approval flow, B = canvas app + import script)
+  1. `Test-ZoneAgentAccess.ps1` reads agent access control configuration, compares to zone policy (Zone 1: all agents, Zone 2: Org + MS verified, Zone 3: Org only with approval)
+  2. Validates `CopilotForM365AdminExclude` Entra group exists and is populated; validates staged deployment group configuration per zone
+  3. Drift detection with structured comparison output suitable for daily scheduling; results compatible with existing alerting patterns (adaptive cards)
+  4. Follows established conventions: `#Requires -Version 7.0`, `ErrorAction Stop`, `-OutputFormat`/`-OutputPath` parameters
+**Plans:** 2 (A = script core + zone policy validation + admin exclusion groups, B = drift detection + Teams notification support)
 
-### Phase 4: Deployment & Operations
-**Goal:** Create deployment and operations scripts enabling enterprise teams to import, configure, and operate the solution
-**Depends on:** Phases 1-3 (all artifacts must exist for deployment and export)
-**Requirements:** OPS-01, OPS-02, OPS-03
+### Phase 4: Framework Integration & Validation
+**Goal:** Update framework controls, solutions catalog, and hardening baseline to reference new automation scripts; full build validation
+**Depends on:** Phases 1–3 (all scripts must exist before documentation references them)
+**Requirements:** FRM-01, FRM-02, FRM-03
 **Success Criteria:**
-  1. `Deploy-DetectionFlow.ps1` imports detector flow, binds connection references, idempotent
-  2. `Deploy-RemediationFlow.ps1` imports remediation flow, binds connections, sets auto-remediation flag
-  3. `Export-ViolationReport.ps1` queries Dataverse violations, outputs CSV/JSON, `-IncludeEvidence` SHA-256 hash
-  4. Deployment guide with prerequisites, step-by-step instructions, and validation checklist
-**Plans:** 2 (A = deploy scripts, B = export script + deployment guide)
-
-### Phase 5: Framework Integration & Validation
-**Goal:** Integrate solution into framework controls, reference catalogs, and site navigation; validate everything
-**Depends on:** Phases 1-4 (all content finalized before framework cross-references)
-**Requirements:** FRM-01, FRM-02, FRM-03, VAL-01
-**Success Criteria:**
-  1. `solutions-index.md` includes UASD entry with status, components, regulatory alignment, control mappings
-  2. Controls 1.1 and 3.8 updated with tip admonitions linking to UASD
-  3. Architecture and deployment docs created in `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/`
-  4. `mkdocs.yml` nav updated under Advanced Implementations
-  5. AAM status reconciled (WIP → Completed in solutions-index.md)
-  6. All 7 spec validation tests pass
-  7. `mkdocs build --strict` passes, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
-**Plans:** 2 (A = solutions-index + control updates + architecture docs, B = mkdocs nav + AAM reconciliation + build validation)
+  1. Controls 1.1, 3.7, 3.8 updated with tip admonitions linking to new governance scripts; verification criteria updated to reflect automation availability
+  2. `solutions-index.md` includes Agent Security Configuration Governance entry with status, components, regulatory alignment, control mappings
+  3. Hardening baseline items 1–6 status updated from "Manual Attestation" to "Automated"/"Semi-Automated"
+  4. `scripts/governance/README.md` updated to reflect actual script inventory (no phantom references)
+  5. `mkdocs build --strict` passes, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
+**Plans:** 2 (A = control updates + solutions-index + governance README, B = hardening baseline status + build validation)
 
 ## Progress
 
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
-| 1. Solution Infrastructure | 2/2 | Complete |
-| 2. Detection Engine | 2/2 | Complete |
-| 3. Remediation & Exception Management | 2/2 | Complete |
-| 4. Deployment & Operations | 2/2 | Complete |
-| 5. Framework Integration & Validation | 2/2 | Complete |
+| 1. Agent Authentication Enforcement | 2/2 | Complete |
+| 2. Publishing Restriction Governance | 0/2 | Not Started |
+| 3. Zone Access Validation | 0/2 | Not Started |
+| 4. Framework Integration & Validation | 0/2 | Not Started |
 
 ## Parallel Execution Guide
 
-Phases have a **linear dependency chain** (1 → 2 → 3 → 4 → 5). Within each phase, plans target non-overlapping file sets:
+Phases 1–3 are **independent** — no shared file targets, parallel-eligible. Phase 4 depends on 1–3.
+
+```
+Phase 1 (AUTH) ──┐
+Phase 2 (PUB) ──┼── Phase 4 (FRM)
+Phase 3 (ZAV) ──┘
+```
+
+Within each phase, plans target non-overlapping file sets:
 
 | Phase | Plan A Files | Plan B Files | Parallel? |
 |-------|-------------|-------------|-----------|
-| 1 | `scripts/create_uasd_dataverse_schema.py` | `scripts/create_uasd_environment_variables.py`, `scripts/create_uasd_connection_references.py` | Yes |
-| 2 | `src/uasd-detector-scan-agents.json`, `src/adaptive-card-uasd-alert.json` | `scripts/governance/Invoke-SharingAudit.ps1` | Yes |
-| 3 | `src/uasd-remediation-*.json`, `src/uasd-exception-*.json` | Canvas app, `scripts/governance/Import-ApprovedSecurityGroups.ps1` | Yes |
-| 4 | `scripts/governance/Deploy-*Flow.ps1` | `scripts/governance/Export-ViolationReport.ps1`, deployment guide | Yes |
-| 5 | `docs/reference/solutions-index.md`, `docs/controls/pillar-*`, architecture docs | `mkdocs.yml`, validation (read-only) | Yes |
+| 1 | `scripts/governance/Test-AgentAuthConfiguration.ps1` (core) | Drift detection module, evidence export | Yes |
+| 2 | `scripts/governance/restrict-agent-publishing.ps1` (core) | `scripts/governance/Invoke-HardeningBaselineCheck.ps1` (modify), evidence export | Yes |
+| 3 | `scripts/governance/Test-ZoneAgentAccess.ps1` (core) | Drift detection, Teams notification support | Yes |
+| 4 | `docs/controls/pillar-*`, `docs/reference/solutions-index.md`, `scripts/governance/README.md` | `scripts/governance/Invoke-HardeningBaselineCheck.ps1` (status update), validation (read-only) | Yes |
 
 ## File Manifest
 
@@ -108,46 +97,37 @@ Phases have a **linear dependency chain** (1 → 2 → 3 → 4 → 5). Within ea
 
 | Phase | File | Purpose |
 |-------|------|---------|
-| 1 | `scripts/create_uasd_dataverse_schema.py` | Dataverse table definitions |
-| 1 | `scripts/create_uasd_environment_variables.py` | Environment variable definitions |
-| 1 | `scripts/create_uasd_connection_references.py` | Connection reference definitions |
-| 2 | `src/uasd-detector-scan-agents.json` | Detector flow JSON |
-| 2 | `src/adaptive-card-uasd-alert.json` | Teams alert adaptive card |
-| 2 | `scripts/governance/Invoke-SharingAudit.ps1` | On-demand detection script |
-| 3 | `src/uasd-remediation-apply-sharing-policy.json` | Remediation flow JSON |
-| 3 | `src/uasd-exception-approval-workflow.json` | Exception approval flow JSON |
-| 3 | `scripts/governance/Import-ApprovedSecurityGroups.ps1` | Approved group import |
-| 4 | `scripts/governance/Deploy-DetectionFlow.ps1` | Detector flow deployment |
-| 4 | `scripts/governance/Deploy-RemediationFlow.ps1` | Remediation flow deployment |
-| 4 | `scripts/governance/Export-ViolationReport.ps1` | Violation export with SHA-256 |
-| 4 | `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md` | Deployment guide |
-| 5 | `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` | Solution architecture overview |
+| 1 | `scripts/governance/Test-AgentAuthConfiguration.ps1` | Per-agent auth config validation (6 SSPM items) |
+| 2 | `scripts/governance/restrict-agent-publishing.ps1` | Publishing restriction governance (6 criteria) |
+| 3 | `scripts/governance/Test-ZoneAgentAccess.ps1` | Zone-based agent access settings verification |
 
 ### Modified (existing files)
 
 | Phase | File | Change |
 |-------|------|--------|
-| 5 | `docs/reference/solutions-index.md` | Add UASD entry, fix AAM status |
-| 5 | `docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md` | Add tip admonition |
-| 5 | `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` | Add tip admonition |
-| 5 | `mkdocs.yml` | Add nav entries |
+| 2 | `scripts/governance/Invoke-HardeningBaselineCheck.ps1` | Items 1–6 reclassified, references to new script |
+| 4 | `docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md` | Add tip admonition for auth + publishing automation |
+| 4 | `docs/controls/pillar-3-reporting/3.7-ppac-security-posture.md` | Add tip admonition for publishing restriction script |
+| 4 | `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` | Add tip admonition for zone access validation |
+| 4 | `docs/reference/solutions-index.md` | Add Agent Security Config Governance entry |
+| 4 | `scripts/governance/README.md` | Update script inventory (remove phantom, add actuals) |
 
 ## Coverage
 
 | Requirement | Phase | Plan | Description |
 |-------------|-------|------|-------------|
-| INFRA-01 | 1 | 01-01 | Dataverse schema with 5 tables |
-| INFRA-02 | 1 | 01-02 | Environment variables + connection references |
-| INFRA-03 | 1 | 01-02 | Seed data + inline agent identity |
-| DET-01 | 2 | 02-01 | Detector flow with 5 violation rules |
-| DET-02 | 2 | 02-02 | On-demand audit script |
-| DET-03 | 2 | 02-01 | Adaptive card template |
-| REM-01 | 3 | 03-01 | Remediation flow |
-| REM-02 | 3 | 03-01 | Exception approval flow |
-| REM-03 | 3 | 03-02 | Exception Manager canvas app |
-| OPS-01 | 3 | 03-02 | Import approved security groups script |
-| OPS-02 | 4 | 04-01 | Deployment scripts |
-| OPS-03 | 4 | 04-02 | Violation export script |
+| AUTH-01 | 1 | 01-01 | Per-agent auth config read via BAP/PPAC REST |
+| AUTH-02 | 1 | 01-01 | 6 SSPM items validated with zone-based logic |
+| AUTH-03 | 1 | 01-02 | Drift detection with SHA-256 evidence export |
+| PUB-01 | 2 | 02-01 | restrict-agent-publishing.ps1 with 6 criteria |
+| PUB-02 | 2 | 02-02 | SHA-256 evidence export and JSON output |
+| PUB-03 | 2 | 02-02 | Hardening baseline items 1–6 integration |
+| ZAV-01 | 3 | 03-01 | Agent access settings verification per zone |
+| ZAV-02 | 3 | 03-01 | Admin exclusion group + deployment group validation |
+| ZAV-03 | 3 | 03-02 | Drift detection with Teams notification support |
+| FRM-01 | 4 | 04-01 | Controls 1.1, 3.7, 3.8 automation references |
+| FRM-02 | 4 | 04-01 | Solutions-index + hardening baseline + governance README |
+| FRM-03 | 4 | 04-02 | Full build validation (mkdocs + verify scripts) |
 | FRM-01 | 5 | 05-01 | Solutions-index entry |
 | FRM-02 | 5 | 05-01 | Control updates + architecture docs |
 | FRM-03 | 5 | 05-02 | mkdocs nav + AAM reconciliation |

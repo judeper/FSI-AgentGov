@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-12
-**Milestone:** v16 — Unrestricted Agent Sharing Detector
-**Status:** ARCHIVED — All 5 phases executed, 16/16 requirements delivered, milestone archived
+**Milestone:** v17 — Agent Security Configuration Governance
+**Status:** PLANNED — 4 phases, 8 plans, 12 requirements mapped
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-12 15:00
-**Handoff Summary:** Phase 5 (Framework Integration & Validation) executed — 2 plans across 1 wave. Solutions-index UASD entry, control 1.1/3.8 tip admonitions, architecture overview, mkdocs nav, AAM status fix. All validation passes (mkdocs build, verify_controls 62/62, verify_language_rules 0 violations). v16 milestone complete (16/16 requirements).
+**Session Started:** 2026-02-12 16:00
+**Handoff Summary:** Phase 1 COMPLETE — 2/2 plans executed (01-01 core script + 01-02 drift detection). Test-AgentAuthConfiguration.ps1 created (1020 lines) with 6 SSPM checks, drift detection, SHA-256 evidence hashing. All 3 AUTH requirements delivered. Ready for Phase 2.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v16 — Unrestricted Agent Sharing Detector. Phase 1 (Solution Infrastructure) ready to execute.
+**Current focus:** v17 — Agent Security Configuration Governance. Roadmap created, phase planning next.
 
 ## Milestone Series Plan
 
@@ -34,19 +34,20 @@ v13: Agent Usage & Performance Workbook — DEFERRED (superseded by v15)
 v14: SSPM Control Coverage Remediation — COMPLETE
 v15: Agent Usage & Performance Workbook — COMPLETE
 v16: Unrestricted Agent Sharing Detector — COMPLETE
+v17: Agent Security Configuration Governance — PLANNING
 ```
 
 ## Current Position
 
-**Phase:** 5 — Framework Integration & Validation (COMPLETE)
-**Plan:** 2/2 complete
-**Status:** v16 milestone archived to MILESTONES.md. Ready for next milestone.
-**Last activity:** 2026-02-12 — v16 archived (10 plans, 16 requirements, 5 phases)
+**Phase:** 1 of 4 (Phase 1 complete)
+**Plan:** 2/2 plans complete
+**Status:** Phase 1 executed — Test-AgentAuthConfiguration.ps1 created with 6 SSPM checks, drift detection, evidence hashing
+**Last activity:** 2026-02-12 — Phase 1 executed (2 plans, 2 waves, 2 commits)
 
 **Progress:**
 ```
-v1-v15: [=========================] COMPLETE (see MILESTONES.md)
-v16:    [=========================] COMPLETE — 10/10 plans, 16/16 requirements
+v1-v16: [=========================] COMPLETE (see MILESTONES.md)
+v17:    [======>                  ] IN PROGRESS — 3/12 requirements (Phase 1 complete)
 ```
 
 ## Performance Metrics
@@ -56,8 +57,10 @@ v16:    [=========================] COMPLETE — 10/10 plans, 16/16 requirements
 - Plans: 219 complete
 - Requirements: 364 delivered
 
-**v16 Target:**
-- Requirements: 16/16 (INFRA-01 ✓, INFRA-02 ✓, INFRA-03 ✓, DET-01 ✓, DET-02 ✓, DET-03 ✓, REM-01 ✓, REM-02 ✓, REM-03 ✓, OPS-01 ✓, OPS-02 ✓, OPS-03 ✓, FRM-01 ✓, FRM-02 ✓, FRM-03 ✓, VAL-01 ✓)
+**v17 Target:**
+- Phases: 1/4 complete
+- Plans: 2/8 complete
+- Requirements: 3/12 delivered (AUTH-01, AUTH-02, AUTH-03 complete; PUB-01, PUB-02, PUB-03, ZAV-01, ZAV-02, ZAV-03, FRM-01, FRM-02, FRM-03 remaining)
 
 ## Accumulated Context
 
@@ -65,23 +68,20 @@ v16:    [=========================] COMPLETE — 10/10 plans, 16/16 requirements
 
 See PROJECT.md Key Decisions table for full history.
 
-**v16 decisions:**
-- fsi_ prefix replaces jd_ on all Dataverse tables/columns — consistency with 12+ shipped solutions
-- Map severity to fsi_acv_severity (Critical→Failed, High→Error, Medium→Warning, Low→GracePeriod)
-- UASD complements AAM (AAM = environment-level, UASD = per-agent sharing)
-- Inline agent identity (fsi_agent_id, fsi_agent_name, fsi_environment_id) — no agentvault dependency
-- Lab-grade security (interactive auth) — managed identity deferred
-- Solution abbreviation: UASD
-- BAP APIs used as specified in solution spec — endpoints not publicly documented but spec-mandated
+**v17 decisions:**
+- Consolidate 3 pending todos into one milestone (auth enforcement + publishing script + zone access)
+- Detection/validation only — no remediation automation for this milestone
+- Standalone PowerShell scripts (no Power Automate flow orchestration)
+- Lab-grade security (interactive auth) — consistent with v4-v16
+- Integrate with existing hardening baseline pattern
 
 ### Key Constraints
 
-- **BAP APIs only:** No Microsoft Graph for sharing decisions (Non-Negotiable Rule #2)
-- **Approval default:** Remediation mode is Approval for ALL zones (Non-Negotiable Rule #5)
-- **Auto-remediation:** Only for PUBLIC_INTERNET_LINK violations when explicitly enabled
+- **Detection only:** No automated remediation — validation and reporting
 - **Lab-grade:** Interactive auth; no managed identity requirement
 - **FSI language rules:** All documentation must use regulatory-safe language
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
+- **Existing patterns:** Follow established governance script conventions (#Requires, ErrorAction, SHA-256 evidence)
 
 ### Blockers
 
@@ -91,17 +91,17 @@ None.
 
 | Date | Todo | Priority |
 |------|------|----------|
-| 2026-02-12 | [Agent-Level Auth Enforcement Automation](todos/pending/2026-02-12-agent-auth-enforcement-automation.md) | High — addressed by v16 UASD |
-| 2026-02-12 | [Zone-Based Agent Access Validation](todos/pending/2026-02-12-zone-based-agent-access-validation.md) | High — partially addressed by v16 |
-| 2026-02-12 | [Create restrict-agent-publishing.ps1](todos/pending/2026-02-12-restrict-agent-publishing-script.md) | High — detection covered by UASD |
-| 2026-02-12 | [Reconcile AAM Status Discrepancy](todos/pending/2026-02-12-solutions-index-status-discrepancy.md) | Medium — addressed in v16 Phase 5 |
-| 2026-02-11 | [Agent Usage & Performance Workbook](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | High — **completed as v15** |
+| 2026-02-12 | [Agent-Level Auth Enforcement Automation](todos/pending/2026-02-12-agent-auth-enforcement-automation.md) | High — **v17 scope (AUTH-01/02/03)** |
+| 2026-02-12 | [Zone-Based Agent Access Validation](todos/pending/2026-02-12-zone-based-agent-access-validation.md) | High — **v17 scope (ZAV-01/02/03)** |
+| 2026-02-12 | [Create restrict-agent-publishing.ps1](todos/pending/2026-02-12-restrict-agent-publishing-script.md) | High — **v17 scope (PUB-01/02/03)** |
+| 2026-02-12 | [Reconcile AAM Status Discrepancy](todos/pending/2026-02-12-solutions-index-status-discrepancy.md) | Medium — resolved in v16 Phase 5 |
+| 2026-02-11 | [Agent Usage & Performance Workbook](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | High — completed as v15 |
 
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-12 14:00
-**Handoff Summary:** Phase 1 (Solution Infrastructure) complete. 3 scripts created: create_uasd_dataverse_schema.py (5 tables, 6 option sets, seed data), create_uasd_environment_variables.py (4 env vars), create_uasd_connection_references.py (2 conn refs). All validated, committed (035e936). Phase 2 (Detection Engine) ready to execute.
+**Session Started:** 2026-02-12 16:00
+**Handoff Summary:** v17 roadmap created — 4 phases (AUTH, PUB, ZAV, FRM), 8 plans, 12 requirements. Phases 1–3 independent. Phase 4 depends on 1–3. v16 ROADMAP archived to milestones/v16-ROADMAP.md.
 
 ---
 
@@ -111,4 +111,5 @@ None.
 *v13 defined then deferred: 2026-02-11*
 *v14 milestone completed: 2026-02-11*
 *v15 milestone completed: 2026-02-12*
-*v16 milestone initialized: 2026-02-12*
+*v16 milestone completed: 2026-02-12*
+*v17 milestone defined: 2026-02-12*
