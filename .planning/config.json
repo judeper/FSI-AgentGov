@@ -1,5 +1,5 @@
 {
-  "project_name": "Unrestricted Agent Sharing Detector (v16)",
+  "project_name": "Agent Security Configuration Governance (v17)",
   "mode": "yolo",
   "depth": "comprehensive",
   "parallelization": true,

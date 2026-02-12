@@ -1,89 +1,73 @@
-# Requirements: Unrestricted Agent Sharing Detector (v16)
+# Requirements: v17 — Agent Security Configuration Governance
 
 ## Overview
 
-Continuous agent sharing compliance solution that detects unsafe or noncompliant sharing configurations using BAP APIs, records violations in Dataverse, drives remediation through Power Automate, and enforces time-bound exceptions via an Exception Manager app.
+Automate per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8. Converts 6 manual-only SSPM checks to automated validation, creates the phantom `restrict-agent-publishing.ps1` governance script, and adds zone-policy compliance verification for agent access settings.
 
-**Source:** User-provided solution design spec (Unrestricted Agent Sharing Detector AI Implementation Spec)
+**Source:** Three pending todos from v16 research:
+- [Agent-Level Auth Enforcement Automation](todos/pending/2026-02-12-agent-auth-enforcement-automation.md)
+- [Create restrict-agent-publishing.ps1](todos/pending/2026-02-12-restrict-agent-publishing-script.md)
+- [Zone-Based Agent Access Validation](todos/pending/2026-02-12-zone-based-agent-access-validation.md)
 
 ## Requirement Categories
 
 | Code | Category | Count |
 |------|----------|-------|
-| INFRA | Solution Infrastructure | 3 |
-| DET | Detection Engine | 3 |
-| REM | Remediation & Exceptions | 3 |
-| OPS | Deployment & Operations | 3 |
+| AUTH | Agent Authentication Enforcement | 3 |
+| PUB | Publishing Restriction Governance | 3 |
+| ZAV | Zone Access Validation | 3 |
 | FRM | Framework Integration | 3 |
-| VAL | Validation | 1 |
-| **Total** | | **16** |
+| **Total** | | **12** |
 
-## INFRA — Solution Infrastructure
+## AUTH — Agent Authentication Enforcement
 
-- [ ] **INFRA-01:** Create Dataverse schema with 5 tables (`fsi_AgentSharingSetting`, `fsi_SharingViolation`, `fsi_SharingException`, `fsi_ApprovedSecurityGroup`, `fsi_SharingPolicy`) using `fsi_` prefix convention, reusing `fsi_acv_zone` and `fsi_acv_severity` shared option sets, creating 6 solution-specific option sets (`fsi_UASD_*`)
-- [ ] **INFRA-02:** Define environment variables (`fsi_UASD_AutoRemediatePublicLink`, `fsi_UASD_ScanFrequencyHours`, `fsi_UASD_HomeTenantId`, `fsi_UASD_DefaultExceptionDays`) and connection references (`fsi_cr_dataverse_sharingdetector`, `fsi_cr_teams_sharingdetector`)
-- [ ] **INFRA-03:** Seed default sharing policy row (`MaxIndividualSharesPerAgent = 100, Zone = All`) in `fsi_SharingPolicy`; inline agent identity fields (`fsi_agent_id`, `fsi_agent_name`, `fsi_environment_id`) on agent-referencing tables
+- [ ] **AUTH-01:** PowerShell script reads per-agent authentication configuration via BAP/PPAC REST endpoints — connects to Power Platform, enumerates agents per environment, retrieves auth mode/enforcement/sharing settings
+- [ ] **AUTH-02:** Validate 6 SSPM items (SSPM-1.1-01 through SSPM-1.1-06) with zone-based logic — Zone 1 permissive (warn only), Zone 2/3 enforce "Always" auth timing, "No Authentication" flagged in all zones, sharing scope "Anyone" flagged in Zone 2/3
+- [ ] **AUTH-03:** Drift detection for agent auth setting changes with SHA-256 evidence export — comparison against previous scan baseline, JSON output with integrity hashing for Dataverse ingestion
 
-## DET — Detection Engine
+## PUB — Publishing Restriction Governance
 
-- [ ] **DET-01:** Build Detector flow (`fsi-UASD-Detector-ScanAgents`) — scheduled trigger, BAP API agent enumeration (spec §3.1), principal retrieval (spec §3.2), Dataverse upsert to `fsi_AgentSharingSetting`, all 5 violation rules (ORG_WIDE_SHARING, PUBLIC_INTERNET_LINK, UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS) per spec §4.1
-- [ ] **DET-02:** Build `Invoke-SharingAudit.ps1` — on-demand PowerShell detection script calling BAP APIs directly, writing to Dataverse, evaluating violation rules; `#Requires -Version 7.0`, standard header, `-OutputFormat`, `-OutputPath` parameters
-- [ ] **DET-03:** Build adaptive card template (`adaptive-card-uasd-alert.json`) for sharing violation Teams notifications following established pattern
+- [ ] **PUB-01:** Create `restrict-agent-publishing.ps1` validating 6 publishing restriction criteria — Environment Maker role removal, authorized security groups, Share with Everyone disabled, DLP connector blocking, Managed Environment sharing limits, approval workflow active (Zone 2/3)
+- [ ] **PUB-02:** SHA-256 evidence export and JSON output for downstream integration — structured JSON with per-check pass/fail, evidence hashes, timestamp; compatible with Dataverse ingestion patterns
+- [ ] **PUB-03:** Integration with `Invoke-HardeningBaselineCheck.ps1` for items 1-6 — hardening baseline items 1-6 reclassified from "Manual Attestation" to "Automated" or "Semi-Automated"; baseline script calls or references the new validation
 
-## REM — Remediation & Exceptions
+## ZAV — Zone Access Validation
 
-- [ ] **REM-01:** Build Remediation flow (`fsi-UASD-Remediation-ApplySharingPolicy`) — triggered on `fsi_SharingViolation` creation/update where status = Open; exception check, approval/automatic path (auto only for PUBLIC_INTERNET_LINK when enabled), BAP PATCH to overwrite principals (spec §3.3)
-- [ ] **REM-02:** Build Exception Approval flow (`fsi-UASD-ExceptionApproval-Workflow`) — dual approval (security + data owner), 90-day default expiration, expiration scanner to mark expired exceptions
-- [ ] **REM-03:** Build Exception Manager Canvas App — exception submission (agent selection, business justification, data classification), dual approval status display, expiration enforcement
-
-## OPS — Deployment & Operations
-
-- [ ] **OPS-01:** Implement `Import-ApprovedSecurityGroups.ps1` — CSV/JSON import into `fsi_ApprovedSecurityGroup`, upsert on `fsi_entraid_group_id`, idempotent
-- [ ] **OPS-02:** Implement deployment scripts (`Deploy-DetectionFlow.ps1`, `Deploy-RemediationFlow.ps1`) — import/update flows, bind connection references, idempotent re-run
-- [ ] **OPS-03:** Implement `Export-ViolationReport.ps1` — query violations and sharing settings from Dataverse, CSV/JSON output, `-IncludeEvidence` SHA-256 hash support
+- [ ] **ZAV-01:** Automate M365 Admin Center agent access settings verification per zone — script reads agent access control configuration, compares to zone policy (Zone 1: all agents, Zone 2: Org + MS verified, Zone 3: Org only with approval)
+- [ ] **ZAV-02:** Validate Admin Exclusion Groups and deployment group configuration — verify `CopilotForM365AdminExclude` Entra group exists and is populated; validate staged deployment group configuration per zone
+- [ ] **ZAV-03:** Drift detection with periodic validation and Teams notification support — comparison output suitable for daily scheduling; structured results compatible with existing alerting patterns (adaptive cards)
 
 ## FRM — Framework Integration
 
-- [ ] **FRM-01:** Add Unrestricted Agent Sharing Detector entry to `solutions-index.md` with status, components, regulatory alignment (FINRA 4511, SOX 404, SEC 17a-3/4, GLBA 501(b)), control mappings (1.1, 3.8)
-- [ ] **FRM-02:** Update Controls 1.1 and 3.8 with tip admonitions linking to UASD solution; create architecture and deployment docs in `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/`
-- [ ] **FRM-03:** Add nav entries to `mkdocs.yml` under Advanced Implementations; reconcile AAM status discrepancy in solutions-index.md (WIP → Completed)
+- [ ] **FRM-01:** Update Controls 1.1, 3.7, 3.8 with automation solution references — tip admonitions linking to new governance scripts; verification criteria updated to reflect automation availability
+- [ ] **FRM-02:** Update solutions-index.md, hardening baseline, and governance README — solutions catalog entry added; hardening baseline items 1-6 status updated; `scripts/governance/README.md` reflects actual script
+- [ ] **FRM-03:** All validations pass — `mkdocs build --strict`, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
 
-## VAL — Validation
+## Traceability Matrix
 
-- [ ] **VAL-01:** All 7 spec validation tests pass (compliant agent, org-wide violation, public internet link, excessive individual, cross-tenant, exception suppression, exception expiration); `mkdocs build --strict` passes; `verify_controls.py` 62/62; `verify_language_rules.py` 0 violations
+| Requirement | Todo Source | Controls | Regulatory |
+|-------------|-----------|----------|------------|
+| AUTH-01, AUTH-02, AUTH-03 | agent-auth-enforcement-automation | 1.1, 2.8 | FINRA 4511, SEC 17a-3/4, GLBA 501(b), SOX 302 |
+| PUB-01, PUB-02, PUB-03 | restrict-agent-publishing-script | 1.1, 2.1, 3.7 | FINRA 4511, SEC 17a-4, SOX 302/404, GLBA 501(b) |
+| ZAV-01, ZAV-02, ZAV-03 | zone-based-agent-access-validation | 3.8, 1.1, 2.1 | FINRA 3110, SOX 404, GLBA 501(b), OCC 2011-12 |
+| FRM-01, FRM-02, FRM-03 | All three todos | 1.1, 3.7, 3.8 | All applicable |
 
 ## Out of Scope
 
 | Item | Reason |
 |------|--------|
-| Microsoft Graph for sharing decisions | Non-Negotiable Rule #2 — BAP APIs only |
+| Power Automate flow orchestration | Scripts are standalone; flow integration deferred to future milestone |
+| New Dataverse tables | Use existing validation patterns; new tables deferred |
+| Remediation automation | Detection/validation only — manual remediation for this milestone |
+| Canvas app UI for results | CLI/JSON output sufficient |
 | Managed identity / production-grade auth | Lab-grade implementation; expandable later |
-| Agent inventory Dataverse table | Control 3.1 is CSV/SharePoint-based; inline fields sufficient |
-| Power BI dataset | Optional, implement last per spec — deferred beyond v16 |
-| Real-time detection | Scheduled/on-demand sufficient per framework constraints |
-| Cross-solution Compliance Dashboard feed | Deferred to future integration milestone |
+| Real-time monitoring | Scheduled/on-demand sufficient per framework constraints |
 
-## Traceability
+## Priority Summary
 
-| Requirement | Spec Section | Phase |
-|-------------|-------------|-------|
-| INFRA-01 | §2 (Dataverse Schema) | 1 |
-| INFRA-02 | §7 (Execution Identity) | 1 |
-| INFRA-03 | §2.5 (Seed Data) | 1 |
-| DET-01 | §3.1, §3.2, §4.1 | 2 |
-| DET-02 | §8 (Invoke-SharingAudit) | 2 |
-| DET-03 | Adaptive Card pattern | 2 |
-| REM-01 | §5 (Remediation Flow) | 3 |
-| REM-02 | §6 (Exception Manager) | 3 |
-| REM-03 | §6 (Exception Manager App) | 3 |
-| OPS-01 | §8 (Import-ApprovedSecurityGroups) | 4 |
-| OPS-02 | §8 (Deploy-*Flow) | 4 |
-| OPS-03 | §8 (Export-ViolationReport) | 4 |
-| FRM-01 | — (framework standard) | 5 |
-| FRM-02 | — (framework standard) | 5 |
-| FRM-03 | — (framework standard) | 5 |
-| VAL-01 | §9 (Validation Tests) | 5 |
+- **P1 (8):** AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, ZAV-01, FRM-01, FRM-02, FRM-03
+- **P2 (3):** PUB-03, ZAV-02, ZAV-03
 
 ---
 *Requirements defined: 2026-02-12*
-*Source: Unrestricted Agent Sharing Detector AI Implementation Spec*
+*Milestone: v17 — Agent Security Configuration Governance*

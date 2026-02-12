@@ -8,19 +8,19 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v16 Unrestricted Agent Sharing Detector
+## Current Milestone: v17 Agent Security Configuration Governance
 
-**Goal:** Build a continuous agent sharing compliance solution that scans Copilot Studio agents for unsafe sharing configurations using BAP APIs, records violations in Dataverse, drives remediation through Power Automate, and enforces time-bound exceptions via an Exception Manager app.
+**Goal:** Automate per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8.
 
-**Source:** User-designed solution spec — addresses automation gaps in Controls 1.1 and 3.8 where per-agent sharing validation is manual-only.
+**Source:** Three high-priority pending todos from v16 research addressing automation gaps where agent-level security checks are manual-only.
 
 **Target deliverables:**
-- 5 Dataverse tables (AgentSharingSetting, SharingViolation, SharingException, ApprovedSecurityGroup, SharingPolicy)
-- 3 Power Automate flows (Detector, Remediation, Exception Approval)
-- 1 Power Apps Canvas App (Exception Manager)
-- 5 PowerShell scripts (Import-ApprovedSecurityGroups, Deploy-DetectionFlow, Deploy-RemediationFlow, Invoke-SharingAudit, Export-ViolationReport)
-- Framework documentation (solutions-index entry, control updates, architecture/deployment guides)
-- Adaptive card template for Teams violation alerts
+- PowerShell script for per-agent auth configuration validation (6 SSPM items)
+- `restrict-agent-publishing.ps1` governance script (6 publishing restriction criteria)
+- Zone-based agent access settings verification script
+- SHA-256 evidence export for all validation scripts
+- Hardening baseline items 1-6 reclassified from Manual Attestation
+- Framework documentation updates (Controls 1.1, 3.7, 3.8, solutions-index)
 
 ## Current State (v10 Shipped)
 
@@ -40,11 +40,12 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v10: Conditional Access Automation — CA policy lifecycle management with drift detection and evidence export
 - v14: SSPM Control Coverage Remediation — 32 SSPM alerts mapped to 8 controls, PowerShell hardening baseline v1.1.0, playbook remediation, environment security settings
 - v15: Agent Usage & Performance Workbook — deployable Azure Monitor Workbook for Copilot Studio usage, performance, and error visibility with RBAC-scoped access
+- v16: Unrestricted Agent Sharing Detector — continuous agent sharing compliance via BAP APIs with 5-table Dataverse schema, detection/remediation/exception flows, and framework integration
 
 **Solutions Status:**
 - 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation, Agent Usage & Performance Workbook
 - 1 Validated: FINRA Supervision Workflow
-- 1 In Progress: Unrestricted Agent Sharing Detector
+- 1 Completed (v16): Unrestricted Agent Sharing Detector
 - 2 Work In Progress: Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
@@ -94,16 +95,15 @@ Capabilities delivered:
 
 ### Active
 
-**v16: Unrestricted Agent Sharing Detector**
+**v17: Agent Security Configuration Governance**
 
-Continuous agent sharing compliance solution using BAP APIs:
-- Solution Infrastructure: 5 Dataverse tables, 6 UASD-specific + 2 shared option sets, environment variables, connection references
-- Detection Engine: Detector flow, on-demand audit script, adaptive card template, 5 violation rules
-- Remediation & Exceptions: Remediation flow (approval-default), exception approval flow (dual approval), Exception Manager canvas app
-- Deployment & Operations: Deploy scripts, violation export with SHA-256, deployment guide
-- Framework Integration: Controls 1.1, 3.8 updates, solutions-index entry, architecture docs
+Automate per-agent security configuration validation:
+- Agent Authentication Enforcement: PowerShell validation of 6 SSPM items (auth mode, enforcement timing, sharing scope) with zone-based logic
+- Publishing Restriction Governance: restrict-agent-publishing.ps1 script validating 6 publishing criteria with SHA-256 evidence
+- Zone Access Validation: M365 Admin Center agent access settings verification per zone policy
+- Framework Integration: Controls 1.1, 3.7, 3.8 updates, hardening baseline reclassification, solutions catalog
 
-**Current milestone: v16 — Unrestricted Agent Sharing Detector (PLANNING)**
+**Current milestone: v17 — Agent Security Configuration Governance (PLANNING)**
 
 ### Out of Scope
 
@@ -204,4 +204,4 @@ Continuous agent sharing compliance solution using BAP APIs:
 | v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-12 after v16 milestone initialization*
+*Last updated: 2026-02-12 after v17 milestone definition*
