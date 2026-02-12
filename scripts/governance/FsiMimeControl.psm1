@@ -336,12 +336,12 @@ function Get-FsiMimeConfig {
     $orgId = $org.organizationid
 
     # Parse semicolon-separated fields into arrays
-    $blockedExtensions = if ($org.blockedattachments) {
-        ($org.blockedattachments -split ';' | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ })
+    $blockedExtensions = if (-not [string]::IsNullOrWhiteSpace($org.blockedattachments)) {
+        @($org.blockedattachments -split ';' | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ -ne '' })
     } else { @() }
 
-    $blockedMimeTypes = if ($org.blockedmimetypes) {
-        ($org.blockedmimetypes -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+    $blockedMimeTypes = if (-not [string]::IsNullOrWhiteSpace($org.blockedmimetypes)) {
+        @($org.blockedmimetypes -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
     } else { @() }
 
     # Attempt to read allowedmimetypes (may not exist on all environments)
@@ -358,11 +358,15 @@ function Get-FsiMimeConfig {
         Write-Verbose "FsiMimeControl: allowedmimetypes field not available on this environment — treating as unsupported"
     }
 
+    # Build result; guard empty arrays against PSCustomObject null-unrolling
+    $extArr  = if ($blockedExtensions.Count -gt 0) { [string[]]$blockedExtensions } else { [string[]]::new(0) }
+    $mimeArr = if ($blockedMimeTypes.Count  -gt 0) { [string[]]$blockedMimeTypes  } else { [string[]]::new(0) }
+
     $result = [PSCustomObject]@{
         DataverseUrl       = $conn.Url
         OrganizationId     = $orgId
-        BlockedExtensions  = [string[]]$blockedExtensions
-        BlockedMimeTypes   = [string[]]$blockedMimeTypes
+        BlockedExtensions  = $extArr
+        BlockedMimeTypes   = $mimeArr
         AllowedMimeTypes   = $allowedMimeTypes
         RawResponse        = @{
             blockedattachments = $org.blockedattachments
