@@ -13,7 +13,7 @@ Automate per-agent authentication enforcement, publishing restriction validation
 - [x] **Phase 1: Agent Authentication Enforcement** — PowerShell script validating 6 SSPM items per agent, zone-based logic, drift detection, SHA-256 evidence export
 - [x] **Phase 2: Publishing Restriction Governance** — `restrict-agent-publishing.ps1` validating 6 publishing criteria, SHA-256 evidence, hardening baseline integration
 - [ ] **Phase 3: Zone Access Validation** — M365 Admin Center agent access settings verification per zone, admin exclusion group validation, drift detection
-- [ ] **Phase 4: Framework Integration & Validation** — Controls 1.1/3.7/3.8 updates, solutions-index entry, hardening baseline reclassification, full build validation
+- [x] **Phase 4: Framework Integration & Validation** — Controls 1.1/3.7/3.8 updates, solutions-index entry, hardening baseline reclassification, full build validation
 
 ## Phase Details
 
@@ -70,7 +70,7 @@ Automate per-agent authentication enforcement, publishing restriction validation
 | 1. Agent Authentication Enforcement | 2/2 | Complete |
 | 2. Publishing Restriction Governance | 2/2 | Complete |
 | 3. Zone Access Validation | 2/2 | Complete |
-| 4. Framework Integration & Validation | 0/2 | Not Started |
+| 4. Framework Integration & Validation | 2/2 | Complete |
 
 ## Parallel Execution Guide
 
