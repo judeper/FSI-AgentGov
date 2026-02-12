@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-12
 **Milestone:** v18 — MIME Type Restrictions for File Uploads
-**Status:** ROADMAP READY — 5 phases, 10 plans, 16 requirements
+**Status:** PHASE 1 COMPLETE — 2/10 plans executed, 3/16 requirements delivered
 
 ## Session Ownership
 
@@ -40,15 +40,15 @@ v18: MIME Type Restrictions for File Uploads — ROADMAP READY
 
 ## Current Position
 
-**Phase:** 1 of 5 (Plans ready)
-**Plan:** 0/10 plans
-**Status:** Phase 1 planned — 2 plans across 1 wave, research complete, plan-checked APPROVED
-**Last activity:** 2026-02-12 — Phase 1 research + 2 plans created, plan-check passed
+**Phase:** 1 of 5 (Complete)
+**Plan:** 2/10 plans
+**Status:** Phase 1 complete — Control 1.25 doc + 4 playbooks + EXPECTED.md created, mkdocs nav updated, build + verify passing
+**Last activity:** 2026-02-12 — Phase 1 executed (2 plans, 1 wave), 3 commits
 
 **Progress:**
 ```
 v1-v17: [=========================] COMPLETE (see MILESTONES.md)
-v18:    [=>                       ] PHASE 1 PLANNED
+v18:    [=====>                   ] PHASE 1 COMPLETE
 ```
 
 ## Performance Metrics
@@ -59,9 +59,9 @@ v18:    [=>                       ] PHASE 1 PLANNED
 - Requirements: 376 delivered
 
 **v18 Target:**
-- Phases: 0/5 (1-CTL, 2-MOD, 3-MON, 4-PLG/EXC, 5-FRM)
-- Plans: 0/10
-- Requirements: 0/16 (CTL-3, MOD-3, PLG-2, MON-3, EXC-2, FRM-3)
+- Phases: 1/5 (1-CTL complete, 2-MOD, 3-MON, 4-PLG/EXC, 5-FRM)
+- Plans: 2/10
+- Requirements: 3/16 (CTL-3 delivered, MOD-3, PLG-2, MON-3, EXC-2, FRM-3)
 
 ## Accumulated Context
 
