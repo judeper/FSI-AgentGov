@@ -34,6 +34,9 @@
       "pattern": "^https://admin\\.portal\\.com"
     },
     {
+      "pattern": "^https://github\\.com/judeper/FSI-AgentGov-Solutions"
+    },
+    {
       "pattern": "^https://learn\\.microsoft\\.com/en-us/\\.\\.\\."
     },
     {
