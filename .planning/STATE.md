@@ -15,7 +15,7 @@
 See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v17 — Agent Security Configuration Governance. Roadmap created, phase planning next.
+**Current focus:** v17 complete. Ready for next milestone definition.
 
 ## Milestone Series Plan
 
@@ -34,7 +34,7 @@ v13: Agent Usage & Performance Workbook — DEFERRED (superseded by v15)
 v14: SSPM Control Coverage Remediation — COMPLETE
 v15: Agent Usage & Performance Workbook — COMPLETE
 v16: Unrestricted Agent Sharing Detector — COMPLETE
-v17: Agent Security Configuration Governance — IN PROGRESS
+v17: Agent Security Configuration Governance — COMPLETE
 ```
 
 ## Current Position
@@ -46,21 +46,20 @@ v17: Agent Security Configuration Governance — IN PROGRESS
 
 **Progress:**
 ```
-v1-v16: [=========================] COMPLETE (see MILESTONES.md)
-v17:    [=========================] COMPLETE (all 12 requirements delivered)
+v1-v17: [=========================] COMPLETE (see MILESTONES.md)
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v16):**
-- Phases: 73 complete
-- Plans: 219 complete
-- Requirements: 364 delivered
+**Cumulative (v1-v17):**
+- Phases: 77 complete
+- Plans: 227 complete
+- Requirements: 376 delivered
 
-**v17 Target:**
+**v17 Final:**
 - Phases: 4/4 complete
 - Plans: 8/8 complete
-- Requirements: 12/12 delivered (AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, PUB-03, ZAV-01, ZAV-02, ZAV-03, FRM-01, FRM-02, FRM-03 complete)
+- Requirements: 12/12 delivered (AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, PUB-03, ZAV-01, ZAV-02, ZAV-03, FRM-01, FRM-02, FRM-03)
 
 ## Accumulated Context
 
@@ -89,19 +88,21 @@ None.
 
 ## Pending Todos
 
-| Date | Todo | Priority |
-|------|------|----------|
-| 2026-02-12 | [Agent-Level Auth Enforcement Automation](todos/pending/2026-02-12-agent-auth-enforcement-automation.md) | High — **v17 scope (AUTH-01/02/03)** |
-| 2026-02-12 | [Zone-Based Agent Access Validation](todos/pending/2026-02-12-zone-based-agent-access-validation.md) | High — **v17 scope (ZAV-01/02/03)** |
-| 2026-02-12 | [Create restrict-agent-publishing.ps1](todos/pending/2026-02-12-restrict-agent-publishing-script.md) | High — **v17 scope (PUB-01/02/03)** |
-| 2026-02-12 | [Reconcile AAM Status Discrepancy](todos/pending/2026-02-12-solutions-index-status-discrepancy.md) | Medium — resolved in v16 Phase 5 |
-| 2026-02-11 | [Agent Usage & Performance Workbook](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | High — completed as v15 |
+| Date | Todo | Status |
+|------|------|--------|
+| 2026-02-12 | [Agent-Level Auth Enforcement Automation](todos/pending/2026-02-12-agent-auth-enforcement-automation.md) | Delivered — v17 (AUTH-01/02/03) |
+| 2026-02-12 | [Zone-Based Agent Access Validation](todos/pending/2026-02-12-zone-based-agent-access-validation.md) | Delivered — v17 (ZAV-01/02/03) |
+| 2026-02-12 | [Create restrict-agent-publishing.ps1](todos/pending/2026-02-12-restrict-agent-publishing-script.md) | Delivered — v17 (PUB-01/02/03) |
+| 2026-02-12 | [Reconcile AAM Status Discrepancy](todos/pending/2026-02-12-solutions-index-status-discrepancy.md) | Resolved — v16 Phase 5 |
+| 2026-02-11 | [Agent Usage & Performance Workbook](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | Delivered — v15 |
+
+All pending todos resolved. No open items.
 
 ## Session Continuity
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-12 16:00
-**Handoff Summary:** v17 roadmap created — 4 phases (AUTH, PUB, ZAV, FRM), 8 plans, 12 requirements. Phases 1–3 independent. Phase 4 depends on 1–3. v16 ROADMAP archived to milestones/v16-ROADMAP.md.
+**Handoff Summary:** v17 COMPLETE — archived to MILESTONES.md. All pending todos resolved. Ready for `/gsd-new-milestone`.
 
 ---
 
@@ -112,4 +113,4 @@ None.
 *v14 milestone completed: 2026-02-11*
 *v15 milestone completed: 2026-02-12*
 *v16 milestone completed: 2026-02-12*
-*v17 milestone defined: 2026-02-12*
+*v17 milestone completed: 2026-02-12*

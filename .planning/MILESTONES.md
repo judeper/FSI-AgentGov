@@ -1,5 +1,32 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v17 Agent Security Configuration Governance (Completed: 2026-02-12)
+
+**Delivered:** Three PowerShell governance scripts automating per-agent authentication enforcement (6 SSPM items), publishing restriction validation (6 criteria), and zone-based agent access configuration verification — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8. Includes drift detection, SHA-256 evidence export, adaptive card alerting, hardening baseline integration, and full framework documentation updates.
+
+**Phases completed:** 1-4 (8 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Agent Authentication Enforcement (2 plans):** Created `Test-AgentAuthConfiguration.ps1` validating 6 SSPM items (SSPM-1.1-01 through SSPM-1.1-06) per agent via BAP/PPAC REST endpoints with zone-based logic (Zone 1 permissive, Zone 2/3 enforce "Always" auth timing), drift detection comparing against previous scan baseline, SHA-256 evidence hashing, and JSON output structured for Dataverse ingestion
+- **Phase 2 — Publishing Restriction Governance (2 plans):** Created `restrict-agent-publishing.ps1` (previously phantom — listed in README but file didn't exist) validating 6 publishing criteria (Environment Maker role removal, authorized security groups, Share with Everyone disabled, DLP connector blocking, Managed Environment sharing limits, approval workflow); integrated with `Invoke-HardeningBaselineCheck.ps1` items 1-6 cross-reference; SHA-256 evidence export
+- **Phase 3 — Zone Access Validation (2 plans):** Created `Test-ZoneAgentAccess.ps1` with 4 check groups (agent access policy, admin exclusion group, deployment groups, web search control); validates M365 Admin Center settings against zone policy (Zone 1: all agents, Zone 2: Org + MS verified, Zone 3: Org only); drift detection with baseline comparison; companion adaptive card template (`src/adaptive-card-zone-access-alert.json`) for Teams webhook notifications
+- **Phase 4 — Framework Integration & Validation (2 plans):** Added tip admonitions to Controls 1.1 (2 tips: auth enforcement + publishing restriction), 3.7 (1 tip: publishing restriction), 3.8 (1 tip: zone access validation); added Agent Security Configuration Governance entry to solutions-index.md; updated hardening baseline playbook items 1-6 with automation reference; cleaned governance README (removed 3 phantom scripts, added 5 missing UASD scripts); all validations pass (mkdocs build --strict, verify_controls.py 62/62, verify_language_rules.py 0 violations across 493 files)
+
+**Stats:**
+
+- 4 phases, 8 plans, 12 requirements (100% satisfied — AUTH-3, PUB-3, ZAV-3, FRM-3)
+- Source: Three pending todos from v16 research addressing manual attestation gaps
+- Key artifacts: `Test-AgentAuthConfiguration.ps1`, `restrict-agent-publishing.ps1`, `Test-ZoneAgentAccess.ps1`, `src/adaptive-card-zone-access-alert.json`
+- Controls modified: 1.1, 3.7, 3.8
+- Playbooks modified: configuration-hardening-baseline/index.md
+- Reference docs modified: solutions-index.md, scripts/governance/README.md
+- 1 day (2026-02-12)
+
+**What's next:** Define next milestone or assess backlog.
+
+---
+
 ## v16 Unrestricted Agent Sharing Detector (Completed: 2026-02-12)
 
 **Delivered:** Continuous agent sharing compliance solution using BAP APIs to detect unsafe sharing configurations across Power Platform environments, record violations in Dataverse, drive remediation through Power Automate with approval workflows, and enforce time-bound exceptions via an Exception Manager canvas app. Complements the existing Agent Access Governance Monitor (AAM = environment-level; UASD = per-agent sharing). Includes 5-table Dataverse schema, detector flow with 5 violation rules, remediation flow with exception suppression, dual-approval exception lifecycle, deployment scripts, violation export with SHA-256 evidence hashing, and full framework integration.

@@ -21,27 +21,27 @@ Automate per-agent authentication enforcement, publishing restriction validation
 
 ## AUTH — Agent Authentication Enforcement
 
-- [ ] **AUTH-01:** PowerShell script reads per-agent authentication configuration via BAP/PPAC REST endpoints — connects to Power Platform, enumerates agents per environment, retrieves auth mode/enforcement/sharing settings
-- [ ] **AUTH-02:** Validate 6 SSPM items (SSPM-1.1-01 through SSPM-1.1-06) with zone-based logic — Zone 1 permissive (warn only), Zone 2/3 enforce "Always" auth timing, "No Authentication" flagged in all zones, sharing scope "Anyone" flagged in Zone 2/3
-- [ ] **AUTH-03:** Drift detection for agent auth setting changes with SHA-256 evidence export — comparison against previous scan baseline, JSON output with integrity hashing for Dataverse ingestion
+- [x] **AUTH-01:** PowerShell script reads per-agent authentication configuration via BAP/PPAC REST endpoints — connects to Power Platform, enumerates agents per environment, retrieves auth mode/enforcement/sharing settings
+- [x] **AUTH-02:** Validate 6 SSPM items (SSPM-1.1-01 through SSPM-1.1-06) with zone-based logic — Zone 1 permissive (warn only), Zone 2/3 enforce "Always" auth timing, "No Authentication" flagged in all zones, sharing scope "Anyone" flagged in Zone 2/3
+- [x] **AUTH-03:** Drift detection for agent auth setting changes with SHA-256 evidence export — comparison against previous scan baseline, JSON output with integrity hashing for Dataverse ingestion
 
 ## PUB — Publishing Restriction Governance
 
-- [ ] **PUB-01:** Create `restrict-agent-publishing.ps1` validating 6 publishing restriction criteria — Environment Maker role removal, authorized security groups, Share with Everyone disabled, DLP connector blocking, Managed Environment sharing limits, approval workflow active (Zone 2/3)
-- [ ] **PUB-02:** SHA-256 evidence export and JSON output for downstream integration — structured JSON with per-check pass/fail, evidence hashes, timestamp; compatible with Dataverse ingestion patterns
-- [ ] **PUB-03:** Integration with `Invoke-HardeningBaselineCheck.ps1` for items 1-6 — hardening baseline items 1-6 reclassified from "Manual Attestation" to "Automated" or "Semi-Automated"; baseline script calls or references the new validation
+- [x] **PUB-01:** Create `restrict-agent-publishing.ps1` validating 6 publishing restriction criteria — Environment Maker role removal, authorized security groups, Share with Everyone disabled, DLP connector blocking, Managed Environment sharing limits, approval workflow active (Zone 2/3)
+- [x] **PUB-02:** SHA-256 evidence export and JSON output for downstream integration — structured JSON with per-check pass/fail, evidence hashes, timestamp; compatible with Dataverse ingestion patterns
+- [x] **PUB-03:** Integration with `Invoke-HardeningBaselineCheck.ps1` for items 1-6 — hardening baseline items 1-6 reclassified from "Manual Attestation" to "Automated" or "Semi-Automated"; baseline script calls or references the new validation
 
 ## ZAV — Zone Access Validation
 
-- [ ] **ZAV-01:** Automate M365 Admin Center agent access settings verification per zone — script reads agent access control configuration, compares to zone policy (Zone 1: all agents, Zone 2: Org + MS verified, Zone 3: Org only with approval)
-- [ ] **ZAV-02:** Validate Admin Exclusion Groups and deployment group configuration — verify `CopilotForM365AdminExclude` Entra group exists and is populated; validate staged deployment group configuration per zone
-- [ ] **ZAV-03:** Drift detection with periodic validation and Teams notification support — comparison output suitable for daily scheduling; structured results compatible with existing alerting patterns (adaptive cards)
+- [x] **ZAV-01:** Automate M365 Admin Center agent access settings verification per zone — script reads agent access control configuration, compares to zone policy (Zone 1: all agents, Zone 2: Org + MS verified, Zone 3: Org only with approval)
+- [x] **ZAV-02:** Validate Admin Exclusion Groups and deployment group configuration — verify `CopilotForM365AdminExclude` Entra group exists and is populated; validate staged deployment group configuration per zone
+- [x] **ZAV-03:** Drift detection with periodic validation and Teams notification support — comparison output suitable for daily scheduling; structured results compatible with existing alerting patterns (adaptive cards)
 
 ## FRM — Framework Integration
 
-- [ ] **FRM-01:** Update Controls 1.1, 3.7, 3.8 with automation solution references — tip admonitions linking to new governance scripts; verification criteria updated to reflect automation availability
-- [ ] **FRM-02:** Update solutions-index.md, hardening baseline, and governance README — solutions catalog entry added; hardening baseline items 1-6 status updated; `scripts/governance/README.md` reflects actual script
-- [ ] **FRM-03:** All validations pass — `mkdocs build --strict`, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
+- [x] **FRM-01:** Update Controls 1.1, 3.7, 3.8 with automation solution references — tip admonitions linking to new governance scripts; verification criteria updated to reflect automation availability
+- [x] **FRM-02:** Update solutions-index.md, hardening baseline, and governance README — solutions catalog entry added; hardening baseline items 1-6 status updated; `scripts/governance/README.md` reflects actual script
+- [x] **FRM-03:** All validations pass — `mkdocs build --strict`, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
 
 ## Traceability Matrix
 
