@@ -8,7 +8,7 @@
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-12 16:00
-**Handoff Summary:** Phase 2 EXECUTED — restrict-agent-publishing.ps1 created (6 criteria, evidence hashing), hardening baseline items 1-6 integrated, README updated. Ready for `/gsd-execute-phase 3`.
+**Handoff Summary:** Phase 3 EXECUTED — Test-ZoneAgentAccess.ps1 created (4 check groups: agent access policy, admin exclusion group, deployment groups, web search), adaptive card template for Teams alerts, governance README updated. Ready for `/gsd-execute-phase 4`.
 
 ## Project Reference
 
@@ -39,15 +39,15 @@ v17: Agent Security Configuration Governance — IN PROGRESS
 
 ## Current Position
 
-**Phase:** 2 of 4 (Phases 1-2 complete)
-**Plan:** 4/8 plans complete
-**Status:** Phase 2 executed — restrict-agent-publishing.ps1 with 6 criteria, evidence hashing, hardening baseline integration
-**Last activity:** 2026-02-12 — Phase 2 executed (2 plans, 2 waves, 4 commits)
+**Phase:** 3 of 4 (Phases 1-3 complete)
+**Plan:** 6/8 plans complete
+**Status:** Phase 3 executed — Test-ZoneAgentAccess.ps1 with 4 check groups, adaptive card template, drift detection
+**Last activity:** 2026-02-12 — Phase 3 executed (2 plans, 2 waves, 3 commits)
 
 **Progress:**
 ```
 v1-v16: [=========================] COMPLETE (see MILESTONES.md)
-v17:    [============>            ] IN PROGRESS — 6/12 requirements (Phases 1-2 complete)
+v17:    [==================>      ] IN PROGRESS — 9/12 requirements (Phases 1-3 complete)
 ```
 
 ## Performance Metrics
@@ -58,9 +58,9 @@ v17:    [============>            ] IN PROGRESS — 6/12 requirements (Phases 1-
 - Requirements: 364 delivered
 
 **v17 Target:**
-- Phases: 2/4 complete
-- Plans: 4/8 complete
-- Requirements: 6/12 delivered (AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, PUB-03 complete; ZAV-01, ZAV-02, ZAV-03, FRM-01, FRM-02, FRM-03 remaining)
+- Phases: 3/4 complete
+- Plans: 6/8 complete
+- Requirements: 9/12 delivered (AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, PUB-03, ZAV-01, ZAV-02, ZAV-03 complete; FRM-01, FRM-02, FRM-03 remaining)
 
 ## Accumulated Context
 
