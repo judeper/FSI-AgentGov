@@ -1,0 +1,596 @@
+{
+  "$schema": "https://fsi-agentgov/schemas/canvas-app-spec/1.0",
+  "metadata": {
+    "name": "fsi-UASD-ExceptionManager",
+    "displayName": "UASD Exception Manager",
+    "description": "Exception submission, status tracking, and expiration management for UASD sharing violations.",
+    "version": "1.0.0",
+    "solution": "Unrestricted Agent Sharing Detector",
+    "requiredTables": [
+      "fsi_SharingException",
+      "fsi_AgentSharingSetting",
+      "fsi_ApprovedSecurityGroup"
+    ],
+    "requiredOptionSets": [
+      "fsi_UASD_exceptionstatus",
+      "fsi_UASD_violationtype",
+      "fsi_UASD_dataclassification"
+    ]
+  },
+  "dataSources": [
+    {
+      "name": "fsi_AgentSharingSetting",
+      "type": "Dataverse",
+      "table": "fsi_agentsharingsettings",
+      "description": "Stores detected agent sharing configurations. Used for agent lookup in exception submission.",
+      "columns": [
+        "fsi_agentsharingsettingid",
+        "fsi_agent_id",
+        "fsi_agent_display_name",
+        "fsi_environment_id",
+        "fsi_environment_display_name",
+        "fsi_sharing_scope"
+      ]
+    },
+    {
+      "name": "fsi_SharingException",
+      "type": "Dataverse",
+      "table": "fsi_sharingexceptions",
+      "description": "Stores exception requests for sharing violations. Primary CRUD table for this app.",
+      "columns": [
+        "fsi_sharingexceptionid",
+        "fsi_exception_name",
+        "fsi_exception_status",
+        "fsi_violation_type",
+        "fsi_business_justification",
+        "fsi_data_classification",
+        "fsi_requested_by",
+        "fsi_requested_at",
+        "fsi_expires_at",
+        "fsi_approved_by_security",
+        "fsi_approved_by_data_owner",
+        "fsi_agent_id",
+        "fsi_agent_display_name",
+        "fsi_environment_id"
+      ]
+    },
+    {
+      "name": "fsi_ApprovedSecurityGroup",
+      "type": "Dataverse",
+      "table": "fsi_approvedsecuritygroups",
+      "description": "Registry of approved Entra security groups. Referenced for display context.",
+      "columns": [
+        "fsi_approvedsecuritygroupid",
+        "fsi_entraid_group_id",
+        "fsi_display_name",
+        "fsi_acv_zone",
+        "fsi_is_active"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "name": "ExceptionSubmissionScreen",
+      "displayName": "Submit Exception",
+      "description": "Form for submitting a new sharing exception request.",
+      "navigationOrder": 1,
+      "controls": [
+        {
+          "name": "lblScreenTitle",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Submit Sharing Exception\"",
+            "Size": 24,
+            "FontWeight": "Bold",
+            "X": 40,
+            "Y": 20,
+            "Width": 600,
+            "Height": 50
+          }
+        },
+        {
+          "name": "lblAgent",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Agent\"",
+            "X": 40,
+            "Y": 90,
+            "Width": 200,
+            "Height": 30
+          }
+        },
+        {
+          "name": "drpAgent",
+          "type": "Dropdown",
+          "properties": {
+            "Items": "fsi_AgentSharingSetting",
+            "DisplayField": "fsi_agent_display_name",
+            "SecondaryTextField": "fsi_environment_display_name",
+            "DisplayTemplate": "Concatenate(ThisItem.fsi_agent_display_name, \" (\", ThisItem.fsi_environment_display_name, \")\")",
+            "X": 40,
+            "Y": 120,
+            "Width": 500,
+            "Height": 40
+          }
+        },
+        {
+          "name": "lblViolationType",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Violation Type\"",
+            "X": 40,
+            "Y": 180,
+            "Width": 200,
+            "Height": 30
+          }
+        },
+        {
+          "name": "drpViolationType",
+          "type": "Dropdown",
+          "properties": {
+            "Items": "Choices(fsi_SharingException.fsi_violation_type)",
+            "X": 40,
+            "Y": 210,
+            "Width": 500,
+            "Height": 40
+          }
+        },
+        {
+          "name": "lblDataClassification",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Data Classification\"",
+            "X": 40,
+            "Y": 270,
+            "Width": 200,
+            "Height": 30
+          }
+        },
+        {
+          "name": "drpDataClassification",
+          "type": "Dropdown",
+          "properties": {
+            "Items": "Choices(fsi_SharingException.fsi_data_classification)",
+            "X": 40,
+            "Y": 300,
+            "Width": 500,
+            "Height": 40
+          }
+        },
+        {
+          "name": "lblJustification",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Business Justification (minimum 50 characters)\"",
+            "X": 40,
+            "Y": 360,
+            "Width": 500,
+            "Height": 30
+          }
+        },
+        {
+          "name": "txtJustification",
+          "type": "TextInput",
+          "properties": {
+            "Mode": "MultiLine",
+            "HintText": "\"Provide a detailed business justification for this exception request...\"",
+            "X": 40,
+            "Y": 390,
+            "Width": 500,
+            "Height": 120,
+            "MaxLength": 2000
+          }
+        },
+        {
+          "name": "lblCharCount",
+          "type": "Label",
+          "properties": {
+            "Text": "Concatenate(Text(Len(txtJustification.Text)), \" / 50 minimum characters\")",
+            "Color": "If(Len(txtJustification.Text) < 50, Color.Red, Color.Green)",
+            "X": 40,
+            "Y": 515,
+            "Width": 500,
+            "Height": 25,
+            "Size": 10
+          }
+        },
+        {
+          "name": "btnSubmit",
+          "type": "Button",
+          "properties": {
+            "Text": "\"Submit Exception\"",
+            "DisplayMode": "If(IsBlank(drpAgent.Selected) || IsBlank(drpViolationType.Selected) || Len(txtJustification.Text) < 50, DisplayMode.Disabled, DisplayMode.Edit)",
+            "X": 40,
+            "Y": 560,
+            "Width": 200,
+            "Height": 45,
+            "OnSelect": "Set(varSubmitting, true); Patch(fsi_SharingException, Defaults(fsi_SharingException), { fsi_exception_name: Concatenate(\"Exception - \", drpAgent.Selected.fsi_agent_display_name, \" - \", drpViolationType.Selected.Value), fsi_exception_status: 0, fsi_violation_type: drpViolationType.Selected.Value, fsi_business_justification: txtJustification.Text, fsi_data_classification: drpDataClassification.Selected.Value, fsi_requested_by: User().Email, fsi_requested_at: Now(), fsi_expires_at: DateAdd(Now(), 90, TimeUnit.Days), fsi_agent_id: drpAgent.Selected.fsi_agent_id, fsi_agent_display_name: drpAgent.Selected.fsi_agent_display_name, fsi_environment_id: drpAgent.Selected.fsi_environment_id }); Set(varSubmitting, false); Notify(\"Exception submitted successfully.\", NotificationType.Success); Reset(drpAgent); Reset(drpViolationType); Reset(drpDataClassification); Reset(txtJustification)"
+          }
+        },
+        {
+          "name": "lblSubmitStatus",
+          "type": "Label",
+          "properties": {
+            "Text": "If(varSubmitting, \"Submitting...\", \"\")",
+            "X": 260,
+            "Y": 565,
+            "Width": 300,
+            "Height": 35
+          }
+        }
+      ],
+      "formulas": {
+        "OnVisible": "Set(varSubmitting, false)"
+      }
+    },
+    {
+      "name": "ExceptionStatusScreen",
+      "displayName": "My Requests",
+      "description": "Gallery view showing the current user's exception requests with status badges and filtering.",
+      "navigationOrder": 2,
+      "controls": [
+        {
+          "name": "lblMyRequestsTitle",
+          "type": "Label",
+          "properties": {
+            "Text": "\"My Exception Requests\"",
+            "Size": 24,
+            "FontWeight": "Bold",
+            "X": 40,
+            "Y": 20,
+            "Width": 600,
+            "Height": 50
+          }
+        },
+        {
+          "name": "drpStatusFilter",
+          "type": "Dropdown",
+          "properties": {
+            "Items": "[\"All\", \"Pending\", \"Approved\", \"Denied\", \"Expired\"]",
+            "Default": "\"All\"",
+            "X": 40,
+            "Y": 80,
+            "Width": 250,
+            "Height": 40
+          }
+        },
+        {
+          "name": "galExceptions",
+          "type": "Gallery",
+          "properties": {
+            "Items": "SortByColumns(Filter(fsi_SharingException, fsi_requested_by = User().Email, drpStatusFilter.Selected.Value = \"All\" || Switch(fsi_exception_status, 0, \"Pending\", 1, \"Approved\", 2, \"Denied\", 3, \"Expired\") = drpStatusFilter.Selected.Value), \"fsi_requested_at\", SortOrder.Descending)",
+            "TemplateSize": 80,
+            "X": 40,
+            "Y": 140,
+            "Width": 900,
+            "Height": 500
+          },
+          "childControls": [
+            {
+              "name": "lblAgentName",
+              "type": "Label",
+              "properties": {
+                "Text": "ThisItem.fsi_agent_display_name",
+                "FontWeight": "Semibold",
+                "X": 10,
+                "Y": 5,
+                "Width": 200,
+                "Height": 30
+              }
+            },
+            {
+              "name": "lblViolation",
+              "type": "Label",
+              "properties": {
+                "Text": "ThisItem.fsi_violation_type",
+                "X": 220,
+                "Y": 5,
+                "Width": 150,
+                "Height": 30
+              }
+            },
+            {
+              "name": "lblStatusBadge",
+              "type": "Label",
+              "properties": {
+                "Text": "Switch(ThisItem.fsi_exception_status, 0, \"Pending\", 1, \"Approved\", 2, \"Denied\", 3, \"Expired\")",
+                "Fill": "Switch(ThisItem.fsi_exception_status, 0, RGBA(255, 193, 7, 0.2), 1, RGBA(40, 167, 69, 0.2), 2, RGBA(220, 53, 69, 0.2), 3, RGBA(108, 117, 125, 0.2))",
+                "Color": "Switch(ThisItem.fsi_exception_status, 0, RGBA(255, 152, 0, 1), 1, RGBA(40, 167, 69, 1), 2, RGBA(220, 53, 69, 1), 3, RGBA(108, 117, 125, 1))",
+                "Align": "Center",
+                "BorderStyle": "Solid",
+                "BorderThickness": 1,
+                "BorderColor": "Switch(ThisItem.fsi_exception_status, 0, RGBA(255, 193, 7, 0.5), 1, RGBA(40, 167, 69, 0.5), 2, RGBA(220, 53, 69, 0.5), 3, RGBA(108, 117, 125, 0.5))",
+                "X": 380,
+                "Y": 5,
+                "Width": 100,
+                "Height": 30,
+                "Size": 10
+              }
+            },
+            {
+              "name": "lblRequestedDate",
+              "type": "Label",
+              "properties": {
+                "Text": "Text(ThisItem.fsi_requested_at, \"yyyy-mm-dd\")",
+                "X": 500,
+                "Y": 5,
+                "Width": 120,
+                "Height": 30
+              }
+            },
+            {
+              "name": "lblExpiresAt",
+              "type": "Label",
+              "properties": {
+                "Text": "Text(ThisItem.fsi_expires_at, \"yyyy-mm-dd\")",
+                "X": 640,
+                "Y": 5,
+                "Width": 120,
+                "Height": 30
+              }
+            },
+            {
+              "name": "lblJustificationPreview",
+              "type": "Label",
+              "properties": {
+                "Text": "Left(ThisItem.fsi_business_justification, 80) & If(Len(ThisItem.fsi_business_justification) > 80, \"...\", \"\")",
+                "Color": "RGBA(100, 100, 100, 1)",
+                "X": 10,
+                "Y": 40,
+                "Width": 750,
+                "Height": 25,
+                "Size": 10
+              }
+            }
+          ]
+        },
+        {
+          "name": "lblNoRecords",
+          "type": "Label",
+          "properties": {
+            "Text": "\"No exception requests found.\"",
+            "Visible": "CountRows(galExceptions.AllItems) = 0",
+            "Align": "Center",
+            "Color": "RGBA(108, 117, 125, 1)",
+            "X": 40,
+            "Y": 350,
+            "Width": 900,
+            "Height": 40
+          }
+        }
+      ],
+      "formulas": {
+        "OnVisible": ""
+      }
+    },
+    {
+      "name": "ExpirationDashboardScreen",
+      "displayName": "Expiring Soon",
+      "description": "Dashboard showing approved exceptions approaching expiration within 14 days. Intended for admin review.",
+      "navigationOrder": 3,
+      "controls": [
+        {
+          "name": "lblExpiringTitle",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Expiring Exceptions Dashboard\"",
+            "Size": 24,
+            "FontWeight": "Bold",
+            "X": 40,
+            "Y": 20,
+            "Width": 600,
+            "Height": 50
+          }
+        },
+        {
+          "name": "lblAdminNote",
+          "type": "Label",
+          "properties": {
+            "Text": "\"Showing approved exceptions expiring within the next 14 days. Review and coordinate renewals as needed.\"",
+            "Color": "RGBA(100, 100, 100, 1)",
+            "X": 40,
+            "Y": 70,
+            "Width": 800,
+            "Height": 30,
+            "Size": 11
+          }
+        },
+        {
+          "name": "lblExpiringCount",
+          "type": "Label",
+          "properties": {
+            "Text": "Concatenate(Text(CountRows(galExpiring.AllItems)), \" exception(s) expiring within 14 days\")",
+            "FontWeight": "Semibold",
+            "X": 40,
+            "Y": 110,
+            "Width": 500,
+            "Height": 30
+          }
+        },
+        {
+          "name": "galExpiring",
+          "type": "Gallery",
+          "properties": {
+            "Items": "SortByColumns(Filter(fsi_SharingException, fsi_exception_status = 1, fsi_expires_at >= Today(), fsi_expires_at <= DateAdd(Today(), 14, TimeUnit.Days)), \"fsi_expires_at\", SortOrder.Ascending)",
+            "TemplateSize": 70,
+            "X": 40,
+            "Y": 150,
+            "Width": 900,
+            "Height": 480
+          },
+          "childControls": [
+            {
+              "name": "lblExpAgentName",
+              "type": "Label",
+              "properties": {
+                "Text": "ThisItem.fsi_agent_display_name",
+                "FontWeight": "Semibold",
+                "X": 10,
+                "Y": 10,
+                "Width": 200,
+                "Height": 25
+              }
+            },
+            {
+              "name": "lblExpApprovedBySecurity",
+              "type": "Label",
+              "properties": {
+                "Text": "Concatenate(\"Security: \", If(IsBlank(ThisItem.fsi_approved_by_security), \"—\", ThisItem.fsi_approved_by_security))",
+                "X": 220,
+                "Y": 10,
+                "Width": 180,
+                "Height": 25,
+                "Size": 10
+              }
+            },
+            {
+              "name": "lblExpApprovedByDataOwner",
+              "type": "Label",
+              "properties": {
+                "Text": "Concatenate(\"Data Owner: \", If(IsBlank(ThisItem.fsi_approved_by_data_owner), \"—\", ThisItem.fsi_approved_by_data_owner))",
+                "X": 410,
+                "Y": 10,
+                "Width": 180,
+                "Height": 25,
+                "Size": 10
+              }
+            },
+            {
+              "name": "lblExpExpiresAt",
+              "type": "Label",
+              "properties": {
+                "Text": "Text(ThisItem.fsi_expires_at, \"yyyy-mm-dd\")",
+                "X": 600,
+                "Y": 10,
+                "Width": 100,
+                "Height": 25
+              }
+            },
+            {
+              "name": "lblExpDaysRemaining",
+              "type": "Label",
+              "properties": {
+                "Text": "Concatenate(Text(DateDiff(Today(), ThisItem.fsi_expires_at, TimeUnit.Days)), \" days\")",
+                "FontWeight": "Semibold",
+                "Color": "If(DateDiff(Today(), ThisItem.fsi_expires_at, TimeUnit.Days) <= 7, RGBA(220, 53, 69, 1), RGBA(255, 152, 0, 1))",
+                "X": 710,
+                "Y": 10,
+                "Width": 80,
+                "Height": 25
+              }
+            },
+            {
+              "name": "icoExpWarning",
+              "type": "Icon",
+              "properties": {
+                "Icon": "If(DateDiff(Today(), ThisItem.fsi_expires_at, TimeUnit.Days) <= 7, Icon.Warning, Icon.Clock)",
+                "Color": "If(DateDiff(Today(), ThisItem.fsi_expires_at, TimeUnit.Days) <= 7, RGBA(220, 53, 69, 1), RGBA(255, 152, 0, 1))",
+                "X": 800,
+                "Y": 10,
+                "Width": 30,
+                "Height": 25
+              }
+            },
+            {
+              "name": "lblExpViolationType",
+              "type": "Label",
+              "properties": {
+                "Text": "ThisItem.fsi_violation_type",
+                "Color": "RGBA(100, 100, 100, 1)",
+                "X": 10,
+                "Y": 38,
+                "Width": 300,
+                "Height": 22,
+                "Size": 10
+              }
+            }
+          ]
+        },
+        {
+          "name": "lblNoExpiring",
+          "type": "Label",
+          "properties": {
+            "Text": "\"No approved exceptions are expiring within the next 14 days.\"",
+            "Visible": "CountRows(galExpiring.AllItems) = 0",
+            "Align": "Center",
+            "Color": "RGBA(108, 117, 125, 1)",
+            "X": 40,
+            "Y": 380,
+            "Width": 900,
+            "Height": 40
+          }
+        }
+      ],
+      "formulas": {
+        "OnVisible": ""
+      }
+    }
+  ],
+  "navigation": {
+    "type": "TabNavigation",
+    "position": "Top",
+    "tabs": [
+      {
+        "label": "Submit Exception",
+        "screen": "ExceptionSubmissionScreen",
+        "icon": "Add"
+      },
+      {
+        "label": "My Requests",
+        "screen": "ExceptionStatusScreen",
+        "icon": "DetailList"
+      },
+      {
+        "label": "Expiring Soon",
+        "screen": "ExpirationDashboardScreen",
+        "icon": "Clock"
+      }
+    ]
+  },
+  "theme": {
+    "name": "Power Apps Modern Theme (Default)",
+    "palette": {
+      "primary": "#0078D4",
+      "secondary": "#2B88D8",
+      "success": "#28A745",
+      "warning": "#FFC107",
+      "danger": "#DC3545",
+      "info": "#17A2B8",
+      "muted": "#6C757D",
+      "background": "#FFFFFF",
+      "surface": "#F8F9FA"
+    },
+    "statusColors": {
+      "pending": {
+        "background": "RGBA(255, 193, 7, 0.2)",
+        "foreground": "RGBA(255, 152, 0, 1)"
+      },
+      "approved": {
+        "background": "RGBA(40, 167, 69, 0.2)",
+        "foreground": "RGBA(40, 167, 69, 1)"
+      },
+      "denied": {
+        "background": "RGBA(220, 53, 69, 0.2)",
+        "foreground": "RGBA(220, 53, 69, 1)"
+      },
+      "expired": {
+        "background": "RGBA(108, 117, 125, 0.2)",
+        "foreground": "RGBA(108, 117, 125, 1)"
+      }
+    },
+    "expirationColors": {
+      "critical": {
+        "daysRemaining": "<=7",
+        "color": "RGBA(220, 53, 69, 1)",
+        "label": "Red"
+      },
+      "warning": {
+        "daysRemaining": "8-14",
+        "color": "RGBA(255, 152, 0, 1)",
+        "label": "Amber"
+      }
+    },
+    "responsiveLayout": false,
+    "notes": "Lab-grade minimal viable implementation. Not responsive — fixed layout targeting standard desktop resolution."
+  }
+}
