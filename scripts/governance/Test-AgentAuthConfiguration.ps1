@@ -39,7 +39,8 @@
 
 .PARAMETER BaselinePath
     Optional path to a baseline JSON file for drift detection.
-    Reserved for Plan 01-02 implementation — currently accepted but not processed.
+    When provided, compares current scan against previous baseline to detect drift.
+    After scan, saves current results as the new baseline (unless -WhatIf).
 
 .EXAMPLE
     .\Test-AgentAuthConfiguration.ps1
@@ -224,8 +225,20 @@ function New-AuthCheckResult {
         [int]$Zone = 1,
 
         [Parameter()]
-        [string]$Message
+        [string]$Message,
+
+        [Parameter()]
+        [string]$EvidenceJson
     )
+
+    # Compute SHA-256 evidence hash when evidence data is provided
+    $evidenceHash = $null
+    if ($EvidenceJson) {
+        $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+            [System.Text.Encoding]::UTF8.GetBytes($EvidenceJson)
+        )
+        $evidenceHash = [BitConverter]::ToString($hashBytes) -replace '-'
+    }
 
     [PSCustomObject]@{
         SSPMId          = $SSPMId
@@ -239,8 +252,167 @@ function New-AuthCheckResult {
         EnvironmentId   = $EnvironmentId
         EnvironmentName = $EnvironmentName
         Zone            = $Zone
+        EvidenceHash    = $evidenceHash
         Message         = $Message
     }
+}
+
+# ─── Drift Detection Functions ────────────────────────────────────────
+
+function Import-AuthBaseline {
+    <#
+    .SYNOPSIS
+        Loads a previous scan baseline for drift detection.
+    .DESCRIPTION
+        Reads and validates a JSON baseline file from a previous scan.
+        Returns $null if the file doesn't exist (first scan scenario).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -Path $Path)) {
+        Write-Verbose "No baseline file found at '$Path' — first scan."
+        return $null
+    }
+
+    try {
+        $raw = Get-Content -Path $Path -Raw -ErrorAction Stop
+        $baseline = $raw | ConvertFrom-Json -ErrorAction Stop
+
+        # Validate expected schema
+        if (-not $baseline.Checks -or -not $baseline.Metadata) {
+            Write-Warning "Baseline file '$Path' does not match expected schema (missing Checks or Metadata). Skipping drift detection."
+            return $null
+        }
+
+        Write-Verbose "Baseline loaded from '$Path' — $($baseline.Checks.Count) checks, scanned at $($baseline.Metadata.CheckedAt)"
+        return $baseline
+    }
+    catch {
+        Write-Warning "Failed to load baseline from '$Path': $($_.Exception.Message)"
+        return $null
+    }
+}
+
+function Compare-AgentAuthBaseline {
+    <#
+    .SYNOPSIS
+        Compares current scan results against a previous baseline to detect drift.
+    .DESCRIPTION
+        Identifies new agents, removed agents, setting changes, and status changes
+        by comparing current check results against a loaded baseline.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [array]$CurrentChecks,
+
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Baseline
+    )
+
+    $drifts = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $now = [DateTime]::UtcNow.ToString('o')
+
+    # Build lookup by composite key: EnvironmentId|AgentId|SSPMId
+    $currentLookup = @{}
+    foreach ($check in $CurrentChecks) {
+        $key = "$($check.EnvironmentId)|$($check.AgentId)|$($check.SSPMId)"
+        $currentLookup[$key] = $check
+    }
+
+    $baselineLookup = @{}
+    foreach ($check in $Baseline.Checks) {
+        $key = "$($check.EnvironmentId)|$($check.AgentId)|$($check.SSPMId)"
+        $baselineLookup[$key] = $check
+    }
+
+    # Detect drifts in current scan vs baseline
+    foreach ($key in $currentLookup.Keys) {
+        $current = $currentLookup[$key]
+
+        if (-not $baselineLookup.ContainsKey($key)) {
+            # New agent or new check not in baseline
+            if ($current.AgentId) {
+                $drifts.Add([PSCustomObject]@{
+                    SSPMId          = $current.SSPMId
+                    AgentId         = $current.AgentId
+                    AgentName       = $current.AgentName
+                    EnvironmentId   = $current.EnvironmentId
+                    EnvironmentName = $current.EnvironmentName
+                    DriftType       = 'NewAgent'
+                    PreviousValue   = $null
+                    CurrentValue    = $current.Actual
+                    PreviousStatus  = $null
+                    CurrentStatus   = $current.Status
+                    DetectedAt      = $now
+                })
+            }
+            continue
+        }
+
+        $previous = $baselineLookup[$key]
+
+        # Check for status change
+        if ($current.Status -ne $previous.Status) {
+            $drifts.Add([PSCustomObject]@{
+                SSPMId          = $current.SSPMId
+                AgentId         = $current.AgentId
+                AgentName       = $current.AgentName
+                EnvironmentId   = $current.EnvironmentId
+                EnvironmentName = $current.EnvironmentName
+                DriftType       = 'StatusChanged'
+                PreviousValue   = $previous.Actual
+                CurrentValue    = $current.Actual
+                PreviousStatus  = $previous.Status
+                CurrentStatus   = $current.Status
+                DetectedAt      = $now
+            })
+        }
+        # Check for setting value change (same status but different actual value)
+        elseif ($current.Actual -ne $previous.Actual) {
+            $drifts.Add([PSCustomObject]@{
+                SSPMId          = $current.SSPMId
+                AgentId         = $current.AgentId
+                AgentName       = $current.AgentName
+                EnvironmentId   = $current.EnvironmentId
+                EnvironmentName = $current.EnvironmentName
+                DriftType       = 'SettingChanged'
+                PreviousValue   = $previous.Actual
+                CurrentValue    = $current.Actual
+                PreviousStatus  = $previous.Status
+                CurrentStatus   = $current.Status
+                DetectedAt      = $now
+            })
+        }
+    }
+
+    # Detect removed agents (in baseline but not current)
+    foreach ($key in $baselineLookup.Keys) {
+        if (-not $currentLookup.ContainsKey($key)) {
+            $previous = $baselineLookup[$key]
+            if ($previous.AgentId) {
+                $drifts.Add([PSCustomObject]@{
+                    SSPMId          = $previous.SSPMId
+                    AgentId         = $previous.AgentId
+                    AgentName       = $previous.AgentName
+                    EnvironmentId   = $previous.EnvironmentId
+                    EnvironmentName = $previous.EnvironmentName
+                    DriftType       = 'RemovedAgent'
+                    PreviousValue   = $previous.Actual
+                    CurrentValue    = $null
+                    PreviousStatus  = $previous.Status
+                    CurrentStatus   = $null
+                    DetectedAt      = $now
+                })
+            }
+        }
+    }
+
+    return $drifts.ToArray()
 }
 
 # ─── Initialize Results ──────────────────────────────────────────────
@@ -276,6 +448,7 @@ try {
     $tenantSettings = Get-TenantSettings
 
     $aiPublishingEnabled = $tenantSettings.powerPlatform.copilotStudio.publishBotsWithAIFeatures
+    $tenantSettingsEvidence = (@{ publishBotsWithAIFeatures = $aiPublishingEnabled } | ConvertTo-Json -Compress)
 
     # Collect all unique zones present in the environment set
     # We need to enumerate environments first to know which zones are in scope
@@ -315,7 +488,8 @@ try {
             -Status $item05Status `
             -Expected "Zone ${zone}: $(if ($zone -eq 1) { 'No restriction required' } else { 'Publishing restricted' })" `
             -Actual "publishBotsWithAIFeatures=$aiPublishingEnabled" `
-            -Zone $zone -Message $item05Message))
+            -Zone $zone -Message $item05Message `
+            -EvidenceJson $tenantSettingsEvidence))
 
         if ($item05Status -eq 'Fail') {
             $gaps.Add("SSPM-1.1-05: AI feature publishing enabled — Zone $zone requires restriction")
@@ -346,12 +520,14 @@ try {
     $blockingEnabled = $blockingResponse.isBlockingEnabled -eq $true
     $item06Status = if ($blockingEnabled) { 'Pass' } else { 'Fail' }
     $item06Actual = "BlockingEnabled=$blockingEnabled"
+    $blockingEvidence = ($blockingResponse | ConvertTo-Json -Depth 5 -Compress)
 
     $allChecks.Add((New-AuthCheckResult -SSPMId 'SSPM-1.1-06' -ItemNumber 6 `
         -Setting 'Unapproved agent blocking (tenant-level)' `
         -Status $item06Status `
         -Expected 'Unapproved agent blocking enabled' `
-        -Actual $item06Actual))
+        -Actual $item06Actual `
+        -EvidenceJson $blockingEvidence))
 
     if ($item06Status -eq 'Fail') {
         $gaps.Add("SSPM-1.1-06: Unapproved agent blocking is not enabled at tenant level")
@@ -441,6 +617,16 @@ foreach ($env in $environments) {
         $requireUserAuth = $agent.properties.requireUserAuthentication
         $authTiming = $agent.properties.authenticationTiming
 
+        # Build per-agent evidence JSON for SHA-256 hashing
+        $agentAuthEvidence = (@{
+            AgentId                  = $agentId
+            AgentName                = $agentName
+            EnvironmentId            = $envId
+            AuthenticationMode       = $authMode
+            RequireUserAuthentication = $requireUserAuth
+            AuthenticationTiming     = $authTiming
+        } | ConvertTo-Json -Compress)
+
         # ─── SSPM-1.1-01: No Authentication ───────────────────────────
         # Check authenticationMode. NoAuthentication → Fail ALL zones.
         $noAuthDetected = ($authMode -eq 'NoAuthentication' -or $authMode -eq 'None' -or $null -eq $authMode)
@@ -454,7 +640,8 @@ foreach ($env in $environments) {
                 -AgentId $agentId -AgentName $agentName `
                 -EnvironmentId $envId -EnvironmentName $envDisplayName `
                 -Zone $zone `
-                -Message "Agent '$agentName' has no authentication configured — fails all zones"))
+                -Message "Agent '$agentName' has no authentication configured — fails all zones" `
+                -EvidenceJson $agentAuthEvidence))
 
             $gaps.Add("SSPM-1.1-01: Agent '$agentName' in '$envDisplayName' (Zone $zone) has no authentication")
         }
@@ -466,7 +653,8 @@ foreach ($env in $environments) {
                 -Actual "AuthenticationMode=$authMode" `
                 -AgentId $agentId -AgentName $agentName `
                 -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                -Zone $zone))
+                -Zone $zone `
+                -EvidenceJson $agentAuthEvidence))
         }
 
         # ─── SSPM-1.1-02: Sign-in Required ────────────────────────────
@@ -491,7 +679,8 @@ foreach ($env in $environments) {
                     -Actual "RequireUserAuthentication=$requireUserAuth" `
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                    -Zone $zone -Message $item02Message))
+                    -Zone $zone -Message $item02Message `
+                    -EvidenceJson $agentAuthEvidence))
 
                 if ($item02Status -eq 'Fail') {
                     $gaps.Add("SSPM-1.1-02: Agent '$agentName' in '$envDisplayName' (Zone $zone) does not require user sign-in")
@@ -505,7 +694,8 @@ foreach ($env in $environments) {
                     -Actual "RequireUserAuthentication=$requireUserAuth" `
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                    -Zone $zone))
+                    -Zone $zone `
+                    -EvidenceJson $agentAuthEvidence))
             }
         }
         elseif ($noAuthDetected) {
@@ -528,7 +718,8 @@ foreach ($env in $environments) {
                 -AgentId $agentId -AgentName $agentName `
                 -EnvironmentId $envId -EnvironmentName $envDisplayName `
                 -Zone $zone `
-                -Message 'Authentication mode provides integrated sign-in'))
+                -Message 'Authentication mode provides integrated sign-in' `
+                -EvidenceJson $agentAuthEvidence))
         }
 
         # ─── SSPM-1.1-03: Authentication Timing ───────────────────────
@@ -554,7 +745,8 @@ foreach ($env in $environments) {
                     -Actual "AuthenticationTiming=$authTiming" `
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                    -Zone $zone -Message $item03Message))
+                    -Zone $zone -Message $item03Message `
+                    -EvidenceJson $agentAuthEvidence))
 
                 if ($item03Status -eq 'Fail') {
                     $gaps.Add("SSPM-1.1-03: Agent '$agentName' in '$envDisplayName' (Zone $zone) uses deferred authentication timing")
@@ -568,7 +760,8 @@ foreach ($env in $environments) {
                     -Actual "AuthenticationTiming=$authTiming" `
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                    -Zone $zone))
+                    -Zone $zone `
+                    -EvidenceJson $agentAuthEvidence))
             }
             else {
                 # Unknown timing value — report for investigation
@@ -580,7 +773,8 @@ foreach ($env in $environments) {
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
                     -Zone $zone `
-                    -Message "Unknown authentication timing value '$authTiming' — verify manually"))
+                    -Message "Unknown authentication timing value '$authTiming' — verify manually" `
+                    -EvidenceJson $agentAuthEvidence))
             }
         }
         else {
@@ -604,6 +798,12 @@ foreach ($env in $environments) {
             if ($permissionsResponse.value) {
                 $principals = @($permissionsResponse.value)
             }
+
+            # Build permissions evidence for SHA-256 hashing
+            $permissionsEvidence = (@{
+                AgentId    = $agentId
+                Principals = @($principals | ForEach-Object { @{ PrincipalType = $_.properties.principalType; AccessType = $_.properties.accessType } })
+            } | ConvertTo-Json -Depth 5 -Compress)
 
             # Check for overly broad sharing
             $broadPrincipals = @($principals | Where-Object {
@@ -634,7 +834,8 @@ foreach ($env in $environments) {
                     -Actual "BroadPrincipals=$($broadPrincipals.Count) ($broadTypes)" `
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                    -Zone $zone -Message $item04Message))
+                    -Zone $zone -Message $item04Message `
+                    -EvidenceJson $permissionsEvidence))
 
                 if ($item04Status -eq 'Fail') {
                     $gaps.Add("SSPM-1.1-04: Agent '$agentName' in '$envDisplayName' (Zone $zone) has broad sharing ($broadTypes)")
@@ -648,7 +849,8 @@ foreach ($env in $environments) {
                     -Actual "Principals=$($principals.Count) (no broad sharing)" `
                     -AgentId $agentId -AgentName $agentName `
                     -EnvironmentId $envId -EnvironmentName $envDisplayName `
-                    -Zone $zone))
+                    -Zone $zone `
+                    -EvidenceJson $permissionsEvidence))
             }
         }
         else {
@@ -664,8 +866,24 @@ foreach ($env in $environments) {
     }
 }
 
-# ═══════════════════════════════════════════════════════════════════════
-# Results Aggregation
+# ═══════════════════════════════════════════════════════════════════════# Drift Detection
+# ═════════════════════════════════════════════════════════════════════
+
+$drifts = @()
+$baseline = $null
+
+if ($BaselinePath) {
+    $baseline = Import-AuthBaseline -Path $BaselinePath
+    if ($baseline) {
+        $drifts = Compare-AgentAuthBaseline -CurrentChecks $allChecks.ToArray() -Baseline $baseline
+        Write-Verbose "Drift detection complete: $($drifts.Count) drift(s) detected."
+    }
+    else {
+        Write-Verbose "No baseline for comparison — first scan, will save as baseline."
+    }
+}
+
+# ═════════════════════════════════════════════════════════════════════# Results Aggregation
 # ═══════════════════════════════════════════════════════════════════════
 
 $passCount = ($allChecks | Where-Object { $_.Status -eq 'Pass' }).Count
@@ -678,11 +896,12 @@ $duration = ([DateTime]::UtcNow - $startTime).TotalSeconds
 $results = [PSCustomObject]@{
     Metadata = [PSCustomObject]@{
         ScriptName          = 'Test-AgentAuthConfiguration'
-        ScriptVersion       = '1.0.0'
+        ScriptVersion       = '1.1.0'
         CheckedAt           = $startTime.ToString('o')
         DurationSeconds     = [math]::Round($duration, 2)
         EnvironmentsScanned = $envCount
         AgentsScanned       = $totalAgentsScanned
+        DriftCount          = $drifts.Count
         IntegrityHash       = $null
     }
     Summary = [PSCustomObject]@{
@@ -694,6 +913,7 @@ $results = [PSCustomObject]@{
         OverallStatus = if ($failCount -eq 0) { 'Passed' } else { 'GapsFound' }
     }
     Checks = $allChecks.ToArray()
+    Drifts = $drifts
     Gaps   = $gaps.ToArray()
 }
 
@@ -717,6 +937,34 @@ Write-Host   "╚═════════════════════
 
 if ($IncludeEvidence -and $results.Metadata.IntegrityHash) {
     Write-Host "  Integrity Hash: $($results.Metadata.IntegrityHash)" -ForegroundColor DarkGray
+}
+
+# ─── Drift Summary ─────────────────────────────────────────────────
+if ($BaselinePath) {
+    Write-Host "`n── Drift Detection ─────────────────────────────────────────" -ForegroundColor DarkCyan
+    if (-not $baseline) {
+        Write-Host "  No baseline — first scan, saving as baseline" -ForegroundColor DarkCyan
+    }
+    else {
+        $baselineTime = $baseline.Metadata.CheckedAt
+        Write-Host "  Baseline:        $BaselinePath" -ForegroundColor DarkCyan
+        Write-Host "  Previous scan:   $baselineTime" -ForegroundColor DarkCyan
+        if ($drifts.Count -eq 0) {
+            Write-Host "  No drifts detected since previous scan" -ForegroundColor Green
+        }
+        else {
+            $settingChangedCount = @($drifts | Where-Object { $_.DriftType -eq 'SettingChanged' }).Count
+            $newAgentCount = @($drifts | Where-Object { $_.DriftType -eq 'NewAgent' }).Count
+            $removedAgentCount = @($drifts | Where-Object { $_.DriftType -eq 'RemovedAgent' }).Count
+            $statusChangedCount = @($drifts | Where-Object { $_.DriftType -eq 'StatusChanged' }).Count
+            Write-Host "  Drifts detected: $($drifts.Count)" -ForegroundColor Yellow
+            Write-Host "    Setting changed: $settingChangedCount" -ForegroundColor DarkCyan
+            Write-Host "    New agents:      $newAgentCount" -ForegroundColor DarkCyan
+            Write-Host "    Removed agents:  $removedAgentCount" -ForegroundColor DarkCyan
+            Write-Host "    Status changed:  $statusChangedCount" -ForegroundColor DarkCyan
+        }
+    }
+    Write-Host "────────────────────────────────────────────────────────────`n" -ForegroundColor DarkCyan
 }
 
 # ─── Output ──────────────────────────────────────────────────────────
@@ -758,4 +1006,14 @@ switch ($OutputFormat) {
     'Object' {
         Write-Output $results
     }
+}
+
+# ─── Baseline Auto-Save ────────────────────────────────────────────
+if ($BaselinePath -and $PSCmdlet.ShouldProcess($BaselinePath, "Save scan results as new baseline")) {
+    $baselineParentDir = Split-Path -Path $BaselinePath -Parent
+    if ($baselineParentDir -and -not (Test-Path $baselineParentDir)) {
+        New-Item -ItemType Directory -Path $baselineParentDir -Force | Out-Null
+    }
+    $results | ConvertTo-Json -Depth 10 | Out-File -FilePath $BaselinePath -Encoding utf8
+    Write-Host "Baseline saved to $BaselinePath" -ForegroundColor Cyan
 }
