@@ -1,88 +1,91 @@
-# Summary: Plan 01-02 — Playbooks & Screenshot Specification
+---
+phase: 1
+plan: 2
+title: "Playbooks and screenshot specification"
+status: completed
+completed: 2026-02-12
+---
 
-## Status: COMPLETE
+# Summary 01-02: Playbooks & Screenshot Specification
+
+## Result
+
+**Status:** Completed
+**Deliverables:** 4 playbooks + 1 EXPECTED.md (5 files total)
 
 ## What Was Done
 
-Created 4 implementation playbooks in `docs/playbooks/control-implementations/1.25/` and the screenshot specification in `docs/images/1.25/EXPECTED.md`, following established patterns from Control 1.24.
+Created all 5 Phase 1 Plan 02 deliverables following established patterns from Control 2.21 exemplar playbooks. Each playbook uses the standard title format, metadata fields, prerequisite checkboxes, step numbering, and cross-linking to sibling playbooks.
 
-## Commits
+### Deliverable Details
 
-| Commit | Description |
-|--------|-------------|
-| `a7ed55a` | `docs(1.25): add 4 implementation playbooks and screenshot specification` |
+| File | Content Summary |
+|------|----------------|
+| `docs/playbooks/control-implementations/2.22/portal-walkthrough.md` | 7-step PPAC Privacy + Security walkthrough; zone-based governance settings tracker table; post-configuration Dataverse and flow validation steps |
+| `docs/playbooks/control-implementations/2.22/powershell-setup.md` | Set-InactivityTimeout.ps1 parameter table (10 params); 4 example commands (WhatIf, single, bulk CSV, bulk WhatIf); GET/PATCH API reference; authentication setup; error table (401/403/404/429) |
+| `docs/playbooks/control-implementations/2.22/verification-testing.md` | 6 test cases (TC-2.22-01 through TC-2.22-06); evidence checklist (6 items); attestation template |
+| `docs/playbooks/control-implementations/2.22/troubleshooting.md` | 8 common issues with symptoms + resolution steps; escalation path (L1-L4); 4 known limitations table; 2 diagnostic PowerShell commands |
+| `docs/images/2.22/EXPECTED.md` | 4 screenshot specifications: PPAC Privacy + Security page, timeout toggle/duration, Dataverse compliance records, notification email |
 
-## File Manifest
+### Acceptance Criteria Verification
 
-| Action | File |
-|--------|------|
-| Created | `docs/playbooks/control-implementations/1.25/portal-walkthrough.md` |
-| Created | `docs/playbooks/control-implementations/1.25/powershell-setup.md` |
-| Created | `docs/playbooks/control-implementations/1.25/verification-testing.md` |
-| Created | `docs/playbooks/control-implementations/1.25/troubleshooting.md` |
-| Created | `docs/images/1.25/EXPECTED.md` |
+**Portal Walkthrough (Task 1):**
 
-## Acceptance Criteria Verification
+| # | Criterion | Met |
+|---|-----------|-----|
+| 1 | PPAC Privacy + Security navigation path | ✅ |
+| 2 | 7 configuration steps | ✅ |
+| 3 | Governance settings tracker table | ✅ |
+| 4 | Zone-based duration requirements | ✅ |
 
-### Portal Walkthrough
-| # | Criterion | Status |
-|---|-----------|--------|
-| 1 | Title format matches exemplar | ✅ |
-| 2 | Metadata (Last Updated, Portal, Estimated Time) | ✅ |
-| 3 | Prerequisites checkbox list (3 items) | ✅ |
-| 4 | Step-by-step sections (5 steps) covering PPAC MIME configuration | ✅ |
-| 5 | Governance settings table by zone | ✅ |
-| 6 | Validation checklist | ✅ |
-| 7 | Footer nav (4 links) | ✅ |
+**PowerShell Setup (Task 2):**
 
-### PowerShell Setup
-| # | Criterion | Status |
-|---|-----------|--------|
-| 1 | Title format matches exemplar | ✅ |
-| 2 | Metadata (Last Updated, Modules Required) | ✅ |
-| 3 | 3 cmdlets with comment-based help | ✅ |
-| 4 | Validation script with [PASS]/[FAIL]/[INFO] pattern | ✅ |
-| 5 | Complete configuration script with param(), try/catch/finally | ✅ |
-| 6 | Footer nav (4 links) | ✅ |
+| # | Criterion | Met |
+|---|-----------|-----|
+| 1 | Set-InactivityTimeout.ps1 parameter table | ✅ |
+| 2 | Example commands (WhatIf, single, bulk) | ✅ |
+| 3 | -WhatIf preview support documented | ✅ |
+| 4 | Bulk remediation from CSV | ✅ |
+| 5 | API reference (GET/PATCH endpoints) | ✅ |
 
-### Verification & Testing
-| # | Criterion | Status |
-|---|-----------|--------|
-| 1 | 6 manual tests with **EXPECTED:** results | ✅ |
-| 2 | Test cases table (TC-1.25-01 through TC-1.25-08) | ✅ |
-| 3 | Evidence collection checklist | ✅ |
-| 4 | Attestation statement template | ✅ |
-| 5 | Zone-specific testing requirements table | ✅ |
-| 6 | KQL queries for evidence collection | ✅ |
-| 7 | Footer nav (4 links) | ✅ |
+**Verification Testing (Task 3):**
 
-### Troubleshooting
-| # | Criterion | Status |
-|---|-----------|--------|
-| 1 | Common issues summary table (6 issues) | ✅ |
-| 2 | Detailed issue sections with Symptoms/Resolution/Portal Path | ✅ |
-| 3 | Escalation path (3-tier) | ✅ |
-| 4 | Known limitations table | ✅ |
-| 5 | Diagnostic commands | ✅ |
-| 6 | Related documentation links | ✅ |
-| 7 | Footer nav (4 links) | ✅ |
+| # | Criterion | Met |
+|---|-----------|-----|
+| 1 | 6 test cases (TC-2.22-01 through TC-2.22-06) | ✅ |
+| 2 | Compliant detection test | ✅ |
+| 3 | Non-compliant (exceeds max) test | ✅ |
+| 4 | Non-compliant (disabled) test | ✅ |
+| 5 | Unknown (missing policy) test | ✅ |
+| 6 | WhatIf + Apply remediation tests | ✅ |
+| 7 | Evidence checklist | ✅ |
+| 8 | Attestation template | ✅ |
 
-### EXPECTED.md
-| # | Criterion | Status |
-|---|-----------|--------|
+**Troubleshooting (Task 4):**
+
+| # | Criterion | Met |
+|---|-----------|-----|
+| 1 | 8 common issues table | ✅ |
+| 2 | Escalation path (L1-L4) | ✅ |
+| 3 | Known limitations table | ✅ |
+| 4 | Diagnostic commands | ✅ |
+
+**EXPECTED.md (Task 5):**
+
+| # | Criterion | Met |
+|---|-----------|-----|
 | 1 | 4 screenshot specifications | ✅ |
-| 2 | Portal paths for PPAC screenshots | ✅ |
-| 3 | Capture guidelines in notes section | ✅ |
+| 2 | Portal paths documented | ✅ |
+| 3 | "What to capture" descriptions | ✅ |
 
-## Decisions Made
+## Dependencies
 
-- **Extended test cases:** Added TC-1.25-07 (allowed file upload accepted) and TC-1.25-08 (zone template compliance) beyond the 6 required for better coverage.
-- **Added third KQL query:** MIME configuration change tracking for audit trail evidence.
-- **FsiMimeControl referenced as Phase 2 deliverable:** Noted in prerequisites that the module is not yet available.
+- None (Wave 1)
 
-## Discovered Work
+## Key Files
 
-None.
-
----
-*Completed: 2026-02-12*
+- `docs/playbooks/control-implementations/2.22/portal-walkthrough.md` (CREATED)
+- `docs/playbooks/control-implementations/2.22/powershell-setup.md` (CREATED)
+- `docs/playbooks/control-implementations/2.22/verification-testing.md` (CREATED)
+- `docs/playbooks/control-implementations/2.22/troubleshooting.md` (CREATED)
+- `docs/images/2.22/EXPECTED.md` (CREATED)

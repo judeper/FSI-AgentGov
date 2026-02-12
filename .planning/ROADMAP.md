@@ -1,85 +1,85 @@
-# Roadmap: MIME Type Restrictions for File Uploads (v18)
+# Roadmap: Inactivity Timeout Enforcement (v19)
 
 ## Overview
 
-Add Control 1.25 (MIME Type Restrictions for File Uploads) to the framework with a companion solution — PowerShell module for zone-based MIME configuration management, Dataverse plugin for server-side magic bytes validation (Zone 3), Purview DLP policy template, Sentinel monitoring queries/alerts, and exception management templates. Prevents malicious or high-risk file types from being uploaded to Power Platform environments, Dataverse, or accessed by Copilot Studio agents.
+Add Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar with a companion solution — automated validation and enforcement of Power Platform user inactivity timeout settings across multiple environments with zone-based policy-driven maximum duration requirements, Dataverse persistence, Cloud Flow detection, and PowerShell remediation.
 
-**Source:** v18 requirements (16 requirements across 6 categories). Control ID reassigned from 1.20→1.25 (1.20 is already Network Isolation and Private Connectivity). Framework goes from 62 to 63 controls.
+**Source:** v19 requirements (14 requirements across 5 categories). Control ID 2.22 (next available in Pillar 2). Framework goes from 63 to 64 controls; Pillar 2 from 21 to 22 controls; playbook count from 252 to 256.
 
 **Execution model:** 5 phases. Phases 1–4 are independent (parallel-eligible). Phase 5 depends on all. Within each phase, plans target non-overlapping file sets for parallel execution.
 
 ## Phases
 
-- [x] **Phase 1: Control Documentation & Playbooks** — Control 1.25 document (10-section template), 4 implementation playbooks, screenshot specification
-- [x] **Phase 2: PowerShell Module & Zone Templates** — `FsiMimeControl.psm1` with 3 cmdlets, zone template JSON files, Pester test suite
-- [x] **Phase 3: DLP Policy & Sentinel Monitoring** — Purview DLP policy template, Sentinel KQL queries, analytics alert rule ARM template
-- [x] **Phase 4: Dataverse Plugin & Exception Management** — `ValidateMimeTypePlugin.cs` with magic bytes validation, plugin deployment scripts, exception register template, validation script
-- [x] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "63 controls" updates, solutions-index entry, full build validation
+- [x] **Phase 1: Control Documentation & Playbooks** — Control 2.22 document (10-section template), 4 implementation playbooks, screenshot specification
+- [ ] **Phase 2: Dataverse Data Model** — 3 table schemas (environmentpolicy, compliance, errorlog), environment variables, connection references
+- [ ] **Phase 3: Cloud Flow & Validation Logic** — Detection flow template with BAP Admin API integration, policy lookup, per-environment compliance evaluation, guarded notification
+- [ ] **Phase 4: PowerShell Remediation** — `Set-InactivityTimeout.ps1` with BAP Admin API PATCH, remediation audit records, validation test script
+- [ ] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "64 controls" updates, solutions-index entry, full build validation
 
 ## Phase Details
 
 ### Phase 1: Control Documentation & Playbooks
-**Goal:** Create Control 1.25 documentation following the 10-section template, 4 implementation playbooks, and screenshot specification
+**Goal:** Create Control 2.22 documentation following the 10-section template, 4 implementation playbooks, and screenshot specification
 **Depends on:** Nothing (independent)
 **Requirements:** CTL-01, CTL-02, CTL-03
 **Success Criteria:**
-  1. `docs/controls/pillar-1-security/1.25-mime-type-restrictions.md` follows 10-section template with header/footer metadata, zone-specific requirements (Zone 1 baseline/Zone 2 recommended/Zone 3 regulated), regulatory references (FINRA 4511/3110, SEC 17a-4, GLBA 501(b), OCC 2011-12)
-  2. 4 playbooks in `docs/playbooks/control-implementations/1.25/` — portal-walkthrough (PPAC Privacy + Security settings), powershell-setup (FsiMimeControl module usage), verification-testing (compliance checks per zone), troubleshooting (common pitfalls)
-  3. `docs/images/1.25/EXPECTED.md` lists required screenshots — PPAC blocked extensions field, PPAC blocked MIME types field, PPAC allowed MIME types field, compliance test output
+  1. `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` follows 10-section template with header/footer metadata, zone-specific requirements (Zone 1 optional/Zone 2 required ≤120 min/Zone 3 required ≤60 min), regulatory references (GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12)
+  2. 4 playbooks in `docs/playbooks/control-implementations/2.22/` — portal-walkthrough (PPAC Privacy + Security settings → inactivity timeout configuration), powershell-setup (Set-InactivityTimeout.ps1 usage with EnvironmentName parameter), verification-testing (Detect-InactivityTimeout-NonCompliance flow output validation, Dataverse compliance records review), troubleshooting (MissingPolicy, 401/403/404/429 errors, BAP API connectivity)
+  3. `docs/images/2.22/EXPECTED.md` lists required screenshots — PPAC Environment Settings Privacy + Security page, inactivity timeout toggle and duration field, compliance scan results in Dataverse, notification email sample
   4. All documentation uses FSI-safe language (hedged, no overclaims)
 **Plans:** 2 (A = control document, B = playbooks + EXPECTED.md)
 
-### Phase 2: PowerShell Module & Zone Templates
-**Goal:** Build FsiMimeControl PowerShell module with zone-based MIME configuration management via Dataverse Web API
+### Phase 2: Dataverse Data Model
+**Goal:** Create Dataverse table schemas for environment policy, compliance records, and error logging with environment variables and connection references
 **Depends on:** Nothing (independent)
-**Requirements:** MOD-01, MOD-02, MOD-03
+**Requirements:** DVM-01, DVM-02, DVM-03
 **Success Criteria:**
-  1. `FsiMimeControl.psm1` exports 3 cmdlets — `Get-FsiMimeConfig` (read MIME configuration from Dataverse Web API), `Set-FsiMimeConfig` (apply zone template or custom configuration with `-WhatIf` support), `Test-FsiMimeCompliance` (validate environment against zone requirements with pass/fail/warning output)
-  2. Zone template JSON files (zone1.json, zone2.json, zone3.json) — Zone 1: Microsoft default blocked extensions only; Zone 2: blocked extensions + blocked MIME types + explicit allowlist; Zone 3: comprehensive blocklist + strict allowlist + `requireServerSideValidation`/`requireDlpIntegration`/`requireSentinelMonitoring` flags
-  3. Pester test suite (`FsiMimeControl.Tests.ps1`) with unit tests for all 3 cmdlets, mock Dataverse Web API responses, zone template loading validation, compliance check logic
-  4. Module follows conventions: `#Requires -Version 7.0`, `ErrorAction Stop`, `-OutputFormat`/`-OutputPath` parameters
-**Plans:** 2 (A = module core + zone templates, B = Pester tests)
+  1. `fsi_environmentpolicy` table schema — `fsi_environmentid` (Text PK, EnvironmentName), `fsi_environmentdisplayname` (Text), `fsi_zone` (Choice: Zone1/Zone2/Zone3), `fsi_requiredmaxduration` (Whole Number, minutes), `fsi_notes` (Multi-line Text); reuse `fsi_acv_zone` shared option set where compatible
+  2. `fsi_inactivitytimeout_compliance` table schema — immutable compliance records (one per environment per scan, never update in place); columns: `fsi_environmentid`, `fsi_environmentname`, `fsi_environmenttype`, `fsi_inactivitytimeoutenabled`, `fsi_timeoutduration`, `fsi_requiredmaxduration`, `fsi_compliancestatus` (Choice: Compliant/Non-Compliant/Unknown), `fsi_lastscandate`, `fsi_notes`; index on `(fsi_environmentid, fsi_lastscandate)`
+  3. `fsi_inactivitytimeout_errorlog` table schema — `fsi_environmentid`, `fsi_errortype` (401/403/404/429/MissingPolicy/ParseError), `fsi_errorraw`, `fsi_timestamp`
+  4. Environment variables (concurrency limit, notification recipients) and connection references (Dataverse, BAP Admin API) defined
+**Plans:** 2 (A = policy + compliance table schemas + environment variables + connection references, B = errorlog table schema + seed data configuration)
 
-### Phase 3: DLP Policy & Sentinel Monitoring
-**Goal:** Create Purview DLP policy template and Sentinel monitoring queries/alerts for MIME-based upload blocking
-**Depends on:** Nothing (independent)
-**Requirements:** MON-01, MON-02, MON-03
+### Phase 3: Cloud Flow & Validation Logic
+**Goal:** Create the Detect-InactivityTimeout-NonCompliance flow template with BAP Admin API integration, policy-driven compliance evaluation, and guarded notification
+**Depends on:** Nothing (independent — flow template references Dataverse schema but does not require it at build time)
+**Requirements:** FLW-01, FLW-02, FLW-03
 **Success Criteria:**
-  1. `dlp-policy-template.json` blocks executable file patterns (*.exe, *.bat, *.cmd, *.ps1, *.vbs, *.js, *.jar, *.dll, *.msi, *.scr, *.hta) in Power Platform locations, generates incident reports, configurable environment filter
-  2. Sentinel KQL queries — `query-mime-blocks.kql` (blocked upload attempts with file extension/user/environment aggregation over 30 days), `query-exception-usage.kql` (unusual file type uploads correlated with exception register over 90 days)
-  3. Sentinel analytics alert rule ARM template (`high-volume-blocks.json`) — scheduled rule detecting >10 blocked upload attempts per user per hour, MITRE ATT&CK mapping (T1566, T1204), entity mapping for Account, incident grouping by user
-**Plans:** 2 (A = DLP policy template + KQL queries, B = alert rule ARM template)
+  1. Flow template enumerates environments via Power Platform for Admins V2, loads `fsi_environmentpolicy` rows, builds lookup keyed by EnvironmentName
+  2. Per-environment evaluation with configurable concurrency (default 5) — no policy → Unknown + MissingPolicy error log; BAP API fail → Unknown + error log; timeout disabled → Non-Compliant; duration > required max → Non-Compliant; otherwise → Compliant; persist as new immutable compliance row
+  3. Guarded notification — email only when Non-Compliant count > 0 OR Unknown count > 0; includes environment, zone, actual duration, required max, and status; no empty notifications
+  4. Service principal auth with scope `https://api.bap.microsoft.com/.default`; scheduled daily at 06:00 UTC
+**Plans:** 2 (A = flow template core — enumeration + policy lookup + evaluation logic, B = notification logic + error handling + concurrency configuration)
 
-### Phase 4: Dataverse Plugin & Exception Management
-**Goal:** Build Zone 3 Dataverse plugin for server-side MIME validation and create exception management templates
-**Depends on:** Nothing (independent — zone templates from Phase 2 are referenced but not required at build time)
-**Requirements:** PLG-01, PLG-02, EXC-01, EXC-02
+### Phase 4: PowerShell Remediation
+**Goal:** Create Set-InactivityTimeout.ps1 for BAP Admin API PATCH remediation with audit record writing and validation testing
+**Depends on:** Nothing (independent — can be coded and tested independently of flow and schema)
+**Requirements:** REM-01, REM-02
 **Success Criteria:**
-  1. `ValidateMimeTypePlugin.cs` with config-driven magic bytes validation — PE/ELF/Mach-O executable header detection, OpenXML content type validation, configurable enforcement mode (Block vs LogOnly), correlation ID tracing, max file size guard (10MB default)
-  2. Plugin deployment scripts — `register-plugin.ps1` for Plugin Registration Tool automation, `test-plugin.ps1` for integration testing, `MimeConfig.json` configuration with Zone 3 default allowlist
-  3. Exception register template (`mime-type-exceptions.csv`) with required columns (Requestor, Department, Date, MimeType, Extensions, BusinessJustification, Alternatives, RiskAssessment, MitigatingControls, Approver, ApprovalDate, ReviewDate, Status)
-  4. Exception validation script (`validate-exceptions.ps1`) comparing allowed MIME types against register; exception request template (`exception-template.md`) with required fields
-**Plans:** 2 (A = plugin + deployment scripts, B = exception register + validation script + request template)
+  1. `Set-InactivityTimeout.ps1` with mandatory `-EnvironmentName` parameter (canonical Power Platform Environment Name), `-TimeoutDuration` (ValidateRange 5-120, default 120), `-WarningDuration` (ValidateRange 1-30, default 5); PATCH BAP Admin API privacy settings endpoint; `#Requires -Version 7.0`, `SupportsShouldProcess`, `-WhatIf` support
+  2. Remediation audit record writing — optionally write records to Dataverse compliance table with action taken, before/after values, and timestamp
+  3. Validation test script to confirm PATCH was applied correctly by re-reading the API response
+**Plans:** 2 (A = Set-InactivityTimeout.ps1 script, B = remediation audit records + validation test script)
 
 ### Phase 5: Framework Integration & Validation
 **Goal:** Update framework references, solutions catalog, and validate all artifacts against build and verification scripts
 **Depends on:** Phases 1–4 (all control documentation and solution artifacts must exist before framework references them)
 **Requirements:** FRM-01, FRM-02, FRM-03
 **Success Criteria:**
-  1. CONTROL-INDEX.md includes Control 1.25 row; mkdocs.yml navigation updated under Pillar 1 Security; all "62 controls" references updated to "63 controls" across copilot-instructions, AGENTS.md, README, getting-started docs
-  2. `solutions-index.md` includes MIME Type Restrictions entry with status, components, regulatory alignment, control mappings, cross-references from related controls (1.5, 1.10, 1.11, 1.13, 1.14, 3.3, 3.7, 4.3)
-  3. `mkdocs build --strict` passes, `verify_controls.py` 63/63, `verify_language_rules.py` 0 violations
-**Plans:** 2 (A = CONTROL-INDEX + mkdocs.yml + "63 controls" updates + solutions-index entry, B = build validation + cross-reference verification)
+  1. CONTROL-INDEX.md includes Control 2.22 row; mkdocs.yml navigation updated under Pillar 2 Management after 2.21; all "63 controls" references updated to "64 controls" across copilot-instructions, AGENTS.md, README, getting-started, framework docs; "21 management controls" → "22 management controls"; playbook count "252" → "256"
+  2. `solutions-index.md` includes Inactivity Timeout Enforcement entry with status, components, regulatory alignment (GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12), control mappings; cross-references from related controls (1.23, 3.7, 3.8); hardening baseline item 30 updated from [3.7] to [2.22, 3.7]
+  3. `mkdocs build --strict` passes, `verify_controls.py` 64/64, `verify_language_rules.py` 0 violations
+**Plans:** 2 (A = CONTROL-INDEX + mkdocs.yml + "64 controls" updates + solutions-index entry, B = build validation + cross-reference verification)
 
 ## Progress
 
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
 | 1. Control Documentation & Playbooks | 2/2 | Complete |
-| 2. PowerShell Module & Zone Templates | 2/2 | Complete |
-| 3. DLP Policy & Sentinel Monitoring | 2/2 | Complete |
-| 4. Dataverse Plugin & Exception Management | 0/2 | Not Started |
-| 5. Framework Integration & Validation | 2/2 | Complete |
+| 2. Dataverse Data Model | 0/2 | Not Started |
+| 3. Cloud Flow & Validation Logic | 0/2 | Not Started |
+| 4. PowerShell Remediation | 0/2 | Not Started |
+| 5. Framework Integration & Validation | 0/2 | Not Started |
 
 ## Parallel Execution Guide
 
@@ -87,19 +87,19 @@ Phases 1–4 are **independent** — no shared file targets, parallel-eligible. 
 
 ```
 Phase 1 (CTL) ──┐
-Phase 2 (MOD) ──┤
-Phase 3 (MON) ──┼── Phase 5 (FRM)
-Phase 4 (PLG/EXC)┘
+Phase 2 (DVM) ──┤
+Phase 3 (FLW) ──┼── Phase 5 (FRM)
+Phase 4 (REM) ──┘
 ```
 
 Within each phase, plans target non-overlapping file sets:
 
 | Phase | Plan A Files | Plan B Files | Parallel? |
 |-------|-------------|-------------|-----------|
-| 1 | `docs/controls/pillar-1-security/1.25-mime-type-restrictions.md` | `docs/playbooks/control-implementations/1.25/*`, `docs/images/1.25/EXPECTED.md` | Yes |
-| 2 | `FsiMimeControl.psm1`, `zone1.json`, `zone2.json`, `zone3.json` | `FsiMimeControl.Tests.ps1` | Yes |
-| 3 | `dlp-policy-template.json`, `query-mime-blocks.kql`, `query-exception-usage.kql` | `high-volume-blocks.json` | Yes |
-| 4 | `ValidateMimeTypePlugin.cs`, `register-plugin.ps1`, `test-plugin.ps1`, `MimeConfig.json` | `mime-type-exceptions.csv`, `validate-exceptions.ps1`, `exception-template.md` | Yes |
+| 1 | `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` | `docs/playbooks/control-implementations/2.22/*`, `docs/images/2.22/EXPECTED.md` | Yes |
+| 2 | `create_timeout_dataverse_schema.py` (policy + compliance tables), env vars, conn refs | `create_timeout_errorlog_schema.py`, seed data | Yes |
+| 3 | Flow template core (enumeration + policy lookup + evaluation) | Notification logic + error handling | Yes |
+| 4 | `Set-InactivityTimeout.ps1` | Remediation audit records + `Test-InactivityTimeoutRemediation.ps1` | Yes |
 | 5 | `CONTROL-INDEX.md`, `mkdocs.yml`, framework docs, `solutions-index.md` | Build validation (read-only) | Yes |
 
 ## File Manifest
@@ -108,65 +108,57 @@ Within each phase, plans target non-overlapping file sets:
 
 | Phase | File | Purpose |
 |-------|------|---------|
-| 1 | `docs/controls/pillar-1-security/1.25-mime-type-restrictions.md` | Control 1.25 documentation (10-section template) |
-| 1 | `docs/playbooks/control-implementations/1.25/portal-walkthrough.md` | PPAC configuration walkthrough |
-| 1 | `docs/playbooks/control-implementations/1.25/powershell-setup.md` | FsiMimeControl module usage guide |
-| 1 | `docs/playbooks/control-implementations/1.25/verification-testing.md` | Zone compliance verification procedures |
-| 1 | `docs/playbooks/control-implementations/1.25/troubleshooting.md` | Common pitfalls and resolution |
-| 1 | `docs/images/1.25/EXPECTED.md` | Screenshot specification |
-| 2 | `scripts/governance/FsiMimeControl.psm1` | PowerShell module (3 cmdlets) |
-| 2 | `scripts/governance/mime-templates/zone1.json` | Zone 1 MIME template (baseline) |
-| 2 | `scripts/governance/mime-templates/zone2.json` | Zone 2 MIME template (recommended) |
-| 2 | `scripts/governance/mime-templates/zone3.json` | Zone 3 MIME template (regulated) |
-| 2 | `scripts/governance/FsiMimeControl.Tests.ps1` | Pester test suite |
-| 3 | `src/dlp-policy-template.json` | Purview DLP policy template |
-| 3 | `src/query-mime-blocks.kql` | Sentinel KQL — blocked upload attempts |
-| 3 | `src/query-exception-usage.kql` | Sentinel KQL — exception usage analysis |
-| 3 | `src/high-volume-blocks.json` | Sentinel analytics alert rule ARM template |
-| 4 | `src/ValidateMimeTypePlugin.cs` | Dataverse plugin (Zone 3 magic bytes validation) |
-| 4 | `scripts/governance/register-plugin.ps1` | Plugin Registration Tool automation |
-| 4 | `scripts/governance/test-plugin.ps1` | Plugin integration testing |
-| 4 | `src/MimeConfig.json` | Plugin configuration (Zone 3 allowlist) |
-| 4 | `scripts/governance/mime-type-exceptions.csv` | Exception register template |
-| 4 | `scripts/governance/validate-exceptions.ps1` | Exception register validation script |
-| 4 | `docs/templates/exception-template.md` | Exception request form template |
+| 1 | `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` | Control 2.22 documentation (10-section template) |
+| 1 | `docs/playbooks/control-implementations/2.22/portal-walkthrough.md` | PPAC Privacy + Security settings walkthrough |
+| 1 | `docs/playbooks/control-implementations/2.22/powershell-setup.md` | Set-InactivityTimeout.ps1 usage guide |
+| 1 | `docs/playbooks/control-implementations/2.22/verification-testing.md` | Compliance scan validation procedures |
+| 1 | `docs/playbooks/control-implementations/2.22/troubleshooting.md` | MissingPolicy, API errors, connectivity |
+| 1 | `docs/images/2.22/EXPECTED.md` | Screenshot specification |
+| 2 | `scripts/create_timeout_dataverse_schema.py` | Dataverse schema (environmentpolicy + compliance tables) |
+| 2 | `scripts/create_timeout_environment_variables.py` | Environment variables (concurrency, notification) |
+| 2 | `scripts/create_timeout_connection_references.py` | Connection references (Dataverse, BAP Admin API) |
+| 2 | `scripts/create_timeout_errorlog_schema.py` | Dataverse schema (errorlog table) |
+| 3 | `src/detect-inactivity-timeout-noncompliance.json` | Cloud Flow template (detection + evaluation) |
+| 4 | `scripts/governance/Set-InactivityTimeout.ps1` | PowerShell remediation script (BAP API PATCH) |
+| 4 | `scripts/governance/Test-InactivityTimeoutRemediation.ps1` | Validation test script |
 
 ### Modified (existing files)
 
 | Phase | File | Change |
 |-------|------|--------|
-| 5 | `docs/controls/CONTROL-INDEX.md` | Add Control 1.25 row |
-| 5 | `mkdocs.yml` | Add 1.25 nav entry under Pillar 1 + playbook nav entries |
-| 5 | `.github/copilot-instructions.md` | Update "62 controls" → "63 controls" |
-| 5 | `AGENTS.md` | Update "62 controls" → "63 controls" |
-| 5 | `README.md` | Update "62 controls" → "63 controls" |
+| 5 | `docs/controls/CONTROL-INDEX.md` | Add Control 2.22 row |
+| 5 | `mkdocs.yml` | Add 2.22 nav entry under Pillar 2 + playbook nav entries |
+| 5 | `.github/copilot-instructions.md` | Update "63 controls" → "64 controls" |
+| 5 | `AGENTS.md` | Update "63 controls" → "64 controls" |
+| 5 | `README.md` | Update "63 controls" → "64 controls" |
 | 5 | `docs/getting-started/*.md` | Update control count references if present |
-| 5 | `docs/reference/solutions-index.md` | Add MIME Type Restrictions catalog entry |
+| 5 | `docs/reference/solutions-index.md` | Add Inactivity Timeout Enforcement catalog entry |
+| 5 | Hardening baseline playbook | Update item 30 control reference [3.7] → [2.22, 3.7] |
 
 ## Coverage
 
 | Requirement | Phase | Plan | Description |
 |-------------|-------|------|-------------|
-| CTL-01 | 1 | 01-01 | Control 1.25 document (10-section template) |
+| Requirement | Phase | Plan | Description |
+|-------------|-------|------|-------------|
+| CTL-01 | 1 | 01-01 | Control 2.22 document (10-section template) |
 | CTL-02 | 1 | 01-02 | 4 implementation playbooks |
 | CTL-03 | 1 | 01-02 | Screenshot specification (EXPECTED.md) |
-| MOD-01 | 2 | 02-01 | FsiMimeControl.psm1 with 3 cmdlets |
-| MOD-02 | 2 | 02-01 | Zone template JSON files (zone1/2/3) |
-| MOD-03 | 2 | 02-02 | Pester test suite |
-| MON-01 | 3 | 03-01 | DLP policy template |
-| MON-02 | 3 | 03-01 | Sentinel KQL queries (2 queries) |
-| MON-03 | 3 | 03-02 | Sentinel analytics alert rule ARM template |
-| PLG-01 | 4 | 04-01 | ValidateMimeTypePlugin.cs (magic bytes validation) |
-| PLG-02 | 4 | 04-01 | Plugin deployment + test scripts |
-| EXC-01 | 4 | 04-02 | Exception register template + validation script |
-| EXC-02 | 4 | 04-02 | Exception request template |
-| FRM-01 | 5 | 05-01 | CONTROL-INDEX + mkdocs + "63 controls" updates |
-| FRM-02 | 5 | 05-01 | Solutions-index catalog entry |
+| DVM-01 | 2 | 02-01 | fsi_environmentpolicy table schema + env vars + conn refs |
+| DVM-02 | 2 | 02-01 | fsi_inactivitytimeout_compliance table schema |
+| DVM-03 | 2 | 02-02 | fsi_inactivitytimeout_errorlog table schema + seed data |
+| FLW-01 | 3 | 03-01 | Detection flow — enumeration + policy lookup |
+| FLW-02 | 3 | 03-01 | Per-environment compliance evaluation logic |
+| FLW-03 | 3 | 03-02 | Guarded notification + error handling |
+| REM-01 | 4 | 04-01 | Set-InactivityTimeout.ps1 (BAP API PATCH) |
+| REM-02 | 4 | 04-02 | Remediation audit records + validation test script |
+| FRM-01 | 5 | 05-01 | CONTROL-INDEX + mkdocs + "64 controls" updates |
+| FRM-02 | 5 | 05-01 | Solutions-index catalog entry + hardening baseline update |
 | FRM-03 | 5 | 05-02 | Build validation (mkdocs + verify scripts) |
 
-**Total: 16/16 requirements mapped. No orphans.**
+**Total: 14/14 requirements mapped. No orphans.**
 
 ---
 *Roadmap created: 2026-02-12*
 *Depth: comprehensive*
-*Phases: 5 (documentation → module → monitoring → plugin/exceptions → framework integration)*
+*Phases: 5 (documentation → dataverse → flow → remediation → framework integration)*

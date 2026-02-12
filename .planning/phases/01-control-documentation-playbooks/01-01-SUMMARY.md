@@ -1,50 +1,60 @@
-# Summary: Plan 01-01 — Control 1.25 Documentation
+---
+phase: 1
+plan: 1
+title: "Control 2.22 documentation — 10-section template"
+status: completed
+completed: 2026-02-12
+---
 
-## Status: COMPLETE
+# Summary 01-01: Control 2.22 Documentation
+
+## Result
+
+**Status:** Completed
+**Deliverable:** `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md`
 
 ## What Was Done
 
-Created `docs/controls/pillar-1-security/1.25-mime-type-restrictions.md` following the 10-section control template with header/footer metadata, zone-specific requirements, regulatory references, and FSI-safe language.
+Created the Control 2.22 document following the 10-section template with header/footer metadata. The document was modeled after the Control 2.21 exemplar, using the same admonition patterns (`!!! info`, `!!! tip`, `!!! warning`), capability table format, zone requirements table, and footer style.
 
-## Commits
+### Deliverable Details
 
-| Commit | Description |
-|--------|-------------|
-| `ac16623` | `docs(1.25): add Control 1.25 MIME Type Restrictions document (10-section template)` |
+| Section | Content Highlights |
+|---------|-------------------|
+| Header Metadata | Control 2.22, Pillar: Management, Regulatory: GLBA/SOX/FINRA/NIST, Last Verified: 2026-02-12 |
+| Objective | Policy-driven inactivity timeout enforcement across Power Platform environments |
+| Why This Matters for FSI | 5 regulatory bullet points (GLBA 501(b), SOX 302, FINRA 4511, NIST AC-11, NIST AC-12) |
+| Control Description | Capability table (5 rows), BAP Admin API endpoint, 5-step compliance evaluation logic, `!!! info` + `!!! tip` admonitions |
+| Key Configuration Points | 3 groups: PPAC Environment Settings, Policy Configuration (Dataverse), Automated Compliance Scanning |
+| Zone-Specific Requirements | Zone 1 optional, Zone 2 ≤120 min, Zone 3 ≤60 min |
+| Roles & Responsibilities | 4 roles: Power Platform Admin, Environment Admin, AI Governance Lead, Compliance Officer |
+| Related Controls | 1.23, 2.1, 3.7, 3.8 with relative links |
+| Implementation Playbooks | 4 playbook links with `!!! info` + `!!! tip` admonitions |
+| Verification Criteria | 6 criteria covering timeout settings, policy table, flow execution, remediation |
+| Additional Resources | 5 Microsoft Learn + NIST links |
+| Footer | February 2026, v1.3 |
 
-## File Manifest
+### Acceptance Criteria Verification
 
-| Action | File |
-|--------|------|
-| Created | `docs/controls/pillar-1-security/1.25-mime-type-restrictions.md` |
+| # | Criterion | Met |
+|---|-----------|-----|
+| 1 | File at correct path | ✅ |
+| 2 | 10-section template structure | ✅ |
+| 3 | Header metadata (ID, Pillar, Regulatory, Last Verified, Governance Levels) | ✅ |
+| 4 | Zone-specific requirements table | ✅ |
+| 5 | Regulatory references (GLBA, SOX, FINRA, NIST AC-11/AC-12) | ✅ |
+| 6 | Capability table | ✅ |
+| 7 | Related controls with relative links (1.23, 2.1, 3.7, 3.8) | ✅ |
+| 8 | 4 playbook links | ✅ |
+| 9 | 6 verification criteria | ✅ |
+| 10 | FSI-safe language (no overclaims) | ✅ |
+| 11 | Footer metadata | ✅ |
+| 12 | Matches 2.21 exemplar patterns | ✅ |
 
-## Acceptance Criteria Verification
+## Dependencies
 
-| # | Criterion | Status |
-|---|-----------|--------|
-| 1 | Header metadata (6 fields incl. Last Verified) | ✅ |
-| 2 | Section 1 — Objective | ✅ |
-| 3 | Section 2 — Why This Matters for FSI (4 regulations, hedged) | ✅ |
-| 4 | Section 3 — Control Description (multi-paragraph, capability table) | ✅ |
-| 5 | Section 4 — Key Configuration Points (7 items) | ✅ |
-| 6 | Section 5 — Zone-Specific Requirements (3-row table) | ✅ |
-| 7 | Section 6 — Roles & Responsibilities (4 roles) | ✅ |
-| 8 | Section 7 — Related Controls (8 entries, verified links) | ✅ |
-| 9 | Section 8 — Implementation Playbooks (info admonition, 4 links) | ✅ |
-| 10 | Section 9 — Verification Criteria (6 items) | ✅ |
-| 11 | Section 10 — Additional Resources (4 Microsoft Learn links) | ✅ |
-| 12 | Footer metadata (v1.3, Needs Verification) | ✅ |
-| 13 | FSI language compliance (0 violations) | ✅ |
+- None (Wave 1)
 
-## Decisions Made
+## Key Files
 
-- **Related control mappings corrected:** Plan specified control names that didn't match actual repo filenames (e.g., 1.10 is "Communication Compliance Monitoring", not "Environment Security Settings"). Links verified against actual files.
-- **Version set to v1.3:** verify_controls.py requires v1.2 or v1.3; set to v1.3 for consistency with current framework version.
-- **Enrichments from 1.24 exemplar applied:** Added `!!! note` admonition (File Upload Security relationship), FSI Scope Note, `!!! tip` (complementary DLP integration).
-
-## Discovered Work
-
-None.
-
----
-*Completed: 2026-02-12*
+- `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` (CREATED)
