@@ -89,11 +89,11 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 
 ## Four Governance Pillars
 
-The framework organizes 62 controls across four pillars:
+The framework organizes 63 controls across four pillars:
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. [Security](../controls/pillar-1-security/index.md)** | 24 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
+| **1. [Security](../controls/pillar-1-security/index.md)** | 25 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
 | **2. [Management](../controls/pillar-2-management/index.md)** | 21 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 10 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
 | **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
@@ -225,7 +225,7 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 **For Control Requirements:**
 
-- [Control Catalog](../controls/index.md) — All 62 controls
+- [Control Catalog](../controls/index.md) — All 63 controls
 - [Regulatory Framework](regulatory-framework.md) — Regulation-to-control mappings
 
 **For Implementation:**

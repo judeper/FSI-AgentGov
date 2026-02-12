@@ -27,7 +27,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
-| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 63 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
@@ -39,6 +39,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
 | [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector) | v1.0.0 | Completed | Continuous detection of overly permissive agent sharing configurations with automated remediation and exception management | 1.1, 3.8 |
 | [Agent Security Configuration Governance](#agent-security-configuration-governance) | v1.0.0 | Completed | Per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance scripts | 1.1, 3.7, 3.8 |
+| [MIME Type Restrictions for File Uploads](#mime-type-restrictions-for-file-uploads) | v1.0.0 | Completed | Zone-based MIME type configuration, server-side magic bytes validation, DLP policy integration, Sentinel monitoring | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 |
 
 ### Status Legend
 
@@ -240,13 +241,13 @@ Automates Conditional Access policy deployment and compliance monitoring for AI 
 !!! success "Production Ready"
     v1.0.0 includes Power Automate flows, Dataverse schema, sample data, and deployment documentation. Power BI template requires manual creation following the 883-line specification.
 
-Provides unified compliance visibility across all 62 framework controls with zone-based filtering and trend analysis for regulatory reporting.
+Provides unified compliance visibility across all 63 framework controls with zone-based filtering and trend analysis for regulatory reporting.
 
 **Components:**
 - Dataverse tables for control assessments, scores, exceptions, and evidence
 - Power Automate flows for score calculation and exception monitoring
 - DAX measure library for Power BI
-- Sample data with all 62 controls
+- Sample data with all 63 controls
 - Python script for demo data loading
 
 **Regulatory Alignment:**
@@ -674,6 +675,64 @@ Automates agent-level security configuration governance across three critical ar
 
 ---
 
+### MIME Type Restrictions for File Uploads
+
+!!! success "Production Ready"
+    v1.0.0 includes a PowerShell module for zone-based MIME type configuration management, Dataverse plugin for server-side magic bytes validation in Zone 3, Purview DLP policy template for executable file blocking, Sentinel monitoring queries and analytics alert rules, and exception management workflow.
+
+Helps prevent malicious or high-risk file types from being uploaded to AI agent conversations. Provides zone-aware MIME type restriction configuration, server-side file content validation using magic bytes analysis, DLP policy integration for executable blocking, and centralized monitoring through Microsoft Sentinel.
+
+!!! info "Framework-Integrated Tool"
+    The PowerShell module and governance scripts are integrated directly into the FSI-AgentGov framework repository under `scripts/governance/` and `src/`. They do not require the companion FSI-AgentGov-Solutions repository.
+
+**Version:** v1.0.0
+**Status:** Completed
+
+**Components:**
+
+- `scripts/governance/FsiMimeControl.psm1` — PowerShell module with Get/Set/Test cmdlets and zone templates for MIME type configuration management
+- `src/ValidateMimeTypePlugin.cs` — Dataverse plugin for server-side magic bytes validation in Zone 3 environments
+- `src/dlp-policy-template.json` — Purview DLP policy template for executable file blocking
+- `src/query-mime-blocks.kql` — Sentinel KQL query for MIME type block event monitoring
+- `src/high-volume-blocks.json` — Sentinel analytics alert rule ARM template for high-volume block detection
+- `scripts/governance/mime-exception-register.csv` — Exception register with validation script and request template
+
+**Regulatory Alignment:**
+
+- FINRA 4511/3110 (Books and Records — File Upload Governance Evidence)
+- SEC 17a-4 (Recordkeeping — Upload Restriction Audit Trail)
+- GLBA 501(b) (Safeguards — File Type Restriction Controls)
+- OCC 2011-12 (Model Risk Management — Input Validation Governance)
+
+**Related Controls:**
+
+- [1.5 - Data Loss Prevention (DLP) and Sensitivity Labels](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
+- [1.10 - Communication Compliance Monitoring](../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
+- [1.11 - Conditional Access and Phishing-Resistant MFA](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
+- [1.13 - Sensitive Information Types (SITs) and Pattern Recognition](../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
+- [1.14 - Data Minimization and Agent Scope Control](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md)
+- [1.25 - MIME Type Restrictions for File Uploads](../controls/pillar-1-security/1.25-mime-type-restrictions.md)
+- [3.3 - Compliance and Regulatory Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)
+- [3.7 - PPAC Security Posture Assessment](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md)
+- [4.3 - Site and Document Retention Management](../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md)
+
+**Script Locations:**
+
+- `scripts/governance/FsiMimeControl.psm1`
+- `scripts/governance/FsiMimeControl.psd1`
+- `src/ValidateMimeTypePlugin.cs`
+- `src/dlp-policy-template.json`
+- `src/query-mime-blocks.kql`
+- `src/high-volume-blocks.json`
+
+**Version History:**
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0.0 | February 2026 | Initial release |
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -713,6 +772,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Agent Usage & Performance Workbook | v1.0.0 | February 2026 |
 | Unrestricted Agent Sharing Detector | v1.0.0 | February 2026 |
 | Agent Security Configuration Governance | v1.0.0 | February 2026 |
+| MIME Type Restrictions for File Uploads | v1.0.0 | February 2026 |
 
 ---
 

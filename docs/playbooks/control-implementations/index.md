@@ -23,7 +23,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 
 ## Playbooks by Pillar
 
-### Pillar 1: Security (24 controls)
+### Pillar 1: Security (25 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -51,6 +51,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.22 Information Barriers](../../controls/pillar-1-security/1.22-information-barriers.md) | [Portal](1.22/portal-walkthrough.md) | [PS](1.22/powershell-setup.md) | [Test](1.22/verification-testing.md) | [Fix](1.22/troubleshooting.md) |
 | [1.23 Step-Up Authentication](../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | [Portal](1.23/portal-walkthrough.md) | [PS](1.23/powershell-setup.md) | [Test](1.23/verification-testing.md) | [Fix](1.23/troubleshooting.md) |
 | [1.24 Defender AI-SPM](../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | [Portal](1.24/portal-walkthrough.md) | [PS](1.24/powershell-setup.md) | [Test](1.24/verification-testing.md) | [Fix](1.24/troubleshooting.md) |
+| [1.25 MIME Type Restrictions](../../controls/pillar-1-security/1.25-mime-type-restrictions.md) | [Portal](1.25/portal-walkthrough.md) | [PS](1.25/powershell-setup.md) | [Test](1.25/verification-testing.md) | [Fix](1.25/troubleshooting.md) |
 
 ### Pillar 2: Management (21 controls)
 

@@ -12,7 +12,7 @@ The FSI Agent Governance Framework defines **what** controls organizations shoul
 flowchart TB
     subgraph Framework["FSI-AgentGov (Framework)"]
         direction TB
-        P1[Pillar 1: Security<br/>24 Controls]
+        P1[Pillar 1: Security<br/>25 Controls]
         P2[Pillar 2: Management<br/>21 Controls]
         P3[Pillar 3: Reporting<br/>10 Controls]
         P4[Pillar 4: SharePoint<br/>7 Controls]
@@ -653,7 +653,7 @@ For detailed architecture guidance including scalability limits and alternative 
 ## Summary Statistics
 
 **Solutions:** 19 deployable automation solutions (including cross-solution integration layer)
-**Control Coverage:** 28 of 62 controls (45.2%) have direct solution support
+**Control Coverage:** 29 of 63 controls (46.0%) have direct solution support
 **Status Distribution:**
 - Completed: 9 solutions (ELM, MCM, PGC, DEC, SSC, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration)
 - Validated: 1 solution (FINRA Supervision Workflow)

@@ -141,7 +141,7 @@ Regulation-specific implementation guidance.
 
 Per-control implementation guides extracted from control documentation.
 
-**248 playbooks** (62 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
+**252 playbooks** (63 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
 
 Each control has a dedicated folder with:
 
@@ -151,7 +151,7 @@ Each control has a dedicated folder with:
 - `troubleshooting.md` — Common issues and solutions
 
 !!! success "Available Now"
-    All 248 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
+    All 252 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
 
 ---
 

@@ -46,7 +46,7 @@ The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
 
-1. Security (24 controls) - Protect data
+1. Security (25 controls) - Protect data
 2. Management (21 controls) - Govern lifecycle
 3. Reporting (10 controls) - Monitor activities
 4. SharePoint (7 controls) - Govern SharePoint
