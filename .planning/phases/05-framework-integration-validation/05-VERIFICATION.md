@@ -5,28 +5,28 @@
 
 ## Goal Achievement
 
-**Phase Goal:** Integrate solution into framework controls, reference catalogs, and site navigation; validate everything
+**Phase Goal:** Update framework references, solutions catalog, and validate all artifacts against build and verification scripts
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| solutions-index.md includes UASD entry | Pass | Table entry + detail section with components, regulatory alignment, control mappings |
-| Controls 1.1 and 3.8 updated with tip admonitions | Pass | Both controls have UASD tip after Configuration Hardening Baseline tip |
-| Architecture docs created | Pass | `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (129 lines) |
-| mkdocs.yml nav updated | Pass | Overview + Deployment Guide entries under Advanced Implementations |
-| AAM status reconciled | Pass | Changed from "Work In Progress" to "Completed" |
-| mkdocs build --strict passes | Pass | 0 warnings |
-| verify_controls.py 62/62 | Pass | All 62 controls validated |
-| verify_language_rules.py 0 violations | Pass | 493 files scanned, 0 violations |
+| CONTROL-INDEX.md includes Control 1.25 row | Pass | Row added after 1.24 with correct link and implementation type |
+| mkdocs.yml navigation updated | Pass | Already wired from Phase 1 (control + 4 playbook entries) |
+| "62 controls" → "63 controls" updated | Pass | 17 files updated across docs, config, and framework files |
+| "24 security controls" → "25" updated | Pass | All Pillar 1 count references updated with ranges |
+| "248 playbooks" → "252 playbooks" updated | Pass | README and playbooks index updated |
+| solutions-index.md includes MIME entry | Pass | Table row + detail section with components, regulatory alignment, control mappings |
+| mkdocs build --strict passes | Pass | 0 warnings, built successfully |
+| verify_controls.py 63/63 | Pass | All 63 controls validated with playbooks and anchors |
+| verify_language_rules.py 0 violations | Pass | 500 files scanned, 0 violations |
 
 ## Requirements Delivered
 
 | Requirement | Status |
 |-------------|--------|
-| FRM-01 | Delivered — Solutions-index UASD entry |
-| FRM-02 | Delivered — Control updates (1.1, 3.8) + architecture docs |
-| FRM-03 | Delivered — mkdocs nav + AAM reconciliation |
-| VAL-01 | Delivered — All validation checks pass |
+| FRM-01 | Delivered — CONTROL-INDEX + mkdocs + "63 controls" updates |
+| FRM-02 | Delivered — Solutions-index MIME Type Restrictions entry |
+| FRM-03 | Delivered — All validation checks pass (63/63 controls) |
 
 ## Verdict: PASSED
 
-All success criteria met. Phase 5 complete. v16 milestone complete (16/16 requirements delivered).
+All success criteria met. Phase 5 complete. v18 milestone complete (16/16 requirements delivered across 5 phases, 10 plans).

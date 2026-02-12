@@ -11,10 +11,10 @@ Add Control 1.25 (MIME Type Restrictions for File Uploads) to the framework with
 ## Phases
 
 - [x] **Phase 1: Control Documentation & Playbooks** — Control 1.25 document (10-section template), 4 implementation playbooks, screenshot specification
-- [ ] **Phase 2: PowerShell Module & Zone Templates** — `FsiMimeControl.psm1` with 3 cmdlets, zone template JSON files, Pester test suite
+- [x] **Phase 2: PowerShell Module & Zone Templates** — `FsiMimeControl.psm1` with 3 cmdlets, zone template JSON files, Pester test suite
 - [x] **Phase 3: DLP Policy & Sentinel Monitoring** — Purview DLP policy template, Sentinel KQL queries, analytics alert rule ARM template
 - [x] **Phase 4: Dataverse Plugin & Exception Management** — `ValidateMimeTypePlugin.cs` with magic bytes validation, plugin deployment scripts, exception register template, validation script
-- [ ] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "63 controls" updates, solutions-index entry, full build validation
+- [x] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "63 controls" updates, solutions-index entry, full build validation
 
 ## Phase Details
 
@@ -78,8 +78,8 @@ Add Control 1.25 (MIME Type Restrictions for File Uploads) to the framework with
 | 1. Control Documentation & Playbooks | 2/2 | Complete |
 | 2. PowerShell Module & Zone Templates | 2/2 | Complete |
 | 3. DLP Policy & Sentinel Monitoring | 2/2 | Complete |
-| 4. Dataverse Plugin & Exception Management | 2/2 | Complete |
-| 5. Framework Integration & Validation | 0/2 | Not Started |
+| 4. Dataverse Plugin & Exception Management | 0/2 | Not Started |
+| 5. Framework Integration & Validation | 2/2 | Complete |
 
 ## Parallel Execution Guide
 
