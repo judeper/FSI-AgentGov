@@ -182,11 +182,11 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 
 **Solution Documentation:**
 
-- [PREREQUISITES.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/PREREQUISITES.md) — Licensing, permissions, infrastructure requirements
+- [prerequisites.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/prerequisites.md) — Licensing, permissions, infrastructure requirements
 - [SCHEMA.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/SCHEMA.md) — Dataverse table definitions and relationships
 - [FLOW_SETUP.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/FLOW_SETUP.md) — Power Automate orchestration configuration
 - [EVIDENCE_EXPORT.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/EVIDENCE_EXPORT.md) — SHA-256 evidence package setup
-- [TROUBLESHOOTING.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/TROUBLESHOOTING.md) — Common issues and resolution steps
+- [troubleshooting.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/troubleshooting.md) — Common issues and resolution steps
 
 ---
 

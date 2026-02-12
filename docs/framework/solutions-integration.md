@@ -387,7 +387,7 @@ Validates tenant and environment audit configurations against framework requirem
 
 **Status:** Work In Progress
 
-**Repository Link:** [audit-config-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-config-validator)
+**Repository Link:** [audit-configuration-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-configuration-validator)
 
 ---
 
@@ -596,7 +596,7 @@ FSI-AgentGov-Solutions/
 ├── rag-source-validator/                 # v1.0.0 (Work In Progress)
 ├── session-security-configurator/        # v1.0.0 (Completed)
 ├── file-upload-security/                 # v1.0.0 (Work In Progress)
-├── audit-config-validator/               # v1.0.0 (Work In Progress)
+├── audit-configuration-validator/        # v1.0.0 (Work In Progress)
 ├── agent-access-monitor/                 # v1.0.0 (Work In Progress)
 ├── content-moderation-monitor/           # v1.0.0 (Work In Progress)
 ├── coi-testing/                          # v1.0.0 (Planned)
