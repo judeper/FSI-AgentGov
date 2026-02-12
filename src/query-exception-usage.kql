@@ -1,0 +1,94 @@
+// ============================================================================
+// Exception Register Usage Analysis — 90-Day Review
+// ============================================================================
+// Purpose:    Correlates file upload activity with exception-listed MIME types
+//             to detect unusual volume patterns over a 90-day window.
+// Control:    1.25 — MIME Type Restrictions
+// Framework:  FSI Agent Governance Framework
+// Usage:      Run in Microsoft Sentinel or Log Analytics workspace connected
+//             to your Power Platform audit data.
+//
+// This query aids in reviewing exception register utilization and helps
+// identify anomalous upload patterns that may require compliance review.
+// Organizations should verify results against their exception approval
+// records and specific regulatory obligations.
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// CONFIGURATION: Update this list with your organization's approved exception
+// MIME types from the exception register. These are MIME types that have been
+// granted a documented exception to the standard block list.
+// ----------------------------------------------------------------------------
+let ExceptionMimeTypes = dynamic([
+    "application/x-zip-compressed",
+    "application/x-tar",
+    "application/x-7z-compressed",
+    "application/octet-stream"
+    // Add approved exception MIME types from your exception register above
+]);
+// Lookback window for baseline calculation
+let LookbackDays = 90d;
+// Current-week window for anomaly comparison
+let CurrentWeekStart = ago(7d);
+// ----------------------------------------------------------------------------
+
+// Step 1: Gather all uploads matching exception MIME types over 90 days
+let ExceptionUploads =
+    PowerPlatformDlpActivity_CL
+    | where TimeGenerated > ago(LookbackDays)
+    | where MimeType_s in (ExceptionMimeTypes)
+    | where OperationType_s in ("Upload", "Allowed", "AllowedUpload")
+        or ActionTaken_s == "Allow";
+
+// Step 2: Aggregate totals by MIME type and environment
+let Summary =
+    ExceptionUploads
+    | summarize
+        UploadCount   = count(),
+        DistinctUsers = dcount(UserPrincipalName_s),
+        FirstUpload   = min(TimeGenerated),
+        LastUpload    = max(TimeGenerated)
+        by MimeType = MimeType_s, EnvironmentName = EnvironmentName_s;
+
+// Step 3: Calculate weekly averages and current-week counts for anomaly detection
+let WeeklyBaseline =
+    ExceptionUploads
+    | summarize WeeklyCount = count() by MimeType = MimeType_s, EnvironmentName = EnvironmentName_s, Week = startofweek(TimeGenerated)
+    | summarize AvgWeeklyCount = avg(WeeklyCount), WeeksObserved = dcount(Week) by MimeType, EnvironmentName;
+
+let CurrentWeek =
+    ExceptionUploads
+    | where TimeGenerated >= CurrentWeekStart
+    | summarize CurrentWeekCount = count() by MimeType = MimeType_s, EnvironmentName = EnvironmentName_s;
+
+// Step 4: Join baseline averages with current week and compute deviation ratio
+Summary
+| join kind=leftouter WeeklyBaseline on MimeType, EnvironmentName
+| join kind=leftouter CurrentWeek on MimeType, EnvironmentName
+| extend
+    CurrentWeekCount = coalesce(CurrentWeekCount, 0),
+    AvgWeeklyCount   = coalesce(AvgWeeklyCount, 0.0),
+    DeviationRatio   = iff(coalesce(AvgWeeklyCount, 0.0) > 0,
+                           round(toreal(coalesce(CurrentWeekCount, 0)) / AvgWeeklyCount, 2),
+                           0.0)
+| project
+    MimeType,
+    EnvironmentName,
+    UploadCount,
+    DistinctUsers,
+    FirstUpload,
+    LastUpload,
+    AvgWeeklyCount = round(AvgWeeklyCount, 1),
+    CurrentWeekCount,
+    DeviationRatio,
+    WeeksObserved
+| sort by DeviationRatio desc
+
+// ============================================================================
+// ALERT RULE VARIANT
+// Flag for review if any exception MIME type shows >3x normal weekly volume.
+// Uncomment the filter below when using this query as a Sentinel analytics rule.
+// ============================================================================
+// | where DeviationRatio > 3.0
+//     and AvgWeeklyCount > 0
+//     and CurrentWeekCount > 5   // minimum threshold to avoid false positives on low-volume types

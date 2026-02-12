@@ -1,0 +1,61 @@
+// ============================================================================
+// MIME Type Block Events — 30-Day Summary
+// ============================================================================
+// Purpose:    Aggregates blocked file upload attempts by extension, user,
+//             and environment over the past 30 days.
+// Control:    1.25 — MIME Type Restrictions
+// Framework:  FSI Agent Governance Framework
+// Usage:      Run in Microsoft Sentinel or Log Analytics workspace connected
+//             to your Power Platform audit data.
+//
+// Note:       This query uses the PowerPlatformDlpActivity_CL custom log table.
+//             If your environment ingests DLP events via the standard connector,
+//             substitute PowerPlatformAdminActivity as the source table.
+//
+// This query aids in monitoring compliance with FINRA 4511 and SEC 17a-4 by
+// surfacing blocked upload attempts. Organizations should review results in
+// the context of their specific regulatory obligations.
+// ============================================================================
+
+PowerPlatformDlpActivity_CL
+| where TimeGenerated > ago(30d)
+| where OperationType_s in ("Blocked", "Denied", "BlockedUpload")
+    or ActionTaken_s == "Block"
+// Parse file extension from the uploaded filename
+| extend FileExtension = tolower(extract(@"\.([a-zA-Z0-9]+)$", 1, FileName_s))
+| where isnotempty(FileExtension)
+| summarize
+    BlockCount    = count(),
+    FirstBlocked  = min(TimeGenerated),
+    LastBlocked   = max(TimeGenerated)
+    by FileExtension, UserPrincipalName = UserPrincipalName_s, EnvironmentName = EnvironmentName_s
+| sort by BlockCount desc
+| project FileExtension, UserPrincipalName, EnvironmentName, BlockCount, FirstBlocked, LastBlocked
+
+// ============================================================================
+// VARIANT: Daily trend for time-series charting
+// Uncomment the block below and comment out the query above to visualize
+// blocked uploads per day. Useful for Sentinel workbook time-series panels.
+// ============================================================================
+// PowerPlatformDlpActivity_CL
+// | where TimeGenerated > ago(30d)
+// | where OperationType_s in ("Blocked", "Denied", "BlockedUpload")
+//     or ActionTaken_s == "Block"
+// | extend FileExtension = tolower(extract(@"\.([a-zA-Z0-9]+)$", 1, FileName_s))
+// | where isnotempty(FileExtension)
+// | summarize BlockCount = count() by FileExtension, bin(TimeGenerated, 1d)
+// | sort by TimeGenerated asc
+// | render timechart
+
+// ============================================================================
+// VARIANT: Top 10 most-blocked extensions
+// Uncomment to quickly identify the most frequently blocked file types.
+// ============================================================================
+// PowerPlatformDlpActivity_CL
+// | where TimeGenerated > ago(30d)
+// | where OperationType_s in ("Blocked", "Denied", "BlockedUpload")
+//     or ActionTaken_s == "Block"
+// | extend FileExtension = tolower(extract(@"\.([a-zA-Z0-9]+)$", 1, FileName_s))
+// | where isnotempty(FileExtension)
+// | summarize BlockCount = count() by FileExtension
+// | top 10 by BlockCount

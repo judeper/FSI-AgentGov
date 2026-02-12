@@ -1,0 +1,138 @@
+{
+  "_deploymentNotes": [
+    "FSI Agent Governance Framework — Purview DLP Policy Template",
+    "Control Reference: 1.25 — MIME Type Restrictions",
+    "",
+    "BEFORE ENABLING:",
+    "1. Change 'mode' from 'TestWithNotifications' to 'Enable' after validating in test mode.",
+    "2. Replace placeholder GUIDs in 'environmentFilter' with actual Power Platform environment IDs.",
+    "3. Review blocked extensions against your organization's specific requirements before enforcement.",
+    "4. Coordinate with compliance and business teams to confirm extension lists align with approved file types.",
+    "",
+    "This template supports compliance with FINRA 4511, SEC 17a-4, and OCC 2011-12.",
+    "It does not guarantee regulatory compliance on its own — organizations should verify",
+    "configuration meets their specific obligations."
+  ],
+  "name": "fsi-agentgov-mime-upload-restrictions",
+  "displayName": "FSI Agent Governance - MIME Type Upload Restrictions",
+  "description": "Purview DLP policy restricting executable and script file uploads in Power Platform environments. Supports compliance with FINRA 4511 and SEC 17a-4 record-keeping requirements by helping prevent unauthorized file type uploads. Part of the FSI Agent Governance Framework, Control 1.25 — MIME Type Restrictions. Implementation requires validation against organization-specific requirements.",
+  "mode": "TestWithNotifications",
+  "state": "Enabled",
+  "locations": {
+    "locationType": "PowerPlatformEnvironments",
+    "allEnvironments": false,
+    "environmentFilter": [
+      {
+        "environmentId": "00000000-0000-0000-0000-000000000001",
+        "_comment": "Replace with actual Zone 2 or Zone 3 environment GUID"
+      },
+      {
+        "environmentId": "00000000-0000-0000-0000-000000000002",
+        "_comment": "Replace with actual environment GUID — add or remove entries as needed"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "ruleName": "Block Executable File Uploads",
+      "ruleDescription": "Blocks uploads of core executable file types that pose the highest risk in Power Platform environments. Covers 11 dangerous extensions commonly associated with malware delivery and unauthorized code execution.",
+      "priority": 1,
+      "severity": "High",
+      "disabled": false,
+      "conditions": {
+        "contentContainsSensitiveInformation": false,
+        "fileExtensionMatches": {
+          "operator": "anyOf",
+          "extensions": [
+            "exe",
+            "bat",
+            "cmd",
+            "ps1",
+            "vbs",
+            "js",
+            "jar",
+            "dll",
+            "msi",
+            "scr",
+            "hta"
+          ]
+        }
+      },
+      "actions": {
+        "blockAccess": true,
+        "generateAuditLog": true,
+        "notifyUser": {
+          "enabled": true,
+          "notificationText": "Your file upload was blocked by organizational policy. The file type you attempted to upload is not permitted in this Power Platform environment. Contact your administrator if you believe this is an error or require an exception."
+        }
+      },
+      "incidentReport": {
+        "generateIncidentReport": true,
+        "reportSeverity": "High",
+        "sendToAdmin": true,
+        "incidentReportContent": [
+          "FileName",
+          "UserPrincipalName",
+          "EnvironmentName",
+          "MatchedRule",
+          "FileExtension",
+          "Timestamp"
+        ]
+      }
+    },
+    {
+      "ruleName": "Block Script and Archive File Uploads",
+      "ruleDescription": "Blocks uploads of secondary script, shortcut, and archive file types that may be used for lateral movement or configuration tampering. Covers additional dangerous extensions beyond core executables.",
+      "priority": 2,
+      "severity": "Medium",
+      "disabled": false,
+      "conditions": {
+        "contentContainsSensitiveInformation": false,
+        "fileExtensionMatches": {
+          "operator": "anyOf",
+          "extensions": [
+            "com",
+            "cpl",
+            "inf",
+            "lnk",
+            "pif",
+            "reg",
+            "sct",
+            "wsf",
+            "wsh",
+            "cab",
+            "gadget"
+          ]
+        }
+      },
+      "actions": {
+        "blockAccess": true,
+        "generateAuditLog": true,
+        "notifyUser": {
+          "enabled": true,
+          "notificationText": "Your file upload was blocked by organizational policy. The file type you attempted to upload is restricted in this Power Platform environment. Contact your administrator for assistance."
+        }
+      },
+      "incidentReport": {
+        "generateIncidentReport": true,
+        "reportSeverity": "Medium",
+        "sendToAdmin": true,
+        "incidentReportContent": [
+          "FileName",
+          "UserPrincipalName",
+          "EnvironmentName",
+          "MatchedRule",
+          "FileExtension",
+          "Timestamp"
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "frameworkVersion": "1.2.39c",
+    "controlReference": "1.25",
+    "templateVersion": "1.0.0",
+    "lastUpdated": "2026-02-12",
+    "applicableZones": ["Zone 2 — Team Collaboration", "Zone 3 — Enterprise Managed"]
+  }
+}
