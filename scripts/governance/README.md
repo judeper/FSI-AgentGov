@@ -12,6 +12,7 @@ Scripts for automating governance control implementation.
 | `enable-dlp-policies.ps1` | Configure DLP policies | Control 1.5 |
 | `restrict-agent-publishing.ps1` | Validate 6 publishing restriction criteria (env maker role, security groups, sharing, DLP, managed env limits, approval workflow) | Controls 1.1, 2.1, 3.7 |
 | `Test-AgentAuthConfiguration.ps1` | Validate per-agent authentication configuration against 6 SSPM items with zone-based logic | Control 1.1 |
+| `Test-ZoneAgentAccess.ps1` | Validate M365 agent access settings against zone-based governance policies (agent access policy, admin exclusion groups, deployment groups, web search) | Control 3.8 |
 
 ## Prerequisites
 
@@ -32,3 +33,5 @@ Scripts in this directory require elevated permissions and should be:
 ## Integration Notes
 
 `Invoke-HardeningBaselineCheck.ps1` cross-references `restrict-agent-publishing.ps1` for hardening baseline items 1-6 (agent publishing restrictions). When `restrict-agent-publishing.ps1` is present in the same directory, items 1-6 are reported as "Pass" with automation level noted. When absent, items 1-6 are reported as "Skip" requiring manual attestation.
+
+`Test-ZoneAgentAccess.ps1` has a companion adaptive card template at `src/adaptive-card-zone-access-alert.json` for Teams webhook notifications when zone access policy drift is detected. The template follows the same pattern as `src/adaptive-card-uasd-alert.json` with scalar and per-finding template variables for Power Automate flow integration.

@@ -1,0 +1,337 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "${SeverityStyle}",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "[ALERT] Zone Agent Access Policy — ${OverallStatus}",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Zone Agent Access Validator · ${ScannedAt}",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${SeverityBadge}",
+                  "weight": "Bolder",
+                  "size": "ExtraLarge",
+                  "color": "${SeverityColor}",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "scanSummarySection",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Scan Summary",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "Status",
+                      "value": "${OverallStatus}"
+                    },
+                    {
+                      "title": "Scanned",
+                      "value": "${ScannedAt}"
+                    },
+                    {
+                      "title": "Zones Evaluated",
+                      "value": "${ZonesEvaluated}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "Total Checks",
+                      "value": "${TotalChecks}"
+                    },
+                    {
+                      "title": "Failed",
+                      "value": "${FailedCount}"
+                    },
+                    {
+                      "title": "Drifts Detected",
+                      "value": "${DriftCount}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "findingsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Policy Findings (${FailedCount} failed, ${WarningCount} warnings)",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Attention",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "Container",
+          "id": "findingItem",
+          "style": "Emphasis",
+          "items": [
+            {
+              "type": "ColumnSet",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "${CheckId}",
+                      "weight": "Bolder",
+                      "color": "${FindingSeverityColor}"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "${Setting}",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Zone ${Zone}",
+                      "weight": "Bolder",
+                      "color": "${FindingSeverityColor}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "Status",
+                  "value": "${Status}"
+                },
+                {
+                  "title": "Expected",
+                  "value": "${Expected}"
+                },
+                {
+                  "title": "Actual",
+                  "value": "${Actual}"
+                },
+                {
+                  "title": "Detail",
+                  "value": "${Message}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "driftSection",
+      "separator": true,
+      "isVisible": "${HasDrifts}",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Drift Detection (${DriftCount} changes)",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Warning",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "Container",
+          "id": "driftItem",
+          "style": "Emphasis",
+          "items": [
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "Check",
+                  "value": "${DriftCheckId}"
+                },
+                {
+                  "title": "Type",
+                  "value": "${DriftType}"
+                },
+                {
+                  "title": "Previous",
+                  "value": "${PreviousValue}"
+                },
+                {
+                  "title": "Current",
+                  "value": "${CurrentValue}"
+                },
+                {
+                  "title": "Detected",
+                  "value": "${DriftDetectedAt}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View in M365 Admin Center",
+      "url": "https://admin.microsoft.com/#/copilot/settings"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Entra Groups",
+      "url": "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/AllGroups"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Documentation",
+      "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/"
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "zone-access-policy-alert",
+    "templateVersion": "1.0.0",
+    "solution": "Zone Agent Access Validator",
+    "description": "Teams adaptive card for zone agent access policy validation alerts with drift detection and per-finding details",
+    "severityColorMapping": {
+      "Critical": "Attention",
+      "High": "Warning",
+      "Medium": "Accent",
+      "Low": "Good"
+    },
+    "severityStyleMapping": {
+      "Critical": "attention",
+      "High": "warning",
+      "Medium": "accent",
+      "Low": "default"
+    },
+    "severityBadgeMapping": {
+      "Critical": "🔴",
+      "High": "🟠",
+      "Medium": "🟡",
+      "Low": "🟢"
+    },
+    "statusToSeverityMapping": {
+      "GapsFound_with_drift": "Critical",
+      "GapsFound_no_drift": "High",
+      "Passed_with_drift": "Medium",
+      "Passed_no_drift": "Low"
+    },
+    "templateVariables": {
+      "scalar": [
+        "SeverityStyle",
+        "SeverityColor",
+        "SeverityBadge",
+        "OverallStatus",
+        "ScannedAt",
+        "ZonesEvaluated",
+        "TotalChecks",
+        "FailedCount",
+        "WarningCount",
+        "DriftCount",
+        "HasDrifts"
+      ],
+      "perFinding": [
+        "CheckId",
+        "Setting",
+        "Zone",
+        "Status",
+        "Expected",
+        "Actual",
+        "Message",
+        "FindingSeverityColor"
+      ],
+      "perDrift": [
+        "DriftCheckId",
+        "DriftType",
+        "PreviousValue",
+        "CurrentValue",
+        "DriftDetectedAt"
+      ]
+    },
+    "flowIntegrationNotes": "The findingsSection container has a template findingItem. The Power Automate flow should: (1) Replace scalar variables via string substitution, (2) Build finding card elements by iterating failed/warning checks using AppendToArrayVariable, (3) Set findingsSection visibility based on FailedCount + WarningCount > 0, (4) Build drift section by iterating drift records, (5) Set driftSection visibility based on DriftCount > 0. Map status to severity: Fail=Attention, Warning=Warning, Skip=Accent, Pass=Good."
+  }
+}
