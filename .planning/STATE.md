@@ -2,13 +2,13 @@
 
 **Last Updated:** 2026-02-12
 **Milestone:** v16 — Unrestricted Agent Sharing Detector
-**Status:** EXECUTING — Phase 1 complete, Phase 2 ready
+**Status:** EXECUTING — Phase 2 complete, Phase 3 ready
 
 ## Session Ownership
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-12 14:00
-**Handoff Summary:** v16 initialized — Unrestricted Agent Sharing Detector. Solution spec reviewed, naming normalized to fsi_ conventions, decisions logged (severity mapping, complementary to AAM, inline agent identity, lab-grade auth). Research completed (4 dimensions + synthesis). ROADMAP.md, REQUIREMENTS.md, PROJECT.md updated. 4 todo items created for gaps found during research.
+**Handoff Summary:** Phase 2 (Detection Engine) executed — 2 plans across 1 wave. Plan 02-01: detector flow JSON (1950 lines) + adaptive card (280 lines). Plan 02-02: on-demand audit script (688 lines). All 3 DET requirements delivered. Ready for `/gsd-execute-phase 3`.
 
 ## Project Reference
 
@@ -38,15 +38,15 @@ v16: Unrestricted Agent Sharing Detector — EXECUTING
 
 ## Current Position
 
-**Phase:** 2 — Detection Engine (NOT STARTED)
+**Phase:** 3 — Remediation & Exception Management (NOT STARTED)
 **Plan:** None started
-**Status:** Phase 1 complete (2/2 plans). Phase 2 ready to begin.
-**Last activity:** 2026-02-12 — Phase 1 executed (3 scripts, 1328 lines), verified, committed
+**Status:** Phase 2 complete (2/2 plans). Phase 3 ready to begin.
+**Last activity:** 2026-02-12 — Phase 2 executed (3 files, 2918 lines), validated, committed
 
 **Progress:**
 ```
 v1-v15: [=========================] COMPLETE (see MILESTONES.md)
-v16:    [=====                    ] EXECUTING — 2/10 plans, 3/16 requirements
+v16:    [==========               ] EXECUTING — 4/10 plans, 6/16 requirements
 ```
 
 ## Performance Metrics
@@ -57,7 +57,7 @@ v16:    [=====                    ] EXECUTING — 2/10 plans, 3/16 requirements
 - Requirements: 348 delivered
 
 **v16 Target:**
-- Requirements: 3/16 (INFRA-01 ✓, INFRA-02 ✓, INFRA-03 ✓)
+- Requirements: 6/16 (INFRA-01 ✓, INFRA-02 ✓, INFRA-03 ✓, DET-01 ✓, DET-02 ✓, DET-03 ✓)
 
 ## Accumulated Context
 
