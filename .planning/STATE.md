@@ -1,14 +1,14 @@
 # Project State: FSI-AgentGov
 
-**Last Updated:** 2026-02-11
+**Last Updated:** 2026-02-12
 **Milestone:** v15 — Agent Usage & Performance Workbook
 **Status:** COMPLETE — All 4 phases executed (8/8 plans complete)
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-11 21:00
-**Handoff Summary:** v15 COMPLETE — All 4 phases executed. Controls 3.2, 3.9, 2.9 updated with workbook tip admonitions, solutions-index.md entry added, workbook status set to Complete. Build, control, and language validation all pass. Ready for `/gsd-complete-milestone`.
+**Session Started:** 2026-02-12 10:00
+**Handoff Summary:** v1.2.39c — Added 5 environment security settings (items #28-32) to hardening baseline. Control 3.7 updated to v1.3. Invoke-HardeningBaselineCheck.ps1 updated to v1.1.0 (12 automated checks). SSPM in-scope alerts: 32 (was 27). All documentation files updated for version consistency. Stale maintainer files cleaned. Build validated.
 
 ## Project Reference
 
@@ -97,8 +97,8 @@ None.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-11 21:00
-**Handoff Summary:** Plan 02-02 complete — `src/agent-usage-workbook.json` updated (46.7KB, 795 lines). All 3 tabs populated (Q01-Q23, 25 query items), zone-aware thresholds on 6 KPI items, enhanced header with v1.0.0/framework ref/prerequisites. JSON validated. Plan 02-03 next.
+**Session Started:** 2026-02-12 10:00
+**Handoff Summary:** v1.2.39c complete — 5 environment security settings added to hardening baseline (#28-32), Control 3.7 v1.3, script v1.1.0, 32 SSPM alerts in-scope. Documentation sweep done. Stale files cleaned. Ready for next milestone.
 
 ---
 

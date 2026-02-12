@@ -151,6 +151,24 @@ See [Configuration Hardening Baseline](../../advanced-implementations/configurat
 
 ---
 
+## Step 10: Verify Environment Security Settings
+
+Review environment-level privacy and security settings that help protect against file-based attacks, session hijacking, and code injection:
+
+1. Open **PPAC > Environments** and select the target environment
+2. Navigate to **Settings > Privacy + Security** and verify:
+   - **Blocked Attachments:** Dangerous file extensions are listed (ade, adp, app, asa, asp, bat, cmd, com, dll, exe, hta, jar, js, jse, msi, pst, reg, scr, vb, vbe, vbs, ws, wsc, wsf, wsh, etc.)
+   - **Blocked MIME Types:** High-risk MIME types are listed (application/javascript, application/x-javascript, application/hta, text/javascript, application/msaccess, text/scriplet, application/xml, application/prg)
+   - **Inactivity Timeout:** Enabled with duration ≤ 120 minutes
+   - **Session Expiration:** "Set custom session timeout" enabled with maximum session length ≤ 1440 minutes
+   - **Content Security Policy:** Navigate to the "Content security policy" section > "Model Driven" > Verify "Enforce content security policy" is enabled
+
+3. Repeat for each Zone 2/3 environment
+4. Document findings and archive as evidence for audit readiness
+
+!!! warning "Per-Environment Settings"
+    These settings are configured per environment — each Dataverse environment must be verified individually. Prioritize Zone 2 and Zone 3 environments for compliance.
+
 ---
 
 [Back to Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

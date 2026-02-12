@@ -35,7 +35,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
-| [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.0.0 | Completed | PowerShell verification script and 27-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
+| [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.1.0 | Completed | PowerShell verification script and 32-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
 | [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
 
 ### Status Legend
@@ -523,7 +523,7 @@ Wires five Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compli
 ### Configuration Hardening Baseline
 
 !!! success "Production Ready"
-    v1.0.0 includes 27-item hardening checklist, PowerShell verification script for automatable items, manual attestation procedures, evidence export with SHA-256 integrity hashing, and zone-specific review cadence guidance.
+    v1.1.0 includes 32-item hardening checklist, PowerShell verification script for automatable items, manual attestation procedures, evidence export with SHA-256 integrity hashing, and zone-specific review cadence guidance.
 
 Consolidates security-critical configuration settings across Power Platform, Copilot Studio, and M365 Admin Center into a single reviewable hardening baseline. Enables FSI organizations to verify their configuration posture across agent authentication, audit logging, content moderation, RBAC, environment governance, and AI feature access — addressing settings flagged by SSPM security posture assessments.
 
@@ -532,8 +532,8 @@ Consolidates security-critical configuration settings across Power Platform, Cop
 
 **Components:**
 
-- 27-item master configuration hardening checklist with automation feasibility classification
-- `Invoke-HardeningBaselineCheck.ps1` PowerShell verification script for automatable items (audit logging, environment provisioning)
+- 32-item master configuration hardening checklist with automation feasibility classification
+- `Invoke-HardeningBaselineCheck.ps1` PowerShell verification script for automatable items (audit logging, environment provisioning, environment security settings)
 - Manual attestation procedures for agent-level settings without API access
 - Zone-specific review cadence (Weekly/Bi-weekly/Monthly) with escalation triggers
 - Evidence export with SHA-256 integrity hashing for regulatory examination readiness

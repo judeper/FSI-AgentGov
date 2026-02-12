@@ -3,12 +3,13 @@
     Validates hardening baseline items via Power Platform Admin APIs.
 
 .DESCRIPTION
-    Checks 7 automatable items from the 27-item Configuration Hardening Baseline:
+    Checks 12 automatable items from the 32-item Configuration Hardening Baseline:
     - Items 7-9: Audit logging (environment-level auditing, retention period, tenant-level auditing)
     - Items 14-17: Environment provisioning (creation restriction, routing, tenant isolation, security groups)
+    - Items 28-32: Environment security settings (blocked attachments, MIME types, inactivity timeout, session expiration, CSP)
 
     Uses Get-TenantSettings (items 14-16), Get-AdminPowerAppEnvironment (item 17),
-    and Dataverse Organization entity REST API (items 7-9) to query current configuration.
+    and Dataverse Organization entity REST API (items 7-9, 28-32) to query current configuration.
 
     Supports zone-specific thresholds for audit retention (item 8) and security group
     requirements (item 17) via the -ZoneMapping parameter.
@@ -51,8 +52,8 @@
 
 .NOTES
     Part of the FSI Agent Governance — Configuration Hardening Baseline.
-    Controls: 1.7, 2.1
-    Version: 1.0.0
+    Controls: 1.7, 2.1, 3.7
+    Version: 1.1.0
     Requires: Microsoft.PowerApps.Administration.PowerShell (2.0.0+)
 #>
 
@@ -84,8 +85,8 @@ Write-Host   "║  FSI Agent Governance — Hardening Baseline Checker      ║"
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 # ─── WhatIf Preview ──────────────────────────────────────────────────
-if (-not $PSCmdlet.ShouldProcess("Power Platform tenant", "Run hardening baseline checks (items 7-9, 14-17)")) {
-    Write-Verbose "WhatIf: Would check hardening baseline items 7-9 (audit logging) and 14-17 (environment provisioning)"
+if (-not $PSCmdlet.ShouldProcess("Power Platform tenant", "Run hardening baseline checks (items 7-9, 14-17, 28-32)")) {
+    Write-Verbose "WhatIf: Would check hardening baseline items 7-9 (audit logging), 14-17 (environment provisioning), and 28-32 (environment security settings)"
     return
 }
 
@@ -365,8 +366,178 @@ catch {
         -CheckGroup 'TenantAuditing' -Status 'Skip' -Message "Error: $($_.Exception.Message)"))
 }
 
-# ═══════════════════════════════════════════════════════════════════════
-# Results Aggregation
+# ═══════════════════════════════════════════════════════════════════════# Check Group 4: Environment Security Settings (Items 28-32)
+# ═════════════════════════════════════════════════════════════════════
+Write-Verbose "Check Group 4: Environment Security Settings (Items 28-32)..."
+
+# Critical file extensions that should be blocked
+$requiredBlockedExtensions = @('ade','adp','app','asa','asp','bat','cdx','cmd','com','cpl','crt','csh',
+    'dll','exe','hta','inf','ins','jar','js','jse','lnk','mda','mdb','mde','msc','msi','msp','mst',
+    'pcd','pif','reg','scr','sct','shb','shs','tmp','url','vb','vbe','vbs','ws','wsc','wsf','wsh')
+
+# Critical MIME types that should be blocked
+$requiredBlockedMimeTypes = @('application/javascript','application/x-javascript','text/javascript',
+    'application/hta','application/msaccess','text/scriplet','application/xml','application/prg')
+
+foreach ($env in $environments) {
+    $envName = $env.DisplayName
+    $dataverseUrl = $env.Internal.properties.linkedEnvironmentMetadata.instanceUrl
+
+    if (-not $dataverseUrl) {
+        Write-Warning "  Environment '$envName' has no linked Dataverse instance — skipping items 28-32"
+        28..32 | ForEach-Object {
+            $settingName = switch ($_) {
+                28 { 'Blocked attachment extensions' }
+                29 { 'Blocked MIME types' }
+                30 { 'Inactivity timeout' }
+                31 { 'Session expiration' }
+                32 { 'Content Security Policy (CSP)' }
+            }
+            $allChecks.Add((New-CheckResult -ItemNumber $_ -Setting $settingName `
+                -CheckGroup 'EnvironmentSecuritySettings' -Status 'Skip' `
+                -Environment $envName -Message 'No Dataverse instance linked'))
+        }
+        continue
+    }
+
+    try {
+        $securityFields = 'blockedattachments,blockedmimetypes,inaborttimeenabled,inactivitytimeoutinmins,' +
+            'sessiontimeoutenabled,sessiontimeoutinmins,isaborttimeenabled,' +
+            'iscontentsecuritypolicyenabled,contentsecuritypolicyoptions'
+        $orgResponse = Invoke-RestMethod `
+            -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=$securityFields" `
+            -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $dataverseUrl).Token)" } `
+            -Method Get -ErrorAction Stop
+
+        $org = $orgResponse.value[0]
+
+        # Item 28 — Blocked Attachment Extensions
+        $blockedAttachments = $org.blockedattachments
+        if ($blockedAttachments) {
+            $configuredExtensions = ($blockedAttachments -split '[;,]') | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ }
+            $missingExtensions = $requiredBlockedExtensions | Where-Object { $_ -notin $configuredExtensions }
+            $item28Status = if ($missingExtensions.Count -eq 0) { 'Pass' } else { 'Fail' }
+            $item28Actual = "$($configuredExtensions.Count) extensions configured; $($missingExtensions.Count) critical missing"
+        }
+        else {
+            $item28Status = 'Fail'
+            $item28Actual = 'No blocked extensions configured'
+            $missingExtensions = $requiredBlockedExtensions
+        }
+
+        $allChecks.Add((New-CheckResult -ItemNumber 28 -Setting 'Blocked attachment extensions' `
+            -CheckGroup 'EnvironmentSecuritySettings' -Status $item28Status `
+            -Expected 'Critical file extensions blocked' -Actual $item28Actual `
+            -Environment $envName))
+
+        if ($item28Status -eq 'Fail') {
+            $gaps.Add("Item 28: Blocked attachments in '$envName' — missing: $($missingExtensions -join ', ')")
+        }
+
+        # Item 29 — Blocked MIME Types
+        $blockedMimes = $org.blockedmimetypes
+        if ($blockedMimes) {
+            $configuredMimes = ($blockedMimes -split '[;,]') | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ }
+            $missingMimes = $requiredBlockedMimeTypes | Where-Object { $_ -notin $configuredMimes }
+            $item29Status = if ($missingMimes.Count -eq 0) { 'Pass' } else { 'Fail' }
+            $item29Actual = "$($configuredMimes.Count) MIME types blocked; $($missingMimes.Count) critical missing"
+        }
+        else {
+            $item29Status = 'Fail'
+            $item29Actual = 'No MIME type restrictions configured'
+            $missingMimes = $requiredBlockedMimeTypes
+        }
+
+        $allChecks.Add((New-CheckResult -ItemNumber 29 -Setting 'Blocked MIME types' `
+            -CheckGroup 'EnvironmentSecuritySettings' -Status $item29Status `
+            -Expected 'High-risk MIME types blocked' -Actual $item29Actual `
+            -Environment $envName))
+
+        if ($item29Status -eq 'Fail') {
+            $gaps.Add("Item 29: Blocked MIME types in '$envName' — missing: $($missingMimes -join ', ')")
+        }
+
+        # Item 30 — Inactivity Timeout
+        # Note: Field names vary by Dataverse version; try both patterns
+        $inactivityEnabled = $org.inaborttimeenabled -eq $true -or $org.isaborttimeenabled -eq $true
+        $inactivityMinutes = $org.inactivitytimeoutinmins
+
+        if ($inactivityEnabled -and $inactivityMinutes -and $inactivityMinutes -le 120) {
+            $item30Status = 'Pass'
+        }
+        elseif (-not $inactivityEnabled) {
+            $item30Status = 'Fail'
+        }
+        else {
+            $item30Status = 'Fail'
+        }
+        $item30Actual = "Enabled=$inactivityEnabled; Duration=$($inactivityMinutes ?? 'N/A') minutes"
+
+        $allChecks.Add((New-CheckResult -ItemNumber 30 -Setting 'Inactivity timeout' `
+            -CheckGroup 'EnvironmentSecuritySettings' -Status $item30Status `
+            -Expected 'Enabled; <= 120 minutes' -Actual $item30Actual `
+            -Environment $envName))
+
+        if ($item30Status -eq 'Fail') {
+            $gaps.Add("Item 30: Inactivity timeout in '$envName' — $item30Actual")
+        }
+
+        # Item 31 — Session Expiration
+        $sessionEnabled = $org.sessiontimeoutenabled -eq $true
+        $sessionMinutes = $org.sessiontimeoutinmins
+
+        if ($sessionEnabled -and $sessionMinutes -and $sessionMinutes -le 1440) {
+            $item31Status = 'Pass'
+        }
+        elseif (-not $sessionEnabled) {
+            $item31Status = 'Fail'
+        }
+        else {
+            $item31Status = 'Fail'
+        }
+        $item31Actual = "Enabled=$sessionEnabled; MaxLength=$($sessionMinutes ?? 'N/A') minutes"
+
+        $allChecks.Add((New-CheckResult -ItemNumber 31 -Setting 'Session expiration' `
+            -CheckGroup 'EnvironmentSecuritySettings' -Status $item31Status `
+            -Expected 'Custom timeout enabled; <= 1440 minutes' -Actual $item31Actual `
+            -Environment $envName))
+
+        if ($item31Status -eq 'Fail') {
+            $gaps.Add("Item 31: Session expiration in '$envName' — $item31Actual")
+        }
+
+        # Item 32 — Content Security Policy (CSP) Enforcement
+        $cspEnabled = $org.iscontentsecuritypolicyenabled -eq $true
+        $item32Status = if ($cspEnabled) { 'Pass' } else { 'Fail' }
+        $item32Actual = "CSPEnforced=$cspEnabled"
+
+        $allChecks.Add((New-CheckResult -ItemNumber 32 -Setting 'Content Security Policy (CSP)' `
+            -CheckGroup 'EnvironmentSecuritySettings' -Status $item32Status `
+            -Expected 'CSP enforcement enabled for model-driven apps' -Actual $item32Actual `
+            -Environment $envName))
+
+        if ($item32Status -eq 'Fail') {
+            $gaps.Add("Item 32: Content Security Policy not enforced in environment '$envName'")
+        }
+    }
+    catch {
+        Write-Warning "  Check Group 4: Could not query environment security settings for '$envName': $($_.Exception.Message)"
+        28..32 | ForEach-Object {
+            $settingName = switch ($_) {
+                28 { 'Blocked attachment extensions' }
+                29 { 'Blocked MIME types' }
+                30 { 'Inactivity timeout' }
+                31 { 'Session expiration' }
+                32 { 'Content Security Policy (CSP)' }
+            }
+            $allChecks.Add((New-CheckResult -ItemNumber $_ -Setting $settingName `
+                -CheckGroup 'EnvironmentSecuritySettings' -Status 'Skip' `
+                -Environment $envName -Message "API error: $($_.Exception.Message)"))
+        }
+    }
+}
+
+# ═════════════════════════════════════════════════════════════════════# Results Aggregation
 # ═══════════════════════════════════════════════════════════════════════
 
 $passCount = ($allChecks | Where-Object { $_.Status -eq 'Pass' }).Count
@@ -380,7 +551,7 @@ $duration = ([DateTime]::UtcNow - $startTime).TotalSeconds
 $baselineResults = [PSCustomObject]@{
     Metadata = [PSCustomObject]@{
         CheckedAt           = $startTime
-        ScriptVersion       = '1.0.0'
+        ScriptVersion       = '1.1.0'
         EnvironmentsScanned = $envCount
         DurationSeconds     = [math]::Round($duration, 2)
         IntegrityHash       = $null

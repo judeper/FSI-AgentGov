@@ -4,7 +4,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.39** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
+**FSI Agent Governance Framework v1.2.39c** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
 
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
@@ -178,8 +178,9 @@ Complex multi-control solutions in `docs/playbooks/advanced-implementations/`:
 
 - **Platform Change Governance** — Dataverse-based Message Center change management
 - **Environment Lifecycle Management** — Automated environment provisioning with zone classification
+- **Configuration Hardening Baseline** — 32-item security configuration verification checklist with automated PowerShell validation
 
-Both have companion deployment scripts in FSI-AgentGov-Solutions.
+All have companion deployment scripts or governance automation in FSI-AgentGov-Solutions.
 
 ## Files to Never Modify Without Permission
 

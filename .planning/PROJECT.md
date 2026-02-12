@@ -39,7 +39,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v8: File Upload Security Configurator — per-agent MIME type restriction enforcement with drift detection
 - v9: Cross-Solution Integration — ELM hooks, Compliance Dashboard feeds, unified evidence export
 - v10: Conditional Access Automation — CA policy lifecycle management with drift detection and evidence export
-- v14: SSPM Control Coverage Remediation — 27 SSPM alerts mapped to 7 controls, PowerShell hardening baseline, playbook remediation
+- v14: SSPM Control Coverage Remediation — 32 SSPM alerts mapped to 8 controls, PowerShell hardening baseline v1.1.0, playbook remediation, environment security settings
 
 **Solutions Status:**
 - 12 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation

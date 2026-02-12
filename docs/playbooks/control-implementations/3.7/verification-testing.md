@@ -111,6 +111,11 @@ For audits, collect:
 | SSPM-3.7-01 | Hardening baseline review | Review completed per documented cadence (weekly Zone 3, bi-weekly Zone 2, monthly Zone 1) | N/A (process-based) | Review log |
 | SSPM-3.7-02 | Configuration drift | No unresolved configuration drift items | N/A (process-based) | Drift report |
 | SSPM-3.7-03 | Evidence archival | Evidence archived with SHA-256 hash per review cycle | N/A (process-based) | Hash manifest |
+| SSPM-3.7-04 | Blocked attachment extensions | Dangerous file extensions configured per environment | PPAC > Env > Settings > Privacy + Security | Extension list screenshot |
+| SSPM-3.7-05 | Blocked MIME types | High-risk MIME types blocked per environment | PPAC > Env > Settings > Privacy + Security | MIME type list screenshot |
+| SSPM-3.7-06 | Inactivity timeout | Enabled with duration ≤ 120 minutes per environment | PPAC > Env > Settings > Privacy + Security | Timeout configuration screenshot |
+| SSPM-3.7-07 | Session expiration | Custom session timeout ≤ 1440 minutes per environment | PPAC > Env > Settings > Privacy + Security | Session config screenshot |
+| SSPM-3.7-08 | Content Security Policy | CSP enforcement enabled for model-driven apps | PPAC > Env > Settings > Privacy + Security > Content security policy | CSP config screenshot |
 
 ### Test Procedures
 
@@ -139,6 +144,46 @@ For audits, collect:
 3. Verify the hash manifest is stored alongside the evidence package
 4. **Pass criteria:** Evidence package is complete with SHA-256 hash manifest for the current review cycle
 5. **Evidence:** Hash manifest file showing filenames and corresponding SHA-256 values
+
+**SSPM-3.7-04: Blocked Attachment Extensions**
+
+1. Navigate to **PPAC > Environments > [Environment] > Settings > Privacy + Security**
+2. Locate the **Blocked Attachments** field
+3. Verify the extension list includes at minimum: `ade;adp;app;asa;asp;bat;cdx;cmd;com;cpl;crt;csh;dll;exe;hta;inf;ins;jar;js;jse;lnk;mda;mdb;mde;msc;msi;msp;mst;pcd;pif;reg;scr;sct;shb;shs;tmp;url;vb;vbe;vbs;ws;wsc;wsf;wsh`
+4. **Pass criteria:** Blocked extensions list is present and includes the critical file types listed above
+5. **Evidence:** Screenshot of the blocked attachments configuration
+
+**SSPM-3.7-05: Blocked MIME Types**
+
+1. Navigate to **PPAC > Environments > [Environment] > Settings > Privacy + Security**
+2. Locate the **Blocked MIME Types** field
+3. Verify the blocked list includes at minimum: `application/javascript`, `application/x-javascript`, `text/javascript`, `application/hta`, `application/msaccess`, `text/scriplet`, `application/xml`, `application/prg`
+4. **Pass criteria:** Blocked MIME types list is present and includes the high-risk types listed above
+5. **Evidence:** Screenshot of the MIME type restriction configuration
+
+**SSPM-3.7-06: Inactivity Timeout**
+
+1. Navigate to **PPAC > Environments > [Environment] > Settings > Privacy + Security**
+2. Locate the **Inactivity Timeout** section
+3. Verify the timeout is enabled and the duration is set to 120 minutes or less
+4. **Pass criteria:** Inactivity timeout is enabled with duration ≤ 120 minutes
+5. **Evidence:** Screenshot of the inactivity timeout configuration
+
+**SSPM-3.7-07: Session Expiration**
+
+1. Navigate to **PPAC > Environments > [Environment] > Settings > Privacy + Security**
+2. Locate the **Session Expiration** section
+3. Verify "Set custom session timeout" is enabled and the maximum session length is ≤ 1440 minutes
+4. **Pass criteria:** Custom session timeout enabled with maximum session length ≤ 1440 minutes
+5. **Evidence:** Screenshot of the session expiration configuration
+
+**SSPM-3.7-08: Content Security Policy Enforcement**
+
+1. Navigate to **PPAC > Environments > [Environment] > Settings > Privacy + Security**
+2. Locate the **Content security policy** section under **Model Driven**
+3. Verify "Enforce content security policy" is enabled
+4. **Pass criteria:** CSP enforcement toggle is enabled for model-driven apps
+5. **Evidence:** Screenshot of the Content Security Policy configuration
 
 ---
 

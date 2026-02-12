@@ -6,7 +6,7 @@ Scripts for automating governance control implementation.
 
 | Script | Purpose | Related Control |
 |--------|---------|-----------------|
-| `Invoke-HardeningBaselineCheck.ps1` | Validate hardening baseline items (audit logging, environment provisioning) | Controls 1.7, 2.1 |
+| `Invoke-HardeningBaselineCheck.ps1` | Validate hardening baseline items (audit logging, environment provisioning, environment security settings) | Controls 1.7, 2.1, 3.7 |
 | `configure-managed-environment.ps1` | Enable Managed Environments | Control 2.1 |
 | `setup-sod-groups.ps1` | Create segregation of duties groups | Control 2.8 |
 | `enable-dlp-policies.ps1` | Configure DLP policies | Control 1.5 |

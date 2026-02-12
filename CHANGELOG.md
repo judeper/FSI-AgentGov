@@ -41,6 +41,51 @@ Conditional Access Automation (CAA) solution promoted to Completed (v1.1.0). Add
 
 ---
 
+## [1.2.39c] — February 2026 (Environment Security Settings)
+
+### Overview
+
+Extends the SSPM Configuration Hardening Baseline with 5 new environment-level security settings (blocked attachments, MIME type restrictions, inactivity timeout, session expiration, Content Security Policy). Driven by customer Adaptive Shield SSPM report gap analysis identifying Power Platform Admin Center > Environment > Settings > Privacy + Security settings not covered in the existing 27-item baseline. Total in-scope SSPM alerts: 32 (was 27).
+
+### Added
+
+**Configuration Hardening Baseline (Items #28-32):**
+
+| Item | Setting | Automation |
+|------|---------|------------|
+| 28 | Blocked attachment extensions | Automated |
+| 29 | Blocked MIME types | Automated |
+| 30 | Inactivity timeout (≤ 120 min) | Automated |
+| 31 | Session expiration (≤ 1440 min) | Automated |
+| 32 | Content Security Policy enforcement | Automated |
+
+**Control 3.7 — PPAC Security Posture Assessment:**
+
+- +5 configuration points for environment security settings
+- +5 rows in configuration drift monitoring table (now 18 rows)
+- +5 verification criteria (#10-14)
+- Version bumped to v1.3
+
+**Playbook Updates:**
+
+- 3.7 portal-walkthrough: +Step 10 (environment security settings verification)
+- 3.7 verification-testing: +5 SSPM test cases (SSPM-3.7-04 through SSPM-3.7-08)
+
+**Script Update — Invoke-HardeningBaselineCheck.ps1 v1.1.0:**
+
+- +Check Group 4: Environment Security Settings (items 28-32) via Dataverse Organization entity API
+- Now validates 12 items (was 7): audit logging + environment provisioning + environment security settings
+- Updated synopsis, WhatIf messaging, and version metadata
+
+### Changed
+
+- Configuration hardening baseline: 27-item → 32-item checklist
+- SSPM alert mapping: 27 in-scope → 32 in-scope (refs 43-47 added)
+- Hardening baseline review scope: Zone 1 monthly now includes items 28-32
+- solutions-index.md: Updated hardening baseline description to reflect 32 items
+
+---
+
 ## [1.2.39b] — February 2026 (Security Configuration Hardening)
 
 ### Overview

@@ -24,8 +24,9 @@ scripts/
 │   ├── extract_whitepaper_text.py      # Extract text from whitepaper PDF
 │   └── check_temp.py                   # Utility to check temp files
 │
-├── governance/                         # Governance automation (planned)
-│   └── README.md                       # Placeholder
+├── governance/                         # Governance automation
+│   ├── README.md                       # Governance scripts overview
+│   └── Invoke-HardeningBaselineCheck.ps1  # Hardening baseline validation (v1.1.0)
 │
 ├── reporting/                          # Reporting automation (planned)
 │   └── README.md                       # Placeholder
