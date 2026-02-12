@@ -76,7 +76,7 @@ Add Control 1.25 (MIME Type Restrictions for File Uploads) to the framework with
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
 | 1. Control Documentation & Playbooks | 2/2 | Complete |
-| 2. PowerShell Module & Zone Templates | 0/2 | Not Started |
+| 2. PowerShell Module & Zone Templates | 2/2 | Complete |
 | 3. DLP Policy & Sentinel Monitoring | 0/2 | Not Started |
 | 4. Dataverse Plugin & Exception Management | 0/2 | Not Started |
 | 5. Framework Integration & Validation | 0/2 | Not Started |
