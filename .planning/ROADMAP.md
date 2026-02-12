@@ -1,118 +1,161 @@
-# Roadmap: Agent Usage & Performance Workbook (v15)
+# Roadmap: Unrestricted Agent Sharing Detector (v16)
 
 ## Overview
 
-Builds a deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap for FSI organizations where production Analytics tab access is restricted (Control 2.8).
+Continuous agent sharing compliance solution using BAP APIs to detect unsafe sharing configurations, record violations in Dataverse, drive remediation through Power Automate, and enforce time-bound exceptions via an Exception Manager app. Complements the existing Agent Access Governance Monitor (AAM = environment-level; UASD = per-agent).
 
-**Source:** Deferred v13 todo (refined as v15 with 12 requirements). Prior v13 research (01-workbook-template-kql/01-RESEARCH.md) provides validated telemetry schema, KQL patterns, and workbook JSON structure.
+**Source:** User-provided solution design spec. All APIs, tables, and flows implemented exactly as specified.
 
-**Execution model:** 4 phases, linear dependency chain. Within each phase, plans target non-overlapping file sets for parallel execution.
+**Execution model:** 5 phases, linear dependency chain. Within each phase, plans target non-overlapping file sets for parallel execution where possible.
 
 ## Phases
 
-- [x] **Phase 1: Telemetry Research & KQL Query Library** — Confirm Application Insights telemetry schema from Copilot Studio, design parameterized KQL queries for all 3 workbook tabs ✅
-- [x] **Phase 2: Workbook Template Development** — Build the 3-tab Azure Monitor Workbook JSON template (Usage/Business Value, Performance/Errors, Operational Health) with zone-aware thresholds ✅
-- [x] **Phase 3: Deployment & Customization** — RBAC configuration guide, ARM/manual deployment playbook, customization guide for extending workbook with custom telemetry ✅
-- [x] **Phase 4: Framework Integration & Validation** — Update Controls 3.2, 3.9, 2.9 with workbook references, add solutions-index.md entry, run build and language validation ✅
+- [x] **Phase 1: Solution Infrastructure** — Dataverse schema (5 tables), option sets (6 UASD-specific + 2 shared), environment variables, connection references, seed data
+- [ ] **Phase 2: Detection Engine** — Detector flow, on-demand audit script, adaptive card template
+- [ ] **Phase 3: Remediation & Exception Management** — Remediation flow, exception approval flow, Exception Manager canvas app, approved group import script
+- [ ] **Phase 4: Deployment & Operations** — Deployment scripts, violation export script, deployment guide documentation
+- [ ] **Phase 5: Framework Integration & Validation** — Solutions-index entry, control updates (1.1, 3.8), architecture docs, mkdocs nav, AAM status reconciliation, full validation
 
 ## Phase Details
 
-### Phase 1: Telemetry Research & KQL Query Library
-**Goal:** Document the native Copilot Studio Application Insights telemetry schema and build the complete KQL query library that powers all 3 workbook tabs
-**Depends on:** Nothing (foundational — telemetry understanding informs all downstream phases)
-**Requirements:** TEL-01, TEL-02
+### Phase 1: Solution Infrastructure
+**Goal:** Create all Dataverse tables, option sets, environment variables, and connection references needed by downstream phases
+**Depends on:** Nothing (foundational)
+**Requirements:** INFRA-01, INFRA-02, INFRA-03
 **Success Criteria:**
-  1. Application Insights telemetry schema documented — customEvents event types (BotMessageReceived, BotMessageSend, TopicStart, etc.), customDimensions properties, channel identifiers (SharePoint vs Teams), session_Id usage
-  2. KQL query library covers all 3 tabs: Usage/Business Value (~8 queries), Performance/Errors (~8 queries), Operational Health (~7 queries) — parameterized by time range, agent ID, and channel
-  3. Queries validated against known Copilot Studio telemetry schema (tables: customEvents, dependencies, exceptions)
-**Plans:** 2 (A = TEL-01 telemetry schema documentation, B = TEL-02 KQL query library design for all tabs)
+  1. Schema script creates 5 tables with `fsi_` prefix, all columns per spec §2
+  2. `fsi_acv_zone` and `fsi_acv_severity` shared option sets referenced (not duplicated)
+  3. 6 solution-specific option sets created (`fsi_UASD_sharingscope`, `fsi_UASD_violationtype`, `fsi_UASD_violationstatus`, `fsi_UASD_exceptionstatus`, `fsi_UASD_authmode`, `fsi_UASD_dataclassification`)
+  4. 4 environment variables and 2 connection references defined
+  5. Seed policy row documented: `MaxIndividualSharesPerAgent = 100, Zone = All`
+**Plans:** 2 (A = schema script + option sets, B = env vars + connection refs + seed data)
 
-### Phase 2: Workbook Template Development
-**Goal:** Build the deployable Azure Monitor Workbook JSON template with 3 tabs, global parameters, and zone-aware thresholds
-**Depends on:** Phase 1 (KQL queries required to populate workbook visualizations)
-**Requirements:** WBK-01, WBK-02, WBK-03, WBK-04
+### Phase 2: Detection Engine
+**Goal:** Build the detection flow and on-demand audit script implementing all 5 violation rules
+**Depends on:** Phase 1 (tables must exist for Dataverse operations)
+**Requirements:** DET-01, DET-02, DET-03
 **Success Criteria:**
-  1. Usage & Business Value tab: session counts, DAU/MAU, conversation trends, channel breakdown, resolution rates, assisted hours, business value estimation
-  2. Performance & Errors tab: response latency (p50/p95/p99), error rates by type, connector success rates, RAI content filtering rates
-  3. Operational Health tab: anomaly detection, uptime trends, dependency health, DLP event visibility (with telemetry limitation notes), agent health summary
-  4. Single deployable JSON file (`src/agent-usage-workbook.json`) with parameterized Application Insights resource ID and zone-aware thresholds
-**Plans:** 2 (A = WBK-01 + WBK-02 Usage and Performance tabs with workbook shell, B = WBK-03 + WBK-04 Operational Health tab and template finalization)
+  1. Detector flow JSON importable into Power Automate with correct trigger, BAP API calls, and Dataverse operations
+  2. All 5 violation rules implemented per spec §4.1 (ORG_WIDE_SHARING, PUBLIC_INTERNET_LINK, UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS)
+  3. `Invoke-SharingAudit.ps1` runs on-demand with `#Requires -Version 7.0`, standard header, `-OutputFormat`/`-OutputPath` parameters
+  4. Adaptive card template follows established pattern with severity-based styling
+**Plans:** 2 (A = detector flow JSON + adaptive card, B = `Invoke-SharingAudit.ps1`)
 
-### Phase 3: Deployment & Customization
-**Goal:** Create deployment artifacts and customization documentation enabling enterprise teams to import, configure, and extend the workbook
-**Depends on:** Phase 2 (workbook template must exist for deployment and customization guidance)
-**Requirements:** DEP-01, DEP-02, FRM-03
+### Phase 3: Remediation & Exception Management
+**Goal:** Build remediation workflow with approval-based principal overwrite and exception lifecycle management
+**Depends on:** Phase 1 (tables), conceptually Phase 2 (violations trigger remediation)
+**Requirements:** REM-01, REM-02, REM-03
 **Success Criteria:**
-  1. RBAC configuration documented: Application Insights Reader role assignment for workbook consumers, solving the ALM/separation-of-duties gap
-  2. Deployment playbook with ARM template or manual import instructions, prerequisites list (Application Insights resource, Copilot Studio telemetry configuration), and validation checklist
-  3. Customization guide: how to add custom telemetry panels, adjust thresholds per zone, integrate organization-specific KPIs
-**Plans:** 2 (A = DEP-01 + DEP-02 RBAC guide and deployment playbook, B = FRM-03 customization guide)
+  1. Remediation flow triggers on `fsi_SharingViolation` creation where status = Open
+  2. Exception check suppresses remediation for agents with active, non-expired exceptions
+  3. Default mode is Approval for ALL zones; auto only for PUBLIC_INTERNET_LINK when `fsi_UASD_AutoRemediatePublicLink = true`
+  4. BAP PATCH overwrites principals with approved security group(s) per spec §3.3
+  5. Exception Approval flow implements sequential dual approval (Security → Data Owner)
+  6. Exception Manager canvas app provides submission, status view, and expiration display
+  7. `Import-ApprovedSecurityGroups.ps1` upserts from CSV/JSON, idempotent
+**Plans:** 2 (A = remediation flow + exception approval flow, B = canvas app + import script)
 
-### Phase 4: Framework Integration & Validation
-**Goal:** Integrate workbook into framework controls and reference catalogs, validate all changes pass build and language rules
-**Depends on:** Phases 1-3 (all content must be finalized before framework cross-references and validation)
-**Requirements:** FRM-01, FRM-02, VAL-01
+### Phase 4: Deployment & Operations
+**Goal:** Create deployment and operations scripts enabling enterprise teams to import, configure, and operate the solution
+**Depends on:** Phases 1-3 (all artifacts must exist for deployment and export)
+**Requirements:** OPS-01, OPS-02, OPS-03
 **Success Criteria:**
-  1. Controls 3.2, 3.9, 2.9 updated with tip admonitions linking to workbook solution; ALM scenario cross-referenced in relevant playbooks
-  2. solutions-index.md includes Agent Usage & Performance Workbook entry with status, control mappings, and component list
-  3. `mkdocs build --strict` passes, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations across all modified files
-**Plans:** 2 (A = FRM-01 + FRM-02 control updates and solutions catalog, B = VAL-01 build and language validation)
+  1. `Deploy-DetectionFlow.ps1` imports detector flow, binds connection references, idempotent
+  2. `Deploy-RemediationFlow.ps1` imports remediation flow, binds connections, sets auto-remediation flag
+  3. `Export-ViolationReport.ps1` queries Dataverse violations, outputs CSV/JSON, `-IncludeEvidence` SHA-256 hash
+  4. Deployment guide with prerequisites, step-by-step instructions, and validation checklist
+**Plans:** 2 (A = deploy scripts, B = export script + deployment guide)
+
+### Phase 5: Framework Integration & Validation
+**Goal:** Integrate solution into framework controls, reference catalogs, and site navigation; validate everything
+**Depends on:** Phases 1-4 (all content finalized before framework cross-references)
+**Requirements:** FRM-01, FRM-02, FRM-03, VAL-01
+**Success Criteria:**
+  1. `solutions-index.md` includes UASD entry with status, components, regulatory alignment, control mappings
+  2. Controls 1.1 and 3.8 updated with tip admonitions linking to UASD
+  3. Architecture and deployment docs created in `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/`
+  4. `mkdocs.yml` nav updated under Advanced Implementations
+  5. AAM status reconciled (WIP → Completed in solutions-index.md)
+  6. All 7 spec validation tests pass
+  7. `mkdocs build --strict` passes, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
+**Plans:** 2 (A = solutions-index + control updates + architecture docs, B = mkdocs nav + AAM reconciliation + build validation)
 
 ## Progress
 
 | Phase | Plans Complete | Status |
 |-------|---------------|--------|
-| 1. Telemetry Research & KQL Query Library | 2/2 | Complete ✅ |
-| 2. Workbook Template Development | 2/2 | Complete ✅ |
-| 3. Deployment & Customization | 2/2 | Complete ✅ |
-| 4. Framework Integration & Validation | 2/2 | Complete ✅ |
+| 1. Solution Infrastructure | 2/2 | Complete |
+| 2. Detection Engine | 0/2 | Not Started |
+| 3. Remediation & Exception Management | 0/2 | Not Started |
+| 4. Deployment & Operations | 0/2 | Not Started |
+| 5. Framework Integration & Validation | 0/2 | Not Started |
 
 ## Parallel Execution Guide
 
-Phases have a **linear dependency chain** (1 → 2 → 3 → 4). Within each phase, plans target non-overlapping file sets:
+Phases have a **linear dependency chain** (1 → 2 → 3 → 4 → 5). Within each phase, plans target non-overlapping file sets:
 
-| Phase | Plan A Files | Plan B Files |
-|-------|-------------|-------------|
-| 1 | docs/ telemetry schema reference doc | KQL query files or inline queries (research artifacts) |
-| 2 | src/agent-usage-workbook.json (tabs 1-2 + shell) | src/agent-usage-workbook.json (tab 3 + finalization) |
-| 3 | docs/playbooks/ deployment playbook | docs/playbooks/ customization guide |
-| 4 | docs/controls/pillar-3-reporting/, docs/controls/pillar-2-management/, docs/reference/solutions-index.md | Validation scripts (read-only) |
+| Phase | Plan A Files | Plan B Files | Parallel? |
+|-------|-------------|-------------|-----------|
+| 1 | `scripts/create_uasd_dataverse_schema.py` | `scripts/create_uasd_environment_variables.py`, `scripts/create_uasd_connection_references.py` | Yes |
+| 2 | `src/uasd-detector-scan-agents.json`, `src/adaptive-card-uasd-alert.json` | `scripts/governance/Invoke-SharingAudit.ps1` | Yes |
+| 3 | `src/uasd-remediation-*.json`, `src/uasd-exception-*.json` | Canvas app, `scripts/governance/Import-ApprovedSecurityGroups.ps1` | Yes |
+| 4 | `scripts/governance/Deploy-*Flow.ps1` | `scripts/governance/Export-ViolationReport.ps1`, deployment guide | Yes |
+| 5 | `docs/reference/solutions-index.md`, `docs/controls/pillar-*`, architecture docs | `mkdocs.yml`, validation (read-only) | Yes |
 
-**Phase 2 Plan A/B overlap:** Both plans modify `src/agent-usage-workbook.json` — execute sequentially (A→B) within Phase 2.
-**Phase 3 Plan A/B:** No file overlap — can run in parallel.
-**Phase 4 Plan A/B:** No file overlap — can run in parallel (Plan B is read-only validation).
+## File Manifest
 
-## Prior Research
+### Created (new files)
 
-The deferred v13 milestone produced extensive research that remains applicable:
+| Phase | File | Purpose |
+|-------|------|---------|
+| 1 | `scripts/create_uasd_dataverse_schema.py` | Dataverse table definitions |
+| 1 | `scripts/create_uasd_environment_variables.py` | Environment variable definitions |
+| 1 | `scripts/create_uasd_connection_references.py` | Connection reference definitions |
+| 2 | `src/uasd-detector-scan-agents.json` | Detector flow JSON |
+| 2 | `src/adaptive-card-uasd-alert.json` | Teams alert adaptive card |
+| 2 | `scripts/governance/Invoke-SharingAudit.ps1` | On-demand detection script |
+| 3 | `src/uasd-remediation-apply-sharing-policy.json` | Remediation flow JSON |
+| 3 | `src/uasd-exception-approval-workflow.json` | Exception approval flow JSON |
+| 3 | `scripts/governance/Import-ApprovedSecurityGroups.ps1` | Approved group import |
+| 4 | `scripts/governance/Deploy-DetectionFlow.ps1` | Detector flow deployment |
+| 4 | `scripts/governance/Deploy-RemediationFlow.ps1` | Remediation flow deployment |
+| 4 | `scripts/governance/Export-ViolationReport.ps1` | Violation export with SHA-256 |
+| 4 | `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md` | Deployment guide |
+| 5 | `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` | Solution architecture overview |
 
-| Artifact | Location | Relevance |
-|----------|----------|-----------|
-| Telemetry schema analysis | `.planning/phases/01-workbook-template-kql/01-RESEARCH.md` | Full Copilot Studio customEvents schema, JSON structure patterns, tab designs |
-| Workbook JSON patterns | `.planning/phases/01-workbook-template-kql/01-01-PLAN.md` | Detailed visualization specs for Usage + Performance tabs |
-| Operational Health design | `.planning/phases/01-workbook-template-kql/01-02-PLAN.md` | Tab 3 visualization specs with anomaly detection approach |
-| Existing KQL patterns | v3 Agent Observability Foundation | 14+ KQL queries (conceptual) — need adaptation from Agent 365 SDK to native Copilot Studio schema |
+### Modified (existing files)
+
+| Phase | File | Change |
+|-------|------|--------|
+| 5 | `docs/reference/solutions-index.md` | Add UASD entry, fix AAM status |
+| 5 | `docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md` | Add tip admonition |
+| 5 | `docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md` | Add tip admonition |
+| 5 | `mkdocs.yml` | Add nav entries |
 
 ## Coverage
 
 | Requirement | Phase | Plan | Description |
 |-------------|-------|------|-------------|
-| TEL-01 | 1 | 01-01 | Application Insights telemetry schema documentation |
-| TEL-02 | 1 | 01-02 | KQL query library for all 3 workbook tabs |
-| WBK-01 | 2 | 02-01 | Usage & Business Value tab |
-| WBK-02 | 2 | 02-01 | Performance & Errors tab |
-| WBK-03 | 2 | 02-02 | Operational Health tab |
-| WBK-04 | 2 | 02-02 | Deployable workbook JSON template finalization |
-| DEP-01 | 3 | 03-01 | RBAC configuration for read-only access |
-| DEP-02 | 3 | 03-01 | Deployment playbook (ARM template or manual import) |
-| FRM-03 | 3 | 03-02 | Customization guide |
-| FRM-01 | 4 | 04-01 | Update Controls 3.2, 3.9, 2.9 with workbook references |
-| FRM-02 | 4 | 04-01 | Add workbook to solutions-index.md |
-| VAL-01 | 4 | 04-02 | Build and language validation |
+| INFRA-01 | 1 | 01-01 | Dataverse schema with 5 tables |
+| INFRA-02 | 1 | 01-02 | Environment variables + connection references |
+| INFRA-03 | 1 | 01-02 | Seed data + inline agent identity |
+| DET-01 | 2 | 02-01 | Detector flow with 5 violation rules |
+| DET-02 | 2 | 02-02 | On-demand audit script |
+| DET-03 | 2 | 02-01 | Adaptive card template |
+| REM-01 | 3 | 03-01 | Remediation flow |
+| REM-02 | 3 | 03-01 | Exception approval flow |
+| REM-03 | 3 | 03-02 | Exception Manager canvas app |
+| OPS-01 | 3 | 03-02 | Import approved security groups script |
+| OPS-02 | 4 | 04-01 | Deployment scripts |
+| OPS-03 | 4 | 04-02 | Violation export script |
+| FRM-01 | 5 | 05-01 | Solutions-index entry |
+| FRM-02 | 5 | 05-01 | Control updates + architecture docs |
+| FRM-03 | 5 | 05-02 | mkdocs nav + AAM reconciliation |
+| VAL-01 | 5 | 05-02 | Build and language validation |
 
-**Total: 12/12 requirements mapped. No orphans.**
+**Total: 16/16 requirements mapped. No orphans.**
 
 ---
-*Roadmap created: 2026-02-11*
+*Roadmap created: 2026-02-12*
 *Depth: comprehensive*
-*Phases: 4 (telemetry research → workbook template → deployment/customization → framework integration/validation)*
+*Phases: 5 (infrastructure → detection → remediation/exceptions → deployment/ops → framework integration)*
