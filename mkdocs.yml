@@ -126,6 +126,7 @@ nav:
       - 1.22 Information Barriers: controls/pillar-1-security/1.22-information-barriers.md
       - 1.23 Step-Up Authentication: controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md
       - 1.24 Defender AI-SPM: controls/pillar-1-security/1.24-defender-ai-security-posture-management.md
+      - 1.25 MIME Type Restrictions: controls/pillar-1-security/1.25-mime-type-restrictions.md
     - Pillar 2 - Management:
       - Overview: controls/pillar-2-management/index.md
       - 2.1 Managed Environments: controls/pillar-2-management/2.1-managed-environments.md
@@ -298,6 +299,11 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/1.24/powershell-setup.md
           - Verification: playbooks/control-implementations/1.24/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/1.24/troubleshooting.md
+        - 1.25 MIME Type Restrictions:
+          - Portal Walkthrough: playbooks/control-implementations/1.25/portal-walkthrough.md
+          - PowerShell Setup: playbooks/control-implementations/1.25/powershell-setup.md
+          - Verification: playbooks/control-implementations/1.25/verification-testing.md
+          - Troubleshooting: playbooks/control-implementations/1.25/troubleshooting.md
       - Pillar 2 - Management:
         - 2.1 Managed Environments:
           - Portal Walkthrough: playbooks/control-implementations/2.1/portal-walkthrough.md
