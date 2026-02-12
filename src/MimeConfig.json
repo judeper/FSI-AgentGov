@@ -1,0 +1,113 @@
+{
+  "version": "1.0.0",
+  "description": "Zone 3 server-side MIME validation configuration for Dataverse plugin. Defines allowed file types with magic byte signatures and blocked executable signatures. Supports compliance with FINRA 4511 and SEC 17a-4 by providing defense-in-depth file type validation for Enterprise Managed environments.",
+  "enforcementMode": "Block",
+  "maxFileSizeBytes": 10485760,
+  "zone": 3,
+  "correlationIdHeader": "x-fsi-correlation-id",
+  "allowedTypes": [
+    {
+      "mimeType": "application/pdf",
+      "extensions": [".pdf"],
+      "magicBytes": "25 50 44 46",
+      "description": "Portable Document Format"
+    },
+    {
+      "mimeType": "image/png",
+      "extensions": [".png"],
+      "magicBytes": "89 50 4E 47",
+      "description": "Portable Network Graphics"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "extensions": [".jpg", ".jpeg"],
+      "magicBytes": "FF D8 FF",
+      "description": "JPEG image"
+    },
+    {
+      "mimeType": "image/gif",
+      "extensions": [".gif"],
+      "magicBytes": "47 49 46 38",
+      "description": "Graphics Interchange Format"
+    },
+    {
+      "mimeType": "image/tiff",
+      "extensions": [".tif", ".tiff"],
+      "magicBytes": ["49 49 2A 00", "4D 4D 00 2A"],
+      "description": "Tagged Image File Format (little-endian and big-endian)"
+    },
+    {
+      "mimeType": "text/plain",
+      "extensions": [".txt"],
+      "magicBytes": null,
+      "description": "Plain text — validated by absence of binary content in first 8192 bytes"
+    },
+    {
+      "mimeType": "text/csv",
+      "extensions": [".csv"],
+      "magicBytes": null,
+      "description": "Comma-separated values — validated by absence of binary content"
+    },
+    {
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "extensions": [".xlsx"],
+      "magicBytes": "50 4B 03 04",
+      "description": "Office Open XML Spreadsheet (PK zip archive with [Content_Types].xml)"
+    },
+    {
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "extensions": [".docx"],
+      "magicBytes": "50 4B 03 04",
+      "description": "Office Open XML Document (PK zip archive with [Content_Types].xml)"
+    },
+    {
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "extensions": [".pptx"],
+      "magicBytes": "50 4B 03 04",
+      "description": "Office Open XML Presentation (PK zip archive with [Content_Types].xml)"
+    }
+  ],
+  "blockedSignatures": [
+    {
+      "name": "PE/MS-DOS Executable",
+      "magicBytes": "4D 5A",
+      "description": "Windows PE executable or MS-DOS program — blocked to help prevent code execution risks"
+    },
+    {
+      "name": "ELF Executable",
+      "magicBytes": "7F 45 4C 46",
+      "description": "Linux ELF binary — blocked to help prevent code execution risks"
+    },
+    {
+      "name": "Mach-O 32-bit",
+      "magicBytes": "FE ED FA CE",
+      "description": "macOS Mach-O 32-bit binary — blocked to help prevent code execution risks"
+    },
+    {
+      "name": "Mach-O 64-bit",
+      "magicBytes": "FE ED FA CF",
+      "description": "macOS Mach-O 64-bit binary — blocked to help prevent code execution risks"
+    },
+    {
+      "name": "Mach-O 32-bit (reversed)",
+      "magicBytes": "CE FA ED FE",
+      "description": "macOS Mach-O 32-bit binary (reversed byte order) — blocked to help prevent code execution risks"
+    },
+    {
+      "name": "Mach-O 64-bit (reversed)",
+      "magicBytes": "CF FA ED FE",
+      "description": "macOS Mach-O 64-bit binary (reversed byte order) — blocked to help prevent code execution risks"
+    },
+    {
+      "name": "Java Class File",
+      "magicBytes": "CA FE BA BE",
+      "description": "Compiled Java class — blocked to help prevent code execution risks"
+    }
+  ],
+  "metadata": {
+    "controlReference": "1.25",
+    "lastUpdated": "2026-02-12",
+    "zoneName": "Enterprise Managed",
+    "framework": "FSI Agent Governance"
+  }
+}
