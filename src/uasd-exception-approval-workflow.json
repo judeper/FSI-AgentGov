@@ -1,0 +1,798 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_sharingdetector",
+        "tier": "NotSpecified"
+      },
+      "shared_teams": {
+        "connectionName": "shared_teams",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_teams",
+        "connectionReferenceLogicalName": "fsi_cr_teams_sharingdetector",
+        "tier": "NotSpecified"
+      },
+      "shared_approvals": {
+        "connectionName": "shared_approvals",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+        "connectionReferenceLogicalName": "fsi_cr_approvals_sharingdetector",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Exception_Created": {
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "parameters": {
+              "subscriptionRequest/entityname": "fsi_sharingexception",
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filterexpression": "fsi_exception_status eq 0"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger"
+            }
+          },
+          "description": "Triggers when a sharing exception record is created with Pending status (0). Message=1 is Create only."
+        }
+      },
+      "actions": {
+        "Initialize_ExceptionId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ExceptionId",
+                "type": "string",
+                "value": "@triggerOutputs()?['body/fsi_sharingexceptionid']"
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Capture the exception record ID from the Dataverse trigger."
+        },
+        "Initialize_DefaultExceptionDays": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "DefaultExceptionDays",
+                "type": "integer",
+                "value": 90
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ExceptionId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Default exception duration in days. Override via environment variable fsi_UASD_DefaultExceptionDays."
+        },
+        "Initialize_ExpiresAt": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ExpiresAt",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_DefaultExceptionDays": [
+              "Succeeded"
+            ]
+          },
+          "description": "Computed expiration date for the exception (request date + DefaultExceptionDays)."
+        },
+        "Initialize_TeamsGroupId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsGroupId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ExpiresAt": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams team/group ID for exception notifications. Set via environment variable fsi_UASD_TeamsGroupId."
+        },
+        "Initialize_TeamsChannelId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsChannelId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsGroupId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams channel ID for exception notifications. Set via environment variable fsi_UASD_TeamsChannelId."
+        },
+        "Scope_Try": {
+          "type": "Scope",
+          "actions": {
+            "Get_Exception_Details": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_sharingexceptions",
+                  "recordId": "@variables('ExceptionId')",
+                  "$select": "fsi_sharingexceptionid,fsi_name,fsi_agent_id,fsi_agent_name,fsi_environment_id,fsi_environment_name,fsi_violation_type,fsi_exception_status,fsi_business_justification,fsi_data_classification,fsi_requested_by,fsi_requested_at,fsi_related_violation_id"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem"
+                }
+              },
+              "runAfter": {},
+              "description": "Retrieve the full exception record from Dataverse for approval processing."
+            },
+            "Compute_Expiration_Date": {
+              "type": "Compose",
+              "inputs": "@addDays(utcNow(), variables('DefaultExceptionDays'))",
+              "runAfter": {
+                "Get_Exception_Details": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Compute the exception expiration date: current date + DefaultExceptionDays (default 90)."
+            },
+            "Set_ExpiresAt": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "ExpiresAt",
+                "value": "@{outputs('Compute_Expiration_Date')}"
+              },
+              "runAfter": {
+                "Compute_Expiration_Date": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Store the computed expiration date in the ExpiresAt variable."
+            },
+            "Security_Approval": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "approvalType": "Basic",
+                  "ApprovalCreationInput/title": "UASD Exception Request — Security Approval",
+                  "ApprovalCreationInput/assignedTo": "",
+                  "ApprovalCreationInput/details": "## Sharing Exception Request — Security Review\n\nA sharing exception has been requested and requires Security team approval.\n\n**Agent:** @{outputs('Get_Exception_Details')?['body/fsi_agent_name']}\n**Environment:** @{outputs('Get_Exception_Details')?['body/fsi_environment_name']}\n**Violation Type:** @{outputs('Get_Exception_Details')?['body/fsi_violation_type']}\n**Data Classification:** @{outputs('Get_Exception_Details')?['body/fsi_data_classification']}\n**Requested By:** @{outputs('Get_Exception_Details')?['body/fsi_requested_by']}\n\n### Business Justification\n@{outputs('Get_Exception_Details')?['body/fsi_business_justification']}\n\n### Exception Details\n- **Duration:** @{variables('DefaultExceptionDays')} days\n- **Expires At:** @{variables('ExpiresAt')}\n- **Approval Chain:** Security → Data Owner (both required)\n\n### Action Required\nApprove if the business justification is acceptable and the risk is manageable. Rejection terminates the exception request.",
+                  "ApprovalCreationInput/itemLink": "https://admin.powerplatform.microsoft.com/",
+                  "ApprovalCreationInput/itemLinkDescription": "View in Power Platform Admin Center",
+                  "ApprovalCreationInput/enableNotifications": true,
+                  "ApprovalCreationInput/enableReassignment": true
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                  "connectionName": "shared_approvals",
+                  "operationId": "StartAndWaitForAnApproval"
+                }
+              },
+              "runAfter": {
+                "Set_ExpiresAt": [
+                  "Succeeded"
+                ]
+              },
+              "description": "First approval stage: Security team reviews the exception request. Both Security and Data Owner must approve for the exception to be granted."
+            },
+            "Check_Security_Approval": {
+              "type": "If",
+              "expression": {
+                "equals": [
+                  "@body('Security_Approval')?['outcome']",
+                  "Approve"
+                ]
+              },
+              "actions": {
+                "Update_Security_Approver": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "entityName": "fsi_sharingexceptions",
+                      "recordId": "@variables('ExceptionId')",
+                      "item/fsi_approved_by_security": "@body('Security_Approval')?['responses'][0]?['responder']?['displayName']"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "UpdateRecord"
+                    }
+                  },
+                  "runAfter": {},
+                  "description": "Record the security approver on the exception record."
+                },
+                "Data_Owner_Approval": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "approvalType": "Basic",
+                      "ApprovalCreationInput/title": "UASD Exception Request — Data Owner Approval",
+                      "ApprovalCreationInput/assignedTo": "",
+                      "ApprovalCreationInput/details": "## Sharing Exception Request — Data Owner Review\n\nA sharing exception has been requested. Security approval has been granted. Data Owner approval is the final step.\n\n**Agent:** @{outputs('Get_Exception_Details')?['body/fsi_agent_name']}\n**Environment:** @{outputs('Get_Exception_Details')?['body/fsi_environment_name']}\n**Violation Type:** @{outputs('Get_Exception_Details')?['body/fsi_violation_type']}\n**Data Classification:** @{outputs('Get_Exception_Details')?['body/fsi_data_classification']}\n**Requested By:** @{outputs('Get_Exception_Details')?['body/fsi_requested_by']}\n\n### Business Justification\n@{outputs('Get_Exception_Details')?['body/fsi_business_justification']}\n\n### Security Approval\n- **Approved By:** @{body('Security_Approval')?['responses'][0]?['responder']?['displayName']}\n- **Approved At:** @{body('Security_Approval')?['completionDate']}\n\n### Exception Details\n- **Duration:** @{variables('DefaultExceptionDays')} days\n- **Expires At:** @{variables('ExpiresAt')}\n\n### Action Required\nApprove if the data risk is acceptable. Rejection terminates the exception request despite Security approval.",
+                      "ApprovalCreationInput/itemLink": "https://admin.powerplatform.microsoft.com/",
+                      "ApprovalCreationInput/itemLinkDescription": "View in Power Platform Admin Center",
+                      "ApprovalCreationInput/enableNotifications": true,
+                      "ApprovalCreationInput/enableReassignment": true
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                      "connectionName": "shared_approvals",
+                      "operationId": "StartAndWaitForAnApproval"
+                    }
+                  },
+                  "runAfter": {
+                    "Update_Security_Approver": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Second approval stage: Data Owner reviews the exception request after Security approval. Both must approve for the exception to be granted."
+                },
+                "Check_DataOwner_Approval": {
+                  "type": "If",
+                  "expression": {
+                    "equals": [
+                      "@body('Data_Owner_Approval')?['outcome']",
+                      "Approve"
+                    ]
+                  },
+                  "actions": {
+                    "Update_Exception_Approved": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "fsi_sharingexceptions",
+                          "recordId": "@variables('ExceptionId')",
+                          "item/fsi_exception_status": 1,
+                          "item/fsi_approved_by_data_owner": "@body('Data_Owner_Approval')?['responses'][0]?['responder']?['displayName']",
+                          "item/fsi_approved_at": "@utcNow()",
+                          "item/fsi_expires_at": "@variables('ExpiresAt')"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateRecord"
+                        }
+                      },
+                      "runAfter": {},
+                      "description": "Update exception status to Approved (1) with both approver names, approval timestamp, and expiration date."
+                    },
+                    "Update_Violation_Exception_Granted": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "fsi_sharingviolations",
+                          "recordId": "@outputs('Get_Exception_Details')?['body/fsi_related_violation_id']",
+                          "item/fsi_violation_status": 2
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateRecord"
+                        }
+                      },
+                      "runAfter": {
+                        "Update_Exception_Approved": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Update the related sharing violation status to Exception_Granted (2)."
+                    },
+                    "Compose_Approval_Card": {
+                      "type": "Compose",
+                      "inputs": {
+                        "type": "AdaptiveCard",
+                        "version": "1.4",
+                        "body": [
+                          {
+                            "type": "Container",
+                            "style": "good",
+                            "bleed": true,
+                            "items": [
+                              {
+                                "type": "TextBlock",
+                                "text": "UASD Exception Approved",
+                                "weight": "Bolder",
+                                "size": "Large",
+                                "wrap": true
+                              },
+                              {
+                                "type": "TextBlock",
+                                "text": "A sharing exception has been approved by both Security and Data Owner. The related violation has been updated to Exception_Granted.",
+                                "wrap": true,
+                                "spacing": "Small"
+                              },
+                              {
+                                "type": "FactSet",
+                                "facts": [
+                                  {
+                                    "title": "Agent",
+                                    "value": "@{outputs('Get_Exception_Details')?['body/fsi_agent_name']}"
+                                  },
+                                  {
+                                    "title": "Environment",
+                                    "value": "@{outputs('Get_Exception_Details')?['body/fsi_environment_name']}"
+                                  },
+                                  {
+                                    "title": "Violation Type",
+                                    "value": "@{outputs('Get_Exception_Details')?['body/fsi_violation_type']}"
+                                  },
+                                  {
+                                    "title": "Security Approver",
+                                    "value": "@{body('Security_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                  },
+                                  {
+                                    "title": "Data Owner Approver",
+                                    "value": "@{body('Data_Owner_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                  },
+                                  {
+                                    "title": "Expires At",
+                                    "value": "@{variables('ExpiresAt')}"
+                                  },
+                                  {
+                                    "title": "Approved At",
+                                    "value": "@{utcNow()}"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "actions": [
+                          {
+                            "type": "Action.OpenUrl",
+                            "title": "View in PPAC",
+                            "url": "https://admin.powerplatform.microsoft.com/"
+                          },
+                          {
+                            "type": "Action.OpenUrl",
+                            "title": "View Documentation",
+                            "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-2-management/2.5-agent-sharing-and-distribution/"
+                          }
+                        ],
+                        "msteams": {
+                          "width": "Full"
+                        }
+                      },
+                      "runAfter": {
+                        "Update_Violation_Exception_Granted": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Compose adaptive card for exception approval notification."
+                    },
+                    "Post_Approval_Notification": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "poster": "Flow bot",
+                          "location": "Channel",
+                          "body/recipient/groupId": "@variables('TeamsGroupId')",
+                          "body/recipient/channelId": "@variables('TeamsChannelId')",
+                          "body/messageBody": "@{string(outputs('Compose_Approval_Card'))}"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                          "connectionName": "shared_teams",
+                          "operationId": "PostCardToConversation"
+                        }
+                      },
+                      "runAfter": {
+                        "Compose_Approval_Card": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Post exception approval notification to the designated Teams channel."
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Update_Exception_Denied_DataOwner": {
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "parameters": {
+                            "entityName": "fsi_sharingexceptions",
+                            "recordId": "@variables('ExceptionId')",
+                            "item/fsi_exception_status": 2
+                          },
+                          "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "UpdateRecord"
+                          }
+                        },
+                        "runAfter": {},
+                        "description": "Update exception status to Denied (2) after Data Owner rejection."
+                      },
+                      "Compose_DataOwner_Denial_Card": {
+                        "type": "Compose",
+                        "inputs": {
+                          "type": "AdaptiveCard",
+                          "version": "1.4",
+                          "body": [
+                            {
+                              "type": "Container",
+                              "style": "attention",
+                              "bleed": true,
+                              "items": [
+                                {
+                                  "type": "TextBlock",
+                                  "text": "UASD Exception Denied — Data Owner",
+                                  "weight": "Bolder",
+                                  "size": "Large",
+                                  "wrap": true
+                                },
+                                {
+                                  "type": "TextBlock",
+                                  "text": "A sharing exception was denied by the Data Owner despite Security approval. The related violation remains open.",
+                                  "wrap": true,
+                                  "spacing": "Small"
+                                },
+                                {
+                                  "type": "FactSet",
+                                  "facts": [
+                                    {
+                                      "title": "Agent",
+                                      "value": "@{outputs('Get_Exception_Details')?['body/fsi_agent_name']}"
+                                    },
+                                    {
+                                      "title": "Environment",
+                                      "value": "@{outputs('Get_Exception_Details')?['body/fsi_environment_name']}"
+                                    },
+                                    {
+                                      "title": "Violation Type",
+                                      "value": "@{outputs('Get_Exception_Details')?['body/fsi_violation_type']}"
+                                    },
+                                    {
+                                      "title": "Security Approver",
+                                      "value": "@{body('Security_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                    },
+                                    {
+                                      "title": "Data Owner",
+                                      "value": "@{body('Data_Owner_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                    },
+                                    {
+                                      "title": "Comments",
+                                      "value": "@{body('Data_Owner_Approval')?['responses'][0]?['comments']}"
+                                    },
+                                    {
+                                      "title": "Status",
+                                      "value": "Denied"
+                                    },
+                                    {
+                                      "title": "Timestamp",
+                                      "value": "@{utcNow()}"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "actions": [
+                            {
+                              "type": "Action.OpenUrl",
+                              "title": "View in PPAC",
+                              "url": "https://admin.powerplatform.microsoft.com/"
+                            }
+                          ],
+                          "msteams": {
+                            "width": "Full"
+                          }
+                        },
+                        "runAfter": {
+                          "Update_Exception_Denied_DataOwner": [
+                            "Succeeded"
+                          ]
+                        },
+                        "description": "Compose adaptive card for Data Owner denial notification."
+                      },
+                      "Post_DataOwner_Denial_Notification": {
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "parameters": {
+                            "poster": "Flow bot",
+                            "location": "Channel",
+                            "body/recipient/groupId": "@variables('TeamsGroupId')",
+                            "body/recipient/channelId": "@variables('TeamsChannelId')",
+                            "body/messageBody": "@{string(outputs('Compose_DataOwner_Denial_Card'))}"
+                          },
+                          "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                            "connectionName": "shared_teams",
+                            "operationId": "PostCardToConversation"
+                          }
+                        },
+                        "runAfter": {
+                          "Compose_DataOwner_Denial_Card": [
+                            "Succeeded"
+                          ]
+                        },
+                        "description": "Post Data Owner denial notification to the designated Teams channel."
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Data_Owner_Approval": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Route exception outcome based on Data Owner approval response."
+                }
+              },
+              "else": {
+                "actions": {
+                  "Update_Exception_Denied_Security": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "entityName": "fsi_sharingexceptions",
+                        "recordId": "@variables('ExceptionId')",
+                        "item/fsi_exception_status": 2
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                        "connectionName": "shared_commondataserviceforapps",
+                        "operationId": "UpdateRecord"
+                      }
+                    },
+                    "runAfter": {},
+                    "description": "Update exception status to Denied (2) after Security rejection."
+                  },
+                  "Compose_Security_Denial_Card": {
+                    "type": "Compose",
+                    "inputs": {
+                      "type": "AdaptiveCard",
+                      "version": "1.4",
+                      "body": [
+                        {
+                          "type": "Container",
+                          "style": "attention",
+                          "bleed": true,
+                          "items": [
+                            {
+                              "type": "TextBlock",
+                              "text": "UASD Exception Denied — Security",
+                              "weight": "Bolder",
+                              "size": "Large",
+                              "wrap": true
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "A sharing exception was denied by the Security team. The Data Owner approval stage was not initiated. The related violation remains open.",
+                              "wrap": true,
+                              "spacing": "Small"
+                            },
+                            {
+                              "type": "FactSet",
+                              "facts": [
+                                {
+                                  "title": "Agent",
+                                  "value": "@{outputs('Get_Exception_Details')?['body/fsi_agent_name']}"
+                                },
+                                {
+                                  "title": "Environment",
+                                  "value": "@{outputs('Get_Exception_Details')?['body/fsi_environment_name']}"
+                                },
+                                {
+                                  "title": "Violation Type",
+                                  "value": "@{outputs('Get_Exception_Details')?['body/fsi_violation_type']}"
+                                },
+                                {
+                                  "title": "Rejected By",
+                                  "value": "@{body('Security_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                },
+                                {
+                                  "title": "Comments",
+                                  "value": "@{body('Security_Approval')?['responses'][0]?['comments']}"
+                                },
+                                {
+                                  "title": "Status",
+                                  "value": "Denied"
+                                },
+                                {
+                                  "title": "Timestamp",
+                                  "value": "@{utcNow()}"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "actions": [
+                        {
+                          "type": "Action.OpenUrl",
+                          "title": "View in PPAC",
+                          "url": "https://admin.powerplatform.microsoft.com/"
+                        }
+                      ],
+                      "msteams": {
+                        "width": "Full"
+                      }
+                    },
+                    "runAfter": {
+                      "Update_Exception_Denied_Security": [
+                        "Succeeded"
+                      ]
+                    },
+                    "description": "Compose adaptive card for Security denial notification."
+                  },
+                  "Post_Security_Denial_Notification": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "poster": "Flow bot",
+                        "location": "Channel",
+                        "body/recipient/groupId": "@variables('TeamsGroupId')",
+                        "body/recipient/channelId": "@variables('TeamsChannelId')",
+                        "body/messageBody": "@{string(outputs('Compose_Security_Denial_Card'))}"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                        "connectionName": "shared_teams",
+                        "operationId": "PostCardToConversation"
+                      }
+                    },
+                    "runAfter": {
+                      "Compose_Security_Denial_Card": [
+                        "Succeeded"
+                      ]
+                    },
+                    "description": "Post Security denial notification to the designated Teams channel."
+                  }
+                }
+              },
+              "runAfter": {
+                "Security_Approval": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Route exception based on Security approval outcome. If approved, proceed to Data Owner approval. If rejected, deny the exception immediately."
+            }
+          },
+          "runAfter": {
+            "Initialize_TeamsChannelId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Main exception approval scope: implements sequential dual approval (Security → Data Owner), computes expiration, and updates violation status on approval. NOTE: Expiration scanner logic (detecting expired exceptions and reopening violations) runs within the detector flow on each scan cycle rather than in this flow."
+        },
+        "Scope_Catch": {
+          "type": "Scope",
+          "actions": {
+            "Compose_Error_Card": {
+              "type": "Compose",
+              "inputs": {
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                  {
+                    "type": "Container",
+                    "style": "attention",
+                    "bleed": true,
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "[ERROR] UASD Exception Approval — Flow Failure",
+                        "weight": "Bolder",
+                        "size": "Large",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "The Unrestricted Agent Sharing Detector exception approval flow encountered an unexpected error during execution.",
+                        "wrap": true,
+                        "spacing": "Small"
+                      },
+                      {
+                        "type": "FactSet",
+                        "facts": [
+                          {
+                            "title": "Exception ID",
+                            "value": "@{variables('ExceptionId')}"
+                          },
+                          {
+                            "title": "Flow Run ID",
+                            "value": "@{workflow()['run']['name']}"
+                          },
+                          {
+                            "title": "Timestamp",
+                            "value": "@{utcNow()}"
+                          },
+                          {
+                            "title": "Action",
+                            "value": "Review flow run history in Power Automate portal"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "actions": [
+                  {
+                    "type": "Action.OpenUrl",
+                    "title": "View Flow Run History",
+                    "url": "https://make.powerautomate.com"
+                  }
+                ],
+                "msteams": {
+                  "width": "Full"
+                }
+              },
+              "runAfter": {},
+              "description": "Compose error notification adaptive card for unexpected exception approval flow failures."
+            },
+            "Post_Error_Notification": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "poster": "Flow bot",
+                  "location": "Channel",
+                  "body/recipient/groupId": "@variables('TeamsGroupId')",
+                  "body/recipient/channelId": "@variables('TeamsChannelId')",
+                  "body/messageBody": "@{string(outputs('Compose_Error_Card'))}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "connectionName": "shared_teams",
+                  "operationId": "PostCardToConversation"
+                }
+              },
+              "runAfter": {
+                "Compose_Error_Card": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Post error notification to the designated Teams channel when the exception approval flow fails."
+            }
+          },
+          "runAfter": {
+            "Scope_Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "description": "Error handling scope: catches unexpected failures in Scope_Try and sends CRITICAL notification to Teams."
+        }
+      }
+    },
+    "displayName": "fsi-UASD-ExceptionApproval-Workflow",
+    "description": "Manages dual-approval exception lifecycle for sharing violations. Implements sequential approval chain: Security team followed by Data Owner. Both must approve for the exception to be granted. Exceptions default to 90-day duration. Expiration scanning runs within the detector flow. Supports compliance with FINRA 4511/3110, SEC 17a-3/4, SOX 302/404. Part of the FSI Agent Governance — Unrestricted Agent Sharing Detector solution.",
+    "state": "Started"
+  },
+  "schemaVersion": "1.0.0.0"
+}

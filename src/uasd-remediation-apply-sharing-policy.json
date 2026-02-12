@@ -1,0 +1,1054 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_sharingdetector",
+        "tier": "NotSpecified"
+      },
+      "shared_teams": {
+        "connectionName": "shared_teams",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_teams",
+        "connectionReferenceLogicalName": "fsi_cr_teams_sharingdetector",
+        "tier": "NotSpecified"
+      },
+      "shared_approvals": {
+        "connectionName": "shared_approvals",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+        "connectionReferenceLogicalName": "fsi_cr_approvals_sharingdetector",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Violation_Created_Or_Updated": {
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "parameters": {
+              "subscriptionRequest/entityname": "fsi_sharingviolation",
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filterexpression": "fsi_violation_status eq 0"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger"
+            }
+          },
+          "description": "Triggers when a sharing violation record is created or updated with Open status (0)."
+        }
+      },
+      "actions": {
+        "Initialize_ViolationId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ViolationId",
+                "type": "string",
+                "value": "@triggerOutputs()?['body/fsi_sharingviolationid']"
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Capture the violation record ID from the Dataverse trigger."
+        },
+        "Initialize_AgentId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "AgentId",
+                "type": "string",
+                "value": "@triggerOutputs()?['body/fsi_agent_id']"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ViolationId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Extract the Copilot Studio agent ID from the violation record."
+        },
+        "Initialize_EnvironmentId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "EnvironmentId",
+                "type": "string",
+                "value": "@triggerOutputs()?['body/fsi_environment_id']"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_AgentId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Extract the Power Platform environment ID from the violation record."
+        },
+        "Initialize_ViolationType": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ViolationType",
+                "type": "integer",
+                "value": "@triggerOutputs()?['body/fsi_violation_type']"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_EnvironmentId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Extract the violation type code (0=ORG_WIDE, 1=PUBLIC_LINK, 2=UNAPPROVED_GROUP, 3=EXCESSIVE_INDIVIDUAL, 4=CROSS_TENANT)."
+        },
+        "Initialize_RemediationMode": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "RemediationMode",
+                "type": "string",
+                "value": "Approval"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ViolationType": [
+              "Succeeded"
+            ]
+          },
+          "description": "Default remediation mode is Approval for ALL governance zones (Non-Negotiable Rule #5). Auto-remediation only for PUBLIC_INTERNET_LINK when explicitly enabled."
+        },
+        "Initialize_TeamsGroupId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsGroupId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_RemediationMode": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams team/group ID for remediation notifications. Set via environment variable fsi_UASD_TeamsGroupId."
+        },
+        "Initialize_TeamsChannelId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsChannelId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsGroupId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams channel ID for remediation notifications. Set via environment variable fsi_UASD_TeamsChannelId."
+        },
+        "Scope_Try": {
+          "type": "Scope",
+          "actions": {
+            "Get_Violation_Details": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_sharingviolations",
+                  "recordId": "@variables('ViolationId')",
+                  "$select": "fsi_sharingviolationid,fsi_name,fsi_agent_id,fsi_agent_name,fsi_environment_id,fsi_environment_name,fsi_violation_type,fsi_violation_status,fsi_severity,fsi_description,fsi_evidence_json,fsi_detected_at"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem"
+                }
+              },
+              "runAfter": {},
+              "description": "Retrieve the full violation record from Dataverse for remediation processing."
+            },
+            "Check_Active_Exception": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_sharingexceptions",
+                  "$filter": "fsi_agent_id eq '@{variables('AgentId')}' and fsi_violation_type eq @{variables('ViolationType')} and fsi_exception_status eq 1 and fsi_expires_at ge @{utcNow()}",
+                  "$top": 1
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {
+                "Get_Violation_Details": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Query for an active, non-expired exception matching this agent and violation type."
+            },
+            "Has_Active_Exception": {
+              "type": "If",
+              "expression": {
+                "greater": [
+                  "@length(outputs('Check_Active_Exception')?['body/value'])",
+                  0
+                ]
+              },
+              "actions": {
+                "Update_Violation_Exception_Granted": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "entityName": "fsi_sharingviolations",
+                      "recordId": "@variables('ViolationId')",
+                      "item/fsi_violation_status": 2
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "UpdateRecord"
+                    }
+                  },
+                  "runAfter": {},
+                  "description": "Update violation status to Exception_Granted (2) — active exception suppresses remediation."
+                },
+                "Compose_Exception_Found_Card": {
+                  "type": "Compose",
+                  "inputs": {
+                    "type": "AdaptiveCard",
+                    "version": "1.4",
+                    "body": [
+                      {
+                        "type": "Container",
+                        "style": "good",
+                        "bleed": true,
+                        "items": [
+                          {
+                            "type": "TextBlock",
+                            "text": "UASD Remediation — Exception Active",
+                            "weight": "Bolder",
+                            "size": "Large",
+                            "wrap": true
+                          },
+                          {
+                            "type": "TextBlock",
+                            "text": "A sharing violation was suppressed because an active, non-expired exception exists for this agent and violation type.",
+                            "wrap": true,
+                            "spacing": "Small"
+                          },
+                          {
+                            "type": "FactSet",
+                            "facts": [
+                              {
+                                "title": "Agent",
+                                "value": "@{outputs('Get_Violation_Details')?['body/fsi_agent_name']}"
+                              },
+                              {
+                                "title": "Environment",
+                                "value": "@{outputs('Get_Violation_Details')?['body/fsi_environment_name']}"
+                              },
+                              {
+                                "title": "Violation Type",
+                                "value": "@{outputs('Get_Violation_Details')?['body/fsi_violation_type']}"
+                              },
+                              {
+                                "title": "Status",
+                                "value": "Exception_Granted"
+                              },
+                              {
+                                "title": "Timestamp",
+                                "value": "@{utcNow()}"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "msteams": {
+                      "width": "Full"
+                    }
+                  },
+                  "runAfter": {
+                    "Update_Violation_Exception_Granted": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Compose notification card indicating the violation was suppressed by an active exception."
+                },
+                "Post_Exception_Found_Notification": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "@variables('TeamsGroupId')",
+                      "body/recipient/channelId": "@variables('TeamsChannelId')",
+                      "body/messageBody": "@{string(outputs('Compose_Exception_Found_Card'))}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "connectionName": "shared_teams",
+                      "operationId": "PostCardToConversation"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_Exception_Found_Card": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Notify the governance team that remediation was suppressed by an active exception."
+                }
+              },
+              "else": {
+                "actions": {
+                  "Load_Sharing_Policy": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "entityName": "fsi_sharingpolicies",
+                        "$filter": "fsi_is_active eq true",
+                        "$top": 1,
+                        "$select": "fsi_auto_remediate_public_link,fsi_governance_zone"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                        "connectionName": "shared_commondataserviceforapps",
+                        "operationId": "ListRecords"
+                      }
+                    },
+                    "runAfter": {},
+                    "description": "Retrieve the active sharing policy to check whether auto-remediation is enabled for public links."
+                  },
+                  "Check_Auto_Remediation_Eligible": {
+                    "type": "If",
+                    "expression": {
+                      "and": [
+                        {
+                          "equals": [
+                            "@variables('ViolationType')",
+                            1
+                          ]
+                        },
+                        {
+                          "equals": [
+                            "@first(body('Load_Sharing_Policy')?['value'])?['fsi_auto_remediate_public_link']",
+                            true
+                          ]
+                        }
+                      ]
+                    },
+                    "actions": {
+                      "Set_RemediationMode_Auto": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "RemediationMode",
+                          "value": "Automatic"
+                        },
+                        "runAfter": {},
+                        "description": "Override remediation mode to Automatic — only applies for PUBLIC_INTERNET_LINK (violation_type=1) when auto-remediation is explicitly enabled in the sharing policy."
+                      }
+                    },
+                    "else": {
+                      "actions": {}
+                    },
+                    "runAfter": {
+                      "Load_Sharing_Policy": [
+                        "Succeeded"
+                      ]
+                    },
+                    "description": "Auto-remediation is eligible ONLY when violation_type=1 (PUBLIC_INTERNET_LINK) AND fsi_auto_remediate_public_link is true. All other violations require Approval."
+                  },
+                  "Remediation_Mode_Switch": {
+                    "type": "Switch",
+                    "expression": "@variables('RemediationMode')",
+                    "cases": {
+                      "Automatic": {
+                        "case": "Automatic",
+                        "actions": {
+                          "Load_Approved_Groups_Auto": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "entityName": "fsi_approvedsecuritygroups",
+                                "$filter": "fsi_is_active eq true",
+                                "$select": "fsi_entraid_group_id,fsi_group_display_name,fsi_zone"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                "connectionName": "shared_commondataserviceforapps",
+                                "operationId": "ListRecords"
+                              }
+                            },
+                            "runAfter": {},
+                            "description": "Retrieve all active approved security groups from Dataverse for principal overwrite."
+                          },
+                          "Build_Approved_Principals_Auto": {
+                            "type": "Select",
+                            "inputs": {
+                              "from": "@body('Load_Approved_Groups_Auto')?['value']",
+                              "select": {
+                                "properties": {
+                                  "roleName": "CanView",
+                                  "principal": {
+                                    "id": "@item()?['fsi_entraid_group_id']",
+                                    "type": "Group",
+                                    "displayName": "@item()?['fsi_group_display_name']"
+                                  }
+                                }
+                              }
+                            },
+                            "runAfter": {
+                              "Load_Approved_Groups_Auto": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "Transform approved security groups into BAP-compatible principal objects for the PATCH body."
+                          },
+                          "BAP_PATCH_Overwrite_Principals_Auto": {
+                            "type": "Http",
+                            "inputs": {
+                              "method": "PATCH",
+                              "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/@{variables('EnvironmentId')}/bots/@{variables('AgentId')}/permissions?api-version=2021-04-01",
+                              "headers": {
+                                "Content-Type": "application/json"
+                              },
+                              "body": {
+                                "put": "@body('Build_Approved_Principals_Auto')"
+                              },
+                              "authentication": {
+                                "type": "ManagedServiceIdentity",
+                                "audience": "https://api.bap.microsoft.com"
+                              }
+                            },
+                            "runAfter": {
+                              "Build_Approved_Principals_Auto": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "CAUTION: Destructive operation. Overwrites ALL agent sharing principals with approved security groups via BAP Admin API. This removes all existing sharing and replaces with approved groups only."
+                          },
+                          "Update_Violation_Remediated_Auto": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "entityName": "fsi_sharingviolations",
+                                "recordId": "@variables('ViolationId')",
+                                "item/fsi_violation_status": 1,
+                                "item/fsi_remediated_at": "@utcNow()",
+                                "item/fsi_remediated_by": "Auto-Remediation"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                "connectionName": "shared_commondataserviceforapps",
+                                "operationId": "UpdateRecord"
+                              }
+                            },
+                            "runAfter": {
+                              "BAP_PATCH_Overwrite_Principals_Auto": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "Update violation status to Remediated (1) with auto-remediation timestamp."
+                          },
+                          "Compose_Auto_Remediation_Card": {
+                            "type": "Compose",
+                            "inputs": {
+                              "type": "AdaptiveCard",
+                              "version": "1.4",
+                              "body": [
+                                {
+                                  "type": "Container",
+                                  "style": "good",
+                                  "bleed": true,
+                                  "items": [
+                                    {
+                                      "type": "TextBlock",
+                                      "text": "UASD Auto-Remediation Applied",
+                                      "weight": "Bolder",
+                                      "size": "Large",
+                                      "wrap": true
+                                    },
+                                    {
+                                      "type": "TextBlock",
+                                      "text": "A PUBLIC_INTERNET_LINK violation was automatically remediated. Agent sharing principals have been overwritten with approved security groups.",
+                                      "wrap": true,
+                                      "spacing": "Small"
+                                    },
+                                    {
+                                      "type": "FactSet",
+                                      "facts": [
+                                        {
+                                          "title": "Agent",
+                                          "value": "@{outputs('Get_Violation_Details')?['body/fsi_agent_name']}"
+                                        },
+                                        {
+                                          "title": "Environment",
+                                          "value": "@{outputs('Get_Violation_Details')?['body/fsi_environment_name']}"
+                                        },
+                                        {
+                                          "title": "Violation Type",
+                                          "value": "PUBLIC_INTERNET_LINK"
+                                        },
+                                        {
+                                          "title": "Action Taken",
+                                          "value": "Principals overwritten with approved security groups"
+                                        },
+                                        {
+                                          "title": "Groups Applied",
+                                          "value": "@{length(body('Build_Approved_Principals_Auto'))} approved group(s)"
+                                        },
+                                        {
+                                          "title": "Remediated At",
+                                          "value": "@{utcNow()}"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "actions": [
+                                {
+                                  "type": "Action.OpenUrl",
+                                  "title": "View in PPAC",
+                                  "url": "https://admin.powerplatform.microsoft.com/"
+                                },
+                                {
+                                  "type": "Action.OpenUrl",
+                                  "title": "View Documentation",
+                                  "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-2-management/2.5-agent-sharing-and-distribution/"
+                                }
+                              ],
+                              "msteams": {
+                                "width": "Full"
+                              }
+                            },
+                            "runAfter": {
+                              "Update_Violation_Remediated_Auto": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "Compose adaptive card for auto-remediation notification."
+                          },
+                          "Post_Auto_Remediation_Notification": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "poster": "Flow bot",
+                                "location": "Channel",
+                                "body/recipient/groupId": "@variables('TeamsGroupId')",
+                                "body/recipient/channelId": "@variables('TeamsChannelId')",
+                                "body/messageBody": "@{string(outputs('Compose_Auto_Remediation_Card'))}"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                                "connectionName": "shared_teams",
+                                "operationId": "PostCardToConversation"
+                              }
+                            },
+                            "runAfter": {
+                              "Compose_Auto_Remediation_Card": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "Post auto-remediation completion notification to the designated Teams channel."
+                          }
+                        }
+                      }
+                    },
+                    "default": {
+                      "actions": {
+                        "Start_Remediation_Approval": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "approvalType": "Basic",
+                              "ApprovalCreationInput/title": "UASD Remediation Approval — @{outputs('Get_Violation_Details')?['body/fsi_name']}",
+                              "ApprovalCreationInput/assignedTo": "",
+                              "ApprovalCreationInput/details": "## Sharing Violation Remediation Request\n\n**Agent:** @{outputs('Get_Violation_Details')?['body/fsi_agent_name']}\n**Environment:** @{outputs('Get_Violation_Details')?['body/fsi_environment_name']}\n**Violation Type:** @{outputs('Get_Violation_Details')?['body/fsi_violation_type']}\n**Severity:** @{outputs('Get_Violation_Details')?['body/fsi_severity']}\n**Description:** @{outputs('Get_Violation_Details')?['body/fsi_description']}\n**Detected At:** @{outputs('Get_Violation_Details')?['body/fsi_detected_at']}\n\n### Proposed Action\nOverwrite all agent sharing principals with approved security groups. This is a **destructive operation** — all current sharing permissions will be replaced.\n\n### Approval Required\nApprove to apply remediation. Reject to leave the violation open for manual review.",
+                              "ApprovalCreationInput/itemLink": "https://admin.powerplatform.microsoft.com/",
+                              "ApprovalCreationInput/itemLinkDescription": "View in Power Platform Admin Center",
+                              "ApprovalCreationInput/enableNotifications": true,
+                              "ApprovalCreationInput/enableReassignment": true
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                              "connectionName": "shared_approvals",
+                              "operationId": "StartAndWaitForAnApproval"
+                            }
+                          },
+                          "runAfter": {},
+                          "description": "Start an approval request for the remediation action. Assigned to the governance team. Default mode for ALL governance zones (Non-Negotiable Rule #5)."
+                        },
+                        "Check_Approval_Outcome": {
+                          "type": "If",
+                          "expression": {
+                            "equals": [
+                              "@body('Start_Remediation_Approval')?['outcome']",
+                              "Approve"
+                            ]
+                          },
+                          "actions": {
+                            "Load_Approved_Groups_Approved": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_approvedsecuritygroups",
+                                  "$filter": "fsi_is_active eq true",
+                                  "$select": "fsi_entraid_group_id,fsi_group_display_name,fsi_zone"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Retrieve approved security groups for principal overwrite after approval."
+                            },
+                            "Build_Approved_Principals_Approved": {
+                              "type": "Select",
+                              "inputs": {
+                                "from": "@body('Load_Approved_Groups_Approved')?['value']",
+                                "select": {
+                                  "properties": {
+                                    "roleName": "CanView",
+                                    "principal": {
+                                      "id": "@item()?['fsi_entraid_group_id']",
+                                      "type": "Group",
+                                      "displayName": "@item()?['fsi_group_display_name']"
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Load_Approved_Groups_Approved": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Transform approved security groups into BAP-compatible principal objects."
+                            },
+                            "BAP_PATCH_Overwrite_Principals_Approved": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "PATCH",
+                                "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/@{variables('EnvironmentId')}/bots/@{variables('AgentId')}/permissions?api-version=2021-04-01",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "put": "@body('Build_Approved_Principals_Approved')"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "https://api.bap.microsoft.com"
+                                }
+                              },
+                              "runAfter": {
+                                "Build_Approved_Principals_Approved": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "CAUTION: Destructive operation. Overwrites ALL agent sharing principals with approved security groups via BAP Admin API."
+                            },
+                            "Update_Violation_Remediated_Approved": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_sharingviolations",
+                                  "recordId": "@variables('ViolationId')",
+                                  "item/fsi_violation_status": 1,
+                                  "item/fsi_remediated_at": "@utcNow()",
+                                  "item/fsi_remediated_by": "@body('Start_Remediation_Approval')?['responses'][0]?['responder']?['displayName']"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "UpdateRecord"
+                                }
+                              },
+                              "runAfter": {
+                                "BAP_PATCH_Overwrite_Principals_Approved": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Update violation status to Remediated (1) with approver name and timestamp."
+                            },
+                            "Compose_Approval_Complete_Card": {
+                              "type": "Compose",
+                              "inputs": {
+                                "type": "AdaptiveCard",
+                                "version": "1.4",
+                                "body": [
+                                  {
+                                    "type": "Container",
+                                    "style": "good",
+                                    "bleed": true,
+                                    "items": [
+                                      {
+                                        "type": "TextBlock",
+                                        "text": "UASD Remediation Approved & Applied",
+                                        "weight": "Bolder",
+                                        "size": "Large",
+                                        "wrap": true
+                                      },
+                                      {
+                                        "type": "TextBlock",
+                                        "text": "A sharing violation remediation was approved. Agent sharing principals have been overwritten with approved security groups.",
+                                        "wrap": true,
+                                        "spacing": "Small"
+                                      },
+                                      {
+                                        "type": "FactSet",
+                                        "facts": [
+                                          {
+                                            "title": "Agent",
+                                            "value": "@{outputs('Get_Violation_Details')?['body/fsi_agent_name']}"
+                                          },
+                                          {
+                                            "title": "Environment",
+                                            "value": "@{outputs('Get_Violation_Details')?['body/fsi_environment_name']}"
+                                          },
+                                          {
+                                            "title": "Violation Type",
+                                            "value": "@{outputs('Get_Violation_Details')?['body/fsi_violation_type']}"
+                                          },
+                                          {
+                                            "title": "Approved By",
+                                            "value": "@{body('Start_Remediation_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                          },
+                                          {
+                                            "title": "Groups Applied",
+                                            "value": "@{length(body('Build_Approved_Principals_Approved'))} approved group(s)"
+                                          },
+                                          {
+                                            "title": "Remediated At",
+                                            "value": "@{utcNow()}"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "actions": [
+                                  {
+                                    "type": "Action.OpenUrl",
+                                    "title": "View in PPAC",
+                                    "url": "https://admin.powerplatform.microsoft.com/"
+                                  },
+                                  {
+                                    "type": "Action.OpenUrl",
+                                    "title": "View Documentation",
+                                    "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-2-management/2.5-agent-sharing-and-distribution/"
+                                  }
+                                ],
+                                "msteams": {
+                                  "width": "Full"
+                                }
+                              },
+                              "runAfter": {
+                                "Update_Violation_Remediated_Approved": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Compose adaptive card for approved remediation notification."
+                            },
+                            "Post_Approval_Complete_Notification": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "poster": "Flow bot",
+                                  "location": "Channel",
+                                  "body/recipient/groupId": "@variables('TeamsGroupId')",
+                                  "body/recipient/channelId": "@variables('TeamsChannelId')",
+                                  "body/messageBody": "@{string(outputs('Compose_Approval_Complete_Card'))}"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                                  "connectionName": "shared_teams",
+                                  "operationId": "PostCardToConversation"
+                                }
+                              },
+                              "runAfter": {
+                                "Compose_Approval_Complete_Card": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Post approved remediation notification to the designated Teams channel."
+                            }
+                          },
+                          "else": {
+                            "actions": {
+                              "Compose_Rejection_Card": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "type": "AdaptiveCard",
+                                  "version": "1.4",
+                                  "body": [
+                                    {
+                                      "type": "Container",
+                                      "style": "attention",
+                                      "bleed": true,
+                                      "items": [
+                                        {
+                                          "type": "TextBlock",
+                                          "text": "UASD Remediation Rejected",
+                                          "weight": "Bolder",
+                                          "size": "Large",
+                                          "wrap": true
+                                        },
+                                        {
+                                          "type": "TextBlock",
+                                          "text": "A sharing violation remediation request was rejected. The violation remains open for manual review.",
+                                          "wrap": true,
+                                          "spacing": "Small"
+                                        },
+                                        {
+                                          "type": "FactSet",
+                                          "facts": [
+                                            {
+                                              "title": "Agent",
+                                              "value": "@{outputs('Get_Violation_Details')?['body/fsi_agent_name']}"
+                                            },
+                                            {
+                                              "title": "Environment",
+                                              "value": "@{outputs('Get_Violation_Details')?['body/fsi_environment_name']}"
+                                            },
+                                            {
+                                              "title": "Violation Type",
+                                              "value": "@{outputs('Get_Violation_Details')?['body/fsi_violation_type']}"
+                                            },
+                                            {
+                                              "title": "Rejected By",
+                                              "value": "@{body('Start_Remediation_Approval')?['responses'][0]?['responder']?['displayName']}"
+                                            },
+                                            {
+                                              "title": "Comments",
+                                              "value": "@{body('Start_Remediation_Approval')?['responses'][0]?['comments']}"
+                                            },
+                                            {
+                                              "title": "Status",
+                                              "value": "Open — requires manual review"
+                                            },
+                                            {
+                                              "title": "Timestamp",
+                                              "value": "@{utcNow()}"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "actions": [
+                                    {
+                                      "type": "Action.OpenUrl",
+                                      "title": "View in PPAC",
+                                      "url": "https://admin.powerplatform.microsoft.com/"
+                                    }
+                                  ],
+                                  "msteams": {
+                                    "width": "Full"
+                                  }
+                                },
+                                "runAfter": {},
+                                "description": "Compose adaptive card for rejection notification."
+                              },
+                              "Post_Rejection_Notification": {
+                                "type": "OpenApiConnection",
+                                "inputs": {
+                                  "parameters": {
+                                    "poster": "Flow bot",
+                                    "location": "Channel",
+                                    "body/recipient/groupId": "@variables('TeamsGroupId')",
+                                    "body/recipient/channelId": "@variables('TeamsChannelId')",
+                                    "body/messageBody": "@{string(outputs('Compose_Rejection_Card'))}"
+                                  },
+                                  "host": {
+                                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                                    "connectionName": "shared_teams",
+                                    "operationId": "PostCardToConversation"
+                                  }
+                                },
+                                "runAfter": {
+                                  "Compose_Rejection_Card": [
+                                    "Succeeded"
+                                  ]
+                                },
+                                "description": "Post rejection notification to the designated Teams channel."
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "Start_Remediation_Approval": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Route remediation outcome based on approval response — apply changes if approved, leave open if rejected."
+                        }
+                      }
+                    },
+                    "runAfter": {
+                      "Check_Auto_Remediation_Eligible": [
+                        "Succeeded"
+                      ]
+                    },
+                    "description": "Route remediation by mode: Automatic (PUBLIC_INTERNET_LINK only when enabled) or Approval (default for ALL zones — Non-Negotiable Rule #5)."
+                  }
+                }
+              },
+              "runAfter": {
+                "Check_Active_Exception": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Check whether an active, non-expired exception suppresses remediation for this violation."
+            }
+          },
+          "runAfter": {
+            "Initialize_TeamsChannelId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Main remediation scope: checks exceptions, determines remediation mode, and applies sharing policy changes via BAP API."
+        },
+        "Scope_Catch": {
+          "type": "Scope",
+          "actions": {
+            "Compose_Error_Card": {
+              "type": "Compose",
+              "inputs": {
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                  {
+                    "type": "Container",
+                    "style": "attention",
+                    "bleed": true,
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "[ERROR] UASD Remediation — Flow Failure",
+                        "weight": "Bolder",
+                        "size": "Large",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "The Unrestricted Agent Sharing Detector remediation flow encountered an unexpected error during execution.",
+                        "wrap": true,
+                        "spacing": "Small"
+                      },
+                      {
+                        "type": "FactSet",
+                        "facts": [
+                          {
+                            "title": "Violation ID",
+                            "value": "@{variables('ViolationId')}"
+                          },
+                          {
+                            "title": "Agent ID",
+                            "value": "@{variables('AgentId')}"
+                          },
+                          {
+                            "title": "Flow Run ID",
+                            "value": "@{workflow()['run']['name']}"
+                          },
+                          {
+                            "title": "Timestamp",
+                            "value": "@{utcNow()}"
+                          },
+                          {
+                            "title": "Action",
+                            "value": "Review flow run history in Power Automate portal"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "actions": [
+                  {
+                    "type": "Action.OpenUrl",
+                    "title": "View Flow Run History",
+                    "url": "https://make.powerautomate.com"
+                  }
+                ],
+                "msteams": {
+                  "width": "Full"
+                }
+              },
+              "runAfter": {},
+              "description": "Compose error notification adaptive card for unexpected remediation flow failures."
+            },
+            "Post_Error_Notification": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "poster": "Flow bot",
+                  "location": "Channel",
+                  "body/recipient/groupId": "@variables('TeamsGroupId')",
+                  "body/recipient/channelId": "@variables('TeamsChannelId')",
+                  "body/messageBody": "@{string(outputs('Compose_Error_Card'))}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "connectionName": "shared_teams",
+                  "operationId": "PostCardToConversation"
+                }
+              },
+              "runAfter": {
+                "Compose_Error_Card": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Post error notification to the designated Teams channel when the remediation flow fails."
+            }
+          },
+          "runAfter": {
+            "Scope_Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "description": "Error handling scope: catches unexpected failures in Scope_Try and sends CRITICAL notification to Teams."
+        }
+      }
+    },
+    "displayName": "fsi-UASD-Remediation-ApplySharingPolicy",
+    "description": "Remediates sharing violations by overwriting agent principals with approved security groups via BAP API. Default remediation mode is Approval for all governance zones (Non-Negotiable Rule #5). Auto-remediation available only for PUBLIC_INTERNET_LINK violations when explicitly enabled. Supports compliance with FINRA 4511/3110, SEC 17a-3/4, SOX 302/404. Part of the FSI Agent Governance — Unrestricted Agent Sharing Detector solution.",
+    "state": "Started"
+  },
+  "schemaVersion": "1.0.0.0"
+}
