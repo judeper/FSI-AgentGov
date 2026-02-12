@@ -571,6 +571,8 @@ nav:
         - Telemetry Schema Reference: playbooks/advanced-implementations/agent-usage-workbook/telemetry-schema.md
         - Deployment Guide: playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md
         - Customization Guide: playbooks/advanced-implementations/agent-usage-workbook/customization-guide.md
+      - Unrestricted Agent Sharing Detector:
+        - Deployment Guide: playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md
