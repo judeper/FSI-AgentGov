@@ -1,0 +1,280 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "${SeverityStyle}",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "[ALERT] Agent Sharing Violation — ${OverallStatus}",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Unrestricted Agent Sharing Detector · ${ScannedAt}",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${SeverityBadge}",
+                  "weight": "Bolder",
+                  "size": "ExtraLarge",
+                  "color": "${SeverityColor}",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "scanSummarySection",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Scan Summary",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "Status",
+                      "value": "${OverallStatus}"
+                    },
+                    {
+                      "title": "Scanned",
+                      "value": "${ScannedAt}"
+                    },
+                    {
+                      "title": "Scan Run ID",
+                      "value": "${ScanRunId}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "Total Agents",
+                      "value": "${TotalAgents}"
+                    },
+                    {
+                      "title": "Violations",
+                      "value": "${ViolationCount}"
+                    },
+                    {
+                      "title": "Environments",
+                      "value": "${EnvironmentsScanned}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "violationsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Sharing Violations (${ViolationCount})",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Attention",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "Container",
+          "id": "violationItem",
+          "style": "Emphasis",
+          "items": [
+            {
+              "type": "ColumnSet",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "${ViolationType}",
+                      "weight": "Bolder",
+                      "color": "${ViolationSeverityColor}"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "${AgentName}",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "${EnvironmentName}",
+                      "weight": "Bolder",
+                      "color": "${ViolationSeverityColor}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "Severity",
+                  "value": "${Severity}"
+                },
+                {
+                  "title": "Description",
+                  "value": "${Description}"
+                },
+                {
+                  "title": "Principal Details",
+                  "value": "${PrincipalDetails}"
+                },
+                {
+                  "title": "Detected At",
+                  "value": "${DetectedAt}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View in PPAC",
+      "url": "https://admin.powerplatform.microsoft.com/"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Run Audit Script",
+      "url": "https://your-org.github.io/FSI-AgentGov/playbooks/advanced-implementations/uasd-deployment-guide/"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Documentation",
+      "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-2-management/2.5-agent-sharing-and-distribution/"
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "uasd-sharing-violation-alert",
+    "templateVersion": "1.0.0",
+    "solution": "Unrestricted Agent Sharing Detector (UASD)",
+    "description": "Teams adaptive card for agent sharing violation alerts with severity-based styling and per-violation details",
+    "severityColorMapping": {
+      "Critical": "Attention",
+      "High": "Warning",
+      "Medium": "Accent",
+      "Low": "Good"
+    },
+    "severityStyleMapping": {
+      "Critical": "attention",
+      "High": "warning",
+      "Medium": "accent",
+      "Low": "default"
+    },
+    "severityBadgeMapping": {
+      "Critical": "🔴",
+      "High": "🟠",
+      "Medium": "🟡",
+      "Low": "🟢"
+    },
+    "violationTypeMapping": {
+      "0": "ORG_WIDE_SHARING",
+      "1": "PUBLIC_INTERNET_LINK",
+      "2": "UNAPPROVED_GROUP",
+      "3": "EXCESSIVE_INDIVIDUAL",
+      "4": "CROSS_TENANT_ACCESS"
+    },
+    "templateVariables": {
+      "scalar": [
+        "SeverityStyle",
+        "SeverityColor",
+        "SeverityBadge",
+        "OverallStatus",
+        "ScannedAt",
+        "ScanRunId",
+        "TotalAgents",
+        "ViolationCount",
+        "EnvironmentsScanned"
+      ],
+      "perViolation": [
+        "ViolationType",
+        "AgentName",
+        "EnvironmentName",
+        "Severity",
+        "ViolationSeverityColor",
+        "Description",
+        "PrincipalDetails",
+        "DetectedAt"
+      ]
+    },
+    "flowIntegrationNotes": "The violationsSection container contains a single template item (violationItem). The Power Automate flow should: (1) Replace scalar variables via string substitution, (2) Build violation card elements by iterating detected violations and replicating the violationItem template per result using AppendToArrayVariable, (3) Set violationsSection visibility based on ViolationCount > 0, (4) Map violation severity to color using severityColorMapping: Critical=Attention, High=Warning, Medium=Accent, Low=Good."
+  }
+}

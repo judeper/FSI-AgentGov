@@ -1,0 +1,1950 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_sharingdetector",
+        "tier": "NotSpecified"
+      },
+      "shared_teams": {
+        "connectionName": "shared_teams",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_teams",
+        "connectionReferenceLogicalName": "fsi_cr_teams_sharingdetector",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence_Daily_0600_UTC": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2026-01-01T06:00:00Z",
+            "timeZone": "UTC",
+            "schedule": {
+              "hours": [
+                "6"
+              ],
+              "minutes": [
+                "0"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "recurrence-daily-0600"
+          }
+        }
+      },
+      "actions": {
+        "Initialize_DataverseUrl": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "DataverseUrl",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Dataverse environment URL (e.g., https://org.crm.dynamics.com). Set via environment variable fsi_UASD_DataverseUrl."
+        },
+        "Initialize_HomeTenantId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "HomeTenantId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_DataverseUrl": [
+              "Succeeded"
+            ]
+          },
+          "description": "Home tenant GUID for cross-tenant sharing detection. Set via environment variable fsi_UASD_HomeTenantId."
+        },
+        "Initialize_TeamsGroupId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsGroupId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_HomeTenantId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams team/group ID for alert notifications. Set via environment variable fsi_UASD_TeamsGroupId."
+        },
+        "Initialize_TeamsChannelId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsChannelId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsGroupId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams channel ID for alert notifications. Set via environment variable fsi_UASD_TeamsChannelId."
+        },
+        "Initialize_ScanRunId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ScanRunId",
+                "type": "string",
+                "value": "@{guid()}"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsChannelId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Unique identifier for the current scan run."
+        },
+        "Initialize_ViolationCards": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ViolationCards",
+                "type": "array",
+                "value": []
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ScanRunId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Accumulator for adaptive card violation elements appended during rule evaluation."
+        },
+        "Initialize_TotalAgents": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TotalAgents",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ViolationCards": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter for total agents scanned across all environments."
+        },
+        "Initialize_ViolationCount": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ViolationCount",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TotalAgents": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter for total violations detected across all agents."
+        },
+        "Scope_Try": {
+          "type": "Scope",
+          "actions": {
+            "Load_Approved_Groups": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_approvedsecuritygroups",
+                  "$filter": "fsi_is_active eq true",
+                  "$select": "fsi_entraid_group_id,fsi_group_display_name,fsi_zone"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {},
+              "description": "Retrieve all active approved security groups from Dataverse for group validation."
+            },
+            "Initialize_Approved_Group_Ids": {
+              "type": "Compose",
+              "inputs": "@body('Load_Approved_Groups')?['value']",
+              "runAfter": {
+                "Load_Approved_Groups": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Extract approved group records for in-memory matching during rule evaluation."
+            },
+            "Load_Sharing_Policy": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_sharingpolicies",
+                  "$filter": "fsi_is_active eq true",
+                  "$top": 1,
+                  "$select": "fsi_max_individual_shares,fsi_governance_zone"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {
+                "Initialize_Approved_Group_Ids": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Retrieve the active sharing policy to determine maximum individual share threshold."
+            },
+            "Set_Max_Individual_Shares": {
+              "type": "Compose",
+              "inputs": "@coalesce(first(body('Load_Sharing_Policy')?['value'])?['fsi_max_individual_shares'], 100)",
+              "runAfter": {
+                "Load_Sharing_Policy": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Extract max individual shares from policy (default 100 if not configured)."
+            },
+            "List_Environments": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments?api-version=2016-11-01",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://api.bap.microsoft.com"
+                }
+              },
+              "runAfter": {
+                "Set_Max_Individual_Shares": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Enumerate all Power Platform environments via BAP Admin API using MSI authentication."
+            },
+            "Apply_to_Each_Environment": {
+              "type": "Foreach",
+              "foreach": "@body('List_Environments')?['value']",
+              "actions": {
+                "Set_Environment_Id": {
+                  "type": "Compose",
+                  "inputs": "@items('Apply_to_Each_Environment')?['name']",
+                  "runAfter": {},
+                  "description": "Extract environment GUID from BAP API response."
+                },
+                "Set_Environment_Name": {
+                  "type": "Compose",
+                  "inputs": "@items('Apply_to_Each_Environment')?['properties']?['displayName']",
+                  "runAfter": {
+                    "Set_Environment_Id": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Extract environment display name from BAP API response."
+                },
+                "List_Agents_In_Environment": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "GET",
+                    "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/@{outputs('Set_Environment_Id')}/bots?api-version=2021-04-01",
+                    "headers": {
+                      "Content-Type": "application/json"
+                    },
+                    "authentication": {
+                      "type": "ManagedServiceIdentity",
+                      "audience": "https://api.bap.microsoft.com"
+                    }
+                  },
+                  "runAfter": {
+                    "Set_Environment_Name": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "List all Copilot Studio agents (bots) in the current environment via BAP Admin API."
+                },
+                "Apply_to_Each_Agent": {
+                  "type": "Foreach",
+                  "foreach": "@body('List_Agents_In_Environment')?['value']",
+                  "actions": {
+                    "Set_Agent_Id": {
+                      "type": "Compose",
+                      "inputs": "@items('Apply_to_Each_Agent')?['properties']?['name']",
+                      "runAfter": {},
+                      "description": "Extract agent identifier from BAP API response."
+                    },
+                    "Set_Agent_Name": {
+                      "type": "Compose",
+                      "inputs": "@items('Apply_to_Each_Agent')?['properties']?['displayName']",
+                      "runAfter": {
+                        "Set_Agent_Id": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Extract agent display name from BAP API response."
+                    },
+                    "Get_Agent_Principals": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "GET",
+                        "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/@{outputs('Set_Environment_Id')}/bots/@{outputs('Set_Agent_Id')}/permissions?api-version=2021-04-01",
+                        "headers": {
+                          "Content-Type": "application/json"
+                        },
+                        "authentication": {
+                          "type": "ManagedServiceIdentity",
+                          "audience": "https://api.bap.microsoft.com"
+                        }
+                      },
+                      "runAfter": {
+                        "Set_Agent_Name": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Retrieve sharing permissions (principals) for the current agent via BAP Admin API."
+                    },
+                    "Parse_Principals": {
+                      "type": "ParseJson",
+                      "inputs": {
+                        "content": "@body('Get_Agent_Principals')",
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  },
+                                  "properties": {
+                                    "type": "object",
+                                    "properties": {
+                                      "roleName": {
+                                        "type": "string"
+                                      },
+                                      "scope": {
+                                        "type": "string"
+                                      },
+                                      "principal": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "displayName": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "tenantId": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Get_Agent_Principals": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Parse the bot permissions JSON response into a structured object for rule evaluation."
+                    },
+                    "Compute_Sharing_Scope": {
+                      "type": "Compose",
+                      "inputs": "@if(contains(string(body('Parse_Principals')), 'Organization'), 2, if(contains(string(body('Parse_Principals')), 'Public'), 3, if(contains(string(body('Parse_Principals')), 'Group'), 1, 0)))",
+                      "runAfter": {
+                        "Parse_Principals": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Classify highest sharing scope: 0=Individual, 1=SecurityGroup, 2=Organization, 3=Public."
+                    },
+                    "Compute_Evidence_Hash": {
+                      "type": "Compose",
+                      "inputs": "@base64(string(body('Parse_Principals')?['value']))",
+                      "runAfter": {
+                        "Parse_Principals": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Compute a deterministic fingerprint of the principals configuration for change detection."
+                    },
+                    "Upsert_Agent_Sharing_Setting": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "fsi_agentsharingsettings",
+                          "item/fsi_name": "Agent Sharing - @{outputs('Set_Agent_Name')}",
+                          "item/fsi_agent_id": "@outputs('Set_Agent_Id')",
+                          "item/fsi_agent_name": "@outputs('Set_Agent_Name')",
+                          "item/fsi_environment_id": "@outputs('Set_Environment_Id')",
+                          "item/fsi_environment_name": "@outputs('Set_Environment_Name')",
+                          "item/fsi_sharing_scope": "@outputs('Compute_Sharing_Scope')",
+                          "item/fsi_principal_count": "@length(body('Parse_Principals')?['value'])",
+                          "item/fsi_principals_json": "@{string(body('Parse_Principals')?['value'])}",
+                          "item/fsi_evidence_hash": "@outputs('Compute_Evidence_Hash')",
+                          "item/fsi_last_scanned": "@utcNow()",
+                          "item/fsi_scan_run_id": "@variables('ScanRunId')"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "CreateRecord"
+                        }
+                      },
+                      "runAfter": {
+                        "Compute_Sharing_Scope": [
+                          "Succeeded"
+                        ],
+                        "Compute_Evidence_Hash": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Create or update the agent sharing settings record in Dataverse with current scan results."
+                    },
+                    "Increment_Total_Agents": {
+                      "type": "IncrementVariable",
+                      "inputs": {
+                        "name": "TotalAgents",
+                        "value": 1
+                      },
+                      "runAfter": {
+                        "Upsert_Agent_Sharing_Setting": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Increment the total agents scanned counter."
+                    },
+                    "Rule_Evaluation_Scope": {
+                      "type": "Scope",
+                      "actions": {
+                        "Filter_Org_Principals": {
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@body('Parse_Principals')?['value']",
+                            "where": "@equals(item()?['properties']?['principal']?['type'], 'Organization')"
+                          },
+                          "runAfter": {},
+                          "description": "Filter principals to find Organization-type entries (org-wide sharing)."
+                        },
+                        "Check_ORG_WIDE_SHARING": {
+                          "type": "If",
+                          "expression": {
+                            "greater": [
+                              "@length(body('Filter_Org_Principals'))",
+                              0
+                            ]
+                          },
+                          "actions": {
+                            "Check_Active_Exception_OrgWide": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_sharingexceptions",
+                                  "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 0 and fsi_exception_status eq 1 and fsi_expires_at ge @{utcNow()}",
+                                  "$top": 1
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Check for an active, non-expired exception for ORG_WIDE_SHARING on this agent."
+                            },
+                            "Has_Active_Exception_OrgWide": {
+                              "type": "If",
+                              "expression": {
+                                "greater": [
+                                  "@length(outputs('Check_Active_Exception_OrgWide')?['body/value'])",
+                                  0
+                                ]
+                              },
+                              "actions": {},
+                              "else": {
+                                "actions": {
+                                  "Check_Existing_Violation_OrgWide": {
+                                    "type": "OpenApiConnection",
+                                    "inputs": {
+                                      "parameters": {
+                                        "entityName": "fsi_sharingviolations",
+                                        "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 0 and fsi_violation_status eq 0",
+                                        "$top": 1
+                                      },
+                                      "host": {
+                                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                        "connectionName": "shared_commondataserviceforapps",
+                                        "operationId": "ListRecords"
+                                      }
+                                    },
+                                    "runAfter": {},
+                                    "description": "Check for existing Open violation to prevent duplicates."
+                                  },
+                                  "Is_Duplicate_OrgWide": {
+                                    "type": "If",
+                                    "expression": {
+                                      "greater": [
+                                        "@length(outputs('Check_Existing_Violation_OrgWide')?['body/value'])",
+                                        0
+                                      ]
+                                    },
+                                    "actions": {},
+                                    "else": {
+                                      "actions": {
+                                        "Create_Violation_OrgWide": {
+                                          "type": "OpenApiConnection",
+                                          "inputs": {
+                                            "parameters": {
+                                              "entityName": "fsi_sharingviolations",
+                                              "item/fsi_name": "ORG_WIDE_SHARING - @{outputs('Set_Agent_Name')}",
+                                              "item/fsi_agent_id": "@outputs('Set_Agent_Id')",
+                                              "item/fsi_agent_name": "@outputs('Set_Agent_Name')",
+                                              "item/fsi_environment_id": "@outputs('Set_Environment_Id')",
+                                              "item/fsi_environment_name": "@outputs('Set_Environment_Name')",
+                                              "item/fsi_violation_type": 0,
+                                              "item/fsi_violation_status": 0,
+                                              "item/fsi_severity": 4,
+                                              "item/fsi_description": "Agent '@{outputs('Set_Agent_Name')}' in environment '@{outputs('Set_Environment_Name')}' is shared with the entire organization",
+                                              "item/fsi_evidence_json": "@{string(body('Parse_Principals')?['value'])}",
+                                              "item/fsi_evidence_hash": "@outputs('Compute_Evidence_Hash')",
+                                              "item/fsi_scan_run_id": "@variables('ScanRunId')",
+                                              "item/fsi_detected_at": "@utcNow()"
+                                            },
+                                            "host": {
+                                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                              "connectionName": "shared_commondataserviceforapps",
+                                              "operationId": "CreateRecord"
+                                            }
+                                          },
+                                          "runAfter": {},
+                                          "description": "Create ORG_WIDE_SHARING violation record (violation_type=0, severity=Failed/Critical)."
+                                        },
+                                        "Increment_ViolationCount_OrgWide": {
+                                          "type": "IncrementVariable",
+                                          "inputs": {
+                                            "name": "ViolationCount",
+                                            "value": 1
+                                          },
+                                          "runAfter": {
+                                            "Create_Violation_OrgWide": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        },
+                                        "Append_ViolationCard_OrgWide": {
+                                          "type": "AppendToArrayVariable",
+                                          "inputs": {
+                                            "name": "ViolationCards",
+                                            "value": {
+                                              "type": "Container",
+                                              "style": "Emphasis",
+                                              "items": [
+                                                {
+                                                  "type": "ColumnSet",
+                                                  "columns": [
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "ORG_WIDE_SHARING",
+                                                          "weight": "Bolder",
+                                                          "color": "Attention"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "stretch",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Agent_Name')}",
+                                                          "weight": "Bolder",
+                                                          "wrap": true
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Environment_Name')}",
+                                                          "weight": "Bolder"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "FactSet",
+                                                  "facts": [
+                                                    {
+                                                      "title": "Severity",
+                                                      "value": "Critical"
+                                                    },
+                                                    {
+                                                      "title": "Description",
+                                                      "value": "Agent is shared with the entire organization"
+                                                    },
+                                                    {
+                                                      "title": "Principal Details",
+                                                      "value": "@{length(body('Filter_Org_Principals'))} organization-wide principal(s)"
+                                                    },
+                                                    {
+                                                      "title": "Detected At",
+                                                      "value": "@{utcNow()}"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "runAfter": {
+                                            "Increment_ViolationCount_OrgWide": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "runAfter": {
+                                      "Check_Existing_Violation_OrgWide": [
+                                        "Succeeded"
+                                      ]
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Check_Active_Exception_OrgWide": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {}
+                          },
+                          "runAfter": {
+                            "Filter_Org_Principals": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Rule 1: Detect organization-wide sharing (violation_type=0, severity=4/Critical)."
+                        },
+                        "Filter_Public_Principals": {
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@body('Parse_Principals')?['value']",
+                            "where": "@equals(item()?['properties']?['principal']?['type'], 'Public')"
+                          },
+                          "runAfter": {
+                            "Check_ORG_WIDE_SHARING": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Filter principals to find Public/anonymous-type entries (public internet link)."
+                        },
+                        "Check_PUBLIC_INTERNET_LINK": {
+                          "type": "If",
+                          "expression": {
+                            "greater": [
+                              "@length(body('Filter_Public_Principals'))",
+                              0
+                            ]
+                          },
+                          "actions": {
+                            "Check_Active_Exception_PublicLink": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_sharingexceptions",
+                                  "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 1 and fsi_exception_status eq 1 and fsi_expires_at ge @{utcNow()}",
+                                  "$top": 1
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Check for an active, non-expired exception for PUBLIC_INTERNET_LINK on this agent."
+                            },
+                            "Has_Active_Exception_PublicLink": {
+                              "type": "If",
+                              "expression": {
+                                "greater": [
+                                  "@length(outputs('Check_Active_Exception_PublicLink')?['body/value'])",
+                                  0
+                                ]
+                              },
+                              "actions": {},
+                              "else": {
+                                "actions": {
+                                  "Check_Existing_Violation_PublicLink": {
+                                    "type": "OpenApiConnection",
+                                    "inputs": {
+                                      "parameters": {
+                                        "entityName": "fsi_sharingviolations",
+                                        "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 1 and fsi_violation_status eq 0",
+                                        "$top": 1
+                                      },
+                                      "host": {
+                                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                        "connectionName": "shared_commondataserviceforapps",
+                                        "operationId": "ListRecords"
+                                      }
+                                    },
+                                    "runAfter": {},
+                                    "description": "Check for existing Open violation to prevent duplicates."
+                                  },
+                                  "Is_Duplicate_PublicLink": {
+                                    "type": "If",
+                                    "expression": {
+                                      "greater": [
+                                        "@length(outputs('Check_Existing_Violation_PublicLink')?['body/value'])",
+                                        0
+                                      ]
+                                    },
+                                    "actions": {},
+                                    "else": {
+                                      "actions": {
+                                        "Create_Violation_PublicLink": {
+                                          "type": "OpenApiConnection",
+                                          "inputs": {
+                                            "parameters": {
+                                              "entityName": "fsi_sharingviolations",
+                                              "item/fsi_name": "PUBLIC_INTERNET_LINK - @{outputs('Set_Agent_Name')}",
+                                              "item/fsi_agent_id": "@outputs('Set_Agent_Id')",
+                                              "item/fsi_agent_name": "@outputs('Set_Agent_Name')",
+                                              "item/fsi_environment_id": "@outputs('Set_Environment_Id')",
+                                              "item/fsi_environment_name": "@outputs('Set_Environment_Name')",
+                                              "item/fsi_violation_type": 1,
+                                              "item/fsi_violation_status": 0,
+                                              "item/fsi_severity": 4,
+                                              "item/fsi_description": "Agent '@{outputs('Set_Agent_Name')}' in environment '@{outputs('Set_Environment_Name')}' is accessible via public internet link",
+                                              "item/fsi_evidence_json": "@{string(body('Parse_Principals')?['value'])}",
+                                              "item/fsi_evidence_hash": "@outputs('Compute_Evidence_Hash')",
+                                              "item/fsi_scan_run_id": "@variables('ScanRunId')",
+                                              "item/fsi_detected_at": "@utcNow()"
+                                            },
+                                            "host": {
+                                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                              "connectionName": "shared_commondataserviceforapps",
+                                              "operationId": "CreateRecord"
+                                            }
+                                          },
+                                          "runAfter": {},
+                                          "description": "Create PUBLIC_INTERNET_LINK violation record (violation_type=1, severity=Failed/Critical)."
+                                        },
+                                        "Increment_ViolationCount_PublicLink": {
+                                          "type": "IncrementVariable",
+                                          "inputs": {
+                                            "name": "ViolationCount",
+                                            "value": 1
+                                          },
+                                          "runAfter": {
+                                            "Create_Violation_PublicLink": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        },
+                                        "Append_ViolationCard_PublicLink": {
+                                          "type": "AppendToArrayVariable",
+                                          "inputs": {
+                                            "name": "ViolationCards",
+                                            "value": {
+                                              "type": "Container",
+                                              "style": "Emphasis",
+                                              "items": [
+                                                {
+                                                  "type": "ColumnSet",
+                                                  "columns": [
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "PUBLIC_INTERNET_LINK",
+                                                          "weight": "Bolder",
+                                                          "color": "Attention"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "stretch",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Agent_Name')}",
+                                                          "weight": "Bolder",
+                                                          "wrap": true
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Environment_Name')}",
+                                                          "weight": "Bolder"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "FactSet",
+                                                  "facts": [
+                                                    {
+                                                      "title": "Severity",
+                                                      "value": "Critical"
+                                                    },
+                                                    {
+                                                      "title": "Description",
+                                                      "value": "Agent is accessible via public internet link"
+                                                    },
+                                                    {
+                                                      "title": "Principal Details",
+                                                      "value": "@{length(body('Filter_Public_Principals'))} public access principal(s)"
+                                                    },
+                                                    {
+                                                      "title": "Detected At",
+                                                      "value": "@{utcNow()}"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "runAfter": {
+                                            "Increment_ViolationCount_PublicLink": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "runAfter": {
+                                      "Check_Existing_Violation_PublicLink": [
+                                        "Succeeded"
+                                      ]
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Check_Active_Exception_PublicLink": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {}
+                          },
+                          "runAfter": {
+                            "Filter_Public_Principals": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Rule 2: Detect public internet link sharing (violation_type=1, severity=4/Critical)."
+                        },
+                        "Filter_Unapproved_Groups": {
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@body('Parse_Principals')?['value']",
+                            "where": "@and(equals(item()?['properties']?['principal']?['type'], 'Group'), not(contains(string(outputs('Initialize_Approved_Group_Ids')), item()?['properties']?['principal']?['id'])))"
+                          },
+                          "runAfter": {
+                            "Check_PUBLIC_INTERNET_LINK": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Filter principals to find Group-type entries whose ID is not in the approved security groups list."
+                        },
+                        "Check_UNAPPROVED_GROUP": {
+                          "type": "If",
+                          "expression": {
+                            "greater": [
+                              "@length(body('Filter_Unapproved_Groups'))",
+                              0
+                            ]
+                          },
+                          "actions": {
+                            "Check_Active_Exception_UnapprovedGroup": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_sharingexceptions",
+                                  "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 2 and fsi_exception_status eq 1 and fsi_expires_at ge @{utcNow()}",
+                                  "$top": 1
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Check for an active, non-expired exception for UNAPPROVED_GROUP on this agent."
+                            },
+                            "Has_Active_Exception_UnapprovedGroup": {
+                              "type": "If",
+                              "expression": {
+                                "greater": [
+                                  "@length(outputs('Check_Active_Exception_UnapprovedGroup')?['body/value'])",
+                                  0
+                                ]
+                              },
+                              "actions": {},
+                              "else": {
+                                "actions": {
+                                  "Check_Existing_Violation_UnapprovedGroup": {
+                                    "type": "OpenApiConnection",
+                                    "inputs": {
+                                      "parameters": {
+                                        "entityName": "fsi_sharingviolations",
+                                        "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 2 and fsi_violation_status eq 0",
+                                        "$top": 1
+                                      },
+                                      "host": {
+                                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                        "connectionName": "shared_commondataserviceforapps",
+                                        "operationId": "ListRecords"
+                                      }
+                                    },
+                                    "runAfter": {},
+                                    "description": "Check for existing Open violation to prevent duplicates."
+                                  },
+                                  "Is_Duplicate_UnapprovedGroup": {
+                                    "type": "If",
+                                    "expression": {
+                                      "greater": [
+                                        "@length(outputs('Check_Existing_Violation_UnapprovedGroup')?['body/value'])",
+                                        0
+                                      ]
+                                    },
+                                    "actions": {},
+                                    "else": {
+                                      "actions": {
+                                        "Create_Violation_UnapprovedGroup": {
+                                          "type": "OpenApiConnection",
+                                          "inputs": {
+                                            "parameters": {
+                                              "entityName": "fsi_sharingviolations",
+                                              "item/fsi_name": "UNAPPROVED_GROUP - @{outputs('Set_Agent_Name')}",
+                                              "item/fsi_agent_id": "@outputs('Set_Agent_Id')",
+                                              "item/fsi_agent_name": "@outputs('Set_Agent_Name')",
+                                              "item/fsi_environment_id": "@outputs('Set_Environment_Id')",
+                                              "item/fsi_environment_name": "@outputs('Set_Environment_Name')",
+                                              "item/fsi_violation_type": 2,
+                                              "item/fsi_violation_status": 0,
+                                              "item/fsi_severity": 5,
+                                              "item/fsi_description": "Agent '@{outputs('Set_Agent_Name')}' in environment '@{outputs('Set_Environment_Name')}' is shared with unapproved security group(s)",
+                                              "item/fsi_evidence_json": "@{string(body('Parse_Principals')?['value'])}",
+                                              "item/fsi_evidence_hash": "@outputs('Compute_Evidence_Hash')",
+                                              "item/fsi_scan_run_id": "@variables('ScanRunId')",
+                                              "item/fsi_detected_at": "@utcNow()"
+                                            },
+                                            "host": {
+                                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                              "connectionName": "shared_commondataserviceforapps",
+                                              "operationId": "CreateRecord"
+                                            }
+                                          },
+                                          "runAfter": {},
+                                          "description": "Create UNAPPROVED_GROUP violation record (violation_type=2, severity=Error/High)."
+                                        },
+                                        "Increment_ViolationCount_UnapprovedGroup": {
+                                          "type": "IncrementVariable",
+                                          "inputs": {
+                                            "name": "ViolationCount",
+                                            "value": 1
+                                          },
+                                          "runAfter": {
+                                            "Create_Violation_UnapprovedGroup": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        },
+                                        "Append_ViolationCard_UnapprovedGroup": {
+                                          "type": "AppendToArrayVariable",
+                                          "inputs": {
+                                            "name": "ViolationCards",
+                                            "value": {
+                                              "type": "Container",
+                                              "style": "Emphasis",
+                                              "items": [
+                                                {
+                                                  "type": "ColumnSet",
+                                                  "columns": [
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "UNAPPROVED_GROUP",
+                                                          "weight": "Bolder",
+                                                          "color": "Warning"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "stretch",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Agent_Name')}",
+                                                          "weight": "Bolder",
+                                                          "wrap": true
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Environment_Name')}",
+                                                          "weight": "Bolder"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "FactSet",
+                                                  "facts": [
+                                                    {
+                                                      "title": "Severity",
+                                                      "value": "High"
+                                                    },
+                                                    {
+                                                      "title": "Description",
+                                                      "value": "Agent is shared with unapproved security group(s)"
+                                                    },
+                                                    {
+                                                      "title": "Principal Details",
+                                                      "value": "@{length(body('Filter_Unapproved_Groups'))} unapproved group(s)"
+                                                    },
+                                                    {
+                                                      "title": "Detected At",
+                                                      "value": "@{utcNow()}"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "runAfter": {
+                                            "Increment_ViolationCount_UnapprovedGroup": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "runAfter": {
+                                      "Check_Existing_Violation_UnapprovedGroup": [
+                                        "Succeeded"
+                                      ]
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Check_Active_Exception_UnapprovedGroup": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {}
+                          },
+                          "runAfter": {
+                            "Filter_Unapproved_Groups": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Rule 3: Detect sharing with unapproved security groups (violation_type=2, severity=5/High)."
+                        },
+                        "Filter_Individual_Principals": {
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@body('Parse_Principals')?['value']",
+                            "where": "@equals(item()?['properties']?['principal']?['type'], 'User')"
+                          },
+                          "runAfter": {
+                            "Check_UNAPPROVED_GROUP": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Filter principals to find User-type entries for individual share count check."
+                        },
+                        "Check_EXCESSIVE_INDIVIDUAL": {
+                          "type": "If",
+                          "expression": {
+                            "greater": [
+                              "@length(body('Filter_Individual_Principals'))",
+                              "@outputs('Set_Max_Individual_Shares')"
+                            ]
+                          },
+                          "actions": {
+                            "Check_Active_Exception_ExcessiveIndividual": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_sharingexceptions",
+                                  "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 3 and fsi_exception_status eq 1 and fsi_expires_at ge @{utcNow()}",
+                                  "$top": 1
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Check for an active, non-expired exception for EXCESSIVE_INDIVIDUAL on this agent."
+                            },
+                            "Has_Active_Exception_ExcessiveIndividual": {
+                              "type": "If",
+                              "expression": {
+                                "greater": [
+                                  "@length(outputs('Check_Active_Exception_ExcessiveIndividual')?['body/value'])",
+                                  0
+                                ]
+                              },
+                              "actions": {},
+                              "else": {
+                                "actions": {
+                                  "Check_Existing_Violation_ExcessiveIndividual": {
+                                    "type": "OpenApiConnection",
+                                    "inputs": {
+                                      "parameters": {
+                                        "entityName": "fsi_sharingviolations",
+                                        "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 3 and fsi_violation_status eq 0",
+                                        "$top": 1
+                                      },
+                                      "host": {
+                                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                        "connectionName": "shared_commondataserviceforapps",
+                                        "operationId": "ListRecords"
+                                      }
+                                    },
+                                    "runAfter": {},
+                                    "description": "Check for existing Open violation to prevent duplicates."
+                                  },
+                                  "Is_Duplicate_ExcessiveIndividual": {
+                                    "type": "If",
+                                    "expression": {
+                                      "greater": [
+                                        "@length(outputs('Check_Existing_Violation_ExcessiveIndividual')?['body/value'])",
+                                        0
+                                      ]
+                                    },
+                                    "actions": {},
+                                    "else": {
+                                      "actions": {
+                                        "Create_Violation_ExcessiveIndividual": {
+                                          "type": "OpenApiConnection",
+                                          "inputs": {
+                                            "parameters": {
+                                              "entityName": "fsi_sharingviolations",
+                                              "item/fsi_name": "EXCESSIVE_INDIVIDUAL - @{outputs('Set_Agent_Name')}",
+                                              "item/fsi_agent_id": "@outputs('Set_Agent_Id')",
+                                              "item/fsi_agent_name": "@outputs('Set_Agent_Name')",
+                                              "item/fsi_environment_id": "@outputs('Set_Environment_Id')",
+                                              "item/fsi_environment_name": "@outputs('Set_Environment_Name')",
+                                              "item/fsi_violation_type": 3,
+                                              "item/fsi_violation_status": 0,
+                                              "item/fsi_severity": 2,
+                                              "item/fsi_description": "Agent '@{outputs('Set_Agent_Name')}' in environment '@{outputs('Set_Environment_Name')}' has @{length(body('Filter_Individual_Principals'))} individual shares exceeding maximum of @{outputs('Set_Max_Individual_Shares')}",
+                                              "item/fsi_evidence_json": "@{string(body('Parse_Principals')?['value'])}",
+                                              "item/fsi_evidence_hash": "@outputs('Compute_Evidence_Hash')",
+                                              "item/fsi_scan_run_id": "@variables('ScanRunId')",
+                                              "item/fsi_detected_at": "@utcNow()"
+                                            },
+                                            "host": {
+                                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                              "connectionName": "shared_commondataserviceforapps",
+                                              "operationId": "CreateRecord"
+                                            }
+                                          },
+                                          "runAfter": {},
+                                          "description": "Create EXCESSIVE_INDIVIDUAL violation record (violation_type=3, severity=Warning/Medium)."
+                                        },
+                                        "Increment_ViolationCount_ExcessiveIndividual": {
+                                          "type": "IncrementVariable",
+                                          "inputs": {
+                                            "name": "ViolationCount",
+                                            "value": 1
+                                          },
+                                          "runAfter": {
+                                            "Create_Violation_ExcessiveIndividual": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        },
+                                        "Append_ViolationCard_ExcessiveIndividual": {
+                                          "type": "AppendToArrayVariable",
+                                          "inputs": {
+                                            "name": "ViolationCards",
+                                            "value": {
+                                              "type": "Container",
+                                              "style": "Emphasis",
+                                              "items": [
+                                                {
+                                                  "type": "ColumnSet",
+                                                  "columns": [
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "EXCESSIVE_INDIVIDUAL",
+                                                          "weight": "Bolder",
+                                                          "color": "Accent"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "stretch",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Agent_Name')}",
+                                                          "weight": "Bolder",
+                                                          "wrap": true
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Environment_Name')}",
+                                                          "weight": "Bolder"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "FactSet",
+                                                  "facts": [
+                                                    {
+                                                      "title": "Severity",
+                                                      "value": "Medium"
+                                                    },
+                                                    {
+                                                      "title": "Description",
+                                                      "value": "Individual share count exceeds policy maximum"
+                                                    },
+                                                    {
+                                                      "title": "Principal Details",
+                                                      "value": "@{length(body('Filter_Individual_Principals'))} individual user(s) (max: @{outputs('Set_Max_Individual_Shares')})"
+                                                    },
+                                                    {
+                                                      "title": "Detected At",
+                                                      "value": "@{utcNow()}"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "runAfter": {
+                                            "Increment_ViolationCount_ExcessiveIndividual": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "runAfter": {
+                                      "Check_Existing_Violation_ExcessiveIndividual": [
+                                        "Succeeded"
+                                      ]
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Check_Active_Exception_ExcessiveIndividual": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {}
+                          },
+                          "runAfter": {
+                            "Filter_Individual_Principals": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Rule 4: Detect excessive individual sharing beyond policy threshold (violation_type=3, severity=2/Medium)."
+                        },
+                        "Filter_Cross_Tenant_Principals": {
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@body('Parse_Principals')?['value']",
+                            "where": "@and(not(empty(item()?['properties']?['principal']?['tenantId'])), not(equals(item()?['properties']?['principal']?['tenantId'], variables('HomeTenantId'))))"
+                          },
+                          "runAfter": {
+                            "Check_EXCESSIVE_INDIVIDUAL": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Filter principals to find entries with a tenant ID different from the home tenant."
+                        },
+                        "Check_CROSS_TENANT_ACCESS": {
+                          "type": "If",
+                          "expression": {
+                            "greater": [
+                              "@length(body('Filter_Cross_Tenant_Principals'))",
+                              0
+                            ]
+                          },
+                          "actions": {
+                            "Check_Active_Exception_CrossTenant": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_sharingexceptions",
+                                  "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 4 and fsi_exception_status eq 1 and fsi_expires_at ge @{utcNow()}",
+                                  "$top": 1
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "ListRecords"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Check for an active, non-expired exception for CROSS_TENANT_ACCESS on this agent."
+                            },
+                            "Has_Active_Exception_CrossTenant": {
+                              "type": "If",
+                              "expression": {
+                                "greater": [
+                                  "@length(outputs('Check_Active_Exception_CrossTenant')?['body/value'])",
+                                  0
+                                ]
+                              },
+                              "actions": {},
+                              "else": {
+                                "actions": {
+                                  "Check_Existing_Violation_CrossTenant": {
+                                    "type": "OpenApiConnection",
+                                    "inputs": {
+                                      "parameters": {
+                                        "entityName": "fsi_sharingviolations",
+                                        "$filter": "fsi_agent_id eq '@{outputs('Set_Agent_Id')}' and fsi_violation_type eq 4 and fsi_violation_status eq 0",
+                                        "$top": 1
+                                      },
+                                      "host": {
+                                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                        "connectionName": "shared_commondataserviceforapps",
+                                        "operationId": "ListRecords"
+                                      }
+                                    },
+                                    "runAfter": {},
+                                    "description": "Check for existing Open violation to prevent duplicates."
+                                  },
+                                  "Is_Duplicate_CrossTenant": {
+                                    "type": "If",
+                                    "expression": {
+                                      "greater": [
+                                        "@length(outputs('Check_Existing_Violation_CrossTenant')?['body/value'])",
+                                        0
+                                      ]
+                                    },
+                                    "actions": {},
+                                    "else": {
+                                      "actions": {
+                                        "Create_Violation_CrossTenant": {
+                                          "type": "OpenApiConnection",
+                                          "inputs": {
+                                            "parameters": {
+                                              "entityName": "fsi_sharingviolations",
+                                              "item/fsi_name": "CROSS_TENANT_ACCESS - @{outputs('Set_Agent_Name')}",
+                                              "item/fsi_agent_id": "@outputs('Set_Agent_Id')",
+                                              "item/fsi_agent_name": "@outputs('Set_Agent_Name')",
+                                              "item/fsi_environment_id": "@outputs('Set_Environment_Id')",
+                                              "item/fsi_environment_name": "@outputs('Set_Environment_Name')",
+                                              "item/fsi_violation_type": 4,
+                                              "item/fsi_violation_status": 0,
+                                              "item/fsi_severity": 5,
+                                              "item/fsi_description": "Agent '@{outputs('Set_Agent_Name')}' in environment '@{outputs('Set_Environment_Name')}' has cross-tenant access from external tenant(s)",
+                                              "item/fsi_evidence_json": "@{string(body('Parse_Principals')?['value'])}",
+                                              "item/fsi_evidence_hash": "@outputs('Compute_Evidence_Hash')",
+                                              "item/fsi_scan_run_id": "@variables('ScanRunId')",
+                                              "item/fsi_detected_at": "@utcNow()"
+                                            },
+                                            "host": {
+                                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                              "connectionName": "shared_commondataserviceforapps",
+                                              "operationId": "CreateRecord"
+                                            }
+                                          },
+                                          "runAfter": {},
+                                          "description": "Create CROSS_TENANT_ACCESS violation record (violation_type=4, severity=Error/High)."
+                                        },
+                                        "Increment_ViolationCount_CrossTenant": {
+                                          "type": "IncrementVariable",
+                                          "inputs": {
+                                            "name": "ViolationCount",
+                                            "value": 1
+                                          },
+                                          "runAfter": {
+                                            "Create_Violation_CrossTenant": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        },
+                                        "Append_ViolationCard_CrossTenant": {
+                                          "type": "AppendToArrayVariable",
+                                          "inputs": {
+                                            "name": "ViolationCards",
+                                            "value": {
+                                              "type": "Container",
+                                              "style": "Emphasis",
+                                              "items": [
+                                                {
+                                                  "type": "ColumnSet",
+                                                  "columns": [
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "CROSS_TENANT_ACCESS",
+                                                          "weight": "Bolder",
+                                                          "color": "Warning"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "stretch",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Agent_Name')}",
+                                                          "weight": "Bolder",
+                                                          "wrap": true
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "Column",
+                                                      "width": "auto",
+                                                      "items": [
+                                                        {
+                                                          "type": "TextBlock",
+                                                          "text": "@{outputs('Set_Environment_Name')}",
+                                                          "weight": "Bolder"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "FactSet",
+                                                  "facts": [
+                                                    {
+                                                      "title": "Severity",
+                                                      "value": "High"
+                                                    },
+                                                    {
+                                                      "title": "Description",
+                                                      "value": "Agent has cross-tenant access from external tenant(s)"
+                                                    },
+                                                    {
+                                                      "title": "Principal Details",
+                                                      "value": "@{length(body('Filter_Cross_Tenant_Principals'))} cross-tenant principal(s)"
+                                                    },
+                                                    {
+                                                      "title": "Detected At",
+                                                      "value": "@{utcNow()}"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "runAfter": {
+                                            "Increment_ViolationCount_CrossTenant": [
+                                              "Succeeded"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "runAfter": {
+                                      "Check_Existing_Violation_CrossTenant": [
+                                        "Succeeded"
+                                      ]
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "Check_Active_Exception_CrossTenant": [
+                                  "Succeeded"
+                                ]
+                              }
+                            }
+                          },
+                          "else": {
+                            "actions": {}
+                          },
+                          "runAfter": {
+                            "Filter_Cross_Tenant_Principals": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Rule 5: Detect cross-tenant access from external tenants (violation_type=4, severity=5/High)."
+                        }
+                      },
+                      "runAfter": {
+                        "Increment_Total_Agents": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Evaluate all 5 violation rules against the current agent's sharing configuration."
+                    }
+                  },
+                  "runAfter": {
+                    "List_Agents_In_Environment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "operationOptions": "Sequential",
+                  "description": "Iterate through each agent in the current environment for sharing analysis."
+                }
+              },
+              "runAfter": {
+                "List_Environments": [
+                  "Succeeded"
+                ]
+              },
+              "operationOptions": "Sequential",
+              "description": "Iterate through each Power Platform environment to scan agents."
+            },
+            "Check_Violations_Found": {
+              "type": "If",
+              "expression": {
+                "greater": [
+                  "@variables('ViolationCount')",
+                  0
+                ]
+              },
+              "actions": {
+                "Compose_Scan_Summary": {
+                  "type": "Compose",
+                  "inputs": {
+                    "ScanRunId": "@variables('ScanRunId')",
+                    "ScannedAt": "@utcNow()",
+                    "TotalAgents": "@variables('TotalAgents')",
+                    "ViolationCount": "@variables('ViolationCount')",
+                    "OverallStatus": "ViolationsFound"
+                  },
+                  "runAfter": {},
+                  "description": "Compose scan summary object for the adaptive card and audit record."
+                },
+                "Compose_Adaptive_Card": {
+                  "type": "Compose",
+                  "inputs": {
+                    "type": "AdaptiveCard",
+                    "version": "1.4",
+                    "body": [
+                      {
+                        "type": "Container",
+                        "id": "headerSection",
+                        "style": "attention",
+                        "bleed": true,
+                        "items": [
+                          {
+                            "type": "ColumnSet",
+                            "columns": [
+                              {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                  {
+                                    "type": "TextBlock",
+                                    "text": "[ALERT] Agent Sharing Violation — @{variables('ViolationCount')} found",
+                                    "weight": "Bolder",
+                                    "size": "Large",
+                                    "wrap": true
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "text": "Unrestricted Agent Sharing Detector · @{utcNow()}",
+                                    "spacing": "None",
+                                    "isSubtle": true,
+                                    "wrap": true
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Column",
+                                "width": "auto",
+                                "verticalContentAlignment": "Center",
+                                "items": [
+                                  {
+                                    "type": "TextBlock",
+                                    "text": "🔴 CRITICAL",
+                                    "weight": "Bolder",
+                                    "size": "ExtraLarge",
+                                    "color": "Attention",
+                                    "horizontalAlignment": "Right"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Container",
+                        "id": "scanSummarySection",
+                        "items": [
+                          {
+                            "type": "TextBlock",
+                            "text": "Scan Summary",
+                            "weight": "Bolder",
+                            "size": "Medium",
+                            "spacing": "Medium",
+                            "separator": true
+                          },
+                          {
+                            "type": "ColumnSet",
+                            "columns": [
+                              {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                  {
+                                    "type": "FactSet",
+                                    "facts": [
+                                      {
+                                        "title": "Status",
+                                        "value": "Violations Found"
+                                      },
+                                      {
+                                        "title": "Scanned",
+                                        "value": "@{utcNow()}"
+                                      },
+                                      {
+                                        "title": "Scan Run ID",
+                                        "value": "@{variables('ScanRunId')}"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                  {
+                                    "type": "FactSet",
+                                    "facts": [
+                                      {
+                                        "title": "Total Agents",
+                                        "value": "@{variables('TotalAgents')}"
+                                      },
+                                      {
+                                        "title": "Violations",
+                                        "value": "@{variables('ViolationCount')}"
+                                      },
+                                      {
+                                        "title": "Environments",
+                                        "value": "@{length(body('List_Environments')?['value'])}"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Sharing Violations (@{variables('ViolationCount')})",
+                        "weight": "Bolder",
+                        "size": "Medium",
+                        "color": "Attention",
+                        "spacing": "Medium",
+                        "separator": true
+                      },
+                      {
+                        "type": "Container",
+                        "id": "violationsSection",
+                        "items": "@variables('ViolationCards')"
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "type": "Action.OpenUrl",
+                        "title": "View in PPAC",
+                        "url": "https://admin.powerplatform.microsoft.com/"
+                      },
+                      {
+                        "type": "Action.OpenUrl",
+                        "title": "Run Audit Script",
+                        "url": "https://your-org.github.io/FSI-AgentGov/playbooks/advanced-implementations/uasd-deployment-guide/"
+                      },
+                      {
+                        "type": "Action.OpenUrl",
+                        "title": "View Documentation",
+                        "url": "https://your-org.github.io/FSI-AgentGov/controls/pillar-2-management/2.5-agent-sharing-and-distribution/"
+                      }
+                    ],
+                    "msteams": {
+                      "width": "Full"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_Scan_Summary": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Compose the adaptive card with scan summary and violation details for Teams alert."
+                },
+                "Post_Teams_Alert": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "poster": "Flow bot",
+                      "location": "Channel",
+                      "body/recipient/groupId": "@variables('TeamsGroupId')",
+                      "body/recipient/channelId": "@variables('TeamsChannelId')",
+                      "body/messageBody": "@{string(outputs('Compose_Adaptive_Card'))}"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "connectionName": "shared_teams",
+                      "operationId": "PostCardToConversation"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_Adaptive_Card": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Post sharing violation adaptive card alert to the designated Teams channel."
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Apply_to_Each_Environment": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Route Teams alert only when violations were detected during the scan."
+            }
+          },
+          "runAfter": {
+            "Initialize_ViolationCount": [
+              "Succeeded"
+            ]
+          },
+          "description": "Main execution scope: enumerate environments and agents, evaluate 5 violation rules, and route alerts."
+        },
+        "Scope_Catch": {
+          "type": "Scope",
+          "actions": {
+            "Compose_Error_Card": {
+              "type": "Compose",
+              "inputs": {
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                  {
+                    "type": "Container",
+                    "style": "attention",
+                    "bleed": true,
+                    "items": [
+                      {
+                        "type": "TextBlock",
+                        "text": "[ERROR] UASD Detector — Flow Failure",
+                        "weight": "Bolder",
+                        "size": "Large",
+                        "wrap": true
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "The Unrestricted Agent Sharing Detector flow encountered an unexpected error during execution.",
+                        "wrap": true,
+                        "spacing": "Small"
+                      },
+                      {
+                        "type": "FactSet",
+                        "facts": [
+                          {
+                            "title": "Flow Run ID",
+                            "value": "@{workflow()['run']['name']}"
+                          },
+                          {
+                            "title": "Timestamp",
+                            "value": "@{utcNow()}"
+                          },
+                          {
+                            "title": "Action",
+                            "value": "Review flow run history in Power Automate portal"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "actions": [
+                  {
+                    "type": "Action.OpenUrl",
+                    "title": "View Flow Run History",
+                    "url": "https://make.powerautomate.com"
+                  }
+                ],
+                "msteams": {
+                  "width": "Full"
+                }
+              },
+              "runAfter": {},
+              "description": "Compose error notification adaptive card for unexpected flow failures."
+            },
+            "Post_Error_Notification": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "poster": "Flow bot",
+                  "location": "Channel",
+                  "body/recipient/groupId": "@variables('TeamsGroupId')",
+                  "body/recipient/channelId": "@variables('TeamsChannelId')",
+                  "body/messageBody": "@{string(outputs('Compose_Error_Card'))}"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "connectionName": "shared_teams",
+                  "operationId": "PostCardToConversation"
+                }
+              },
+              "runAfter": {
+                "Compose_Error_Card": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Post error notification to the designated Teams channel when the flow fails."
+            }
+          },
+          "runAfter": {
+            "Scope_Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "description": "Error handling scope: catches unexpected failures in Scope_Try and sends CRITICAL notification to Teams."
+        }
+      }
+    },
+    "displayName": "fsi-UASD-Detector-ScanAgents",
+    "description": "Scans Copilot Studio agents for unsafe sharing configurations and records violations in Dataverse. Implements 5 violation rules: ORG_WIDE_SHARING, PUBLIC_INTERNET_LINK, UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS. Supports compliance with FINRA 4511/3110, SEC 17a-3/4, SOX 302/404. Part of the FSI Agent Governance — Unrestricted Agent Sharing Detector solution.",
+    "state": "Started"
+  },
+  "schemaVersion": "1.0.0.0"
+}
