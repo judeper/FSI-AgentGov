@@ -2,13 +2,13 @@
 
 **Last Updated:** 2026-02-12
 **Milestone:** v17 — Agent Security Configuration Governance
-**Status:** PLANNED — 4 phases, 8 plans, 12 requirements mapped
+**Status:** IN PROGRESS — 4 phases, 8 plans, 12 requirements mapped
 
 ## Session Ownership
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-12 16:00
-**Handoff Summary:** Phase 1 COMPLETE — 2/2 plans executed (01-01 core script + 01-02 drift detection). Test-AgentAuthConfiguration.ps1 created (1020 lines) with 6 SSPM checks, drift detection, SHA-256 evidence hashing. All 3 AUTH requirements delivered. Ready for Phase 2.
+**Handoff Summary:** Phase 2 EXECUTED — restrict-agent-publishing.ps1 created (6 criteria, evidence hashing), hardening baseline items 1-6 integrated, README updated. Ready for `/gsd-execute-phase 3`.
 
 ## Project Reference
 
@@ -34,20 +34,20 @@ v13: Agent Usage & Performance Workbook — DEFERRED (superseded by v15)
 v14: SSPM Control Coverage Remediation — COMPLETE
 v15: Agent Usage & Performance Workbook — COMPLETE
 v16: Unrestricted Agent Sharing Detector — COMPLETE
-v17: Agent Security Configuration Governance — PLANNING
+v17: Agent Security Configuration Governance — IN PROGRESS
 ```
 
 ## Current Position
 
-**Phase:** 1 of 4 (Phase 1 complete)
-**Plan:** 2/2 plans complete
-**Status:** Phase 1 executed — Test-AgentAuthConfiguration.ps1 created with 6 SSPM checks, drift detection, evidence hashing
-**Last activity:** 2026-02-12 — Phase 1 executed (2 plans, 2 waves, 2 commits)
+**Phase:** 2 of 4 (Phases 1-2 complete)
+**Plan:** 4/8 plans complete
+**Status:** Phase 2 executed — restrict-agent-publishing.ps1 with 6 criteria, evidence hashing, hardening baseline integration
+**Last activity:** 2026-02-12 — Phase 2 executed (2 plans, 2 waves, 4 commits)
 
 **Progress:**
 ```
 v1-v16: [=========================] COMPLETE (see MILESTONES.md)
-v17:    [======>                  ] IN PROGRESS — 3/12 requirements (Phase 1 complete)
+v17:    [============>            ] IN PROGRESS — 6/12 requirements (Phases 1-2 complete)
 ```
 
 ## Performance Metrics
@@ -58,9 +58,9 @@ v17:    [======>                  ] IN PROGRESS — 3/12 requirements (Phase 1 c
 - Requirements: 364 delivered
 
 **v17 Target:**
-- Phases: 1/4 complete
-- Plans: 2/8 complete
-- Requirements: 3/12 delivered (AUTH-01, AUTH-02, AUTH-03 complete; PUB-01, PUB-02, PUB-03, ZAV-01, ZAV-02, ZAV-03, FRM-01, FRM-02, FRM-03 remaining)
+- Phases: 2/4 complete
+- Plans: 4/8 complete
+- Requirements: 6/12 delivered (AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, PUB-03 complete; ZAV-01, ZAV-02, ZAV-03, FRM-01, FRM-02, FRM-03 remaining)
 
 ## Accumulated Context
 
