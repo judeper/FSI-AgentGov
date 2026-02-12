@@ -38,6 +38,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.1.0 | Completed | PowerShell verification script and 32-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
 | [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
 | [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector) | v1.0.0 | Completed | Continuous detection of overly permissive agent sharing configurations with automated remediation and exception management | 1.1, 3.8 |
+| [Agent Security Configuration Governance](#agent-security-configuration-governance) | v1.0.0 | Completed | Per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance scripts | 1.1, 3.7, 3.8 |
 
 ### Status Legend
 
@@ -631,6 +632,48 @@ Continuous detection of overly permissive Copilot Studio agent sharing configura
 
 ---
 
+### Agent Security Configuration Governance
+
+!!! success "Production Ready"
+    v1.0.0 includes 3 PowerShell governance scripts validating per-agent authentication enforcement (6 SSPM items), publishing restriction criteria (6 checks), and zone-based agent access settings (4 check groups) — with drift detection, SHA-256 evidence export, and adaptive card alerting.
+
+Automates agent-level security configuration governance across three critical areas: authentication enforcement per SSPM security posture items, publishing restriction validation, and M365 Admin Center zone-based access settings verification. Converts manual attestation checks to automated validation with structured evidence export.
+
+!!! info "Framework-Integrated Tool"
+    These governance scripts are integrated directly into the FSI-AgentGov framework repository under `scripts/governance/`. They do not require the companion FSI-AgentGov-Solutions repository.
+
+**Components:**
+
+- `Test-AgentAuthConfiguration.ps1` — Per-agent authentication configuration validation against 6 SSPM items with zone-based logic and drift detection
+- `restrict-agent-publishing.ps1` — Publishing restriction governance validating 6 criteria (Environment Maker role, security groups, sharing, DLP, managed environment limits, approval workflow)
+- `Test-ZoneAgentAccess.ps1` — M365 Admin Center agent access settings verification per zone policy with admin exclusion group and deployment group validation
+- `src/adaptive-card-zone-access-alert.json` — Teams adaptive card template for zone access policy drift notifications
+- SHA-256 integrity-hashed evidence export across all scripts
+- JSON output structured for Dataverse ingestion
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — Agent Security Configuration Evidence)
+- FINRA 3110 (Supervision — Agent Access Controls)
+- SEC 17a-3/4 (Recordkeeping — Security Configuration Audit Trail)
+- SOX 302/404 (Internal Controls — Authentication and Access Governance)
+- GLBA 501(b) (Safeguards — Agent Security Posture Verification)
+- OCC 2011-12 (Model Risk Management — Configuration Governance)
+
+**Related Controls:**
+
+- [1.1 - Restrict Agent Publishing by Authorization](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md)
+- [3.7 - PPAC Security Posture Assessment](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md)
+- [3.8 - Copilot Hub and Governance Dashboard](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
+
+**Script Locations:**
+
+- `scripts/governance/Test-AgentAuthConfiguration.ps1`
+- `scripts/governance/restrict-agent-publishing.ps1`
+- `scripts/governance/Test-ZoneAgentAccess.ps1`
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -669,6 +712,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Configuration Hardening Baseline | v1.0.0 | February 2026 |
 | Agent Usage & Performance Workbook | v1.0.0 | February 2026 |
 | Unrestricted Agent Sharing Detector | v1.0.0 | February 2026 |
+| Agent Security Configuration Governance | v1.0.0 | February 2026 |
 
 ---
 
