@@ -140,7 +140,7 @@ Copilot Studio agents configured with Application Insights log `ContentFiltered`
 |------------|-------------|------------------------|
 | **FINRA 3110** | AI supervision evidence | Daily evidence of controls actively blocking inappropriate content |
 | **FINRA 4511** | Records retention | Deny events exported to compliant storage with zone-based retention |
-| **FINRA 25-07** | AI governance | Automated deny event monitoring supports AI governance oversight |
+| **FINRA 25-07** | Communications recordkeeping | Automated deny event monitoring supports recordkeeping oversight |
 | **SEC 17a-3/4** | Supervision evidence | Shows AI agent behavior is monitored and controlled |
 | **SOX 302/404** | Internal controls | Correlation engine provides evidence of functioning internal controls |
 | **GLBA 501(b)** | Safeguards evidence | DLP blocking demonstrates NPI protection |
@@ -194,12 +194,14 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 
 The v2.0.0 solution uses a 4-table Dataverse schema for persistent storage of deny events and correlation results.
 
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| **fsi_DenyEvent** | Raw deny events from all 3 sources | EventId, EventType, Timestamp, UserId, AgentId, Severity, Zone |
-| **fsi_DenyCorrelation** | Correlated event groups with trend data | CorrelationId, PrimaryEventId, CorrelationType, TrendDirection, AnomalyFlag |
-| **fsi_DenyAlert** | Generated alerts with routing metadata | AlertId, Severity, AlertType, RoutedTo, AcknowledgedAt |
-| **fsi_DenyValidationHistory** | Evidence export audit trail | ExportId, SHA256Hash, ExportTimestamp, RecordCount, RegulatoryMapping |
+| Table | Purpose | Key Fields (conceptual) |
+|-------|---------|------------------------|
+| **fsi_DenyEvent** | Raw deny events from all 3 sources | fsi_deny_event_id, fsi_source_type, fsi_event_timestamp, fsi_agent_id, fsi_filter_severity, fsi_zone |
+| **fsi_DenyCorrelation** | Correlated event groups with trend data | fsi_deny_correlation_id, fsi_correlation_pattern, fsi_event_count, fsi_first_seen, fsi_last_seen |
+| **fsi_DenyAlert** | Generated alerts with routing metadata | fsi_deny_alert_id, fsi_alert_severity, fsi_alert_type, fsi_acknowledged |
+| **fsi_DenyValidationHistory** | Validation and extraction audit trail | fsi_deny_validation_id, fsi_run_timestamp, fsi_records_processed, fsi_export_status |
+
+> **Note:** Key fields shown are primary columns. See [SCHEMA.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/SCHEMA.md) for canonical column definitions and data types.
 
 **Relationships:** fsi_DenyEvent → fsi_DenyCorrelation (many-to-one), fsi_DenyCorrelation → fsi_DenyAlert (one-to-many), evidence exports reference fsi_DenyCorrelation records.
 

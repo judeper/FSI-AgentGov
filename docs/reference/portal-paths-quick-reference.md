@@ -33,7 +33,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 
 ## Microsoft Purview Portal
 
-**URL:** https://compliance.microsoft.com
+**URL:** https://purview.microsoft.com
 
 | Task | Navigation Path |
 |------|----------------|
@@ -46,8 +46,8 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | **Audit** | **Solutions** > **Audit** |
 | Search Audit Log | **Solutions** > **Audit** > **Audit Standard** or **Audit Premium** |
 | Audit Retention Policies | **Solutions** > **Audit** > **Audit retention policies** |
-| **DSPM for AI** | **Solutions** > **DSPM for AI** |
-| AI Activity Dashboard | **Solutions** > **DSPM for AI** > **Overview** |
+| **DSPM for AI (classic)** | **Solutions** > **DSPM for AI (classic)** |
+| AI Activity Dashboard | **Solutions** > **DSPM for AI (classic)** > **Overview** |
 | **Communication Compliance** | **Solutions** > **Communication compliance** |
 | Create CC Policy | **Solutions** > **Communication compliance** > **Policies** > **Create policy** |
 | **Insider Risk Management** | **Solutions** > **Insider risk management** |
@@ -88,6 +88,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | App Registrations | **Applications** > **App registrations** |
 | **Sign-in Logs** | **Monitoring** > **Sign-in logs** |
 | **Audit Logs** | **Monitoring** > **Audit logs** |
+| **Agent Identities** | **Applications** > **Agent identities** (Preview) |
 
 ---
 
@@ -106,6 +107,14 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | **Billing** | **Billing** > **Your products** |
 | Licenses | **Billing** > **Licenses** |
 | **Reports** | **Reports** > **Usage** |
+| **Agents > Settings** | **Agents** > **Settings** |
+| **Agents > Agent Registry** | **Agents** > **Agent registry** |
+| **Copilot > Agents** | **Copilot** > **Agents & connectors** > **Agents** |
+| Approve/Publish Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Publish** |
+| Activate Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Activate** |
+| Deploy Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Deploy** |
+| Pin Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Pin** |
+| Block/Unblock Agent | **Copilot** > **Agents & connectors** > **Agents** > Select agent > **Block** / **Unblock** |
 | **Settings** | **Settings** > **Org settings** |
 | Security & Privacy | **Settings** > **Org settings** > **Security & privacy** |
 | **Microsoft Entra admin center** | **Admin centers** > **Identity** (opens Entra) |
@@ -171,11 +180,11 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 2. **Manage** > **Environments** > [Environment] > **...** > **Enable Managed Environments**
 
 ### Create DLP Policy (Control 1.5)
-1. https://compliance.microsoft.com
+1. https://purview.microsoft.com
 2. **Solutions** > **Data loss prevention** > **Policies** > **Create policy**
 
 ### Configure Audit Logging (Control 1.7)
-1. https://compliance.microsoft.com
+1. https://purview.microsoft.com
 2. **Solutions** > **Audit** > **Audit Standard** or **Audit Premium**
 
 ### Set Up Conditional Access (Control 1.11)
@@ -187,18 +196,18 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 2. **Manage** > **Environment Groups** > [Group] > **Rules** > **Advanced connector policies**
 
 ### Create Sensitivity Labels (Control 1.5)
-1. https://compliance.microsoft.com
+1. https://purview.microsoft.com
 2. **Solutions** > **Information protection** > **Labels** > **Create a label**
 
 ### Enable DSPM for AI (Control 1.6)
-1. https://compliance.microsoft.com
-2. **Solutions** > **DSPM for AI** > **Overview**
+1. https://purview.microsoft.com
+2. **Solutions** > **DSPM for AI (classic)** > **Overview**
 
 ### Configure Communication Compliance (Control 1.10)
-1. https://compliance.microsoft.com
+1. https://purview.microsoft.com
 2. **Solutions** > **Communication compliance** > **Policies** > **Create policy**
 
 ---
 
-*Last Updated: January 2026*
-*Note: Microsoft admin portal UI changes frequently. Paths verified as of January 2026.*
+*Last Updated: February 2026*
+*Note: Microsoft admin portal UI changes frequently. Paths verified as of February 2026.*

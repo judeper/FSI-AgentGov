@@ -24,7 +24,7 @@
 
 ### Step 2: Create IRM-Enabled Sensitivity Labels
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Information protection** > **Labels**
 3. Create new label:
    - Name: `FSI-Confidential-IRM`

@@ -29,6 +29,8 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Entra Global Reader** | Read-only tenant visibility | Global Reader |
 | **Entra Security Reader** | Read-only security visibility | Security Reader |
 | **AI Administrator** | Manage M365 Copilot settings, AI services, connector delegation, Copilot feature access controls, and agent governance settings | Microsoft 365 AI Administrator |
+| **Entra Agent ID Admin** | Manage agent identity registrations and lifecycle | Agent ID Administrator |
+| **Entra Agent ID Developer** | Register and configure agent identities | Agent ID Developer |
 
 !!! note "Agent 365 Role Limitations (February 2026)"
     Agent 365 administrative access is currently limited to Entra Global Admin and AI Administrator roles only. No fine-grained or read-only administrative roles are planned for GA. Microsoft is collecting feedback on role granularity requirements. Organizations should plan Agent 365 governance workflows around these two roles and use Entra Privileged Identity Management (PIM) for just-in-time elevation where possible.
@@ -51,6 +53,8 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Purview Communication Compliance Roles** | Communication compliance workflows | Communication Compliance Admin/Analyst/Investigator/Viewer |
 | **Purview Insider Risk Roles** | Insider risk program workflows | Insider Risk Management Admin/Analyst/Investigator/Auditor |
 | **Purview eDiscovery Roles** | eDiscovery workflows | eDiscovery Administrator/Manager/Case Member |
+| **Purview Data Security AI Viewer** | View-only access to DSPM for AI dashboards and reports | Data Security AI Viewer |
+| **Purview Data Security AI Content Viewer** | View sensitive content flagged by DSPM for AI policies | Data Security AI Content Viewer |
 
 ### Power Platform (PPAC / Copilot Studio)
 

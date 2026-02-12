@@ -16,7 +16,7 @@
 
 ### Step 1: Define Organization Segments
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Information barriers** > **Segments**
 3. Create segments for each business unit:
 

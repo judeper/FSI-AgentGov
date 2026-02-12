@@ -39,7 +39,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Encryption** | https://learn.microsoft.com/en-us/power-platform/admin/manage-encryption-key | Jan 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/power-platform/admin/analytics-common-data-service | Jan 2026 |
 | Export Analytics to Azure | https://learn.microsoft.com/en-us/power-platform/admin/self-service-analytics | Jan 2026 |
-| **Agent Inventory** | https://learn.microsoft.com/en-us/power-platform/admin/tenant-wide-agent-inventory | Jan 2026 |
+| **Agent Inventory (Copilot Hub)** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Feb 2026 |
 | Power Platform Inventory | https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory | Jan 2026 |
 | Monitor Copilot Studio | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio | Jan 2026 |
 | **Monitoring Hub** | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitoring-overview | Jan 2026 |
@@ -420,7 +420,7 @@ For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see
 | Portal | URL | Purpose |
 |--------|-----|---------|
 | Power Platform Admin Center | https://admin.powerplatform.microsoft.com | Environment management, DLP, connectors |
-| Microsoft Purview Portal | https://compliance.microsoft.com | DLP, audit, retention, insider risk |
+| Microsoft Purview Portal | https://purview.microsoft.com | DLP, audit, retention, insider risk |
 | Microsoft Entra Admin Center | https://entra.microsoft.com | Conditional access, MFA, roles |
 | Microsoft 365 Admin Center | https://admin.microsoft.com | Users, licenses, integrated apps |
 | SharePoint Admin Center | https://admin.microsoft.com/sharepoint | SharePoint governance |
@@ -460,6 +460,22 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 
 ---
 
+## New URLs Added (February 2026)
+
+| Topic | URL |
+|-------|-----|
+| Unified DSPM | https://learn.microsoft.com/en-us/purview/data-security-posture-management-learn-about |
+| New eDiscovery Experience | https://learn.microsoft.com/en-us/purview/edisc |
+| Purview Portal Home | https://learn.microsoft.com/en-us/purview/purview-portal |
+| SharePoint Agent Insights | https://learn.microsoft.com/en-us/sharepoint/insights-on-sharepoint-agents |
+| SharePoint Agent Access Insights | https://learn.microsoft.com/en-us/sharepoint/insights-on-agent-access |
+| SharePoint Catalog Management | https://learn.microsoft.com/en-us/sharepoint/catalog-management |
+| AI Subprocessor Changes | https://learn.microsoft.com/en-us/copilot/microsoft-365/connect-to-ai-subprocessor |
+| Defender for Cloud Apps AI Agent Protection | https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection |
+| Agent 365 Documentation | https://learn.microsoft.com/en-us/microsoft-agent-365/ |
+
+---
+
 *Last Updated: February 2026*
-*Total URLs Tracked: 186*
+*Total URLs Tracked: 195*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*

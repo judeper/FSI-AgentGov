@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.19 - eDiscovery for Agent Interactions
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 
 ## Common Issues
 
@@ -37,13 +37,13 @@
 
 ### Issue: Cannot Create eDiscovery Case
 
-**Symptoms:** Error when attempting to create case
+**Symptoms:** Error when attempting to create case in the unified eDiscovery experience at purview.microsoft.com
 
 **Resolution:**
 
 - Verify eDiscovery Manager role assignment
-- Check for Conditional Access blocking compliance portals
-- Verify E5 or appropriate license
+- Check for Conditional Access blocking the Purview portal
+- Verify E5 or appropriate license for the unified eDiscovery experience
 - Wait 24 hours after role assignment
 
 ---
@@ -63,6 +63,7 @@
 | Search limit 1000 items preview | Large searches need export | Use export for full results |
 | Export can take hours | Delays for large datasets | Plan ahead |
 | Some agent content locations | Not all Dataverse content searchable | Document limitations |
+| Copilot activity condition scope | May not cover all AI agent types | Combine with KeyQL queries for broader coverage |
 
 ---
 

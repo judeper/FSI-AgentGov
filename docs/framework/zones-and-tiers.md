@@ -2,6 +2,9 @@
 
 Complete guide to the three-zone governance model for AI agent classification.
 
+!!! note "Terminology: Zones vs Tiers"
+    In this framework, **Zone** refers to the agent governance classification (Zone 1/2/3 = risk level). **Tier** is a separate concept used for environment classification (Development/Test/Production). These are distinct dimensions — a Zone 3 agent may exist across multiple environment tiers during its lifecycle.
+
 ---
 
 ## Three-Zone Governance Model

@@ -3,16 +3,17 @@
 **Last Updated:** February 2026
 
 !!! warning "Preview Features - Verify Before Implementing"
-    This document covers both generally available and preview features as of February 2026. Agent 365 Unified Control Plane and Agent 365 Observability are in preview through the Microsoft 365 Frontier program. All other features (Entra Agent ID, Conditional Access for agents, M365 Admin Center Agent Settings and Registry) are generally available. Verify current GA status at Microsoft Learn before implementing preview capabilities in production.
+    This document covers both generally available and preview features as of February 2026. Agent 365 Unified Control Plane and Agent 365 Observability are in Frontier Preview. **Entra Agent ID** is in **Public Preview** (since November 2025). M365 Admin Center Agent Settings and Registry are generally available. **Conditional Access for agents** depends on Entra Agent ID and should be treated as preview until Entra Agent ID reaches GA. Verify current GA status at Microsoft Learn before implementing preview capabilities in production.
 
     **Known Limitations (February 2026):**
 
+    - **Entra Agent ID:** Currently in **Public Preview**; do not deploy agent identity workflows in production until GA is confirmed.
     - **Declarative agent deployment:** Export/import is required for org-wide deployment; direct publish is under consideration. Admins can block or delete declarative agents but cannot deploy them org-wide from the registry.
     - **Shadow AI discovery:** Planned for post-GA using Entra and Defender capabilities, including agents hosted on non-Microsoft cloud platforms.
     - **Licensing:** Feature-to-license mappings are not finalized; current preview access may not reflect final licensing requirements.
     - **Multi-tenant API:** Not committed; Agent 365 focuses on single-tenant governance only.
     - **Agent onboarding:** Known activation bugs are being addressed; fixes are rolling out.
-    - **Foundry agents:** Azure AI Foundry agents are expected to appear in the Agent 365 registry at GA.
+    - **Foundry agents:** Microsoft Foundry agents are expected to appear in the Agent 365 registry at GA.
 
 ---
 
@@ -32,7 +33,7 @@ Prior to Agent 365, financial services organizations faced fragmented governance
 
 - **Copilot Studio** agents managed in Power Platform Admin Center
 - **Agent Builder** agents managed in Microsoft 365 Admin Center
-- **Azure AI Foundry** agents managed in Azure Portal
+- **Microsoft Foundry** agents managed in Azure Portal
 - **SharePoint** agents managed in SharePoint Admin Center
 
 This fragmentation creates compliance gaps: separate audit trails requiring manual consolidation for regulatory examinations, inconsistent policy enforcement (DLP policies in Power Platform don't apply to Agent Builder agents), and no single source of truth for agent inventory. Agent 365's unified control plane addresses these challenges by consolidating governance functions while maintaining the flexibility of multiple agent development platforms.
@@ -64,7 +65,7 @@ An **Agentic User** is a distinct identity type in Microsoft Entra ID, purpose-b
 
 Agentic Users appear in Entra ID with the following attributes:
 
-- `userType`: `"AgenticUser"`
+- `userType`: `"AgenticUser"` (Entra directory attribute; in token claims, agent identity is indicated by the `idtyp` claim value `user`, not a separate type)
 - `accountEnabled`: `true` or `false` (for lifecycle management)
 - `sponsorId`: Reference to human sponsor's Entra ID
 - `agentMetadata`: Custom attributes for zone classification and governance
@@ -85,6 +86,14 @@ Entra Agent ID enforces human accountability through a three-role model that sep
 | **Owners** | Technical admin | Modify settings, credentials, re-enable agents | Developers, IT admins |
 | **Sponsors** | Business oversight | Lifecycle decisions, access requests, incident response, supervision | Business owners, team leads, managers |
 | **Managers** | Hierarchical view | Request access packages, view reporting agents | Organizational managers |
+
+!!! note "New Entra RBAC Roles for Agent Identity Management"
+    Microsoft has introduced two dedicated Entra RBAC roles for agent identity governance:
+
+    - **Agent ID Administrator** — Manages the full agent identity lifecycle, including permissions, credentials, and suspension/reactivation. Intended for IT admins responsible for agent identity operations.
+    - **Agent ID Developer** — Creates and manages agent identities within their assigned scope (e.g., specific environments or business units). Intended for developers building agents who need identity provisioning without full administrative rights.
+
+    These roles complement the sponsorship model by providing fine-grained RBAC control over agent identity operations separate from business oversight.
 
 **Separation of Concerns:**
 
@@ -174,6 +183,20 @@ When a sponsor leaves the organization or changes roles:
 3. Add condition: User is sponsor of Agentic User(s)
 4. Configure tasks: notification to backup sponsor → escalation to manager after 7 days → suspend agent after 14 days
 5. Enable workflow and monitor in Lifecycle Workflows dashboard
+
+#### Agent Registry Activation Workflow
+
+When an agent is registered via the Agent 365 Blueprint process, a Lifecycle Workflow triggers to activate the agent identity and establish governance tracking:
+
+| Step | Action | Automated? |
+|------|--------|------------|
+| 1 | Blueprint registration creates agent record | Yes |
+| 2 | Lifecycle Workflow assigns sponsor based on zone rules | Yes (Zone 1 self-sponsor) / Manual (Zone 2-3) |
+| 3 | Sponsor approval received | Manual |
+| 4 | Agent identity activated in Entra Agent ID | Yes (upon approval) |
+| 5 | Periodic review schedule established per zone | Yes |
+
+This workflow complements the Sponsor Departure Handling workflow by ensuring agents enter governance tracking at creation, not just when sponsors change.
 
 #### Sponsorship Best Practices
 
@@ -294,9 +317,9 @@ Agent 365 represents a strategic architectural shift from per-platform governanc
 
 | Platform | Admin Portal | Capabilities | Limitations |
 |----------|--------------|--------------|-------------|
-| **Copilot Studio** | Power Platform Admin Center | Environment-level DLP, connector policies, audit logs | No visibility into Agent Builder or Azure AI Foundry agents |
+| **Copilot Studio** | Power Platform Admin Center | Environment-level DLP, connector policies, audit logs | No visibility into Agent Builder or Microsoft Foundry agents |
 | **Agent Builder** | Microsoft 365 Admin Center | Agent inventory for M365 agents, publication controls | Siloed from Copilot Studio; limited cross-platform policy enforcement |
-| **Azure AI Foundry** | Azure Portal | Azure RBAC, resource management, Azure Monitor integration | Separate identity model from M365/Power Platform |
+| **Microsoft Foundry** | Azure Portal | Azure RBAC, resource management, Azure Monitor integration | Separate identity model from M365/Power Platform |
 | **SharePoint Agents** | SharePoint Admin Center | Site-level permissions, content governance | No unified registry with other agent types |
 
 **Compliance Challenges:**
@@ -324,7 +347,7 @@ Agent 365's unified registry automatically aggregates agents from all platforms 
 
 **Registry Capabilities:**
 
-- **Automatic Discovery** - Agents registered across Copilot Studio, Agent Builder, Azure AI Foundry, SharePoint, and third-party platforms appear automatically
+- **Automatic Discovery** - Agents registered across Copilot Studio, Agent Builder, Microsoft Foundry, SharePoint, and third-party platforms appear automatically
 - **Rich Metadata** - Usage analytics, risk scores, compliance status, data sources, approval history, sponsor information
 - **Graph API Export** - Compliance reporting systems can query registry via Graph API for regulatory evidence
 - **Real-Time Sync** - Registry updates reflect changes in near real-time (within minutes of agent creation/modification)
@@ -358,9 +381,12 @@ Agent 365 Observability consolidates telemetry, activity logs, and performance m
 **Observability Capabilities:**
 
 - **Unified Telemetry** - All agent invocations logged with timestamp, identity, action, result, latency
-- **Cross-Platform Coverage** - Copilot Studio, Agent Builder, Azure AI Foundry, Agent 365 SDK agents all telemetry in single workspace
+- **Cross-Platform Coverage** - Copilot Studio, Agent Builder, Microsoft Foundry, Agent 365 SDK agents all telemetry in single workspace
 - **OpenTelemetry Standard** - Industry-standard instrumentation enables integration with third-party monitoring tools
 - **Pre-Built Dashboards** - Operational health, error diagnostics, usage analytics, compliance reporting
+
+!!! warning "Observability SDK Mandatory for Organizational Store"
+    Observability SDK integration is **mandatory** for all agents published to the organizational store. Agents without SDK instrumentation will not pass promotion gates for Zone 2 or Zone 3 deployment. This requirement supports SEC 17a-4 audit trail obligations and FINRA 3110 supervisory visibility.
 
 **Integration with FSI-AgentGov-Solutions:**
 
@@ -378,7 +404,7 @@ Agent 365 enables consistent governance policies across all agent types:
 
 **Unified DLP Enforcement:**
 
-- Purview DLP policies applied uniformly to Copilot Studio, Agent Builder, and Azure AI Foundry agents
+- Purview DLP policies applied uniformly to Copilot Studio, Agent Builder, and Microsoft Foundry agents
 - Single policy definition replicated across platforms automatically
 - Unified deny event reporting for compliance monitoring
 
@@ -401,7 +427,7 @@ graph TD
     subgraph "Agent Platforms"
         A[Copilot Studio]
         B[Agent Builder]
-        C[Azure AI Foundry]
+        C[Microsoft Foundry]
         D[SharePoint Agents]
         E[Third-Party Agents]
     end
@@ -606,8 +632,8 @@ The following status reflects findings from the February 2026 governance review 
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Entra Agent ID** | GA | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
-| **Conditional Access for Agents** | GA | Agent-specific risk signals and custom security attribute policies |
+| **Entra Agent ID** | Public Preview | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
+| **Conditional Access for Agents** | Public Preview | Depends on Entra Agent ID; agent-specific risk signals and custom security attribute policies |
 | **M365 Admin Center Agent Settings** | GA | Agent sharing controls, templates, user access policies |
 | **M365 Admin Center Agent Registry** | GA | Copilot Studio agents visible; Foundry agents expected at full GA; declarative agents appear but lack org-wide deployment capability |
 | **Agent 365 Unified Control Plane** | Preview (Frontier) | Centralized registry, security posture, cross-platform policies |
@@ -616,7 +642,7 @@ The following status reflects findings from the February 2026 governance review 
 **Key Findings:**
 
 - **Declarative agent deployment limitations:** Administrators can view and block declarative agents in the registry, but org-wide deployment requires export/import workflows. Direct publish from the registry is under consideration but not yet available.
-- **Agent registry visibility:** Copilot Studio agents are fully visible; Azure AI Foundry agents are expected to be included in the registry at GA. Declarative agents appear in the registry but with limited administrative actions compared to Copilot Studio agents.
+- **Agent registry visibility:** Copilot Studio agents are fully visible; Microsoft Foundry agents are expected to be included in the registry at GA. Declarative agents appear in the registry but with limited administrative actions compared to Copilot Studio agents.
 - **Shadow AI discovery roadmap:** Microsoft plans post-GA capabilities for discovering agents hosted on non-Microsoft cloud platforms (GCP, AWS) using Entra and Defender signals.
 - **Licensing caveats:** Feature-to-license mappings for Agent 365 are not finalized. Current preview access through the Frontier program may not reflect final licensing requirements. Organizations should not assume current preview entitlements will carry over to GA.
 - **Multi-tenant scope:** Agent 365 is focused on single-tenant governance. Multi-tenant API support is not committed for GA.
@@ -707,7 +733,7 @@ The following status reflects findings from the February 2026 governance review 
 3. **Register test agents** from multiple platforms in Agent 365 unified registry
    - Copilot Studio development environment agents
    - Agent Builder test agents
-   - Azure AI Foundry proof-of-concept agents
+   - Microsoft Foundry proof-of-concept agents
    - Validate automatic discovery and registry sync
 
 4. **Compare governance approaches** and document findings
@@ -863,7 +889,7 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 | Control | Current Approach | Agent 365 Approach |
 |---------|------------------|-------------------|
 | **[1.2 Agent Registry](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md)** | Custom SharePoint list + per-platform inventories (manual consolidation from PPAC, M365 Admin Center, Azure Portal, SharePoint Admin Center) | Agent 365 Unified Registry with automatic discovery, rich metadata (usage analytics, risk scores, compliance status), Graph API export for compliance reporting systems |
-| **[1.11 Conditional Access](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)** | Per-app policies; service principals for Copilot Studio, managed identities for Azure AI Foundry; inconsistent Conditional Access coverage | Entra Agent ID provides consistent identity model; Conditional Access policies apply uniformly across all agent types with agent-specific risk signals |
+| **[1.11 Conditional Access](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)** | Per-app policies; service principals for Copilot Studio, managed identities for Microsoft Foundry; inconsistent Conditional Access coverage | Entra Agent ID provides consistent identity model; Conditional Access policies apply uniformly across all agent types with agent-specific risk signals |
 | **[2.12 FINRA 3110 Supervision](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)** | Manual supervisor assignment documented in spreadsheets or SharePoint; no enforced separation of duties | Entra Agent ID sponsorship model enforces human accountability; sponsors cannot delete agents (separation of duties); lifecycle workflows automate supervisor attestation |
 | **[3.6 Orphaned Agent Detection](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)** | PowerShell scripts query multiple platforms; manual correlation to identify agents with departed owners | Agent 365 lifecycle governance automatically flags agents with inactive sponsors; Entra ID Lifecycle Workflows trigger reassignment or suspension |
 
@@ -873,7 +899,7 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 |---------|------------------|-------------------|
 | **[1.5 DLP and Sensitivity Labels](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)** | Per-platform DLP policies (PPAC for Copilot Studio, M365 for Agent Builder); inconsistent coverage | Cross-platform DLP enforcement via Purview integration with Agent 365; single policy definition applied uniformly |
 | **[1.7 Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)** | Separate logs per platform; manual consolidation for regulatory examinations | Unified activity logs in Application Insights via Agent 365 Observability; single export for eDiscovery |
-| **[1.8 Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)** | Per-platform threat detection (Defender for Cloud Apps for PPAC, Azure Defender for Azure AI Foundry) | Centralized security posture dashboard in Agent 365 with real-time policy violation visibility and integrated Defender threat detection |
+| **[1.8 Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)** | Per-platform threat detection (Defender for Cloud Apps for PPAC, Azure Defender for Microsoft Foundry) | Centralized security posture dashboard in Agent 365 with real-time policy violation visibility and integrated Defender threat detection |
 | **[2.1 Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md)** | Power Platform Managed Environments (PPAC); limited to Copilot Studio agents | Agent 365 lifecycle management with promotion gates and approval workflows across all agent types |
 | **[2.3 Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md)** | Per-platform approval workflows; manual tracking of agent promotions | Agent 365 promotion gates enforce consistent approval workflows across agent types; automated change tracking |
 | **[3.1 Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)** | Manual inventory consolidation from multiple platforms; reconciliation required | Agent 365 unified registry eliminates manual consolidation; single source of truth with real-time sync |
@@ -998,19 +1024,6 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 ### Generally Available Features
 
-**Entra Agent ID (GA):**
-
-- [Microsoft Entra Agent ID Overview](https://learn.microsoft.com/en-us/entra/agent-id/)
-- [Microsoft Entra Agent Identities for AI Agents](https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents)
-- [Administrative Relationships in Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-owners-sponsors-managers)
-- [Governing Agent Identities](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
-- [Agent Sponsor Tasks in Lifecycle Workflows](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks)
-
-**Conditional Access for Agents (GA):**
-
-- [Conditional Access for Agent Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id)
-- [Policy: Block High-Risk Agent Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-agent-block-high-risk)
-
 **M365 Admin Center Agent Settings (GA):**
 
 - [Agent Settings in Microsoft 365 Admin Center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings)
@@ -1018,6 +1031,21 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 - [Agent 365 Overview](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview)
 - [Manage Copilot Agents and Integrated Apps](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps)
 - [Share and Manage Agents in Agent Builder](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/agent-builder-share-manage-agents)
+
+### Public Preview Features
+
+**Entra Agent ID (Public Preview):**
+
+- [Microsoft Entra Agent ID Overview](https://learn.microsoft.com/en-us/entra/agent-id/)
+- [Microsoft Entra Agent Identities for AI Agents](https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents)
+- [Administrative Relationships in Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-owners-sponsors-managers)
+- [Governing Agent Identities](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
+- [Agent Sponsor Tasks in Lifecycle Workflows](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks)
+
+**Conditional Access for Agents (Public Preview):**
+
+- [Conditional Access for Agent Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id)
+- [Policy: Block High-Risk Agent Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-agent-block-high-risk)
 
 ### Preview Features (Frontier Program)
 

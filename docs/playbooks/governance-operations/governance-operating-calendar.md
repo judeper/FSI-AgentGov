@@ -281,7 +281,7 @@ AI Governance Lead: _________________ Date: _________
 
 ## Comprehensive Reviews
 - [ ] Full control effectiveness assessed
-  - Controls tested: 61
+  - Controls tested: 62
   - Effective: ____
   - Partially effective: ____
   - Not effective: ____

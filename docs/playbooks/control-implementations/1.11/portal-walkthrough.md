@@ -19,7 +19,7 @@
 **Portal Path:** Microsoft Entra admin center > Conditional Access
 
 1. Open [Microsoft Entra admin center](https://entra.microsoft.com)
-2. Navigate to **Entra ID** > **Conditional Access**
+2. Navigate to **Protection** > **Conditional Access**
 3. Review the Overview dashboard
 
 ### Dashboard Review
@@ -35,7 +35,7 @@
 
 ## Step 2: Configure Named Locations
 
-**Portal Path:** Conditional Access > Manage > Named locations
+**Portal Path:** Protection > Conditional Access > Named locations
 
 1. Click **+ New location**
 2. Configure corporate office locations:
@@ -48,7 +48,7 @@
 
 ## Step 3: Configure Authentication Methods
 
-**Portal Path:** Entra ID > Authentication methods > Policies
+**Portal Path:** Protection > Authentication methods > Policies
 
 ### FSI Recommended Settings
 
@@ -68,7 +68,7 @@
 
 ## Step 4: Configure Authentication Strengths
 
-**Portal Path:** Conditional Access > Manage > Authentication strengths
+**Portal Path:** Protection > Conditional Access > Authentication strengths
 
 1. Click **+ New authentication strength**
 2. Create FSI-specific strength:
@@ -80,7 +80,7 @@
 
 ## Step 5: Create Conditional Access Policies
 
-**Portal Path:** Conditional Access > Policies > + New policy
+**Portal Path:** Protection > Conditional Access > Policies > + New policy
 
 ### Policy 1: Baseline MFA for All Users
 
@@ -119,7 +119,7 @@
 
 ## Step 6: Validate Break-Glass Exclusions
 
-**Portal Path:** Conditional Access > Policies > What if
+**Portal Path:** Protection > Conditional Access > Policies > What if
 
 1. Navigate to **What if**
 2. Select break-glass account
@@ -131,7 +131,7 @@
 
 ## Step 7: Configure Agent ID (Preview)
 
-**Portal Path:** Entra ID > Agent ID (Preview)
+**Portal Path:** Agent ID (Preview)
 
 ### Review Agent Overview
 

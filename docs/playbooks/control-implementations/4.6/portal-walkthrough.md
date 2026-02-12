@@ -36,12 +36,14 @@ Before starting, ensure you have:
 
 1. Navigate to [SharePoint Admin Center](https://admin.sharepoint.com)
 2. Go to **Sites** > **Active sites**
-3. Select site to exclude
-4. Click **Settings** (gear icon)
-5. Under **Microsoft 365 Copilot**, configure access:
-   - **Standard:** Content indexed and available to Copilot
-   - **Restricted:** Content not included in Copilot results
-6. Click **Save**
+3. Select the site to restrict
+4. Click the **Settings** tab
+5. Under **Microsoft 365 Copilot**, locate **Restrict content from Microsoft 365 Copilot**
+6. Toggle the setting to **On** to exclude the site from Copilot results
+7. Click **Save**
+
+!!! note "Toggle UI"
+    The Restricted Content Discovery setting uses an **On/Off toggle**, not a dropdown. When toggled **On**, the site's content is excluded from Microsoft 365 Copilot (Business Chat) results. When **Off** (default), content is available to Copilot based on user permissions.
 
 !!! warning "Reindexing After Scope Changes"
     Changes to Copilot grounding scope (adding or removing sites, libraries)
@@ -193,4 +195,4 @@ When approaching the 100-site limit:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.2*

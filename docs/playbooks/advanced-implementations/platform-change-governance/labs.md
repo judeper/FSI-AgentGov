@@ -26,7 +26,7 @@ These hands-on labs guide you through building the Platform Change Governance so
 ### Prerequisites
 
 - Power Platform environment (Developer or Sandbox)
-- Azure AD tenant with Entra Global Admin or Entra App Admin role
+- Microsoft Entra ID tenant with Entra Global Admin or Entra App Admin role
 - Microsoft 365 E3/E5 licenses
 
 ---
@@ -36,7 +36,7 @@ These hands-on labs guide you through building the Platform Change Governance so
 **Step 1.1:** Navigate to Azure Portal
 
 1. Go to [Azure Portal](https://portal.azure.com)
-2. Navigate to **Azure Active Directory** → **App registrations**
+2. Navigate to **Microsoft Entra ID** → **App registrations**
 3. Click **New registration**
 
 **Step 1.2:** Configure App Registration
@@ -204,18 +204,23 @@ Headers:
 **Step 3.6:** Add Dataverse Upsert (inside Apply to Each)
 
 1. Inside the loop, click **Add an action**
-2. Search for **Dataverse** → **Add a new row**
+2. Search for **Dataverse** → **Update or insert a record**
 3. Configure:
    - Table name: Message Center Posts
-   - mc_messagecenterid: `@items('Apply_to_each')?['id']`
+   - Alternate Key: mc_messagecenterid = `@items('Apply_to_each')?['id']`
    - mc_title: `@items('Apply_to_each')?['title']`
    - mc_category: (map to choice value)
    - mc_severity: (map to choice value)
    - mc_services: `@json(items('Apply_to_each')?['services'])`
    - mc_body: `@items('Apply_to_each')?['body']?['content']`
    - mc_startdatetime: `@items('Apply_to_each')?['startDateTime']`
-   - mc_state: New
    - mc_lastmodifieddatetime: `@items('Apply_to_each')?['lastModifiedDateTime']`
+
+!!! warning "Do not set mc_state on upsert"
+    Setting `mc_state: New` on every upsert would reset records that have progressed through the triage workflow (Triage → Assess → Decide) back to New. Instead, configure a Dataverse business rule to default `mc_state` to **New** only when a record is created. This preserves workflow state for existing records on subsequent ingestion runs.
+
+!!! info "Pagination (production)"
+    This lab uses `$top=10` for simplicity. In production, implement pagination by checking for `@odata.nextLink` in the Graph API response. Wrap the HTTP call and Apply to Each in a **Do Until** loop that exits when no `nextLink` is returned.
 
 **Step 3.7:** Save and Test
 
@@ -586,7 +591,7 @@ After completing labs, consider:
 1. **Keep for reference:** Leave solution for future testing
 2. **Delete test data:** Remove test MessageCenterPost records
 3. **Disable flows:** Turn off scheduled flows to prevent unnecessary API calls
-4. **Delete app registration:** Remove Azure AD app if not needed
+4. **Delete app registration:** Remove Microsoft Entra ID app if not needed
 
 ---
 

@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 1.17 - Endpoint Data Loss Prevention
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Modules Required:** ExchangeOnlineManagement (for compliance cmdlets)
 
 ## Prerequisites
@@ -184,6 +184,21 @@ Write-Host "`n[Check 3] Device Onboarding" -ForegroundColor Cyan
 Write-Host "[INFO] Verify devices in Microsoft Defender portal"
 Write-Host "[INFO] Check: Assets > Devices for onboarding status"
 
+# Check 4: Browser-based DLP (Edge for Business)
+Write-Host "`n[Check 4] Browser-Based DLP (Edge for Business)" -ForegroundColor Cyan
+$edgePolicies = $policies | Where-Object { $_.Workload -match "EndpointDevices" }
+if ($edgePolicies) {
+    Write-Host "[INFO] Verify Edge for Business DLP location is enabled in Purview portal" -ForegroundColor Yellow
+    Write-Host "[INFO] Check: Purview > Data loss prevention > Policies > Locations"
+} else {
+    Write-Host "[WARN] No endpoint DLP policies found — browser DLP may not be configured" -ForegroundColor Yellow
+}
+
+# Check 5: Network DLP (Global Secure Access)
+Write-Host "`n[Check 5] Network DLP (Global Secure Access)" -ForegroundColor Cyan
+Write-Host "[INFO] Verify Global Secure Access security profiles in Entra admin center"
+Write-Host "[INFO] Check: entra.microsoft.com > Global Secure Access > Security profiles"
+
 Disconnect-ExchangeOnline -Confirm:$false
 
 Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
@@ -215,7 +230,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
     .\Configure-Control-1.17.ps1 -PolicyName "FSI-Endpoint-Tier3" -Mode "TestWithNotifications"
 
 .NOTES
-    Last Updated: January 2026
+    Last Updated: February 2026
     Related Control: Control 1.17 - Endpoint Data Loss Prevention
 #>
 

@@ -43,7 +43,7 @@
 
 ### Test 6: Verify Audit Log Access
 
-1. Navigate to [Microsoft Purview](https://compliance.microsoft.com) > Audit
+1. Navigate to [Microsoft Purview](https://purview.microsoft.com) > Audit
 2. Search for Power Platform activities
 3. Filter by date range (last 7 days)
 4. **EXPECTED:** Audit log entries for agent activities are visible

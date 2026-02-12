@@ -70,7 +70,7 @@ I attest that:
 2. Document metadata schema is implemented
 3. Retention labels are configured:
    - 6-year retention for agent records
-   - 7-year retention for SEC 17a-4 compliance
+   - 7-year retention (exceeds SEC 17a-4 6-year minimum)
 4. WORM storage is configured for Zone 3 (if applicable)
 5. Examination response procedures are documented:
    - Custodian: [Name]

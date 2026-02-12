@@ -118,7 +118,57 @@ Create automation rules:
 
 ---
 
-## Step 6: Set Up Hunting Queries
+## Step 6: Configure Copilot Studio Application Insights (Custom Telemetry Path)
+
+**Portal Path:** Copilot Studio > Agent > Settings > Advanced
+
+If using the Application Insights custom telemetry path for conversation-level monitoring (see Control 3.9 "Custom Integration for Comprehensive Telemetry"), configure the following prerequisites:
+
+### 6a: Enable Application Insights in Agent Settings
+
+1. Open [Copilot Studio](https://copilotstudio.microsoft.com)
+2. Select the target agent
+3. Navigate to **Settings** (gear icon) > **Advanced**
+4. Click **Application Insights**
+5. Enter the Application Insights **Connection String**
+6. Enable **"Log activities"** — this enables basic telemetry flow
+7. Enable **"Log sensitive activity properties"** — this includes actual conversation text, user IDs, and node details in the telemetry
+
+!!! warning "Without Step 7"
+    If only "Log activities" is enabled, Application Insights will receive events but conversation content fields will be empty or sanitized. This does not satisfy FINRA 4511 recordkeeping requirements.
+
+### 6b: Verify Environment-Level Transcript Setting
+
+1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
+2. Navigate to **Environments** > select the target environment
+3. Click **Settings** > **Product** > **Features**
+4. Verify **"Allow conversation transcripts"** is **On**
+
+!!! note "Scope"
+    This setting primarily controls Dataverse transcript storage, but when disabled it can also block downstream telemetry flow to Application Insights.
+
+### 6c: Verify Data Flow
+
+After enabling both settings, verify conversation data appears in Application Insights:
+
+1. Open [Azure Portal](https://portal.azure.com) > **Application Insights** > select the linked resource
+2. Navigate to **Logs**
+3. Run a test query to confirm conversation content is present:
+
+    ```kql
+    customEvents
+    | where timestamp > ago(1h)
+    | where name in ("BotMessage", "UserMessage")
+    | extend text = tostring(customDimensions.text)
+    | project timestamp, name, text
+    | take 10
+    ```
+
+4. Confirm the `text` column contains actual conversation content (not empty values)
+
+---
+
+## Step 7: Set Up Hunting Queries
 
 **Portal Path:** Microsoft Sentinel > Threat management > Hunting
 
@@ -133,7 +183,7 @@ Create saved hunting queries:
 
 ---
 
-## Step 7: Configure Incident Management
+## Step 8: Configure Incident Management
 
 **Portal Path:** Microsoft Sentinel > Threat management > Incidents
 
@@ -155,8 +205,9 @@ After completing the configuration, verify:
 3. [ ] Analytics rules created and enabled for agent monitoring
 4. [ ] Agent activity workbook displaying data correctly
 5. [ ] Automation rules triggering on test alerts
-6. [ ] Hunting queries saved and returning expected results
-7. [ ] Incident assignment workflow functioning
+6. [ ] Application Insights receiving conversation content (if custom telemetry path configured)
+7. [ ] Hunting queries saved and returning expected results
+8. [ ] Incident assignment workflow functioning
 
 **Expected Result:** Agent security events flow to Sentinel, analytics rules generate alerts for suspicious activity, and automated responses execute as configured.
 

@@ -75,7 +75,7 @@ Exceptions: None for Zone 3
 
 **Audit Configuration:**
 
-- Retention: 10 years (SEC 17a-4 compliance)
+- Retention: 10 years (Zone 3 framework recommendation; exceeds SEC 17a-4 6-year minimum)
 - Export: Weekly to Azure Blob (WORM storage)
 - Real-time alerts: All agent interactions with customer data
 - Review cadence: Daily by Compliance team

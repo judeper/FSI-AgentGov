@@ -8,7 +8,7 @@
 
 - [ ] Azure subscription with Defender for Cloud enabled
 - [ ] Security Admin or Subscription Owner role
-- [ ] AI workloads deployed (Azure AI Foundry, Azure OpenAI, or Copilot Studio with Azure integration)
+- [ ] AI workloads deployed (Microsoft Foundry, Azure OpenAI, or Copilot Studio with Azure integration)
 
 ---
 
@@ -38,7 +38,7 @@
    - Azure OpenAI Service
    - Azure AI Services (Cognitive Services)
    - Azure Machine Learning workspaces
-   - Azure AI Foundry projects
+   - Microsoft Foundry projects
 
 ### Step 4: Review Attack Paths
 

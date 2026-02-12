@@ -29,7 +29,7 @@ Identify retention requirements for your organization:
 | Regulation | Retention Period | Content Type |
 |------------|-----------------|--------------|
 | FINRA 4511 | 6 years | Books and records |
-| SEC 17a-3/4 | 6 years | Communications, records |
+| SEC 17a-3/4 | 3–6 years | Communications (3y), financial records (6y) |
 | SOX 404 | 7 years | Financial records |
 | GLBA | 5-7 years | Customer information |
 
@@ -81,7 +81,7 @@ Configure organization-wide settings:
 
 For comprehensive document-level retention:
 
-1. Navigate to [Microsoft Purview Compliance Portal](https://compliance.microsoft.com)
+1. Navigate to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
 2. Go to **Data lifecycle management** > **Microsoft 365**
 3. Create retention labels for document-level retention
 4. Apply retention labels to sensitivity-labeled content

@@ -10,8 +10,8 @@ The Playbooks layer provides step-by-step implementation guidance for platform t
 
 **Target Audience:**
 
-- Power Platform Administrators
-- SharePoint Administrators
+- Power Platform Admins
+- SharePoint Admins
 - Compliance Analysts
 - Security Operations
 - Implementation Teams
@@ -151,7 +151,7 @@ Each control has a dedicated folder with:
 - `troubleshooting.md` — Common issues and solutions
 
 !!! success "Available Now"
-    All 244 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
+    All 248 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
 
 ---
 

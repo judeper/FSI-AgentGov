@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.17 - Endpoint Data Loss Prevention
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 
 ## Manual Verification Steps
 
@@ -36,6 +36,19 @@
 3. Search for the test event
 4. **EXPECTED:** Event logged with device details
 
+### Test 6: Browser-Based DLP in Edge for Business
+
+1. Open Microsoft Edge for Business
+2. Navigate to an AI web app (e.g., ChatGPT, Gemini)
+3. Paste test content containing a sensitive information pattern (e.g., SSN)
+4. **EXPECTED:** DLP policy tip appears; action is blocked, warned, or audited per policy configuration
+
+### Test 7: Network Data Security (Global Secure Access)
+
+1. With Global Secure Access client installed, attempt to access an unmanaged AI application
+2. Submit test content containing sensitive data via the network-protected path
+3. **EXPECTED:** DLP policy intercepts the request; sensitive data transfer is blocked or audited per security profile
+
 ---
 
 ## Test Cases
@@ -49,6 +62,8 @@
 | TC-1.17-05 | Print sensitive document | Audited/Blocked per zone | |
 | TC-1.17-06 | Activity logged | Event in explorer | |
 | TC-1.17-07 | Offline enforcement | Policy enforced offline | |
+| TC-1.17-08 | Browser DLP in Edge | Policy tip on AI web app paste | |
+| TC-1.17-09 | Network DLP via GSA | Sensitive data blocked at network | |
 
 ---
 
@@ -70,6 +85,8 @@
 - [ ] Screenshot: USB block notification
 - [ ] Screenshot: Cloud upload block
 - [ ] Screenshot: Activity Explorer events
+- [ ] Screenshot: Edge for Business DLP policy tip on AI web app
+- [ ] Screenshot: Global Secure Access network DLP block event
 
 ### Compliance Evidence
 
@@ -121,6 +138,14 @@ I attest that:
    - Zone 3: [Block]
 
 5. Activities are logged and available for compliance review
+
+6. Browser-based DLP is enabled for Edge for Business:
+   - DLP location configured: [Yes/No]
+   - AI web app monitoring active: [Yes/No]
+
+7. Network Data Security via Global Secure Access:
+   - Security profiles configured: [Yes/No]
+   - AI service endpoints monitored: [Yes/No]
 
 **Policy Mode:** [Test/Enforce]
 **Last Policy Update:** [Date]

@@ -6,7 +6,7 @@ Complete guide to agent lifecycle governance from creation through decommissioni
 
 ## Overview
 
-This guide covers the complete agent lifecycle with zone-specific governance requirements at each stage. Effective lifecycle management ensures agents remain compliant, secure, and aligned with business objectives throughout their operational life.
+This guide covers the complete agent lifecycle with zone-specific governance requirements at each stage. Effective lifecycle management helps agents remain compliant, secure, and aligned with business objectives throughout their operational life.
 
 ---
 
@@ -294,8 +294,8 @@ When agent ownership changes:
 | Data Type | Retention Period | Zone Requirement |
 |-----------|------------------|------------------|
 | Conversation logs | Per retention policy | Zone 2-3 |
-| Configuration | 7 years (FSI) | Zone 3 |
-| Audit trail | 7 years (FSI) | Zone 2-3 |
+| Configuration | 7–10 years (FSI) | Zone 3 |
+| Audit trail | 7–10 years (FSI) | Zone 2-3 |
 | User data | Per privacy policy | All zones |
 
 ### Audit Trail Preservation
@@ -346,7 +346,7 @@ For Zone 3 agents:
 | Deployment | Phased rollout, all channels (approved) |
 | Monitoring | Daily metrics, continuous compliance |
 | Maintenance | CAB approval, formal change process |
-| Decommission | Full audit trail, 7-year retention |
+| Decommission | Full audit trail, 10-year retention |
 
 ---
 

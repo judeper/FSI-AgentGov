@@ -1,21 +1,22 @@
 # Verification & Testing: Control 1.19 - eDiscovery for Agent Interactions
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 
 ## Manual Verification Steps
 
 ### Test 1: Verify eDiscovery Permissions
 
 1. Log in as eDiscovery Manager
-2. Navigate to Purview > eDiscovery
-3. Verify ability to create cases
+2. Navigate to **purview.microsoft.com** > **Solutions** > **eDiscovery**
+3. Verify ability to create cases in the unified eDiscovery experience
 4. **EXPECTED:** Full access to eDiscovery features
 
 ### Test 2: Test Content Search
 
 1. Create test search with agent-specific query
-2. Run search and preview results
-3. **EXPECTED:** Agent interactions appear in results
+2. Add the **Copilot activity** query condition to filter for AI interactions
+3. Run search and preview results
+4. **EXPECTED:** Agent interactions appear in results
 
 ### Test 3: Test Legal Hold
 
@@ -40,6 +41,7 @@
 | TC-1.19-03 | Legal hold enforcement | Content preserved | |
 | TC-1.19-04 | Export completion | Evidence package created | |
 | TC-1.19-05 | Audit logging | Actions logged | |
+| TC-1.19-06 | Copilot activity query | AI interactions filtered correctly | |
 
 ---
 

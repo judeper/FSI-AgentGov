@@ -70,7 +70,7 @@ Document all data sources accessed by each agent:
 
 ### Step 5: Configure Scope Change Alerts
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Audit** > **Audit log search**
 3. Create alert policy:
    - Name: "Agent Scope Change Alert"

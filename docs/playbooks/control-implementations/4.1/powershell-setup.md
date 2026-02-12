@@ -68,17 +68,15 @@ Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictContentOrgWideSearch
 
 ```powershell
 # Enable Restricted SharePoint Search
-Set-SPOTenant -RestrictedSearchEnabled $true
+Set-SPOTenant -EnableRestrictedSearchAllList $true
 
-# Add sites to the allow-list
-Add-SPOSearchSiteConfiguration -Sites @(
-    "https://yourtenant.sharepoint.com/sites/ApprovedSite1",
-    "https://yourtenant.sharepoint.com/sites/ApprovedSite2"
-)
+# Add sites to the allow-list (one site at a time)
+Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://yourtenant.sharepoint.com/sites/ApprovedSite1"
+Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://yourtenant.sharepoint.com/sites/ApprovedSite2"
 
 # Get current RSS configuration
-Get-SPOTenant | Select-Object RestrictedSearchEnabled
-Get-SPOSearchSiteConfiguration
+Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
+Get-SPOTenantRestrictedSearchAllowedList
 ```
 
 ### Configure Restricted Access Control (RAC)

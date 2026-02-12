@@ -19,7 +19,7 @@
 
 ### Label 1: Agent Conversations - 7 Year
 
-1. Navigate to [Microsoft Purview Compliance Portal](https://compliance.microsoft.com)
+1. Navigate to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
 2. Go to **Data lifecycle management** > **Microsoft 365**
 3. Select **Labels** tab > **+ Create a label**
 4. Configure:

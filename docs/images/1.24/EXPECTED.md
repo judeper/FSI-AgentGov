@@ -12,7 +12,7 @@
 ### Screenshot 2: AI Workload Discovery and Inventory
 **Portal Path:** Azure Portal → Microsoft Defender for Cloud → Inventory → Filter: Resource type = AI
 **What to capture:**
-- Discovered AI agents across Azure AI Foundry and Copilot Studio
+- Discovered AI agents across Microsoft Foundry and Copilot Studio
 - AI Bill of Materials (AI BOM) for inventoried components
 - Agent count and resource details
 

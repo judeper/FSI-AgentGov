@@ -175,19 +175,19 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 ### SEC Rule 17a-3/4 — Recordkeeping
 
-**Overview:** Requires SEC-registered firms to maintain records of all transactions and communications for 6 years, first 2 years readily accessible.
+**Overview:** Requires SEC-registered firms to maintain records of all transactions and communications. Retention periods vary by record type — see the Retention Period Matrix in the FINRA 4511 section above for details.
 
 **Record Categories:**
 
-- **Agent Communications:** All user interactions, outputs, decisions (6 years, first 2 years readily accessible)
-- **Transaction Records:** If agent processes transactions, provides advice, executes trades (6 years, first 2 years readily accessible)
-- **Governance Records:** Approvals, change logs, incident reports, validation results (6 years minimum)
+- **Agent Communications:** All user interactions, outputs, decisions (3 years per SEC 17a-4(b)(4), first 2 years readily accessible)
+- **Transaction Records:** If agent processes transactions, provides advice, executes trades (6 years per SEC 17a-4(a), first 2 years readily accessible)
+- **Governance Records:** Approvals, change logs, incident reports, validation results (6 years minimum per FINRA 4511(b))
 
 **Applicable Controls:**
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years readily accessible |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Retention per record type (3-6 years), first 2 years readily accessible |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
 | [1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | eDiscovery for Agent Interactions | Search and export for regulators |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | All records documented |

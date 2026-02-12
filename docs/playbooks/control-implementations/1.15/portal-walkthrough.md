@@ -27,7 +27,7 @@
 
 ### Step 2: Verify Microsoft Service Encryption
 
-1. Navigate to [Microsoft Purview](https://compliance.microsoft.com)
+1. Navigate to [Microsoft Purview](https://purview.microsoft.com)
 2. Go to **Data classification** > **Content explorer**
 3. Confirm encryption is active for:
    - Exchange Online
@@ -61,7 +61,7 @@
 
 #### 3c: Configure Customer Key in Microsoft 365
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Information protection** > **Customer Key**
 3. Follow the guided setup:
    - Connect primary Key Vault

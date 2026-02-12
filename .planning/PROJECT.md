@@ -8,21 +8,20 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v14 SSPM Control Coverage Remediation
+## Current Milestone: v15 Agent Usage & Performance Workbook
 
-**Goal:** Complete SSPM-driven control coverage by remediating gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8), validating all 27 in-scope SSPM alerts have proper framework coverage (controls, playbooks, verification criteria), creating a PowerShell hardening baseline verification script, and ensuring cross-reference integrity between the configuration hardening baseline and individual controls.
+**Goal:** Build a deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap where production Analytics tab access is restricted by Control 2.8.
 
-**Source:** SSPM alert-to-control mapping analysis (maintainers-local/sspm-alert-mapping.md) — 42 alerts analyzed, 27 in-scope.
+**Source:** Deferred v13 todo (Agent Usage & Performance Workbook for Enterprise ALM) — originally scoped and roadmapped but shelved to prioritize v14 SSPM remediation.
 
 **Target deliverables:**
-- Control 3.7 bumped to v1.3 with full hardening baseline section
-- All 27 SSPM alert config points verified against verification criteria in 7 controls
-- GLIC advisory cross-references added to Controls 1.1 and 1.11
-- 7 portal-walkthrough + 7 verification-testing playbooks remediated for SSPM coverage
-- Hardening baseline enhanced with automation feasibility classification
-- PowerShell verification script for automatable baseline items (audit, environment)
-- Evidence export procedures and zone-specific review cadence
-- Solutions catalog and coverage gap updates for hardening baseline
+- Application Insights telemetry schema documentation for Copilot Studio
+- KQL query library for usage, performance, and operational health panels
+- Deployable Azure Monitor Workbook JSON template with 3 tabs (Usage/Business Value, Performance/Errors, Operational Health)
+- RBAC configuration guide for read-only workbook access (ALM separation-of-duties)
+- ARM template or manual deployment playbook with prerequisites
+- Controls 3.2, 3.9, 2.9 updated with workbook cross-references
+- solutions-index.md catalog entry and customization guide
 
 ## Current State (v10 Shipped)
 
@@ -40,6 +39,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v8: File Upload Security Configurator — per-agent MIME type restriction enforcement with drift detection
 - v9: Cross-Solution Integration — ELM hooks, Compliance Dashboard feeds, unified evidence export
 - v10: Conditional Access Automation — CA policy lifecycle management with drift detection and evidence export
+- v14: SSPM Control Coverage Remediation — 27 SSPM alerts mapped to 7 controls, PowerShell hardening baseline, playbook remediation
 
 **Solutions Status:**
 - 12 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation
@@ -93,17 +93,19 @@ Capabilities delivered:
 
 ### Active
 
-**v11: Technical Remediation**
+**v15: Agent Usage & Performance Workbook**
 
-Comprehensive fix of 107 findings and 42 gaps identified by full technical audit:
-- Phase 1: Critical Runtime Fixes (CAA + DEC solution bugs)
-- Phase 2: Regulatory & Technical Accuracy (citations, control counts, solution contradictions)
+Deployable Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility:
+- Telemetry Foundation: Application Insights schema documentation + KQL query library
+- Workbook Template: 3-tab workbook (Usage/Business Value, Performance/Errors, Operational Health)
+- Deployment & Access: RBAC configuration + ARM template deployment
+- Framework Integration: Controls 3.2, 3.9, 2.9 cross-references + solutions catalog entry
 - Phase 3: Terminology & Version Normalization (Zone/Tier/Level, role names, footers)
 - Phase 4: Cross-Reference & Link Integrity (solution mappings, path errors)
 - Phase 5: Script & Code Fixes (PowerShell bugs, non-existent cmdlets)
 - Phase 6: Gap Backfill & Design Improvements (missing guides, inter-linking)
 
-**Current milestone: v14 — SSPM Control Coverage Remediation (DEFINING)**
+**Current milestone: v15 — Agent Usage & Performance Workbook (DEFINING)**
 
 ### Out of Scope
 

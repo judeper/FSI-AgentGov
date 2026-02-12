@@ -42,6 +42,9 @@ This framework provides governance guidance for:
 !!! info "Microsoft Agent 365"
     **Microsoft Agent 365** is a new centralized control plane for agent governance announced at Ignite 2025, currently in **Frontier preview**. It provides centralized agent registry, Entra Agent ID, lifecycle management, and observability dashboards. This framework will incorporate Agent 365 capabilities as they reach general availability.
 
+!!! info "Entra Agent ID (Public Preview)"
+    **Entra Agent ID** provides first-class agent identities in Microsoft Entra, enabling Conditional Access, Identity Protection, and lifecycle management for AI agents. Currently in **Public Preview** since November 2025. See [Agent Identity Architecture](agent-identity-architecture.md) for implementation guidance and FSI readiness assessment.
+
 ### Microsoft-Built Agent Applicability
 
 Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governance options. Control applicability:

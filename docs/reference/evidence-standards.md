@@ -204,7 +204,7 @@ For large log volumes, document sampling methodology:
 |------|------------------|--------------|----------------|
 | **Zone 1** | 1 year | Standard SharePoint | Team access |
 | **Zone 2** | 3 years | Compliance SharePoint | Governance team |
-| **Zone 3** | 7 years | Immutable storage (WORM) | Compliance + Legal |
+| **Zone 3** | 7–10 years | Immutable storage (WORM) | Compliance + Legal |
 
 ### Retention by Evidence Type
 

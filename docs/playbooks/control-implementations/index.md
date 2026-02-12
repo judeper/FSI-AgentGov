@@ -23,7 +23,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 
 ## Playbooks by Pillar
 
-### Pillar 1: Security (23 controls)
+### Pillar 1: Security (24 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -50,6 +50,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.21 Adversarial Input Logging](../../controls/pillar-1-security/1.21-adversarial-input-logging.md) | [Portal](1.21/portal-walkthrough.md) | [PS](1.21/powershell-setup.md) | [Test](1.21/verification-testing.md) | [Fix](1.21/troubleshooting.md) |
 | [1.22 Information Barriers](../../controls/pillar-1-security/1.22-information-barriers.md) | [Portal](1.22/portal-walkthrough.md) | [PS](1.22/powershell-setup.md) | [Test](1.22/verification-testing.md) | [Fix](1.22/troubleshooting.md) |
 | [1.23 Step-Up Authentication](../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | [Portal](1.23/portal-walkthrough.md) | [PS](1.23/powershell-setup.md) | [Test](1.23/verification-testing.md) | [Fix](1.23/troubleshooting.md) |
+| [1.24 Defender AI-SPM](../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | [Portal](1.24/portal-walkthrough.md) | [PS](1.24/powershell-setup.md) | [Test](1.24/verification-testing.md) | [Fix](1.24/troubleshooting.md) |
 
 ### Pillar 2: Management (21 controls)
 

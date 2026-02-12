@@ -17,7 +17,7 @@
 
 **Portal Path:** Microsoft Purview > Compliance Manager > Assessments
 
-1. Navigate to [Microsoft Purview Compliance Portal](https://compliance.microsoft.com)
+1. Navigate to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
 2. Select **Compliance Manager** in the left navigation
 3. Click **Assessments** > **+ Add assessment**
 4. Create assessments for applicable regulations:

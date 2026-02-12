@@ -114,7 +114,7 @@
 2. Confirm the Application ID format is correct (GUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
 3. Check that Federated Identity Credential is properly configured
 4. Verify the endpoint URL is HTTPS and publicly accessible
-5. Ensure you have Power Platform Administrator role
+5. Ensure you have Power Platform Admin role
 6. Wait 1 minute and retry (propagation delay)
 
 ---
@@ -220,7 +220,7 @@
 **Solutions:**
 
 1. Verify you have Microsoft Defender for Cloud Apps license (M365 E5)
-2. Ensure you have Power Platform Administrator role
+2. Ensure you have Power Platform Admin role
 3. Check if the feature is enabled in your tenant (may require tenant enablement)
 4. Verify the Defender portal has Copilot Studio AI Agents feature enabled first
 5. Wait 30 minutes after enabling in Defender portal before checking PPAC
@@ -254,8 +254,8 @@
 2. Locate **Microsoft 365** connector and check status
 3. If disconnected, click **Reconnect** and follow authentication flow
 4. Ensure service account has required permissions:
-   - Global Administrator (for initial setup)
-   - Or Security Administrator + Compliance Administrator
+   - Entra Global Admin (for initial setup)
+   - Or Entra Security Admin + Purview Compliance Admin
 5. Verify OAuth consent has not been revoked in Entra ID
 6. Check Entra audit logs for any app permission changes
 

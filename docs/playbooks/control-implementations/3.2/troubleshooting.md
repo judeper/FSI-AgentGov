@@ -181,7 +181,7 @@
 
 ### Via Portal (Purview)
 
-1. Navigate to [Microsoft Purview](https://compliance.microsoft.com) > Audit
+1. Navigate to [Microsoft Purview](https://purview.microsoft.com) > Audit
 2. Search for recent Power Platform activities
 3. Verify entries are appearing for current date
 

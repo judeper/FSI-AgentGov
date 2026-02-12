@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.19 - eDiscovery for Agent Interactions
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Portal:** Microsoft Purview
 **Estimated Time:** 2-3 hours
 
@@ -16,7 +16,7 @@
 
 ### Step 1: Configure eDiscovery Permissions
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Roles & scopes** > **Permissions**
 3. Assign eDiscovery Manager role to legal/compliance team
 
@@ -33,8 +33,11 @@ Create inventory of agent content locations:
 
 ### Step 3: Create eDiscovery Case
 
-1. Navigate to **eDiscovery** > **Standard** or **Premium**
-2. Click **Create case**
+!!! info "Unified eDiscovery Experience"
+    Classic eDiscovery (Standard/Premium) was retired August 31, 2025. All cases now use the unified eDiscovery experience. Content Search is also available as a system-generated case within eDiscovery.
+
+1. Navigate to **Solutions** > **eDiscovery** > **Cases**
+2. Click **Create a case**
 3. Configure:
    - Name: `FSI-Agent-Discovery-[Date]`
    - Description: Purpose and regulatory reference
@@ -47,10 +50,14 @@ Create inventory of agent content locations:
    ```
    kind:microsoftteams AND (from:"Copilot" OR subject:"Agent")
    ```
-3. Select locations:
+3. To search specifically for AI interactions, add the **Copilot activity** query condition from the condition drop-down
+4. Select locations:
    - Exchange: All or specific mailboxes
    - SharePoint: Agent knowledge source sites
-4. Run search and preview results
+5. Run search and preview results
+
+!!! tip "Content Search as System-Generated Case"
+    Content Search is now available as a system-generated case within eDiscovery. Use it for broad, non-case-specific searches across the organization.
 
 ### Step 5: Configure Legal Hold
 

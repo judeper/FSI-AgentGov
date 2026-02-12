@@ -27,6 +27,12 @@ See ALIM.
 **Agent AI Model Rules**
 [Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) that control which AI models agents can use within an environment group. Configured in Power Platform Admin Center under Manage → Environment groups → Rules.
 
+**Agent 365 (Microsoft Agent 365)**
+Microsoft's centralized control plane for unified agent governance across the Microsoft 365 ecosystem. Provides a single registry, lifecycle management, observability dashboards, and policy enforcement for all agent types — including Copilot Studio, Agent Builder, SharePoint, and third-party agents. Currently in Frontier Preview (announced Ignite 2025). See [Agent 365 Architecture](../framework/agent-identity-architecture.md) for how this framework maps to the platform.
+
+**Agentic User**
+An identity that acts on behalf of a human user but with delegated autonomy. In the Microsoft agent governance model, agentic users can perform tasks without direct real-time human supervision. See [Agent Identity Architecture](../framework/agent-identity-architecture.md).
+
 **Agent Publishing**
 The process of exposing agents through channels such as Microsoft Teams, websites, or third-party messaging platforms. Distinct from agent sharing. See [Publish and deploy agents](https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels).
 
@@ -45,6 +51,9 @@ List of blocked/forbidden connectors, actions, or data sources that agents canno
 
 **Business Continuity (BC)**
 Plan to continue operations if primary system fails.
+
+**Break Glass Account**
+Emergency access account excluded from Conditional Access policies, used when normal authentication is unavailable. Must be monitored and audited. See [Control 1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) for governance requirements.
 
 ---
 
@@ -85,7 +94,7 @@ Unified dashboard in Power Platform Admin Center that consolidates governance, a
 Policy that prevents unauthorized sharing of sensitive data by blocking actions or warning users.
 
 **DSPM for AI (Data Security Posture Management for AI)**
-Microsoft tool that monitors how AI agents interact with sensitive data.
+Microsoft tool that monitors how AI agents interact with sensitive data (now labeled 'classic' in the Purview portal).
 
 **Disaster Recovery (DR)**
 Plan to restore systems after a disaster.
@@ -96,6 +105,9 @@ Personal sandbox environment for makers to build and test agents with limited go
 ---
 
 ## E
+
+**Entra Agent ID**
+Microsoft Entra capability that provides first-class identity objects for AI agents, enabling Conditional Access policies, Identity Protection, and lifecycle management for non-human agent identities. Currently in Public Preview. See [Agent Identity Architecture](../framework/agent-identity-architecture.md).
 
 **ECOA (Equal Credit Opportunity Act)**
 Federal law prohibiting discrimination in lending based on protected characteristics.
@@ -144,6 +156,9 @@ Policies applied consistently across environment groups to enforce governance an
 ---
 
 ## H
+
+**HITL (Human-in-the-Loop)**
+A workflow pattern requiring human review and approval at defined checkpoints before an AI agent action proceeds. Required for Zone 2–3 agents performing sensitive operations. See [Control 2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
 
 **HSM (Hardware Security Module)**
 Physical device that stores and manages encryption keys securely.
@@ -196,6 +211,9 @@ System that makes predictions or decisions based on data. AI agents using ML alg
 **Model Risk**
 Risk that a model may produce inaccurate or biased outputs.
 
+**MRM (Model Risk Management)**
+Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2011-12 and Fed SR 11-7. See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for AI agent MRM requirements.
+
 **M365 Certification**
 Microsoft validation that an application meets security and compliance requirements. Higher trust level than Publisher Attested. Visible in M365 Admin Center under Settings → Integrated Apps.
 
@@ -233,7 +251,7 @@ Administrative portal for Power Platform governance and configuration.
 Microsoft platform for data governance, compliance, and information protection.
 
 **PPAC Inventory**
-Tenant-wide visibility of all apps, flows, and Copilot agents within Power Platform Admin Center. Provides cross-environment snapshot for governance. Access via PPAC → Resources → Agents. See [View agent inventory](https://learn.microsoft.com/en-us/power-platform/admin/tenant-wide-agent-inventory).
+Tenant-wide visibility of all apps, flows, and Copilot agents within Power Platform Admin Center. Provides cross-environment snapshot for governance. Access via PPAC → Copilot Hub or PPAC → Resources → Agents. See [Copilot Hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
 
 **PPAC Monitoring**
 Health and performance insights for Copilot Studio agents in Power Platform Admin Center, including session success rates and degradation trends. Access via PPAC → Monitor → Copilot Studio. See [Monitor Copilot Studio](https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio).
@@ -345,9 +363,9 @@ Storage principle where data can be written once but not modified or deleted. Pe
 **Zone (Governance Zone)**
 Risk classification for agents:
 
-- Zone 1: Personal (low risk)
-- Zone 2: Team (medium risk)
-- Zone 3: Enterprise (high risk)
+- Zone 1: Personal Productivity (low risk)
+- Zone 2: Team Collaboration (medium risk)
+- Zone 3: Enterprise Managed (high risk)
 
 ---
 
@@ -358,7 +376,7 @@ Risk classification for agents:
 | FINRA 3110 | Supervision Rule | Requires written policies and procedures |
 | FINRA 4511 | Books and Records | Requires 6-year recordkeeping |
 | FINRA 4512 | Continuing Education | Training requirements |
-| SEC 17a-3/4 | Recordkeeping | Requires 6-year record retention |
+| SEC 17a-3/4 | Recordkeeping | Requires 3–6 year record retention (varies by record type) |
 | SEC 10b-5 | Anti-Fraud Rule | Prohibits deceptive trading practices |
 | Reg BI | Best Interest | Requires best interest for retail customers |
 | Reg S-P | Privacy Rule | Customer information protection |
@@ -376,4 +394,4 @@ Risk classification for agents:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*

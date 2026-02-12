@@ -68,7 +68,7 @@ This section provides technical reference materials, standards, and supporting d
 ## Related Sections
 
 - [Framework](../framework/index.md) — Governance principles and structure
-- [Control Catalog](../controls/index.md) — All 61 control requirements
+- [Control Catalog](../controls/index.md) — All 62 control requirements
 - [Playbooks](../playbooks/index.md) — Step-by-step implementation procedures
 
 ---

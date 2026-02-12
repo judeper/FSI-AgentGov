@@ -28,7 +28,7 @@
 
 ### Test 4: Verify Audit Logging
 
-1. Navigate to [Microsoft Purview portal](https://compliance.microsoft.com) > Audit
+1. Navigate to [Microsoft Purview portal](https://purview.microsoft.com) > Audit
 2. Search for `Published bot` events
 3. Verify all publishing attempts are logged with:
    - User identity

@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 1.19 - eDiscovery for Agent Interactions
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Modules Required:** ExchangeOnlineManagement
 
 ## Prerequisites
@@ -35,7 +35,8 @@ Write-Host "=== Create eDiscovery Case ===" -ForegroundColor Cyan
 
 Connect-IPPSSession
 
-$case = New-ComplianceCase -Name $CaseName -CaseType "eDiscovery"
+# Use AdvancedEdiscovery case type for the unified eDiscovery experience
+$case = New-ComplianceCase -Name $CaseName -CaseType "AdvancedEdiscovery"
 
 foreach ($member in $Members) {
     Add-ComplianceCaseMember -Case $CaseName -Member $member
@@ -160,7 +161,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
     .\Configure-Control-1.19.ps1 -CaseName "FINRA-2026-Q1" -Members @("legal@contoso.com") -SearchName "Agent-Conversations"
 
 .NOTES
-    Last Updated: January 2026
+    Last Updated: February 2026
     Related Control: Control 1.19 - eDiscovery for Agent Interactions
 #>
 
@@ -192,7 +193,8 @@ try {
         Write-Host "  [EXISTS] Case already exists: $CaseName" -ForegroundColor Yellow
         $case = $existingCase
     } else {
-        $case = New-ComplianceCase -Name $CaseName -CaseType "eDiscovery"
+        # Use AdvancedEdiscovery case type for the unified eDiscovery experience
+        $case = New-ComplianceCase -Name $CaseName -CaseType "AdvancedEdiscovery"
         Write-Host "  [CREATED] Case: $CaseName" -ForegroundColor Green
     }
 

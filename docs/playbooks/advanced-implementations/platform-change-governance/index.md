@@ -140,7 +140,7 @@ The FSI-AgentGov-Solutions repository provides deployable Power Platform compone
 
     - Power Automate flow templates for Message Center polling
     - Teams notification configuration
-    - Azure AD app registration guidance
+    - Microsoft Entra ID app registration guidance
 
     **Direct link:** [message-center-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) (v2.0.0)
 
@@ -164,7 +164,7 @@ The FSI-AgentGov-Solutions repository provides deployable Power Platform compone
 
 - Power Platform environment (Developer, Sandbox, or Production)
 - Microsoft 365 E3/E5 licenses
-- Azure AD app registration with `ServiceMessage.Read.All` permission
+- Microsoft Entra ID app registration with `ServiceMessage.Read.All` permission
 - Power Platform Admin or Dataverse System Admin role
 
 ### Path B Additional

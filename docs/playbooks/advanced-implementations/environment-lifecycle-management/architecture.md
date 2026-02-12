@@ -287,10 +287,14 @@ The ProvisioningLog table uses layered access controls to protect audit data:
 
 ```powershell
 # Verify ProvisioningLog has no Update/Delete privileges assigned
-Get-CrmRolePrivilege -RoleName "ELM Admin" |
-    Where-Object { $_.EntityName -eq "pl_provisioninglog" } |
-    Select-Object PrivilegeName, Depth
-# Expected: Only prvCreatepl_provisioninglog with depth
+# Uses Dataverse Web API — Get-CrmRolePrivilege does not exist in published modules
+$env = Get-AdminPowerAppEnvironment -EnvironmentName "<env-guid>"
+$uri = "$($env.InternalUrl)/api/data/v9.2/roles?" +
+       "`$filter=name eq 'ELM Admin'&`$expand=roleprivileges_association"
+$result = Invoke-RestMethod -Uri $uri -Headers @{ Authorization = "Bearer $token" }
+$result.value.roleprivileges_association |
+    Where-Object { $_.privilegeid -match "pl_provisioninglog" }
+# Expected: Only Create privilege with appropriate depth
 ```
 
 ---

@@ -18,7 +18,7 @@ Before starting, ensure you have:
 ## Step 1: Configure Copilot Settings in M365 Admin Center
 
 1. Navigate to [admin.microsoft.com](https://admin.microsoft.com)
-2. Go to **Settings** > **Org settings** > **Copilot**
+2. Go to **Settings** > **Microsoft 365 Copilot**
 3. Configure settings based on governance level:
 
 | Setting | Baseline | Recommended | Regulated |
@@ -160,8 +160,20 @@ After completing the configuration, verify:
 
 ---
 
+## Monitor AI Subprocessor Changes
+
+1. Navigate to [Microsoft 365 Admin Center](https://admin.microsoft.com)
+2. Go to **Settings** > **Microsoft 365 Copilot** > **Data and privacy**
+3. Review the list of AI subprocessors
+4. Track changes at: [Microsoft Copilot AI Subprocessor](https://learn.microsoft.com/en-us/copilot/microsoft-365/connect-to-ai-subprocessor)
+
+!!! tip "Subprocessor Change Monitoring"
+    As of January 2026, Anthropic was added as an AI subprocessor. FSI organizations should incorporate subprocessor tracking into their third-party risk management cadence and update vendor risk registers when changes are detected.
+
+---
+
 [Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.2*

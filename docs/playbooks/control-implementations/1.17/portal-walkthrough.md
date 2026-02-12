@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.17 - Endpoint Data Loss Prevention (Endpoint DLP)
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Portal:** Microsoft Purview, Microsoft Defender for Endpoint
 **Estimated Time:** 4-6 hours for initial deployment
 
@@ -27,7 +27,7 @@
 
 ### Step 2: Enable Endpoint DLP
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Data loss prevention** > **Endpoint DLP settings**
 3. Enable **Endpoint DLP**
 4. Configure global settings:
@@ -79,6 +79,26 @@
 2. Enable **Always audit file activities for devices**
 3. Configure offline cache for policy enforcement
 
+### Step 7: Enable Browser-Based DLP for Edge
+
+1. Navigate to **Microsoft Purview Portal** (https://purview.microsoft.com)
+2. Go to **Solutions** > **Data loss prevention** > **Policies**
+3. Create or edit a DLP policy
+4. In **Locations**, add **Microsoft Edge for Business** as a monitored location
+5. Configure policy rules to detect sensitive information types in browser interactions with AI web apps
+6. Set actions to **Block**, **Warn**, or **Audit** when sensitive data is detected in AI app text fields
+
+!!! tip "No Device Onboarding Required"
+    Browser-based DLP in Edge for Business operates independently of Defender for Endpoint device onboarding. This provides immediate DLP protection for AI web app usage without waiting for full MDE deployment.
+
+### Step 8: Configure Network Data Security
+
+1. Navigate to **Microsoft Entra Admin Center** (https://entra.microsoft.com)
+2. Go to **Global Secure Access** > **Security profiles**
+3. Create or edit a security profile
+4. Add DLP policy references to enforce sensitive data detection on network traffic
+5. Configure traffic filtering rules to monitor connections to known AI service endpoints
+
 ---
 
 ## Configuration by Governance Level
@@ -91,6 +111,8 @@
 | **Clipboard** | Allowed | Audit to unallowed | Block |
 | **Bluetooth** | Allowed | Block | Block |
 | **Network Share** | Audit | Audit | Block to unauthorized |
+| **Browser DLP (Edge)** | Audit | Block with override | Block |
+| **Network DLP (GSA)** | Not required | Recommended | Required |
 
 ---
 

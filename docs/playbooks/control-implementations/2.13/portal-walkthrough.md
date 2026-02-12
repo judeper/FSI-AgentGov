@@ -41,7 +41,7 @@
 
 ### Step 3: Configure Retention Labels
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com)
+1. Open [Microsoft Purview](https://purview.microsoft.com)
 2. Navigate to **Records management** > **File plan**
 3. Create retention labels:
 

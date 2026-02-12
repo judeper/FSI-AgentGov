@@ -8,13 +8,13 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 
 | License | Controls Requiring | Primary Use |
 |---------|-------------------|-------------|
-| **Power Platform Premium** | 1.1, 1.4, 1.8, 1.14, 2.1, 2.2, 2.3, 2.8, 2.9, 3.2, 3.5, 3.6 | Managed Environments, ACP |
-| **Microsoft 365 E5** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17 | Purview full suite |
-| **Microsoft 365 E5 Compliance** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17 | Purview add-on to E3 |
+| **Power Platform Premium** | 1.1, 1.4, 1.8, 1.14, 1.20, 2.1, 2.2, 2.3, 2.5, 2.8, 2.9, 2.15, 3.2, 3.5, 3.6, 3.7, 3.8 | Managed Environments, ACP |
+| **Microsoft 365 E5** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.21, 1.22 | Purview full suite |
+| **Microsoft 365 E5 Compliance** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.22 | Purview add-on to E3 |
 | **Microsoft 365 E3** | 1.3, 1.11, 1.15, 1.16, 2.10 | Basic security features |
 | **Microsoft Entra ID P1** | 1.11, 1.18, 2.8 | Conditional Access |
-| **Microsoft Entra ID P2** | 1.11, 1.12, 4.2 | PIM, Access Reviews |
-| **SharePoint Advanced Management** | 4.1, 4.2, 4.3, 4.4, 4.5 | SharePoint governance |
+| **Microsoft Entra ID P2** | 1.11, 1.12, 1.23, 4.2 | PIM, Access Reviews |
+| **SharePoint Advanced Management** | 4.1, 4.2, 4.3, 4.4, 4.5, 4.6 | SharePoint governance |
 | **Copilot Studio** | All | Agent development |
 | **Microsoft 365 Copilot Business** | N/A | SMB Copilot access |
 
@@ -95,6 +95,12 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 | **1.16** | IRM for Documents | Microsoft 365 E3+ | Azure Information Protection |
 | **1.17** | Endpoint DLP | Microsoft 365 E5 or E5 Compliance | Endpoint DLP |
 | **1.18** | RBAC | Microsoft Entra ID P1+ | Role management |
+| **1.19** | eDiscovery for Agent Interactions | Microsoft 365 E5 or E5 Compliance | eDiscovery (Premium) for AI content search |
+| **1.20** | Network Isolation and Private Connectivity | Azure subscription + Power Platform Premium | VNet integration, Private Endpoints |
+| **1.21** | Adversarial Input Logging | Microsoft 365 E5 or E5 Security | Defender for Cloud Apps + Purview Audit |
+| **1.22** | Information Barriers | Microsoft 365 E5 or E5 Compliance | Purview Information Barriers |
+| **1.23** | Step-Up Authentication | Microsoft Entra ID P2 | Authentication context + Conditional Access |
+| **1.24** | Defender AI-SPM | Microsoft Defender for Cloud (CSPM) | Defender CSPM plan required |
 
 ---
 
@@ -116,6 +122,13 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 | **2.12** | Supervision & Oversight | Microsoft 365 E5 (for monitoring) | Communication Compliance optional |
 | **2.13** | Documentation & Records | Microsoft 365 E3+ | SharePoint/OneDrive storage |
 | **2.14** | Training & Awareness | Microsoft 365 E3+ | Viva Learning optional |
+| **2.15** | Environment Routing | Power Platform Premium | Managed Environments auto-provisioning |
+| **2.16** | RAG Source Integrity | N/A (process) | Process/documentation control |
+| **2.17** | Multi-Agent Orchestration Limits | Copilot Studio Premium | Orchestration requires Copilot Studio |
+| **2.18** | Automated Conflict of Interest | N/A (process) | Process/documentation control |
+| **2.19** | Customer AI Disclosure | N/A (process) | Transparency/labeling requirement |
+| **2.20** | Adversarial Testing / Red Team | N/A (process) | Process; optional Azure AI safety tools |
+| **2.21** | AI Marketing Claims | N/A (process) | Process/documentation control |
 
 ---
 
@@ -129,6 +142,10 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 | **3.4** | Incident Reporting | Microsoft 365 E3+ | Process/documentation |
 | **3.5** | Cost Allocation | Power Platform Premium | License tracking |
 | **3.6** | Orphaned Agent Detection | Power Platform Premium | Managed Environments feature |
+| **3.7** | PPAC Security Posture | Power Platform Premium | Managed Environments security dashboard |
+| **3.8** | Copilot Hub | Power Platform Premium | PPAC Copilot Hub governance dashboard |
+| **3.9** | Microsoft Sentinel Integration | Microsoft Sentinel + E5 Security | Azure Sentinel workspace required |
+| **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
 
 ---
 
@@ -141,6 +158,8 @@ Complete license mapping for all 62 FSI Agent Governance Framework controls.
 | **4.3** | Retention Management | Microsoft 365 E5 or E5 Compliance | Data Lifecycle Management |
 | **4.4** | Guest Access Controls | Microsoft 365 E3+ | Basic; E5 for advanced |
 | **4.5** | Security Monitoring | SharePoint Advanced Management + E5 | SAM + Purview Audit |
+| **4.6** | Grounding Scope Governance | SharePoint Advanced Management | Restricted SharePoint Search |
+| **4.7** | M365 Copilot Data Governance | Microsoft 365 E5 or E5 Compliance | Purview data governance for Copilot |
 
 ---
 
@@ -278,4 +297,4 @@ For FSI organizations with multiple tenants (e.g., separate tenants for differen
 
 ---
 
-*Last Updated: February 2026 | Framework Version: v1.2.33*
+*Last Updated: February 2026 | Framework Version: v1.2.38*
