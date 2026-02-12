@@ -23,7 +23,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Work In Progress | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
 | [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Work In Progress | Automated validation of tenant and environment audit configurations | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
-| [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Work In Progress | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
+| [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Completed | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
@@ -37,6 +37,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
 | [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.1.0 | Completed | PowerShell verification script and 32-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
 | [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
+| [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector) | v1.0.0 | Completed | Continuous detection of overly permissive agent sharing configurations with automated remediation and exception management | 1.1, 3.8 |
 
 ### Status Legend
 
@@ -593,6 +594,43 @@ Deployable Azure Monitor Workbook template for Copilot Studio agent usage, perfo
 
 ---
 
+### Unrestricted Agent Sharing Detector
+
+!!! success "Production Ready"
+    v1.0.0 includes detection flow with 5 violation rules, approval-based remediation, exception management canvas app, deployment scripts, on-demand audit, and SHA-256 evidence export.
+
+Continuous detection of overly permissive Copilot Studio agent sharing configurations across Power Platform environments. Identifies organization-wide sharing, public internet links, unapproved groups, excessive individual shares, and cross-tenant access — with automated remediation and time-bound exception management.
+
+**Components:**
+
+- Detection flow scanning all agents via BAP APIs with 5 violation rules
+- Approval-based remediation flow with BAP PATCH principal overwrite
+- Exception approval workflow with sequential dual approval (Security → Data Owner)
+- Exception Manager canvas app for submission, status tracking, and expiration display
+- On-demand PowerShell audit script (`Invoke-SharingAudit.ps1`)
+- Deployment scripts for detection and remediation flows
+- Violation export with SHA-256 integrity hashing
+- Dataverse schema (5 tables) with zone-based sharing policies
+- Teams adaptive card alerts with severity-based styling
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — Agent Sharing Configuration)
+- SEC 17a-4 (Recordkeeping — Sharing Change Audit Trail)
+- GLBA 501(b) (Safeguards — Agent Access Controls)
+- SOX 404 (Internal Controls — Sharing Policy Enforcement)
+
+**Related Controls:**
+
+- [1.1 - Restrict Agent Publishing by Authorization](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md)
+- [3.8 - Copilot Hub and Governance Dashboard](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
+
+**Framework Playbook:** [Unrestricted Agent Sharing Detector](../playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md)
+
+**Repository Link:** [unrestricted-agent-sharing-detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/unrestricted-agent-sharing-detector)
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -630,7 +668,8 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Cross-Solution Integration | v1.0.0 | February 2026 |
 | Configuration Hardening Baseline | v1.0.0 | February 2026 |
 | Agent Usage & Performance Workbook | v1.0.0 | February 2026 |
+| Unrestricted Agent Sharing Detector | v1.0.0 | February 2026 |
 
 ---
 
-*FSI Agent Governance Framework v1.2.38 - February 2026*
+*FSI Agent Governance Framework v1.2.39c - February 2026*
