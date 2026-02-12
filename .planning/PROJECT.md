@@ -8,20 +8,19 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v15 Agent Usage & Performance Workbook
+## Current Milestone: v16 Unrestricted Agent Sharing Detector
 
-**Goal:** Build a deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap where production Analytics tab access is restricted by Control 2.8.
+**Goal:** Build a continuous agent sharing compliance solution that scans Copilot Studio agents for unsafe sharing configurations using BAP APIs, records violations in Dataverse, drives remediation through Power Automate, and enforces time-bound exceptions via an Exception Manager app.
 
-**Source:** Deferred v13 todo (Agent Usage & Performance Workbook for Enterprise ALM) — originally scoped and roadmapped but shelved to prioritize v14 SSPM remediation.
+**Source:** User-designed solution spec — addresses automation gaps in Controls 1.1 and 3.8 where per-agent sharing validation is manual-only.
 
 **Target deliverables:**
-- Application Insights telemetry schema documentation for Copilot Studio
-- KQL query library for usage, performance, and operational health panels
-- Deployable Azure Monitor Workbook JSON template with 3 tabs (Usage/Business Value, Performance/Errors, Operational Health)
-- RBAC configuration guide for read-only workbook access (ALM separation-of-duties)
-- ARM template or manual deployment playbook with prerequisites
-- Controls 3.2, 3.9, 2.9 updated with workbook cross-references
-- solutions-index.md catalog entry and customization guide
+- 5 Dataverse tables (AgentSharingSetting, SharingViolation, SharingException, ApprovedSecurityGroup, SharingPolicy)
+- 3 Power Automate flows (Detector, Remediation, Exception Approval)
+- 1 Power Apps Canvas App (Exception Manager)
+- 5 PowerShell scripts (Import-ApprovedSecurityGroups, Deploy-DetectionFlow, Deploy-RemediationFlow, Invoke-SharingAudit, Export-ViolationReport)
+- Framework documentation (solutions-index entry, control updates, architecture/deployment guides)
+- Adaptive card template for Teams violation alerts
 
 ## Current State (v10 Shipped)
 
@@ -40,11 +39,13 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v9: Cross-Solution Integration — ELM hooks, Compliance Dashboard feeds, unified evidence export
 - v10: Conditional Access Automation — CA policy lifecycle management with drift detection and evidence export
 - v14: SSPM Control Coverage Remediation — 32 SSPM alerts mapped to 8 controls, PowerShell hardening baseline v1.1.0, playbook remediation, environment security settings
+- v15: Agent Usage & Performance Workbook — deployable Azure Monitor Workbook for Copilot Studio usage, performance, and error visibility with RBAC-scoped access
 
 **Solutions Status:**
-- 12 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation
+- 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation, Agent Usage & Performance Workbook
 - 1 Validated: FINRA Supervision Workflow
-- 3 Work In Progress: Deny Event Correlation Report, Segregation Detector, RAG Source Validator
+- 1 In Progress: Unrestricted Agent Sharing Detector
+- 2 Work In Progress: Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
 ## Requirements
@@ -93,19 +94,16 @@ Capabilities delivered:
 
 ### Active
 
-**v15: Agent Usage & Performance Workbook**
+**v16: Unrestricted Agent Sharing Detector**
 
-Deployable Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility:
-- Telemetry Foundation: Application Insights schema documentation + KQL query library
-- Workbook Template: 3-tab workbook (Usage/Business Value, Performance/Errors, Operational Health)
-- Deployment & Access: RBAC configuration + ARM template deployment
-- Framework Integration: Controls 3.2, 3.9, 2.9 cross-references + solutions catalog entry
-- Phase 3: Terminology & Version Normalization (Zone/Tier/Level, role names, footers)
-- Phase 4: Cross-Reference & Link Integrity (solution mappings, path errors)
-- Phase 5: Script & Code Fixes (PowerShell bugs, non-existent cmdlets)
-- Phase 6: Gap Backfill & Design Improvements (missing guides, inter-linking)
+Continuous agent sharing compliance solution using BAP APIs:
+- Solution Infrastructure: 5 Dataverse tables, 6 UASD-specific + 2 shared option sets, environment variables, connection references
+- Detection Engine: Detector flow, on-demand audit script, adaptive card template, 5 violation rules
+- Remediation & Exceptions: Remediation flow (approval-default), exception approval flow (dual approval), Exception Manager canvas app
+- Deployment & Operations: Deploy scripts, violation export with SHA-256, deployment guide
+- Framework Integration: Controls 1.1, 3.8 updates, solutions-index entry, architecture docs
 
-**Current milestone: v15 — Agent Usage & Performance Workbook (DEFINING)**
+**Current milestone: v16 — Unrestricted Agent Sharing Detector (PLANNING)**
 
 ### Out of Scope
 
@@ -190,6 +188,12 @@ Deployable Azure Monitor Workbook for Copilot Studio agent usage, performance, a
 | v8 binary validation model | File upload is enabled/disabled per agent, not multi-level; solution validates on/off status per zone | ✓ Good |
 | v8 Control 1.14 as primary | Data minimization — file uploads expand data intake beyond declared scope | ✓ Good |
 | v8 content moderation cross-check | Agents with file uploads enabled must meet minimum moderation level by zone | ✓ Good |
+| v16 fsi_ prefix (not jd_) | All Dataverse tables use fsi_ prefix for consistency with 12+ shipped solutions | ✓ Good |
+| v16 map severity to fsi_acv_severity | Reuse shared option set; Critical→Failed(4), High→Error(5), Medium→Warning(2), Low→GracePeriod(3) | ✓ Good |
+| v16 UASD complements AAM | AAM = environment-level access settings; UASD = per-agent sharing principals | ✓ Good |
+| v16 inline agent identity | No agentvault lookup; store fsi_agent_id, fsi_agent_name, fsi_environment_id inline | ✓ Good |
+| v16 lab-grade security | Interactive auth for now; managed identity deferred | ✓ Good |
+| v16 BAP APIs as specified | Spec endpoints used literally; API documentation gaps flagged | ✓ Good |
 | v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
 | v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
 | v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
@@ -200,4 +204,4 @@ Deployable Azure Monitor Workbook for Copilot Studio agent usage, performance, a
 | v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-10 after v11 milestone start*
+*Last updated: 2026-02-12 after v16 milestone initialization*

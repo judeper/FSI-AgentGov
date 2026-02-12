@@ -1,4 +1,5 @@
 {
+  "project_name": "Unrestricted Agent Sharing Detector (v16)",
   "mode": "yolo",
   "depth": "comprehensive",
   "parallelization": true,
