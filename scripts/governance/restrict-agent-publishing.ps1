@@ -67,7 +67,7 @@
 .NOTES
     Part of the FSI Agent Governance — Publishing Restriction Governance.
     Controls: 1.1, 2.1, 3.7
-    Version: 1.0.0
+    Version: 1.1.0
     Requires: Microsoft.PowerApps.Administration.PowerShell (2.0.0+)
 #>
 
@@ -185,6 +185,19 @@ function New-PublishingCheckResult {
     }
 }
 
+function Get-EvidenceHash {
+    <#
+    .SYNOPSIS
+        Computes SHA-256 hash of evidence JSON for integrity verification.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$EvidenceJson)
+    $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+        [System.Text.Encoding]::UTF8.GetBytes($EvidenceJson)
+    )
+    return [BitConverter]::ToString($hashBytes) -replace '-'
+}
+
 # ─── Initialize Results ──────────────────────────────────────────────
 $allChecks = [System.Collections.Generic.List[PSCustomObject]]::new()
 $gaps = [System.Collections.Generic.List[string]]::new()
@@ -197,6 +210,13 @@ Write-Verbose "Check Group 1: Tenant Settings — Criterion 3 (Share with Everyo
 
 try {
     $tenantSettings = Get-TenantSettings
+
+    # Compute per-check evidence hash for Criterion 3
+    $c3EvidenceHash = $null
+    if ($IncludeEvidence) {
+        $c3EvidenceJson = $tenantSettings | ConvertTo-Json -Depth 5 -Compress
+        $c3EvidenceHash = Get-EvidenceHash -EvidenceJson $c3EvidenceJson
+    }
 
     # Primary path: powerPlatform.powerApps.disableShareWithEveryone
     $shareWithEveryoneDisabled = $tenantSettings.powerPlatform.powerApps.disableShareWithEveryone
@@ -233,7 +253,8 @@ try {
             -CheckGroup 'TenantSettings' -Status $c3Status `
             -Expected 'disableShareWithEveryone = True' `
             -Actual "disableShareWithEveryone=$shareWithEveryoneDisabled" `
-            -Environment 'Tenant' -Zone $zoneNum -Message $c3Message))
+            -Environment 'Tenant' -Zone $zoneNum -Message $c3Message `
+            -EvidenceHash $c3EvidenceHash))
 
         if ($c3Status -eq 'Fail') {
             $gaps.Add("Criterion 3: Share with Everyone not disabled — required for Zone $zoneNum governance")
@@ -278,6 +299,13 @@ try {
         try {
             $roleAssignments = Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $envId -ErrorAction Stop
 
+            # Compute per-check evidence hash for Criterion 1
+            $c1EvidenceHash = $null
+            if ($IncludeEvidence) {
+                $c1EvidenceJson = $roleAssignments | ConvertTo-Json -Depth 5 -Compress
+                $c1EvidenceHash = Get-EvidenceHash -EvidenceJson $c1EvidenceJson
+            }
+
             # Check for "All Users" principal holding Environment Maker role
             # Well-known patterns: PrincipalDisplayName or PrincipalObjectId matching org-wide
             $broadMakerAssignments = $roleAssignments | Where-Object {
@@ -301,7 +329,8 @@ try {
                     -CheckGroup 'EnvironmentRoles' -Status $c1Status `
                     -Expected 'No broad principal with Environment Maker role' `
                     -Actual "Broad principals: $broadPrincipals" `
-                    -Environment $envName -Zone $zone -Message $c1Message))
+                    -Environment $envName -Zone $zone -Message $c1Message `
+                    -EvidenceHash $c1EvidenceHash))
 
                 if ($c1Status -eq 'Fail') {
                     $gaps.Add("Criterion 1: Broad principal(s) '$broadPrincipals' hold Environment Maker role in '$envName' (Zone $zone)")
@@ -314,7 +343,8 @@ try {
                     -Expected 'No broad principal with Environment Maker role' `
                     -Actual 'No broad principals detected' `
                     -Environment $envName -Zone $zone `
-                    -Message 'Environment Maker role not assigned to broad principals'))
+                    -Message 'Environment Maker role not assigned to broad principals' `
+                    -EvidenceHash $c1EvidenceHash))
             }
         }
         catch {
@@ -330,6 +360,13 @@ try {
         try {
             $securityGroupId = $env.Internal.properties.securityGroupId
             $groupInfo = $null
+
+            # Compute per-check evidence hash for Criterion 2
+            $c2EvidenceHash = $null
+            if ($IncludeEvidence) {
+                $c2EvidenceJson = $env.Internal.properties | ConvertTo-Json -Depth 5 -Compress
+                $c2EvidenceHash = Get-EvidenceHash -EvidenceJson $c2EvidenceJson
+            }
 
             if ($securityGroupId) {
                 # Attempt Graph API resolution for group name (best-effort)
@@ -357,7 +394,8 @@ try {
                     -Expected 'Security group assigned to environment' `
                     -Actual $actualValue `
                     -Environment $envName -Zone $zone `
-                    -Message "Security group configured$patternMatch"))
+                    -Message "Security group configured$patternMatch" `
+                    -EvidenceHash $c2EvidenceHash))
             }
             else {
                 if ($zone -ge 2) {
@@ -374,7 +412,8 @@ try {
                     -CheckGroup 'EnvironmentRoles' -Status $c2Status `
                     -Expected 'Security group assigned to environment' `
                     -Actual 'No security group assigned' `
-                    -Environment $envName -Zone $zone -Message $c2Message))
+                    -Environment $envName -Zone $zone -Message $c2Message `
+                    -EvidenceHash $c2EvidenceHash))
 
                 if ($c2Status -eq 'Fail') {
                     $gaps.Add("Criterion 2: No security group assigned to environment '$envName' (Zone $zone)")
@@ -394,6 +433,13 @@ try {
         try {
             $govConfig = $env.Internal.properties.governanceConfiguration
 
+            # Compute per-check evidence hash for Criterion 5
+            $c5EvidenceHash = $null
+            if ($IncludeEvidence -and $null -ne $govConfig) {
+                $c5EvidenceJson = $govConfig | ConvertTo-Json -Depth 5 -Compress
+                $c5EvidenceHash = Get-EvidenceHash -EvidenceJson $c5EvidenceJson
+            }
+
             if ($null -eq $govConfig) {
                 if ($zone -ge 2) {
                     $c5Status = 'Fail'
@@ -409,7 +455,8 @@ try {
                     -CheckGroup 'EnvironmentRoles' -Status $c5Status `
                     -Expected 'Managed Environment with sharing limits configured' `
                     -Actual 'governanceConfiguration not found' `
-                    -Environment $envName -Zone $zone -Message $c5Message))
+                    -Environment $envName -Zone $zone -Message $c5Message `
+                    -EvidenceHash $c5EvidenceHash))
 
                 if ($c5Status -eq 'Fail') {
                     $gaps.Add("Criterion 5: No governance configuration in '$envName' (Zone $zone) — Managed Environment required")
@@ -497,7 +544,8 @@ try {
                     -CheckGroup 'EnvironmentRoles' -Status $c5Status `
                     -Expected "Managed Environment with zone-appropriate sharing limit" `
                     -Actual $c5Actual `
-                    -Environment $envName -Zone $zone -Message $c5Message))
+                    -Environment $envName -Zone $zone -Message $c5Message `
+                    -EvidenceHash $c5EvidenceHash))
 
                 if ($c5Status -eq 'Fail') {
                     $gaps.Add("Criterion 5: $c5Message in '$envName' (Zone $zone)")
@@ -536,6 +584,13 @@ Write-Verbose "Check Group 3: DLP Policy Check — Criterion 4..."
 try {
     $dlpPolicies = Get-AdminDlpPolicy -ErrorAction Stop
 
+    # Compute per-check evidence hash for Criterion 4
+    $c4EvidenceHash = $null
+    if ($IncludeEvidence) {
+        $c4EvidenceJson = $dlpPolicies | ConvertTo-Json -Depth 5 -Compress
+        $c4EvidenceHash = Get-EvidenceHash -EvidenceJson $c4EvidenceJson
+    }
+
     # Known connector display names related to agent publishing
     $agentConnectorPatterns = @(
         'Microsoft Copilot Studio',
@@ -558,7 +613,8 @@ try {
                     -Expected 'DLP not required for Zone 1' `
                     -Actual 'Zone 1 — DLP check not applicable' `
                     -Environment $envName -Zone $zone `
-                    -Message 'DLP connector blocking not required for Zone 1 (Personal Productivity)'))
+                    -Message 'DLP connector blocking not required for Zone 1 (Personal Productivity)' `
+                    -EvidenceHash $c4EvidenceHash))
                 continue
             }
 
@@ -613,7 +669,8 @@ try {
                     -Expected 'DLP policy blocks agent publishing connectors' `
                     -Actual "Covering policies: $policyNames" `
                     -Environment $envName -Zone $zone `
-                    -Message "Semi-automated: DLP policy found blocking agent connectors — verify connector list manually"))
+                    -Message "Semi-automated: DLP policy found blocking agent connectors — verify connector list manually" `
+                    -EvidenceHash $c4EvidenceHash))
             }
             else {
                 $allChecks.Add((New-PublishingCheckResult -CriterionNumber 4 `
@@ -622,7 +679,8 @@ try {
                     -Expected 'DLP policy blocks agent publishing connectors' `
                     -Actual 'No covering DLP policy found' `
                     -Environment $envName -Zone $zone `
-                    -Message "Semi-automated: No DLP policy found blocking agent connectors for this environment — verify manually"))
+                    -Message "Semi-automated: No DLP policy found blocking agent connectors for this environment — verify manually" `
+                    -EvidenceHash $c4EvidenceHash))
 
                 $gaps.Add("Criterion 4: No DLP policy blocks agent publishing connectors in '$envName' (Zone $zone)")
             }
@@ -668,11 +726,13 @@ if ($environments) {
         # Zone 2/3: Check for approval indicators
         $approvalFound = $false
         $approvalDetails = @()
+        $c6EvidenceData = @()
 
         # Check 1: Governance configuration for maker onboarding settings
         try {
             $govConfig = $env.Internal.properties.governanceConfiguration
             if ($govConfig) {
+                $c6EvidenceData += $govConfig
                 $makerOnboarding = $govConfig.settings.extendedSettings.makerOnboardingUrl
                 $makerWelcome = $govConfig.settings.extendedSettings.makerOnboardingMarkdown
 
@@ -689,6 +749,7 @@ if ($environments) {
         # Check 2: Attempt to detect approval flows by naming pattern
         try {
             $flows = Get-AdminFlow -EnvironmentName $envId -ErrorAction Stop
+            if ($flows) { $c6EvidenceData += $flows }
             $approvalFlows = $flows | Where-Object {
                 $_.DisplayName -match 'agent.*publish.*approval|publishing.*approval|maker.*request|agent.*request.*approval'
             }
@@ -704,6 +765,13 @@ if ($environments) {
             $approvalDetails += "Flow enumeration unavailable — verify manually"
         }
 
+        # Compute per-check evidence hash for Criterion 6
+        $c6EvidenceHash = $null
+        if ($IncludeEvidence -and $c6EvidenceData.Count -gt 0) {
+            $c6EvidenceJson = $c6EvidenceData | ConvertTo-Json -Depth 5 -Compress
+            $c6EvidenceHash = Get-EvidenceHash -EvidenceJson $c6EvidenceJson
+        }
+
         if ($approvalFound) {
             $allChecks.Add((New-PublishingCheckResult -CriterionNumber 6 `
                 -Setting 'Approval workflow active' `
@@ -711,7 +779,8 @@ if ($environments) {
                 -Expected "Approval workflow configured for Zone $zone" `
                 -Actual ($approvalDetails -join '; ') `
                 -Environment $envName -Zone $zone `
-                -Message "Semi-automated: Approval indicators found — verify workflow is operational"))
+                -Message "Semi-automated: Approval indicators found — verify workflow is operational" `
+                -EvidenceHash $c6EvidenceHash))
         }
         else {
             $c6Message = "Semi-automated: No approval workflow indicators found — verify manually"
@@ -725,7 +794,8 @@ if ($environments) {
                 -Expected "Approval workflow configured for Zone $zone" `
                 -Actual 'No approval indicators detected' `
                 -Environment $envName -Zone $zone `
-                -Message $c6Message))
+                -Message $c6Message `
+                -EvidenceHash $c6EvidenceHash))
 
             $gaps.Add("Criterion 6: No approval workflow found in '$envName' (Zone $zone)")
         }
@@ -753,7 +823,7 @@ $duration = ([DateTime]::UtcNow - $startTime).TotalSeconds
 $results = [PSCustomObject]@{
     Metadata = [PSCustomObject]@{
         ScriptName          = 'restrict-agent-publishing'
-        ScriptVersion       = '1.0.0'
+        ScriptVersion       = '1.1.0'
         CheckedAt           = $startTime.ToString('o')
         DurationSeconds     = [math]::Round($duration, 2)
         EnvironmentsScanned = $envCount

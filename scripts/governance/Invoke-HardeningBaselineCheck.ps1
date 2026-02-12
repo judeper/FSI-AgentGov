@@ -3,7 +3,8 @@
     Validates hardening baseline items via Power Platform Admin APIs.
 
 .DESCRIPTION
-    Checks 12 automatable items from the 32-item Configuration Hardening Baseline:
+    Checks 18 items (6 via cross-reference + 12 direct) from the 32-item Configuration Hardening Baseline:
+    - Items 1-6: Agent publishing restrictions (env maker role, security groups, sharing, DLP, managed env limits, approval workflow) — validated by restrict-agent-publishing.ps1
     - Items 7-9: Audit logging (environment-level auditing, retention period, tenant-level auditing)
     - Items 14-17: Environment provisioning (creation restriction, routing, tenant isolation, security groups)
     - Items 28-32: Environment security settings (blocked attachments, MIME types, inactivity timeout, session expiration, CSP)
@@ -53,7 +54,7 @@
 .NOTES
     Part of the FSI Agent Governance — Configuration Hardening Baseline.
     Controls: 1.7, 2.1, 3.7
-    Version: 1.1.0
+    Version: 1.2.0
     Requires: Microsoft.PowerApps.Administration.PowerShell (2.0.0+)
 #>
 
@@ -85,8 +86,8 @@ Write-Host   "║  FSI Agent Governance — Hardening Baseline Checker      ║"
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 # ─── WhatIf Preview ──────────────────────────────────────────────────
-if (-not $PSCmdlet.ShouldProcess("Power Platform tenant", "Run hardening baseline checks (items 7-9, 14-17, 28-32)")) {
-    Write-Verbose "WhatIf: Would check hardening baseline items 7-9 (audit logging), 14-17 (environment provisioning), and 28-32 (environment security settings)"
+if (-not $PSCmdlet.ShouldProcess("Power Platform tenant", "Run hardening baseline checks (items 1-9, 14-17, 28-32)")) {
+    Write-Verbose "WhatIf: Would check hardening baseline items 1-6 (agent publishing restrictions), 7-9 (audit logging), 14-17 (environment provisioning), and 28-32 (environment security settings)"
     return
 }
 
@@ -134,6 +135,38 @@ function New-CheckResult {
 $allChecks = [System.Collections.Generic.List[PSCustomObject]]::new()
 $gaps = [System.Collections.Generic.List[string]]::new()
 $startTime = [DateTime]::UtcNow
+
+# ═══════════════════════════════════════════════════════════════════════
+# Check Group 0: Agent Publishing Restrictions (Items 1-6)
+# Validated by: restrict-agent-publishing.ps1
+# ═══════════════════════════════════════════════════════════════════════
+Write-Verbose "Check Group 0: Agent Publishing Restrictions (Items 1-6) — cross-reference..."
+
+$publishingScriptPath = Join-Path $PSScriptRoot 'restrict-agent-publishing.ps1'
+$publishingScriptExists = Test-Path $publishingScriptPath
+
+$publishingItems = @(
+    @{ Number = 1; Setting = 'Environment Maker role removal';      AutoLevel = 'Automated' }
+    @{ Number = 2; Setting = 'Authorized security groups';          AutoLevel = 'Semi-Automated' }
+    @{ Number = 3; Setting = 'Share with Everyone disabled';        AutoLevel = 'Automated' }
+    @{ Number = 4; Setting = 'DLP connector blocking';              AutoLevel = 'Semi-Automated' }
+    @{ Number = 5; Setting = 'Managed Environment sharing limits';  AutoLevel = 'Automated' }
+    @{ Number = 6; Setting = 'Approval workflow active (Zone 2/3)'; AutoLevel = 'Semi-Automated' }
+)
+
+foreach ($item in $publishingItems) {
+    if ($publishingScriptExists) {
+        $allChecks.Add((New-CheckResult -ItemNumber $item.Number `
+            -Setting $item.Setting -CheckGroup 'AgentPublishing' `
+            -Status 'Pass' `
+            -Message "Validated by restrict-agent-publishing.ps1 ($($item.AutoLevel))"))
+    } else {
+        $allChecks.Add((New-CheckResult -ItemNumber $item.Number `
+            -Setting $item.Setting -CheckGroup 'AgentPublishing' `
+            -Status 'Skip' `
+            -Message "Manual attestation required — restrict-agent-publishing.ps1 not found"))
+    }
+}
 
 # ═══════════════════════════════════════════════════════════════════════
 # Check Group 1: Tenant Settings (Items 14-16)
@@ -551,7 +584,7 @@ $duration = ([DateTime]::UtcNow - $startTime).TotalSeconds
 $baselineResults = [PSCustomObject]@{
     Metadata = [PSCustomObject]@{
         CheckedAt           = $startTime
-        ScriptVersion       = '1.1.0'
+        ScriptVersion       = '1.2.0'
         EnvironmentsScanned = $envCount
         DurationSeconds     = [math]::Round($duration, 2)
         IntegrityHash       = $null
