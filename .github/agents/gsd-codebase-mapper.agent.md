@@ -63,8 +63,8 @@ Write analysis to `.planning/codebase/{focus-area}.md`:
 ## FSI-AgentGov Context
 
 - **62 controls** across 4 pillars in `docs/controls/`
-- **248 playbooks** in `docs/playbooks/control-implementations/`
-- **13 solutions** in companion repo FSI-AgentGov-Solutions
+- **251 playbooks** in `docs/playbooks/control-implementations/`
+- **16 solutions** in companion repo FSI-AgentGov-Solutions
 - **MkDocs Material** site with strict build validation
 - **3 governance zones** (Personal, Team, Enterprise)
 - **7 target regulations** (FINRA, SEC, SOX, GLBA, OCC, Fed SR, CFTC)

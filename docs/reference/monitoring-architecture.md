@@ -11,7 +11,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 **Implementation Status:** Active and operational as of February 2026.
 
 **Coverage:**
-- **Microsoft Learn:** 209 URLs monitored daily
+- **Microsoft Learn:** 207 URLs monitored daily
 - **Regulatory Sources:** Federal Register (SEC, CFTC, OCC, Federal Reserve) + FINRA notices monitored weekly
 
 **Key Principle:** ONE unified monitoring system with multiple source adapters, not separate independent monitors.
@@ -172,7 +172,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 # Learn Monitor Report - YYYY-MM-DD
 
 **Run Date:** YYYY-MM-DD
-**URLs Monitored:** 209
+**URLs Monitored:** 207
 **Meaningful Changes:** N
 
 ## Summary
@@ -229,7 +229,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 **Workflow:** `.github/workflows/learn-monitor.yml`
 **Schedule:** Daily at 6:00 AM UTC
 
-**Data Source:** `docs/reference/microsoft-learn-urls.md` (209 URLs)
+**Data Source:** `docs/reference/microsoft-learn-urls.md` (207 URLs)
 
 **Process:**
 1. Load URLs from watchlist

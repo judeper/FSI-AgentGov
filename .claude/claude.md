@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.38** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.39** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -32,6 +32,9 @@
 | `coi-testing/` | v1.0.0 | Conflict of interest testing for agent recommendations |
 | `hallucination-tracker/` | v1.0.0 | Feedback aggregation for hallucination pattern analysis |
 | `dr-testing-framework/` | v1.0.0 | Automated disaster recovery testing for AI agents |
+| `agent-observability-foundation/` | v1.1.0 | Telemetry infrastructure for Copilot Studio agents |
+| `audit-configuration-validator/` | v1.0.0 | Automated validation of tenant audit configurations |
+| `session-security-configurator/` | v1.0.0 | Authentication context lifecycle and step-up policies |
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
@@ -117,9 +120,9 @@ FSI-AgentGov/
 │   │   ├── pillar-2-management/   # 2.1-2.21 (21 controls)
 │   │   ├── pillar-3-reporting/    # 3.1-3.10 (10 controls)
 │   │   └── pillar-4-sharepoint/   # 4.1-4.7 (7 controls)
-│   ├── playbooks/             # Layer 3: Implementation guides (254 files)
-│   │   ├── control-implementations/  # 4 playbooks per control (248 files)
-│   │   └── advanced-implementations/ # Complex multi-control solutions (6 files)
+│   ├── playbooks/             # Layer 3: Implementation guides (282 files)
+│   │   ├── control-implementations/  # 4 playbooks per control (251 files)
+│   │   └── advanced-implementations/ # Complex multi-control solutions (31 files)
 │   ├── reference/             # Supporting materials
 │   ├── downloads/             # Excel templates
 │   └── images/                # Screenshot specs
@@ -389,14 +392,14 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.38 (February 2026)
-**Status:** All 62 controls complete, 248 control playbooks + 27 advanced implementation docs, build passing, Learn monitor active (209 URLs)
+**Version:** 1.2.39 (February 2026)
+**Status:** All 62 controls complete, 251 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs)
 
 **Key capabilities in recent releases:**
 
 - Native Microsoft Defender integration for AI agents (v1.2.37)
 - AI-assisted Learn Monitor review with `/review-learn-changes` skill (v1.2.37)
-- 13 deployable FSI-AgentGov-Solutions covering 17 controls / 27.4% coverage (v1.2.36)
+- 16 deployable FSI-AgentGov-Solutions covering 28+ controls / ~45% coverage (v1.2.36)
 - Solutions architecture guide with enterprise scalability patterns (v1.2.26)
 - February 2026 pipeline Managed Environment enforcement deadline (v1.2.25)
 - Research report remediation across 76 reports for regulatory accuracy (v1.2.32)
@@ -407,7 +410,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.38
+- **Framework Version:** 1.2.39
 - **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions
