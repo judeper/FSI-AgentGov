@@ -1,0 +1,52 @@
+{
+  "templateVersion": "1.0.0",
+  "zone": 2,
+  "zoneName": "Team Collaboration",
+  "description": "Zone 2 recommended MIME restrictions. Extends Zone 1 with PowerShell script blocking, explicit MIME type blocking for executable and script content types, and an allowlist of standard document and image formats. Requires DLP integration.",
+  "blockedExtensions": [
+    "ade", "adp", "app", "asa", "asp", "bat", "cdx", "cmd", "com", "cpl",
+    "crt", "csh", "dll", "exe", "hta", "inf", "ins", "jar", "js", "jse",
+    "lnk", "mda", "mdb", "mde", "msc", "msi", "msp", "mst", "pcd", "pif",
+    "ps1", "reg", "scr", "sct", "shb", "shs", "tmp", "url", "vb", "vbe",
+    "vbs", "ws", "wsc", "wsf", "wsh"
+  ],
+  "blockedMimeTypes": [
+    "application/x-msdownload",
+    "application/x-msdos-program",
+    "application/x-bat",
+    "application/x-cmd",
+    "application/x-vbs",
+    "application/javascript",
+    "application/x-javascript",
+    "text/javascript",
+    "application/x-powershell",
+    "application/x-msi",
+    "application/hta",
+    "application/msaccess",
+    "text/scriplet",
+    "application/xml",
+    "application/prg"
+  ],
+  "allowedMimeTypes": [
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "text/plain",
+    "text/csv",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ],
+  "flags": {
+    "requireServerSideValidation": false,
+    "requireDlpIntegration": true,
+    "requireSentinelMonitoring": false
+  },
+  "reviewCadence": "Monthly",
+  "metadata": {
+    "lastUpdated": "2026-02-12",
+    "version": "1.3",
+    "controlReference": "1.25"
+  }
+}

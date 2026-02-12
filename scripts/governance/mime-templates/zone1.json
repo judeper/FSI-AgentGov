@@ -1,0 +1,26 @@
+{
+  "templateVersion": "1.0.0",
+  "zone": 1,
+  "zoneName": "Personal Productivity",
+  "description": "Zone 1 baseline MIME restrictions. Uses Microsoft default blocked extensions only. No MIME type blocking or allowlisting. Suitable for personal productivity environments with standard security posture.",
+  "blockedExtensions": [
+    "ade", "adp", "app", "asa", "asp", "bat", "cdx", "cmd", "com", "cpl",
+    "crt", "csh", "dll", "exe", "hta", "inf", "ins", "jar", "js", "jse",
+    "lnk", "mda", "mdb", "mde", "msc", "msi", "msp", "mst", "pcd", "pif",
+    "reg", "scr", "sct", "shb", "shs", "tmp", "url", "vb", "vbe", "vbs",
+    "ws", "wsc", "wsf", "wsh"
+  ],
+  "blockedMimeTypes": [],
+  "allowedMimeTypes": [],
+  "flags": {
+    "requireServerSideValidation": false,
+    "requireDlpIntegration": false,
+    "requireSentinelMonitoring": false
+  },
+  "reviewCadence": "Quarterly",
+  "metadata": {
+    "lastUpdated": "2026-02-12",
+    "version": "1.3",
+    "controlReference": "1.25"
+  }
+}

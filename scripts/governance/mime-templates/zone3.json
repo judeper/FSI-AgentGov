@@ -1,0 +1,60 @@
+{
+  "templateVersion": "1.0.0",
+  "zone": 3,
+  "zoneName": "Enterprise Managed",
+  "description": "Zone 3 regulated MIME restrictions. Comprehensive blocklist extending Zone 2 with PowerShell variants, cabinet archives, and Windows gadget formats. Strict allowlist limited to standard document and image types. Requires server-side validation, DLP integration, and Sentinel monitoring.",
+  "blockedExtensions": [
+    "ade", "adp", "app", "asa", "asp", "bat", "cab", "cdx", "cmd", "com",
+    "cpl", "crt", "csh", "dll", "exe", "gadget", "hta", "inf", "ins",
+    "isp", "its", "jar", "js", "jse", "lnk", "mda", "mdb", "mde", "msc",
+    "msi", "msp", "mst", "pcd", "pif", "ps1", "ps1xml", "ps2", "ps2xml",
+    "psc1", "psc2", "reg", "rgs", "scr", "sct", "shb", "shs", "tmp",
+    "url", "vb", "vbe", "vbs", "ws", "wsc", "wsf", "wsh"
+  ],
+  "blockedMimeTypes": [
+    "application/x-msdownload",
+    "application/x-msdos-program",
+    "application/x-bat",
+    "application/x-cmd",
+    "application/x-vbs",
+    "application/javascript",
+    "application/x-javascript",
+    "text/javascript",
+    "application/x-powershell",
+    "application/x-msi",
+    "application/hta",
+    "application/msaccess",
+    "text/scriplet",
+    "application/xml",
+    "application/prg",
+    "application/x-shellscript",
+    "application/x-sh",
+    "application/x-csh",
+    "application/java-archive",
+    "application/x-ms-shortcut",
+    "text/xml"
+  ],
+  "allowedMimeTypes": [
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/tiff",
+    "text/plain",
+    "text/csv",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ],
+  "flags": {
+    "requireServerSideValidation": true,
+    "requireDlpIntegration": true,
+    "requireSentinelMonitoring": true
+  },
+  "reviewCadence": "Weekly",
+  "metadata": {
+    "lastUpdated": "2026-02-12",
+    "version": "1.3",
+    "controlReference": "1.25"
+  }
+}
