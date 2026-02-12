@@ -1,5 +1,31 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v16 Unrestricted Agent Sharing Detector (Completed: 2026-02-12)
+
+**Delivered:** Continuous agent sharing compliance solution using BAP APIs to detect unsafe sharing configurations across Power Platform environments, record violations in Dataverse, drive remediation through Power Automate with approval workflows, and enforce time-bound exceptions via an Exception Manager canvas app. Complements the existing Agent Access Governance Monitor (AAM = environment-level; UASD = per-agent sharing). Includes 5-table Dataverse schema, detector flow with 5 violation rules, remediation flow with exception suppression, dual-approval exception lifecycle, deployment scripts, violation export with SHA-256 evidence hashing, and full framework integration.
+
+**Phases completed:** 1-5 (10 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Solution Infrastructure (2 plans):** Created Dataverse schema with 5 tables (`fsi_AgentSharingSetting`, `fsi_SharingViolation`, `fsi_SharingException`, `fsi_ApprovedSecurityGroup`, `fsi_SharingPolicy`) using `fsi_` prefix, 6 solution-specific option sets (`fsi_UASD_*`), reusing `fsi_acv_zone`/`fsi_acv_severity` shared option sets; defined 4 environment variables and 2 connection references; documented seed policy row
+- **Phase 2 — Detection Engine (2 plans):** Built detector flow JSON (`fsi-UASD-Detector-ScanAgents`) with scheduled trigger, BAP API agent enumeration and principal retrieval, Dataverse upsert, all 5 violation rules (ORG_WIDE_SHARING, PUBLIC_INTERNET_LINK, UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS); created `Invoke-SharingAudit.ps1` on-demand PowerShell script; built adaptive card template for Teams notifications
+- **Phase 3 — Remediation & Exception Management (2 plans):** Built remediation flow triggered on violation creation with exception check and approval/auto paths (auto only for PUBLIC_INTERNET_LINK when enabled), BAP PATCH to overwrite principals; built exception approval flow with sequential dual approval (Security → Data Owner) and 90-day default expiration; created Exception Manager canvas app JSON; built `Import-ApprovedSecurityGroups.ps1` with idempotent CSV/JSON upsert
+- **Phase 4 — Deployment & Operations (2 plans):** Created `Deploy-DetectionFlow.ps1` and `Deploy-RemediationFlow.ps1` deployment scripts with connection reference binding; built `Export-ViolationReport.ps1` with CSV/JSON output and `-IncludeEvidence` SHA-256 hash support; created comprehensive deployment guide with prerequisites and validation checklist
+- **Phase 5 — Framework Integration & Validation (2 plans):** Added UASD entry to solutions-index.md with regulatory alignment (FINRA 4511, SOX 404, SEC 17a-3/4, GLBA 501(b)); updated Controls 1.1 and 3.8 with tip admonitions; created architecture overview doc; updated mkdocs.yml nav; reconciled AAM status (WIP → Completed); all validations pass (mkdocs build --strict, verify_controls.py 62/62, verify_language_rules.py 0 violations)
+
+**Stats:**
+
+- 5 phases, 10 plans, 16 requirements (100% satisfied — INFRA-3, DET-3, REM-3, OPS-3, FRM-3, VAL-1)
+- Source: User-provided Unrestricted Agent Sharing Detector AI Implementation Spec
+- Key artifacts: 3 schema/config scripts, 3 flow JSONs, 1 canvas app JSON, 1 adaptive card JSON, 4 governance PowerShell scripts, deployment guide, architecture overview
+- Controls modified: 1.1, 3.8
+- 1 day (2026-02-12)
+
+**What's next:** Define next milestone or assess backlog.
+
+---
+
 ## v15 Agent Usage & Performance Workbook (Completed: 2026-02-11)
 
 **Delivered:** Deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap for FSI organizations where production Analytics tab access is restricted. Includes telemetry schema documentation, 3-tab workbook JSON template, deployment guide, customization guide, and full framework integration across 3 controls and the solutions catalog.
@@ -395,4 +421,4 @@
 
 ---
 
-*Last updated: 2026-02-11 after v14 milestone*
+*Last updated: 2026-02-12 after v16 milestone*
