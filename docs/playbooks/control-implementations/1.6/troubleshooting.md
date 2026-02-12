@@ -150,7 +150,7 @@
    - Agent 365 SDK agents require Observability SDK integration for risk scoring
    - Verify agent code includes: `import { observability } from '@microsoft/agent-sdk'`
    - Check Observability SDK telemetry export: Agent settings should include Application Insights connection string
-   - See [Agent 365 Observability documentation](https://learn.microsoft.com/en-us/microsoft-365/agent-sdk/observability) for configuration guidance
+   - See [Microsoft 365 Agents SDK documentation](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/m365-agents-sdk) for configuration guidance
 3. Verify agent activity baseline:
    - Risk scoring requires 7-14 days of agent activity to establish baseline
    - Check agent has generated sufficient events: **Activity Explorer** should show 50+ events for agent

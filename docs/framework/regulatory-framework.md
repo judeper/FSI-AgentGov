@@ -147,7 +147,7 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
     | **Agent Autonomy Limits** | Dedicated supervisory procedures for autonomous AI agents | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
     | **Rule 3120 Testing** | Annual testing of AI supervisory controls per Rule 3120 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 
-    See: [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-annual-regulatory-oversight-report)
+    See: [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-finra-annual-regulatory-oversight-report)
 
 **Overview:** FINRA's AI supervision requirements derive from existing rules that apply to associated persons' use of AI tools for customer communications and recommendations.
 

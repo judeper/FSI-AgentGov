@@ -152,7 +152,7 @@ Framework provides supervision procedure guidance (8/62 controls). Implementatio
     | **Decision Reconstruction** | Demonstrate how agents reached conclusions | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) |
     | **Agent Autonomy Limits** | Dedicated supervisory procedures for AI agents | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 
-    See: [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-annual-regulatory-oversight-report)
+    See: [FINRA 2026 Annual Regulatory Oversight Report](https://www.finra.org/rules-guidance/guidance/reports/2026-finra-annual-regulatory-oversight-report)
 
 ### Overview
 
