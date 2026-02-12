@@ -1,73 +1,88 @@
-# Requirements: v17 — Agent Security Configuration Governance
+# Requirements: v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum)
 
 ## Overview
 
-Automate per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8. Converts 6 manual-only SSPM checks to automated validation, creates the phantom `restrict-agent-publishing.ps1` governance script, and adds zone-policy compliance verification for agent access settings.
+Add a new Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar and build the companion solution — automated validation and enforcement of Power Platform user inactivity timeout settings across multiple environments with zone-based policy-driven maximum duration requirements, Dataverse persistence, and PowerShell remediation.
 
-**Source:** Three pending todos from v16 research:
-- [Agent-Level Auth Enforcement Automation](todos/pending/2026-02-12-agent-auth-enforcement-automation.md)
-- [Create restrict-agent-publishing.ps1](todos/pending/2026-02-12-restrict-agent-publishing-script.md)
-- [Zone-Based Agent Access Validation](todos/pending/2026-02-12-zone-based-agent-access-validation.md)
+**Source:** AI Implementation Specification — "Inactivity Timeout Enforcement (Policy-Driven Maximum)" provided 2026-02-12. Defines deterministic, auditable, zone-aware inactivity timeout validation for regulated Financial Services environments.
+
+**Accuracy notes from research:**
+- Control ID 2.22 confirmed as next available in Pillar 2 (currently 2.1-2.21, 21 controls)
+- Framework control count changes from 63 to 64; Pillar 2 from 21 to 22
+- Playbook count changes from 252 to 256 (4 new playbooks for 2.22)
+- Hardening baseline item 30 already references inactivity timeout at flat ≤120 minutes — new control adds zone-based differentiation (Zone 2: ≤120, Zone 3: ≤60)
+- Control 3.7 (PPAC Security Posture) references inactivity timeout in its hardening checklist — needs cross-reference to 2.22
+- Session Security Configurator (v5, Control 1.23) is complementary but different scope: CA-based session policies (Graph API) vs PP environment privacy settings (BAP Admin API)
+- API endpoint: `GET/PATCH https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/{EnvironmentName}/settings/privacy?api-version=2021-04-01`
+- Canonical identifier `EnvironmentName` (Power Platform Environment Name) — NOT display name, NOT Dataverse row GUID
+- Spec language must be rewritten with hedged FSI-safe language where needed
 
 ## Requirement Categories
 
 | Code | Category | Count |
 |------|----------|-------|
-| AUTH | Agent Authentication Enforcement | 3 |
-| PUB | Publishing Restriction Governance | 3 |
-| ZAV | Zone Access Validation | 3 |
+| CTL | Control Documentation | 3 |
+| DVM | Dataverse Data Model | 3 |
+| FLW | Cloud Flow & Validation Logic | 3 |
+| REM | PowerShell Remediation | 2 |
 | FRM | Framework Integration | 3 |
-| **Total** | | **12** |
+| **Total** | | **14** |
 
-## AUTH — Agent Authentication Enforcement
+## CTL — Control Documentation
 
-- [x] **AUTH-01:** PowerShell script reads per-agent authentication configuration via BAP/PPAC REST endpoints — connects to Power Platform, enumerates agents per environment, retrieves auth mode/enforcement/sharing settings
-- [x] **AUTH-02:** Validate 6 SSPM items (SSPM-1.1-01 through SSPM-1.1-06) with zone-based logic — Zone 1 permissive (warn only), Zone 2/3 enforce "Always" auth timing, "No Authentication" flagged in all zones, sharing scope "Anyone" flagged in Zone 2/3
-- [x] **AUTH-03:** Drift detection for agent auth setting changes with SHA-256 evidence export — comparison against previous scan baseline, JSON output with integrity hashing for Dataverse ingestion
+- [ ] **CTL-01:** Create Control 2.22 documentation in `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` following 10-section template — header metadata (Control ID 2.22, Pillar: Management, Regulatory: GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12), objective (automated inactivity timeout validation with zone-based policy enforcement), FSI rationale, control description (policy-driven with `fsi_environmentpolicy` table, BAP Admin API retrieval, zone-aware compliance evaluation), key configuration points, zone-specific requirements table (Zone 1: Optional, Zone 2: Required ≤120 min, Zone 3: Required ≤60 min), roles & responsibilities, related controls (1.23, 3.7, 3.8), implementation playbooks, verification criteria, additional resources, footer metadata
+- [ ] **CTL-02:** Create 4 playbooks in `docs/playbooks/control-implementations/2.22/` — portal-walkthrough (PPAC Privacy + Security settings → inactivity timeout configuration), powershell-setup (Set-InactivityTimeout.ps1 usage with EnvironmentName parameter), verification-testing (Detect-InactivityTimeout-NonCompliance flow output validation, Dataverse compliance records review), troubleshooting (MissingPolicy, 401/403/404/429 errors, BAP API connectivity)
+- [ ] **CTL-03:** Create `docs/images/2.22/EXPECTED.md` screenshot specification — PPAC Environment Settings Privacy + Security page, inactivity timeout toggle and duration field, compliance scan results in Dataverse, notification email sample
 
-## PUB — Publishing Restriction Governance
+## DVM — Dataverse Data Model
 
-- [x] **PUB-01:** Create `restrict-agent-publishing.ps1` validating 6 publishing restriction criteria — Environment Maker role removal, authorized security groups, Share with Everyone disabled, DLP connector blocking, Managed Environment sharing limits, approval workflow active (Zone 2/3)
-- [x] **PUB-02:** SHA-256 evidence export and JSON output for downstream integration — structured JSON with per-check pass/fail, evidence hashes, timestamp; compatible with Dataverse ingestion patterns
-- [x] **PUB-03:** Integration with `Invoke-HardeningBaselineCheck.ps1` for items 1-6 — hardening baseline items 1-6 reclassified from "Manual Attestation" to "Automated" or "Semi-Automated"; baseline script calls or references the new validation
+- [ ] **DVM-01:** Create `fsi_environmentpolicy` table schema script — `fsi_environmentid` (Text PK, EnvironmentName), `fsi_environmentdisplayname` (Text), `fsi_zone` (Choice: Zone1/Zone2/Zone3), `fsi_requiredmaxduration` (Whole Number, minutes), `fsi_notes` (Multi-line Text); reuse `fsi_acv_zone` shared option set where compatible
+- [ ] **DVM-02:** Create `fsi_inactivitytimeout_compliance` table schema script — one record per environment per scan, never update in place; columns: `fsi_environmentid` (Text), `fsi_environmentname` (Text), `fsi_environmenttype` (Choice), `fsi_inactivitytimeoutenabled` (Boolean), `fsi_timeoutduration` (Whole Number), `fsi_requiredmaxduration` (Whole Number), `fsi_compliancestatus` (Choice: Compliant/Non-Compliant/Unknown), `fsi_lastscandate` (DateTime), `fsi_notes` (Multi-line Text); index on `(fsi_environmentid, fsi_lastscandate)`
+- [ ] **DVM-03:** Create `fsi_inactivitytimeout_errorlog` table schema script — columns: `fsi_environmentid` (Text), `fsi_errortype` (Text: 401/403/404/429/MissingPolicy/ParseError), `fsi_errorraw` (Multi-line Text), `fsi_timestamp` (DateTime)
 
-## ZAV — Zone Access Validation
+## FLW — Cloud Flow & Validation Logic
 
-- [x] **ZAV-01:** Automate M365 Admin Center agent access settings verification per zone — script reads agent access control configuration, compares to zone policy (Zone 1: all agents, Zone 2: Org + MS verified, Zone 3: Org only with approval)
-- [x] **ZAV-02:** Validate Admin Exclusion Groups and deployment group configuration — verify `CopilotForM365AdminExclude` Entra group exists and is populated; validate staged deployment group configuration per zone
-- [x] **ZAV-03:** Drift detection with periodic validation and Teams notification support — comparison output suitable for daily scheduling; structured results compatible with existing alerting patterns (adaptive cards)
+- [ ] **FLW-01:** Create `Detect-InactivityTimeout-NonCompliance` flow template — scheduled daily at 06:00 UTC, Step 1: enumerate environments via Power Platform for Admins V2 (store EnvironmentName, display name, type), Step 2: load all `fsi_environmentpolicy` rows and build lookup keyed by EnvironmentName
+- [ ] **FLW-02:** Implement per-environment evaluation with configurable concurrency (default 5 via environment variable) — mandatory policy resolution (no policy row → ComplianceStatus=Unknown, note "No explicit policy found for environment", error log entry with errortype=MissingPolicy, do NOT evaluate against any default threshold); BAP Admin API privacy settings retrieval (`api.bap.microsoft.com`, service principal auth, scope `https://api.bap.microsoft.com/.default`); compliance determination (API fail → Unknown + error log; timeout disabled → Non-Compliant; duration > required max → Non-Compliant; otherwise → Compliant); persist result as new row in compliance table (never update existing)
+- [ ] **FLW-03:** Implement guarded notification — send email only when Non-Compliant count > 0 OR Unknown count > 0; include environment, zone, actual duration, required max, and status in notification; no empty notifications
+
+## REM — PowerShell Remediation
+
+- [ ] **REM-01:** Create `Set-InactivityTimeout.ps1` with mandatory `EnvironmentName` parameter (canonical Power Platform Environment Name identifier), `TimeoutDuration` (ValidateRange 5-120, default 120), `WarningDuration` (ValidateRange 1-30, default 5); PATCH BAP Admin API privacy settings endpoint; log success/failure; `#Requires -Version 7.0`, `SupportsShouldProcess`, `-WhatIf` support
+- [ ] **REM-02:** Create remediation audit record writing capability — optionally write remediation records to Dataverse compliance table with action taken, before/after values, and timestamp; create validation test script to confirm PATCH was applied
 
 ## FRM — Framework Integration
 
-- [x] **FRM-01:** Update Controls 1.1, 3.7, 3.8 with automation solution references — tip admonitions linking to new governance scripts; verification criteria updated to reflect automation availability
-- [x] **FRM-02:** Update solutions-index.md, hardening baseline, and governance README — solutions catalog entry added; hardening baseline items 1-6 status updated; `scripts/governance/README.md` reflects actual script
-- [x] **FRM-03:** All validations pass — `mkdocs build --strict`, `verify_controls.py` 62/62, `verify_language_rules.py` 0 violations
+- [ ] **FRM-01:** Update framework references — CONTROL-INDEX.md (add 2.22 row), mkdocs.yml navigation (add under Pillar 2 Management after 2.21), update "63 controls" → "64 controls" across framework docs (copilot-instructions, AGENTS.md, README, getting-started, framework docs), update "21 management controls" → "22 management controls", update playbook count "252" → "256"
+- [ ] **FRM-02:** Add solutions-index.md catalog entry — overview row (Inactivity Timeout Enforcement, v1.0.0, Completed), detail section (components, regulatory alignment: GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12), cross-references from related controls (1.23, 3.7, 3.8); update hardening baseline item 30 control reference from [3.7] to [2.22, 3.7]
+- [ ] **FRM-03:** All validations pass — `mkdocs build --strict`, `verify_controls.py` 64/64, `verify_language_rules.py` 0 violations
 
 ## Traceability Matrix
 
-| Requirement | Todo Source | Controls | Regulatory |
-|-------------|-----------|----------|------------|
-| AUTH-01, AUTH-02, AUTH-03 | agent-auth-enforcement-automation | 1.1, 2.8 | FINRA 4511, SEC 17a-3/4, GLBA 501(b), SOX 302 |
-| PUB-01, PUB-02, PUB-03 | restrict-agent-publishing-script | 1.1, 2.1, 3.7 | FINRA 4511, SEC 17a-4, SOX 302/404, GLBA 501(b) |
-| ZAV-01, ZAV-02, ZAV-03 | zone-based-agent-access-validation | 3.8, 1.1, 2.1 | FINRA 3110, SOX 404, GLBA 501(b), OCC 2011-12 |
-| FRM-01, FRM-02, FRM-03 | All three todos | 1.1, 3.7, 3.8 | All applicable |
+| Requirement | Spec Section | Controls | Regulatory |
+|-------------|-------------|----------|------------|
+| CTL-01, CTL-02, CTL-03 | §2 Control Objective, §3 Policy & Zoning | 2.22 (new) | GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12 |
+| DVM-01, DVM-02, DVM-03 | §4 Dataverse Data Model | 2.22 | GLBA 501(b), SEC 17a-4 (audit trail), SOX 302 |
+| FLW-01, FLW-02, FLW-03 | §5 Cloud Flow – Validation Logic | 2.22, 3.7 | GLBA 501(b), SOX 302, FINRA 4511 |
+| REM-01, REM-02 | §6 PowerShell Remediation Script | 2.22 | GLBA 501(b), SOX 302, FINRA 4511 |
+| FRM-01, FRM-02, FRM-03 | §7 Solution Naming, §8 Completion | 2.22, 1.23, 3.7, 3.8 | All applicable |
 
 ## Out of Scope
 
 | Item | Reason |
 |------|--------|
-| Power Automate flow orchestration | Scripts are standalone; flow integration deferred to future milestone |
-| New Dataverse tables | Use existing validation patterns; new tables deferred |
-| Remediation automation | Detection/validation only — manual remediation for this milestone |
-| Canvas app UI for results | CLI/JSON output sufficient |
-| Managed identity / production-grade auth | Lab-grade implementation; expandable later |
-| Real-time monitoring | Scheduled/on-demand sufficient per framework constraints |
+| Session expiration / total session lifetime | Separate setting (hardening baseline item 31); different validation logic |
+| Conditional Access session policies | Covered by SSC (v5, Control 1.23) — CA policies validated via Graph API |
+| Auto-remediation without approval | Detection/validation only; Set-InactivityTimeout.ps1 requires manual invocation |
+| Managed identity / production-grade auth | Lab-grade implementation consistent with v4-v18 pattern |
+| Real-time monitoring / webhook triggers | Batch/daily scheduled scan per framework constraint |
+| Session security for model-driven apps | Scoped to Power Platform environment-level privacy settings |
 
 ## Priority Summary
 
-- **P1 (8):** AUTH-01, AUTH-02, AUTH-03, PUB-01, PUB-02, ZAV-01, FRM-01, FRM-02, FRM-03
-- **P2 (3):** PUB-03, ZAV-02, ZAV-03
+- **P1 (10):** CTL-01, CTL-02, DVM-01, DVM-02, FLW-01, FLW-02, FLW-03, FRM-01, FRM-02, FRM-03
+- **P2 (4):** CTL-03, DVM-03, REM-01, REM-02
 
 ---
 *Requirements defined: 2026-02-12*
-*Milestone: v17 — Agent Security Configuration Governance*
+*Milestone: v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum)*

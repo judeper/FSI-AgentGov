@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-12
-**Milestone:** v18 — MIME Type Restrictions for File Uploads
-**Status:** v18 COMPLETE — 10/10 plans executed, 16/16 requirements delivered
+**Milestone:** v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum)
+**Status:** REQUIREMENTS DEFINED — 14 requirements across 5 categories, ready for roadmap creation
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-12 17:00
-**Handoff Summary:** v18 roadmap created — 5 phases closing 16 requirement gaps across 6 categories (CTL-3, MOD-3, PLG-2, MON-3, EXC-2, FRM-3). Phases 1–4 parallel-eligible, Phase 5 depends on all. v17 ROADMAP archived to milestones/. Ready for phase planning.
+**Session Started:** 2026-02-12 22:00
+**Handoff Summary:** v18 archived to MILESTONES.md. v19 milestone defined — Inactivity Timeout Enforcement (Policy-Driven Maximum). New Control 2.22 (Management Pillar) with companion solution. 14 requirements across 5 categories (CTL-3, DVM-3, FLW-3, REM-2, FRM-3). Ready for roadmap creation.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v18 — MIME Type Restrictions for File Uploads. New Control 1.25 + companion solution.
+**Current focus:** v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum). New Control 2.22 (Management Pillar) + companion solution.
 
 ## Milestone Series Plan
 
@@ -36,32 +36,33 @@ v15: Agent Usage & Performance Workbook — COMPLETE
 v16: Unrestricted Agent Sharing Detector — COMPLETE
 v17: Agent Security Configuration Governance — COMPLETE
 v18: MIME Type Restrictions for File Uploads — COMPLETE
+v19: Inactivity Timeout Enforcement — PLANNING
 ```
 
 ## Current Position
 
-**Phase:** 5 of 5 (Complete)
-**Plan:** 10/10 plans
-**Status:** v18 COMPLETE — All 5 phases executed. Control 1.25 added (63 total), 22 solution artifacts, framework fully integrated and validated.
-**Last activity:** 2026-02-12 — Phase 5 executed (2 plans, 1 wave), framework count updates across 17 files, build validation pass (63/63 controls)
+**Phase:** 0 of TBD
+**Plan:** 0/TBD plans
+**Status:** Requirements defined — 14 requirements across 5 categories. Ready for roadmap creation.
+**Last activity:** 2026-02-12 — v19 milestone defined, v18 archived to MILESTONES.md
 
 **Progress:**
 ```
-v1-v17: [=========================] COMPLETE (see MILESTONES.md)
-v18:    [=========================] COMPLETE
+v1-v18: [=========================] COMPLETE (see MILESTONES.md)
+v19:    [>                        ] PLANNING
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v17):**
-- Phases: 77 complete
-- Plans: 227 complete
-- Requirements: 376 delivered
+**Cumulative (v1-v18):**
+- Phases: 82 complete
+- Plans: 237 complete
+- Requirements: 392 delivered
 
-**v18 Final:**
-- Phases: 5/5 (1-CTL complete, 2-MOD complete, 3-MON complete, 4-PLG/EXC complete, 5-FRM complete)
-- Plans: 10/10
-- Requirements: 16/16 (CTL-3 delivered, MOD-3 delivered, MON-3 delivered, PLG-2 delivered, EXC-2 delivered, FRM-3 delivered)
+**v19 Active:**
+- Phases: 0/TBD
+- Plans: 0/TBD
+- Requirements: 0/14 (CTL-0/3, DVM-0/3, FLW-0/3, REM-0/2, FRM-0/3)
 
 ## Accumulated Context
 
@@ -69,22 +70,27 @@ v18:    [=========================] COMPLETE
 
 See PROJECT.md Key Decisions table for full history.
 
-**v18 decisions:**
-- Reassign Control ID from 1.20→1.25 (1.20 is already Network Isolation and Private Connectivity)
-- New control (not replacing existing) — framework goes from 62 to 63 controls
-- Solution spans both repos: control doc + playbooks in FSI-AgentGov, solution artifacts in FSI-AgentGov-Solutions
-- Complementary to File Upload Security (v8, per-agent toggle) and Hardening Baseline items 28-29
-- Lab-grade security (interactive auth) — consistent with v4-v17
+**v19 decisions:**
+- Control ID 2.22 in Management Pillar (next available after 2.21)
+- New control (not replacing existing) — framework goes from 63 to 64 controls; Pillar 2 from 21 to 22
+- Solution uses BAP Admin API privacy settings endpoint (not Graph API — that's SSC/v5)
+- Canonical identifier is EnvironmentName (Power Platform Environment Name) — NOT display name
+- Policy-driven maximum (not hard-coded) — zone requirements stored in fsi_environmentpolicy table
+- Missing policy → Unknown (not default) — no silent defaults
+- Complements SSC (v5, Control 1.23) and hardening baseline item 30
+- Lab-grade security (interactive auth) — consistent with v4-v18
 - Spec language violations must be rewritten with hedged language per FSI rules
 
 ### Key Constraints
 
-- **New control:** Adding Control 1.25 to Pillar 1 (63 total controls)
-- **Two-repo scope:** Control doc in FSI-AgentGov; solution code in FSI-AgentGov-Solutions
+- **New control:** Adding Control 2.22 to Pillar 2 (64 total controls)
+- **Single-repo focus:** Control doc + playbooks in FSI-AgentGov; solution artifacts in FSI-AgentGov-Solutions
+- **Canonical ID:** EnvironmentName exclusively — no display name, no Dataverse GUID
 - **Lab-grade:** Interactive auth; no managed identity requirement
 - **FSI language rules:** All documentation must use regulatory-safe language
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
-- **Zone 3 extras:** Dataverse plugin, DLP integration, Sentinel monitoring are Zone 3 only
+- **Immutable compliance records:** Never update existing — append-only audit trail
+- **No silent defaults:** Missing policy = Unknown, not assumed compliant
 
 ### Blockers
 

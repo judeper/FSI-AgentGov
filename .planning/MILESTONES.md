@@ -1,5 +1,31 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v18 MIME Type Restrictions for File Uploads (Completed: 2026-02-12)
+
+**Delivered:** New Control 1.25 (MIME Type Restrictions for File Uploads) with companion solution — PowerShell module (FsiMimeControl.psm1) with 3 cmdlets (Get/Set/Test), zone-based MIME configuration templates, Dataverse plugin for server-side magic bytes validation (Zone 3), Purview DLP policy template, Sentinel KQL monitoring queries and alert rule, exception management system, and full framework integration (62→63 controls).
+
+**Phases completed:** 1-5 (10 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Control Documentation & Playbooks (2 plans):** Created Control 1.25 documentation (10-section template) with zone-specific MIME type restriction requirements (Zone 1 baseline/Zone 2 recommended/Zone 3 regulated), 4 implementation playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting), screenshot specification (EXPECTED.md)
+- **Phase 2 — PowerShell Module & Zone Templates (2 plans):** Built FsiMimeControl.psm1 with `Get-FsiMimeConfig`, `Set-FsiMimeConfig`, `Test-FsiMimeCompliance` cmdlets via Dataverse Web API; zone template JSONs (zone1/2/3); Pester test suite with mocked API responses
+- **Phase 3 — DLP Policy & Sentinel Monitoring (2 plans):** Created Purview DLP policy template blocking executable file patterns in Power Platform locations; Sentinel KQL queries for blocked upload attempts and exception usage analysis; ARM template for high-volume blocks alert rule with MITRE ATT&CK mapping
+- **Phase 4 — Dataverse Plugin & Exception Management (2 plans):** Built ValidateMimeTypePlugin.cs with config-driven magic bytes validation (PE/ELF/Mach-O detection, OpenXML verification, configurable enforcement mode); plugin deployment scripts; exception register CSV template with validation script; exception request markdown template
+- **Phase 5 — Framework Integration & Validation (2 plans):** Updated CONTROL-INDEX.md (added 1.25 row), mkdocs.yml navigation, "62→63 controls" across 17 files, solutions-index.md catalog entry; all validations pass (mkdocs build --strict, verify_controls.py 63/63, verify_language_rules.py 0 violations)
+
+**Stats:**
+
+- 5 phases, 10 plans, 16 requirements (100% satisfied — CTL-3, MOD-3, MON-3, PLG-2, EXC-2, FRM-3)
+- Source: Production-ready solution spec (PDF, 29 pages), Control ID reassigned 1.20→1.25
+- Key artifacts: FsiMimeControl.psm1, zone templates (3), ValidateMimeTypePlugin.cs, dlp-policy-template.json, query-mime-blocks.kql, query-exception-usage.kql, high-volume-blocks.json, MimeConfig.json, exception templates
+- Controls created: 1.25 (new — framework 62→63)
+- 1 day (2026-02-12)
+
+**What's next:** v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum)
+
+---
+
 ## v17 Agent Security Configuration Governance (Completed: 2026-02-12)
 
 **Delivered:** Three PowerShell governance scripts automating per-agent authentication enforcement (6 SSPM items), publishing restriction validation (6 criteria), and zone-based agent access configuration verification — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8. Includes drift detection, SHA-256 evidence export, adaptive card alerting, hardening baseline integration, and full framework documentation updates.
@@ -448,4 +474,4 @@
 
 ---
 
-*Last updated: 2026-02-12 after v16 milestone*
+*Last updated: 2026-02-12 after v18 milestone*

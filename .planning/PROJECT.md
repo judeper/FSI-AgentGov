@@ -8,19 +8,18 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v17 Agent Security Configuration Governance
+## Current Milestone: v19 Inactivity Timeout Enforcement (Policy-Driven Maximum)
 
-**Goal:** Automate per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance — closing the manual attestation gap across Controls 1.1, 3.7, and 3.8.
+**Goal:** Add new Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar and build the companion solution — automated validation and enforcement of Power Platform user inactivity timeout settings across environments with zone-based policy-driven maximum duration requirements, Dataverse persistence, cloud flow scanning, and PowerShell remediation.
 
-**Source:** Three high-priority pending todos from v16 research addressing automation gaps where agent-level security checks are manual-only.
+**Source:** AI Implementation Specification (2026-02-12) — covers policy-driven zone model (Zone 1: optional, Zone 2: ≤120 min, Zone 3: ≤60 min), 3 Dataverse tables (policy, compliance, error log), daily cloud flow validation via BAP Admin API, guarded notification, and PowerShell remediation script.
 
 **Target deliverables:**
-- PowerShell script for per-agent auth configuration validation (6 SSPM items)
-- `restrict-agent-publishing.ps1` governance script (6 publishing restriction criteria)
-- Zone-based agent access settings verification script
-- SHA-256 evidence export for all validation scripts
-- Hardening baseline items 1-6 reclassified from Manual Attestation
-- Framework documentation updates (Controls 1.1, 3.7, 3.8, solutions-index)
+- Control 2.22 documentation (10-section format) + 4 playbooks
+- Dataverse schema (fsi_environmentpolicy, fsi_inactivitytimeout_compliance, fsi_inactivitytimeout_errorlog)
+- Cloud Flow template (Detect-InactivityTimeout-NonCompliance) with daily scheduled scan
+- PowerShell remediation script (Set-InactivityTimeout.ps1) with PATCH BAP API
+- Framework integration (64 controls, CONTROL-INDEX, solutions-index, mkdocs.yml)
 
 ## Current State (v10 Shipped)
 
@@ -41,11 +40,15 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v14: SSPM Control Coverage Remediation — 32 SSPM alerts mapped to 8 controls, PowerShell hardening baseline v1.1.0, playbook remediation, environment security settings
 - v15: Agent Usage & Performance Workbook — deployable Azure Monitor Workbook for Copilot Studio usage, performance, and error visibility with RBAC-scoped access
 - v16: Unrestricted Agent Sharing Detector — continuous agent sharing compliance via BAP APIs with 5-table Dataverse schema, detection/remediation/exception flows, and framework integration
+- v17: Agent Security Configuration Governance — per-agent auth enforcement, publishing restriction, and zone access validation governance scripts with SHA-256 evidence and hardening baseline integration
+- v18: MIME Type Restrictions for File Uploads — Control 1.25 with PowerShell module (3 cmdlets), zone templates, Dataverse plugin, DLP policy template, Sentinel monitoring, exception management
 
 **Solutions Status:**
 - 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation, Agent Usage & Performance Workbook
 - 1 Validated: FINRA Supervision Workflow
 - 1 Completed (v16): Unrestricted Agent Sharing Detector
+- 1 Completed (v17): Agent Security Configuration Governance
+- 1 Completed (v18): MIME Type Restrictions for File Uploads
 - 2 Work In Progress: Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
@@ -95,15 +98,16 @@ Capabilities delivered:
 
 ### Active
 
-**v17: Agent Security Configuration Governance**
+**v19: Inactivity Timeout Enforcement (Policy-Driven Maximum)**
 
-Automate per-agent security configuration validation:
-- Agent Authentication Enforcement: PowerShell validation of 6 SSPM items (auth mode, enforcement timing, sharing scope) with zone-based logic
-- Publishing Restriction Governance: restrict-agent-publishing.ps1 script validating 6 publishing criteria with SHA-256 evidence
-- Zone Access Validation: M365 Admin Center agent access settings verification per zone policy
-- Framework Integration: Controls 1.1, 3.7, 3.8 updates, hardening baseline reclassification, solutions catalog
+Add new Control 2.22 and companion solution:
+- Control Documentation: New Control 2.22 with 10-section format + 4 playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- Dataverse Schema: 3 tables (fsi_environmentpolicy, fsi_inactivitytimeout_compliance, fsi_inactivitytimeout_errorlog)
+- Cloud Flow: Detect-InactivityTimeout-NonCompliance with daily scheduled scan, BAP Admin API, zone-based policy evaluation
+- PowerShell Remediation: Set-InactivityTimeout.ps1 with PATCH BAP API, -WhatIf support
+- Framework Integration: 63→64 controls, CONTROL-INDEX, solutions-index, cross-references to related controls
 
-**Current milestone: v17 — Agent Security Configuration Governance (PLANNING)**
+**Current milestone: v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum) (PLANNING)**
 
 ### Out of Scope
 
@@ -193,8 +197,13 @@ Automate per-agent security configuration validation:
 | v16 UASD complements AAM | AAM = environment-level access settings; UASD = per-agent sharing principals | ✓ Good |
 | v16 inline agent identity | No agentvault lookup; store fsi_agent_id, fsi_agent_name, fsi_environment_id inline | ✓ Good |
 | v16 lab-grade security | Interactive auth for now; managed identity deferred | ✓ Good |
-| v16 BAP APIs as specified | Spec endpoints used literally; API documentation gaps flagged | ✓ Good |
-| v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
+| v16 BAP APIs as specified | Spec endpoints used literally; API documentation gaps flagged | ✓ Good || v18 Control 1.25 (not 1.20) | 1.20 already exists as Network Isolation; 1.25 is next available | ✓ Good |
+| v18 new control (62→63) | New control, not replacing existing; framework count incremented | ✓ Good |
+| v19 Control 2.22 in Management Pillar | Next available after 2.21; inactivity timeout is operational management concern | ✓ Good |
+| v19 BAP Admin API (not Graph) | Privacy settings retrieved via BAP Admin API; SSC (v5) uses Graph for CA policies | ✓ Good |
+| v19 policy-driven maximum (not hardcoded) | Zone requirements stored in fsi_environmentpolicy; no silent defaults | ✓ Good |
+| v19 missing policy = Unknown | No policy row → Unknown status, not assumed compliant; prevents false positives | ✓ Good |
+| v19 EnvironmentName as canonical ID | NOT display name, NOT Dataverse GUID; consistent with BAP API and PowerShell cmdlets | ✓ Good || v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
 | v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
 | v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
 | v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | — Pending |
@@ -204,4 +213,4 @@ Automate per-agent security configuration validation:
 | v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-12 after v17 milestone definition*
+*Last updated: 2026-02-12 after v18 milestone definition*
