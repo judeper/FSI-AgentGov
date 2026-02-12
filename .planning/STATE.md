@@ -2,13 +2,13 @@
 
 **Last Updated:** 2026-02-12
 **Milestone:** v16 — Unrestricted Agent Sharing Detector
-**Status:** EXECUTING — Phase 4 complete, Phase 5 ready
+**Status:** COMPLETE — All 5 phases executed, 16/16 requirements delivered
 
 ## Session Ownership
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-12 15:00
-**Handoff Summary:** Phase 4 (Deployment & Operations) executed — 2 plans across 1 wave. Plan 04-01: Deploy-DetectionFlow.ps1 (783 lines) + Deploy-RemediationFlow.ps1 (826 lines). Plan 04-02: Export-ViolationReport.ps1 (558 lines) + deployment guide (383 lines). OPS-02 and OPS-03 requirements delivered. Ready for `/gsd-execute-phase 5`.
+**Handoff Summary:** Phase 5 (Framework Integration & Validation) executed — 2 plans across 1 wave. Solutions-index UASD entry, control 1.1/3.8 tip admonitions, architecture overview, mkdocs nav, AAM status fix. All validation passes (mkdocs build, verify_controls 62/62, verify_language_rules 0 violations). v16 milestone complete (16/16 requirements).
 
 ## Project Reference
 
@@ -38,15 +38,15 @@ v16: Unrestricted Agent Sharing Detector — EXECUTING
 
 ## Current Position
 
-**Phase:** 4 — Deployment & Operations (COMPLETE)
+**Phase:** 5 — Framework Integration & Validation (COMPLETE)
 **Plan:** 2/2 complete
-**Status:** Phase 4 complete (2/2 plans). Phase 5 ready to begin.
-**Last activity:** 2026-02-12 — Phase 4 executed (4 files, 2550 lines + deployment guide), validated, committed
+**Status:** All 5 phases complete. v16 milestone ready for `/gsd-complete-milestone`.
+**Last activity:** 2026-02-12 — Phase 5 executed (5 files modified/created, all validations pass), committed
 
 **Progress:**
 ```
 v1-v15: [=========================] COMPLETE (see MILESTONES.md)
-v16:    [===================      ] EXECUTING — 8/10 plans, 12/16 requirements
+v16:    [=========================] COMPLETE — 10/10 plans, 16/16 requirements
 ```
 
 ## Performance Metrics
@@ -57,7 +57,7 @@ v16:    [===================      ] EXECUTING — 8/10 plans, 12/16 requirements
 - Requirements: 348 delivered
 
 **v16 Target:**
-- Requirements: 12/16 (INFRA-01 ✓, INFRA-02 ✓, INFRA-03 ✓, DET-01 ✓, DET-02 ✓, DET-03 ✓, REM-01 ✓, REM-02 ✓, REM-03 ✓, OPS-01 ✓, OPS-02 ✓, OPS-03 ✓)
+- Requirements: 16/16 (INFRA-01 ✓, INFRA-02 ✓, INFRA-03 ✓, DET-01 ✓, DET-02 ✓, DET-03 ✓, REM-01 ✓, REM-02 ✓, REM-03 ✓, OPS-01 ✓, OPS-02 ✓, OPS-03 ✓, FRM-01 ✓, FRM-02 ✓, FRM-03 ✓, VAL-01 ✓)
 
 ## Accumulated Context
 
