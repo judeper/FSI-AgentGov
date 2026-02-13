@@ -34,7 +34,7 @@ FSI Agent Governance Framework v1.2.39c - A governance framework for Microsoft 3
 ### Navigation Philosophy (Three-Layer Model)
 - **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
 - **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
-- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 251 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 284 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
 - **Getting Started:** Admin onboarding only (no repo structure info)
 - **Downloads:** Role-based Excel checklists for admins
@@ -68,7 +68,7 @@ docs/
 │   ├── pillar-4-sharepoint/      # 7 SharePoint controls (4.1-4.7)
 │   └── CONTROL-INDEX.md          # Master control list
 ├── playbooks/                    # NEW in v1.1: Implementation layer
-│   ├── control-implementations/  # Per-control guides (248 files, 4 per control)
+│   ├── control-implementations/  # Per-control guides (284 files, 4 per control)
 │   ├── governance-operations/    # Standing procedures
 │   ├── compliance-and-audit/     # Audit preparation guides
 │   ├── incident-and-risk/        # Incident handling procedures
@@ -147,7 +147,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
 | `docs/templates/control-setup-template.md` | Control format (10 sections) |
-| `docs/controls/CONTROL-INDEX.md` | Master list of all 64 controls |
+| `docs/controls/CONTROL-INDEX.md` | Master list of all 71 controls |
 | `mkdocs.yml` | Site navigation structure |
 
 ## Claude Code Skills (On-Demand Workflows)

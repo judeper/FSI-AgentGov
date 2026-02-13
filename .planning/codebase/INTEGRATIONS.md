@@ -48,7 +48,7 @@
 - Local filesystem only - all artifacts stored in repository
 - Reports: `reports/learn-changes/` - Generated change detection reports (Markdown)
 - Scripts: `scripts/` - Python validation and monitoring scripts
-- Documentation: `docs/` - Markdown documentation (248 playbooks + 62 controls + 10 framework docs)
+- Documentation: `docs/` - Markdown documentation (284 playbooks + 71 controls + 10 framework docs)
 - Downloads: `docs/downloads/` - Excel templates for administrators
 
 **Remote Storage (via FSI-AgentGov-Solutions):**
@@ -167,7 +167,7 @@ This repository provides framework and playbooks that solutions implement:
 - Data sources: CopilotInteraction events, DLP events, RAI telemetry
 
 **Compliance Dashboard:**
-- Consumes: All 62 controls (compliance evidence aggregation)
+- Consumes: All 71 controls (compliance evidence aggregation)
 - Data sink: Dataverse ComplianceMetric table
 - Visualization: Power BI connected to Dataverse
 

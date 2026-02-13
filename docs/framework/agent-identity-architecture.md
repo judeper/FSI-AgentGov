@@ -38,7 +38,7 @@ Prior to Agent 365, financial services organizations faced fragmented governance
 
 This fragmentation creates compliance gaps: separate audit trails requiring manual consolidation for regulatory examinations, inconsistent policy enforcement (DLP policies in Power Platform don't apply to Agent Builder agents), and no single source of truth for agent inventory. Agent 365's unified control plane addresses these challenges by consolidating governance functions while maintaining the flexibility of multiple agent development platforms.
 
-This document targets two audiences: **M365 administrators** implementing tactical controls and **security architects** planning strategic governance architecture. Readers are assumed to be familiar with the FSI-AgentGov framework's three governance zones and 62-control catalog. For framework fundamentals, see [Governance Fundamentals](governance-fundamentals.md) and [Zones and Tiers](zones-and-tiers.md).
+This document targets two audiences: **M365 administrators** implementing tactical controls and **security architects** planning strategic governance architecture. Readers are assumed to be familiar with the FSI-AgentGov framework's three governance zones and 71-control catalog. For framework fundamentals, see [Governance Fundamentals](governance-fundamentals.md) and [Zones and Tiers](zones-and-tiers.md).
 
 ---
 
@@ -882,7 +882,7 @@ The following status reflects findings from the February 2026 governance review 
 
 ## Control Impact Analysis
 
-Agent 365's unified architecture and Entra Agent ID identity foundation affect 17 controls across the FSI-AgentGov framework (27% of 62 controls). The following table shows how governance approaches change with Agent 365 adoption:
+Agent 365's unified architecture and Entra Agent ID identity foundation affect 17 controls across the FSI-AgentGov framework (24% of 71 controls). The following table shows how governance approaches change with Agent 365 adoption:
 
 ### High Impact Controls (Major Changes)
 

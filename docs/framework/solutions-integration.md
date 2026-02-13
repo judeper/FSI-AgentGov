@@ -181,7 +181,7 @@ Automates CA policy deployment and compliance monitoring for AI workloads.
 
 ### Compliance Dashboard
 
-Unified compliance visibility across all 62 framework controls.
+Unified compliance visibility across all 71 framework controls.
 
 | Control | How Solution Helps |
 |---------|-------------------|

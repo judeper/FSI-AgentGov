@@ -123,7 +123,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (8/62 controls). Implementation required.
+Framework provides supervision procedure guidance (8/71 controls). Implementation required.
 
 ---
 
@@ -225,7 +225,7 @@ See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notice
 The framework applies FINRA's existing supervision principles to AI agents, treating them as tools requiring documented procedures, ongoing monitoring, and supervisory oversight.
 
 ### Framework Coverage
-Framework addresses FINRA supervision requirements through 8/62 controls. Implementation and validation required.
+Framework addresses FINRA supervision requirements through 8/71 controls. Implementation and validation required.
 
 ---
 
@@ -343,7 +343,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (6/62 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (6/71 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -470,7 +470,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
-**Total: 44 controls (71% of 62)**
+**Total: 44 controls (62% of 71)**
 
 ### Management Assessment Requirements
 
@@ -508,7 +508,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 72% control coverage (44/62 controls). SOX-specific testing required. Implementation required.
+Framework provides 62% control coverage (44/71 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -621,7 +621,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Technical safeguard - data source governance |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
 
-**Total: 51 controls (82% of 62)**
+**Total: 51 controls (72% of 71)**
 
 ### Key Safeguard Areas
 
@@ -660,7 +660,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 84% control coverage (51/62 controls). Implementation validation required.
+Framework provides 72% control coverage (51/71 controls). Implementation validation required.
 
 ---
 
@@ -724,7 +724,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Model data source governance |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
 
-**Total: 33 controls (53% of 62)**
+**Total: 33 controls (46% of 71)**
 
 ### Model Risk Framework (SR 11-7)
 
@@ -776,7 +776,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 54% control coverage (33/62 controls). OCC-specific model validation required for full compliance.
+Framework provides 46% control coverage (33/71 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -822,7 +822,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/62 controls applicable). ECOA-specific testing and validation required.
+Framework provides bias testing controls (2/71 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -963,7 +963,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (6/62 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (6/71 controls). CFPB-specific implementation required.
 
 ---
 
@@ -1032,7 +1032,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 62 framework controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All 71 framework controls applicable.
 
 ---
 
@@ -1092,7 +1092,7 @@ Part 748 requires credit unions to maintain a security program. Framework contro
 - Compliance Officer oversight for Zone 2+ agents
 
 ### Framework Coverage
-All 62 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
+All 71 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
 
 ---
 
@@ -1307,24 +1307,24 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 62/62 | 100% | Full coverage - implementation required |
-| FINRA 3110 | 8/62 | 13% | Partial - supervision focus |
-| FINRA 3110/2111 (AI) | 11/62 | 18% | Partial - supervision/suitability focus |
-| SEC 17a-3/4 | 49/62 | 79% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/62 | 11% | Limited - fairness + disclosure focus |
-| SEC Marketing Rule (206(4)-1) | 5/62 | 8% | AI marketing claims - Control 2.21 |
-| SOX 302/404 | 44/62 | 71% | Substantial coverage |
-| GLBA 501-505 | 51/62 | 82% | Substantial coverage |
-| OCC 2011-12 | 33/62 | 53% | Partial - model risk focus |
-| Fed SR 11-7 | 33/62 | 53% | Partial - model risk focus |
-| Fed ECOA | 3/62 | 5% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/62 | 11% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/62 | 15% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 62/62 | 100% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/62 | 82% | Security program alignment |
-| NYDFS Part 500 | 45/62 | 73% | State-level awareness |
-| NAIC Model Law | 41/62 | 66% | Insurance awareness |
-| State AI Laws | 6/62 | 10% | Emerging - transparency, bias, human review |
+| FINRA 4511 | 62/71 | 87% | Full coverage - implementation required |
+| FINRA 3110 | 8/71 | 11% | Partial - supervision focus |
+| FINRA 3110/2111 (AI) | 11/71 | 15% | Partial - supervision/suitability focus |
+| SEC 17a-3/4 | 49/71 | 69% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 7/71 | 10% | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | 5/71 | 7% | AI marketing claims - Control 2.21 |
+| SOX 302/404 | 44/71 | 62% | Substantial coverage |
+| GLBA 501-505 | 51/71 | 72% | Substantial coverage |
+| OCC 2011-12 | 33/71 | 46% | Partial - model risk focus |
+| Fed SR 11-7 | 33/71 | 46% | Partial - model risk focus |
+| Fed ECOA | 3/71 | 4% | Minimal - bias testing only |
+| CFPB / UDAAP | 7/71 | 10% | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | 9/71 | 13% | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | 62/71 | 87% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 51/71 | 72% | Security program alignment |
+| NYDFS Part 500 | 45/71 | 63% | State-level awareness |
+| NAIC Model Law | 41/71 | 58% | Insurance awareness |
+| State AI Laws | 6/71 | 8% | Emerging - transparency, bias, human review |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 

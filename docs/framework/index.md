@@ -22,8 +22,8 @@ The FSI Agent Governance Framework uses a three-layer documentation model to sep
 | Layer | Content | Update Frequency | Files |
 |-------|---------|------------------|-------|
 | **1. Framework** (this layer) | Governance principles, zones, lifecycle, regulatory context | 1-2x per year | 11 documents |
-| **2. Control Catalog** | 62 technical control specifications across 4 pillars | Quarterly | 62 control files |
-| **3. Playbooks** | Step-by-step implementation procedures | Continuous (as Microsoft portals change) | 248 playbook files (4 per control) |
+| **2. Control Catalog** | 71 technical control specifications across 4 pillars | Quarterly | 71 control files |
+| **3. Playbooks** | Step-by-step implementation procedures | Continuous (as Microsoft portals change) | 284 playbook files (4 per control) |
 
 This separation ensures governance stability while allowing rapid updates to implementation guidance as Microsoft 365 and Power Platform evolve.
 

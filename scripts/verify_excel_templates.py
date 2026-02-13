@@ -18,7 +18,7 @@ from openpyxl import load_workbook
 
 # Expected control counts per template
 EXPECTED_COUNTS = {
-    "governance-maturity-dashboard.xlsx": 62,
+    "governance-maturity-dashboard.xlsx": 71,
     "purview-administrator-checklist.xlsx": 7,
     "sharepoint-administrator-checklist.xlsx": 7,
     "power-platform-administrator-checklist.xlsx": 7,

@@ -137,7 +137,7 @@ Enterprise-grade audit logging compliance solution complementing ACV:
 ## Context
 
 **Repository Structure:**
-- **FSI-AgentGov** (this repo): MkDocs-based documentation site with 62 controls, playbooks, and framework guidance
+- **FSI-AgentGov** (this repo): MkDocs-based documentation site with 71 controls, playbooks, and framework guidance
 - **FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`): Companion repo with deployable solutions (PowerShell, Power Automate, Dataverse schemas)
 
 **Target audience:**

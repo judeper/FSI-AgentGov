@@ -1,6 +1,6 @@
 # Control Catalog
 
-Complete catalog of 62 governance controls for Microsoft 365 AI agents.
+Complete catalog of 71 governance controls for Microsoft 365 AI agents.
 
 ---
 

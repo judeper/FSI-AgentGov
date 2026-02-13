@@ -33,15 +33,15 @@ FSI-AgentGov/
 │   │   ├── governance-cadence.md
 │   │   ├── adoption-roadmap.md
 │   │   └── solutions-integration.md
-│   ├── controls/                 # Layer 2: Control catalog (62 controls)
+│   ├── controls/                 # Layer 2: Control catalog (71 controls)
 │   │   ├── CONTROL-INDEX.md     # Master control list with links
 │   │   ├── index.md             # Control overview
-│   │   ├── pillar-1-security/   # 24 controls (1.1-1.24)
-│   │   ├── pillar-2-management/ # 21 controls (2.1-2.21)
-│   │   ├── pillar-3-reporting/  # 10 controls (3.1-3.10)
+│   │   ├── pillar-1-security/   # 28 controls (1.1-1.28)
+│   │   ├── pillar-2-management/ # 24 controls (2.1-2.24)
+│   │   ├── pillar-3-reporting/  # 12 controls (3.1-3.12)
 │   │   └── pillar-4-sharepoint/ # 7 controls (4.1-4.7)
-│   ├── playbooks/                # Layer 3: Implementation guides (275 files)
-│   │   ├── control-implementations/  # 62 control dirs with 4 playbooks each (248 files)
+│   ├── playbooks/                # Layer 3: Implementation guides
+│   │   ├── control-implementations/  # 71 control dirs with 4 playbooks each (284 files)
 │   │   │   ├── 1.1/               # Portal walkthrough, PowerShell, verification, troubleshooting
 │   │   │   ├── 1.2/
 │   │   │   ├── ... (through 4.7)
@@ -71,7 +71,7 @@ FSI-AgentGov/
 │   ├── reference/                 # Layer 4: Lookup tables & FAQs (20 files)
 │   │   ├── index.md
 │   │   ├── role-catalog.md       # Canonical role names for M365
-│   │   ├── regulatory-mappings.md # 62 controls mapped to regulations
+│   │   ├── regulatory-mappings.md # 71 controls mapped to regulations
 │   │   ├── control-setup-template.md (in templates/)
 │   │   ├── solutions-index.md    # Catalog of FSI-AgentGov-Solutions
 │   │   ├── solutions-integration.md (in framework/)
@@ -101,7 +101,7 @@ FSI-AgentGov/
 │   ├── scripts/                   # Script documentation
 │   └── index.md                   # Site home page
 ├── scripts/                       # Python automation & validation (14 files)
-│   ├── verify_controls.py        # Validates all 62 controls conform to template
+│   ├── verify_controls.py        # Validates all 71 controls conform to template
 │   ├── verify_excel_templates.py # Validates Excel checklist templates
 │   ├── verify_templates.py
 │   ├── learn_monitor.py          # Monitors 209 Microsoft Learn URLs for changes
@@ -143,7 +143,7 @@ FSI-AgentGov/
 **`.claude/` - Claude Code Configuration:**
 - Purpose: Configure Claude Code behavior, skills, and automation
 - Contains: CLAUDE.md (14KB, core instructions), settings.json (team-shared), settings.local.json (local overrides)
-- Key files: CLAUDE.md documents all 62 controls, regulatory framework, FSI-AgentGov-Solutions companion repo, hooks
+- Key files: CLAUDE.md documents all 71 controls, regulatory framework, FSI-AgentGov-Solutions companion repo, hooks
 
 **`docs/framework/` - Governance Framework Layer:**
 - Purpose: Define governance principles, zones, operating models, regulatory context
@@ -155,8 +155,8 @@ FSI-AgentGov/
   - `solutions-integration.md` - Maps solutions to framework controls
 
 **`docs/controls/` - Control Catalog Layer:**
-- Purpose: Technical specifications for 62 granular governance controls
-- Contains: Master index + 4 pillar directories with 62 control documents
+- Purpose: Technical specifications for 71 granular governance controls
+- Contains: Master index + 4 pillar directories with 71 control documents
 - Organization: `pillar-{1-4}-{name}/` with controls numbered by pillar (1.1-1.24, 2.1-2.21, 3.1-3.10, 4.1-4.7)
 - Key files:
   - `CONTROL-INDEX.md` - Master list with links to all controls and playbooks
@@ -164,7 +164,7 @@ FSI-AgentGov/
 
 **`docs/playbooks/control-implementations/` - Playbook Layer (Control-Specific):**
 - Purpose: Step-by-step implementation guides for each control
-- Contains: 62 control directories, each with 4 playbooks (248 files total)
+- Contains: 71 control directories, each with 4 playbooks (284 files total)
 - Structure: `{control-id}/portal-walkthrough.md`, `powershell-setup.md`, `verification-testing.md`, `troubleshooting.md`
 - Pattern: Each control ID has identical 4-document structure
 
@@ -181,7 +181,7 @@ FSI-AgentGov/
 - Contains: 20 reference documents
 - Key files:
   - `role-catalog.md` - Canonical M365 role names
-  - `regulatory-mappings.md` - 62 controls mapped to regulations
+  - `regulatory-mappings.md` - 71 controls mapped to regulations
   - `solutions-index.md` - Catalog of FSI-AgentGov-Solutions
   - `license-requirements.md` - SKU and licensing matrix
   - `evidence-standards.md` - What to collect for regulatory audits
@@ -194,7 +194,7 @@ FSI-AgentGov/
 **`scripts/` - Automation & Validation:**
 - Purpose: Python utilities for validation, monitoring, and documentation generation
 - Key scripts:
-  - `verify_controls.py` - Validates all 62 controls conform to 10-section template
+  - `verify_controls.py` - Validates all 71 controls conform to 10-section template
   - `learn_monitor.py` - Monitors 209 Microsoft Learn URLs; detects breaking changes
   - `compile_researcher_package.py` - Generates research package from control data
   - `hooks/boundary-check.py` - Claude Code hook preventing commands outside project
@@ -221,7 +221,7 @@ FSI-AgentGov/
 
 - `docs/index.md` - Site home page; compiled to GitHub Pages
 - `docs/getting-started/quick-start.md` - Quick start guide for new users
-- `docs/controls/CONTROL-INDEX.md` - Master control list with all 62 controls
+- `docs/controls/CONTROL-INDEX.md` - Master control list with all 71 controls
 
 **Configuration:**
 
@@ -233,7 +233,7 @@ FSI-AgentGov/
 **Core Logic:**
 
 - `docs/templates/control-setup-template.md` - 10-section control template (enforced by validation)
-- `docs/controls/pillar-*/` - 62 control specifications
+- `docs/controls/pillar-*/` - 71 control specifications
 - `docs/playbooks/control-implementations/*/` - 248 control implementation playbooks
 - `docs/playbooks/advanced-implementations/*/` - 27 complex multi-control solution documents
 
@@ -247,7 +247,7 @@ FSI-AgentGov/
 
 **Regulatory & Reference:**
 
-- `docs/reference/regulatory-mappings.md` - 62 controls to regulations mapping
+- `docs/reference/regulatory-mappings.md` - 71 controls to regulations mapping
 - `docs/reference/role-catalog.md` - Canonical role names
 - `docs/reference/solutions-index.md` - FSI-AgentGov-Solutions catalog
 - `docs/framework/regulatory-framework.md` - Regulatory overview

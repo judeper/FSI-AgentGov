@@ -1,6 +1,6 @@
 # Solutions Coverage Gap Analysis
 
-Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, identifying high-risk gaps and implementation prioritization guidance.
+Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, identifying high-risk gaps and implementation prioritization guidance.
 
 ---
 
@@ -8,10 +8,10 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 | Metric | Value |
 |--------|-------|
-| Total Controls | 62 |
+| Total Controls | 71 |
 | Controls with Deployable Solutions | 23 |
-| Controls Without Solutions | 39 |
-| Overall Solution Coverage | 37.1% |
+| Controls Without Solutions | 48 |
+| Overall Solution Coverage | 32.4% |
 
 !!! info "Important Context"
     Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
@@ -20,7 +20,7 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 ## Current Solution Coverage
 
-### Covered Controls (23 of 62)
+### Covered Controls (23 of 71)
 
 | Control ID | Control Name | Solution |
 |------------|--------------|----------|
@@ -52,11 +52,11 @@ Analysis of FSI-AgentGov-Solutions coverage against the 62-control framework, id
 
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
-| **Pillar 1 - Security** | 24 | 8 | 16 | 33.3% |
-| **Pillar 2 - Management** | 21 | 10 | 11 | 47.6% |
-| **Pillar 3 - Reporting** | 10 | 5 | 5 | 50.0% |
+| **Pillar 1 - Security** | 28 | 8 | 20 | 28.6% |
+| **Pillar 2 - Management** | 24 | 10 | 14 | 41.7% |
+| **Pillar 3 - Reporting** | 12 | 5 | 7 | 41.7% |
 | **Pillar 4 - SharePoint** | 7 | 0 | 7 | 0.0% |
-| **Total** | 62 | 23 | 39 | 37.1% |
+| **Total** | 71 | 23 | 48 | 32.4% |
 
 ---
 
@@ -288,7 +288,7 @@ Priority solutions for FSI-AgentGov-Solutions repository development, addressing
 |----------|---------------|-------------|--------|
 | ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
 | ~~**conditional-access-automation**~~ | 1.11 | ~~Entra ID Conditional Access policy templates and deployment automation for AI workloads~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 62 controls with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
+| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 71 controls with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
 
 ### P1 - High (Q2-Q3 2026) - ALL RELEASED ✓
 

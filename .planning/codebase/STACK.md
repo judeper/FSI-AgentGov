@@ -11,7 +11,7 @@ FSI-AgentGov is a documentation-centric governance framework built with MkDocs M
 
 | Language | Usage | File Count |
 |----------|-------|------------|
-| **Markdown** | Primary deliverable - 62 controls, 248 playbooks, framework docs | ~400+ files |
+| **Markdown** | Primary deliverable - 71 controls, 284 playbooks, framework docs | ~500+ files |
 | **Python 3.9+** (CI targets 3.11) | Validation scripts, monitoring adapters, Dataverse client | ~15 scripts |
 | **PowerShell 7.0+** (Core only) | Conditional Access Automation, compliance testing | ~8 scripts/modules |
 | **YAML** | MkDocs config, CI/CD workflows, monitoring config | ~6 files |

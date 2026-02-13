@@ -9,7 +9,7 @@
 ### 1. Report Generation
 
 - Execute weekly control status report
-- Verify all 62 controls appear with accurate status
+- Verify all 71 controls appear with accurate status
 - Confirm pillar scores calculate correctly
 
 ### 2. Distribution Workflow

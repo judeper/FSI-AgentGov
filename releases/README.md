@@ -25,7 +25,7 @@ PDFs are generated from the MkDocs documentation using GitHub Actions on tagged 
 
 **Planned PDFs:**
 - `FSI-AgentGov-v{version}-FrameworkBook.pdf` — Framework layer only
-- `FSI-AgentGov-v{version}-ControlCatalog.pdf` — All 62 controls
+- `FSI-AgentGov-v{version}-ControlCatalog.pdf` — All 71 controls
 - `FSI-AgentGov-v{version}-QuickReference.pdf` — Reference materials
 
 ## For Examiners

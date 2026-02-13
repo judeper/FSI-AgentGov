@@ -5,7 +5,7 @@
 **FSI Agent Governance Framework v1.2.39** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
-- **62 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **6 advanced implementations** (Platform Change Governance, Environment Lifecycle Management, Agent 365 Observability, etc.)
@@ -25,7 +25,7 @@
 | `deny-event-correlation-report/` | v1.1.0 | Unified deny event reporting across Purview/DLP/App Insights |
 | `finra-supervision-workflow/` | v1.0.0 | FINRA 3110 supervision queue for AI agent outputs |
 | `conditional-access-automation/` | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads |
-| `compliance-dashboard/` | v1.0.0-beta | Aggregated compliance reporting across 62 controls |
+| `compliance-dashboard/` | v1.0.0-beta | Aggregated compliance reporting across 71 controls |
 | `segregation-detector/` | v1.0.0 | Role conflict detection for Maker/Checker enforcement |
 | `scope-drift-monitor/` | v1.0.0 | Detect agent data access beyond declared scope |
 | `rag-source-validator/` | v1.0.0 | Integrity validation for RAG knowledge sources |
@@ -115,13 +115,13 @@ FSI-AgentGov/
 │   └── skills/                # On-demand workflow guides (YAML frontmatter)
 ├── docs/
 │   ├── framework/             # Layer 1: Governance principles (10 docs)
-│   ├── controls/              # Layer 2: Control catalog (62 controls)
-│   │   ├── pillar-1-security/     # 1.1-1.24 (24 controls)
-│   │   ├── pillar-2-management/   # 2.1-2.21 (21 controls)
-│   │   ├── pillar-3-reporting/    # 3.1-3.10 (10 controls)
+│   ├── controls/              # Layer 2: Control catalog (71 controls)
+│   │   ├── pillar-1-security/     # 1.1-1.28 (28 controls)
+│   │   ├── pillar-2-management/   # 2.1-2.24 (24 controls)
+│   │   ├── pillar-3-reporting/    # 3.1-3.12 (12 controls)
 │   │   └── pillar-4-sharepoint/   # 4.1-4.7 (7 controls)
-│   ├── playbooks/             # Layer 3: Implementation guides (282 files)
-│   │   ├── control-implementations/  # 4 playbooks per control (251 files)
+│   ├── playbooks/             # Layer 3: Implementation guides (315 files)
+│   │   ├── control-implementations/  # 4 playbooks per control (284 files)
 │   │   └── advanced-implementations/ # Complex multi-control solutions (31 files)
 │   ├── reference/             # Supporting materials
 │   ├── downloads/             # Excel templates
@@ -152,9 +152,9 @@ FSI-AgentGov/
 
 | Pillar | Controls | Focus |
 |--------|----------|-------|
-| Pillar 1 - Security | 1.1-1.24 (24) | Data protection, access, audit |
-| Pillar 2 - Management | 2.1-2.21 (21) | Lifecycle, risk, operations |
-| Pillar 3 - Reporting | 3.1-3.10 (10) | Visibility, metrics, dashboards |
+| Pillar 1 - Security | 1.1-1.28 (28) | Data protection, access, audit |
+| Pillar 2 - Management | 2.1-2.24 (24) | Lifecycle, risk, operations |
+| Pillar 3 - Reporting | 3.1-3.12 (12) | Visibility, metrics, dashboards |
 | Pillar 4 - SharePoint | 4.1-4.7 (7) | Content governance, grounding |
 
 ### Playbook Structure
@@ -254,7 +254,7 @@ python scripts/compile_researcher_package.py
 
 ### What "Pass" Means
 - `mkdocs build --strict` produces zero errors/warnings
-- `verify_controls.py` reports all 62 controls valid
+- `verify_controls.py` reports all 71 controls valid
 - No broken internal links
 
 ---
@@ -393,7 +393,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 ## Current State
 
 **Version:** 1.2.39 (February 2026)
-**Status:** All 62 controls complete, 251 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs)
+**Status:** All 71 controls complete, 284 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs)
 
 **Key capabilities in recent releases:**
 

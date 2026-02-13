@@ -5,16 +5,16 @@
 
 ## Summary
 
-The repository has a solid multi-layered quality validation pipeline comprising five Python scripts, a CI build gate, and documented language/template rules. All 62 controls pass structural validation and anchor checks, and mkdocs build --strict succeeds. However, no script enforces FSI language rules programmatically, and verify_controls.py is not run in CI.
+The repository has a solid multi-layered quality validation pipeline comprising five Python scripts, a CI build gate, and documented language/template rules. All 71 controls pass structural validation and anchor checks, and mkdocs build --strict succeeds. However, no script enforces FSI language rules programmatically, and verify_controls.py is not run in CI.
 
 ## Current Build Status
 
 | Check | Status | Notes |
 |-------|--------|-------|
 | mkdocs build --strict | PASS | 5 informational warnings about links to excluded files |
-| verify_controls.py | PASS | 62/62 controls pass structure + footer validation |
+| verify_controls.py | PASS | 71/71 controls pass structure + footer validation |
 | Anchor validation | PASS | No broken fragment links |
-| Control index consistency | PASS | 62 controls in index, 62 files in pillars |
+| Control index consistency | PASS | 71 controls in index, 71 files in pillars |
 | Legacy marker check | PASS | No stale Last Updated or Version: 2.0 markers |
 
 ## Validation Scripts
@@ -29,7 +29,7 @@ The repository has a solid multi-layered quality validation pipeline comprising 
 
 ## Template Drift
 
-- Template uses `## Implementation Guides` but all 62 controls use `## Implementation Playbooks`
+- Template uses `## Implementation Guides` but all 71 controls use `## Implementation Playbooks`
 - verify_templates.py checks for Version: v1.1 and Updated: January 2026 (both stale)
 - Template file needs sync with actual control conventions
 
@@ -50,7 +50,7 @@ The repository has a solid multi-layered quality validation pipeline comprising 
 | No playbook existence validation (248 files) | MEDIUM |
 | No automated role name validation | MEDIUM |
 | No cross-reference bidirectional consistency check | LOW |
-| Excel dashboard expected count 61 not 62 | LOW |
+| Excel dashboard expected count 61 not 71 | LOW |
 | External link validation is sample-only | LOW |
 | exclude_docs link warnings (5 docs) | LOW |
 
@@ -62,4 +62,4 @@ The repository has a solid multi-layered quality validation pipeline comprising 
 4. Add playbook existence validation (verify all 4 files per control exist)
 5. Add role name validation against role-catalog.md canonical names
 6. Fix exclude_docs link warnings (add to nav or update linking docs)
-7. Correct Excel dashboard expected count (61 -> 62)
+7. Correct Excel dashboard expected count (61 -> 71)

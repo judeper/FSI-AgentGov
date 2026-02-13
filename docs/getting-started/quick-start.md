@@ -46,9 +46,9 @@ The framework has **4 pillars** and **3 zones**:
 
 **4 Pillars (types of governance):**
 
-1. Security (25 controls) - Protect data
-2. Management (21 controls) - Govern lifecycle
-3. Reporting (10 controls) - Monitor activities
+1. Security (28 controls) - Protect data
+2. Management (24 controls) - Govern lifecycle
+3. Reporting (12 controls) - Monitor activities
 4. SharePoint (7 controls) - Govern SharePoint
 
 **3 Zones (risk levels):**
@@ -200,7 +200,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 **Controls Required (comprehensive):**
 
-- All 62 controls apply
+- All 71 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 
@@ -233,7 +233,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 ## Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (62 total)
+- **Control:** Governance requirement (71 total)
 - **Pillar:** Control category (Security, Management, Reporting, SharePoint)
 - **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
 - **MFA:** Multi-Factor Authentication (login security)
