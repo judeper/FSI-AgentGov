@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-13
 **Milestone:** v21 — Audit Logging Compliance Automation (ALCA)
-**Status:** v21 PHASE 1 COMPLETE — Helper module (AuditComplianceHelpers.psm1, 6 functions), manifest (.psd1 v1.0.0), Pester 5 tests (29 test cases), README, CHANGELOG. Committed to FSI-AgentGov-Solutions (847a68a). Phase 2 next.
+**Status:** v21 PHASES 1+2 COMPLETE — Helper module + Pester tests + Dataverse schema (fsi_auditenvironmentcompliance table, option set, alternate key). 3/13 plans, 5/21 requirements done. Phases 3+4 next (parallel-eligible).
 
 ## Session Ownership
 
@@ -62,9 +62,9 @@ v21:      [========....................] PHASES 1+2 COMPLETE
 - Requirements: 406+ delivered
 
 **v21 In Progress:**
-- Phases: 1/7
-- Plans: 2/13
-- Requirements: 3/21 delivered (MOD-01, MOD-02, MOD-03)
+- Phases: 2/7
+- Plans: 3/13
+- Requirements: 5/21 delivered (MOD-01, MOD-02, MOD-03, DVS-01, DVS-02)
 
 ## Accumulated Context
 
@@ -111,8 +111,8 @@ All prior todos resolved. v21 work tracked via REQUIREMENTS.md.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-13 18:56
-**Handoff Summary:** v21 ALCA Phase 1 complete — helper module (.psm1, 6 functions), manifest (.psd1), Pester 5 tests (29 tests), README, CHANGELOG committed to FSI-AgentGov-Solutions (847a68a). Requirements MOD-01, MOD-02, MOD-03 delivered. Phase 2 (Dataverse Schema) is next.
+**Session Started:** 2026-02-13 19:02
+**Handoff Summary:** v21 ALCA Phases 1+2 complete. Phase 2: Dataverse schema creation script (create_audit_compliance_schema.py) with fsi_auditenvironmentcompliance table, fsi_alca_compliancestatus option set, 10 columns, alternate key on fsi_environmentid. Committed to FSI-AgentGov-Solutions (37bc9fb). Requirements DVS-01, DVS-02 delivered. Phases 3+4 (detection + remediation runbooks) are next — parallel-eligible.
 
 ---
 
