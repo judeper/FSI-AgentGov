@@ -34,7 +34,7 @@
       "pattern": "^https://admin\\.portal\\.com"
     },
     {
-      "pattern": "^https://github\\.com/judeper/FSI-AgentGov-Solutions/tree/main/(file-upload-security|agent-access-monitor|content-moderation-monitor|cross-solution-integration|deny-event-correlation-report/docs/(SCHEMA|FLOW_SETUP|EVIDENCE_EXPORT))"
+      "pattern": "^https://github\\.com/judeper/FSI-AgentGov-Solutions"
     },
     {
       "pattern": "^https://learn\\.microsoft\\.com/en-us/\\.\\.\\."
