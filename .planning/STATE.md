@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-02-13
 **Milestone:** v21 — Audit Logging Compliance Automation (ALCA)
-**Status:** v21 PHASES 1-4 COMPLETE — Helper module + tests + Dataverse schema + detection runbook + remediation runbook. 7/13 plans, 11/21 requirements done. Phase 5 (deployment docs) next.
+**Status:** v21 PHASES 1-4+6 COMPLETE — Helper module + tests + Dataverse schema + detection + remediation + approval flow. 8/13 plans, 13/21 requirements done. Phase 5 (deployment docs) + Phase 7 (framework integration) remaining.
 
 ## Session Ownership
 
@@ -43,15 +43,15 @@ v21: Audit Logging Compliance Automation — ROADMAP CREATED
 
 ## Current Position
 
-**Phase:** 4 of 7 (PHASES 1-4 COMPLETE)
-**Plan:** 7/13 plans
-**Status:** Phases 1-4 complete. Phase 5 (deployment docs) next.
-**Last activity:** 2026-02-13 — Phase 4 Plans 1+2 executed (REM-01, REM-02, REM-03 delivered), committed to FSI-AgentGov-Solutions (6496a03)
+**Phase:** 6 of 7 (PHASES 1-4+6 COMPLETE)
+**Plan:** 8/13 plans
+**Status:** Phases 1-4+6 complete. Phase 5 (deployment docs) + Phase 7 (framework integration) remaining.
+**Last activity:** 2026-02-13 — Phase 6 Plan 1 executed (FLW-01, FLW-02 delivered), committed to FSI-AgentGov-Solutions (0eca892)
 
 **Progress:**
 ```
 v1-v20.5: [=========================] COMPLETE (see MILESTONES.md)
-v21:      [==============..............] PHASES 1-4 COMPLETE
+v21:      [================............] PHASES 1-4+6 COMPLETE
 ```
 
 ## Performance Metrics
@@ -62,9 +62,9 @@ v21:      [==============..............] PHASES 1-4 COMPLETE
 - Requirements: 406+ delivered
 
 **v21 In Progress:**
-- Phases: 4/7
-- Plans: 7/13
-- Requirements: 11/21 delivered (MOD-01, MOD-02, MOD-03, DVS-01, DVS-02, DET-01, DET-02, DET-03, REM-01, REM-02, REM-03)
+- Phases: 5/7
+- Plans: 8/13
+- Requirements: 13/21 delivered (MOD-01, MOD-02, MOD-03, DVS-01, DVS-02, DET-01, DET-02, DET-03, REM-01, REM-02, REM-03, FLW-01, FLW-02)
 
 ## Accumulated Context
 
@@ -111,8 +111,8 @@ All prior todos resolved. v21 work tracked via REQUIREMENTS.md.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-13 19:10
-**Handoff Summary:** v21 ALCA Phase 4 complete. Remediation runbook (Enable-AuditLogging.ps1, ~480 lines) with CmdletBinding/SupportsShouldProcess, MI auth, target determination (specific or non-compliant query), tenant-wide Purview enablement, org-level Dataverse audit PATCH, entity-level audit PUT for 6 Copilot Studio entities, 5s validation wait, compliance record upsert, WhatIf simulation, CSV export, per-env try/catch, finally disconnect. Committed to FSI-AgentGov-Solutions (6496a03). Requirements REM-01, REM-02, REM-03 delivered. Phases 1-4 complete (7/13 plans, 11/21 requirements). Phase 5 (deployment docs) is next.
+**Session Started:** 2026-02-13 19:20
+**Handoff Summary:** v21 ALCA Phase 6 complete. Approval flow template (audit-remediation-approval-flow.json, ~20KB) with weekly recurrence, Dataverse non-compliant query, Teams governance approval, Azure Automation runbook trigger via Management API, completion/rejection/error notifications, 7 configurable variables. Committed to FSI-AgentGov-Solutions (0eca892). Requirements FLW-01, FLW-02 delivered. Phases 1-4+6 complete (8/13 plans, 13/21 requirements). Phases 5+7 remaining.
 
 ---
 
