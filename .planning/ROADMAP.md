@@ -25,7 +25,7 @@ Build an enterprise-grade audit logging compliance solution for Power Platform e
 - [ ] **Phase 4: Remediation Runbook** — `Enable-AuditLogging.ps1` with org-level + entity-level audit enablement, WhatIf, validation, compliance record updates
 - [x] **Phase 5: Deployment & Documentation** — Deployment guide (Azure Automation, MI permissions, scheduling), testing scenarios (15), troubleshooting guide (10 issues)
 - [ ] **Phase 6: Approval Flow** — Power Automate approval flow specification, flow template JSON or config guide
-- [ ] **Phase 7: Framework Integration & Validation** — Solutions-index entry, Control 1.7 cross-references, ACV cross-reference, build validation
+- [x] **Phase 7: Framework Integration & Validation** — Solutions-index entry, Control 1.7 cross-references, ACV cross-reference, build validation
 
 ## Phase Details
 
@@ -115,7 +115,7 @@ Build an enterprise-grade audit logging compliance solution for Power Platform e
 | 4. Remediation Runbook | 2 | 2/2 | Complete |
 | 5. Deployment & Documentation | 3 | 3/3 | Complete |
 | 6. Approval Flow | 1 | 1/1 | Complete |
-| 7. Framework Integration & Validation | 2 | 0/2 | Not Started |
+| 7. Framework Integration & Validation | 2 | 2/2 | Complete |
 
 ## Parallel Execution Guide
 
