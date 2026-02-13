@@ -685,9 +685,9 @@ If issues cannot be resolved with troubleshooting steps:
 
 ## Additional Resources
 
-- [Microsoft Support: Power Platform](https://support.microsoft.com/en-us/power-platform)
+- [Microsoft Support: Power Platform](https://learn.microsoft.com/en-us/troubleshoot/power-platform/)
 - [Power Platform Community Forums](https://powerusers.microsoft.com/t5/Power-Platform-Community/ct-p/PowerPlatform)
-- [Microsoft Learn: Troubleshooting Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/troubleshoot-issues)
+- [Microsoft Learn: Troubleshooting Power Platform](https://learn.microsoft.com/en-us/troubleshoot/power-platform/administration/welcome-administration)
 - [XrmToolBox (Dataverse debugging)](https://www.xrmtoolbox.com/)
 
 ---

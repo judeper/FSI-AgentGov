@@ -600,8 +600,8 @@ If issues cannot be resolved using this playbook:
 
 ## Additional Resources
 
-- [Microsoft Learn: Data loss prevention policies troubleshooting](https://learn.microsoft.com/en-us/power-platform/admin/dlp-troubleshooting)
-- [Microsoft Learn: Copilot Studio troubleshooting](https://learn.microsoft.com/en-us/microsoft-copilot-studio/troubleshooting)
+- [Microsoft Learn: Data loss prevention policies troubleshooting](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
+- [Microsoft Learn: Copilot Studio troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/welcome-copilot-studio)
 - [Microsoft Support: Power Platform support](https://aka.ms/powerplatformsupport)
 
 ---

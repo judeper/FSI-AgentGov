@@ -224,8 +224,8 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 
 ## Related Documentation
 
-- [Microsoft Learn: Copilot Studio file upload configuration](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-file-upload)
-- [Microsoft Learn: Power Platform Admin Center security settings](https://learn.microsoft.com/en-us/power-platform/admin/settings-security)
+- [Microsoft Learn: Copilot Studio file upload configuration](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload)
+- [Microsoft Learn: Power Platform Admin Center security settings](https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview)
 - [Microsoft Learn: SharePoint Embedded overview](https://learn.microsoft.com/en-us/sharepoint/dev/embedded/overview)
 - [Microsoft Learn: Microsoft Purview sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
 

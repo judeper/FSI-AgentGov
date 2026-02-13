@@ -37,7 +37,7 @@
       "pattern": "^https://github\\.com/judeper/FSI-AgentGov-Solutions"
     },
     {
-      "pattern": "contoso\\.com"
+      "pattern": "contoso"
     },
     {
       "pattern": "^https://learn\\.microsoft\\.com/en-us/\\.\\.\\."
