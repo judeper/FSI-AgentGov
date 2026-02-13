@@ -1,0 +1,18 @@
+# FSI-AgentGov — Worktrunk Project Configuration
+# Hooks automate worktree lifecycle for parallel AI agent runs.
+# See: https://worktrunk.dev/hook/
+#
+# On Windows, use `git-wt` instead of `wt` (Windows Terminal conflict).
+# Or disable the Windows Terminal alias to use `wt` directly.
+
+# --- Post-create: runs after worktree is created (blocking) ---
+# Copies Python venv and built site from base worktree to avoid
+# re-installing dependencies in each new worktree.
+[post-create]
+copy-deps = "git-wt step copy-ignored"
+
+# --- Pre-merge: validation before merging to target branch ---
+# Runs mkdocs strict build and control structure verification.
+[pre-merge]
+build = "mkdocs build --strict"
+verify = "python scripts/verify_controls.py"

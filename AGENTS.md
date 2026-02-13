@@ -59,6 +59,41 @@ Only one tool writes to GSD shared state files at a time.
 - If `Active Tool` is missing, claim the session by updating STATE.md
 - Phase execution artifacts are safe to write — they are scoped to the executing plan
 
+### Parallel Agent Runs with Worktrunk
+
+This repository uses [Worktrunk](https://worktrunk.dev/) for git worktree management, enabling multiple AI agents to work in parallel on isolated branches.
+
+**Why worktrees?** Each agent gets its own working directory backed by the same `.git` database — no stashing, no conflicts, no waiting for another agent to finish.
+
+**Windows note:** On Windows, `wt` is taken by Windows Terminal. Worktrunk installs as `git-wt` via winget. Alternatively, disable the Windows Terminal alias (Settings → Privacy & security → For developers → App Execution Aliases → disable "Windows Terminal") to use `wt` directly. The examples below use `git-wt` for Windows compatibility.
+
+**Core commands:**
+
+| Task | Command |
+|------|---------|
+| Create worktree + branch | `git-wt switch --create feature-name` |
+| Switch to existing worktree | `git-wt switch feature-name` |
+| List all worktrees with status | `git-wt list` |
+| Remove worktree + branch | `git-wt remove` |
+| Merge back to main | `git-wt merge main` |
+
+**Running parallel agents:**
+
+```bash
+# Launch multiple Copilot CLI sessions on separate features
+git-wt switch --create control-1-23-update
+git-wt switch --create playbook-fixes
+git-wt switch --create nav-restructure
+```
+
+Each worktree is a full working directory at `../FSI-AgentGov.{branch-name}/`.
+
+**Project hooks** (`.config/wt.toml`):
+- **post-create**: Copies `.venv/`, `site/`, and other gitignored files from the base worktree via `git-wt step copy-ignored`
+- **pre-merge**: Runs `mkdocs build --strict` and `python scripts/verify_controls.py` before merging
+
+**Integration with session ownership:** Worktrees provide filesystem isolation, but the GSD session ownership protocol (STATE.md `Active Tool`) still applies when writing to `.planning/` shared state files. Each worktree agent should check STATE.md before writing.
+
 ### Codex CLI Model Selection
 
 Pick the cheapest model that can hold the relevant context in one pass and will not invent control IDs, file paths, or implementation steps. Three named profiles are defined in `.codex/config.toml`:
@@ -206,6 +241,7 @@ If you encounter:
 | **Copilot Agents** | `.github/agents/` | Custom agents (doc-writer, GSD workflow agents) |
 | **Copilot Prompts** | `.github/prompts/` | GSD commands adapted for Copilot |
 | **Copilot Instructions** | `.github/instructions/` | Auto-included rules by file path |
+| **Worktrunk** | `.config/wt.toml` | Worktree hooks for parallel agent runs |
 
 ### Copilot Tool Alias Notes
 

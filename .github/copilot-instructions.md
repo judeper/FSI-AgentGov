@@ -84,6 +84,7 @@ docs/
 scripts/                          # Validation scripts (verify_controls.py, verify_templates.py)
 releases/                         # Release artifacts by version
 mkdocs.yml                        # Site navigation and configuration
+.config/wt.toml                   # Worktrunk project hooks (worktree management)
 
 maintainers-local/                # LOCAL ONLY (gitignored)
 ├── reference-pack/               # Whitepapers and extracted reference content
@@ -166,13 +167,16 @@ These skills provide step-by-step instructions and are loaded only when invoked.
 
 ## Multi-Agent Configuration
 
-This repository supports three AI tools:
+This repository supports three AI tools and uses [Worktrunk](https://worktrunk.dev/) for parallel agent runs via git worktrees:
 
 | Tool | Config | Primary Role |
 |------|--------|-------------|
 | GitHub Copilot | `.github/agents/`, `.github/prompts/`, `.github/instructions/` | Documentation generation |
 | Claude Code | `.claude/CLAUDE.md`, `.claude/skills/` | Verification and QA |
 | Codex CLI | `.codex/config.toml` | Documentation generation |
+| Worktrunk | `.config/wt.toml` | Worktree management for parallel agent runs |
+
+**Parallel agent runs:** Use `git-wt switch --create branch-name` to create isolated worktrees for each agent session. On Windows, use `git-wt` (winget installs it alongside `wt` to avoid the Windows Terminal conflict). See `AGENTS.md` "Parallel Agent Runs with Worktrunk" for full details.
 
 ### Custom Agents (13)
 Located in `.github/agents/`: `doc-writer`, `doc-verifier`, plus 11 GSD workflow agents (`gsd-planner`, `gsd-executor`, `gsd-verifier`, `gsd-debugger`, `gsd-codebase-mapper`, `gsd-roadmapper`, `gsd-project-researcher`, `gsd-phase-researcher`, `gsd-research-synthesizer`, `gsd-integration-checker`, `gsd-plan-checker`).
@@ -235,6 +239,24 @@ python scripts/verify_templates.py
 # Validate Excel templates (control counts, version references)
 python scripts/verify_excel_templates.py
 ```
+
+## Worktree Management (Parallel Agent Runs)
+
+```bash
+# Create a new worktree for an agent session (Windows: use git-wt)
+git-wt switch --create feature-branch
+
+# List all worktrees with status
+git-wt list
+
+# Merge worktree back to main (runs pre-merge hooks)
+git-wt merge main
+
+# Remove worktree after merge
+git-wt remove
+```
+
+Project hooks in `.config/wt.toml` automatically copy dependencies on create and validate docs before merge.
 
 ## Common Tasks
 
