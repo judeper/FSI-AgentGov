@@ -8,18 +8,20 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v19 Inactivity Timeout Enforcement (Policy-Driven Maximum)
+## Current Milestone: v21 Audit Logging Compliance Automation (ALCA)
 
-**Goal:** Add new Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar and build the companion solution — automated validation and enforcement of Power Platform user inactivity timeout settings across environments with zone-based policy-driven maximum duration requirements, Dataverse persistence, cloud flow scanning, and PowerShell remediation.
+**Goal:** Build an enterprise-grade audit logging compliance solution for Power Platform environments — automated detection of Purview unified audit and Dataverse audit status, remediation with entity-level audit enablement, Azure Automation runbook execution via Managed Identity, Dataverse compliance tracking, and optional approval workflow. Complements existing Audit Configuration Validator (ACV v1.0.0, shipped v4). Maps to Control 1.7 (no new control).
 
-**Source:** AI Implementation Specification (2026-02-12) — covers policy-driven zone model (Zone 1: optional, Zone 2: ≤120 min, Zone 3: ≤60 min), 3 Dataverse tables (policy, compliance, error log), daily cloud flow validation via BAP Admin API, guarded notification, and PowerShell remediation script.
+**Source:** Production-ready implementation spec (43 pages, 3 architect reviews, approved for production deployment, 2026-02-12). Defines Managed Identity authentication, Azure Automation runbooks, Exchange Online integration, and Dataverse upsert pattern.
 
 **Target deliverables:**
-- Control 2.22 documentation (10-section format) + 4 playbooks
-- Dataverse schema (fsi_environmentpolicy, fsi_inactivitytimeout_compliance, fsi_inactivitytimeout_errorlog)
-- Cloud Flow template (Detect-InactivityTimeout-NonCompliance) with daily scheduled scan
-- PowerShell remediation script (Set-InactivityTimeout.ps1) with PATCH BAP API
-- Framework integration (64 controls, CONTROL-INDEX, solutions-index, mkdocs.yml)
+- Helper module (AuditComplianceHelpers.psm1) — 6 functions: retry logic, MI token, Dataverse upsert, Graph email
+- Detection runbook (Check-AuditLoggingCompliance.ps1) — Purview + Dataverse audit scanning across all environments
+- Remediation runbook (Enable-AuditLogging.ps1) — org-level + entity-level Dataverse audit enablement with WhatIf
+- Dataverse table (fsi_auditenvironmentcompliance) — upsert compliance records by environment ID
+- Deployment guide — Azure Automation Account, MI permissions, scheduling, shared mailbox
+- Optional approval flow — Power Automate approval before remediation execution
+- Framework integration (solutions-index entry, Control 1.7 cross-references, playbook updates)
 
 ## Current State (v10 Shipped)
 
@@ -42,6 +44,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v16: Unrestricted Agent Sharing Detector — continuous agent sharing compliance via BAP APIs with 5-table Dataverse schema, detection/remediation/exception flows, and framework integration
 - v17: Agent Security Configuration Governance — per-agent auth enforcement, publishing restriction, and zone access validation governance scripts with SHA-256 evidence and hardening baseline integration
 - v18: MIME Type Restrictions for File Uploads — Control 1.25 with PowerShell module (3 cmdlets), zone templates, Dataverse plugin, DLP policy template, Sentinel monitoring, exception management
+- v19: Inactivity Timeout Enforcement — Control 2.22 with Cloud Flow daily scanning, BAP Admin API, policy-driven zone model, PowerShell remediation, Dataverse schema (policy + compliance + error log)
 
 **Solutions Status:**
 - 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation, Agent Usage & Performance Workbook
@@ -49,6 +52,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - 1 Completed (v16): Unrestricted Agent Sharing Detector
 - 1 Completed (v17): Agent Security Configuration Governance
 - 1 Completed (v18): MIME Type Restrictions for File Uploads
+- 1 Completed (v19): Inactivity Timeout Enforcement
 - 2 Work In Progress: Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
@@ -98,16 +102,17 @@ Capabilities delivered:
 
 ### Active
 
-**v19: Inactivity Timeout Enforcement (Policy-Driven Maximum)**
+**v21: Audit Logging Compliance Automation (ALCA)**
 
-Add new Control 2.22 and companion solution:
-- Control Documentation: New Control 2.22 with 10-section format + 4 playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
-- Dataverse Schema: 3 tables (fsi_environmentpolicy, fsi_inactivitytimeout_compliance, fsi_inactivitytimeout_errorlog)
-- Cloud Flow: Detect-InactivityTimeout-NonCompliance with daily scheduled scan, BAP Admin API, zone-based policy evaluation
-- PowerShell Remediation: Set-InactivityTimeout.ps1 with PATCH BAP API, -WhatIf support
-- Framework Integration: 63→64 controls, CONTROL-INDEX, solutions-index, cross-references to related controls
+Enterprise-grade audit logging compliance solution complementing ACV:
+- Helper Module: AuditComplianceHelpers.psm1 (6 functions — retry, MI token, Dataverse upsert, Graph email)
+- Detection Runbook: Check-AuditLoggingCompliance.ps1 — Purview + Dataverse audit scanning via MI + Exchange Online
+- Remediation Runbook: Enable-AuditLogging.ps1 — org-level + entity-level Dataverse audit enablement with WhatIf
+- Dataverse Schema: fsi_auditenvironmentcompliance table (upsert by environment ID)
+- Deployment & Automation: Azure Automation Account, MI permissions, scheduling, shared mailbox
+- Framework Integration: Solutions-index entry, Control 1.7 cross-references
 
-**Current milestone: v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum) (PLANNING)**
+**Current milestone: v21 — Audit Logging Compliance Automation (PLANNING)**
 
 ### Out of Scope
 
@@ -203,7 +208,13 @@ Add new Control 2.22 and companion solution:
 | v19 BAP Admin API (not Graph) | Privacy settings retrieved via BAP Admin API; SSC (v5) uses Graph for CA policies | ✓ Good |
 | v19 policy-driven maximum (not hardcoded) | Zone requirements stored in fsi_environmentpolicy; no silent defaults | ✓ Good |
 | v19 missing policy = Unknown | No policy row → Unknown status, not assumed compliant; prevents false positives | ✓ Good |
-| v19 EnvironmentName as canonical ID | NOT display name, NOT Dataverse GUID; consistent with BAP API and PowerShell cmdlets | ✓ Good || v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
+| v19 EnvironmentName as canonical ID | NOT display name, NOT Dataverse GUID; consistent with BAP API and PowerShell cmdlets | ✓ Good |
+| v21 new solution alongside ACV | ACV validates configs; ALCA detects + remediates + approval workflow. Complementary scopes | ✓ Good |
+| v21 map to Control 1.7 (no new control) | Audit logging enablement aligns with existing 1.7 scope; no control count change | ✓ Good |
+| v21 Managed Identity auth | Enterprise-grade (Azure Automation MI); evolution from lab-grade interactive auth in v4-v18 | ✓ Good |
+| v21 fsi_ prefix (not jude_) | Rename personal dev prefix to framework standard; consistent with v16+ convention | ✓ Good |
+| v21 audit enablement only (not retention) | Retention is OUT OF SCOPE per spec; managed separately via Microsoft Purview | ✓ Good |
+| v21 upsert pattern (not immutable) | Query-then-create-or-update by environment ID; ACV uses immutable history | ✓ Good || v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
 | v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
 | v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
 | v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | — Pending |
@@ -213,4 +224,4 @@ Add new Control 2.22 and companion solution:
 | v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-12 after v18 milestone definition*
+*Last updated: 2026-02-13 after v20.5 milestone completion and v21 renumbering*

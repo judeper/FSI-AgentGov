@@ -24,7 +24,7 @@ Start here to understand the governance framework and regulatory alignment.
 
 Start here for technical implementation guidance.
 
-1. **Read:** [Control Catalog](controls/index.md) — All 64 controls
+1. **Read:** [Control Catalog](controls/index.md) — All 71 controls
 2. **Then:** [Pillar 1 Security](controls/pillar-1-security/index.md) and [Pillar 2 Management](controls/pillar-2-management/index.md)
 3. **Action:** [Implementation Playbooks](playbooks/index.md) — Step-by-step procedures
 4. **Use:** [Phase 0 Setup](playbooks/getting-started/phase-0-governance-setup.md) — Initial deployment
@@ -55,14 +55,14 @@ The framework is organized into three layers:
 | Layer | Audience | Content |
 |-------|----------|---------|
 | **[Framework](framework/index.md)** | Executives, Compliance, Governance | Principles, zones, regulatory context |
-| **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 64 control requirements |
+| **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 71 control requirements |
 | **[Playbooks](playbooks/index.md)** | Platform Teams, Operations | Step-by-step procedures |
 
 ---
 
 ## Control Summary
 
-**64 controls** across four governance pillars:
+**71 controls** across four governance pillars:
 
 | Pillar | Controls | Focus |
 |--------|----------|-------|

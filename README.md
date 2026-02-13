@@ -91,7 +91,7 @@ Each control includes:
 
 ### Implementation Playbooks (256 Files)
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
-- **4 playbooks per control** (64 controls × 4 = 256 playbooks)
+- **4 playbooks per control** (71 controls × 4 = 284 playbooks)
 - Portal walkthrough guides with click-by-click navigation
 - PowerShell automation scripts with validation
 - Verification testing procedures with evidence checklists
@@ -250,7 +250,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 64 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for all 71 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
 
 ### Priority Controls (Start Here)

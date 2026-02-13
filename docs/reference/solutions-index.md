@@ -21,13 +21,13 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v2.0.0 | Completed | Daily deny event correlation across Purview Audit, DLP, and Application Insights with Dataverse persistence, Power Automate orchestration, and evidence export | 1.5, 1.7, 1.8, 3.4 |
 | [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Work In Progress | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
-| [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Work In Progress | Automated validation of tenant and environment audit configurations | 1.7 |
+| [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Completed | Automated validation of tenant and environment audit configurations | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Completed | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
-| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 64 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 71 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
@@ -248,7 +248,7 @@ Provides unified compliance visibility across all 63 framework controls with zon
 - Dataverse tables for control assessments, scores, exceptions, and evidence
 - Power Automate flows for score calculation and exception monitoring
 - DAX measure library for Power BI
-- Sample data with all 64 controls
+- Sample data with all 71 controls
 - Python script for demo data loading
 
 **Regulatory Alignment:**

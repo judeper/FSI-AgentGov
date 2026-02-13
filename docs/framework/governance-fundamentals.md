@@ -89,7 +89,7 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 
 ## Four Governance Pillars
 
-The framework organizes 64 controls across four pillars:
+The framework organizes 71 controls across four pillars:
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
@@ -225,7 +225,7 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 **For Control Requirements:**
 
-- [Control Catalog](../controls/index.md) — All 64 controls
+- [Control Catalog](../controls/index.md) — All 71 controls
 - [Regulatory Framework](regulatory-framework.md) — Regulation-to-control mappings
 
 **For Implementation:**

@@ -1,0 +1,240 @@
+# Portal Walkthrough: Control 2.23 - User Consent and AI Disclosure Enforcement
+
+**Last Updated:** February 2026
+**Portal:** Microsoft 365 Admin Center, Copilot Studio
+**Estimated Time:** 25-35 minutes
+
+## Prerequisites
+
+- [ ] Entra Global Admin role (for Microsoft 365 admin center configuration)
+- [ ] Copilot Studio Agent Author or Power Platform Admin role (for agent-level configuration)
+- [ ] Access to Microsoft 365 admin center and Copilot Studio
+- [ ] Knowledge of agent governance zone classifications
+- [ ] Draft organizational AI policy document or transparency statement URL
+- [ ] Approved disclosure language for Zone 3 agents
+
+---
+
+## Step-by-Step Configuration
+
+### Part 1: Tenant-Wide AI Disclaimer Configuration (Microsoft 365 Admin Center)
+
+#### Step 1: Navigate to AI Disclaimer Settings
+
+1. Open [Microsoft 365 Admin Center](https://admin.microsoft.com)
+2. Sign in with Entra Global Admin credentials
+3. In the left navigation, click **Settings**
+4. Click **Org settings**
+5. In the Services tab, search for or scroll to **Copilot**
+6. Click **Copilot** to open the settings panel
+
+> **Note:** The AI Disclaimer feature became available in November 2025 and is located under Copilot organizational settings. If you do not see this option, verify your tenant has received the rollout (check Message Center for MC announcements).
+
+#### Step 2: Enable the AI Disclaimer Toggle
+
+1. In the Copilot settings panel, locate the **AI Disclaimer** section
+2. Review the current status:
+   - **Off (default):** No disclaimer displays for Microsoft 365 Copilot users
+   - **On:** Disclaimer banner displays on first Copilot use with custom URL
+3. Toggle the AI Disclaimer setting to **On**
+4. A text field for **Custom disclosure URL** should appear below the toggle
+
+> **Zone 2 and Zone 3 Requirement:** The AI Disclaimer toggle must be set to On for all Zone 2 and Zone 3 deployments. Zone 1 (Personal) deployments should enable this as a recommended practice.
+
+#### Step 3: Configure Custom Disclosure URL
+
+1. In the **Custom disclosure URL** field, enter the full URL to your organization's AI policy or transparency statement
+   - Example: `https://contoso.com/policies/ai-transparency`
+   - Example: `https://intranet.contoso.com/compliance/ai-disclosure`
+2. Verify the URL is accessible to all target users:
+   - For internal users: Intranet or SharePoint site with appropriate permissions
+   - For external users: Public-facing policy page with authentication if needed
+3. Ensure the linked document includes:
+   - Description of AI system usage in your organization
+   - Data handling and privacy practices
+   - Monitoring and compliance notice
+   - User rights and escalation path for concerns
+4. Click **Save** to apply the tenant-wide AI Disclaimer configuration
+
+> **Best Practice:** Host the disclosure document on a versioned SharePoint page or document library to maintain an audit trail of policy changes. Include a "Last Updated" date in the document itself.
+
+#### Step 4: Test Tenant-Wide AI Disclaimer Display
+
+1. Open Microsoft 365 Copilot in a test user account (not the admin account)
+2. If this is the first time the test user has accessed Copilot since the disclaimer was enabled, verify:
+   - A banner or modal displays with disclosure language
+   - The custom disclosure URL appears as a clickable link with text "Learn more about how Microsoft uses your data" or similar
+   - The link opens the organizational AI policy document in a new tab
+3. Document the test result:
+   - Screenshot of the disclaimer banner
+   - Timestamp of first display
+   - Confirmation that the custom URL functions correctly
+4. Test with multiple user accounts across different roles to verify universal display
+
+> **Zone 3 Testing:** For Zone 3 deployments, test with external user accounts (if applicable) to confirm the disclosure displays correctly and the custom URL is accessible from outside the corporate network.
+
+---
+
+### Part 2: Agent-Level Disclosure Configuration (Copilot Studio)
+
+#### Step 5: Create Custom Greeting Topic with AI Disclosure
+
+1. Open [Copilot Studio](https://copilotstudio.microsoft.com)
+2. Select the target agent from the agent list
+3. In the left navigation, click **Topics**
+4. Click **System** tab to view system topics
+5. Locate and open the **Greeting** topic (or create a new system topic if no greeting exists)
+6. In the topic editor, review or create a greeting message node
+
+> **Agent Context:** The greeting topic is the first message users see when starting a conversation with the agent. This is the appropriate location for agent-level AI disclosure language.
+
+#### Step 6: Configure AI Disclosure Language in Greeting
+
+1. In the greeting topic, add or edit the message node to include AI disclosure:
+   ```
+   Hello! I'm [Agent Name], an AI assistant created by [Organization Name].
+   
+   I use artificial intelligence to provide information and support. My responses are generated by AI and should be reviewed by appropriate personnel before making decisions.
+   
+   All conversations may be monitored for quality assurance and compliance purposes.
+   
+   For questions about AI usage or data handling, please see our [AI Transparency Policy](https://contoso.com/policies/ai-transparency).
+   ```
+2. Customize the message based on governance zone:
+   - **Zone 1:** General AI disclosure with link to Microsoft Transparency Notes
+   - **Zone 2:** AI disclosure with organizational policy link and monitoring notice
+   - **Zone 3:** Formal disclosure with regulatory language, data handling specifics, and escalation path
+3. Click **Save** to apply the greeting topic changes
+
+> **Language Requirements:** Zone 3 agents must include: (1) explicit AI identification, (2) statement about AI-generated responses requiring review, (3) monitoring notice, (4) link to organizational policy, and (5) escalation path for concerns.
+
+#### Step 7: Add Mandatory Consent Acknowledgment (Zone 3 Only)
+
+For Zone 3 agents requiring formal consent tracking:
+
+1. After the greeting message node, add a **Question** node
+2. Configure the question:
+   - **Message:** "Before we continue, please confirm you understand this is an AI system and conversations are monitored. Do you agree to these terms?"
+   - **Identify:** Select "User's entire response" or create a Boolean entity for Yes/No
+3. Add a **Condition** node after the question:
+   - **If** user response contains "yes", "agree", "I understand", or similar → Proceed to agent functionality
+   - **Else** → Display message: "I'm unable to assist without consent acknowledgment. Please contact [support contact] for assistance." → End conversation
+4. Add a **Power Automate flow** action after the "yes" condition to log consent:
+   - Call a flow that writes to Dataverse `fsi_aiconsent` table
+   - Pass parameters: UserID, AgentName, ConsentTimestamp, DisclosureVersion, AcknowledgmentStatus (True)
+5. Click **Save** to apply the consent acknowledgment logic
+
+> **Consent Tracking:** The consent record should be stored in Dataverse with fields for user identity, timestamp, disclosure version number, and acknowledgment status. Implement consent expiration logic (e.g., 90 days) requiring periodic re-acknowledgment.
+
+#### Step 8: Configure Disclosure Display Frequency
+
+1. In the greeting topic, configure the trigger frequency:
+   - **On every conversation start:** User sees disclosure each time they open a new conversation session
+   - **On first use only:** User sees disclosure once; subsequent conversations skip the greeting
+2. For Zone 3 agents, set to **On every conversation start** to ensure users are reminded of AI disclosure and monitoring
+3. For Zone 1 and Zone 2 agents, **On first use only** or **On every conversation start** based on organizational preference
+4. Test the trigger frequency by opening multiple conversation sessions
+
+> **Best Practice:** Zone 3 agents should display disclosure on every conversation start to maintain continuous awareness of AI usage and monitoring. This also ensures consent acknowledgment is current if session-based re-acknowledgment is required.
+
+---
+
+### Part 3: Copilot Control System Configuration (Enterprise-Wide)
+
+#### Step 9: Configure Enterprise Transparency Settings
+
+1. Access the [Copilot Control System](https://copilot.microsoft.com/admin) (if available in your tenant)
+2. Navigate to **Transparency and Control** settings
+3. Review enterprise-wide transparency options:
+   - **Plugin permissions:** Control which plugins can access data and display disclosure notices
+   - **Data usage transparency:** Configure how Copilot discloses data sources and usage to users
+   - **Transparency Notes reference:** Link to Microsoft Transparency Notes or custom organizational notes
+4. Enable **Enterprise transparency mode** to apply centralized disclosure settings across all Copilot experiences
+5. Configure **Data usage disclosure** to display inline notices when Copilot accesses enterprise data sources
+6. Click **Save** to apply enterprise transparency configuration
+
+> **Feature Availability:** The Copilot Control System is rolling out to enterprise tenants throughout 2025-2026. If not yet available, tenant-wide AI Disclaimer and agent-level disclosure configurations remain the primary mechanisms.
+
+---
+
+### Part 4: Documentation and Testing
+
+#### Step 10: Document Disclosure Configuration
+
+1. Create a disclosure configuration record for each agent and the tenant:
+   - **Tenant-level:** AI Disclaimer toggle status, custom disclosure URL, last updated date
+   - **Agent-level:** Agent name, greeting topic disclosure language, consent acknowledgment status, governance zone
+   - **Enterprise-level:** Copilot Control System transparency settings (if applicable)
+2. Store the configuration inventory in your governance documentation system (e.g., SharePoint document library, Dataverse table)
+3. Include disclosure version number for tracking policy changes over time
+4. Update the inventory after any disclosure configuration changes
+
+> **Version Control:** Maintain a version history of disclosure language changes. This is critical for Zone 3 agents where consent records reference a specific disclosure version number.
+
+#### Step 11: Comprehensive Testing
+
+1. **Test tenant-wide AI Disclaimer:**
+   - New user accessing Microsoft 365 Copilot for the first time
+   - Verify disclaimer banner displays with custom URL
+   - Confirm custom URL opens organizational policy document
+2. **Test agent-level disclosure:**
+   - Open a new conversation with each agent
+   - Verify greeting topic displays AI disclosure language
+   - Confirm disclosure matches the governance zone requirements
+3. **Test consent acknowledgment (Zone 3):**
+   - Respond "yes" to consent prompt → Verify conversation proceeds and consent record is created in Dataverse
+   - Respond "no" to consent prompt → Verify conversation ends with escalation message
+   - Check Dataverse `fsi_aiconsent` table for consent record with correct fields
+4. **Test cross-platform consistency:**
+   - Verify disclosure appears in Microsoft Teams, web browser, and mobile app (if applicable)
+5. Document all test results with screenshots and timestamps
+
+---
+
+## Configuration by Governance Level
+
+| Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
+|---------|-------------------|----------------------|---------------------|
+| **Tenant-wide AI Disclaimer toggle** | Recommended | Required | Mandatory |
+| **Custom disclosure URL** | Optional (default Microsoft Transparency Notes acceptable) | Required (organizational AI policy) | Required (policy with regulatory language) |
+| **Agent-level disclosure in greeting** | Recommended | Required | Mandatory with formal language |
+| **Consent acknowledgment tracking** | Not required | Recommended | Required with Dataverse records |
+| **Disclosure display frequency** | First use only | First use or every session | Every conversation start |
+| **Consent expiration/re-acknowledgment** | Not applicable | Quarterly (recommended) | 90 days or session-based |
+| **Purview audit integration** | Not required | Recommended | Required for immutable trail |
+| **Disclosure version tracking** | Not required | Recommended | Required |
+| **Testing before deployment** | Recommended | Required | Required with external user testing |
+
+---
+
+## Validation
+
+After completing these steps, verify:
+
+- [ ] Tenant-wide AI Disclaimer toggle is enabled in Microsoft 365 admin center (Zone 2+)
+- [ ] Custom disclosure URL is configured and accessible to all target users
+- [ ] All agents have greeting topics with AI disclosure language appropriate for their governance zone
+- [ ] Zone 3 agents have mandatory consent acknowledgment prompts with Dataverse tracking
+- [ ] Consent records are created in Dataverse with all required fields (Zone 3)
+- [ ] Disclosure displays correctly on first use (tenant-wide) and every conversation start (Zone 3 agents)
+- [ ] Custom disclosure URL links to current organizational AI policy document
+- [ ] Testing confirms disclosure display across all platforms (Teams, web, mobile)
+- [ ] Configuration inventory is documented with disclosure version numbers
+- [ ] Purview audit logging captures consent events (Zone 3)
+
+---
+
+## Visual Reference
+
+Expected portal locations:
+- **Tenant-wide AI Disclaimer:** Microsoft 365 Admin Center → Settings → Org settings → Copilot → AI Disclaimer
+- **Custom disclosure URL:** Microsoft 365 Admin Center → Settings → Org settings → Copilot → Custom disclosure URL field
+- **Agent-level disclosure:** Copilot Studio → [Agent] → Topics → System → Greeting → Message node with AI disclosure language
+- **Consent acknowledgment:** Copilot Studio → [Agent] → Topics → System → Greeting → Question node + Condition node + Power Automate action
+- **Copilot Control System:** Copilot Control System → Transparency and Control settings
+
+> **UI Note:** The AI Disclaimer toggle became available in late November 2025 (referenced in Microsoft announcements). If your tenant has not yet received the update, check Message Center for rollout status or contact Microsoft support.
+
+---
+
+[Back to Control 2.23](../../../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

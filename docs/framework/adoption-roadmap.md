@@ -243,7 +243,7 @@ This roadmap provides a structured approach to implementing AI agent governance.
 - [ ] Sentinel integration operational with analytics rules
 - [ ] Adversarial testing program established
 - [ ] Model risk management framework aligned with SR 11-7
-- [ ] All 64 controls assessed and appropriately implemented
+- [ ] All 71 controls assessed and appropriately implemented
 - [ ] Steady-state governance operations documented
 
 ### Phase 2 Deliverables

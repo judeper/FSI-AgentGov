@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-13
-**Milestone:** v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum)
-**Status:** v19 MILESTONE COMPLETE — 10/10 plans executed (Phases 1-5 complete). 14/14 requirements delivered. Recorded in MILESTONES.md.
+**Milestone:** v21 — Audit Logging Compliance Automation (ALCA)
+**Status:** v21 REQUIREMENTS DEFINED — 21 requirements across 8 categories. Roadmap creation next. Scope: enterprise-grade audit logging detection + remediation via Azure Automation with Managed Identity. Maps to Control 1.7. Complements ACV (v4).
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-13 00:17
-**Handoff Summary:** Phase 5 executed — Framework integration complete. 20 files updated (63→64 controls, 21→22 management, 252→256 playbooks). Solutions-index entry added. Hardening baseline item 30 cross-references 2.22. All validations pass (mkdocs build --strict, verify_controls.py 64/64, verify_language_rules.py 0 violations). v19 milestone complete.
+**Session Started:** 2026-02-13 02:47
+**Handoff Summary:** v20.5 milestone completed — 7 new controls (1.26-3.12) expanding framework from 64 to 71 controls. All reference counts updated, build validated. ALCA renumbered from v20 to v21. Requirements defined for v21.
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-12)
+See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v19 — Inactivity Timeout Enforcement (Policy-Driven Maximum). New Control 2.22 (Management Pillar) + companion solution.
+**Current focus:** v21 — Audit Logging Compliance Automation. Enterprise-grade Purview + Dataverse audit detection/remediation via Azure Automation Managed Identity. Maps to Control 1.7. Complements ACV.
 
 ## Milestone Series Plan
 
@@ -37,33 +37,34 @@ v16: Unrestricted Agent Sharing Detector — COMPLETE
 v17: Agent Security Configuration Governance — COMPLETE
 v18: MIME Type Restrictions for File Uploads — COMPLETE
 v19: Inactivity Timeout Enforcement — COMPLETE
+v20.5: Control Framework Expansion — COMPLETE
+v21: Audit Logging Compliance Automation — REQUIREMENTS DEFINED
 ```
 
 ## Current Position
 
-**Phase:** 5 of 5 (COMPLETE)
-**Plan:** 10/10 plans executed (2 in Phase 1, 2 in Phase 2, 2 in Phase 3, 2 in Phase 4, 2 in Phase 5)
-**Status:** All phases complete. All 14 requirements delivered. v19 milestone complete.
-**Last activity:** 2026-02-13 — Phase 5 executed: Framework integration (20 files updated, 64/64 controls validated)
+**Phase:** 0 of TBD (PLANNING)
+**Plan:** 0/TBD plans
+**Status:** Requirements defined (21 requirements). Roadmap creation next.
+**Last activity:** 2026-02-13 — v20.5 committed; ALCA renumbered v20→v21; requirements updated
 
 **Progress:**
 ```
-v1-v18: [=========================] COMPLETE (see MILESTONES.md)
-v19:    [=========================] ALL PHASES COMPLETE
+v1-v20.5: [=========================] COMPLETE (see MILESTONES.md)
+v21:      [.........................] REQUIREMENTS DEFINED
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v19):**
+**Cumulative (v1-v20.5):**
 - Phases: 87 complete
 - Plans: 247 complete
-- Requirements: 406 delivered
+- Requirements: 406+ delivered
 
-**v19 Complete:**
-- Phases: 5/5
-- Plans: 10/10
-- Requirements: 14/14 (CTL-3/3, DVM-3/3, FLW-3/3, REM-2/2, FRM-3/3)
-- Recorded in MILESTONES.md
+**v21 In Progress:**
+- Phases: 0/TBD
+- Plans: 0/TBD
+- Requirements: 21 (defined)
 
 ## Accumulated Context
 
@@ -71,27 +72,25 @@ v19:    [=========================] ALL PHASES COMPLETE
 
 See PROJECT.md Key Decisions table for full history.
 
-**v19 decisions:**
-- Control ID 2.22 in Management Pillar (next available after 2.21)
-- New control (not replacing existing) — framework goes from 63 to 64 controls; Pillar 2 from 21 to 22
-- Solution uses BAP Admin API privacy settings endpoint (not Graph API — that's SSC/v5)
-- Canonical identifier is EnvironmentName (Power Platform Environment Name) — NOT display name
-- Policy-driven maximum (not hard-coded) — zone requirements stored in fsi_environmentpolicy table
-- Missing policy → Unknown (not default) — no silent defaults
-- Complements SSC (v5, Control 1.23) and hardening baseline item 30
-- Lab-grade security (interactive auth) — consistent with v4-v18
-- Spec language violations must be rewritten with hedged language per FSI rules
+**v21 decisions:**
+- New solution alongside ACV (complementary — ACV validates configs; ALCA detects + remediates)
+- Maps to existing Control 1.7 (no new control, framework stays at 71 controls)
+- Enterprise Managed Identity auth (Azure Automation) — evolution from lab-grade interactive in v4-v18
+- fsi_ prefix for Dataverse tables (not jude_ from dev environment)
+- Upsert pattern (query-then-create-or-update) — different from ACV's immutable history
+- Audit enablement only — retention is OUT OF SCOPE (managed by Purview)
+- 3 optional enhancements deferred: RunId column, API monitoring script, batch operations
 
 ### Key Constraints
 
-- **New control:** Adding Control 2.22 to Pillar 2 (64 total controls)
-- **Single-repo focus:** Control doc + playbooks in FSI-AgentGov; solution artifacts in FSI-AgentGov-Solutions
-- **Canonical ID:** EnvironmentName exclusively — no display name, no Dataverse GUID
-- **Lab-grade:** Interactive auth; no managed identity requirement
-- **FSI language rules:** All documentation must use regulatory-safe language
+- **No new control:** Maps to existing 1.7 (71 controls unchanged)
+- **Cross-repo:** Solution artifacts in FSI-AgentGov-Solutions; docs/playbooks in FSI-AgentGov
+- **Enterprise auth:** Managed Identity in Azure Automation (not interactive)
+- **Scope boundary:** Audit enablement only; retention excluded
+- **FSI language rules:** All documentation uses regulatory-safe language
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
-- **Immutable compliance records:** Never update existing — append-only audit trail
-- **No silent defaults:** Missing policy = Unknown, not assumed compliant
+- **fsi_ prefix:** All Dataverse tables use fsi_ convention
+- **Upsert pattern:** Single compliance record per environment (update if exists)
 
 ### Blockers
 
@@ -107,13 +106,13 @@ None.
 | 2026-02-12 | [Reconcile AAM Status Discrepancy](todos/pending/2026-02-12-solutions-index-status-discrepancy.md) | Resolved — v16 Phase 5 |
 | 2026-02-11 | [Agent Usage & Performance Workbook](todos/pending/2026-02-11-agent-usage-workbook-for-enterprise-alm.md) | Delivered — v15 |
 
-All prior todos resolved. v18 work tracked via REQUIREMENTS.md.
+All prior todos resolved. v21 work tracked via REQUIREMENTS.md.
 
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-13 00:17
-**Handoff Summary:** v19 milestone closed — Recorded in MILESTONES.md. All 5 phases executed (10/10 plans, 14/14 requirements). Framework now at 64 controls, 256 playbooks. Cumulative: 87 phases, 247 plans, 406 requirements across v4-v19. No v20 scope defined yet.
+**Session Started:** 2026-02-13 02:47
+**Handoff Summary:** v20.5 Control Framework Expansion committed — 7 new controls (1.26, 1.27, 1.28, 2.23, 2.24, 3.11, 3.12), framework 64→71 controls, all reference counts fixed, build validated. ALCA renumbered v20→v21. v21 requirements defined (21 requirements). Roadmap creation is next step.
 
 ---
 
@@ -127,3 +126,5 @@ All prior todos resolved. v18 work tracked via REQUIREMENTS.md.
 *v17 milestone completed: 2026-02-12*
 *v18 milestone completed: 2026-02-12*
 *v19 milestone completed: 2026-02-13*
+*v20.5 milestone completed: 2026-02-13*
+*v21 milestone defined: 2026-02-13*

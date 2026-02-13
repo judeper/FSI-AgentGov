@@ -1,5 +1,30 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v20.5 Control Framework Expansion (Completed: 2026-02-13)
+
+**Delivered:** 7 new controls expanding the framework from 64 to 71 controls — 3 security controls (1.26, 1.27, 1.28), 2 management controls (2.23, 2.24), and 2 reporting controls (3.11, 3.12). Each with 4 implementation playbooks and screenshot specification. Full framework integration (CONTROL-INDEX, mkdocs.yml, count references across all docs).
+
+**Key accomplishments:**
+
+- **Control 1.26 — Agent File Upload and File Analysis Restrictions:** Per-agent file upload enablement with zone-based restrictions to prevent data exfiltration through unmonitored file ingestion (GLBA 501(b), FINRA 4511/3110, OCC 2011-12, SEC 17a-4)
+- **Control 1.27 — AI Agent Content Moderation Enforcement:** Content moderation level enforcement (Low/Medium/High) at agent and topic levels (FINRA 3110/25-07, SEC 17a-3/4, GLBA 501(b))
+- **Control 1.28 — Policy-Based Agent Publishing Restrictions:** Publishing gates for DLP violations, security scan failures, incomplete approvals (SOX 302/404, FINRA 3110, OCC 2011-12, Fed SR 11-7)
+- **Control 2.23 — User Consent and AI Disclosure Enforcement:** AI disclaimer toggles, custom disclosure URLs, consent acknowledgment tracking (FINRA 3110/25-07, GLBA 501(b), SEC AI Guidance)
+- **Control 2.24 — Agent Feature Enablement and Restriction Governance:** Zone-based feature allowlists/denylists for generative actions, preview capabilities, tools, orchestration (SOX 302/404, FINRA 3110, OCC 2011-12, GLBA 501(b))
+- **Control 3.11 — Centralized Agent Inventory Enforcement:** Automated agent discovery, mandatory registration, orphan/unmanaged agent remediation (FINRA 4511, SOX 404, OCC 2011-12, Fed SR 11-7)
+- **Control 3.12 — Agent Governance Exception and Override Management:** Formal exception request/approval/monitoring with time-bound overrides and audit trails (SOX 302/404, FINRA 3110, OCC 2011-12, Fed SR 11-7)
+
+**Stats:**
+
+- 7 new controls, 28 playbooks (7 × 4), 7 EXPECTED.md screenshot specifications
+- Framework: 64→71 controls (Pillar 1: 25→28, Pillar 2: 22→24, Pillar 3: 10→12)
+- Playbook count: 256→284
+- All validations pass (mkdocs build --strict, verify_controls.py 71/71)
+
+**What's next:** v21 — Audit Logging Compliance Automation (ALCA)
+
+---
+
 ## v19 Inactivity Timeout Enforcement (Completed: 2026-02-13)
 
 **Delivered:** New Control 2.22 (Inactivity Timeout Enforcement) in the Management Pillar with companion solution — Cloud Flow for daily compliance scanning via BAP Admin API, PowerShell remediation script (Set-InactivityTimeout.ps1), Dataverse schema for policy management and immutable compliance persistence, zone-based maximum duration enforcement (Zone 2: ≤120 min, Zone 3: ≤60 min), and full framework integration (63→64 controls).
@@ -22,7 +47,7 @@
 - Controls created: 2.22 (new — framework 63→64, Pillar 2: 21→22)
 - 1 day (2026-02-13)
 
-**What's next:** TBD — v20 scope not yet defined
+**What's next:** v20.5 — Control Framework Expansion
 
 ---
 
