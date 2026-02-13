@@ -67,11 +67,11 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 
 | Component | Type | File |
 |-----------|------|------|
-| Detector Flow | Power Automate Cloud Flow | `src/uasd-detector-scan-agents.json` |
-| Remediation Flow | Power Automate Cloud Flow | `src/uasd-remediation-apply-sharing-policy.json` |
-| Exception Approval Flow | Power Automate Cloud Flow | `src/uasd-exception-approval-workflow.json` |
-| Exception Manager App | Canvas App | `src/uasd-exception-manager-app.json` |
-| Alert Adaptive Card | Teams Notification | `src/adaptive-card-uasd-alert.json` |
+| Detector Flow | Power Automate Cloud Flow | `unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json` (FSI-AgentGov-Solutions) |
+| Remediation Flow | Power Automate Cloud Flow | `unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json` (FSI-AgentGov-Solutions) |
+| Exception Approval Flow | Power Automate Cloud Flow | `unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json` (FSI-AgentGov-Solutions) |
+| Exception Manager App | Canvas App | `unrestricted-agent-sharing-detector/src/uasd-exception-manager-app.json` (FSI-AgentGov-Solutions) |
+| Alert Adaptive Card | Teams Notification | `unrestricted-agent-sharing-detector/src/adaptive-card-uasd-alert.json` (FSI-AgentGov-Solutions) |
 | Dataverse Schema | Python Script | `scripts/create_uasd_dataverse_schema.py` |
 | Environment Variables | Python Script | `scripts/create_uasd_environment_variables.py` |
 | Connection References | Python Script | `scripts/create_uasd_connection_references.py` |

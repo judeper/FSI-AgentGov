@@ -148,13 +148,13 @@ Deploy the detection flow using the governance script:
 ```powershell
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "src/uasd-detector-scan-agents.json" `
+    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "src/uasd-detector-scan-agents.json"
+    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json"
 ```
 
 ### Step 2: Bind Connection References
@@ -207,13 +207,13 @@ Review the output for any sharing violations detected across environments. If vi
 ```powershell
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "src/uasd-remediation-apply-sharing-policy.json" `
+    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "src/uasd-remediation-apply-sharing-policy.json"
+    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json"
 ```
 
 ### Step 2: Import Exception Approval Flow
@@ -222,7 +222,7 @@ Import the exception approval workflow:
 
 1. Navigate to [Power Automate](https://make.powerautomate.com)
 2. Go to **Solutions** > **UASD**
-3. Import `src/uasd-exception-approval-workflow.json`
+3. Import `unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json` from FSI-AgentGov-Solutions
 4. Bind connection references as in Phase 2, Step 2
 
 ### Step 3: Configure Auto-Remediation
@@ -256,7 +256,7 @@ Import the model-driven app for managing exceptions:
 
 1. Navigate to [Power Apps](https://make.powerapps.com)
 2. Go to **Solutions** > **Import solution**
-3. Select `src/uasd-exception-manager-app.json`
+3. Select `unrestricted-agent-sharing-detector/src/uasd-exception-manager-app.json` from FSI-AgentGov-Solutions
 4. Complete the import wizard and bind connection references
 5. Share the app with compliance officers who will manage exceptions
 

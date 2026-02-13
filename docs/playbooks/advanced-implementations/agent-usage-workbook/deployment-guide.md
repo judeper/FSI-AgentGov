@@ -13,7 +13,7 @@ This guide provides end-to-end deployment instructions for the Agent Usage & Per
 
 **Estimated Time:** 30–60 minutes
 
-**Workbook Source:** `src/agent-usage-workbook.json`
+**Workbook Source:** `agent-observability-foundation/src/agent-usage-workbook.json` (in [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions))
 
 ---
 
@@ -120,7 +120,7 @@ For initial deployment and ongoing workbook modifications, assign:
 
 ### 2.3: Paste Workbook JSON
 
-1. Download or copy the contents of `src/agent-usage-workbook.json` from this repository
+1. Download or copy the contents of `agent-observability-foundation/src/agent-usage-workbook.json` from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository
 2. Paste the JSON into the editor, replacing any existing content
 3. Click **Apply**
 

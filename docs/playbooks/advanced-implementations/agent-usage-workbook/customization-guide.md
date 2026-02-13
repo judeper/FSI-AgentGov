@@ -336,7 +336,7 @@ customEvents
 7. **Preserve `timeContextFromParameter`** — removing it decouples the query from the global time picker.
 
 !!! warning "Avoid Direct File Edits for Production"
-    The `src/agent-usage-workbook.json` template is the deployment baseline. For production customizations, use the Azure Portal workbook editor or import the template into a new workbook instance. Direct file edits should be limited to version-controlled template updates.
+    The `agent-observability-foundation/src/agent-usage-workbook.json` template in the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository is the deployment baseline. For production customizations, use the Azure Portal workbook editor or import the template into a new workbook instance. Direct file edits should be limited to version-controlled template updates.
 
 ---
 

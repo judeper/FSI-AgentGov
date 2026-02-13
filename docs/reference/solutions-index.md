@@ -573,14 +573,11 @@ Consolidates security-critical configuration settings across Power Platform, Cop
 
 ### Agent Usage & Performance Workbook
 
-!!! info "Framework-Integrated Tool"
-    This workbook is included in the FSI-AgentGov framework repository at `src/agent-usage-workbook.json`. It does not require the companion FSI-AgentGov-Solutions repository.
-
 Deployable Azure Monitor Workbook template for Copilot Studio agent usage, performance, and error visibility — solving the ALM separation-of-duties gap for FSI organizations where production Analytics tab access is restricted.
 
 **Components:**
 
-- Azure Monitor Workbook JSON template (`src/agent-usage-workbook.json`)
+- Azure Monitor Workbook JSON template (`agent-observability-foundation/src/agent-usage-workbook.json` in FSI-AgentGov-Solutions)
 - 3-tab layout: Usage & Business Value, Performance & Errors, Operational Health
 - Parameterized Application Insights resource ID with zone-aware thresholds
 - KQL query library targeting native Copilot Studio customEvents telemetry
@@ -598,6 +595,8 @@ Deployable Azure Monitor Workbook template for Copilot Studio agent usage, perfo
 - [Control 3.9: Microsoft Sentinel Integration](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
 
 **Framework Playbook:** [Agent Usage & Performance Workbook](../playbooks/advanced-implementations/agent-usage-workbook/index.md)
+
+**Repository Link:** [agent-observability-foundation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation)
 
 ---
 
@@ -653,7 +652,7 @@ Automates agent-level security configuration governance across three critical ar
 - `Test-AgentAuthConfiguration.ps1` — Per-agent authentication configuration validation against 6 SSPM items with zone-based logic and drift detection
 - `restrict-agent-publishing.ps1` — Publishing restriction governance validating 6 criteria (Environment Maker role, security groups, sharing, DLP, managed environment limits, approval workflow)
 - `Test-ZoneAgentAccess.ps1` — M365 Admin Center agent access settings verification per zone policy with admin exclusion group and deployment group validation
-- `src/adaptive-card-zone-access-alert.json` — Teams adaptive card template for zone access policy drift notifications
+- `agent-access-monitor/src/adaptive-card-zone-access-alert.json` (in FSI-AgentGov-Solutions) — Teams adaptive card template for zone access policy drift notifications
 - SHA-256 integrity-hashed evidence export across all scripts
 - JSON output structured for Dataverse ingestion
 
@@ -687,20 +686,17 @@ Automates agent-level security configuration governance across three critical ar
 
 Helps prevent malicious or high-risk file types from being uploaded to AI agent conversations. Provides zone-aware MIME type restriction configuration, server-side file content validation using magic bytes analysis, DLP policy integration for executable blocking, and centralized monitoring through Microsoft Sentinel.
 
-!!! info "Framework-Integrated Tool"
-    The PowerShell module and governance scripts are integrated directly into the FSI-AgentGov framework repository under `scripts/governance/` and `src/`. They do not require the companion FSI-AgentGov-Solutions repository.
-
 **Version:** v1.0.0
 **Status:** Completed
 
 **Components:**
 
-- `scripts/governance/FsiMimeControl.psm1` — PowerShell module with Get/Set/Test cmdlets and zone templates for MIME type configuration management
-- `src/ValidateMimeTypePlugin.cs` — Dataverse plugin for server-side magic bytes validation in Zone 3 environments
-- `src/dlp-policy-template.json` — Purview DLP policy template for executable file blocking
-- `src/query-mime-blocks.kql` — Sentinel KQL query for MIME type block event monitoring
-- `src/high-volume-blocks.json` — Sentinel analytics alert rule ARM template for high-volume block detection
-- `scripts/governance/mime-exception-register.csv` — Exception register with validation script and request template
+- `scripts/governance/FsiMimeControl.psm1` — PowerShell module with Get/Set/Test cmdlets and zone templates for MIME type configuration management (in FSI-AgentGov)
+- `mime-type-restrictions/src/ValidateMimeTypePlugin.cs` — Dataverse plugin for server-side magic bytes validation in Zone 3 environments (in FSI-AgentGov-Solutions)
+- `mime-type-restrictions/src/dlp-policy-template.json` — Purview DLP policy template for executable file blocking (in FSI-AgentGov-Solutions)
+- `mime-type-restrictions/src/query-mime-blocks.kql` — Sentinel KQL query for MIME type block event monitoring (in FSI-AgentGov-Solutions)
+- `mime-type-restrictions/src/high-volume-blocks.json` — Sentinel analytics alert rule ARM template for high-volume block detection (in FSI-AgentGov-Solutions)
+- `scripts/governance/mime-exception-register.csv` — Exception register with validation script and request template (in FSI-AgentGov)
 
 **Regulatory Alignment:**
 
@@ -723,12 +719,14 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 
 **Script Locations:**
 
-- `scripts/governance/FsiMimeControl.psm1`
-- `scripts/governance/FsiMimeControl.psd1`
-- `src/ValidateMimeTypePlugin.cs`
-- `src/dlp-policy-template.json`
-- `src/query-mime-blocks.kql`
-- `src/high-volume-blocks.json`
+- `scripts/governance/FsiMimeControl.psm1` (FSI-AgentGov)
+- `scripts/governance/FsiMimeControl.psd1` (FSI-AgentGov)
+- `mime-type-restrictions/src/ValidateMimeTypePlugin.cs` (FSI-AgentGov-Solutions)
+- `mime-type-restrictions/src/dlp-policy-template.json` (FSI-AgentGov-Solutions)
+- `mime-type-restrictions/src/query-mime-blocks.kql` (FSI-AgentGov-Solutions)
+- `mime-type-restrictions/src/high-volume-blocks.json` (FSI-AgentGov-Solutions)
+
+**Repository Link:** [mime-type-restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions)
 
 **Version History:**
 
@@ -745,21 +743,18 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 
 Helps validate and enforce Power Platform user inactivity timeout settings across multiple environments. Provides zone-aware policy-driven maximum duration requirements, automated compliance scanning via BAP Admin API, immutable Dataverse compliance records, and PowerShell-based remediation.
 
-!!! info "Framework-Integrated Tool"
-    The PowerShell scripts and governance automation are integrated directly into the FSI-AgentGov framework repository under `scripts/governance/` and `src/`. They do not require the companion FSI-AgentGov-Solutions repository.
-
 **Version:** v1.0.0
 **Status:** Completed
 
 **Components:**
 
-- `src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation
-- `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations
-- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (27 tests)
-- `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables)
-- `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema
-- `scripts/create_timeout_environment_variables.py` — Environment variable definitions
-- `scripts/create_timeout_connection_references.py` — Connection reference definitions
+- `inactivity-timeout-enforcement/src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation (in FSI-AgentGov-Solutions)
+- `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations (in FSI-AgentGov)
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (27 tests) (in FSI-AgentGov)
+- `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables) (in FSI-AgentGov)
+- `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema (in FSI-AgentGov)
+- `scripts/create_timeout_environment_variables.py` — Environment variable definitions (in FSI-AgentGov)
+- `scripts/create_timeout_connection_references.py` — Connection reference definitions (in FSI-AgentGov)
 
 **Regulatory Alignment:**
 
@@ -777,11 +772,13 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 **Script Locations:**
 
-- `scripts/governance/Set-InactivityTimeout.ps1`
-- `scripts/governance/Set-InactivityTimeout.Tests.ps1`
-- `src/detect-inactivity-timeout-noncompliance.json`
-- `scripts/create_timeout_dataverse_schema.py`
-- `scripts/create_timeout_errorlog_schema.py`
+- `scripts/governance/Set-InactivityTimeout.ps1` (FSI-AgentGov)
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1` (FSI-AgentGov)
+- `inactivity-timeout-enforcement/src/detect-inactivity-timeout-noncompliance.json` (FSI-AgentGov-Solutions)
+- `scripts/create_timeout_dataverse_schema.py` (FSI-AgentGov)
+- `scripts/create_timeout_errorlog_schema.py` (FSI-AgentGov)
+
+**Repository Link:** [inactivity-timeout-enforcement](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement)
 
 **Version History:**
 
