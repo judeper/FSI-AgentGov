@@ -112,7 +112,7 @@ Build an enterprise-grade audit logging compliance solution for Power Platform e
 | 1. Helper Module & Tests | 2 | 2/2 | Complete |
 | 2. Dataverse Schema | 1 | 1/1 | Complete |
 | 3. Detection Runbook | 2 | 2/2 | Complete |
-| 4. Remediation Runbook | 2 | 0/2 | Not Started |
+| 4. Remediation Runbook | 2 | 2/2 | Complete |
 | 5. Deployment & Documentation | 3 | 0/3 | Not Started |
 | 6. Approval Flow | 1 | 0/1 | Not Started |
 | 7. Framework Integration & Validation | 2 | 0/2 | Not Started |
