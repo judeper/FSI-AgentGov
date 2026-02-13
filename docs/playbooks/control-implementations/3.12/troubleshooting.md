@@ -622,9 +622,9 @@ If issues cannot be resolved using this guide:
 
 ## Additional Resources
 
-- [Power Platform Admin Center Troubleshooting](https://learn.microsoft.com/en-us/power-platform/admin/troubleshooting)
+- [Power Platform Admin Center Troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/power-platform/administration/welcome-administration)
 - [Power Automate Flow Troubleshooting](https://learn.microsoft.com/en-us/power-automate/fix-flow-failures)
-- [Dataverse Connection Issues](https://learn.microsoft.com/en-us/powershell/module/microsoft.xrm.data.powershell/)
+- [Dataverse Connection Issues](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/xrm-tooling/use-powershell-cmdlets-xrm-tooling-connect)
 - [Adaptive Cards Debugging](https://adaptivecards.io/designer/)
 
 ---

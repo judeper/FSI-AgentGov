@@ -563,7 +563,7 @@ If issues cannot be resolved using this troubleshooting guide:
 
 - [Microsoft Learn: Troubleshooting Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/troubleshoot)
 - [Microsoft Learn: Purview Audit Log Troubleshooting](https://learn.microsoft.com/en-us/purview/audit-troubleshooting-scenarios)
-- [Microsoft Learn: Power Platform Admin Troubleshooting](https://learn.microsoft.com/en-us/power-platform/admin/troubleshooting)
+- [Microsoft Learn: Power Platform Admin Troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/power-platform/administration/welcome-administration)
 - [Microsoft Learn: Dataverse Developer Guide](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/)
 
 ---
