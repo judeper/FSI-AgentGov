@@ -8,20 +8,15 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v21 Audit Logging Compliance Automation (ALCA)
+## Current Milestone: v22 Solutions Status Reconciliation
 
-**Goal:** Build an enterprise-grade audit logging compliance solution for Power Platform environments — automated detection of Purview unified audit and Dataverse audit status, remediation with entity-level audit enablement, Azure Automation runbook execution via Managed Identity, Dataverse compliance tracking, and optional approval workflow. Complements existing Audit Configuration Validator (ACV v1.0.0, shipped v4). Maps to Control 1.7 (no new control).
-
-**Source:** Production-ready implementation spec (43 pages, 3 architect reviews, approved for production deployment, 2026-02-12). Defines Managed Identity authentication, Azure Automation runbooks, Exchange Online integration, and Dataverse upsert pattern.
+**Goal:** Fix stale "Work In Progress" statuses in solutions-index.md for solutions confirmed shipped in prior milestones (File Upload Security Configurator v8, Content Moderation Governance Monitor v7).
 
 **Target deliverables:**
-- Helper module (AuditComplianceHelpers.psm1) — 6 functions: retry logic, MI token, Dataverse upsert, Graph email
-- Detection runbook (Check-AuditLoggingCompliance.ps1) — Purview + Dataverse audit scanning across all environments
-- Remediation runbook (Enable-AuditLogging.ps1) — org-level + entity-level Dataverse audit enablement with WhatIf
-- Dataverse table (fsi_auditenvironmentcompliance) — upsert compliance records by environment ID
-- Deployment guide — Azure Automation Account, MI permissions, scheduling, shared mailbox
-- Optional approval flow — Power Automate approval before remediation execution
-- Framework integration (solutions-index entry, Control 1.7 cross-references, playbook updates)
+- Update File Upload Security Configurator status from WIP to Completed
+- Update Content Moderation Governance Monitor status from WIP to Completed
+- Add Production Ready admonitions to detail sections if missing
+- Build validation (mkdocs build --strict, verify_controls.py)
 
 ## Current State (v10 Shipped)
 
@@ -102,17 +97,14 @@ Capabilities delivered:
 
 ### Active
 
-**v21: Audit Logging Compliance Automation (ALCA)**
+**v22: Solutions Status Reconciliation**
 
-Enterprise-grade audit logging compliance solution complementing ACV:
-- Helper Module: AuditComplianceHelpers.psm1 (6 functions — retry, MI token, Dataverse upsert, Graph email)
-- Detection Runbook: Check-AuditLoggingCompliance.ps1 — Purview + Dataverse audit scanning via MI + Exchange Online
-- Remediation Runbook: Enable-AuditLogging.ps1 — org-level + entity-level Dataverse audit enablement with WhatIf
-- Dataverse Schema: fsi_auditenvironmentcompliance table (upsert by environment ID)
-- Deployment & Automation: Azure Automation Account, MI permissions, scheduling, shared mailbox
-- Framework Integration: Solutions-index entry, Control 1.7 cross-references
+Fix stale WIP statuses for shipped solutions:
+- STS-01: Update File Upload Security Configurator status WIP → Completed
+- STS-02: Update Content Moderation Governance Monitor status WIP → Completed
+- VAL-01: Build validation pass
 
-**Current milestone: v21 — Audit Logging Compliance Automation (PLANNING)**
+**Current milestone: v22 — Solutions Status Reconciliation (DEFINING)**
 
 ### Out of Scope
 
@@ -224,4 +216,4 @@ Enterprise-grade audit logging compliance solution complementing ACV:
 | v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-13 after v20.5 milestone completion and v21 renumbering*
+*Last updated: 2026-02-13 after v21 completion and v22 milestone definition*

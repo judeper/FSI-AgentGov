@@ -20,11 +20,11 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Completed | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v2.0.0 | Completed | Daily deny event correlation across Purview Audit, DLP, and Application Insights with Dataverse persistence, Power Automate orchestration, and evidence export | 1.5, 1.7, 1.8, 3.4 |
-| [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Work In Progress | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
+| [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Completed | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
 | [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Completed | Automated validation of tenant and environment audit configurations | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Completed | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
-| [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
+| [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Completed | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
 | [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
@@ -151,6 +151,9 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 ---
 
 ### File Upload Security Configurator
+
+!!! success "Production Ready"
+    Shipped in v8 milestone (February 2026). Fully validated with deployment scripts, Dataverse schema, and compliance evidence export.
 
 Automated per-agent file upload validation against zone governance policies. Detects binary drift (enabled/disabled changes), cross-checks content moderation levels, and exports SHA-256 compliance evidence packages.
 
@@ -477,6 +480,9 @@ Automated detection of overly permissive agent access configurations across Powe
 ---
 
 ### Content Moderation Governance Monitor
+
+!!! success "Production Ready"
+    Shipped in v7 milestone (February 2026). Fully validated with drift detection, zone compliance, and SHA-256 evidence export.
 
 Automated detection of non-compliant content moderation settings for Copilot Studio agents across Power Platform environments. Validates per-agent moderation levels (Low/Medium/High) against governance zone requirements with daily drift detection and compliance evidence export.
 

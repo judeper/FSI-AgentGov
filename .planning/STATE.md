@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-13
-**Milestone:** v21 — Audit Logging Compliance Automation (ALCA)
-**Status:** v21 COMPLETE — Audit Logging Compliance Automation. All 7 phases, 13 plans, 21 requirements delivered. Build validated. Framework integrated.
+**Milestone:** v22 — Solutions Status Reconciliation
+**Status:** COMPLETE — All 3 requirements delivered.
 
 ## Session Ownership
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-13 18:56
-**Handoff Summary:** v20.5 milestone completed — 7 new controls (1.26-3.12) expanding framework from 64 to 71 controls. All reference counts updated, build validated. ALCA renumbered from v20 to v21. Requirements defined for v21. Roadmap created (7 phases, 13 plans, 21/21 requirements mapped).
+**Session Started:** 2026-02-13 22:39
+**Handoff Summary:** v21 COMPLETE. Starting v22 — housekeeping milestone to reconcile stale "Work In Progress" statuses for solutions confirmed shipped (File Upload Security Configurator v8, Content Moderation Governance Monitor v7).
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** v21 — Audit Logging Compliance Automation. Enterprise-grade Purview + Dataverse audit detection/remediation via Azure Automation Managed Identity. Maps to Control 1.7. Complements ACV.
+**Current focus:** v22 — Solutions Status Reconciliation COMPLETE. Ready for milestone audit.
 
 ## Milestone Series Plan
 
@@ -39,32 +39,33 @@ v18: MIME Type Restrictions for File Uploads — COMPLETE
 v19: Inactivity Timeout Enforcement — COMPLETE
 v20.5: Control Framework Expansion — COMPLETE
 v21: Audit Logging Compliance Automation — COMPLETE
+v22: Solutions Status Reconciliation — COMPLETE
 ```
 
 ## Current Position
 
-**Phase:** 7 of 7 (ALL PHASES COMPLETE)
-**Plan:** 13/13 plans
-**Status:** v21 COMPLETE. All 7 phases executed, 21/21 requirements delivered, build validated.
-**Last activity:** 2026-02-13 — Phase 7 executed (FRM-01, FRM-02, FRM-03 delivered), committed to FSI-AgentGov (7b75bc8)
+**Phase:** 1 of 1 (COMPLETE)
+**Plan:** 1/1 plans executed
+**Status:** v22 COMPLETE. All requirements delivered.
+**Last activity:** 2026-02-13 — Plan 01-01 executed. FUS and CMM statuses corrected, admonitions added, build validated.
 
 **Progress:**
 ```
-v1-v20.5: [=========================] COMPLETE (see MILESTONES.md)
-v21:      [=========================] COMPLETE
+v1-v21:   [=========================] COMPLETE (see MILESTONES.md)
+v22:      [=========================] COMPLETE
 ```
 
 ## Performance Metrics
 
-**Cumulative (v1-v20.5):**
-- Phases: 87 complete
-- Plans: 247 complete
-- Requirements: 406+ delivered
+**Cumulative (v1-v21):**
+- Phases: 94 complete
+- Plans: 260 complete
+- Requirements: 427+ delivered
 
-**v21 Complete:**
-- Phases: 7/7
-- Plans: 13/13
-- Requirements: 21/21 delivered
+**v22 In Progress:**
+- Phases: 0/1
+- Plans: 1/1
+- Requirements: 3/3 delivered
 
 ## Accumulated Context
 
@@ -72,25 +73,16 @@ v21:      [=========================] COMPLETE
 
 See PROJECT.md Key Decisions table for full history.
 
-**v21 decisions:**
-- New solution alongside ACV (complementary — ACV validates configs; ALCA detects + remediates)
-- Maps to existing Control 1.7 (no new control, framework stays at 71 controls)
-- Enterprise Managed Identity auth (Azure Automation) — evolution from lab-grade interactive in v4-v18
-- fsi_ prefix for Dataverse tables (not jude_ from dev environment)
-- Upsert pattern (query-then-create-or-update) — different from ACV's immutable history
-- Audit enablement only — retention is OUT OF SCOPE (managed by Purview)
-- 3 optional enhancements deferred: RunId column, API monitoring script, batch operations
+**v22 decisions:**
+- Housekeeping milestone to fix stale WIP statuses (not a solution development milestone)
+- File Upload Security Configurator and Content Moderation Governance Monitor confirmed shipped but marked WIP
+- Segregation of Duties Detector and RAG Source Validator remain genuinely WIP (no milestone delivery)
 
 ### Key Constraints
 
-- **No new control:** Maps to existing 1.7 (71 controls unchanged)
-- **Cross-repo:** Solution artifacts in FSI-AgentGov-Solutions; docs/playbooks in FSI-AgentGov
-- **Enterprise auth:** Managed Identity in Azure Automation (not interactive)
-- **Scope boundary:** Audit enablement only; retention excluded
-- **FSI language rules:** All documentation uses regulatory-safe language
+- **Documentation only:** No new controls, solutions, or code — only status corrections in existing docs
 - **Build validation:** mkdocs build --strict + verify_controls.py must pass
-- **fsi_ prefix:** All Dataverse tables use fsi_ convention
-- **Upsert pattern:** Single compliance record per environment (update if exists)
+- **FSI language rules:** All documentation uses regulatory-safe language
 
 ### Blockers
 
@@ -111,8 +103,8 @@ All prior todos resolved. v21 work tracked via REQUIREMENTS.md.
 ## Session Continuity
 
 **Active Tool:** copilot
-**Session Started:** 2026-02-13 19:20
-**Handoff Summary:** v21 ALCA COMPLETE. All 7 phases, 13 plans, 21 requirements delivered. Phase 7: ALCA added to solutions-index.md (summary row + detail section + ACV cross-ref + version history), Control 1.7 updated with ALCA tip box. Build validated (mkdocs build --strict + verify_controls 71/71). Committed (7b75bc8). v21 milestone closed.
+**Session Started:** 2026-02-13 22:39
+**Handoff Summary:** v22 COMPLETE. Plan 01-01 executed: FUS (line 23) and CMM (line 27) statuses fixed WIP→Completed, Production Ready admonitions added. Build validated. Commit 8daca9e.
 
 ---
 
@@ -127,5 +119,5 @@ All prior todos resolved. v21 work tracked via REQUIREMENTS.md.
 *v18 milestone completed: 2026-02-12*
 *v19 milestone completed: 2026-02-13*
 *v20.5 milestone completed: 2026-02-13*
-*v21 milestone defined: 2026-02-13*
-*v21 milestone completed: 2026-02-13*
+*v21 milestone completed: 2026-02-13
+*v22 milestone defined: 2026-02-13*

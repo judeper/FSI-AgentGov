@@ -1,5 +1,30 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v21 Audit Logging Compliance Automation (Completed: 2026-02-13)
+
+**Delivered:** Enterprise-grade audit logging compliance solution for Power Platform environments — automated detection/remediation of Purview unified audit and Dataverse audit logging gaps with Azure Automation Managed Identity auth, entity-level audit enablement, approval-gated remediation, and Dataverse compliance tracking. Complements existing ACV (v4). Maps to Control 1.7 (no new control, framework stays at 71 controls).
+
+**Key accomplishments:**
+
+- **Phase 1 — Helper Module & Tests:** AuditComplianceHelpers.psm1 (6 functions: Invoke-WithRetry, Get-ManagedIdentityToken, Get-DataverseToken, Invoke-DataverseRequest, Write-DataverseComplianceRecord, Send-ComplianceNotification), module manifest, Pester 5 unit tests
+- **Phase 2 — Dataverse Schema:** fsi_auditenvironmentcompliance table, Python creation script, seed data docs
+- **Phase 3 — Detection Runbook:** Check-AuditLoggingCompliance.ps1 with MI + Exchange Online + BAP auth, per-environment scanning, compliance determination, CSV + email output
+- **Phase 4 — Remediation Runbook:** Enable-AuditLogging.ps1 with org-level + entity-level audit enablement (6 Copilot Studio entities), WhatIf, validation
+- **Phase 5 — Deployment & Documentation:** Deployment guide (Azure Automation, MI permissions, scheduling), 15 testing scenarios, 10-issue troubleshooting guide
+- **Phase 6 — Approval Flow:** Power Automate approval flow specification and template
+- **Phase 7 — Framework Integration:** Solutions-index entry, Control 1.7 ALCA tip box, ACV cross-reference, build validated (mkdocs build --strict, verify_controls 71/71)
+
+**Stats:**
+
+- 7 phases, 13 plans, 21 requirements (100% satisfied — MOD-3, DET-3, REM-3, DVS-2, DPL-3, FLW-2, TST-2, FRM-3)
+- Enterprise auth: System-Assigned Managed Identity in Azure Automation (evolution from lab-grade interactive in v4-v18)
+- Key decisions: fsi_ prefix, upsert pattern, audit enablement only (retention out of scope), complementary to ACV
+- 1 day (2026-02-13)
+
+**What's next:** v22 — Solutions Status Reconciliation
+
+---
+
 ## v20.5 Control Framework Expansion (Completed: 2026-02-13)
 
 **Delivered:** 7 new controls expanding the framework from 64 to 71 controls — 3 security controls (1.26, 1.27, 1.28), 2 management controls (2.23, 2.24), and 2 reporting controls (3.11, 3.12). Each with 4 implementation playbooks and screenshot specification. Full framework integration (CONTROL-INDEX, mkdocs.yml, count references across all docs).
