@@ -1,164 +1,203 @@
-# Roadmap: Inactivity Timeout Enforcement (v19)
+# Roadmap: Audit Logging Compliance Automation (v21)
 
 ## Overview
 
-Add Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar with a companion solution — automated validation and enforcement of Power Platform user inactivity timeout settings across multiple environments with zone-based policy-driven maximum duration requirements, Dataverse persistence, Cloud Flow detection, and PowerShell remediation.
+Build an enterprise-grade audit logging compliance solution for Power Platform environments — automated detection of Purview unified audit and Dataverse audit status, remediation with entity-level audit enablement, Azure Automation runbook execution via Managed Identity, Dataverse compliance tracking, and optional approval workflow. Complements existing Audit Configuration Validator (ACV v1.0.0, shipped v4). Maps to Control 1.7 (no new control).
 
-**Source:** v19 requirements (14 requirements across 5 categories). Control ID 2.22 (next available in Pillar 2). Framework goes from 63 to 64 controls; Pillar 2 from 21 to 22 controls; playbook count from 252 to 256.
+**Source:** v21 requirements (21 requirements across 8 categories). Maps to existing Control 1.7 — no new control, framework stays at 71 controls. No control count, playbook count, or pillar count changes.
 
-**Execution model:** 5 phases. Phases 1–4 are independent (parallel-eligible). Phase 5 depends on all. Within each phase, plans target non-overlapping file sets for parallel execution.
+**Execution model:** 7 phases. Phases 1–2 are independent (parallel-eligible). Phases 3–4 depend on Phase 1 only (parallel-eligible with each other). Phase 5 depends on Phases 1–4. Phase 6 depends on Phases 2–3. Phase 7 depends on all. Within each phase, plans target non-overlapping file sets for parallel execution.
+
+**Cross-repo:** Solution artifacts in FSI-AgentGov-Solutions (`audit-logging-compliance-automation/`); documentation and framework integration in FSI-AgentGov.
+
+**Key constraints:**
+- Enterprise auth: System-Assigned Managed Identity in Azure Automation (NEVER interactive, NEVER hardcoded credentials)
+- `fsi_` prefix for all Dataverse tables (not `jude_` from dev environment)
+- Upsert pattern (query-then-create-or-update) — different from ACV's immutable history
+- Audit enablement ONLY — retention is OUT OF SCOPE (managed by Microsoft Purview)
+- 6 Copilot Studio entities for entity-level audit: bot, botcomponent, connectionreference, environmentvariablevalue, workflow, systemuser
 
 ## Phases
 
-- [x] **Phase 1: Control Documentation & Playbooks** — Control 2.22 document (10-section template), 4 implementation playbooks, screenshot specification
-- [x] **Phase 2: Dataverse Data Model** — 3 table schemas (environmentpolicy, compliance, errorlog), environment variables, connection references
-- [x] **Phase 3: Cloud Flow & Validation Logic** — Detection flow template with BAP Admin API integration, policy lookup, per-environment compliance evaluation, guarded notification
-- [x] **Phase 4: PowerShell Remediation** — `Set-InactivityTimeout.ps1` with BAP Admin API PATCH, remediation audit records, validation test script (27 Pester 5 tests)
-- [x] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "64 controls" updates, solutions-index entry, full build validation
+- [x] **Phase 1: Helper Module & Tests** — `AuditComplianceHelpers.psm1` (6 functions), module manifest (.psd1), Pester 5 unit tests
+- [ ] **Phase 2: Dataverse Schema** — `fsi_auditenvironmentcompliance` table, schema creation script (Python), seed data configuration
+- [ ] **Phase 3: Detection Runbook** — `Check-AuditLoggingCompliance.ps1` with MI + Exchange Online + BAP auth, per-environment scanning, compliance determination, CSV + email output
+- [ ] **Phase 4: Remediation Runbook** — `Enable-AuditLogging.ps1` with org-level + entity-level audit enablement, WhatIf, validation, compliance record updates
+- [ ] **Phase 5: Deployment & Documentation** — Deployment guide (Azure Automation, MI permissions, scheduling), testing scenarios (15), troubleshooting guide (10 issues)
+- [ ] **Phase 6: Approval Flow** — Power Automate approval flow specification, flow template JSON or config guide
+- [ ] **Phase 7: Framework Integration & Validation** — Solutions-index entry, Control 1.7 cross-references, ACV cross-reference, build validation
 
 ## Phase Details
 
-### Phase 1: Control Documentation & Playbooks
-**Goal:** Create Control 2.22 documentation following the 10-section template, 4 implementation playbooks, and screenshot specification
+### Phase 1: Helper Module & Tests
+**Goal:** Create the shared PowerShell helper module used by both detection and remediation runbooks, with module manifest and comprehensive Pester 5 unit tests
 **Depends on:** Nothing (independent)
-**Requirements:** CTL-01, CTL-02, CTL-03
+**Requirements:** MOD-01, MOD-02, MOD-03
 **Success Criteria:**
-  1. `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` follows 10-section template with header/footer metadata, zone-specific requirements (Zone 1 optional/Zone 2 required ≤120 min/Zone 3 required ≤60 min), regulatory references (GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12)
-  2. 4 playbooks in `docs/playbooks/control-implementations/2.22/` — portal-walkthrough (PPAC Privacy + Security settings → inactivity timeout configuration), powershell-setup (Set-InactivityTimeout.ps1 usage with EnvironmentName parameter), verification-testing (Detect-InactivityTimeout-NonCompliance flow output validation, Dataverse compliance records review), troubleshooting (MissingPolicy, 401/403/404/429 errors, BAP API connectivity)
-  3. `docs/images/2.22/EXPECTED.md` lists required screenshots — PPAC Environment Settings Privacy + Security page, inactivity timeout toggle and duration field, compliance scan results in Dataverse, notification email sample
-  4. All documentation uses FSI-safe language (hedged, no overclaims)
-**Plans:** 2 (A = control document, B = playbooks + EXPECTED.md)
+  1. `AuditComplianceHelpers.psm1` exports 6 functions — `Invoke-WithRetry` (exponential backoff with jitter for 429/503/504, configurable MaxRetries/InitialDelaySeconds/MaxDelaySeconds), `Get-ManagedIdentityToken` (Azure Automation MI token via IDENTITY_ENDPOINT/IDENTITY_HEADER), `Get-DataverseToken` (Dataverse-specific token with URL normalization), `Invoke-DataverseRequest` (Web API wrapper with OData headers, retry logic, GET/POST/PATCH/DELETE/PUT), `Write-DataverseComplianceRecord` (upsert by fsi_environmentid with option set mapping: Compliant=100000000, Non-Compliant=100000001, Remediation Pending=100000002, Error=100000003), `Send-ComplianceNotification` (Graph sendMail via shared mailbox with base64 attachment)
+  2. Module manifest (.psd1) with version 1.0.0, proper FunctionsToExport, description, and PowerShell 7.2 compatibility. Module packageable as .zip for Azure Automation import. NEVER uses interactive auth or hardcoded credentials.
+  3. Pester 5 unit tests covering: `Invoke-WithRetry` retry behavior (retryable vs non-retryable), `Get-ManagedIdentityToken` with mocked endpoints, `Write-DataverseComplianceRecord` upsert logic (create new + update existing), `Send-ComplianceNotification` payload construction, status string-to-option-set mapping
+  4. All files in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/src/`
+**Plans:** 2 (A = module .psm1 + manifest .psd1, B = Pester 5 unit tests)
 
-### Phase 2: Dataverse Data Model
-**Goal:** Create Dataverse table schemas for environment policy, compliance records, and error logging with environment variables and connection references
+### Phase 2: Dataverse Schema
+**Goal:** Create the Dataverse table schema for audit environment compliance tracking with schema creation script and seed data documentation
 **Depends on:** Nothing (independent)
-**Requirements:** DVM-01, DVM-02, DVM-03
+**Requirements:** DVS-01, DVS-02
 **Success Criteria:**
-  1. `fsi_environmentpolicy` table schema — `fsi_environmentid` (Text PK, EnvironmentName), `fsi_environmentdisplayname` (Text), `fsi_zone` (Choice: Zone1/Zone2/Zone3), `fsi_requiredmaxduration` (Whole Number, minutes), `fsi_notes` (Multi-line Text); reuse `fsi_acv_zone` shared option set where compatible
-  2. `fsi_inactivitytimeout_compliance` table schema — immutable compliance records (one per environment per scan, never update in place); columns: `fsi_environmentid`, `fsi_environmentname`, `fsi_environmenttype`, `fsi_inactivitytimeoutenabled`, `fsi_timeoutduration`, `fsi_requiredmaxduration`, `fsi_compliancestatus` (Choice: Compliant/Non-Compliant/Unknown), `fsi_lastscandate`, `fsi_notes`; index on `(fsi_environmentid, fsi_lastscandate)`
-  3. `fsi_inactivitytimeout_errorlog` table schema — `fsi_environmentid`, `fsi_errortype` (401/403/404/429/MissingPolicy/ParseError), `fsi_errorraw`, `fsi_timestamp`
-  4. Environment variables (concurrency limit, notification recipients) and connection references (Dataverse, BAP Admin API) defined
-**Plans:** 2 (A = policy + compliance table schemas + environment variables + connection references, B = errorlog table schema + seed data configuration)
+  1. `fsi_auditenvironmentcompliance` table schema — Display Name: "Audit Environment Compliance", Primary Column: fsi_environmentname. Columns: `fsi_environmentid` (Single Line Text, upsert key), `fsi_environmentname` (Single Line Text), `fsi_auditenabled` (Yes/No, Purview unified audit), `fsi_dataverseauditenabled` (Yes/No, Dataverse auditing), `fsi_lastchecked` (DateTime UTC), `fsi_compliancestatus` (Choice: Compliant=100000000, Non-Compliant=100000001, Remediation Pending=100000002, Error=100000003), `fsi_remediationdate` (DateTime), `fsi_remediatedby` (Single Line Text), `fsi_errormessage` (Multi-line Text), `fsi_lasteventcaptured` (DateTime). Alternate key on fsi_environmentid for upsert support.
+  2. Schema creation script (Python) — table definition JSON, column definitions with proper data types and option set values, alternate key creation, seed data configuration documentation
+  3. All files in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/src/`
+**Plans:** 1 (table schema + creation script + seed data docs)
 
-### Phase 3: Cloud Flow & Validation Logic
-**Goal:** Create the Detect-InactivityTimeout-NonCompliance flow template with BAP Admin API integration, policy-driven compliance evaluation, and guarded notification
-**Depends on:** Nothing (independent — flow template references Dataverse schema but does not require it at build time)
-**Requirements:** FLW-01, FLW-02, FLW-03
+### Phase 3: Detection Runbook
+**Goal:** Create the detection runbook that scans all Power Platform environments for Purview unified audit and Dataverse audit compliance, writing results to Dataverse
+**Depends on:** Phase 1 (imports AuditComplianceHelpers module functions)
+**Requirements:** DET-01, DET-02, DET-03
 **Success Criteria:**
-  1. Flow template enumerates environments via Power Platform for Admins V2, loads `fsi_environmentpolicy` rows, builds lookup keyed by EnvironmentName
-  2. Per-environment evaluation with configurable concurrency (default 5) — no policy → Unknown + MissingPolicy error log; BAP API fail → Unknown + error log; timeout disabled → Non-Compliant; duration > required max → Non-Compliant; otherwise → Compliant; persist as new immutable compliance row
-  3. Guarded notification — email only when Non-Compliant count > 0 OR Unknown count > 0; includes environment, zone, actual duration, required max, and status; no empty notifications
-  4. Service principal auth with scope `https://api.bap.microsoft.com/.default`; scheduled daily at 06:00 UTC
-**Plans:** 2 (A = flow template core — enumeration + policy lookup + evaluation logic, B = notification logic + error handling + concurrency configuration)
+  1. `Check-AuditLoggingCompliance.ps1` with parameters — `DataverseEnvironmentUrl` (mandatory), `NotificationFromAddress` (optional), `NotificationToAddresses` (optional, comma-separated), `SendEmail` (switch, default false), `TenantDomain` (mandatory). Requires PowerShell 7.2, Microsoft.PowerApps.Administration.PowerShell v2.0+, ExchangeOnlineManagement v3.0+.
+  2. Detection flow — MI auth to Power Platform (Add-PowerAppsAccount) + Exchange Online (Connect-ExchangeOnline -ManagedIdentity -Organization), enumerate environments (Get-AdminPowerAppEnvironment), per-environment: check Purview unified audit (Get-AdminConfig → UnifiedAuditLogIngestionEnabled), check Dataverse audit (/api/data/v9.2/organizations?$select=isauditenabled), validate recent audit events (Search-UnifiedAuditLog last 7 days), determine compliance (Dataverse env = BOTH Purview + Dataverse; non-Dataverse = Purview only), write compliance record via Write-DataverseComplianceRecord upsert
+  3. Output — console with numbered progress steps, per-environment status display, compliance summary (total/compliant/non-compliant/errors), CSV export to $env:TEMP, optional HTML email with summary + CSV attachment. Error handling: try/catch per environment (ComplianceStatus=Error, continue), fatal auth failures throw and exit, finally block disconnects
+  4. All files in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/src/`
+**Plans:** 2 (A = runbook core — parameters, auth, scanning, compliance determination, B = output formatting, email notification, error handling, CSV export)
 
-### Phase 4: PowerShell Remediation
-**Goal:** Create Set-InactivityTimeout.ps1 for BAP Admin API PATCH remediation with audit record writing and validation testing
-**Depends on:** Nothing (independent — can be coded and tested independently of flow and schema)
-**Requirements:** REM-01, REM-02
+### Phase 4: Remediation Runbook
+**Goal:** Create the remediation runbook that enables org-level and entity-level Dataverse auditing on non-compliant environments with WhatIf support and validation
+**Depends on:** Phase 1 (imports AuditComplianceHelpers module functions)
+**Requirements:** REM-01, REM-02, REM-03
 **Success Criteria:**
-  1. `Set-InactivityTimeout.ps1` with mandatory `-EnvironmentName` parameter (canonical Power Platform Environment Name), `-TimeoutDuration` (ValidateRange 5-120, default 120), `-WarningDuration` (ValidateRange 1-30, default 5); PATCH BAP Admin API privacy settings endpoint; `#Requires -Version 7.0`, `SupportsShouldProcess`, `-WhatIf` support
-  2. Remediation audit record writing — optionally write records to Dataverse compliance table with action taken, before/after values, and timestamp
-  3. Validation test script to confirm PATCH was applied correctly by re-reading the API response
-**Plans:** 2 (A = Set-InactivityTimeout.ps1 script, B = remediation audit records + validation test script)
+  1. `Enable-AuditLogging.ps1` with parameters — `DataverseEnvironmentUrl` (mandatory), `TenantDomain` (mandatory), `EnvironmentId` (optional, specific env or all non-compliant), `EnableTenantUnifiedAudit` (switch, default true), `WhatIf` (switch, default false). CmdletBinding with SupportsShouldProcess. Requires PowerShell 7.2, same modules as detection.
+  2. Remediation flow — MI auth (same as detection), determine targets (specific env or query Dataverse for fsi_compliancestatus=100000001), optionally enable tenant-wide Purview unified audit via Set-AdminConfig (with tenant-wide change warning), per-environment: enable Dataverse org-level audit (PATCH /api/data/v9.2/organizations({id}) isauditenabled=true), enable entity-level audit on 6 entities (bot, botcomponent, connectionreference, environmentvariablevalue, workflow, systemuser) via PUT EntityDefinitions IsAuditEnabled.Value=true, validate after 5-second propagation wait, update Dataverse compliance record to Compliant
+  3. Output — console with progress steps, per-environment remediation status, WhatIf simulation ("[WHATIF] Would enable..."), remediation summary (processed/successful/no-changes/failed), CSV export, validation pass/fail. Error handling: per-environment try/catch, validation failures set status="Validation Failed", continue processing
+  4. All files in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/src/`
+**Plans:** 2 (A = runbook core — parameters, auth, remediation flow, entity-level enablement, B = output formatting, WhatIf logic, validation, error handling, CSV export)
 
-### Phase 5: Framework Integration & Validation
-**Goal:** Update framework references, solutions catalog, and validate all artifacts against build and verification scripts
-**Depends on:** Phases 1–4 (all control documentation and solution artifacts must exist before framework references them)
+### Phase 5: Deployment & Documentation
+**Goal:** Create comprehensive deployment guides, testing scenarios, and troubleshooting documentation for the ALCA solution
+**Depends on:** Phases 1–4 (needs to reference actual module, runbook, and schema artifacts)
+**Requirements:** DPL-01, DPL-02, DPL-03, TST-01, TST-02
+**Success Criteria:**
+  1. Deployment guide Phase 1-3 — Azure Automation Account setup (FSI-AgentGov-Automation, PowerShell 7.2, System-Assigned MI, same region as PP tenant), MI permissions (Entra roles: Power Platform Administrator + Exchange Administrator; Graph: Mail.Send with admin consent; Dataverse: Application User with System Administrator per target environment), shared mailbox setup (powerplatform-governance@, SendAs permission for MI)
+  2. Deployment guide Phase 4-5 — Module import (AuditComplianceHelpers.psm1 as .zip, gallery modules verified Status=Available on Runtime 7.2), runbook creation (Check-AuditLoggingCompliance + Enable-AuditLogging, both PowerShell type, Runtime 7.2, publish)
+  3. Scheduling documentation — Weekly-Audit-Compliance-Check schedule (Monday 6:00 AM ET, linked to detection runbook), optional Daily-Audit-Validation, parameter configuration reference
+  4. Testing scenarios (15 scenarios) — all compliant, mixed compliance, Purview disabled, event validation, 4 remediation scenarios (WhatIf, Dataverse enable, tenant Purview, validation failure), retry/throttling, multi-recipient email, 2 Dataverse upsert (create + update), 2 error handling (env-level + fatal auth), scheduled execution. Each with setup, expected results, verification steps.
+  5. Troubleshooting guide (10 issues) — Power Platform auth failure, Exchange Online auth failure, Dataverse 401, email not sent, Dataverse table not updated, 429 throttling, validation failure after remediation, Search-UnifiedAuditLog not found, CSV export path failure, WhatIf not working. Each with symptoms, causes, resolution steps.
+  6. Deployment + scheduling docs in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/docs/`; testing + troubleshooting in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/docs/`
+**Plans:** 3 (A = deployment guide phases 1-3, B = deployment guide phases 4-5 + scheduling, C = testing scenarios + troubleshooting guide)
+
+### Phase 6: Approval Flow
+**Goal:** Create a Power Automate approval flow specification and template for governance-approved remediation execution
+**Depends on:** Phases 2, 3 (references Dataverse schema for non-compliant environment queries and detection output format)
+**Requirements:** FLW-01, FLW-02
+**Success Criteria:**
+  1. Approval flow specification — trigger: weekly recurrence after detection script, Step 1: HTTP GET non-compliant environments from Dataverse (fsi_compliancestatus=100000001), Step 2: Condition check (count > 0), Step 3: Start approval (Approve/Reject, assigned to governance lead, includes environment list), Step 4: If approved trigger Enable-AuditLogging runbook via Azure Management API PUT, Step 5: Send completion notification
+  2. Flow template (JSON definition) or detailed configuration guide — all HTTP action URIs, authentication patterns (Dataverse connection + Azure Management MI), approval card template, variable definitions (DataverseUrl, TenantDomain), error handling for failed runbook execution
+  3. All files in `FSI-AgentGov-Solutions/audit-logging-compliance-automation/src/`
+**Plans:** 1 (approval flow specification + template/config guide)
+
+### Phase 7: Framework Integration & Validation
+**Goal:** Integrate ALCA into the FSI-AgentGov framework documentation — solutions catalog entry, Control 1.7 cross-references, ACV complementary note, and full build validation
+**Depends on:** Phases 1–6 (all solution artifacts and documentation must exist before framework references them)
 **Requirements:** FRM-01, FRM-02, FRM-03
 **Success Criteria:**
-  1. CONTROL-INDEX.md includes Control 2.22 row; mkdocs.yml navigation updated under Pillar 2 Management after 2.21; all "63 controls" references updated to "64 controls" across copilot-instructions, AGENTS.md, README, getting-started, framework docs; "21 management controls" → "22 management controls"; playbook count "252" → "256"
-  2. `solutions-index.md` includes Inactivity Timeout Enforcement entry with status, components, regulatory alignment (GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12), control mappings; cross-references from related controls (1.23, 3.7, 3.8); hardening baseline item 30 updated from [3.7] to [2.22, 3.7]
-  3. `mkdocs build --strict` passes, `verify_controls.py` 64/64, `verify_language_rules.py` 0 violations
-**Plans:** 2 (A = CONTROL-INDEX + mkdocs.yml + "64 controls" updates + solutions-index entry, B = build validation + cross-reference verification)
+  1. `docs/reference/solutions-index.md` includes ALCA entry — summary table row (Audit Logging Compliance Automation, v1.0.0, Completed, description, Related Controls: 1.7), detail section with components (helper module, detection runbook, remediation runbook, Dataverse table, deployment guide, approval flow), regulatory alignment (FINRA 4511, SEC 17a-3/4, SOX 404, GLBA 501(b)), repository link, relationship note explaining ALCA vs ACV complementary scope
+  2. Control 1.7 cross-references updated — ALCA added to implementation guides or related solutions section, `mkdocs.yml` updated if new documentation pages added, ACV solution entry updated with cross-reference noting ALCA as complementary solution
+  3. `mkdocs build --strict` passes with zero errors/warnings, `python scripts/verify_controls.py` 71/71 controls valid, no broken internal links, navigation matches actual file structure
+**Plans:** 2 (A = solutions-index entry + Control 1.7 cross-references + ACV cross-reference + mkdocs.yml, B = build validation + cross-reference verification)
 
 ## Progress
 
-| Phase | Plans Complete | Status |
-|-------|---------------|--------|
-| 1. Control Documentation & Playbooks | 2/2 | Complete |
-| 2. Dataverse Data Model | 2/2 | Complete |
-| 3. Cloud Flow & Validation Logic | 2/2 | Complete |
-| 4. PowerShell Remediation | 2/2 | Complete |
-| 5. Framework Integration & Validation | 2/2 | Complete |
+| Phase | Plans | Plans Complete | Status |
+|-------|-------|---------------|--------|
+| 1. Helper Module & Tests | 2 | 2/2 | Complete |
+| 2. Dataverse Schema | 1 | 0/1 | Not Started |
+| 3. Detection Runbook | 2 | 0/2 | Not Started |
+| 4. Remediation Runbook | 2 | 0/2 | Not Started |
+| 5. Deployment & Documentation | 3 | 0/3 | Not Started |
+| 6. Approval Flow | 1 | 0/1 | Not Started |
+| 7. Framework Integration & Validation | 2 | 0/2 | Not Started |
 
 ## Parallel Execution Guide
 
-Phases 1–4 are **independent** — no shared file targets, parallel-eligible. Phase 5 depends on 1–4.
+Phases 1 and 2 are **independent** — no shared file targets, parallel-eligible. Phases 3 and 4 both depend on Phase 1 only and target non-overlapping files — parallel-eligible with each other after Phase 1 completes. Phase 6 depends on Phases 2 and 3. Phase 5 depends on Phases 1–4. Phase 7 depends on all.
 
 ```
-Phase 1 (CTL) ──┐
-Phase 2 (DVM) ──┤
-Phase 3 (FLW) ──┼── Phase 5 (FRM)
-Phase 4 (REM) ──┘
+Phase 1 (MOD) ──┬── Phase 3 (DET) ──┬── Phase 6 (FLW) ──┐
+                │                    │                    │
+                ├── Phase 4 (REM) ──┐│                    ├── Phase 7 (FRM)
+                │                   ││                    │
+Phase 2 (DVS) ──┼───────────────────┴┴── Phase 5 (DPL) ──┘
 ```
 
 Within each phase, plans target non-overlapping file sets:
 
-| Phase | Plan A Files | Plan B Files | Parallel? |
-|-------|-------------|-------------|-----------|
-| 1 | `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` | `docs/playbooks/control-implementations/2.22/*`, `docs/images/2.22/EXPECTED.md` | Yes |
-| 2 | `create_timeout_dataverse_schema.py` (policy + compliance tables), env vars, conn refs | `create_timeout_errorlog_schema.py`, seed data | Yes |
-| 3 | Flow template core (enumeration + policy lookup + evaluation) | Notification logic + error handling | Yes |
-| 4 | `Set-InactivityTimeout.ps1` | Remediation audit records + `Test-InactivityTimeoutRemediation.ps1` | Yes |
-| 5 | `CONTROL-INDEX.md`, `mkdocs.yml`, framework docs, `solutions-index.md` | Build validation (read-only) | Yes |
+| Phase | Plan A Files | Plan B/C Files | Parallel? |
+|-------|-------------|----------------|-----------|
+| 1 | `AuditComplianceHelpers.psm1` + `.psd1` | `AuditComplianceHelpers.Tests.ps1` | Yes |
+| 2 | Schema script + table JSON + seed data (single plan) | — | N/A |
+| 3 | Runbook core (params, auth, scanning, compliance) | Output formatting, email, error handling | Yes |
+| 4 | Runbook core (params, auth, remediation, entities) | Output, WhatIf, validation, error handling | Yes |
+| 5 | A: Deployment phases 1-3, B: Deployment phases 4-5 + scheduling | C: Testing scenarios + troubleshooting | Yes |
+| 6 | Approval flow spec + template (single plan) | — | N/A |
+| 7 | Solutions-index + Control 1.7 + ACV cross-ref + mkdocs.yml | Build validation (read-only) | Yes |
 
 ## File Manifest
 
-### Created (new files)
+### Created (new files — FSI-AgentGov-Solutions)
 
 | Phase | File | Purpose |
 |-------|------|---------|
-| 1 | `docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` | Control 2.22 documentation (10-section template) |
-| 1 | `docs/playbooks/control-implementations/2.22/portal-walkthrough.md` | PPAC Privacy + Security settings walkthrough |
-| 1 | `docs/playbooks/control-implementations/2.22/powershell-setup.md` | Set-InactivityTimeout.ps1 usage guide |
-| 1 | `docs/playbooks/control-implementations/2.22/verification-testing.md` | Compliance scan validation procedures |
-| 1 | `docs/playbooks/control-implementations/2.22/troubleshooting.md` | MissingPolicy, API errors, connectivity |
-| 1 | `docs/images/2.22/EXPECTED.md` | Screenshot specification |
-| 2 | `scripts/create_timeout_dataverse_schema.py` | Dataverse schema (environmentpolicy + compliance tables) |
-| 2 | `scripts/create_timeout_environment_variables.py` | Environment variables (concurrency, notification) |
-| 2 | `scripts/create_timeout_connection_references.py` | Connection references (Dataverse, BAP Admin API) |
-| 2 | `scripts/create_timeout_errorlog_schema.py` | Dataverse schema (errorlog table) |
-| 3 | `src/detect-inactivity-timeout-noncompliance.json` | Cloud Flow template (detection + evaluation) |
-| 4 | `scripts/governance/Set-InactivityTimeout.ps1` | PowerShell remediation script (BAP API PATCH) |
-| 4 | `scripts/governance/Test-InactivityTimeoutRemediation.ps1` | Validation test script |
+| 1 | `audit-logging-compliance-automation/README.md` | Solution README |
+| 1 | `audit-logging-compliance-automation/CHANGELOG.md` | Version history |
+| 1 | `audit-logging-compliance-automation/src/AuditComplianceHelpers.psm1` | Helper module (6 functions) |
+| 1 | `audit-logging-compliance-automation/src/AuditComplianceHelpers.psd1` | Module manifest |
+| 1 | `audit-logging-compliance-automation/src/AuditComplianceHelpers.Tests.ps1` | Pester 5 unit tests |
+| 2 | `audit-logging-compliance-automation/src/create_audit_compliance_schema.py` | Dataverse schema creation script |
+| 3 | `audit-logging-compliance-automation/src/Check-AuditLoggingCompliance.ps1` | Detection runbook |
+| 4 | `audit-logging-compliance-automation/src/Enable-AuditLogging.ps1` | Remediation runbook |
+| 5 | `audit-logging-compliance-automation/docs/deployment-guide.md` | Azure Automation deployment (phases 1-5) |
+| 5 | `audit-logging-compliance-automation/docs/scheduling-guide.md` | Schedule configuration |
+| 5 | `audit-logging-compliance-automation/docs/testing-scenarios.md` | 15 test scenarios |
+| 5 | `audit-logging-compliance-automation/docs/troubleshooting.md` | 10 common issues |
+| 6 | `audit-logging-compliance-automation/src/audit-remediation-approval-flow.json` | Power Automate approval flow template |
 
-### Modified (existing files)
+### Modified (existing files — FSI-AgentGov)
 
 | Phase | File | Change |
 |-------|------|--------|
-| 5 | `docs/controls/CONTROL-INDEX.md` | Add Control 2.22 row |
-| 5 | `mkdocs.yml` | Add 2.22 nav entry under Pillar 2 + playbook nav entries |
-| 5 | `.github/copilot-instructions.md` | Update "63 controls" → "64 controls" |
-| 5 | `AGENTS.md` | Update "63 controls" → "64 controls" |
-| 5 | `README.md` | Update "63 controls" → "64 controls" |
-| 5 | `docs/getting-started/*.md` | Update control count references if present |
-| 5 | `docs/reference/solutions-index.md` | Add Inactivity Timeout Enforcement catalog entry |
-| 5 | Hardening baseline playbook | Update item 30 control reference [3.7] → [2.22, 3.7] |
+| 7 | `docs/reference/solutions-index.md` | Add ALCA catalog entry (summary table row + detail section) |
+| 7 | `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md` | Add ALCA to related solutions / implementation guides |
+| 7 | `mkdocs.yml` | Add nav entries if new documentation pages are added |
 
 ## Coverage
 
 | Requirement | Phase | Plan | Description |
 |-------------|-------|------|-------------|
-| Requirement | Phase | Plan | Description |
-|-------------|-------|------|-------------|
-| CTL-01 | 1 | 01-01 | Control 2.22 document (10-section template) |
-| CTL-02 | 1 | 01-02 | 4 implementation playbooks |
-| CTL-03 | 1 | 01-02 | Screenshot specification (EXPECTED.md) |
-| DVM-01 | 2 | 02-01 | fsi_environmentpolicy table schema + env vars + conn refs |
-| DVM-02 | 2 | 02-01 | fsi_inactivitytimeout_compliance table schema |
-| DVM-03 | 2 | 02-02 | fsi_inactivitytimeout_errorlog table schema + seed data |
-| FLW-01 | 3 | 03-01 | Detection flow — enumeration + policy lookup |
-| FLW-02 | 3 | 03-01 | Per-environment compliance evaluation logic |
-| FLW-03 | 3 | 03-02 | Guarded notification + error handling |
-| REM-01 | 4 | 04-01 | Set-InactivityTimeout.ps1 (BAP API PATCH) |
-| REM-02 | 4 | 04-02 | Remediation audit records + validation test script |
-| FRM-01 | 5 | 05-01 | CONTROL-INDEX + mkdocs + "64 controls" updates |
-| FRM-02 | 5 | 05-01 | Solutions-index catalog entry + hardening baseline update |
-| FRM-03 | 5 | 05-02 | Build validation (mkdocs + verify scripts) |
+| MOD-01 | 1 | 01-01 | AuditComplianceHelpers.psm1 (6 functions) |
+| MOD-02 | 1 | 01-01 | Module manifest (.psd1) with versioning and exports |
+| MOD-03 | 1 | 01-02 | Pester 5 unit tests for helper module |
+| DVS-01 | 2 | 02-01 | fsi_auditenvironmentcompliance table schema |
+| DVS-02 | 2 | 02-01 | Schema creation script (Python) + seed data docs |
+| DET-01 | 3 | 03-01 | Check-AuditLoggingCompliance.ps1 runbook (params, requires) |
+| DET-02 | 3 | 03-01 | Detection flow (MI auth, scanning, compliance determination) |
+| DET-03 | 3 | 03-02 | Detection output (console, CSV, email, error handling) |
+| REM-01 | 4 | 04-01 | Enable-AuditLogging.ps1 runbook (params, requires) |
+| REM-02 | 4 | 04-01 | Remediation flow (org-level, entity-level, validation) |
+| REM-03 | 4 | 04-02 | Remediation output (WhatIf, CSV, validation, error handling) |
+| DPL-01 | 5 | 05-01 | Deployment guide phases 1-3 (Azure Automation, MI, mailbox) |
+| DPL-02 | 5 | 05-02 | Deployment guide phases 4-5 (module import, runbook creation) |
+| DPL-03 | 5 | 05-02 | Scheduling documentation (weekly + optional daily) |
+| FLW-01 | 6 | 06-01 | Approval flow specification |
+| FLW-02 | 6 | 06-01 | Flow template JSON or configuration guide |
+| TST-01 | 5 | 05-03 | Testing scenarios documentation (15 scenarios) |
+| TST-02 | 5 | 05-03 | Troubleshooting guide (10 issues) |
+| FRM-01 | 7 | 07-01 | Solutions-index ALCA entry + ACV cross-reference |
+| FRM-02 | 7 | 07-01 | Control 1.7 cross-references + mkdocs.yml |
+| FRM-03 | 7 | 07-02 | Build validation (mkdocs + verify_controls) |
 
-**Total: 14/14 requirements mapped. No orphans.**
+**Total: 21/21 requirements mapped. No orphans.**
 
 ---
-*Roadmap created: 2026-02-12*
+*Roadmap created: 2026-02-13*
 *Depth: comprehensive*
-*Phases: 5 (documentation → dataverse → flow → remediation → framework integration)*
+*Phases: 7 (helper module → dataverse schema → detection → remediation → deployment/docs → approval flow → framework integration)*
