@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**/*.md'
       - '.github/workflows/link-check.yml'
+      - '.github/workflows/mlc-config.json'
       - '.markdown-link-check.json'
   pull_request:
     branches: [main]
