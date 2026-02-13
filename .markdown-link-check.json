@@ -13,6 +13,9 @@
     },
     {
       "pattern": "^#"
+    },
+    {
+      "pattern": "^https://github.com/judeper/FSI-AgentGov-Solutions"
     }
   ],
   "replacementPatterns": [],
