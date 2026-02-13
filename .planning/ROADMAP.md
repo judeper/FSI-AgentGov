@@ -21,7 +21,7 @@ Build an enterprise-grade audit logging compliance solution for Power Platform e
 
 - [x] **Phase 1: Helper Module & Tests** — `AuditComplianceHelpers.psm1` (6 functions), module manifest (.psd1), Pester 5 unit tests
 - [ ] **Phase 2: Dataverse Schema** — `fsi_auditenvironmentcompliance` table, schema creation script (Python), seed data configuration
-- [ ] **Phase 3: Detection Runbook** — `Check-AuditLoggingCompliance.ps1` with MI + Exchange Online + BAP auth, per-environment scanning, compliance determination, CSV + email output
+- [x] **Phase 3: Detection Runbook** — `Check-AuditLoggingCompliance.ps1` with MI + Exchange Online + BAP auth, per-environment scanning, compliance determination, CSV + email output
 - [ ] **Phase 4: Remediation Runbook** — `Enable-AuditLogging.ps1` with org-level + entity-level audit enablement, WhatIf, validation, compliance record updates
 - [ ] **Phase 5: Deployment & Documentation** — Deployment guide (Azure Automation, MI permissions, scheduling), testing scenarios (15), troubleshooting guide (10 issues)
 - [ ] **Phase 6: Approval Flow** — Power Automate approval flow specification, flow template JSON or config guide
@@ -111,7 +111,7 @@ Build an enterprise-grade audit logging compliance solution for Power Platform e
 |-------|-------|---------------|--------|
 | 1. Helper Module & Tests | 2 | 2/2 | Complete |
 | 2. Dataverse Schema | 1 | 1/1 | Complete |
-| 3. Detection Runbook | 2 | 0/2 | Not Started |
+| 3. Detection Runbook | 2 | 2/2 | Complete |
 | 4. Remediation Runbook | 2 | 0/2 | Not Started |
 | 5. Deployment & Documentation | 3 | 0/3 | Not Started |
 | 6. Approval Flow | 1 | 0/1 | Not Started |
