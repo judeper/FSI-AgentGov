@@ -77,7 +77,7 @@ Add Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar with 
 |-------|---------------|--------|
 | 1. Control Documentation & Playbooks | 2/2 | Complete |
 | 2. Dataverse Data Model | 2/2 | Complete |
-| 3. Cloud Flow & Validation Logic | 0/2 | Not Started |
+| 3. Cloud Flow & Validation Logic | 2/2 | Complete |
 | 4. PowerShell Remediation | 0/2 | Not Started |
 | 5. Framework Integration & Validation | 0/2 | Not Started |
 

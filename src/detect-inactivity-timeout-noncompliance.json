@@ -1,0 +1,718 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_inactivitytimeout",
+        "tier": "NotSpecified"
+      },
+      "shared_office365": {
+        "connectionName": "shared_office365",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_office365",
+        "connectionReferenceLogicalName": "fsi_cr_office365_inactivitytimeout",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence_Daily_0600_UTC": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2026-01-01T06:00:00Z",
+            "timeZone": "UTC",
+            "schedule": {
+              "hours": [
+                "6"
+              ],
+              "minutes": [
+                "0"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "recurrence-daily-0600"
+          }
+        }
+      },
+      "actions": {
+        "Initialize_DataverseUrl": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "DataverseUrl",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Dataverse environment URL (e.g., https://org.crm.dynamics.com). Set via environment variable fsi_ITE_DataverseUrl."
+        },
+        "Initialize_NotificationRecipients": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "NotificationRecipients",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_DataverseUrl": [
+              "Succeeded"
+            ]
+          },
+          "description": "Semicolon-separated email addresses for compliance alert notifications. Set via environment variable fsi_ITE_NotificationRecipients."
+        },
+        "Initialize_ScanRunId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ScanRunId",
+                "type": "string",
+                "value": "@{guid()}"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_NotificationRecipients": [
+              "Succeeded"
+            ]
+          },
+          "description": "Unique identifier for the current scan run. Used to correlate compliance records written during this execution."
+        },
+        "Initialize_ConcurrencyLimit": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ConcurrencyLimit",
+                "type": "integer",
+                "value": 5
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ScanRunId": [
+              "Succeeded"
+            ]
+          },
+          "description": "Informational: parallel degree for environment evaluation. Actual concurrency is set in Apply_to_Each_Environment runtimeConfiguration. Set via environment variable fsi_ITE_ConcurrencyLimit."
+        },
+        "Scope_Try": {
+          "type": "Scope",
+          "actions": {
+            "Load_Environment_Policies": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_environmentpolicies",
+                  "$select": "fsi_environmentid,fsi_environmentdisplayname,fsi_zone,fsi_requiredmaxduration"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {},
+              "description": "Retrieve all environment policy rows from Dataverse. Each row maps an EnvironmentName to its zone and required maximum inactivity timeout duration."
+            },
+            "Compose_Policy_Array": {
+              "type": "Compose",
+              "inputs": "@body('Load_Environment_Policies')?['value']",
+              "runAfter": {
+                "Load_Environment_Policies": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Extract policy records array for in-memory lookup during per-environment evaluation."
+            },
+            "List_Environments": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments?api-version=2016-11-01",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://api.bap.microsoft.com"
+                }
+              },
+              "runAfter": {
+                "Compose_Policy_Array": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Enumerate all Power Platform environments via BAP Admin API using MSI authentication."
+            },
+            "Apply_to_Each_Environment": {
+              "type": "Foreach",
+              "foreach": "@body('List_Environments')?['value']",
+              "actions": {
+                "Set_EnvironmentName": {
+                  "type": "Compose",
+                  "inputs": "@items('Apply_to_Each_Environment')?['name']",
+                  "runAfter": {},
+                  "description": "Extract canonical EnvironmentName (Power Platform Environment Name) from BAP API response. This is the primary key — not the display name."
+                },
+                "Set_EnvironmentDisplayName": {
+                  "type": "Compose",
+                  "inputs": "@items('Apply_to_Each_Environment')?['properties']?['displayName']",
+                  "runAfter": {
+                    "Set_EnvironmentName": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Extract environment display name for human-readable compliance records."
+                },
+                "Set_EnvironmentType": {
+                  "type": "Compose",
+                  "inputs": "@items('Apply_to_Each_Environment')?['properties']?['environmentSku']",
+                  "runAfter": {
+                    "Set_EnvironmentDisplayName": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Extract environment type (Default, Sandbox, Production, Developer) from BAP API response."
+                },
+                "Resolve_Policy": {
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@outputs('Compose_Policy_Array')",
+                    "where": "@equals(item()?['fsi_environmentid'], outputs('Set_EnvironmentName'))"
+                  },
+                  "runAfter": {
+                    "Set_EnvironmentType": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Filter the pre-loaded policy array to find the policy row matching this environment's canonical EnvironmentName."
+                },
+                "Check_Policy_Exists": {
+                  "type": "If",
+                  "expression": {
+                    "greater": [
+                      "@length(body('Resolve_Policy'))",
+                      0
+                    ]
+                  },
+                  "actions": {
+                    "Set_RequiredMaxDuration": {
+                      "type": "Compose",
+                      "inputs": "@first(body('Resolve_Policy'))?['fsi_requiredmaxduration']",
+                      "runAfter": {},
+                      "description": "Extract required maximum duration (minutes) from the matched policy row."
+                    },
+                    "Set_Zone": {
+                      "type": "Compose",
+                      "inputs": "@first(body('Resolve_Policy'))?['fsi_zone']",
+                      "runAfter": {
+                        "Set_RequiredMaxDuration": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Extract zone classification from the matched policy row for compliance record and notification."
+                    },
+                    "Scope_BAP_API_Try": {
+                      "type": "Scope",
+                      "actions": {
+                        "Get_Privacy_Settings": {
+                          "type": "Http",
+                          "inputs": {
+                            "method": "GET",
+                            "uri": "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/@{outputs('Set_EnvironmentName')}/settings/privacy?api-version=2021-04-01",
+                            "headers": {
+                              "Content-Type": "application/json"
+                            },
+                            "authentication": {
+                              "type": "ManagedServiceIdentity",
+                              "audience": "https://api.bap.microsoft.com"
+                            }
+                          },
+                          "runAfter": {},
+                          "description": "Retrieve inactivity timeout privacy settings for this environment via BAP Admin API."
+                        },
+                        "Parse_Privacy_Response": {
+                          "type": "ParseJson",
+                          "inputs": {
+                            "content": "@body('Get_Privacy_Settings')",
+                            "schema": {
+                              "type": "object",
+                              "properties": {
+                                "properties": {
+                                  "type": "object",
+                                  "properties": {
+                                    "inactivityTimeoutEnabled": {
+                                      "type": "boolean"
+                                    },
+                                    "inactivityTimeoutDuration": {
+                                      "type": "string"
+                                    },
+                                    "inactivityWarningDuration": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "Get_Privacy_Settings": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Parse the BAP API privacy settings response to extract inactivityTimeoutEnabled (boolean) and inactivityTimeoutDuration (ISO 8601)."
+                        },
+                        "Set_TimeoutEnabled": {
+                          "type": "Compose",
+                          "inputs": "@body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutEnabled']",
+                          "runAfter": {
+                            "Parse_Privacy_Response": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Extract whether inactivity timeout is enabled for this environment."
+                        },
+                        "Parse_Duration_Minutes": {
+                          "type": "Compose",
+                          "inputs": "@if(equals(outputs('Set_TimeoutEnabled'), false), 0, if(and(contains(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'H'), contains(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'M')), add(mul(int(first(split(replace(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'PT', ''), 'H'))), 60), int(replace(last(split(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'H')), 'M', ''))), if(contains(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'H'), mul(int(first(split(replace(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'PT', ''), 'H'))), 60), int(replace(replace(coalesce(body('Parse_Privacy_Response')?['properties']?['inactivityTimeoutDuration'], 'PT0M'), 'PT', ''), 'M', '')))))",
+                          "runAfter": {
+                            "Set_TimeoutEnabled": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Parse ISO 8601 duration to minutes. Handles PTnM (minutes only), PTnH (hours only), and PTnHnM (hours + minutes) formats. Returns 0 if timeout is disabled."
+                        },
+                        "Evaluate_Compliance": {
+                          "type": "Compose",
+                          "inputs": "@if(equals(outputs('Set_TimeoutEnabled'), false), 'Non-Compliant', if(greater(outputs('Parse_Duration_Minutes'), outputs('Set_RequiredMaxDuration')), 'Non-Compliant', 'Compliant'))",
+                          "runAfter": {
+                            "Parse_Duration_Minutes": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Determine compliance status: disabled → Non-Compliant; duration exceeds required maximum → Non-Compliant; otherwise → Compliant."
+                        },
+                        "Set_Compliance_Notes": {
+                          "type": "Compose",
+                          "inputs": "@if(equals(outputs('Set_TimeoutEnabled'), false), 'Inactivity timeout is disabled', if(greater(outputs('Parse_Duration_Minutes'), outputs('Set_RequiredMaxDuration')), concat('Duration ', outputs('Parse_Duration_Minutes'), 'm exceeds maximum ', outputs('Set_RequiredMaxDuration'), 'm'), concat('Compliant: ', outputs('Parse_Duration_Minutes'), 'm within ', outputs('Set_RequiredMaxDuration'), 'm maximum')))",
+                          "runAfter": {
+                            "Evaluate_Compliance": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Build human-readable compliance notes for the Dataverse record."
+                        },
+                        "Map_Compliance_Status_Value": {
+                          "type": "Compose",
+                          "inputs": "@if(equals(outputs('Evaluate_Compliance'), 'Non-Compliant'), 1, 0)",
+                          "runAfter": {
+                            "Set_Compliance_Notes": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Map compliance status string to Dataverse Choice value: 0 = Compliant, 1 = Non-Compliant."
+                        },
+                        "Create_Compliance_Record": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "entityName": "fsi_inactivitytimeoutcompliances",
+                              "item/fsi_name": "@{concat(outputs('Set_EnvironmentName'), ' - ', utcNow('yyyy-MM-ddTHH:mm:ssZ'))}",
+                              "item/fsi_environmentid": "@outputs('Set_EnvironmentName')",
+                              "item/fsi_environmentname": "@outputs('Set_EnvironmentDisplayName')",
+                              "item/fsi_inactivitytimeoutenabled": "@outputs('Set_TimeoutEnabled')",
+                              "item/fsi_timeoutduration": "@outputs('Parse_Duration_Minutes')",
+                              "item/fsi_requiredmaxduration": "@outputs('Set_RequiredMaxDuration')",
+                              "item/fsi_compliancestatus": "@outputs('Map_Compliance_Status_Value')",
+                              "item/fsi_lastscandate": "@utcNow()",
+                              "item/fsi_scanrunid": "@variables('ScanRunId')",
+                              "item/fsi_zone": "@outputs('Set_Zone')",
+                              "item/fsi_notes": "@outputs('Set_Compliance_Notes')"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord"
+                            }
+                          },
+                          "runAfter": {
+                            "Map_Compliance_Status_Value": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Write immutable compliance record to Dataverse. Each scan creates a new row — existing records are never updated."
+                        }
+                      },
+                      "runAfter": {
+                        "Set_Zone": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Inner try scope for per-environment BAP API call and compliance evaluation. Isolated so individual environment failures do not abort the scan."
+                    },
+                    "Scope_BAP_API_Catch": {
+                      "type": "Scope",
+                      "actions": {
+                        "Determine_Error_Type": {
+                          "type": "Compose",
+                          "inputs": "@coalesce(if(equals(outputs('Get_Privacy_Settings')?['statusCode'], 401), 'Unauthorized', if(equals(outputs('Get_Privacy_Settings')?['statusCode'], 403), 'Forbidden', if(equals(outputs('Get_Privacy_Settings')?['statusCode'], 404), 'NotFound', if(equals(outputs('Get_Privacy_Settings')?['statusCode'], 429), 'Throttled', null)))), 'ParseError')",
+                          "runAfter": {},
+                          "description": "Map HTTP status code to error type: 401 → Unauthorized, 403 → Forbidden, 404 → NotFound, 429 → Throttled, other → ParseError."
+                        },
+                        "Create_API_Error_Log": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "entityName": "fsi_inactivitytimeouterrorlogs",
+                              "item/fsi_name": "@{concat('API Error - ', outputs('Set_EnvironmentName'), ' - ', utcNow('yyyy-MM-ddTHH:mm:ssZ'))}",
+                              "item/fsi_environmentid": "@outputs('Set_EnvironmentName')",
+                              "item/fsi_errortype": "@outputs('Determine_Error_Type')",
+                              "item/fsi_errorraw": "@{coalesce(body('Get_Privacy_Settings'), string(result('Scope_BAP_API_Try')))}",
+                              "item/fsi_timestamp": "@utcNow()"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord"
+                            }
+                          },
+                          "runAfter": {
+                            "Determine_Error_Type": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Write error log entry to Dataverse with error type and raw response for investigation."
+                        },
+                        "Create_Unknown_APIErrorRecord": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "entityName": "fsi_inactivitytimeoutcompliances",
+                              "item/fsi_name": "@{concat(outputs('Set_EnvironmentName'), ' - ', utcNow('yyyy-MM-ddTHH:mm:ssZ'))}",
+                              "item/fsi_environmentid": "@outputs('Set_EnvironmentName')",
+                              "item/fsi_environmentname": "@outputs('Set_EnvironmentDisplayName')",
+                              "item/fsi_inactivitytimeoutenabled": false,
+                              "item/fsi_timeoutduration": 0,
+                              "item/fsi_requiredmaxduration": "@outputs('Set_RequiredMaxDuration')",
+                              "item/fsi_compliancestatus": 2,
+                              "item/fsi_lastscandate": "@utcNow()",
+                              "item/fsi_scanrunid": "@variables('ScanRunId')",
+                              "item/fsi_zone": "@outputs('Set_Zone')",
+                              "item/fsi_notes": "@{concat('BAP API call failed: ', outputs('Determine_Error_Type'))}"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord"
+                            }
+                          },
+                          "runAfter": {
+                            "Create_API_Error_Log": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Write Unknown compliance record when BAP API call fails. Zone is preserved from policy lookup."
+                        }
+                      },
+                      "runAfter": {
+                        "Scope_BAP_API_Try": [
+                          "Failed",
+                          "TimedOut"
+                        ]
+                      },
+                      "description": "Catch scope for per-environment BAP API failures. Creates error log entry and Unknown compliance record without aborting the scan."
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Create_Unknown_NoPolicyRecord": {
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "parameters": {
+                            "entityName": "fsi_inactivitytimeoutcompliances",
+                            "item/fsi_name": "@{concat(outputs('Set_EnvironmentName'), ' - ', utcNow('yyyy-MM-ddTHH:mm:ssZ'))}",
+                            "item/fsi_environmentid": "@outputs('Set_EnvironmentName')",
+                            "item/fsi_environmentname": "@outputs('Set_EnvironmentDisplayName')",
+                            "item/fsi_inactivitytimeoutenabled": false,
+                            "item/fsi_timeoutduration": 0,
+                            "item/fsi_requiredmaxduration": 0,
+                            "item/fsi_compliancestatus": 2,
+                            "item/fsi_lastscandate": "@utcNow()",
+                            "item/fsi_scanrunid": "@variables('ScanRunId')",
+                            "item/fsi_notes": "No explicit policy found for environment"
+                          },
+                          "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "CreateRecord"
+                          }
+                        },
+                        "runAfter": {},
+                        "description": "Write Unknown compliance record when no fsi_environmentpolicy row exists for this EnvironmentName. No evaluation performed — missing policy means zone and requirements are unknown."
+                      },
+                      "Create_MissingPolicyErrorLog": {
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "parameters": {
+                            "entityName": "fsi_inactivitytimeouterrorlogs",
+                            "item/fsi_name": "@{concat('MissingPolicy - ', outputs('Set_EnvironmentName'), ' - ', utcNow('yyyy-MM-ddTHH:mm:ssZ'))}",
+                            "item/fsi_environmentid": "@outputs('Set_EnvironmentName')",
+                            "item/fsi_errortype": "MissingPolicy",
+                            "item/fsi_errorraw": "@{concat('No fsi_environmentpolicy row exists for EnvironmentName: ', outputs('Set_EnvironmentName'))}",
+                            "item/fsi_timestamp": "@utcNow()"
+                          },
+                          "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "CreateRecord"
+                          }
+                        },
+                        "runAfter": {
+                          "Create_Unknown_NoPolicyRecord": [
+                            "Succeeded"
+                          ]
+                        },
+                        "description": "Write MissingPolicy error log entry. Action item: add an fsi_environmentpolicy row for this environment."
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Resolve_Policy": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Branch on whether an fsi_environmentpolicy row exists for this environment. True: proceed with BAP API evaluation. False: record Unknown + MissingPolicy error."
+                }
+              },
+              "runAfter": {
+                "List_Environments": [
+                  "Succeeded"
+                ]
+              },
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 5
+                }
+              },
+              "description": "Iterate over all Power Platform environments with configurable concurrency (default 5). Each iteration resolves the environment policy, retrieves privacy settings, evaluates compliance, and writes an immutable Dataverse record."
+            },
+            "Query_NonCompliant_Records": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_inactivitytimeoutcompliances",
+                  "$filter": "fsi_scanrunid eq '@{variables('ScanRunId')}' and fsi_compliancestatus eq 1",
+                  "$select": "fsi_environmentid,fsi_environmentname,fsi_zone,fsi_inactivitytimeoutenabled,fsi_timeoutduration,fsi_requiredmaxduration,fsi_compliancestatus,fsi_notes"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {
+                "Apply_to_Each_Environment": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Query all Non-Compliant records from the current scan run for notification. Uses ScanRunId to isolate this execution's results."
+            },
+            "Query_Unknown_Records": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_inactivitytimeoutcompliances",
+                  "$filter": "fsi_scanrunid eq '@{variables('ScanRunId')}' and fsi_compliancestatus eq 2",
+                  "$select": "fsi_environmentid,fsi_environmentname,fsi_zone,fsi_inactivitytimeoutenabled,fsi_timeoutduration,fsi_requiredmaxduration,fsi_compliancestatus,fsi_notes"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {
+                "Apply_to_Each_Environment": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Query all Unknown records from the current scan run for notification. Uses ScanRunId to isolate this execution's results."
+            },
+            "Query_Compliant_Count": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_inactivitytimeoutcompliances",
+                  "$filter": "fsi_scanrunid eq '@{variables('ScanRunId')}' and fsi_compliancestatus eq 0",
+                  "$select": "fsi_environmentid"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {
+                "Apply_to_Each_Environment": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Count Compliant records from the current scan run for summary statistics in the notification email."
+            },
+            "Condition_Has_Issues": {
+              "type": "If",
+              "expression": {
+                "or": [
+                  {
+                    "greater": [
+                      "@length(body('Query_NonCompliant_Records')?['value'])",
+                      0
+                    ]
+                  },
+                  {
+                    "greater": [
+                      "@length(body('Query_Unknown_Records')?['value'])",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Build_Issue_Rows": {
+                  "type": "Select",
+                  "inputs": {
+                    "from": "@union(body('Query_NonCompliant_Records')?['value'], body('Query_Unknown_Records')?['value'])",
+                    "select": "<tr><td>@{item()?['fsi_environmentname']}</td><td>@{item()?['fsi_zone']}</td><td>@{if(equals(item()?['fsi_compliancestatus'], 1), 'Non-Compliant', 'Unknown')}</td><td>@{item()?['fsi_inactivitytimeoutenabled']}</td><td>@{item()?['fsi_timeoutduration']}</td><td>@{item()?['fsi_requiredmaxduration']}</td><td>@{item()?['fsi_notes']}</td></tr>"
+                  },
+                  "runAfter": {},
+                  "description": "Transform Non-Compliant and Unknown records into HTML table rows for the notification email."
+                },
+                "Compose_Email_Subject": {
+                  "type": "Compose",
+                  "inputs": "@{concat('[NON-COMPLIANT] Inactivity Timeout Compliance Scan — ', string(add(length(body('Query_NonCompliant_Records')?['value']), length(body('Query_Unknown_Records')?['value']))), ' issue(s) detected')}",
+                  "runAfter": {},
+                  "description": "Build email subject line with total issue count (Non-Compliant + Unknown)."
+                },
+                "Compose_Email_Body": {
+                  "type": "Compose",
+                  "inputs": "<html><body><h2>Inactivity Timeout Compliance Scan Results</h2><p><strong>Scan Date:</strong> @{utcNow()}</p><p><strong>Scan Run ID:</strong> @{variables('ScanRunId')}</p><hr/><h3>Summary</h3><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr><td><strong>Compliant</strong></td><td>@{length(body('Query_Compliant_Count')?['value'])}</td></tr><tr><td><strong>Non-Compliant</strong></td><td>@{length(body('Query_NonCompliant_Records')?['value'])}</td></tr><tr><td><strong>Unknown</strong></td><td>@{length(body('Query_Unknown_Records')?['value'])}</td></tr></table><hr/><h3>Issues Requiring Attention</h3><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr style='background-color:#f0f0f0;'><th>Environment</th><th>Zone</th><th>Status</th><th>Timeout Enabled</th><th>Actual Duration (min)</th><th>Required Max (min)</th><th>Notes</th></tr>@{join(body('Build_Issue_Rows'), '')}</table><hr/><p><em>This alert was generated by the ITE - Detect Inactivity Timeout Non-Compliance flow. Part of the FSI Agent Governance — Inactivity Timeout Enforcement solution. Supports compliance with GLBA 501(b), SOX 302, FINRA 4511.</em></p></body></html>",
+                  "runAfter": {
+                    "Build_Issue_Rows": [
+                      "Succeeded"
+                    ],
+                    "Compose_Email_Subject": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Build full HTML email body with scan summary, compliance/non-compliant/unknown counts, and detailed issues table."
+                },
+                "Send_Alert_Email": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "emailMessage/To": "@variables('NotificationRecipients')",
+                      "emailMessage/Subject": "@outputs('Compose_Email_Subject')",
+                      "emailMessage/Body": "@outputs('Compose_Email_Body')",
+                      "emailMessage/Importance": "High"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_Email_Body": [
+                      "Succeeded"
+                    ]
+                  },
+                  "description": "Send compliance alert email with Non-Compliant and Unknown environment details. Only sent when issues are detected (guarded notification). Uses Office 365 SendEmailV2 with High importance."
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Query_NonCompliant_Records": [
+                  "Succeeded"
+                ],
+                "Query_Unknown_Records": [
+                  "Succeeded"
+                ],
+                "Query_Compliant_Count": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Guard condition: only send notification when Non-Compliant count > 0 OR Unknown count > 0. If all environments are compliant, no email is sent."
+            }
+          },
+          "runAfter": {
+            "Initialize_ConcurrencyLimit": [
+              "Succeeded"
+            ]
+          },
+          "description": "Main execution scope: load policies, enumerate environments, evaluate compliance per environment, and send guarded notification."
+        },
+        "Scope_Catch": {
+          "type": "Scope",
+          "actions": {
+            "Send_Flow_Error_Email": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "emailMessage/To": "@variables('NotificationRecipients')",
+                  "emailMessage/Subject": "[CRITICAL] ITE Inactivity Timeout Compliance Scan — Flow Failure",
+                  "emailMessage/Body": "<html><body><h2>[CRITICAL] Inactivity Timeout Compliance Scan — Flow Failure</h2><p>The ITE daily compliance scan flow encountered an unexpected error during execution.</p><table border='1' cellpadding='5' style='border-collapse:collapse;'><tr><td><strong>Flow Run ID</strong></td><td>@{workflow()['run']['name']}</td></tr><tr><td><strong>Timestamp</strong></td><td>@{utcNow()}</td></tr><tr><td><strong>Scan Run ID</strong></td><td>@{variables('ScanRunId')}</td></tr></table><p>Please investigate the flow run history in the <a href='https://make.powerautomate.com'>Power Automate portal</a> for detailed error information.</p><p><em>This alert was generated by the ITE - Detect Inactivity Timeout Non-Compliance flow error handler.</em></p></body></html>",
+                  "emailMessage/Importance": "High"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "connectionName": "shared_office365",
+                  "operationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {},
+              "description": "Send CRITICAL error email when any unexpected failure occurs in the main execution scope."
+            }
+          },
+          "runAfter": {
+            "Scope_Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "description": "Error handling scope: catches unexpected failures in Scope_Try and sends CRITICAL notification email."
+        }
+      }
+    },
+    "displayName": "ITE - Detect Inactivity Timeout Non-Compliance",
+    "description": "Detects non-compliant inactivity timeout settings across Power Platform environments using zone-based policy evaluation. Enumerates environments via BAP Admin API, resolves zone-specific maximum duration requirements from fsi_environmentpolicy, evaluates privacy settings per environment, and persists immutable compliance records. Guarded email notification sent only when Non-Compliant or Unknown results are detected. Supports compliance with GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12. Part of the FSI Agent Governance — Inactivity Timeout Enforcement solution.",
+    "state": "Started"
+  },
+  "schemaVersion": "1.0.0.0"
+}
