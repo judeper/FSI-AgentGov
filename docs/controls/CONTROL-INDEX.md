@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (63 Controls)
+## Complete Control Reference (64 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
@@ -36,7 +36,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.24 | [Defender AI Security Posture Management (AI-SPM)](pillar-1-security/1.24-defender-ai-security-posture-management.md) | Portal |
 | 1.25 | [MIME Type Restrictions for File Uploads](pillar-1-security/1.25-mime-type-restrictions.md) | PowerShell + Portal |
 
-## Pillar 2: Management Controls (21 Controls)
+## Pillar 2: Management Controls (22 Controls)
 
 | Control ID | Control Name | Implementation |
 |-----------|----------|----------------|
@@ -61,6 +61,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.19 | [Customer AI Disclosure and Transparency](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Portal |
 | 2.20 | [Adversarial Testing and Red Team Framework](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Portal |
 | 2.21 | [AI Marketing Claims and Substantiation](pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Portal |
+| 2.22 | [Inactivity Timeout Enforcement](pillar-2-management/2.22-inactivity-timeout-enforcement.md) | PowerShell + Portal |
 
 ## Pillar 3: Agent Reporting (10 Controls)
 
@@ -140,7 +141,7 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - Information Barriers
 - Step-Up Authentication
 
-### Pillar 2: Management Controls (21 Controls)
+### Pillar 2: Management Controls (22 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management
@@ -155,6 +156,7 @@ Focus: Govern the agent lifecycle, access control, change management, and model 
 - Customer AI Disclosure
 - Adversarial Testing & Red Teaming
 - AI Marketing Claims & Substantiation
+- Inactivity Timeout Enforcement
 
 ### Pillar 3: Agent Reporting (10 Controls)
 Focus: Visibility and monitoring of agent activities, performance, and compliance.

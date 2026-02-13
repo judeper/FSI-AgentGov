@@ -27,7 +27,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
-| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 63 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 64 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
@@ -35,11 +35,12 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
 | [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
-| [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.1.0 | Completed | PowerShell verification script and 32-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8 |
+| [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.1.0 | Completed | PowerShell verification script and 32-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 2.22, 3.7, 3.8 |
 | [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
 | [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector) | v1.0.0 | Completed | Continuous detection of overly permissive agent sharing configurations with automated remediation and exception management | 1.1, 3.8 |
 | [Agent Security Configuration Governance](#agent-security-configuration-governance) | v1.0.0 | Completed | Per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance scripts | 1.1, 3.7, 3.8 |
 | [MIME Type Restrictions for File Uploads](#mime-type-restrictions-for-file-uploads) | v1.0.0 | Completed | Zone-based MIME type configuration, server-side magic bytes validation, DLP policy integration, Sentinel monitoring | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 |
+| [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | v1.0.0 | Completed | Policy-driven inactivity timeout validation and enforcement with zone-based maximum duration requirements and Dataverse compliance persistence | 2.22, 1.23, 3.7, 3.8 |
 
 ### Status Legend
 
@@ -247,7 +248,7 @@ Provides unified compliance visibility across all 63 framework controls with zon
 - Dataverse tables for control assessments, scores, exceptions, and evidence
 - Power Automate flows for score calculation and exception monitoring
 - DAX measure library for Power BI
-- Sample data with all 63 controls
+- Sample data with all 64 controls
 - Python script for demo data loading
 
 **Regulatory Alignment:**
@@ -733,6 +734,59 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 
 ---
 
+### Inactivity Timeout Enforcement
+
+!!! success "Production Ready"
+    v1.0.0 includes a Cloud Flow for daily compliance scanning, PowerShell remediation script, Dataverse schema for policy management and compliance persistence, and zone-based maximum duration enforcement.
+
+Helps validate and enforce Power Platform user inactivity timeout settings across multiple environments. Provides zone-aware policy-driven maximum duration requirements, automated compliance scanning via BAP Admin API, immutable Dataverse compliance records, and PowerShell-based remediation.
+
+!!! info "Framework-Integrated Tool"
+    The PowerShell scripts and governance automation are integrated directly into the FSI-AgentGov framework repository under `scripts/governance/` and `src/`. They do not require the companion FSI-AgentGov-Solutions repository.
+
+**Version:** v1.0.0
+**Status:** Completed
+
+**Components:**
+
+- `src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation
+- `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations
+- `scripts/governance/Test-InactivityTimeoutRemediation.ps1` — Pester 5 validation test suite (27 tests)
+- `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables)
+- `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema
+- `scripts/create_timeout_environment_variables.py` — Environment variable definitions
+- `scripts/create_timeout_connection_references.py` — Connection reference definitions
+
+**Regulatory Alignment:**
+
+- GLBA 501(b) (Safeguards — Session Security Controls)
+- SOX 302 (Management Certification — Access Control Evidence)
+- FINRA 4511 (Books and Records — Session Governance Documentation)
+- NIST 800-53 AC-11/AC-12 (Session Lock and Termination)
+
+**Related Controls:**
+
+- [2.22 - Inactivity Timeout Enforcement](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
+- [1.23 - Step-Up Authentication for AI Agent Operations](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md)
+- [3.7 - PPAC Security Posture Assessment](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md)
+- [3.8 - Copilot Hub](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
+
+**Script Locations:**
+
+- `scripts/governance/Set-InactivityTimeout.ps1`
+- `scripts/governance/Test-InactivityTimeoutRemediation.ps1`
+- `src/detect-inactivity-timeout-noncompliance.json`
+- `scripts/create_timeout_dataverse_schema.py`
+- `scripts/create_timeout_errorlog_schema.py`
+
+**Version History:**
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0.0 | February 2026 | Initial release |
+
+---
+
 ## Getting Started
 
 1. Review the relevant framework playbook for architecture and requirements
@@ -773,6 +827,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Unrestricted Agent Sharing Detector | v1.0.0 | February 2026 |
 | Agent Security Configuration Governance | v1.0.0 | February 2026 |
 | MIME Type Restrictions for File Uploads | v1.0.0 | February 2026 |
+| Inactivity Timeout Enforcement | v1.0.0 | February 2026 |
 
 ---
 

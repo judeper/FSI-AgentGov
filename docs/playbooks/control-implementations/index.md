@@ -53,7 +53,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.24 Defender AI-SPM](../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | [Portal](1.24/portal-walkthrough.md) | [PS](1.24/powershell-setup.md) | [Test](1.24/verification-testing.md) | [Fix](1.24/troubleshooting.md) |
 | [1.25 MIME Type Restrictions](../../controls/pillar-1-security/1.25-mime-type-restrictions.md) | [Portal](1.25/portal-walkthrough.md) | [PS](1.25/powershell-setup.md) | [Test](1.25/verification-testing.md) | [Fix](1.25/troubleshooting.md) |
 
-### Pillar 2: Management (21 controls)
+### Pillar 2: Management (22 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -78,6 +78,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [2.19 AI Disclosure](../../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | [Portal](2.19/portal-walkthrough.md) | [PS](2.19/powershell-setup.md) | [Test](2.19/verification-testing.md) | [Fix](2.19/troubleshooting.md) |
 | [2.20 Adversarial Testing](../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | [Portal](2.20/portal-walkthrough.md) | [PS](2.20/powershell-setup.md) | [Test](2.20/verification-testing.md) | [Fix](2.20/troubleshooting.md) |
 | [2.21 AI Marketing Claims](../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal](2.21/portal-walkthrough.md) | [PS](2.21/powershell-setup.md) | [Test](2.21/verification-testing.md) | [Fix](2.21/troubleshooting.md) |
+| [2.22 Inactivity Timeout Enforcement](../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | [Portal](2.22/portal-walkthrough.md) | [PS](2.22/powershell-setup.md) | [Test](2.22/verification-testing.md) | [Fix](2.22/troubleshooting.md) |
 
 ### Pillar 3: Reporting (10 controls)
 

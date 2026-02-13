@@ -76,10 +76,10 @@ Strategic governance principles in `docs/framework/`:
 - Agent lifecycle management
 - Operating model and regulatory framework
 
-### Control Files (63 Total)
+### Control Files (64 Total)
 Technical specifications in `docs/controls/`:
 - **Pillar 1:** 25 Security Controls (1.1-1.25)
-- **Pillar 2:** 21 Management Controls (2.1-2.21)
+- **Pillar 2:** 22 Management Controls (2.1-2.22)
 - **Pillar 3:** 10 Reporting Controls (3.1-3.10)
 - **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
 
@@ -89,9 +89,9 @@ Each control includes:
 - Zone-specific requirements
 - Verification and testing procedures
 
-### Implementation Playbooks (252 Files)
+### Implementation Playbooks (256 Files)
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
-- **4 playbooks per control** (63 controls × 4 = 252 playbooks)
+- **4 playbooks per control** (64 controls × 4 = 256 playbooks)
 - Portal walkthrough guides with click-by-click navigation
 - PowerShell automation scripts with validation
 - Verification testing procedures with evidence checklists
@@ -250,7 +250,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 63 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for all 64 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
 
 ### Priority Controls (Start Here)

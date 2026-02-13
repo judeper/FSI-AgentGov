@@ -77,7 +77,7 @@ Protect data and systems from unauthorized access and misuse.
 
 ---
 
-### Pillar 2: Management Controls (21)
+### Pillar 2: Management Controls (22)
 
 Govern agent lifecycle, risk, and operational processes.
 
@@ -103,6 +103,8 @@ Govern agent lifecycle, risk, and operational processes.
 | [2.18](pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | 3 | FINRA 3110 |
 | [2.19](pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | AI Disclosure | 3 | - |
 | [2.20](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | 3 | FINRA 3110 |
+| [2.21](pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | AI Marketing Claims | 3 | - |
+| [2.22](pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Inactivity Timeout Enforcement | 2-3 | GLBA, SOX, FINRA 4511 |
 
 [View Pillar 2 Overview](pillar-2-management/index.md)
 

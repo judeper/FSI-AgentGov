@@ -1,7 +1,7 @@
 # Configuration Hardening Baseline
 
 **Status:** February 2026 - FSI-AgentGov v1.3
-**Related Controls:** 1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8
+**Related Controls:** 1.1, 1.7, 1.8, 1.18, 2.1, 2.22, 3.7, 3.8
 
 ---
 
@@ -95,13 +95,13 @@ Financial services organizations face continuous configuration drift risk across
 | 26 | Conversational transcript access | PPAC > Environment > Features > Copilot Studio Agents | Restricted to authorized personnel | Medium | Semi-Automated |
 | 27 | DLP for agent publishing connectors | PPAC > Data policies | Block Copilot Studio for Teams and M365 Copilot channel in restricted environments | High | Semi-Automated |
 
-### Environment Security Settings (Control 3.7)
+### Environment Security Settings (Controls 2.22, 3.7)
 
 | # | Setting | Portal Path | Expected Value | Severity | Automation |
 |---|---------|-------------|----------------|----------|------------|
 | 28 | Blocked attachment extensions | PPAC > Environment > Settings > Privacy + Security | Dangerous extensions blocked (ade, adp, app, asa, asp, bat, cmd, com, dll, exe, hta, jar, js, jse, msi, pst, reg, scr, vb, vbe, vbs, ws, wsc, wsf, wsh, etc.) | Medium | Automated |
 | 29 | Blocked MIME types | PPAC > Environment > Settings > Privacy + Security | High-risk MIME types blocked (application/javascript, application/hta, text/javascript, application/x-javascript, text/scriplet, application/xml, application/msaccess, application/prg) | Medium | Automated |
-| 30 | Inactivity timeout | PPAC > Environment > Settings > Privacy + Security | Enabled; ≤ 120 minutes | Medium | Automated |
+| 30 | Inactivity timeout | PPAC > Environment > Settings > Privacy + Security | Enabled; ≤ 120 minutes (Zone 3: ≤ 60 minutes) | Medium | Automated |
 | 31 | Session expiration | PPAC > Environment > Settings > Privacy + Security | Custom session timeout enabled; ≤ 1440 minutes | Medium | Automated |
 | 32 | Content Security Policy (CSP) | PPAC > Environment > Settings > Privacy + Security > Content security policy > Model Driven | "Enforce content security policy" enabled | Medium | Automated |
 
@@ -298,6 +298,7 @@ Evidence retention periods should align with applicable regulatory requirements:
 
 ## Related Resources
 
+- [Control 2.22: Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) — Zone-based inactivity timeout validation and enforcement
 - [Control 3.7: PPAC Security Posture Assessment](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) — Native PPAC posture scoring
 - [Control 1.24: Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) — Multi-cloud AI infrastructure posture
 - [PPAC Security Best Practices](https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview)

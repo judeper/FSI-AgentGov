@@ -14,7 +14,7 @@ Add Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar with 
 - [x] **Phase 2: Dataverse Data Model** — 3 table schemas (environmentpolicy, compliance, errorlog), environment variables, connection references
 - [ ] **Phase 3: Cloud Flow & Validation Logic** — Detection flow template with BAP Admin API integration, policy lookup, per-environment compliance evaluation, guarded notification
 - [x] **Phase 4: PowerShell Remediation** — `Set-InactivityTimeout.ps1` with BAP Admin API PATCH, remediation audit records, validation test script (27 Pester 5 tests)
-- [ ] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "64 controls" updates, solutions-index entry, full build validation
+- [x] **Phase 5: Framework Integration & Validation** — CONTROL-INDEX, mkdocs.yml, "64 controls" updates, solutions-index entry, full build validation
 
 ## Phase Details
 
@@ -79,7 +79,7 @@ Add Control 2.22 (Inactivity Timeout Enforcement) to the Management Pillar with 
 | 2. Dataverse Data Model | 2/2 | Complete |
 | 3. Cloud Flow & Validation Logic | 2/2 | Complete |
 | 4. PowerShell Remediation | 2/2 | Complete |
-| 5. Framework Integration & Validation | 0/2 | Not Started |
+| 5. Framework Integration & Validation | 2/2 | Complete |
 
 ## Parallel Execution Guide
 
