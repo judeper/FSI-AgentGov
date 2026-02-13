@@ -1,5 +1,31 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v19 Inactivity Timeout Enforcement (Completed: 2026-02-13)
+
+**Delivered:** New Control 2.22 (Inactivity Timeout Enforcement) in the Management Pillar with companion solution — Cloud Flow for daily compliance scanning via BAP Admin API, PowerShell remediation script (Set-InactivityTimeout.ps1), Dataverse schema for policy management and immutable compliance persistence, zone-based maximum duration enforcement (Zone 2: ≤120 min, Zone 3: ≤60 min), and full framework integration (63→64 controls).
+
+**Phases completed:** 1-5 (10 plans total)
+
+**Key accomplishments:**
+
+- **Phase 1 — Control Documentation & Playbooks (2 plans):** Created Control 2.22 documentation (10-section template) with zone-specific inactivity timeout requirements (Zone 1 optional/Zone 2 required ≤120 min/Zone 3 required ≤60 min), regulatory references (GLBA 501(b), SOX 302, FINRA 4511, NIST 800-53 AC-11/AC-12), 4 implementation playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting), screenshot specification (EXPECTED.md)
+- **Phase 2 — Dataverse Data Model (2 plans):** Created 3 Dataverse table schemas — `fsi_environmentpolicy` (zone-based policy with required max duration), `fsi_inactivitytimeout_compliance` (immutable append-only compliance records), `fsi_inactivitytimeout_errorlog` (error tracking); environment variables (concurrency limit, notification recipients); connection references (Dataverse, BAP Admin API)
+- **Phase 3 — Cloud Flow & Validation Logic (2 plans):** Created `Detect-InactivityTimeout-NonCompliance` flow template — daily scheduled scan enumerating environments via Power Platform for Admins V2, policy lookup from `fsi_environmentpolicy`, per-environment BAP Admin API privacy settings retrieval, compliance determination (no policy → Unknown, disabled → Non-Compliant, duration > max → Non-Compliant), guarded notification (email only when Non-Compliant or Unknown count > 0)
+- **Phase 4 — PowerShell Remediation (2 plans):** Created `Set-InactivityTimeout.ps1` (478 lines, 7 parameters, GET-PATCH-GET pattern) with BAP Admin API PATCH, `-WhatIf` support, Dataverse audit record writing; `Test-InactivityTimeoutRemediation.ps1` Pester 5 test suite (27/27 tests passing)
+- **Phase 5 — Framework Integration & Validation (2 plans):** Updated CONTROL-INDEX.md (added 2.22 row), mkdocs.yml navigation (controls + playbooks), "63→64 controls" across 20 files, "21→22 management controls", "252→256 playbooks", solutions-index.md catalog entry, hardening baseline item 30 cross-references Control 2.22; all validations pass (mkdocs build --strict, verify_controls.py 64/64, verify_language_rules.py 0 violations)
+
+**Stats:**
+
+- 5 phases, 10 plans, 14 requirements (100% satisfied — CTL-3, DVM-3, FLW-3, REM-2, FRM-3)
+- Source: AI Implementation Specification — "Inactivity Timeout Enforcement (Policy-Driven Maximum)"
+- Key artifacts: Control 2.22 doc + 4 playbooks, 3 Dataverse schema scripts, Cloud Flow template, Set-InactivityTimeout.ps1, Test-InactivityTimeoutRemediation.ps1 (27 tests)
+- Controls created: 2.22 (new — framework 63→64, Pillar 2: 21→22)
+- 1 day (2026-02-13)
+
+**What's next:** TBD — v20 scope not yet defined
+
+---
+
 ## v18 MIME Type Restrictions for File Uploads (Completed: 2026-02-12)
 
 **Delivered:** New Control 1.25 (MIME Type Restrictions for File Uploads) with companion solution — PowerShell module (FsiMimeControl.psm1) with 3 cmdlets (Get/Set/Test), zone-based MIME configuration templates, Dataverse plugin for server-side magic bytes validation (Zone 3), Purview DLP policy template, Sentinel KQL monitoring queries and alert rule, exception management system, and full framework integration (62→63 controls).
