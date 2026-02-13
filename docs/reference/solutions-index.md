@@ -755,7 +755,7 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 - `src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation
 - `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations
-- `scripts/governance/Test-InactivityTimeoutRemediation.ps1` — Pester 5 validation test suite (27 tests)
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (27 tests)
 - `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables)
 - `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema
 - `scripts/create_timeout_environment_variables.py` — Environment variable definitions
@@ -778,7 +778,7 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 **Script Locations:**
 
 - `scripts/governance/Set-InactivityTimeout.ps1`
-- `scripts/governance/Test-InactivityTimeoutRemediation.ps1`
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1`
 - `src/detect-inactivity-timeout-noncompliance.json`
 - `scripts/create_timeout_dataverse_schema.py`
 - `scripts/create_timeout_errorlog_schema.py`
