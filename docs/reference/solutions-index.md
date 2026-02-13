@@ -27,7 +27,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Work In Progress | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
-| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across all 71 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
@@ -243,13 +243,13 @@ Automates Conditional Access policy deployment and compliance monitoring for AI 
 !!! success "Production Ready"
     v1.0.0 includes Power Automate flows, Dataverse schema, sample data, and deployment documentation. Power BI template requires manual creation following the 883-line specification.
 
-Provides unified compliance visibility across all 63 framework controls with zone-based filtering and trend analysis for regulatory reporting.
+Provides unified compliance visibility across 62 framework controls with zone-based filtering and trend analysis for regulatory reporting. The 9 controls added in v20.5 (1.26–1.28, 2.23–2.24, 3.10–3.12) are not yet included; a future dashboard update will extend coverage to all 71 controls.
 
 **Components:**
 - Dataverse tables for control assessments, scores, exceptions, and evidence
 - Power Automate flows for score calculation and exception monitoring
 - DAX measure library for Power BI
-- Sample data with all 71 controls
+- Sample data with 62 controls
 - Python script for demo data loading
 
 **Regulatory Alignment:**
