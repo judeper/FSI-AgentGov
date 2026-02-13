@@ -41,6 +41,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Agent Security Configuration Governance](#agent-security-configuration-governance) | v1.0.0 | Completed | Per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance scripts | 1.1, 3.7, 3.8 |
 | [MIME Type Restrictions for File Uploads](#mime-type-restrictions-for-file-uploads) | v1.0.0 | Completed | Zone-based MIME type configuration, server-side magic bytes validation, DLP policy integration, Sentinel monitoring | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 |
 | [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | v1.0.0 | Completed | Policy-driven inactivity timeout validation and enforcement with zone-based maximum duration requirements and Dataverse compliance persistence | 2.22, 1.23, 3.7, 3.8 |
+| [Audit Logging Compliance Automation](#audit-logging-compliance-automation) | v1.0.0 | Completed | Automated detection and remediation of Purview unified audit and Dataverse audit logging gaps with Managed Identity auth, entity-level enablement, and approval-gated remediation | 1.7 |
 
 ### Status Legend
 
@@ -416,6 +417,9 @@ Automated validation of Microsoft 365 and Power Platform audit configurations to
 
 **Repository Link:** [audit-configuration-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-configuration-validator)
 
+!!! info "Complementary Solution"
+    The **Audit Logging Compliance Automation (ALCA)** solution complements ACV by providing automated detection and remediation of audit logging gaps. While ACV validates configurations with drift detection and SHA-256 evidence, ALCA detects non-compliant environments and enables auditing automatically with approval workflows. See [Audit Logging Compliance Automation](#audit-logging-compliance-automation) below.
+
 ---
 
 ### Session Security Configurator
@@ -787,7 +791,45 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 ---
 
-## Getting Started
+### Audit Logging Compliance Automation
+
+Automated detection and remediation of Microsoft 365 and Power Platform audit logging compliance gaps. Enterprise-grade Azure Automation solution with Managed Identity authentication, entity-level audit enablement, and governance-approved remediation workflows.
+
+!!! success "Production Ready"
+    Version 1.0.0 — Helper module (6 functions), detection runbook, remediation runbook, Dataverse compliance tracking, Power Automate approval flow, deployment guide, testing scenarios, and troubleshooting guide.
+
+**Version:** v1.0.0
+**Status:** Completed
+
+**Components:**
+
+- `AuditComplianceHelpers.psm1` — Shared PowerShell module (retry logic, MI auth, Dataverse operations, email notifications)
+- `Check-AuditLoggingCompliance.ps1` — Detection runbook (environment scanning, Purview + Dataverse audit checks, compliance determination)
+- `Enable-AuditLogging.ps1` — Remediation runbook (org-level + entity-level audit enablement, WhatIf support, post-remediation validation)
+- `create_audit_compliance_schema.py` — Dataverse `fsi_auditenvironmentcompliance` table schema with alternate key
+- `audit-remediation-approval-flow.json` — Power Automate approval flow for governance-gated remediation
+- Pester 5 unit tests for helper module (29 test cases)
+- Deployment guide, scheduling guide, 15 testing scenarios, 10 troubleshooting issues
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — Audit Log Configuration)
+- SEC 17a-3/4 (Recordkeeping — Audit Trail Requirements)
+- SOX 404 (Internal Controls — Audit Logging Verification)
+- GLBA 501(b) (Safeguards — Audit Trail Integrity)
+
+**Related Control:** [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+
+**Repository Link:** [audit-logging-compliance-automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-logging-compliance-automation)
+
+!!! info "Relationship to ACV"
+    ALCA complements the [Audit Configuration Validator](#audit-configuration-validator). ACV validates configurations with drift detection and SHA-256 evidence export. ALCA detects audit logging gaps and remediates them automatically with approval workflows. Together, they provide comprehensive audit logging governance — ACV for validation and evidence, ALCA for detection and remediation.
+
+**Version History:**
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0.0 | February 2026 | Initial release |
 
 1. Review the relevant framework playbook for architecture and requirements
 2. Clone the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository
@@ -828,6 +870,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Agent Security Configuration Governance | v1.0.0 | February 2026 |
 | MIME Type Restrictions for File Uploads | v1.0.0 | February 2026 |
 | Inactivity Timeout Enforcement | v1.0.0 | February 2026 |
+| Audit Logging Compliance Automation | v1.0.0 | February 2026 |
 
 ---
 
