@@ -2,10 +2,11 @@
 Excel Template Verification Script for FSI-AgentGov v1.1
 
 Verifies all Excel files in docs/downloads/ for:
-1. Correct control counts per template
-2. Stale version references (v1.0)
-3. Outdated control counts (48 controls)
-4. Legacy path references (reference/pillar)
+1. Correct file format (OOXML .xlsx, not DRM-encrypted OLE2)
+2. Correct control counts per template
+3. Stale version references (v1.0)
+4. Outdated control counts (48 controls)
+5. Legacy path references (reference/pillar)
 
 Usage:
     python scripts/verify_excel_templates.py
@@ -13,6 +14,7 @@ Usage:
 
 import os
 import sys
+import zipfile
 from pathlib import Path
 from openpyxl import load_workbook
 
@@ -34,7 +36,7 @@ STALE_PATTERNS = {
 }
 
 def verify_excel_file(file_path):
-    """Verify a single Excel file for control counts and stale content."""
+    """Verify a single Excel file for format, control counts and stale content."""
 
     filename = os.path.basename(file_path)
     print(f"\n{'='*80}")
@@ -42,6 +44,16 @@ def verify_excel_file(file_path):
     print(f"{'='*80}")
 
     issues = []
+
+    # Check file format first — DRM-encrypted files are OLE2, not ZIP
+    if not zipfile.is_zipfile(file_path):
+        issues.append(
+            "[FAIL] File is not valid OOXML (.xlsx) format — appears to be DRM-encrypted (OLE2 container). "
+            "Remove the sensitivity label in Excel and re-save as .xlsx to fix."
+        )
+        print(f"[FAIL] DRM-encrypted OLE2 format detected — not readable as .xlsx")
+        print(f"   Fix: Open in Excel → File → Info → Remove sensitivity label → Save As .xlsx")
+        return issues
 
     try:
         wb = load_workbook(file_path, data_only=True)
