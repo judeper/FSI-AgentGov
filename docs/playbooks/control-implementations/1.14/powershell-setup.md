@@ -212,6 +212,9 @@ Write-Host "=== Control 1.14 Validation ===" -ForegroundColor Cyan
 Add-PowerAppsAccount
 
 # Check 1: DLP policies exist
+# NOTE: Get-DlpPolicy is the Power Platform Admin cmdlet (Microsoft.PowerApps.Administration.PowerShell module).
+# It retrieves Power Platform data policies that govern connector usage — not Purview/SCC DLP policies.
+# For Purview DLP policies, use Get-DlpCompliancePolicy from the ExchangeOnlineManagement module.
 Write-Host "`n[Check 1] DLP Policy Configuration" -ForegroundColor Cyan
 $dlpPolicies = Get-DlpPolicy | Where-Object { $_.environments -contains $EnvironmentId }
 if ($dlpPolicies) {
@@ -328,6 +331,9 @@ try {
     }
 
     # Step 4: Check DLP policies
+    # NOTE: Get-DlpPolicy is the Power Platform Admin cmdlet (Microsoft.PowerApps.Administration.PowerShell module).
+    # It retrieves Power Platform data policies that govern connector usage — not Purview/SCC DLP policies.
+    # For Purview DLP policies, use Get-DlpCompliancePolicy from the ExchangeOnlineManagement module.
     Write-Host "`n[Step 4] Checking DLP policy coverage..." -ForegroundColor Yellow
     $dlpPolicies = Get-DlpPolicy | Where-Object { $_.environments -contains $EnvironmentId }
     if ($dlpPolicies) {

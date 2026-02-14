@@ -1066,4 +1066,4 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 ---
 
-*Updated: February 2026 | Version: v2.0*
+*FSI Agent Governance Framework v1.2.42 - February 2026*

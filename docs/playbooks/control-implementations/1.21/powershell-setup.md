@@ -47,6 +47,10 @@ $adversarialPatterns = @(
 foreach ($pattern in $adversarialPatterns) {
     Write-Host "Searching for: $pattern" -ForegroundColor Yellow
 
+    # NOTE: The "CopilotInteraction" RecordType requires Microsoft 365 E5 or E5 Compliance licensing.
+    # If no results are returned, verify audit logging is enabled and the RecordType is available
+    # in your tenant. Check available record types with:
+    #   (Get-Command Search-UnifiedAuditLog).Parameters['RecordType'].Attributes.ValidValues
     $results = Search-UnifiedAuditLog -StartDate $StartDate -EndDate $EndDate `
         -FreeText $pattern -RecordType "CopilotInteraction" -ResultSize 100
 
@@ -208,6 +212,10 @@ try {
     foreach ($pattern in $adversarialPatterns) {
         Write-Host "  Searching: '$pattern'" -ForegroundColor Gray
 
+        # NOTE: The "CopilotInteraction" RecordType requires Microsoft 365 E5 or E5 Compliance licensing.
+        # If no results are returned, verify audit logging is enabled and the RecordType is available
+        # in your tenant. Check available record types with:
+        #   (Get-Command Search-UnifiedAuditLog).Parameters['RecordType'].Attributes.ValidValues
         $results = Search-UnifiedAuditLog -StartDate $StartDate -EndDate $EndDate `
             -FreeText $pattern -RecordType "CopilotInteraction" -ResultSize 100 -ErrorAction SilentlyContinue
 

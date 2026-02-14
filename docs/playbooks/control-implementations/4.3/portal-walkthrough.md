@@ -39,8 +39,8 @@ Identify retention requirements for your organization:
 
 Create policy to manage inactive sites:
 
-1. Navigate to [SharePoint Admin Center](https://admin.sharepoint.com)
-2. Go to **Policies** > **Site lifecycle management**
+1. Navigate to [Microsoft Purview](https://purview.microsoft.com)
+2. Go to **Data lifecycle management** > **Microsoft 365**
 3. Click **Open** under "Inactive site policies"
 4. Click **Create policy**
 5. Configure:
