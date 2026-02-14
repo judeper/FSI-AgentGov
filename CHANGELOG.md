@@ -6,6 +6,67 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.42] — February 2026 (Technical Audit Remediation)
+
+### Overview
+
+Complete remediation of 87 findings from comprehensive technical audit across FSI-AgentGov (docs) and FSI-AgentGov-Solutions (25 solutions). All P0 Critical, P1 High, and P2 Maintenance items resolved.
+
+### Fixed
+
+**P0 Critical (12 items):**
+
+- Control 2.12: Corrected false GA claim — Entra Agent ID + CA for agents marked as (Preview) with operational caveats
+- Control 3.11: Removed fabricated AB-900 certification; replaced with PL-900
+- ALCA: Fixed PS version (7.2→5.1), PUT→PATCH for EntityDefinitions, removed invalid RecordTypes, fixed PP auth
+- SSC: Added missing return statement to create_schema(), aligned zone option sets to Dataverse convention (100000000-range)
+- DR Testing: Fixed inverted DryRun logic — recovery now executes in production mode
+- CAA: Removed client secret plaintext output, added CopilotStudio policy filter pattern
+- DECR: Removed deprecated -ApiKey parameter from orchestrator
+- FUS: Fixed null access token, replaced dot-source with call operator
+- MIME: Added EnforcementMode validation (fail-closed), changed DLP template default to Block
+- RAG: Added baseline hash write on initial capture
+- SEG: Added Power Platform role queries for SoD detection
+- ELM: Added Dataverse pagination, HTTP retry/backoff, fixed manifest hash computation
+
+**P1 High (18 items):**
+
+- 5 control portal path/scope corrections (2.23, 3.8, 4.6, 1.17, 2.20)
+- 6 reference/framework doc fixes: control counts 64→71, Dataverse capacity 5→15 GB, FINRA 4512 correction, UAL limit 50K→5K per query, product name corrections, overclaim language
+- COI Testing: Replaced hardcoded PASS with SKIPPED + Direct Line API TODO
+- Dashboard: Environment-specific OAuth scope, control count 62→71
+- HT: Fixed SEVERITY_WEIGHTS string→integer keys
+- ELM: Fixed PrivilegeDepth enum, removed false licensing claim
+- MCM: Corrected Premium license requirement, fixed Graph severity enum
+- SDM: Replaced deprecated Send-MailMessage with Send-MgUserMail
+- FUS: Added Az.Accounts 5.0+ SecureString compatibility
+
+**P2 Maintenance (57 items):**
+
+- Role naming standardized across 14 controls to match role-catalog.md canonical names
+- 3 missing admin roles + functional roles section added to role-catalog.md
+- 4 controls: Added missing --- separators before Implementation Playbooks
+- Footer versions normalized to v1.2.41 across framework/reference docs
+- CFTC Rule 1.31 section added to regulatory-framework.md
+- RACI dual-Accountable fixed, retention citations added, Zone 1 hedging improved
+- SAM feature count updated, product rename M365 E5 Compliance → Microsoft Purview Suite
+- AgenticUser userType caveat added to Control 3.6
+- Instructions file: "Implementation Guides" → "Implementation Playbooks"
+- Dataverse pagination added to 5 solution scripts
+- Wildcard cert stores replaced with specific paths (8 scripts)
+- SupportsShouldProcess + parameter validation added to 4 destructive scripts
+- Structured logging added to 4 key scripts
+- Troubleshooting sections added to 4 solution READMEs
+- Secret management improved with env var fallback + Key Vault warnings
+
+### Audit Deliverables
+
+Full audit report committed to `reports/audit/` with 8 deliverables:
+- Executive Summary, Repo Map, Inventory, Learn Validation Matrix
+- Technical Findings, Documentation Findings, Remediation Backlog, Learn URL Appendix
+
+---
+
 ## [1.2.41] — February 2026 (Milestones v11–v22)
 
 ### Overview
