@@ -1,6 +1,6 @@
 # Conditional Access Automation
 
-**Status:** February 2026 - FSI-AgentGov v1.2.43
+**Status:** February 2026 - FSI-AgentGov v1.2.47
 **Related Controls:** 1.11 (Conditional Access & MFA), 1.23 (Step-Up Authentication), 1.18 (Application-Level RBAC)
 
 ---
@@ -149,4 +149,4 @@ Zone 3 findings are automatically escalated by one severity level to reflect the
 
 ---
 
-*FSI Agent Governance Framework v1.2.43 - February 2026*
+*FSI Agent Governance Framework v1.2.47 - February 2026*

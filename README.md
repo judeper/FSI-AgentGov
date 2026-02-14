@@ -406,6 +406,13 @@ This framework is designed for continuous evolution:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.2.47 | Feb 2026 | Solution consolidation (ACV + ALCA → ACM), version alignment | FSI Governance Team |
+| 1.2.46 | Feb 2026 | ITE solution customer readiness, PowerShell playbook fixes | FSI Governance Team |
+| 1.2.45 | Feb 2026 | Health check remediation — broken Learn URLs, deprecated terminology, CONTROL-INDEX solution links | FSI Governance Team |
+| 1.2.44 | Feb 2026 | UASD/ASARD discoverability fix in CONTROL-INDEX and playbooks | FSI Governance Team |
+| 1.2.43 | Feb 2026 | Post-remediation deep review — 106 findings resolved across both repos | FSI Governance Team |
+| 1.2.42 | Feb 2026 | Technical audit remediation — 87 findings resolved (P0/P1/P2) | FSI Governance Team |
+| 1.2 | Feb 2026 | Four-pillar expansion (71 controls), 284 playbooks, companion solutions, framework layer enhancements | FSI Governance Team |
 | 1.1.4 | Jan 2026 | Microsoft Audit Reporting Tools integration (AI-in-One Dashboard, PAX) | FSI Governance Team |
 | 1.1.3 | Jan 2026 | Deep review & enhancements, Microsoft Learn URLs expansion (159 URLs) | FSI Governance Team |
 | 1.1.2 | Jan 2026 | NIST AI RMF crosswalk accuracy corrections | FSI Governance Team |
