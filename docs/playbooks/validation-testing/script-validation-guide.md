@@ -336,7 +336,7 @@ Before deploying governance scripts to production:
 ## 6. Related Resources
 
 - [PowerShell Module Documentation](../../reference/microsoft-learn-urls.md)
-- [KQL Quick Reference](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/)
+- [KQL Quick Reference](https://learn.microsoft.com/en-us/kusto/query/?view=azure-data-explorer&preserve-view=true)
 - [Power Platform Admin PowerShell](https://learn.microsoft.com/en-us/power-platform/admin/powershell-installation)
 - [Microsoft Graph PowerShell SDK](https://learn.microsoft.com/en-us/powershell/microsoftgraph/)
 

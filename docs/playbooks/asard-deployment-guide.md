@@ -15,10 +15,10 @@ This guide provides step-by-step instructions for deploying the Agent Sharing Ac
 
 Before deploying ASARD, ensure the following prerequisites are met:
 
-### Azure AD Requirements
-- **Azure AD app registration capability:** Ability to create and configure Azure AD app registrations
+### Microsoft Entra ID Requirements
+- **Microsoft Entra ID app registration capability:** Ability to create and configure Microsoft Entra ID app registrations
 - **API permissions:** Authority to grant admin consent for Microsoft Graph and BAP Admin API permissions
-- **Security groups:** Access to Azure AD security group management
+- **Security groups:** Access to Microsoft Entra ID security group management
 
 ### Power Platform Requirements
 - **Power Platform admin role:** Global admin or Power Platform admin role required
@@ -34,15 +34,15 @@ Before deploying ASARD, ensure the following prerequisites are met:
 
 ### Access and Permissions
 - **BAP Admin API access:** Required to enumerate agents and manage sharing settings
-- **Microsoft Graph API access:** Required to resolve Azure AD security groups
+- **Microsoft Graph API access:** Required to resolve Microsoft Entra ID security groups
 - **Teams webhook:** Microsoft Teams channel webhook URL for notifications (optional but recommended)
 
 ## Deployment Steps
 
-### Step 1: Create Azure AD App Registration
+### Step 1: Create Microsoft Entra ID App Registration
 
 1. **Navigate to Azure Portal:**
-   - Go to [Azure Portal](https://portal.azure.com) > Azure Active Directory > App registrations
+   - Go to [Azure Portal](https://portal.azure.com) > Microsoft Entra ID > App registrations
    - Click **New registration**
 
 2. **Configure app registration:**
@@ -116,12 +116,12 @@ Creating ASARD Dataverse schema...
 
 ### Step 3: Populate Approved Security Group Policy
 
-Configure which Azure AD security groups are approved for agent sharing.
+Configure which Microsoft Entra ID security groups are approved for agent sharing.
 
 1. **Identify approved security groups:**
-   - Work with your security team to identify Azure AD security groups that are approved for agent sharing
+   - Work with your security team to identify Microsoft Entra ID security groups that are approved for agent sharing
    - For each group, obtain:
-     - **Group Object ID:** From Azure AD
+     - **Group Object ID:** From Microsoft Entra ID
      - **Group Display Name:** For reference
      - **Zone:** Environment zone this approval applies to (e.g., `production`, `development`, `sandbox`)
 
@@ -497,5 +497,5 @@ If initial scan reveals a large number of violations:
 
 - [ASARD Exception Management Guide](asard-exception-management.md)
 - [ASARD Troubleshooting Guide](asard-troubleshooting-guide.md)
-- [Power Platform Admin API Documentation](https://learn.microsoft.com/power-platform/admin/admin-api)
+- [Power Platform Admin API Documentation](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-getting-started)
 - [Dataverse Security Concepts](https://learn.microsoft.com/power-apps/developer/data-platform/security-concepts)

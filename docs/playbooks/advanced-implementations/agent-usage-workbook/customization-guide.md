@@ -343,7 +343,7 @@ customEvents
 ## Additional Resources
 
 - [Azure Monitor Workbooks documentation](https://learn.microsoft.com/azure/azure-monitor/visualize/workbooks-overview)
-- [KQL reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
+- [KQL reference](https://learn.microsoft.com/en-us/kusto/query/?view=azure-data-explorer&preserve-view=true)
 - [Telemetry Schema Reference](telemetry-schema.md)
 - [Deployment Guide](deployment-guide.md)
 - [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)

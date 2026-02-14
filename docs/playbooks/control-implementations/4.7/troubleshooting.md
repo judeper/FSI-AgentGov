@@ -113,7 +113,7 @@ Write-Host "Excluded: $excluded | Included: $included"
 ## Related Resources
 
 - [Microsoft 365 Copilot overview](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-overview)
-- [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-privacy)
+- [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy)
 - [Manage Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-enable-users)
 - [Restricted Content Discovery](https://learn.microsoft.com/en-us/sharepoint/restricted-content-discovery)
 

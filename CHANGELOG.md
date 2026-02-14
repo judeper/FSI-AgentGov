@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.45] — February 2026 (Health Check Remediation)
+
+### Fixed
+
+- **Broken Learn URLs:** Fixed 3 broken (404) Microsoft Learn links in controls 2.17, ASARD deployment/troubleshooting guides — replaced with current URLs for MCP servers, Power Automate troubleshooting, and Power Platform Admin API
+- **Redirected Learn URLs:** Updated 7 permanently redirected Learn links across 8 files — authentication methods, Copilot privacy, and KQL reference URLs now point to current locations
+- **Deprecated terminology:** Replaced 17 instances of "Azure AD"/"Azure Active Directory" with "Microsoft Entra ID" across ASARD and UASD playbooks; replaced 3 instances of "Office 365" with "Microsoft 365" in Sentinel integration and connector references
+- **mkdocs.yml version:** Updated copyright version to match current release
+
+### Added
+
+- **CONTROL-INDEX solution links:** Linked 17 previously unmapped solutions to their related controls in CONTROL-INDEX.md — ALCA, AAM, CMM, SSC, CAA, CD, ACV, FUS, SDM, SoDD, FSW, CSI, AOF, MTR, ITE now appear in the Implementation column alongside existing Portal/PowerShell references
+
+---
+
 ## [1.2.44] — February 2026 (UASD/ASARD Discoverability Fix)
 
 ### Fixed

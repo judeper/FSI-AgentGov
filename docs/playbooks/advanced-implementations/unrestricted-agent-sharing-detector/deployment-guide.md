@@ -42,7 +42,7 @@ This guide walks through end-to-end deployment of the UASD solution, from Datave
 |------|---------|
 | Power Platform Admin | Environment and flow management |
 | Dataverse System Administrator | Table creation and security role assignment |
-| Azure AD Global Reader (or equivalent) | Az.Accounts sign-in for Dataverse API access |
+| Microsoft Entra ID Global Reader (or equivalent) | Az.Accounts sign-in for Dataverse API access |
 
 ### Required Tools
 

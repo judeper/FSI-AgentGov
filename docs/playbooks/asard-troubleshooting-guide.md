@@ -36,7 +36,7 @@ This guide provides diagnostic procedures and resolutions for common issues enco
 export AZURE_IDENTITY_LOGGING=1
 python detect_agent_sharing_violations.py --dry-run
 ```
-- Check if token is successfully acquired from Azure AD
+- Check if token is successfully acquired from Microsoft Entra ID
 - Verify token contains expected audience (Power Platform API)
 
 **2. Check API permissions:**
@@ -54,7 +54,7 @@ echo $AZURE_CLIENT_ID
 echo $AZURE_TENANT_ID
 # Do NOT echo client secret for security reasons
 ```
-- Confirm values match Azure AD app registration
+- Confirm values match Microsoft Entra ID app registration
 - Tenant ID should match your organization's tenant
 
 **4. Test token manually:**
@@ -87,7 +87,7 @@ print(f"Expires on: {token.expires_on}")
 4. Retry detection script
 
 **For wrong tenant ID:**
-1. Obtain correct tenant ID from Azure Portal > Azure Active Directory > Overview
+1. Obtain correct tenant ID from Azure Portal > Microsoft Entra ID > Overview
 2. Update `AZURE_TENANT_ID` environment variable or configuration
 3. Retry
 
@@ -99,7 +99,7 @@ print(f"Expires on: {token.expires_on}")
 
 **For disabled app registration:**
 1. Check app registration status in Azure Portal
-2. If deleted, recreate following [Deployment Guide Step 1](asard-deployment-guide.md#step-1-create-azure-ad-app-registration)
+2. If deleted, recreate following [Deployment Guide Step 1](asard-deployment-guide.md#step-1-create-microsoft-entra-id-app-registration)
 3. Update configuration with new client ID and secret
 
 ## Security Group Resolution Failures
@@ -111,7 +111,7 @@ print(f"Expires on: {token.expires_on}")
 - False positive violations for agents with approved sharing
 
 ### Causes
-1. **Group not found:** Group ID does not exist in Azure AD
+1. **Group not found:** Group ID does not exist in Microsoft Entra ID
 2. **Deleted security groups:** Group was deleted after agent sharing configured
 3. **Nested groups not supported:** Sharing principal is member of approved group (indirectly)
 4. **Incorrect group ID format:** Group object ID vs. group name vs. group email
@@ -119,14 +119,14 @@ print(f"Expires on: {token.expires_on}")
 
 ### Diagnostic Steps
 
-**1. Verify group exists in Azure AD:**
+**1. Verify group exists in Microsoft Entra ID:**
 ```powershell
 # Using Microsoft Graph PowerShell
 Connect-MgGraph -Scopes "Group.Read.All"
 Get-MgGroup -GroupId "<group-id>"
 ```
 - If group not found, it may have been deleted
-- Verify group ID matches Azure AD object ID (GUID format)
+- Verify group ID matches Microsoft Entra ID object ID (GUID format)
 
 **2. Check group ID format:**
 - Group object ID: `12345678-1234-1234-1234-123456789abc` (GUID)
@@ -166,7 +166,7 @@ print(f"Group: {group.display_name}")
 4. Re-run detection scan
 
 **For incorrect group ID format:**
-1. Obtain correct object ID from Azure AD:
+1. Obtain correct object ID from Microsoft Entra ID:
    ```powershell
    Get-MgGroup -Filter "displayName eq 'Finance-Agents-Prod'" | Select-Object Id, DisplayName
    ```
@@ -729,6 +729,6 @@ WHERE gov_expirationdate < GETDATE() AND gov_status = 'active'
 
 - [ASARD Deployment Guide](asard-deployment-guide.md)
 - [ASARD Exception Management Guide](asard-exception-management.md)
-- [Power Platform Admin API Documentation](https://learn.microsoft.com/power-platform/admin/admin-api)
+- [Power Platform Admin API Documentation](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-getting-started)
 - [Dataverse Web API Documentation](https://learn.microsoft.com/power-apps/developer/data-platform/webapi/overview)
-- [Power Automate Troubleshooting](https://learn.microsoft.com/power-automate/troubleshoot)
+- [Power Automate Troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/power-platform/power-automate/welcome-power-automate)

@@ -196,9 +196,9 @@ Before assigning Copilot licenses:
 
 - [SharePoint Advanced Management Licensing Guide](../../../reference/sharepoint-advanced-management-licensing.md)
 - [Data access governance reports](https://learn.microsoft.com/en-us/sharepoint/data-access-governance-reports)
-- [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-privacy)
+- [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy)
 - [Preparing for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-setup)
 
 ---
 
-*Updated: February 2026 | Framework Version: v1.2.44*
+*Updated: February 2026 | Framework Version: v1.2.45*

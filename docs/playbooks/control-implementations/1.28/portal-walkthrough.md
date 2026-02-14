@@ -49,7 +49,7 @@
    - Blocked: Twitter, HTTP, Public websites, Telegram, Facebook, RSS
 
    **Zone 3 (Enterprise) Policy:**
-   - Business: SharePoint (read-only), Dataverse (approved tables only), Office 365 Groups (read-only)
+   - Business: SharePoint (read-only), Dataverse (approved tables only), Microsoft 365 Groups (read-only)
    - Non-Business: (empty)
    - Blocked: All external connectors, HTTP, premium connectors without approval
 
