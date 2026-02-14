@@ -27,19 +27,19 @@ PILLARS = {
     1: {
         "name": "Security",
         "folder": "pillar-1-security",
-        "controls": list(range(1, 25)),  # 1.1 to 1.24
+        "controls": list(range(1, 29)),  # 1.1 to 1.28
         "description": "Protect data, manage access, and maintain audit trails for AI agents."
     },
     2: {
         "name": "Management",
         "folder": "pillar-2-management",
-        "controls": list(range(1, 22)),  # 2.1 to 2.21
+        "controls": list(range(1, 25)),  # 2.1 to 2.24
         "description": "Govern agent lifecycle, risk management, and operational oversight."
     },
     3: {
         "name": "Reporting",
         "folder": "pillar-3-reporting",
-        "controls": list(range(1, 11)),  # 3.1 to 3.10
+        "controls": list(range(1, 13)),  # 3.1 to 3.12
         "description": "Provide visibility, accountability, and metrics for agent governance."
     },
     4: {
