@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.44] — February 2026 (UASD/ASARD Discoverability Fix)
+
+### Fixed
+
+- **CONTROL-INDEX.md:** Added UASD solution links to Controls 1.1 and 3.8, ASARD solution links to Controls 1.18 and 2.8 — enables agent and researcher discovery of existing sharing restriction solutions
+- **Playbook 1.1 portal-walkthrough:** Added UASD tip admonition at Step 7 (Restrict Agent Sharing Scope) so implementation playbooks reference the automated detection solution
+
+---
+
 ## [1.2.43] — February 2026 (Post-Remediation Deep Review)
 
 ### Overview
