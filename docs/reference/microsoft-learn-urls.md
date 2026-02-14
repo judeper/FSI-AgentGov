@@ -403,7 +403,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Portal | URL | Purpose |
 |--------|-----|---------|
 | Power Platform Admin Center | https://admin.powerplatform.microsoft.com | Environment management, DLP, connectors |
-| Microsoft Purview Portal | https://compliance.microsoft.com | DLP, audit, retention, insider risk |
+| Microsoft Purview Portal | https://purview.microsoft.com | DLP, audit, retention, insider risk |
 | Microsoft Entra Admin Center | https://entra.microsoft.com | Conditional access, MFA, roles |
 | Microsoft 365 Admin Center | https://admin.microsoft.com | Users, licenses, integrated apps |
 | SharePoint Admin Center | https://admin.microsoft.com/sharepoint | SharePoint governance |

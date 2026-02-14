@@ -9,9 +9,9 @@ Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, id
 | Metric | Value |
 |--------|-------|
 | Total Controls | 71 |
-| Controls with Deployable Solutions | 23 |
-| Controls Without Solutions | 48 |
-| Overall Solution Coverage | 32.4% |
+| Controls with Deployable Solutions | 37 |
+| Controls Without Solutions | 34 |
+| Overall Solution Coverage | 52.1% |
 
 !!! info "Important Context"
     Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
@@ -20,7 +20,7 @@ Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, id
 
 ## Current Solution Coverage
 
-### Covered Controls (23 of 71)
+### Covered Controls (37 of 71)
 
 | Control ID | Control Name | Solution |
 |------------|--------------|----------|
@@ -47,16 +47,30 @@ Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, id
 | 3.7 | PPAC Security Posture | [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
 | 3.8 | Copilot Hub | [Agent Access Governance Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor), [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
 | 3.10 | Hallucination Feedback | [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) |
+| 1.9 | Data Retention and Deletion Policies | [DR Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework) |
+| 1.10 | Communication Compliance Monitoring | [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow), [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
+| 1.13 | Sensitive Information Types (SITs) | [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
+| 1.23 | Step-Up Authentication | [Session Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator), [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) |
+| 1.25 | MIME Type Restrictions for File Uploads | [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
+| 2.5 | Testing, Validation, and Quality Assurance | [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) |
+| 2.9 | Agent Performance Monitoring | [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker), [Agent Usage & Performance Workbook](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-usage-workbook) |
+| 2.11 | Bias Testing and Fairness Assessment | [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) |
+| 2.13 | Documentation and Record Keeping | [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) |
+| 2.22 | Inactivity Timeout Enforcement | [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md), [Inactivity Timeout Enforcement](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) |
+| 3.1 | Agent Inventory and Metadata Management | [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) |
+| 3.2 | Usage Analytics and Activity Monitoring | [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard), [Agent Usage & Performance Workbook](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-usage-workbook) |
+| 3.9 | Microsoft Sentinel Integration | [Agent Usage & Performance Workbook](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-usage-workbook) |
+| 4.3 | Site and Document Retention Management | [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
 
 ### Coverage by Pillar
 
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
-| **Pillar 1 - Security** | 28 | 8 | 20 | 28.6% |
-| **Pillar 2 - Management** | 24 | 10 | 14 | 41.7% |
-| **Pillar 3 - Reporting** | 12 | 5 | 7 | 41.7% |
-| **Pillar 4 - SharePoint** | 7 | 0 | 7 | 0.0% |
-| **Total** | 71 | 23 | 48 | 32.4% |
+| **Pillar 1 - Security** | 28 | 13 | 15 | 46.4% |
+| **Pillar 2 - Management** | 24 | 15 | 9 | 62.5% |
+| **Pillar 3 - Reporting** | 12 | 8 | 4 | 66.7% |
+| **Pillar 4 - SharePoint** | 7 | 1 | 6 | 14.3% |
+| **Total** | 71 | 37 | 34 | 52.1% |
 
 ---
 

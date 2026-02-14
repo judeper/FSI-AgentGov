@@ -12,9 +12,9 @@ The FSI Agent Governance Framework defines **what** controls organizations shoul
 flowchart TB
     subgraph Framework["FSI-AgentGov (Framework)"]
         direction TB
-        P1[Pillar 1: Security<br/>25 Controls]
-        P2[Pillar 2: Management<br/>21 Controls]
-        P3[Pillar 3: Reporting<br/>10 Controls]
+        P1[Pillar 1: Security<br/>28 Controls]
+        P2[Pillar 2: Management<br/>24 Controls]
+        P3[Pillar 3: Reporting<br/>12 Controls]
         P4[Pillar 4: SharePoint<br/>7 Controls]
     end
 
@@ -186,8 +186,8 @@ Unified compliance visibility across all 71 framework controls.
 | Control | How Solution Helps |
 |---------|-------------------|
 | **3.3 Compliance and Regulatory Reporting** | Aggregates control scores with zone-based filtering and trend analysis |
-| **3.1 Operational Dashboards** | Provides executive visibility into governance posture |
-| **3.2 Security Dashboards** | Integrates security control scores with operational metrics |
+| **3.1 Agent Inventory and Metadata Management** | Provides executive visibility into governance posture |
+| **3.2 Usage Analytics and Activity Monitoring** | Integrates security control scores with operational metrics |
 
 **Applicable Zones:** All zones (organization-wide reporting)
 
