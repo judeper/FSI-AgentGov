@@ -26,6 +26,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Audit Compliance Manager](#audit-compliance-manager) | v1.0.0 | Completed | Automated validation, drift detection, and remediation of tenant and environment audit configurations with Managed Identity auth and approval workflows | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Completed | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
+| [Agent Observability Foundation](#agent-observability-foundation) | v1.1.0 | Completed | Foundational observability infrastructure for agent monitoring and diagnostics with Azure Monitor integration | — |
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Completed | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.27, 1.8 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
@@ -33,9 +34,9 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Validated | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
-| [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Planned | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
-| [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Planned | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
-| [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Planned | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
+| [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Work In Progress | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
+| [Hallucination Tracker](#hallucination-tracker) | v1.0.0 | Work In Progress | Feedback aggregation for hallucination pattern analysis | 3.10, 2.9, 2.12 |
+| [DR Testing Framework](#dr-testing-framework) | v1.0.0 | Work In Progress | Automated disaster recovery testing for AI agent infrastructure | 2.4, 2.1, 1.9 |
 | [Cross-Solution Integration](#cross-solution-integration) | v1.0.0 | Completed | Wires Tier 2 solutions into Compliance Dashboard, adds ELM hooks, unified evidence export | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 |
 | [Configuration Hardening Baseline](#configuration-hardening-baseline) | v1.1.0 | Completed | PowerShell verification script and 32-item hardening checklist for SSPM-mapped configuration settings | 1.1, 1.7, 1.8, 1.18, 2.1, 2.22, 3.7, 3.8 |
 | [Agent Usage & Performance Workbook](#agent-usage-performance-workbook) | v1.0.0 | Completed | Azure Monitor Workbook for Copilot Studio agent usage, performance, and error visibility | 2.9, 3.2, 3.9 |
@@ -494,6 +495,23 @@ Automated detection of overly permissive agent access configurations across Powe
 
 ---
 
+### Agent Observability Foundation
+
+Foundational observability infrastructure for agent monitoring and diagnostics with Azure Monitor integration. Provides the shared telemetry backbone used by other governance solutions.
+
+**Components:**
+
+- Azure Monitor workspace configuration for agent telemetry
+- Log Analytics queries for agent health and performance
+- Diagnostic settings templates for Copilot Studio agents
+- Shared KQL query library for governance reporting
+
+**Related Control(s):** — (foundational infrastructure, no specific control mapping)
+
+**Repository Link:** [agent-observability-foundation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation)
+
+---
+
 ### Content Moderation Governance Monitor
 
 !!! success "Production Ready"
@@ -873,6 +891,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Solution | Current | Last Updated |
 |----------|---------|--------------|
 | Agent Access Governance Monitor | v1.0.0 | February 2026 |
+| Agent Observability Foundation | v1.1.0 | February 2026 |
 | Audit Compliance Manager | v1.0.0 | February 2026 |
 | Environment Lifecycle Management | v1.1.2 | January 2026 |
 | Message Center Monitor | v2.1.1 | January 2026 |

@@ -108,9 +108,9 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (26 Automation Packages)
+### Companion Solutions (27 Automation Packages)
 Deployable Power Platform solutions in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 19 completed, 3 validated, 1 in progress, 3 planned
+- 20 completed, 3 validated, 4 in progress
 - Covers security, management, reporting, and cross-cutting automation
 - See [Solutions Index](docs/reference/solutions-index.md) for full catalog
 
@@ -204,7 +204,7 @@ graph TD
 
 The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides ready-to-deploy Power Platform automation that operationalizes framework controls. Each solution includes Power Automate flows, Dataverse components, and configuration guidance.
 
-**26 solutions** (19 completed, 3 validated, 1 in progress, 3 planned) covering 34 controls across all four pillars.
+**27 solutions** (20 completed, 3 validated, 4 in progress) covering 34 controls across all four pillars.
 
 | Category | Solutions | Controls Addressed |
 |----------|-----------|-------------------|
