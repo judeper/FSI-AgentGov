@@ -112,7 +112,7 @@
 **Steps:**
 
 1. Select a non-compliant test environment (e.g., Zone 3 with timeout at 120 minutes)
-2. Run `Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60 -EnableTimeout`
+2. Run `Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60`
 3. Verify the script completes without errors
 4. Navigate to PPAC → Environment → Settings → Privacy + Security
 5. Confirm the timeout duration now shows 60 minutes

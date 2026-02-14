@@ -19,7 +19,7 @@ Target path: `docs/controls/pillar-{n}-{name}/{id}-{kebab-case-name}.md`
 
 Examples:
 - `docs/controls/pillar-1-security/1.24-new-security-control.md`
-- `docs/controls/pillar-2-management/2.22-new-management-control.md`
+- `docs/controls/pillar-2-management/2.25-new-management-control.md`
 
 ### Step 3: Fill ALL 10 Sections
 
@@ -127,9 +127,9 @@ Same as `/update-control`:
 
 | Pillar | Current Max | Next Available |
 |--------|-------------|----------------|
-| Pillar 1 - Security | 1.24 | 1.25 |
-| Pillar 2 - Management | 2.21 | 2.22 |
-| Pillar 3 - Reporting | 3.10 | 3.11 |
+| Pillar 1 - Security | 1.28 | 1.29 |
+| Pillar 2 - Management | 2.24 | 2.25 |
+| Pillar 3 - Reporting | 3.12 | 3.13 |
 | Pillar 4 - SharePoint | 4.7 | 4.8 |
 
 ## Related Skills

@@ -84,7 +84,7 @@ BeforeAll {
     $script:mockDataverseResponse = @{
         fsi_inactivitytimeout_complianceid = '00000000-aaaa-bbbb-cccc-111111111111'
         fsi_environmentid                  = $script:testEnvironmentName
-        fsi_compliancestatus               = 864200000
+        fsi_compliancestatus               = 0
     }
 }
 
@@ -417,7 +417,7 @@ Describe 'Dataverse Audit Record' {
                 @{
                     fsi_inactivitytimeout_complianceid = '00000000-aaaa-bbbb-cccc-111111111111'
                     fsi_environmentid                  = 'e1234567-89ab-cdef-0123-456789abcdef'
-                    fsi_compliancestatus               = 864200000
+                    fsi_compliancestatus               = 0
                 }
             }
         }
@@ -429,7 +429,7 @@ Describe 'Dataverse Audit Record' {
         It 'Writes compliance record to Dataverse' {
             & $script:scriptPath -EnvironmentName $script:testEnvironmentName -DataverseUrl $script:testDataverseUrl -Confirm:$false | Out-Null
             Should -Invoke Invoke-RestMethod -ParameterFilter {
-                $Uri -like '*crm.dynamics.com*/api/data/v9.2/fsi_inactivitytimeout_compliances*'
+                $Uri -like '*crm.dynamics.com*/api/data/v9.2/fsi_inactivitytimeoutcompliances*'
             } -Times 1 -Exactly
         }
 

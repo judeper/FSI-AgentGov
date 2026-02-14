@@ -35,7 +35,7 @@
 
 .PARAMETER DataverseUrl
     Optional. Dataverse environment URL for writing remediation audit records
-    to fsi_inactivitytimeout_compliance table. When omitted, no audit record is written.
+    to fsi_inactivitytimeoutcompliances table. When omitted, no audit record is written.
     Example: https://org12345.crm.dynamics.com/
 
 .PARAMETER OutputFormat
@@ -413,13 +413,13 @@ if ($DataverseUrl) {
             fsi_environmentname          = $EnvironmentName
             fsi_inactivitytimeoutenabled = $true
             fsi_timeoutduration          = $TimeoutDuration
-            fsi_compliancestatus         = 864200000  # Compliant (remediated)
+            fsi_compliancestatus         = 0  # Compliant (remediated) — matches fsi_ITE_compliancestatus option set
             fsi_lastscandate             = (Get-Date -Format 'o')
             fsi_notes                    = "Remediated by Set-InactivityTimeout.ps1. Before: Enabled=$($previousConfig.InactivityTimeoutEnabled), Duration=$($previousConfig.InactivityTimeoutInMinutes). After: Enabled=True, Duration=$TimeoutDuration, Warning=$WarningDuration."
         }
 
         $dvResponse = Invoke-DataverseApi `
-            -Uri "$dvUrl/api/data/v9.2/fsi_inactivitytimeout_compliances" `
+            -Uri "$dvUrl/api/data/v9.2/fsi_inactivitytimeoutcompliances" `
             -Token $dvToken `
             -Method POST `
             -Body $auditPayload

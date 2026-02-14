@@ -271,7 +271,7 @@ $response = Invoke-RestMethod -Uri $uri -Headers @{
     Authorization = "Bearer $token"
 } -Method Get
 
-$response.settings.inactivityTimeout | Format-List
+$response.properties | Format-List
 ```
 
 ### List all environments and their timeout status
@@ -287,8 +287,8 @@ foreach ($env in $envList.value) {
         [PSCustomObject]@{
             EnvironmentName = $env.name
             DisplayName     = $env.properties.displayName
-            TimeoutEnabled  = $privacy.settings.inactivityTimeout.enabled
-            TimeoutMinutes  = $privacy.settings.inactivityTimeout.inactivityTimeoutInMinutes
+            TimeoutEnabled  = $privacy.properties.InactivityTimeoutEnabled
+            TimeoutMinutes  = $privacy.properties.InactivityTimeoutInMinutes
         }
     } catch {
         [PSCustomObject]@{

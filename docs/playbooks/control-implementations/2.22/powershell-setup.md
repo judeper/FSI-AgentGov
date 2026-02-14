@@ -8,9 +8,9 @@
 
 - [ ] PowerShell 7.x or later installed
 - [ ] Az.Accounts module installed (`Install-Module Az.Accounts`)
+- [ ] Authenticated session via `Connect-AzAccount` (service principal or interactive)
 - [ ] Service principal with Power Platform Admin role or delegated environment admin
-- [ ] App registration with `https://api.bap.microsoft.com/.default` scope granted
-- [ ] Client ID, Client Secret (or Certificate), and Tenant ID available
+- [ ] App registration with `https://api.bap.microsoft.com/.default` scope granted (for service principal auth)
 - [ ] Environment names (EnvironmentName, not display name) identified for remediation
 
 ---
@@ -19,55 +19,68 @@
 
 ### Synopsis
 
-Configures the inactivity timeout duration for a Power Platform environment via the BAP Admin API privacy settings endpoint. Supports `-WhatIf` for preview mode and bulk remediation through pipeline input.
+Configures the inactivity timeout duration for a Power Platform environment via the BAP Admin API privacy settings endpoint. Uses a GET-PATCH-GET pattern to read current state, apply changes, and verify. Supports `-WhatIf` for preview mode, optional Dataverse audit record writing, and evidence packaging with SHA-256 integrity hashing.
 
 ### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `-EnvironmentName` | String | Yes | Power Platform Environment Name (canonical ID, not display name) |
-| `-TimeoutDuration` | Int32 | Yes | Inactivity timeout duration in minutes (e.g., 30, 60, 120) |
-| `-EnableTimeout` | Switch | No | Enables the inactivity timeout if currently disabled (default: assumes enabled) |
-| `-ClientId` | String | Yes | Azure AD App Registration Client ID for service principal auth |
-| `-TenantId` | String | Yes | Azure AD Tenant ID |
-| `-ClientSecret` | SecureString | No | Client secret for authentication (use `-Certificate` alternatively) |
-| `-Certificate` | X509Certificate2 | No | Certificate for authentication (preferred over client secret) |
-| `-WhatIf` | Switch | No | Preview mode — displays what would be changed without making modifications |
-| `-Verbose` | Switch | No | Detailed output including API request/response details |
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `-EnvironmentName` | String | Yes | — | Power Platform Environment Name (canonical GUID, not display name) |
+| `-TimeoutDuration` | Int32 | No | 120 | Inactivity timeout duration in minutes (valid range: 5-120) |
+| `-WarningDuration` | Int32 | No | 5 | Warning notification duration in minutes before timeout (valid range: 1-30) |
+| `-DataverseUrl` | String | No | — | Dataverse environment URL for writing remediation audit records (e.g., `https://org12345.crm.dynamics.com/`) |
+| `-OutputFormat` | String | No | Object | Output format: `Table`, `JSON`, or `Object` |
+| `-OutputPath` | String | No | — | File path to export JSON results |
+| `-IncludeEvidence` | Switch | No | — | Computes SHA-256 integrity hash over results for evidence packaging |
+| `-WhatIf` | Switch | No | — | Preview mode — displays current vs. target configuration without making changes |
+| `-Verbose` | Switch | No | — | Detailed output including API request/response details |
+
+!!! note "Authentication"
+    The script requires an authenticated Azure session via `Connect-AzAccount` before execution. It obtains BAP API tokens automatically using `Get-AzAccessToken`. No `-ClientId`, `-TenantId`, or `-ClientSecret` parameters are needed — authentication is handled by the pre-existing session.
 
 ### Example Commands
 
 #### Preview changes (WhatIf mode)
 
 ```powershell
+# Authenticate first (one-time per session)
+Connect-AzAccount -ServicePrincipal `
+    -ApplicationId $clientId `
+    -CertificateThumbprint $thumbprint `
+    -TenantId $tenantId
+
+# Preview what would change
 .\Set-InactivityTimeout.ps1 `
     -EnvironmentName "d1234567-abcd-ef01-2345-6789abcdef01" `
     -TimeoutDuration 60 `
-    -ClientId $clientId `
-    -TenantId $tenantId `
-    -ClientSecret $clientSecret `
     -WhatIf
 ```
 
 **Expected output:**
 ```
-[WhatIf] Would set inactivity timeout for environment 'd1234567-abcd-ef01-2345-6789abcdef01':
-  Current timeout enabled: True
-  Current duration: 120 minutes
-  New duration: 60 minutes
+What if: Performing the operation "Set inactivity timeout to 60 min with 5 min warning" on target "d1234567-abcd-ef01-2345-6789abcdef01".
 ```
 
-#### Apply remediation to a single environment
+#### Apply remediation to a single environment (Zone 3)
 
 ```powershell
 .\Set-InactivityTimeout.ps1 `
     -EnvironmentName "d1234567-abcd-ef01-2345-6789abcdef01" `
     -TimeoutDuration 60 `
-    -EnableTimeout `
-    -ClientId $clientId `
-    -TenantId $tenantId `
-    -ClientSecret $clientSecret `
+    -WarningDuration 10 `
     -Verbose
+```
+
+#### Apply remediation with Dataverse audit record
+
+```powershell
+.\Set-InactivityTimeout.ps1 `
+    -EnvironmentName "d1234567-abcd-ef01-2345-6789abcdef01" `
+    -TimeoutDuration 60 `
+    -DataverseUrl "https://org12345.crm.dynamics.com/" `
+    -IncludeEvidence `
+    -OutputFormat JSON `
+    -OutputPath .\evidence\timeout-remediation.json
 ```
 
 #### Bulk remediation from CSV
@@ -80,11 +93,7 @@ Configures the inactivity timeout duration for a Power Platform environment via 
 Import-Csv ".\non-compliant-environments.csv" | ForEach-Object {
     .\Set-InactivityTimeout.ps1 `
         -EnvironmentName $_.EnvironmentName `
-        -TimeoutDuration $_.TimeoutDuration `
-        -EnableTimeout `
-        -ClientId $clientId `
-        -TenantId $tenantId `
-        -ClientSecret $clientSecret
+        -TimeoutDuration $_.TimeoutDuration
 }
 ```
 
@@ -95,9 +104,6 @@ Import-Csv ".\non-compliant-environments.csv" | ForEach-Object {
     .\Set-InactivityTimeout.ps1 `
         -EnvironmentName $_.EnvironmentName `
         -TimeoutDuration $_.TimeoutDuration `
-        -ClientId $clientId `
-        -TenantId $tenantId `
-        -ClientSecret $clientSecret `
         -WhatIf
 }
 ```
@@ -117,12 +123,10 @@ Authorization: Bearer {access_token}
 **Response (example):**
 ```json
 {
-  "settings": {
-    "inactivityTimeout": {
-      "enabled": true,
-      "inactivityTimeoutInMinutes": 120,
-      "warningTimeoutInMinutes": 10
-    }
+  "properties": {
+    "InactivityTimeoutEnabled": true,
+    "InactivityTimeoutInMinutes": 120,
+    "InactivityWarningInMinutes": 10
   }
 }
 ```
@@ -136,12 +140,10 @@ Authorization: Bearer {access_token}
 Content-Type: application/json
 
 {
-  "settings": {
-    "inactivityTimeout": {
-      "enabled": true,
-      "inactivityTimeoutInMinutes": 60,
-      "warningTimeoutInMinutes": 5
-    }
+  "properties": {
+    "InactivityTimeoutEnabled": true,
+    "InactivityTimeoutInMinutes": 60,
+    "InactivityWarningInMinutes": 5
   }
 }
 ```
@@ -158,15 +160,34 @@ Content-Type: application/json
 4. Grant admin consent for the API permission
 5. Create a client secret or upload a certificate for authentication
 
-### Obtaining an Access Token
+### Authenticating Before Running the Script
+
+The script uses `Get-AzAccessToken` internally to obtain BAP API tokens. You must authenticate via `Connect-AzAccount` before running the script:
 
 ```powershell
-# Using Az.Accounts module
+# Option 1: Service principal with certificate (recommended for automation)
 Connect-AzAccount -ServicePrincipal `
     -ApplicationId $clientId `
     -CertificateThumbprint $thumbprint `
     -TenantId $tenantId
 
+# Option 2: Service principal with client secret
+$secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
+Connect-AzAccount -ServicePrincipal -Credential $credential -TenantId $tenantId
+
+# Option 3: Interactive (for manual remediation)
+Connect-AzAccount -TenantId $tenantId
+```
+
+!!! tip "Token Lifecycle"
+    The script obtains tokens automatically via `Get-AzAccessToken`. If your session expires during a long bulk run, re-run `Connect-AzAccount` and retry.
+
+### Obtaining a Token for Diagnostic Commands
+
+For standalone API calls outside the script (e.g., troubleshooting diagnostics):
+
+```powershell
 $token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
 ```
 

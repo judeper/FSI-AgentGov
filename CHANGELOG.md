@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.46] — February 2026 (ITE Solution Customer Readiness)
+
+### Fixed
+
+- **PowerShell playbook (2.22):** Rewrote parameter table and all example commands to match actual `Set-InactivityTimeout.ps1` parameters — removed 5 non-existent parameters (`-ClientId`, `-TenantId`, `-ClientSecret`, `-Certificate`, `-EnableTimeout`), added 5 missing parameters (`-WarningDuration`, `-DataverseUrl`, `-OutputFormat`, `-OutputPath`, `-IncludeEvidence`)
+- **API response format (2.22):** Fixed BAP Admin API response path in PowerShell playbook and troubleshooting diagnostic commands — changed `settings.inactivityTimeout.enabled` to `properties.InactivityTimeoutEnabled` to match actual API response structure
+- **Dataverse entity set name:** Aligned `Set-InactivityTimeout.ps1` entity set URL with schema definition — changed `fsi_inactivitytimeout_compliances` to `fsi_inactivitytimeoutcompliances`
+- **Compliance status value:** Fixed option set value in `Set-InactivityTimeout.ps1` from `864200000` to `0` to match `fsi_ITE_compliancestatus` option set definition
+- **Verification playbook (2.22):** Removed non-existent `-EnableTimeout` parameter from TC-2.22-06 remediation test case
+- **Pester test suite:** Updated mock entity set URLs and compliance status values to match corrected script (27/27 tests pass)
+- **Add-control skill:** Updated control numbering table — current max IDs now reflect all 71 controls (1.28, 2.24, 3.12, 4.7)
+
+### Changed
+
+- **PowerShell playbook (2.22):** Expanded authentication setup section with 3 auth options (certificate, client secret, interactive) and token lifecycle guidance
+
+---
+
 ## [1.2.45] — February 2026 (Health Check Remediation)
 
 ### Fixed
