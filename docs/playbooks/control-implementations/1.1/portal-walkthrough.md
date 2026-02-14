@@ -164,6 +164,10 @@ For each Copilot Studio agent, configure authentication settings to prevent unau
 
 ### Step 7: Restrict Agent Sharing Scope (Copilot Studio)
 
+!!! tip "Automated Detection: Unrestricted Agent Sharing Detector"
+
+    For continuous automated detection of agents with overly permissive sharing configurations, deploy the [Unrestricted Agent Sharing Detector (UASD)](../../advanced-implementations/unrestricted-agent-sharing-detector/index.md). UASD scans all agents for organization-wide sharing, public internet links, unapproved groups, excessive individual shares, and cross-tenant access — with automated remediation and exception management.
+
 1. In Copilot Studio, select the target agent
 2. Navigate to **Channels** > **Share Settings**
 3. Verify the agent is **not** shared with:

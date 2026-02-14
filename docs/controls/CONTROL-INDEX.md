@@ -10,7 +10,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 
 | Control ID | Control Name | Implementation |
 |-----------|----------|----------------|
-| 1.1 | [Restrict Agent Publishing by Authorization](pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Portal / PowerShell, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
+| 1.1 | [Restrict Agent Publishing by Authorization](pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Portal / PowerShell, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md), [UASD](../playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md) |
 | 1.2 | [Agent Registry and Integrated Apps Management](pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Portal / PowerShell |
 | 1.3 | [SharePoint Content Governance and Permissions](pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | Portal / PowerShell |
 | 1.4 | [Advanced Connector Policies (ACP)](pillar-1-security/1.4-advanced-connector-policies-acp.md) | Portal / PowerShell |
@@ -27,7 +27,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.15 | [Encryption: Data in Transit and at Rest](pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Portal |
 | 1.16 | [Information Rights Management (IRM) for Documents](pillar-1-security/1.16-information-rights-management-irm-for-documents.md) | Portal / PowerShell |
 | 1.17 | [Endpoint Data Loss Prevention (Endpoint DLP)](pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md) | Portal |
-| 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Portal / PowerShell, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
+| 1.18 | [Application-Level Authorization and Role-Based Access Control (RBAC)](pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Portal / PowerShell, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md), [ASARD](../reference/solutions-index.md#agent-sharing-access-restriction-detector) |
 | 1.19 | [eDiscovery for Agent Interactions](pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | Portal / PowerShell |
 | 1.20 | [Network Isolation and Private Connectivity](pillar-1-security/1.20-network-isolation-private-connectivity.md) | Portal |
 | 1.21 | [Adversarial Input Logging](pillar-1-security/1.21-adversarial-input-logging.md) | Portal |
@@ -50,7 +50,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.5 | [Testing, Validation, and Quality Assurance](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Portal / PowerShell |
 | 2.6 | [Model Risk Management (Alignment with OCC 2011-12/SR 11-7)](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Portal |
 | 2.7 | [Vendor and Third-Party Risk Management](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Portal |
-| 2.8 | [Access Control and Segregation of Duties](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Portal / PowerShell |
+| 2.8 | [Access Control and Segregation of Duties](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Portal / PowerShell, [ASARD](../reference/solutions-index.md#agent-sharing-access-restriction-detector) |
 | 2.9 | [Agent Performance Monitoring and Optimization](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Portal |
 | 2.10 | [Patch Management and System Updates](pillar-2-management/2.10-patch-management-and-system-updates.md) | Portal, [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) |
 | 2.11 | [Bias Testing and Fairness Assessment](pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Portal |
@@ -79,7 +79,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.5 | [Cost Allocation and Budget Tracking](pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) | Portal |
 | 3.6 | [Orphaned Agent Detection and Remediation](pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Portal / PowerShell |
 | 3.7 | [PPAC Security Posture Assessment](pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Portal, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Portal, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
+| 3.8 | [Copilot Hub](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Portal, [Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md), [UASD](../playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md) |
 | 3.9 | [Microsoft Sentinel Integration](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Portal / PowerShell |
 | 3.10 | [Hallucination Feedback Loop](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Portal |
 | 3.11 | [Centralized Agent Inventory Enforcement](pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Portal / PowerShell |
