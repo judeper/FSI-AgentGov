@@ -38,12 +38,17 @@ Requires firms to maintain records of all agent activities and communications.
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention and Deletion | Retention policies per record type matrix |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure network architecture for records systems |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Record security incidents and attacks |
+| [1.25](../controls/pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | Supervise file-based agent interactions and maintain record integrity |
+| [1.26](../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | Granular control over file-based interactions subject to retention and review |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Agent Performance Monitoring | Track all agent activity |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Compliance Officer oversight |
+| [2.22](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Inactivity Timeout Enforcement | Session timeout supports supervisory controls and record integrity |
+| [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Restrict features lacking adequate audit trails for recordkeeping |
 | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Central registry of all agents |
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance and Regulatory Reporting | Regular compliance reports |
 | [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident Reporting | Document all incidents |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Record and track accuracy issues |
+| [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | Complete inventory for audit trails and supervisory records |
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Govern knowledge source records |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot usage records |
 
@@ -82,9 +87,13 @@ Requires written policies and procedures for supervision of agents and AI techno
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
+| [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Enforce routing rules based on role/group membership for supervision |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
+| [2.23](../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | Disclosure supports supervisory obligations for AI interactions |
+| [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Supervisory procedures for agent feature enablement |
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Supervision documentation |
+| [3.12](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception Management | Documented exceptions to supervisory procedures with principal approval |
 
 ### Key Requirements
 
@@ -194,11 +203,14 @@ See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notice
 | Control | Topic | Mapping |
 |---------|-------|---------|
 | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Records retention for AI communications |
+| [1.27](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | Filter harmful outputs per supervisory obligations |
+| [1.28](../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Publishing Restrictions | Approval and review before customer-facing agent deployment |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Agent accuracy and reliability testing |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 11-7 |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Written supervisory procedures |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
+| [2.23](../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | AI disclosure supports supervisory obligations per FINRA 2210 |
 | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Monitor output accuracy |
 
@@ -242,6 +254,9 @@ Requires SEC-registered firms to maintain records for varying periods: 3 years f
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure storage network architecture |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Security event records |
+| [1.25](../controls/pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | Reduce risk of unauditable formats entering record stream |
+| [1.26](../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | Control file-based content entering record stream |
+| [1.27](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | Prevent responses triggering disclosure violations |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | All records documented |
 | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Registry of agents as records |
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Evidence retention |
@@ -429,8 +444,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | eDiscovery | Audit and investigation capability |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | IT infrastructure security |
 | [1.22](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers | Segregation of information |
-
-**Pillar 2 - Management Controls (14 controls):**
+| [1.28](../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Publishing Restrictions | Change management and deployment controls |
 
 | Control | Requirement | SOX Mapping |
 |---------|-------------|-------------|
@@ -446,8 +460,11 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Management oversight |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Evidence for control effectiveness |
 | [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md) | Training | Control awareness |
+| [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Audit trail of routing decisions for internal controls |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Control over complex systems |
 | [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Security testing |
+| [2.22](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Inactivity Timeout | Internal controls over financial reporting systems |
+| [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Control environment for AI capability authorization |
 
 **Pillar 3 - Reporting Controls (7 controls):**
 
@@ -460,6 +477,8 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [3.5](../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) | Cost Allocation | Financial controls |
 | [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Security Posture | Control assessment |
 | [3.9](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Sentinel Integration | Security monitoring |
+| [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | IT general controls over application inventory |
+| [3.12](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception Management | Documented exception processes with management approval |
 
 **Pillar 4 - SharePoint Controls (4 controls):**
 
@@ -576,8 +595,10 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Technical safeguard - network security |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Technical safeguard - threat logging |
 | [1.22](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers | Technical safeguard - information segregation |
-
-**Pillar 2 - Management Controls (17 controls):**
+| [1.24](../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender AI-SPM | Technical safeguard - AI threat assessment |
+| [1.25](../controls/pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | Technical safeguard - attack surface reduction |
+| [1.26](../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | Technical safeguard - data ingestion control |
+| [1.27](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | Technical safeguard - output privacy protection |
 
 | Control | Requirement | GLBA Mapping |
 |---------|-------------|--------------|
@@ -594,10 +615,14 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Administrative safeguard - oversight |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Administrative safeguard - records |
 | [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md) | Training | Administrative safeguard - training program |
+| [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Administrative safeguard - data policy enforcement |
 | [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Technical safeguard - data integrity |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Technical safeguard - system controls |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Administrative safeguard - customer notice |
 | [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Technical safeguard - security testing |
+| [2.22](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Inactivity Timeout | Technical safeguard - session security |
+| [2.23](../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | Administrative safeguard - transparency obligation |
+| [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Technical safeguard - feature restriction |
 
 **Pillar 3 - Reporting Controls (7 controls):**
 
@@ -682,8 +707,10 @@ Applies to national banks and federal savings associations. Requires governance 
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Model attack detection |
 | [1.22](../controls/pillar-1-security/1.22-information-barriers.md) | Information Barriers | Model information segregation |
 | [1.23](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Step-Up Authentication | Model access controls |
-
-**Pillar 2 - Management Controls (15 controls):**
+| [1.24](../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender AI-SPM | AI attack surface and vulnerability management |
+| [1.25](../controls/pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | Operational risk management for file inputs |
+| [1.26](../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | Operational risk management for file processing |
+| [1.28](../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Publishing Restrictions | Third-party risk management and deployment validation |
 
 | Control | Requirement | SR 11-7 Mapping |
 |---------|-------------|-----------------|
@@ -698,12 +725,12 @@ Applies to national banks and federal savings associations. Requires governance 
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness and discrimination testing |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Model governance oversight |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Model documentation |
+| [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Model environment governance |
 | [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Model data source validation |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Complex model governance |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Model bias detection |
 | [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Model robustness testing |
-
-**Pillar 3 - Reporting Controls (8 controls):**
+| [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Model risk management for AI capability controls |
 
 | Control | Requirement | SR 11-7 Mapping |
 |---------|-------------|-----------------|
@@ -715,8 +742,8 @@ Applies to national banks and federal savings associations. Requires governance 
 | [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Security Posture | Model security assessment |
 | [3.8](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Copilot Hub | Model governance dashboard |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Model output accuracy monitoring |
-
-**Pillar 4 - SharePoint Controls (3 controls):**
+| [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | Model inventory and ongoing monitoring |
+| [3.12](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception Management | Model governance exception and override tracking |
 
 | Control | Requirement | SR 11-7 Mapping |
 |---------|-------------|-----------------|
@@ -901,6 +928,7 @@ Applies to consumer financial service providers. Focuses on algorithmic accounta
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Algorithmic governance |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Prevent unfair recommendations |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Prevent deceptive omissions |
+| [2.23](../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | Algorithmic transparency and fair lending disclosure |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Prevent deceptive outputs |
 
 ### ECOA vs. UDAAP for Credit Decisions
