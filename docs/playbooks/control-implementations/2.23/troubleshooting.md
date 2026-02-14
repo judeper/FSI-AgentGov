@@ -40,8 +40,8 @@ $user = Get-MgUser -UserId (Get-MgContext).Account
 Get-MgUserMemberOf -UserId $user.Id | Where-Object { $_.AdditionalProperties."@odata.type" -eq "#microsoft.graph.directoryRole" }
 ```
 
-- Confirm the user has "Global Administrator" role
-- If not, request Global Administrator access or delegate to an admin with the correct role
+- Confirm the user has "Entra Global Admin" role
+- If not, request Entra Global Admin access or delegate to an admin with the correct role
 
 **Step 3: Contact Microsoft Support**
 - If feature rollout is complete for your tenant region and permissions are correct, contact Microsoft Support
@@ -287,10 +287,10 @@ Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled
 
 **Step 4: Verify audit log permissions**
 - User must have one of these roles to view audit logs:
-  - Compliance Administrator
-  - Global Administrator
+  - Purview Compliance Admin
+  - Entra Global Admin
   - Organization Management (Exchange Online)
-- If lacking permissions, request role assignment from a Global Administrator
+- If lacking permissions, request role assignment from an Entra Global Admin
 
 **Step 5: Export audit logs for analysis**
 ```powershell

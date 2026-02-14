@@ -20,7 +20,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 ## Current State (v10 Shipped)
 
-**Framework Version:** 1.2.38 (February 2026)
+**Framework Version:** 1.2.41 (February 2026)
 
 **Shipped:**
 - v1: 62 controls verified, Agent 365 architecture, regulatory validation, solutions audit, unified monitoring

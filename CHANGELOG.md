@@ -6,6 +6,109 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.41] — February 2026 (Milestones v11–v22)
+
+### Overview
+
+Rollup of 12 milestones completing the comprehensive audit and enhancement project. Adds 9 new controls (64→71 + 1.25 MIME + 2.22 Inactivity), 5 new solutions (UASD, MIME, workbook, inactivity, ASARD + ALCA), governance automation infrastructure, and full framework polish.
+
+### Added
+
+**Control Framework Expansion (v20.5):**
+
+- Control 1.26 — Agent File Upload and File Analysis Restrictions (zone-based file upload enablement, data exfiltration prevention)
+- Control 1.27 — AI Agent Content Moderation Enforcement (moderation level enforcement at agent and topic levels)
+- Control 1.28 — Policy-Based Agent Publishing Restrictions (publishing gates for DLP violations, security scan failures, incomplete approvals)
+- Control 2.23 — User Consent and AI Disclosure Enforcement (AI disclaimer toggles, custom disclosure URLs, consent tracking)
+- Control 2.24 — Agent Feature Enablement and Restriction Governance (zone-based feature allowlists/denylists)
+- Control 3.11 — Centralized Agent Inventory Enforcement (automated discovery, mandatory registration, orphan remediation)
+- Control 3.12 — Agent Governance Exception and Override Management (formal exception request/approval with time-bound overrides)
+- 28 new playbooks (7 controls × 4 playbooks each), 7 screenshot specifications
+
+**MIME Type Restrictions (v18) — Control 1.25:**
+
+- New Control 1.25 with PowerShell module (FsiMimeControl.psm1, 3 cmdlets), zone-based MIME configuration templates
+- Dataverse plugin for server-side magic bytes validation (PE/ELF/Mach-O detection, OpenXML verification)
+- Purview DLP policy template, Sentinel KQL monitoring queries, ARM alert rule with MITRE ATT&CK mapping
+- Exception management system with register template and validation script
+
+**Inactivity Timeout Enforcement (v19) — Control 2.22:**
+
+- New Control 2.22 with Cloud Flow for daily compliance scanning via BAP Admin API
+- PowerShell remediation script (Set-InactivityTimeout.ps1) with GET-PATCH-GET pattern and WhatIf support
+- Dataverse schema (3 tables: environment policy, compliance records, error log) with zone-based max duration enforcement
+- Zone requirements: Zone 2 ≤120 min, Zone 3 ≤60 min
+
+**Agent Usage & Performance Workbook (v15):**
+
+- Deployable Azure Monitor Workbook template (3 tabs: Usage/Business Value, Performance/Errors, Operational Health)
+- KQL query library (~23 parameterized queries) with zone-aware thresholds on 6 KPI items
+- Deployment guide with RBAC configuration, customization guide for extending with custom telemetry panels
+- Framework integration across Controls 2.9, 3.2, 3.9
+
+**Unrestricted Agent Sharing Detector (v16):**
+
+- 5-table Dataverse schema for agent-level sharing compliance tracking
+- Detector flow with 5 violation rules (ORG_WIDE_SHARING, PUBLIC_INTERNET_LINK, UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS)
+- Remediation flow with exception suppression and dual-approval exception lifecycle (Security → Data Owner)
+- Exception Manager canvas app, SHA-256 evidence export, deployment scripts
+
+**Agent Security Configuration Governance (v17):**
+
+- Test-AgentAuthConfiguration.ps1 — per-agent authentication enforcement validation (6 SSPM items)
+- restrict-agent-publishing.ps1 — publishing restriction governance (6 criteria, was previously phantom file)
+- Test-ZoneAgentAccess.ps1 — zone-based agent access configuration verification with drift detection
+- Adaptive card alerting template, SHA-256 evidence export, hardening baseline integration
+
+**Audit Logging Compliance Automation (v21):**
+
+- AuditComplianceHelpers.psm1 module (6 functions) with Managed Identity auth for Azure Automation
+- Check-AuditLoggingCompliance.ps1 detection runbook with per-environment scanning and CSV/email output
+- Enable-AuditLogging.ps1 remediation runbook with org-level + entity-level audit enablement (6 Copilot Studio entities)
+- Power Automate approval flow, Dataverse compliance table, deployment guide, 15 testing scenarios
+
+**Agent Sharing Access Restriction Detector (v22):**
+
+- Proactive restriction enforcement complementing UASD (detection) with policy-based prevention
+- Exception workflows for zone-based agent sharing restrictions
+- Maps to Controls 1.18 and 2.8
+
+### Changed
+
+**SSPM Control Coverage (v14):**
+
+- Remediated SSPM coverage gaps across 7 controls (1.1, 1.7, 1.8, 1.18, 2.1, 3.7, 3.8)
+- Created Invoke-HardeningBaselineCheck.ps1 for 27-item hardening baseline verification
+- Added 31 SSPM-informed test cases across 7 verification-testing playbooks
+- Updated solutions-coverage-gaps.md (20→23 covered controls, 32.3%→37.1%)
+
+**Technical Remediation (v11):**
+
+- Fixed 107 findings and 42 gaps across all solutions (CAA, DEC, ELM, PCG), framework docs, and scripts
+- Fixed CAA Dataverse column mismatches, DEC deployment guide rewrite, PowerShell variable scoping bugs
+- Corrected SEC 17a-3/4 retention period language, resolved Zone 3 retention period conflict
+- Created 3 missing private helper scripts, CAA end-to-end deployment guide, ELM approval flow documentation
+
+**Quality Polish (v12):**
+
+- Completed Azure AD → Microsoft Entra ID rename (zero instances remaining)
+- Completed Tier/Level → Zone terminology normalization across all controls and playbooks (~80+ instances)
+- Created scripts/verify_language_rules.py linter for prohibited FSI phrases
+- Added playbook existence validation (4 files per control) to verify_controls.py
+
+### Infrastructure
+
+- Migrated all `src/` solution artifacts to FSI-AgentGov-Solutions companion repository
+- Added Worktrunk worktree management for parallel agent runs
+- Fixed 20 broken Microsoft Learn URLs
+- Updated all control/playbook counts from 62 to 71/284
+- Version bump to v1.2.41
+- Cleaned up stale branches and worktrees
+- Fixed 10 non-canonical role name violations
+- Added 11 missing controls to regulatory-mappings.md
+
+---
+
 ## [1.2.40] — February 2026 (Conditional Access Automation)
 
 ### Overview

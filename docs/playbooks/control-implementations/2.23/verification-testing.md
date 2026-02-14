@@ -277,7 +277,7 @@ This playbook provides test cases to verify:
 
 1. **Prepare test environment:**
    - Ensure Purview audit logging is enabled for the tenant
-   - Access Purview Compliance Portal with Compliance Administrator role
+   - Access Purview Compliance Portal with Purview Compliance Admin role
    - Note the timestamp before executing test actions
 
 2. **Execute test - Configuration change:**

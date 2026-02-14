@@ -147,7 +147,7 @@ Azure Portal → Azure AI Content Safety → [Resource] → Content filtering �
    - If disabled, enable audit logging (may take up to 24 hours to activate)
 2. Verify your account has Purview compliance role:
    - Navigate to Microsoft Purview → Roles and scopes
-   - Ensure you have Compliance Administrator or Audit Viewer role
+   - Ensure you have Purview Compliance Admin or Audit Viewer role
    - Audit logs are only visible to users with appropriate roles
 3. Allow time for audit log propagation:
    - Audit events may take 30-60 minutes to appear after the action occurs

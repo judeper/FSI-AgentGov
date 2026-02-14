@@ -33,7 +33,7 @@
    $userId = (Get-MgContext).Account
    Get-MgUserMemberOf -UserId $userId | Where-Object {$_.AdditionalProperties.'@odata.type' -like '*DirectoryRole*'}
    ```
-   - Confirm you have "Power Platform Administrator" or "Global Administrator" role
+   - Confirm you have "Power Platform Admin" or "Entra Global Admin" role
    - If missing, request role assignment from Entra Global Admin
 
 3. **Verify Licensing:**

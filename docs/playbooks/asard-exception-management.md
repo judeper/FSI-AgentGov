@@ -385,10 +385,10 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
 - **ASARD Deployment Playbook:** `docs/playbooks/asard-deployment.md` (Phase 5)
 - **ASARD Detection Script:** `scripts/detect_agent_sharing_violations.py`
 - **ASARD Remediation Script:** `scripts/remediate_agent_sharing.py`
-- **Exception Review Workflow:** `src/asard-exception-review-workflow.json`
-- **Adaptive Card Templates:**
-  - Expiring: `src/adaptive-card-asard-exception-expiring.json`
-  - Expired: `src/adaptive-card-asard-exception-expired.json`
+- **Exception Review Workflow:** `agent-sharing-access-restriction-detector/src/asard-exception-review-workflow.json` (in FSI-AgentGov-Solutions)
+- **Adaptive Card Templates:** (in FSI-AgentGov-Solutions)
+  - Expiring: `agent-sharing-access-restriction-detector/src/adaptive-card-asard-exception-expiring.json`
+  - Expired: `agent-sharing-access-restriction-detector/src/adaptive-card-asard-exception-expired.json`
 
 ---
 

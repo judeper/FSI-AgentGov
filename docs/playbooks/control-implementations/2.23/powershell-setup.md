@@ -9,7 +9,7 @@
 - [ ] PowerShell 7.2 or later installed
 - [ ] Microsoft Graph PowerShell SDK installed (`Install-Module Microsoft.Graph`)
 - [ ] Power Platform Admin PowerShell module installed (`Install-Module Microsoft.PowerApps.Administration.PowerShell`)
-- [ ] Entra Global Admin or Compliance Administrator role
+- [ ] Entra Global Admin or Purview Compliance Admin role
 - [ ] Power Platform Admin role
 - [ ] Dataverse environment with `fsi_aiconsent` table deployed (Zone 3)
 

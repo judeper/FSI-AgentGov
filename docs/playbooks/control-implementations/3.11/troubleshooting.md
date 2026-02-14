@@ -23,7 +23,7 @@
 
 1. **Verify Role Assignment:**
    - Navigate to Entra ID → Users → [Your User] → Assigned roles
-   - Confirm "Power Platform Administrator" or "Global Administrator" role is assigned
+   - Confirm "Power Platform Admin" or "Entra Global Admin" role is assigned
    - Wait 15 minutes for role propagation if recently assigned
 
 2. **Check Feature Availability:**

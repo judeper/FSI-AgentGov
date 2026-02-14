@@ -239,12 +239,12 @@ Deploy the approval and exception review workflows.
 1. **Import remediation approval workflow:**
    - Open [Power Automate](https://make.powerautomate.com)
    - Navigate to **My flows** > **Import** > **Import Package (Legacy)**
-   - Select `src/asard-remediation-approval-workflow.json`
+   - Select `agent-sharing-access-restriction-detector/src/asard-remediation-approval-workflow.json` from [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)
    - Configure connections (Dataverse, Office 365 Users)
    - Click **Import**
 
 2. **Import exception review workflow:**
-   - Repeat import process for `src/asard-exception-review-workflow.json`
+   - Repeat import process for `agent-sharing-access-restriction-detector/src/asard-exception-review-workflow.json` from FSI-AgentGov-Solutions
    - Configure connections
    - Set recurrence trigger (recommend daily at 8 AM)
 

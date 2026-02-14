@@ -882,9 +882,9 @@ Continuous detection and proactive restriction of Copilot Studio agent sharing c
 |---------|------|---------|
 | v1.0.0 | February 2026 | Initial release |
 
----
+**Repository Link:** [agent-sharing-access-restriction-detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector)
 
-## Deployment Guide
+---
 
 1. Review the relevant framework playbook for architecture and requirements
 2. Clone the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository
@@ -930,4 +930,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.39c - February 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*
