@@ -6,6 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.43] — February 2026 (Post-Remediation Deep Review)
+
+### Overview
+
+Second remediation wave addressing 106 findings from comprehensive post-remediation review. All CRITICAL, HIGH, and MEDIUM items resolved across both FSI-AgentGov (docs) and FSI-AgentGov-Solutions (25 solutions).
+
+### Fixed
+
+**CRITICAL (16 items):**
+
+- Playbooks 1.25, 1.28: Replaced fictional cmdlets (FsiMimeControl, Add-ConnectorToBusinessDataGroup) with real PowerShell patterns
+- Playbook 4.3: Separated retention policy creation from label publication into correct two-step pattern
+- AAM: Added Dataverse pagination, fixed picklist zone to integers, added token refresh
+- DECR: Fixed auth guard blocking Entra-only RAI path, updated README examples
+- SDM: Unified violation type codes PS↔flow, added missing env vars, added audit log pagination, fixed AgentId filter
+- ASARD: Moved InitializeVariable out of Foreach loop, unified option set values, bound environment variables
+
+**HIGH (48 items):**
+
+- Playbooks: Fixed 6 more fictional cmdlets (1.27, 2.9, 3.11, 2.6) with real alternatives
+- Framework: Corrected Mermaid pillar counts (28/24/12/7=71), fixed control names 3.1/3.2
+- Reference: Updated coverage gap analysis (23→37 solutions), deprecated Purview URL, Copilot Studio file limit 1000→500
+- Cross-repo: Updated 18 stale "62 controls" → 71 and "248 playbooks" → 284 across both repos
+- Solutions: Fixed 35 bugs across AAM, AOF, DECR, SDM, HT, ASARD, FINRA, DR, COI, CSI, CDash, RAG, CAA
+
+**MEDIUM (42 items):**
+
+- Framework: Standardized all footers to v1.2.42 February 2026, fixed version drift
+- Controls: Fixed regulatory references (FINRA 25-07 Workplace Modernization), role naming (M365 Admin→canonical), verification criteria
+- Reference: Updated product names (E5 Compliance→Purview Suite, removed Copilot Studio Premium, Fabric context)
+- Learn currency: Updated 3.1 refresh (24h→15min), 2.6 GPT-4o (Retired→Deprecated), 1.15 Customer Key caveat
+- Solutions: Added pagination (SEG, ELM, UASD), retry logic (FUS, CDash), SecureString handling (CMM), OData injection fix (RAG)
+
+---
+
 ## [1.2.42] — February 2026 (Technical Audit Remediation)
 
 ### Overview
