@@ -207,7 +207,7 @@ The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions
 
 | Category | Solutions | Controls Addressed |
 |----------|-----------|-------------------|
-| **Security Automation** | Audit Compliance Manager, Session Security Configurator, Conditional Access Automation, Scope Drift Monitor, Content Moderation Monitor, File Upload Security, MIME Type Restrictions, Configuration Hardening Baseline | 1.1, 1.4, 1.5, 1.7, 1.8, 1.11, 1.14, 1.18, 1.23, 1.25 |
+| **Security Automation** | Audit Compliance Manager, Session Security Configurator, Conditional Access Automation, Scope Drift Monitor, Content Moderation Monitor, File Upload Security, MIME Type Restrictions, Configuration Hardening Baseline | 1.1, 1.4, 1.5, 1.7, 1.8, 1.11, 1.14, 1.18, 1.23, 1.25, 1.27 |
 | **Management Automation** | Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Segregation of Duties Detector, Inactivity Timeout Enforcement | 2.1, 2.2, 2.3, 2.8, 2.10, 2.22 |
 | **Reporting & Monitoring** | Compliance Dashboard, Agent Access Governance Monitor, Deny Event Correlation, Agent Usage & Performance Workbook, Unrestricted Agent Sharing Detector, FINRA Supervision Workflow | 3.1, 3.2, 3.3, 3.4, 3.7, 3.8, 3.9 |
 | **Cross-Cutting** | Cross-Solution Integration, Agent Security Configuration Governance, Agent Sharing Access Restriction Detector | Multiple pillars |

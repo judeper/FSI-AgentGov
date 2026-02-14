@@ -186,6 +186,9 @@ I attest that:
 
 ---
 
+!!! warning "Validate Operation Names Against Your Tenant"
+    The KQL queries below use **anticipated operation names** based on the Power Platform audit log schema. Operation names such as `UpdateChatbot`, `ChatbotContentBlocked`, and `ModerationFilterTriggered` should be validated against your tenant's actual Sentinel schema before use in production monitoring. Run a broad query against the `PowerPlatformAdminActivity` table first to discover available operation names in your environment.
+
 ## KQL Queries for Evidence
 
 ### Query Moderation Events (Sentinel)

@@ -36,7 +36,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.24 | [Defender AI Security Posture Management (AI-SPM)](pillar-1-security/1.24-defender-ai-security-posture-management.md) | Portal |
 | 1.25 | [MIME Type Restrictions for File Uploads](pillar-1-security/1.25-mime-type-restrictions.md) | PowerShell + Portal, [MTR](../reference/solutions-index.md#mime-type-restrictions-for-file-uploads) |
 | 1.26 | [Agent File Upload and File Analysis Restrictions](pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | Portal / PowerShell |
-| 1.27 | [AI Agent Content Moderation Enforcement](pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Portal / PowerShell |
+| 1.27 | [AI Agent Content Moderation Enforcement](pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Portal / PowerShell, [CMM](../reference/solutions-index.md#content-moderation-governance-monitor) |
 | 1.28 | [Policy-Based Agent Publishing Restrictions](pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Portal / PowerShell |
 
 ## Pillar 2: Management Controls (24 Controls)

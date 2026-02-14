@@ -26,7 +26,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Audit Compliance Manager](#audit-compliance-manager) | v1.0.0 | Completed | Automated validation, drift detection, and remediation of tenant and environment audit configurations with Managed Identity auth and approval workflows | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Completed | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
-| [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Completed | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
+| [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Completed | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.27, 1.8 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
 | [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across 71 controls with zone-based filtering | 3.3, 3.1, 3.2 |
@@ -516,7 +516,7 @@ Automated detection of non-compliant content moderation settings for Copilot Stu
 - GLBA 501(b) (Safeguards — Content Safety Controls)
 - SEC AI Priorities (Responsible AI governance)
 
-**Related Control(s):** [1.8 - Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
+**Related Control(s):** [1.27 - AI Agent Content Moderation Enforcement](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md), [1.8 - Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
 
 **Repository Link:** [content-moderation-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
 

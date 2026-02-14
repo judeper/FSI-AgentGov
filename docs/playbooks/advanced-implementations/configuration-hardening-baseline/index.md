@@ -1,7 +1,7 @@
 # Configuration Hardening Baseline
 
 **Status:** February 2026 - FSI-AgentGov v1.3
-**Related Controls:** 1.1, 1.7, 1.8, 1.18, 2.1, 2.22, 3.7, 3.8
+**Related Controls:** 1.1, 1.7, 1.8, 1.18, 1.27, 2.1, 2.22, 3.7, 3.8
 
 ---
 
@@ -57,11 +57,11 @@ Financial services organizations face continuous configuration drift risk across
 | 8 | Audit log retention period | PPAC > Environment > Audit settings > "Retain these logs for" | ≥ 180 days (Zone 1), ≥ 365 days (Zone 2), ≥ 730 days (Zone 3) | High | Automated |
 | 9 | Tenant-level Dataverse auditing | PPAC > Security > Compliance > Auditing | "Turn on Auditing" enabled with User Sign-In and Activity | Medium | Automated |
 
-### Content Moderation (Control 1.8)
+### Content Moderation (Control 1.27)
 
 | # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
 |---|---------|-------------|---------------------------|----------|------------|
-| 10 | Content moderation level | Copilot Studio > Agent > Settings > Generative AI > Content moderation | High | High | Manual Attestation |
+| 10 | Content moderation level | Copilot Studio > Agent > Topics > System > Generative AI topic > Content moderation | High | High | Manual Attestation |
 
 ### RBAC and Agent Governance (Control 1.18)
 

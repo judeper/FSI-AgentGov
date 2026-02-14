@@ -134,10 +134,9 @@ foreach ($env in $environments) {
     $envName = $env.EnvironmentName
     $envDisplay = $env.DisplayName
     
-    # Query Unified Audit Log for Copilot Studio configuration changes
-    # Note: Get-AdminPowerAppChatbotAuditLog does not exist. Use Search-UnifiedAuditLog
-    # with the CopilotInteraction record type, or query the Office 365 Management Activity API.
-    $auditEvents = Search-UnifiedAuditLog -RecordType "CopilotInteraction" `
+    # Query Unified Audit Log for Power Platform administrative changes
+    # Uses PowerPlatformAdminActivity record type for admin configuration events
+    $auditEvents = Search-UnifiedAuditLog -RecordType "PowerPlatformAdminActivity" `
         -StartDate $startDate -EndDate (Get-Date) -ResultSize 5000 `
         -FreeText $envName -ErrorAction SilentlyContinue
     
