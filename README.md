@@ -295,7 +295,7 @@ These foundation controls should be implemented first as other controls depend o
 | Portal | URL | Primary Use |
 |--------|-----|-------------|
 | Power Platform Admin Center | [admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com) | Environments, DLP, connectors |
-| Microsoft Purview Portal | [compliance.microsoft.com](https://compliance.microsoft.com) | Audit, DLP, retention |
+| Microsoft Purview Portal | [purview.microsoft.com](https://purview.microsoft.com) | Audit, DLP, retention |
 | Microsoft Entra Admin Center | [entra.microsoft.com](https://entra.microsoft.com) | Conditional access, MFA, roles |
 | SharePoint Admin Center | [admin.microsoft.com/sharepoint](https://admin.microsoft.com/sharepoint) | SharePoint governance |
 | Copilot Studio | [copilotstudio.microsoft.com](https://copilotstudio.microsoft.com) | Agent development |

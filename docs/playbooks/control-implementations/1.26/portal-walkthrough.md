@@ -62,7 +62,7 @@
 
 ### Step 6: Verify DLP Policy Coverage (Zone 2+)
 
-1. Navigate to [Microsoft Purview Compliance Portal](https://compliance.microsoft.com)
+1. Navigate to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
 2. Select **Data Loss Prevention** → **Policies**
 3. Verify a DLP policy exists that covers Power Platform connectors in the agent's environment
 4. Confirm the policy is in **Enforce** mode
