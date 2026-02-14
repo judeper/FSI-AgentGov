@@ -5,7 +5,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 - **Organization:** by topic area (admin teams typically search by product)
 - **Automated Monitoring:** `scripts/learn_monitor.py` checks these URLs daily for content changes
 - **Last Verified:** last time this specific URL was checked for accuracy
-- **Total URLs Tracked:** ~186 (Learn URLs only, excludes admin portals and regulatory references)
+- **Total URLs Tracked:** ~175 (Learn URLs only, excludes admin portals and regulatory references)
 
 ---
 
@@ -39,7 +39,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Encryption** | https://learn.microsoft.com/en-us/power-platform/admin/manage-encryption-key | Jan 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/power-platform/admin/analytics-common-data-service | Jan 2026 |
 | Export Analytics to Azure | https://learn.microsoft.com/en-us/power-platform/admin/self-service-analytics | Jan 2026 |
-| **Agent Inventory (Copilot Hub)** | https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub | Feb 2026 |
+| **Agent Inventory** | https://learn.microsoft.com/en-us/power-platform/admin/tenant-wide-agent-inventory | Jan 2026 |
 | Power Platform Inventory | https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory | Jan 2026 |
 | Monitor Copilot Studio | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio | Jan 2026 |
 | **Monitoring Hub** | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitoring-overview | Jan 2026 |
@@ -95,13 +95,6 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Test Your Agent | https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-test-bot | Jan 2026 |
 | VNet Support | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-network-isolation-vnet | Jan 2026 |
 | What's New | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Jan 2026 |
-| **Guidance Hub** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/ | Feb 2026 |
-| Guidance Hub: What's New | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Feb 2026 |
-| Guidance Hub: Plan | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-overview | Feb 2026 |
-| Guidance Hub: Implement | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/implement-overview | Feb 2026 |
-| Guidance Hub: Manage | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/manage-overview | Feb 2026 |
-| Guidance Hub: Improve | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/improve-overview | Feb 2026 |
-| Guidance Hub: Extend | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/extend-overview | Feb 2026 |
 
 ---
 
@@ -137,9 +130,6 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Agent 365 SDK Overview** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/ | Jan 2026 |
 | **Blueprint Registration** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/registration | Jan 2026 |
-| Agent 365 Observability (Preview) | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability | Feb 2026 |
-| Agent 365 Identity (Preview) | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity | Feb 2026 |
-| Agent Observability Schema Reference | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/reference/observability-schema/ | Feb 2026 |
 
 ### Agent 365 Security
 
@@ -147,17 +137,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 |-------|-----|---------------|
 | **Agent 365 Security Overview** | https://learn.microsoft.com/en-us/security/security-for-ai/agent-365-security | Jan 2026 |
 
-### M365 Admin Center Agent Management
-
-| Topic | URL | Last Verified |
-|-------|-----|---------------|
-| **Agent Settings** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings | Feb 2026 |
-| Agent Registry | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry | Feb 2026 |
-| Agent 365 Overview Page | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview | Feb 2026 |
-| Manage Copilot Agents (Integrated Apps) | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Feb 2026 |
-| Share and Manage Agents (Agent Builder) | https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/agent-builder-share-manage-agents | Feb 2026 |
-
-For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see [Unified Agent Governance](../framework/agent-identity-architecture.md).
+For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Identity Architecture](../framework/agent-identity-architecture.md).
 
 ---
 
@@ -244,10 +224,6 @@ For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see
 | **Agent ID Overview** | https://learn.microsoft.com/en-us/entra/agent-id/ | Jan 2026 |
 | Agent Identities for AI Agents | https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents | Jan 2026 |
 | Governing Agent Identities | https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview | Jan 2026 |
-| Administrative Relationships (Owners, Sponsors, Managers) | https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-owners-sponsors-managers | Feb 2026 |
-| Conditional Access for Agent Identities | https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id | Feb 2026 |
-| Conditional Access: Block High-Risk Agent Identities | https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-agent-block-high-risk | Feb 2026 |
-| Agent Sponsor Tasks in Lifecycle Workflows | https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks | Feb 2026 |
 
 ---
 
@@ -427,7 +403,7 @@ For comprehensive guidance on Agent 365, Entra Agent ID, and admin settings, see
 | Portal | URL | Purpose |
 |--------|-----|---------|
 | Power Platform Admin Center | https://admin.powerplatform.microsoft.com | Environment management, DLP, connectors |
-| Microsoft Purview Portal | https://purview.microsoft.com | DLP, audit, retention, insider risk |
+| Microsoft Purview Portal | https://compliance.microsoft.com | DLP, audit, retention, insider risk |
 | Microsoft Entra Admin Center | https://entra.microsoft.com | Conditional access, MFA, roles |
 | Microsoft 365 Admin Center | https://admin.microsoft.com | Users, licenses, integrated apps |
 | SharePoint Admin Center | https://admin.microsoft.com/sharepoint | SharePoint governance |
@@ -467,22 +443,6 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 
 ---
 
-## New URLs Added (February 2026)
-
-| Topic | URL |
-|-------|-----|
-| Unified DSPM | https://learn.microsoft.com/en-us/purview/data-security-posture-management-learn-about |
-| New eDiscovery Experience | https://learn.microsoft.com/en-us/purview/edisc |
-| Purview Portal Home | https://learn.microsoft.com/en-us/purview/purview-portal |
-| SharePoint Agent Insights | https://learn.microsoft.com/en-us/sharepoint/insights-on-sharepoint-agents |
-| SharePoint Agent Access Insights | https://learn.microsoft.com/en-us/sharepoint/insights-on-agent-access |
-| SharePoint Catalog Management | https://learn.microsoft.com/en-us/sharepoint/catalog-management |
-| AI Subprocessor Changes | https://learn.microsoft.com/en-us/copilot/microsoft-365/connect-to-ai-subprocessor |
-| Defender for Cloud Apps AI Agent Protection | https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection |
-| Agent 365 Documentation | https://learn.microsoft.com/en-us/microsoft-agent-365/ |
-
----
-
 *Last Updated: February 2026*
-*Total URLs Tracked: 202*
+*Total URLs Tracked: 174*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*
