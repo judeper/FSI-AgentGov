@@ -87,11 +87,11 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 
 | Table | Purpose |
 |-------|---------|
+| `fsi_AgentSharingSetting` | Per-agent sharing configuration snapshots with scope, principal count, and auth mode |
 | `fsi_SharingViolation` | Detected sharing policy violations with agent identity, violation type, and remediation status |
-| `fsi_SharingPolicy` | Per-zone sharing policy definitions including maximum individual shares threshold |
 | `fsi_SharingException` | Approved exceptions with dual-approval audit trail and expiration tracking |
 | `fsi_ApprovedSecurityGroup` | Whitelist of security groups approved for agent sharing |
-| `fsi_SharingAuditLog` | Immutable audit trail of all detection, remediation, and exception actions |
+| `fsi_SharingPolicy` | Per-zone sharing policy definitions including maximum individual shares threshold |
 
 ---
 

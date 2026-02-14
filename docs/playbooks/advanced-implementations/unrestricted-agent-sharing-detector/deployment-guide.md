@@ -91,11 +91,11 @@ This creates the following tables:
 
 | Table | Purpose |
 |-------|---------|
+| `fsi_AgentSharingSetting` | Per-agent sharing configuration snapshots |
 | `fsi_SharingViolation` | Detected sharing policy violations |
 | `fsi_SharingException` | Approved exception records with expiration |
-| `fsi_SharingPolicy` | Policy configuration per zone |
-| `fsi_SharingAgentSetting` | Per-agent sharing configuration snapshots |
 | `fsi_ApprovedSecurityGroup` | Approved security groups for sharing validation |
+| `fsi_SharingPolicy` | Policy configuration per zone |
 
 ### Step 2: Deploy Environment Variables
 
@@ -327,6 +327,9 @@ Generate the first violation report to validate export functionality:
 | 13 | Violation report exports | `Export-ViolationReport.ps1` produces CSV/JSON output | [ ] |
 | 14 | Evidence hash computed | `-IncludeEvidence` flag produces SHA-256 hash | [ ] |
 | 15 | Teams alerts delivered | Violation alerts appear in configured Teams channel | [ ] |
+
+!!! note "Adaptive Card Template"
+    The Teams alert notification uses the `adaptive-card-uasd-alert.json` template from the FSI-AgentGov-Solutions repository. This template is referenced by the detection flow and does not require a separate deployment step — it is embedded in the flow definition at import time.
 
 ---
 
