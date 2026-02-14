@@ -110,8 +110,14 @@ Key environment variables created:
 |----------|-------------|
 | `fsi_UASD_ScanFrequencyHours` | Detection scan interval (default: 24) |
 | `fsi_UASD_AutoRemediatePublicLink` | Auto-remediate public links (default: false) |
-| `fsi_UASD_MaxIndividualShares` | Threshold for excessive individual sharing (default: 100) |
-| `fsi_UASD_AlertTeamsChannelId` | Teams channel for violation alerts |
+| `fsi_UASD_MaxIndividualShares` | Threshold for excessive individual sharing (default: 5) |
+| `fsi_UASD_HomeTenantId` | Home tenant GUID for cross-tenant detection |
+| `fsi_UASD_DefaultExceptionDays` | Default exception duration in days (default: 90) |
+| `fsi_UASD_SecurityApproverEmail` | Security team approver email for dual-approval workflow |
+| `fsi_UASD_DataOwnerApproverEmail` | Data owner approver email for dual-approval workflow |
+| `fsi_UASD_RemediationDryRun` | Dry-run mode — prevents remediation changes (default: true) |
+| `fsi_UASD_TeamsGroupId` | Teams group/team ID for violation alert notifications |
+| `fsi_UASD_DataverseUrl` | Dataverse environment URL |
 
 ### Step 3: Deploy Connection References
 
@@ -238,7 +244,45 @@ To enable auto-remediation (after compliance review):
 2. Edit `fsi_UASD_AutoRemediatePublicLink`
 3. Set to `true`
 
-### Step 4: Import Approved Security Groups
+### Step 4: Configure Approver Emails
+
+Set the approver email addresses for the dual-approval exception workflow:
+
+1. Navigate to **Solutions** > **UASD** > **Environment variables**
+2. Edit `fsi_UASD_SecurityApproverEmail` — enter the security team approver email address
+3. Edit `fsi_UASD_DataOwnerApproverEmail` — enter the data owner approver email address
+
+!!! warning "Required Before Enabling Exception Workflow"
+    The exception approval workflow cannot function without configured approver emails. Both fields must be set before the workflow will process exception requests.
+
+### Step 5: Configure Dry-Run Mode
+
+The `fsi_UASD_RemediationDryRun` environment variable controls whether remediation actions are applied to agents. Dry-run mode defaults to `true` for safe initial deployment.
+
+**Recommended deployment sequence:**
+
+1. Deploy with `fsi_UASD_RemediationDryRun` = `true` (default)
+2. Run the detection flow and verify violations are identified correctly
+3. Review dry-run notifications in Teams — confirm the remediation actions that would have been applied
+4. After validation, set `fsi_UASD_RemediationDryRun` to `false` to enable production remediation
+
+!!! tip "Safe Rollout"
+    Keep dry-run mode enabled for at least one full scan cycle (24 hours) before enabling production remediation. This allows the governance team to review the scope of changes before they take effect.
+
+### Step 6: Configure Break-Glass Exclusions
+
+Critical agents that must never be automatically remediated can be excluded using the `fsi_break_glass_exclude` tag:
+
+1. Navigate to **Power Apps** > **Dataverse** > **Tables** > **fsi_AgentSharingSetting**
+2. Locate the agent record to exclude
+3. Set `fsi_break_glass_exclude` to `true`
+
+Break-glass agents are still detected and violations are recorded, but remediation is skipped. The violation remains open for manual review by the governance team.
+
+!!! note "Audit Trail"
+    Break-glass exclusions are logged in the violation description field and generate a Teams notification. This supports audit trail requirements for agents that deviate from standard remediation policy.
+
+### Step 7: Import Approved Security Groups
 
 Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
 
@@ -250,7 +294,7 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
 
 The CSV file should contain columns: `GroupId`, `GroupName`, `Zone`, `ApprovedBy`.
 
-### Step 5: Import Exception Manager App
+### Step 8: Import Exception Manager App
 
 Import the model-driven app for managing exceptions:
 
@@ -327,6 +371,9 @@ Generate the first violation report to validate export functionality:
 | 13 | Violation report exports | `Export-ViolationReport.ps1` produces CSV/JSON output | [ ] |
 | 14 | Evidence hash computed | `-IncludeEvidence` flag produces SHA-256 hash | [ ] |
 | 15 | Teams alerts delivered | Violation alerts appear in configured Teams channel | [ ] |
+| 16 | Approver emails configured | `fsi_UASD_SecurityApproverEmail` and `fsi_UASD_DataOwnerApproverEmail` set | [ ] |
+| 17 | Dry-run mode tested | Remediation flow produces dry-run notifications without applying changes | [ ] |
+| 18 | Break-glass exclusions documented | Critical agents identified and tagged with `fsi_break_glass_exclude` | [ ] |
 
 !!! note "Adaptive Card Template"
     The Teams alert notification uses the `adaptive-card-uasd-alert.json` template from the FSI-AgentGov-Solutions repository. This template is referenced by the detection flow and does not require a separate deployment step — it is embedded in the flow definition at import time.
@@ -373,10 +420,11 @@ Generate the first violation report to validate export functionality:
 After successful deployment:
 
 1. **Establish monitoring cadence** — Schedule weekly review of violation reports with the compliance team
-2. **Configure alert thresholds** — Adjust `fsi_UASD_MaxIndividualShares` based on organizational policy
-3. **Document exception process** — Create an internal SOP for the exception approval workflow
-4. **Plan periodic audits** — Run `Invoke-SharingAudit.ps1` quarterly for independent validation outside the automated flow
-5. **Review auto-remediation policy** — After 30 days of operation, evaluate whether to enable auto-remediation for specific violation types
+2. **Transition from dry-run to production** — After validating dry-run results for at least one scan cycle, set `fsi_UASD_RemediationDryRun` to `false` to enable production remediation
+3. **Configure alert thresholds** — Adjust `fsi_UASD_MaxIndividualShares` based on organizational policy
+4. **Document exception process** — Create an internal SOP for the exception approval workflow
+5. **Plan periodic audits** — Run `Invoke-SharingAudit.ps1` quarterly for independent validation outside the automated flow
+6. **Review auto-remediation policy** — After 30 days of operation, evaluate whether to enable auto-remediation for specific violation types
 
 !!! note "Ongoing Operations"
     Review the [Configuration Hardening Baseline](../configuration-hardening-baseline/index.md) for additional governance checks that complement UASD detection capabilities.

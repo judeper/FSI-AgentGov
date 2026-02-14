@@ -1,6 +1,6 @@
 """Deploy environment variables for Unrestricted Agent Sharing Detector.
 
-Creates 4 environment variables with the ``fsi_UASD_*`` prefix in the
+Creates 10 environment variables with the ``fsi_UASD_*`` prefix in the
 target Dataverse environment.  All operations are idempotent — re-running
 against an environment that already contains the variables is safe.
 
@@ -61,6 +61,63 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
         "default_value": "90",
         "description": (
             "Default exception duration in days before expiration"
+        ),
+    },
+    {
+        "schema_name": "fsi_UASD_SecurityApproverEmail",
+        "display_name": "UASD - Security Approver Email",
+        "type": 100000000,  # String
+        "default_value": "",
+        "description": (
+            "Security team approver email for dual-approval workflow"
+        ),
+    },
+    {
+        "schema_name": "fsi_UASD_DataOwnerApproverEmail",
+        "display_name": "UASD - Data Owner Approver Email",
+        "type": 100000000,  # String
+        "default_value": "",
+        "description": (
+            "Data owner approver email for dual-approval workflow"
+        ),
+    },
+    {
+        "schema_name": "fsi_UASD_RemediationDryRun",
+        "display_name": "UASD - Remediation Dry Run",
+        "type": 100000000,  # String
+        "default_value": "true",
+        "description": (
+            "Dry-run mode prevents remediation changes from being applied "
+            "(true = no changes, false = production mode)"
+        ),
+    },
+    {
+        "schema_name": "fsi_UASD_MaxIndividualShares",
+        "display_name": "UASD - Max Individual Shares",
+        "type": 100000001,  # Decimal
+        "default_value": "5",
+        "description": (
+            "Maximum individual shares per agent before "
+            "EXCESSIVE_INDIVIDUAL violation"
+        ),
+    },
+    {
+        "schema_name": "fsi_UASD_TeamsGroupId",
+        "display_name": "UASD - Teams Group ID",
+        "type": 100000000,  # String
+        "default_value": "",
+        "description": (
+            "Microsoft Teams team/group ID for violation alert notifications"
+        ),
+    },
+    {
+        "schema_name": "fsi_UASD_DataverseUrl",
+        "display_name": "UASD - Dataverse URL",
+        "type": 100000000,  # String
+        "default_value": "",
+        "description": (
+            "Dataverse environment URL "
+            "(e.g., https://org.crm.dynamics.com)"
         ),
     },
 ]
@@ -125,7 +182,7 @@ def create_environment_variables(
     client: CAAClient,
     dry_run: bool = False,
 ) -> Dict[str, int]:
-    """Create all 4 environment variables.
+    """Create all 10 environment variables.
 
     Returns
     -------
@@ -161,7 +218,7 @@ def create_environment_variables(
 def main() -> None:
     """CLI entry point for environment variable deployment."""
     parser = argparse.ArgumentParser(
-        description="Deploy UASD environment variables (4 fsi_UASD_* definitions)"
+        description="Deploy UASD environment variables (10 fsi_UASD_* definitions)"
     )
     parser.add_argument(
         "--dry-run",
