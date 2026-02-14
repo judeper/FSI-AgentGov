@@ -69,12 +69,13 @@ graph LR
 
 ## 📁 What's Included
 
-### Framework Documents (9 Files)
+### Framework Documents (12 Files)
 Strategic governance principles in `docs/framework/`:
 - Executive summary and adoption roadmap
 - Governance zones and tiers
 - Agent lifecycle management
 - Operating model and regulatory framework
+- Agent identity architecture and solutions integration
 
 ### Control Files (71 Total)
 Technical specifications in `docs/controls/`:
@@ -149,7 +150,7 @@ Version 1.1 introduces a three-layer documentation model designed to serve diffe
 **Purpose:** Strategic governance principles and organizational context
 **Audience:** Executives, compliance officers, governance leads
 
-9 comprehensive documents covering:
+12 comprehensive documents covering:
 - Executive summary for leadership buy-in
 - Governance zone definitions (Zone 1/2/3)
 - 30/60/90-day adoption roadmap
