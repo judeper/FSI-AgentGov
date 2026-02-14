@@ -10,13 +10,13 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 ## Current Milestone: No active milestone — v23 Comprehensive Review complete
 
-**State:** Framework at v1.2.41 with 71 controls and 284 playbooks. All src/ solution artifacts migrated to FSI-AgentGov-Solutions companion repo. No active milestone.
+**State:** Framework at v1.2.47 with 71 controls and 284 playbooks. All src/ solution artifacts migrated to FSI-AgentGov-Solutions companion repo. No active milestone.
 
 **v23 delivered (2026-02-14):**
 - src/ migration: 24 solution artifacts moved to companion repo (2 rounds), src/ deleted
 - Branch resolution: 3 unmerged branches resolved (cherry-picked Agent 365 content, merged Learn Monitor updates, deleted superseded branch)
 - Quality fixes: 10 non-canonical role names, 3 footer metadata, 11 regulatory-mappings entries, 24 stale version footers
-- Version bump: v1.2.39c → v1.2.41
+- Version bump: v1.2.39c → v1.2.47
 - CHANGELOG catch-up: milestones v11-v22
 - Git hygiene: 2 stale worktrees, 5 stale branches removed
 
@@ -26,7 +26,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 ## Current State (v10 Shipped)
 
-**Framework Version:** 1.2.41 (February 2026)
+**Framework Version:** 1.2.47 (February 2026)
 
 **Shipped:**
 - v1: 62 controls verified, Agent 365 architecture, regulatory validation, solutions audit, unified monitoring

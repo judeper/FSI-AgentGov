@@ -149,7 +149,7 @@ python scripts/verify_controls.py
 
 ### GSD Workflow Setup (No Installation Required)
 
-GSD is **not a package to install**. It is 27 prompt files, 13 agent files, and 12 instruction files committed directly to this repository under `.github/prompts/`, `.github/agents/`, and `.github/instructions/`.
+GSD is **not a package to install**. It is 32 prompt files, 13 agent files, and 12 instruction files committed directly to this repository under `.github/prompts/`, `.github/agents/`, and `.github/instructions/`.
 
 - **VS Code + Copilot Chat:** Copy the example settings file, then use GSD commands in Copilot Chat:
   ```bash
@@ -256,4 +256,4 @@ Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the m
 
 ---
 
-*FSI Agent Governance Framework v1.2.41 - February 2026*
+*FSI Agent Governance Framework v1.2.47 - February 2026*

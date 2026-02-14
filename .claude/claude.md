@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.46** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.47** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -392,14 +392,14 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.39 (February 2026)
+**Version:** 1.2.47 (February 2026)
 **Status:** All 71 controls complete, 284 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs)
 
 **Key capabilities in recent releases:**
 
 - Native Microsoft Defender integration for AI agents (v1.2.37)
 - AI-assisted Learn Monitor review with `/review-learn-changes` skill (v1.2.37)
-- 25 deployable FSI-AgentGov-Solutions covering 28+ controls / ~39% coverage (v1.2.46)
+- 26 deployable FSI-AgentGov-Solutions covering 34 controls / ~48% coverage (v1.2.47)
 - Solutions architecture guide with enterprise scalability patterns (v1.2.26)
 - February 2026 pipeline Managed Environment enforcement deadline (v1.2.25)
 - Research report remediation across 76 reports for regulatory accuracy (v1.2.32)
@@ -410,7 +410,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.39
+- **Framework Version:** 1.2.47
 - **Last Updated:** February 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

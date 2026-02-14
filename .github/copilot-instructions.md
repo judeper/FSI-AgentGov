@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FSI Agent Governance Framework v1.2.46 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+FSI Agent Governance Framework v1.2.47 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 - **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
@@ -181,7 +181,7 @@ This repository supports three AI tools and uses [Worktrunk](https://worktrunk.d
 ### Custom Agents (13)
 Located in `.github/agents/`: `doc-writer`, `doc-verifier`, plus 11 GSD workflow agents (`gsd-planner`, `gsd-executor`, `gsd-verifier`, `gsd-debugger`, `gsd-codebase-mapper`, `gsd-roadmapper`, `gsd-project-researcher`, `gsd-phase-researcher`, `gsd-research-synthesizer`, `gsd-integration-checker`, `gsd-plan-checker`).
 
-### GSD Prompts (27)
+### GSD Prompts (32)
 Located in `.github/prompts/`. Use `/gsd-execute-phase`, `/gsd-plan-phase`, etc.
 
 ### Instruction Files (12)

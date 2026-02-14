@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.2.43 (February 2026)
+**Version:** 1.2.47 (February 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -107,9 +107,9 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (27 Automation Packages)
+### Companion Solutions (26 Automation Packages)
 Deployable Power Platform solutions in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 20 completed, 2 validated, 5 in progress or planned
+- 19 completed, 3 validated, 1 in progress, 3 planned
 - Covers security, management, reporting, and cross-cutting automation
 - See [Solutions Index](docs/reference/solutions-index.md) for full catalog
 
@@ -203,7 +203,7 @@ graph TD
 
 The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides ready-to-deploy Power Platform automation that operationalizes framework controls. Each solution includes Power Automate flows, Dataverse components, and configuration guidance.
 
-**27 solutions** (20 completed, 2 validated, 5 in progress or planned) covering 28 controls across all four pillars.
+**26 solutions** (19 completed, 3 validated, 1 in progress, 3 planned) covering 34 controls across all four pillars.
 
 | Category | Solutions | Controls Addressed |
 |----------|-----------|-------------------|
@@ -275,7 +275,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
 | **License Requirements** | License mapping for all 71 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
-| **Solutions Index** | Catalog of 27 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
+| **Solutions Index** | Catalog of 26 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
 
 ### Priority Controls (Start Here)
 
@@ -439,5 +439,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.47 - February 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

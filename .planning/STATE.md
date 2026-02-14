@@ -15,7 +15,7 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** No active milestone. v23 Comprehensive Review & Remediation complete. Framework at v1.2.41, 71 controls, 284 playbooks.
+**Current focus:** No active milestone. v23 Comprehensive Review & Remediation complete. Framework at v1.2.47, 71 controls, 284 playbooks.
 
 ## Milestone Series Plan
 
@@ -48,7 +48,7 @@ v23: Comprehensive Review & Remediation — COMPLETE
 **Phase:** No active milestone
 **Plan:** N/A
 **Status:** v23 COMPLETE. No active milestone.
-**Last activity:** 2026-02-14 — Comprehensive review and remediation: src/ migration (24 files), 3 branch resolutions, 12 issues fixed, version bump to v1.2.41, CHANGELOG catch-up.
+**Last activity:** 2026-02-14 — Comprehensive review and remediation: src/ migration (24 files), 3 branch resolutions, 12 issues fixed, version bump to v1.2.47, CHANGELOG catch-up.
 
 **Progress:**
 ```
@@ -78,7 +78,7 @@ See PROJECT.md Key Decisions table for full history.
 **v23 decisions:**
 - Migrated all src/ solution artifacts to FSI-AgentGov-Solutions companion repo (not kept locally)
 - ASARD files reintroduced by worktree merge handled in second migration round
-- Version bump v1.2.39c → v1.2.41 (skipping v1.2.40 to avoid confusion with prior partial bumps)
+- Version bump v1.2.39c → v1.2.47 (skipping v1.2.40 to avoid confusion with prior partial bumps)
 - CHANGELOG catch-up covers milestones v11-v22 retroactively
 - Learn Monitor HIGH changes (31 items) deemed informational — no control updates needed
 - Excel re-save deferred — requires manual intervention (OLE2 → OOXML format conversion)
@@ -114,7 +114,7 @@ All prior todos resolved. Excel re-save is the only pending item.
 - **src/ migration:** 17 original + 7 ASARD artifacts migrated from FSI-AgentGov src/ to FSI-AgentGov-Solutions (6 solution folders). src/ directory deleted.
 - **Branch cleanup:** Cherry-picked eloquent-jang (Agent 365 content: capabilities summary, Agent Store Governance, MCP Server Governance, Unified Visibility Architecture). Merged learn-monitor/update-14 (30+ URL redirects, eDiscovery/Sentinel notices). Deleted learn-monitor/update-6 (superseded).
 - **Companion repo scaffolding:** README + CHANGELOG for 3 new solutions, CHANGELOG for 2 existing.
-- **10-agent review fixes:** Version bump v1.2.39c → v1.2.41, 10 non-canonical role names fixed, 3 footer metadata values, 11 missing regulatory-mappings entries, 24 stale version footers updated, CHANGELOG catch-up (v11-v22), 2 stale worktrees + 5 stale branches removed.
+- **10-agent review fixes:** Version bump v1.2.39c → v1.2.47, 10 non-canonical role names fixed, 3 footer metadata values, 11 missing regulatory-mappings entries, 24 stale version footers updated, CHANGELOG catch-up (v11-v22), 2 stale worktrees + 5 stale branches removed.
 - **Deferred:** Excel re-save (6 .xlsx, manual), Learn Monitor HIGH changes (31 items, informational only).
 - **Build:** mkdocs build --strict (0 errors), verify_controls.py (71/71). Both repos pushed.
 
