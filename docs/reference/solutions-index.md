@@ -932,4 +932,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.43 - February 2026*
+*FSI Agent Governance Framework v1.2.44 - February 2026*

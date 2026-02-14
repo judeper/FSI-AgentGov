@@ -372,7 +372,7 @@ foreach ($env in $targetEnvironments) {
         # Power Platform Admin Center → Environments → [Environment] → Settings → Features.
         # Alternatively, implement approval flows using Power Automate.
         Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
-        # TODO: Manually enable chatbot approval in Admin Center or via Power Automate flow
+        # Note: Chatbot approval requires manual configuration in Admin Center or via Power Automate flow
         Write-Host "  ⚠ Chatbot approval must be configured manually in Power Platform Admin Center" -ForegroundColor Yellow
         
         Write-Host "  ✓ Approval workflows enabled for: $($env.DisplayName)" -ForegroundColor Green
