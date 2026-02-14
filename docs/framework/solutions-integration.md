@@ -18,7 +18,7 @@ flowchart TB
         P4[Pillar 4: SharePoint<br/>7 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (19 Deployable Automation Solutions)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (24 Deployable Automation Solutions)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]
@@ -653,13 +653,13 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ## Summary Statistics
 
-**Solutions:** 19 deployable automation solutions (including cross-solution integration layer)
-**Control Coverage:** 30 of 71 controls (42.3%) have direct solution support
+**Solutions:** 26 automation solutions (24 deployable in FSI-AgentGov-Solutions + 2 framework-integrated advanced implementations)
+**Control Coverage:** 34 of 71 controls (47.9%) have direct solution support
 **Status Distribution:**
-- Completed: 11 solutions (ELM, MCM, PGC, DEC, SSC, CAA, ACM, Compliance Dashboard, Scope Drift, Cross-Solution Integration, Content Moderation Monitor)
-- Validated: 1 solution (FINRA Supervision Workflow)
-- Work In Progress: 4 solutions (Segregation Detector, RAG Source Validator, File Upload Security, Agent Access Monitor)
-- Planned: 3 solutions
+- Completed: 19 solutions (ELM, MCM, PGC, FUS, ACM, SSC, AAM, CMM, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration, CHB, AUPW, UASD, ASCG, MIME, ITE, ASARD)
+- Validated: 3 solutions (DECR, FINRA Supervision Workflow, Segregation Detector)
+- Work In Progress: 1 solution (RAG Source Validator)
+- Planned: 3 solutions (COI Testing, Hallucination Tracker, DR Testing)
 
 **Pillar Support:**
 - Pillar 1 (Security): 7 solutions (+ cross-solution integration)
