@@ -359,4 +359,4 @@ Some controls are covered by multiple solutions, providing redundancy.
 
 ---
 
-*FSI Agent Governance Framework v1.2.38 - February 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*

@@ -2,7 +2,7 @@
 
 [Playbooks](../../index.md) > Advanced Implementations > [Agent Usage & Performance Workbook](index.md) > Customization Guide
 
-**Status:** February 2026 — FSI-AgentGov v1.2.38
+**Status:** February 2026 — FSI-AgentGov v1.2.41
 **Related Controls:** 3.1, 3.2, 3.3, 3.7, 3.8
 
 ---
@@ -351,4 +351,4 @@ customEvents
 
 ---
 
-*FSI Agent Governance Framework v1.2.38 — February 2026*
+*FSI Agent Governance Framework v1.2.41 — February 2026*

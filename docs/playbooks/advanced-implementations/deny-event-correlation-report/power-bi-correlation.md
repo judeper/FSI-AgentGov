@@ -390,4 +390,4 @@ The deny event data may contain:
 
 ---
 
-*FSI Agent Governance Framework v1.2.38 - February 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*
