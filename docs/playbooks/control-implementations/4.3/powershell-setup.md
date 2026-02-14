@@ -100,13 +100,18 @@ foreach ($Label in $Labels) {
     Write-Host "Created retention label: $($Label.Name)" -ForegroundColor Green
 }
 
-# Publish retention labels via label policy
-New-RetentionCompliancePolicy -Name "FSI-Retention-Labels-Policy" `
-    -PublishComplianceTag "FSI-Financial-Records-6Y","FSI-Communications-3Y","FSI-Audit-Workpapers-7Y","FSI-Customer-Data-5Y","FSI-Regulatory-Immutable" `
+# Step 1: Create the retention compliance policy
+$policy = New-RetentionCompliancePolicy -Name "FSI-Retention-Labels-Policy" `
     -SharePointLocation All `
     -Enabled $true
 
-Write-Host "Retention labels published to all SharePoint sites" -ForegroundColor Green
+# Step 2: Create a retention rule within the policy
+New-RetentionComplianceRule -Policy $policy.Name `
+    -RetentionDuration 2555 `
+    -RetentionComplianceAction Keep `
+    -ExpirationDateOption ModificationAgeInDays
+
+Write-Host "Retention policy and rule created for all SharePoint sites" -ForegroundColor Green
 ```
 
 ---
