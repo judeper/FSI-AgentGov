@@ -1,5 +1,7 @@
 # Portal Walkthrough: Control 2.22 - Inactivity Timeout Enforcement
 
+> **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
+
 **Last Updated:** February 2026
 **Portal:** Power Platform Admin Center (PPAC)
 **Estimated Time:** 30-45 minutes per environment

@@ -1,10 +1,10 @@
 {
-  "project_name": "Solutions Status Reconciliation (v22)",
+  "project_name": "Comprehensive Review Remediation (v24)",
   "mode": "yolo",
-  "depth": "minimal",
+  "depth": "comprehensive",
   "parallelization": true,
   "commit_docs": true,
-  "model_profile": "budget",
+  "model_profile": "balanced",
   "workflow": {
     "research": false,
     "plan_check": false,

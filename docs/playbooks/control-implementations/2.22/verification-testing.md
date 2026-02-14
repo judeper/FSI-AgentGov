@@ -1,4 +1,6 @@
-# Verification Testing: Control 2.22 - Inactivity Timeout Enforcement
+# Verification & Testing: Control 2.22 - Inactivity Timeout Enforcement
+
+> **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
 
 **Last Updated:** February 2026
 **Test Environment:** Power Platform Admin Center, BAP Admin API, Dataverse

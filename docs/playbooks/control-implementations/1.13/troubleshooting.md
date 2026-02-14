@@ -1,5 +1,7 @@
 # Troubleshooting: Control 1.13 - Sensitive Information Types (SITs)
 
+> **Parent Control:** [1.13 - Sensitive Information Types (SITs) and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
+
 **Last Updated:** January 2026
 
 ## Common Issues

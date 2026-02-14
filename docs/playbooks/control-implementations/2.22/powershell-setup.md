@@ -1,5 +1,7 @@
 # PowerShell Setup: Control 2.22 - Inactivity Timeout Enforcement
 
+> **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
+
 **Last Updated:** February 2026
 **Module Requirements:** Az.Accounts (for service principal auth), Invoke-RestMethod (built-in)
 **Estimated Time:** 30 minutes for setup; 5 minutes per remediation run
