@@ -5,7 +5,7 @@
 
 ## Summary
 
-FSI-AgentGov is a documentation-centric governance framework (v1.2.39c) for Microsoft 365 AI agents in US financial services, built with MkDocs Material and published to GitHub Pages. The repository implements a rigorous three-layer documentation model (Framework -> Controls -> Playbooks) spanning 71 controls across 4 pillars, with 284 playbook files providing step-by-step implementation guidance. A companion repository (FSI-AgentGov-Solutions) houses 19 deployable Power Platform solutions.
+FSI-AgentGov is a documentation-centric governance framework (v1.2.41) for Microsoft 365 AI agents in US financial services, built with MkDocs Material and published to GitHub Pages. The repository implements a rigorous three-layer documentation model (Framework -> Controls -> Playbooks) spanning 71 controls across 4 pillars, with 284 playbook files providing step-by-step implementation guidance. A companion repository (FSI-AgentGov-Solutions) houses 25 deployable Power Platform solutions.
 
 ## Directory Structure
 

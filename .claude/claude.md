@@ -399,7 +399,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 - Native Microsoft Defender integration for AI agents (v1.2.37)
 - AI-assisted Learn Monitor review with `/review-learn-changes` skill (v1.2.37)
-- 16 deployable FSI-AgentGov-Solutions covering 28+ controls / ~45% coverage (v1.2.36)
+- 25 deployable FSI-AgentGov-Solutions covering 23+ controls / ~32% coverage (v1.2.41)
 - Solutions architecture guide with enterprise scalability patterns (v1.2.26)
 - February 2026 pipeline Managed Environment enforcement deadline (v1.2.25)
 - Research report remediation across 76 reports for regulatory accuracy (v1.2.32)

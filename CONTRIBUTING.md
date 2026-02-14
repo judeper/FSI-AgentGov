@@ -256,4 +256,4 @@ Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the m
 
 ---
 
-*FSI Agent Governance Framework v1.2.39 - February 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*
