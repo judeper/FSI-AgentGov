@@ -41,7 +41,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | **Copilot Studio** | Included (limited) | Full Copilot Studio |
 | **Advanced compliance** | Basic | Full Purview integration |
 
-**FSI Applicability:** Smaller broker-dealers, RIAs, or credit unions with under 300 users may find this SKU more cost-effective than enterprise licensing. However, organizations with significant regulatory compliance requirements (FINRA 4511 long-term retention, comprehensive audit) should evaluate whether E5 Compliance features are necessary before selecting the Business SKU.
+**FSI Applicability:** Smaller broker-dealers, RIAs, or credit unions with under 300 users may find this SKU more cost-effective than enterprise licensing. However, organizations with significant regulatory compliance requirements (FINRA 4511 long-term retention, comprehensive audit) should evaluate whether Microsoft Purview Suite features are necessary before selecting the Business SKU.
 
 ---
 
@@ -81,24 +81,24 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | **1.2** | Agent Registry | Microsoft 365 E3+ | Integrated Apps in M365 Admin |
 | **1.3** | SharePoint Content Governance | Microsoft 365 E3+ | SharePoint included; SAM for advanced |
 | **1.4** | Advanced Connector Policies | Power Platform Premium | Managed Environments + Environment Groups |
-| **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or E5 Compliance | Purview DLP + Information Protection |
-| **1.6** | DSPM for AI | Microsoft 365 E5 or E5 Compliance | Microsoft Purview DSPM for AI |
+| **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection |
+| **1.6** | DSPM for AI | Microsoft 365 E5 or Microsoft Purview Suite | Microsoft Purview DSPM for AI |
 | **1.7** | Audit Logging | Microsoft 365 E5 (Premium) or E3 (Standard) | E5 for 10-year retention |
 | **1.8** | Runtime Protection | Power Platform Premium | Managed Environments feature |
-| **1.9** | Data Retention | Microsoft 365 E5 or E5 Compliance | Data Lifecycle Management |
-| **1.10** | Communication Compliance | Microsoft 365 E5 or E5 Compliance | Purview Communication Compliance |
+| **1.9** | Data Retention | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
+| **1.10** | Communication Compliance | Microsoft 365 E5 or Microsoft Purview Suite | Purview Communication Compliance |
 | **1.11** | Conditional Access & MFA | Microsoft Entra ID P1 (basic) or P2 (advanced) | P2 for risk-based policies |
 | **1.12** | Insider Risk | Microsoft 365 E5 or E5 Insider Risk | Purview Insider Risk Management |
-| **1.13** | Sensitive Information Types | Microsoft 365 E5 or E5 Compliance | Custom SITs require E5 |
+| **1.13** | Sensitive Information Types | Microsoft 365 E5 or Microsoft Purview Suite | Custom SITs require E5 |
 | **1.14** | Data Minimization | Power Platform Premium | Environment-level controls |
 | **1.15** | Encryption | Microsoft 365 E3+ | Default encryption included |
 | **1.16** | IRM for Documents | Microsoft 365 E3+ | Azure Information Protection |
-| **1.17** | Endpoint DLP | Microsoft 365 E5 or E5 Compliance | Endpoint DLP |
+| **1.17** | Endpoint DLP | Microsoft 365 E5 or Microsoft Purview Suite | Endpoint DLP |
 | **1.18** | RBAC | Microsoft Entra ID P1+ | Role management |
-| **1.19** | eDiscovery for Agent Interactions | Microsoft 365 E5 or E5 Compliance | eDiscovery (Premium) for AI content search |
+| **1.19** | eDiscovery for Agent Interactions | Microsoft 365 E5 or Microsoft Purview Suite | eDiscovery (Premium) for AI content search |
 | **1.20** | Network Isolation and Private Connectivity | Azure subscription + Power Platform Premium | VNet integration, Private Endpoints |
 | **1.21** | Adversarial Input Logging | Microsoft 365 E5 or E5 Security | Defender for Cloud Apps + Purview Audit |
-| **1.22** | Information Barriers | Microsoft 365 E5 or E5 Compliance | Purview Information Barriers |
+| **1.22** | Information Barriers | Microsoft 365 E5 or Microsoft Purview Suite | Purview Information Barriers |
 | **1.23** | Step-Up Authentication | Microsoft Entra ID P2 | Authentication context + Conditional Access |
 | **1.24** | Defender AI-SPM | Microsoft Defender for Cloud (CSPM) | Defender CSPM plan required |
 | **1.25** | MIME Type Restrictions | Power Platform Premium | Managed Environments; optional Purview DLP |
@@ -128,7 +128,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | **2.14** | Training & Awareness | Microsoft 365 E3+ | Viva Learning optional |
 | **2.15** | Environment Routing | Power Platform Premium | Managed Environments auto-provisioning |
 | **2.16** | RAG Source Integrity | N/A (process) | Process/documentation control |
-| **2.17** | Multi-Agent Orchestration Limits | Copilot Studio Premium | Orchestration requires Copilot Studio |
+| **2.17** | Multi-Agent Orchestration Limits | Copilot Studio | Orchestration requires Copilot Studio |
 | **2.18** | Automated Conflict of Interest | N/A (process) | Process/documentation control |
 | **2.19** | Customer AI Disclosure | N/A (process) | Transparency/labeling requirement |
 | **2.20** | Adversarial Testing / Red Team | N/A (process) | Process; optional Azure AI safety tools |
@@ -164,11 +164,11 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 |---------|--------------|------------------|-------|
 | **4.1** | IAG / Restricted Content Discovery | SharePoint Advanced Management | Required for IAG |
 | **4.2** | Site Access Reviews | Microsoft Entra ID P2 + SAM | Access Reviews + SAM |
-| **4.3** | Retention Management | Microsoft 365 E5 or E5 Compliance | Data Lifecycle Management |
+| **4.3** | Retention Management | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
 | **4.4** | Guest Access Controls | Microsoft 365 E3+ | Basic; E5 for advanced |
 | **4.5** | Security Monitoring | SharePoint Advanced Management + E5 | SAM + Purview Audit |
 | **4.6** | Grounding Scope Governance | SharePoint Advanced Management | Restricted SharePoint Search |
-| **4.7** | M365 Copilot Data Governance | Microsoft 365 E5 or E5 Compliance | Purview data governance for Copilot |
+| **4.7** | M365 Copilot Data Governance | Microsoft 365 E5 or Microsoft Purview Suite | Purview data governance for Copilot |
 
 ---
 
@@ -179,7 +179,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 - Power Platform per-user (standard)
 
 ### Recommended (Zone 2)
-- Microsoft 365 E5 or E3 + E5 Compliance
+- Microsoft 365 E5 or E3 + Microsoft Purview Suite
 - Power Platform Premium (per-environment)
 - Microsoft Entra ID P1
 
@@ -211,7 +211,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 
 ## Cost Optimization Tips
 
-1. **Start with E3 + Add-ons**: Many FSI organizations start with E3 and add E5 Compliance and E5 Security as add-ons rather than full E5.
+1. **Start with E3 + Add-ons**: Many FSI organizations start with E3 and add Microsoft Purview Suite and E5 Security as add-ons rather than full E5.
 
 2. **Managed Environments per Environment**: Only production and UAT typically need Managed Environments; dev/test can use standard.
 
@@ -262,7 +262,7 @@ To verify current license assignments:
 
 | Tier | Included Features | Licensing Basis |
 |------|-------------------|-----------------|
-| **Standard** | Blueprint registration, basic SDK features, M365 Admin Center visibility | Included with Copilot Studio Premium |
+| **Standard** | Blueprint registration, basic SDK features, M365 Admin Center visibility | Included with Copilot Studio |
 | **Premium** | Observability SDK, advanced telemetry, compliance export | Additional capacity or per-agent |
 | **Enterprise** | Multi-tenant deployment, cross-tenant agent sharing, advanced governance | Enterprise agreement |
 
@@ -270,10 +270,10 @@ To verify current license assignments:
 
 | Capability | License Required | Notes |
 |------------|------------------|-------|
-| Blueprint registration | Copilot Studio Premium | Required for Zone 3 agents |
+| Blueprint registration | Copilot Studio | Required for Zone 3 agents |
 | Agent identity (Entra) | Microsoft Entra ID P1+ | P2 for PIM/Access Reviews |
 | Observability SDK telemetry | Application Insights (Azure) | Pay-per-use or commitment tier |
-| DSPM integration | Microsoft 365 E5 or E5 Compliance | Activity Explorer ingestion |
+| DSPM integration | Microsoft 365 E5 or Microsoft Purview Suite | Activity Explorer ingestion |
 
 ### Observability SDK Premium Features
 

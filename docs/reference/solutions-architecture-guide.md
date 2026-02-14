@@ -169,7 +169,7 @@ Power BI dataset refresh limits affect Deny Event Correlation reporting.
 |--------------|------------------------:|-------------------:|----------------:|
 | Power BI Pro | 8 | N/A | 2 hours |
 | Power BI Premium Per User (PPU) | 48 | Unlimited* | 5 hours |
-| Power BI Premium Capacity | 48 | Unlimited* | 24 hours (configurable) |
+| Power BI Premium Capacity (now part of Microsoft Fabric capacity) | 48 | Unlimited* | 24 hours (configurable) |
 
 *Unlimited via XMLA endpoint, constrained by capacity resources
 
@@ -182,7 +182,7 @@ Power BI dataset refresh limits affect Deny Event Correlation reporting.
 |---------|----------------:|
 | Power BI Pro | 1 GB |
 | Power BI PPU | 100 GB |
-| Power BI Premium | 400 GB |
+| Power BI Premium (Fabric capacity) | 400 GB |
 
 **Sources:**
 - [Data refresh in Power BI](https://learn.microsoft.com/en-us/power-bi/connect-data/refresh-data)
