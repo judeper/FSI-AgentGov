@@ -24,7 +24,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - Excel template re-save (6 .xlsx files, manual OLE2 → OOXML conversion)
 - Learn Monitor HIGH changes (31 items, informational only — no control updates needed)
 
-## Current State (v10 Shipped)
+## Current State (v23 Complete)
 
 **Framework Version:** 1.2.47 (February 2026)
 
