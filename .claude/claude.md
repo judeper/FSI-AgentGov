@@ -33,7 +33,7 @@
 | `hallucination-tracker/` | v1.0.0 | Feedback aggregation for hallucination pattern analysis |
 | `dr-testing-framework/` | v1.0.0 | Automated disaster recovery testing for AI agents |
 | `agent-observability-foundation/` | v1.1.0 | Telemetry infrastructure for Copilot Studio agents |
-| `audit-configuration-validator/` | v1.0.0 | Automated validation of tenant audit configurations |
+| `audit-compliance-manager/` | v1.0.0 | Consolidated audit configuration validation and logging compliance automation |
 | `session-security-configurator/` | v1.0.0 | Authentication context lifecycle and step-up policies |
 
 **Documentation:**
