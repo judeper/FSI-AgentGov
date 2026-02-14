@@ -103,7 +103,7 @@ All Zone 2/3 environments are created **as Managed Environments from the start**
 Environments automatically join their zone's Environment Group at creation:
 
 - **Rule Inheritance:** Zone rules (DLP, authentication, CUA disabled) apply immediately
-- **Consistent Posture:** Eliminates configuration drift between similar environments
+- **Consistent Posture:** Reduces configuration drift between similar environments
 - **Simplified Management:** Single rule set per zone, not per-environment
 
 ### Service Principal Identity

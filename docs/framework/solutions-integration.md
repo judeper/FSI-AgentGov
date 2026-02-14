@@ -204,7 +204,7 @@ Unified compliance visibility across all 71 framework controls.
 
 ### Segregation of Duties Detector
 
-Identifies and prevents SoD violations in agent development workflows.
+Identifies and helps prevent SoD violations in agent development workflows.
 
 | Control | How Solution Helps |
 |---------|-------------------|

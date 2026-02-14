@@ -270,7 +270,7 @@ Provides unified compliance visibility across all 71 framework controls with zon
 
 ### Segregation of Duties Detector
 
-Identifies and prevents segregation of duties violations where users have incompatible roles in AI agent development and deployment workflows.
+Identifies and helps prevent segregation of duties violations where users have incompatible roles in AI agent development and deployment workflows.
 
 **Components:**
 - Dataverse tables for conflict rules, violations, exceptions, and audit log
@@ -814,7 +814,7 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 !!! success "Production Ready"
     v1.0.0 includes daily detection flow with 5 restriction rules, approval-based remediation workflow, PowerShell exception management scripts, Dataverse persistence, SHA-256 evidence export, and zone-based policy enforcement.
 
-Continuous detection and proactive restriction of Copilot Studio agent sharing configurations that exceed zone-based access policies. Enforces organizational sharing limits, prevents public internet links, validates approved group access, restricts excessive individual shares, and blocks cross-tenant access — with structured approval workflows and time-bound exception management.
+Continuous detection and proactive restriction of Copilot Studio agent sharing configurations that exceed zone-based access policies. Enforces organizational sharing limits, helps prevent public internet links, validates approved group access, restricts excessive individual shares, and blocks cross-tenant access — with structured approval workflows and time-bound exception management.
 
 **Components:**
 

@@ -902,7 +902,7 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 | **[1.8 Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)** | Per-platform threat detection (Defender for Cloud Apps for PPAC, Azure Defender for Microsoft Foundry) | Centralized security posture dashboard in Agent 365 with real-time policy violation visibility and integrated Defender threat detection |
 | **[2.1 Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md)** | Power Platform Managed Environments (PPAC); limited to Copilot Studio agents | Agent 365 lifecycle management with promotion gates and approval workflows across all agent types |
 | **[2.3 Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md)** | Per-platform approval workflows; manual tracking of agent promotions | Agent 365 promotion gates enforce consistent approval workflows across agent types; automated change tracking |
-| **[3.1 Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)** | Manual inventory consolidation from multiple platforms; reconciliation required | Agent 365 unified registry eliminates manual consolidation; single source of truth with real-time sync |
+| **[3.1 Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)** | Manual inventory consolidation from multiple platforms; reconciliation required | Agent 365 unified registry removes the need for manual consolidation; single source of truth with real-time sync |
 
 ### Low Impact Controls (Minor References)
 

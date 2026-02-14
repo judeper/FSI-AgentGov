@@ -91,7 +91,7 @@ Unified dashboard in Power Platform Admin Center that consolidates governance, a
 ## D
 
 **DLP (Data Loss Prevention)**
-Policy that prevents unauthorized sharing of sensitive data by blocking actions or warning users.
+Policy that helps prevent unauthorized sharing of sensitive data by blocking actions or warning users.
 
 **DSPM for AI (Data Security Posture Management for AI)**
 Microsoft tool that monitors how AI agents interact with sensitive data (now labeled 'classic' in the Purview portal).
@@ -122,7 +122,7 @@ Container where Power Platform solutions and agents are hosted. Each organizatio
 Collection of Power Platform environments with shared governance policies and rules. Environment groups enable consistent policy application across multiple environments, preventing configuration drift. Configured in PPAC under Manage → Environment groups. See [Environment groups](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups).
 
 **Environment Routing**
-Automatic placement of makers into appropriate Power Platform environments based on organizational rules such as security group membership. Prevents shadow AI creation in the default environment. See [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing).
+Automatic placement of makers into appropriate Power Platform environments based on organizational rules such as security group membership. Helps prevent shadow AI creation in the default environment. See [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing).
 
 ---
 
@@ -320,7 +320,7 @@ Federal law requiring internal controls and financial reporting for public compa
 Type of machine learning using labeled training data.
 
 **Shadow AI**
-Unauthorized agent creation outside governed environments, typically in the default Power Platform environment. Environment routing prevents shadow AI by directing makers to governed environments. See [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing).
+Unauthorized agent creation outside governed environments, typically in the default Power Platform environment. Environment routing helps prevent shadow AI by directing makers to governed environments. See [Environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing).
 
 ---
 

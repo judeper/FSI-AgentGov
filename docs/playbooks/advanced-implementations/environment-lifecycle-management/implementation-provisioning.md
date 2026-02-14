@@ -480,7 +480,7 @@ Configure retry policy in the HTTP action settings:
 **Log Action:** `GroupAssigned`
 
 !!! note "DLP Policy Inheritance"
-    When an environment joins an Environment Group, DLP policies configured at the group level apply immediately. This eliminates the exposure window mentioned in the critique - policies are active before any user can access the environment.
+    When an environment joins an Environment Group, DLP policies configured at the group level apply immediately. This removes the exposure window mentioned in the critique - policies are active before any user can access the environment.
 
 ---
 
