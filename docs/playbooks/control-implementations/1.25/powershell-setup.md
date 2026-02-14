@@ -1,17 +1,25 @@
 # PowerShell Setup: Control 1.25 - MIME Type Restrictions for File Uploads
 
 **Last Updated:** February 2026
-**Modules Required:** FsiMimeControl
+**Modules Required:** Microsoft.PowerApps.Administration.PowerShell
+
+> **⚠️ Important — Placeholder Cmdlets:** The scripts below use illustrative cmdlet names (e.g., `Get-FsiMimeConfig`, `Set-FsiMimeConfig`, `Test-FsiMimeCompliance`) that represent a **planned custom FSI governance module** (`FsiMimeControl`). These cmdlets do not exist in any published PowerShell module today. For current manual configuration steps, see the [Portal Walkthrough](portal-walkthrough.md). To query environment metadata via PowerShell now, use `Get-AdminPowerAppEnvironment` from the Power Platform Admin module and the Dataverse REST API for MIME type settings.
 
 ## Prerequisites
 
 ```powershell
-# FsiMimeControl is part of the FSI Agent Governance toolkit (Phase 2 deliverable)
-Install-Module -Name FsiMimeControl -Force -Scope CurrentUser
-Import-Module FsiMimeControl
+# Install the Power Platform Administration module (available today)
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
+Import-Module Microsoft.PowerApps.Administration.PowerShell
+
+# Connect to Power Platform
+Add-PowerAppsAccount
+
+# Verify you can list environments
+Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName
 ```
 
-> **Note:** The FsiMimeControl module connects to the Dataverse Web API to read and write environment-level MIME and file extension settings. Ensure you have Power Platform Admin or Entra Global Admin permissions before running these cmdlets.
+> **Note:** MIME type and file-extension restriction settings are configured per-environment in Dataverse. Use `Get-AdminPowerAppEnvironment` to enumerate environments, then configure MIME restrictions through the Power Platform Admin Center or the Dataverse Web API (`PATCH /api/data/v9.2/organizations({id})`).
 
 ---
 
@@ -20,104 +28,108 @@ Import-Module FsiMimeControl
 ### Get Current MIME Configuration
 
 ```powershell
+# NOTE: These cmdlet names are illustrative placeholders for a custom FSI governance module.
+# See the portal walkthrough for current manual configuration steps.
+
 <#
 .SYNOPSIS
     Retrieves current MIME type and file extension restrictions for a Power Platform environment.
 
 .DESCRIPTION
-    Reads blocked file extensions, blocked MIME types, and allowed MIME types
-    from the Dataverse Web API for the specified environment.
-
-.PARAMETER EnvironmentId
-    The Power Platform environment ID to query.
-
-.EXAMPLE
-    Get-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001"
+    Uses the Dataverse Web API to read blocked file extensions, blocked MIME types,
+    and allowed MIME types for the specified environment.
+    Replace the placeholder cmdlet below with a direct Dataverse REST call or
+    the portal walkthrough procedure until a published module is available.
 
 .EXAMPLE
-    Get-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" | Format-List
+    # Current approach: Use Get-AdminPowerAppEnvironment + Dataverse REST API
+    $env = Get-AdminPowerAppEnvironment -EnvironmentName "00000000-0000-0000-0000-000000000001"
+    # Then query Dataverse: GET /api/data/v9.2/organizations?$select=blockedattachments,blockedmimetypes
 #>
 
-$config = Get-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001"
+# --- Placeholder pattern (custom module not yet available) ---
+# $config = Get-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001"
+
+# --- Current approach: query Dataverse REST API ---
+$envId = "00000000-0000-0000-0000-000000000001"
+$env = Get-AdminPowerAppEnvironment -EnvironmentName $envId
 
 Write-Host "=== MIME Configuration ===" -ForegroundColor Cyan
-Write-Host "Environment:          $($config.EnvironmentName)" -ForegroundColor Yellow
-Write-Host "Blocked Extensions:   $($config.BlockedExtensions -join '; ')"
-Write-Host "Blocked MIME Types:   $($config.BlockedMimeTypes -join '; ')"
-Write-Host "Allowed MIME Types:   $($config.AllowedMimeTypes -join '; ')"
+Write-Host "Environment: $($env.DisplayName)" -ForegroundColor Yellow
+Write-Host "To retrieve MIME restrictions, query the Dataverse Organization entity:"
+Write-Host "  GET {envUrl}/api/data/v9.2/organizations?`$select=blockedattachments,blockedmimetypes"
+Write-Host "See the portal walkthrough for step-by-step UI instructions."
 ```
 
 ### Apply Zone Template
 
 ```powershell
+# NOTE: These cmdlet names are illustrative placeholders for a custom FSI governance module.
+# See the portal walkthrough for current manual configuration steps.
+
 <#
 .SYNOPSIS
     Applies a zone-specific MIME restriction template to a Power Platform environment.
 
 .DESCRIPTION
-    Configures blocked file extensions, blocked MIME types, and allowed MIME types
-    according to the governance zone template. Supports -WhatIf for dry-run preview.
-
-.PARAMETER EnvironmentId
-    The Power Platform environment ID to configure.
-
-.PARAMETER ZoneTemplate
-    The governance zone template to apply: zone1, zone2, or zone3.
-
-.PARAMETER WhatIf
-    Preview changes without applying them.
+    Configures blocked file extensions and blocked MIME types according to the
+    governance zone template. Until the custom module is published, apply these
+    settings via the Power Platform Admin Center or Dataverse REST API:
+      PATCH {envUrl}/api/data/v9.2/organizations({orgId})
+      Body: { "blockedattachments": "exe;bat;cmd;...", "blockedmimetypes": "..." }
 
 .EXAMPLE
-    Set-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" -ZoneTemplate zone2 -WhatIf
-
-.EXAMPLE
-    Set-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" -ZoneTemplate zone3
+    # Current approach: update via Dataverse REST API
+    # See portal walkthrough for the full list of extensions per zone template
 #>
 
-# Preview changes before applying
-Set-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" `
-    -ZoneTemplate zone2 `
-    -WhatIf
+# --- Placeholder pattern (custom module not yet available) ---
+# Set-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" `
+#     -ZoneTemplate zone2 `
+#     -WhatIf
+# Set-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" `
+#     -ZoneTemplate zone2
 
-# Sample WhatIf output:
-# What if: Performing the operation "Set-FsiMimeConfig" on target "Contoso-Zone2-Env":
-#   Blocked Extensions: exe;bat;cmd;com;vbs;js;wsf;scr;pif;msi;dll;ps1;reg;inf;hta;cpl;msp;mst
-#   Blocked MIME Types:  application/x-msdownload;application/x-msdos-program;application/x-bat;...
-#   Allowed MIME Types:  application/pdf;image/png;image/jpeg;...
+# --- Current approach: Dataverse REST API ---
+# Zone 2 reference values (customize per your governance requirements):
+$blockedExtensions = "exe;bat;cmd;com;vbs;js;wsf;scr;pif;msi;dll;ps1;reg;inf;hta;cpl;msp;mst"
+$blockedMimeTypes  = "application/x-msdownload;application/x-msdos-program;application/x-bat"
 
-# Apply the template
-Set-FsiMimeConfig -EnvironmentId "00000000-0000-0000-0000-000000000001" `
-    -ZoneTemplate zone2
+Write-Host "Zone template values prepared. Apply via:"
+Write-Host "  1. Power Platform Admin Center → Environment → Settings → Email → Email security"
+Write-Host "  2. Dataverse REST API PATCH to organizations entity"
+Write-Host "  Blocked Extensions: $blockedExtensions"
+Write-Host "  Blocked MIME Types:  $blockedMimeTypes"
 ```
 
 ### Validate Compliance
 
 ```powershell
+# NOTE: These cmdlet names are illustrative placeholders for a custom FSI governance module.
+# See the portal walkthrough for current manual configuration steps.
+
 <#
 .SYNOPSIS
     Checks whether a Power Platform environment meets MIME restriction requirements
     for its assigned governance zone.
 
 .DESCRIPTION
-    Compares the current environment MIME configuration against the expected zone
-    template and outputs [PASS], [FAIL], or [WARN] for each check.
-
-.PARAMETER EnvironmentId
-    The Power Platform environment ID to validate.
-
-.PARAMETER Zone
-    The governance zone to validate against (1, 2, or 3).
+    Until the custom module is published, validate MIME compliance manually:
+    1. Query current settings via Dataverse REST API (see "Get Current MIME Configuration" above)
+    2. Compare blocked extensions and MIME types against zone template values
+    3. Record pass/fail per check
 
 .EXAMPLE
-    Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-000000000001" -Zone 2
-
-.EXAMPLE
-    Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-000000000001" -Zone 3 -Verbose
+    # Placeholder — no native compliance-test cmdlet exists today:
+    # $result = Test-FsiMimeCompliance -EnvironmentId "..." -Zone 2
+    # Use the verification-testing playbook for current manual validation steps.
 #>
 
-$result = Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-000000000001" -Zone 2
+# --- Placeholder pattern (custom module not yet available) ---
+# $result = Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-000000000001" -Zone 2
 
-# Sample output:
+# --- Current approach: manual comparison ---
+# Expected sample output once a validation module exists:
 # === MIME Compliance Check: Contoso-Zone2-Env (Zone 2) ===
 # [PASS] Blocked file extensions configured
 # [PASS] All required executable extensions blocked
@@ -127,6 +139,9 @@ $result = Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-0000000
 # [INFO] DLP policy validation requires separate check — see Control 1.14
 #
 # Overall: COMPLIANT (5/5 required checks passed, 1 warning)
+
+Write-Host "Manual validation: Query Dataverse organization entity and compare against zone template."
+Write-Host "See verification-testing.md for the full validation checklist."
 ```
 
 ---
@@ -134,9 +149,21 @@ $result = Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-0000000
 ## Validation Script
 
 ```powershell
+# NOTE: These cmdlet names are illustrative placeholders for a custom FSI governance module.
+# See the portal walkthrough for current manual configuration steps.
+# The script below shows the intended validation pattern. Replace placeholder
+# cmdlets with Dataverse REST API calls or manual checks until the module ships.
+
 <#
 .SYNOPSIS
     Validates Control 1.25 - MIME Type Restrictions across all environments.
+
+.DESCRIPTION
+    Reference implementation pattern. The Get-FsiMimeConfig and Test-FsiMimeCompliance
+    cmdlets used below are planned for a custom governance module. Until available,
+    validate each environment manually via:
+      1. Power Platform Admin Center → Environments → Settings
+      2. Dataverse REST API: GET /api/data/v9.2/organizations?$select=blockedattachments,blockedmimetypes
 
 .EXAMPLE
     .\Validate-Control-1.25.ps1
@@ -144,69 +171,38 @@ $result = Test-FsiMimeCompliance -EnvironmentId "00000000-0000-0000-0000-0000000
 
 Write-Host "=== Control 1.25 Validation ===" -ForegroundColor Cyan
 
-Import-Module FsiMimeControl
-
-$environments = Get-FsiManagedEnvironments
+# Current approach: enumerate environments with the Power Platform Admin module
+$environments = Get-AdminPowerAppEnvironment
 
 $results = @()
 
 foreach ($env in $environments) {
-    Write-Host "`nEnvironment: $($env.DisplayName) (Zone $($env.Zone))" -ForegroundColor Yellow
+    Write-Host "`nEnvironment: $($env.DisplayName)" -ForegroundColor Yellow
 
-    # Check 1: Blocked extensions
-    $config = Get-FsiMimeConfig -EnvironmentId $env.EnvironmentId
-    if ($config.BlockedExtensions.Count -gt 0) {
-        Write-Host "  [PASS] Blocked file extensions configured ($($config.BlockedExtensions.Count) extensions)" -ForegroundColor Green
-    } else {
-        Write-Host "  [FAIL] No blocked file extensions configured" -ForegroundColor Red
-    }
+    # NOTE: The checks below use placeholder cmdlets. Replace with Dataverse REST
+    # API queries to read blockedattachments and blockedmimetypes columns from the
+    # Organization entity for each environment.
 
-    # Check 2: Blocked MIME types (Zone 2+)
-    if ($env.Zone -ge 2) {
-        if ($config.BlockedMimeTypes.Count -gt 0) {
-            Write-Host "  [PASS] Blocked MIME types configured ($($config.BlockedMimeTypes.Count) types)" -ForegroundColor Green
-        } else {
-            Write-Host "  [FAIL] Blocked MIME types not configured (required for Zone $($env.Zone))" -ForegroundColor Red
-        }
-    } else {
-        Write-Host "  [INFO] Blocked MIME types not required for Zone 1" -ForegroundColor Gray
-    }
+    # Placeholder — Check 1: Blocked extensions
+    # $config = Get-FsiMimeConfig -EnvironmentId $env.EnvironmentName
+    # if ($config.BlockedExtensions.Count -gt 0) { ... }
 
-    # Check 3: Allowed MIME types (Zone 3 required, Zone 2 recommended)
-    if ($env.Zone -eq 3) {
-        if ($config.AllowedMimeTypes.Count -gt 0) {
-            Write-Host "  [PASS] Allowed MIME types allowlist configured ($($config.AllowedMimeTypes.Count) types)" -ForegroundColor Green
-        } else {
-            Write-Host "  [FAIL] Allowed MIME types allowlist not configured (required for Zone 3)" -ForegroundColor Red
-        }
-    } elseif ($env.Zone -eq 2) {
-        if ($config.AllowedMimeTypes.Count -gt 0) {
-            Write-Host "  [PASS] Allowed MIME types allowlist configured ($($config.AllowedMimeTypes.Count) types)" -ForegroundColor Green
-        } else {
-            Write-Host "  [WARN] Allowed MIME types allowlist not configured (recommended for Zone 2)" -ForegroundColor Yellow
-        }
-    } else {
-        Write-Host "  [INFO] Allowed MIME types allowlist not required for Zone 1" -ForegroundColor Gray
-    }
+    # Placeholder — Check 2: Blocked MIME types
+    # if ($config.BlockedMimeTypes.Count -gt 0) { ... }
 
-    # Check 4: Zone compliance summary
-    $compliance = Test-FsiMimeCompliance -EnvironmentId $env.EnvironmentId -Zone $env.Zone
-    if ($compliance.IsCompliant) {
-        Write-Host "  [PASS] Environment is compliant with Zone $($env.Zone) requirements" -ForegroundColor Green
-    } else {
-        Write-Host "  [FAIL] Environment is NOT compliant with Zone $($env.Zone) requirements" -ForegroundColor Red
-        foreach ($finding in $compliance.Findings) {
-            Write-Host "    - $finding" -ForegroundColor Red
-        }
-    }
+    # Placeholder — Check 3: Allowed MIME types
+    # if ($config.AllowedMimeTypes.Count -gt 0) { ... }
+
+    # Placeholder — Check 4: Zone compliance summary
+    # $compliance = Test-FsiMimeCompliance -EnvironmentId $env.EnvironmentName -Zone $zone
+
+    Write-Host "  [INFO] Validate MIME settings via Dataverse REST API or Admin Center" -ForegroundColor Yellow
+    Write-Host "  [INFO] See verification-testing.md for the full manual checklist" -ForegroundColor Yellow
 
     $results += [PSCustomObject]@{
         Environment   = $env.DisplayName
-        Zone          = $env.Zone
-        Extensions    = $config.BlockedExtensions.Count
-        BlockedMime   = $config.BlockedMimeTypes.Count
-        AllowedMime   = $config.AllowedMimeTypes.Count
-        Compliant     = $compliance.IsCompliant
+        EnvironmentId = $env.EnvironmentName
+        Status        = "Manual verification required"
     }
 }
 
@@ -219,14 +215,22 @@ $results | Format-Table -AutoSize
 ## Complete Configuration Script
 
 ```powershell
+# NOTE: These cmdlet names are illustrative placeholders for a custom FSI governance module.
+# See the portal walkthrough for current manual configuration steps.
+# Replace FsiMimeControl cmdlets with Dataverse REST API calls or Admin Center
+# procedures until the planned module is available.
+
 <#
 .SYNOPSIS
     Configures MIME type restrictions for Control 1.25 across Power Platform environments.
 
 .DESCRIPTION
-    Applies zone-appropriate MIME type and file extension restriction templates
-    to Power Platform environments. Supports dry-run preview with -WhatIf,
-    multiple output formats, and file export.
+    Reference implementation pattern showing the intended automation flow.
+    The Set-FsiMimeConfig and Test-FsiMimeCompliance cmdlets are planned for a
+    custom governance module (FsiMimeControl). Until available:
+      - Use Get-AdminPowerAppEnvironment to enumerate environments
+      - Apply MIME settings via Dataverse REST API or Power Platform Admin Center
+      - Validate manually using the verification-testing playbook
 
 .PARAMETER EnvironmentId
     The Power Platform environment ID to configure. If not specified, processes all managed environments.
@@ -240,11 +244,8 @@ $results | Format-Table -AutoSize
 .PARAMETER OutputPath
     File path to export results. If not specified, results are written to the console.
 
-.PARAMETER WhatIf
-    Preview changes without applying them.
-
 .EXAMPLE
-    .\Configure-Control-1.25.ps1 -ZoneTemplate zone2 -WhatIf
+    .\Configure-Control-1.25.ps1 -ZoneTemplate zone2
 
 .EXAMPLE
     .\Configure-Control-1.25.ps1 -EnvironmentId "00000000-0000-0000-0000-000000000001" -ZoneTemplate zone3 -OutputFormat JSON -OutputPath ".\results.json"
@@ -263,23 +264,21 @@ param(
     [string]$OutputFormat = "Table",
 
     [Parameter()]
-    [string]$OutputPath,
-
-    [Parameter()]
-    [switch]$WhatIf
+    [string]$OutputPath
 )
 
 try {
-    Import-Module FsiMimeControl -ErrorAction Stop
+    Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
+    Add-PowerAppsAccount
+
     Write-Host "=== Control 1.25: MIME Type Restrictions Configuration ===" -ForegroundColor Cyan
     Write-Host "Zone Template: $ZoneTemplate" -ForegroundColor Yellow
-    Write-Host "Mode: $(if ($WhatIf) { 'Preview (WhatIf)' } else { 'Apply' })" -ForegroundColor Yellow
 
     # Determine target environments
     if ($EnvironmentId) {
-        $environments = @(Get-FsiMimeConfig -EnvironmentId $EnvironmentId)
+        $environments = @(Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId)
     } else {
-        $environments = Get-FsiManagedEnvironments
+        $environments = Get-AdminPowerAppEnvironment
     }
 
     $results = @()
@@ -287,30 +286,21 @@ try {
     foreach ($env in $environments) {
         Write-Host "`nProcessing: $($env.DisplayName)" -ForegroundColor Yellow
 
-        # Apply zone template
-        $applyParams = @{
-            EnvironmentId = $env.EnvironmentId
-            ZoneTemplate  = $ZoneTemplate
-        }
-        if ($WhatIf) {
-            $applyParams['WhatIf'] = $true
-        }
+        # NOTE: Apply MIME restrictions via Dataverse REST API:
+        #   PATCH {envUrl}/api/data/v9.2/organizations({orgId})
+        #   Body: { "blockedattachments": "exe;bat;cmd;...", "blockedmimetypes": "..." }
+        # Placeholder cmdlet (not yet available):
+        # Set-FsiMimeConfig -EnvironmentId $env.EnvironmentName -ZoneTemplate $ZoneTemplate
 
-        $applyResult = Set-FsiMimeConfig @applyParams
-
-        # Validate after apply (skip validation in WhatIf mode)
-        $compliant = $false
-        if (-not $WhatIf) {
-            $validation = Test-FsiMimeCompliance -EnvironmentId $env.EnvironmentId -Zone ([int]$ZoneTemplate[-1].ToString())
-            $compliant = $validation.IsCompliant
-        }
+        # NOTE: Validate via Dataverse REST API or manual inspection.
+        # Placeholder cmdlet (not yet available):
+        # $validation = Test-FsiMimeCompliance -EnvironmentId $env.EnvironmentName -Zone ([int]$ZoneTemplate[-1].ToString())
 
         $results += [PSCustomObject]@{
             Environment     = $env.DisplayName
-            EnvironmentId   = $env.EnvironmentId
+            EnvironmentId   = $env.EnvironmentName
             ZoneTemplate    = $ZoneTemplate
-            Applied         = -not $WhatIf
-            Compliant       = if ($WhatIf) { "N/A (WhatIf)" } else { $compliant }
+            Status          = "Apply via Admin Center or Dataverse REST API"
             Timestamp       = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
         }
     }
