@@ -8,15 +8,21 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 **Documentation and solutions that US FSI customers trust.** Every control must be accurate, every solution must work, and ongoing maintenance must be sustainable.
 
-## Current Milestone: v22 Solutions Status Reconciliation
+## Current Milestone: No active milestone — v23 Comprehensive Review complete
 
-**Goal:** Fix stale "Work In Progress" statuses in solutions-index.md for solutions confirmed shipped in prior milestones (File Upload Security Configurator v8, Content Moderation Governance Monitor v7).
+**State:** Framework at v1.2.41 with 71 controls and 284 playbooks. All src/ solution artifacts migrated to FSI-AgentGov-Solutions companion repo. No active milestone.
 
-**Target deliverables:**
-- Update File Upload Security Configurator status from WIP to Completed
-- Update Content Moderation Governance Monitor status from WIP to Completed
-- Add Production Ready admonitions to detail sections if missing
-- Build validation (mkdocs build --strict, verify_controls.py)
+**v23 delivered (2026-02-14):**
+- src/ migration: 24 solution artifacts moved to companion repo (2 rounds), src/ deleted
+- Branch resolution: 3 unmerged branches resolved (cherry-picked Agent 365 content, merged Learn Monitor updates, deleted superseded branch)
+- Quality fixes: 10 non-canonical role names, 3 footer metadata, 11 regulatory-mappings entries, 24 stale version footers
+- Version bump: v1.2.39c → v1.2.41
+- CHANGELOG catch-up: milestones v11-v22
+- Git hygiene: 2 stale worktrees, 5 stale branches removed
+
+**Deferred:**
+- Excel template re-save (6 .xlsx files, manual OLE2 → OOXML conversion)
+- Learn Monitor HIGH changes (31 items, informational only — no control updates needed)
 
 ## Current State (v10 Shipped)
 
@@ -97,14 +103,13 @@ Capabilities delivered:
 
 ### Active
 
-**v22: Solutions Status Reconciliation**
+No active milestone. v22 and v23 requirements fully delivered.
 
-Fix stale WIP statuses for shipped solutions:
-- STS-01: Update File Upload Security Configurator status WIP → Completed
-- STS-02: Update Content Moderation Governance Monitor status WIP → Completed
-- VAL-01: Build validation pass
+**v22 (Delivered):** STS-01 (FUS status fix), STS-02 (CMM status fix), VAL-01 (build validation) — all 3/3.
 
-**Current milestone: v22 — Solutions Status Reconciliation (DEFINING)**
+**v23 (Delivered):** src/ migration, branch resolution, 10-agent review fixes, version bump, CHANGELOG catch-up, git hygiene — all complete.
+
+**Pending:** Excel template re-save (6 .xlsx files, manual intervention required).
 
 ### Out of Scope
 
@@ -216,4 +221,4 @@ Fix stale WIP statuses for shipped solutions:
 | v11 two-worktree parallel model | Each phase has A/B tracks targeting non-overlapping files for concurrent execution | — Pending |
 
 ---
-*Last updated: 2026-02-13 after v21 completion and v22 milestone definition*
+*Last updated: 2026-02-14 after v23 Comprehensive Review & Remediation completion*

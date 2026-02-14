@@ -1,5 +1,45 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v23 Comprehensive Review & Remediation (Completed: 2026-02-14)
+
+**Delivered:** Full-repo review and remediation covering both FSI-AgentGov and FSI-AgentGov-Solutions. Migrated all `src/` solution artifacts to companion repo (24 files across 2 rounds), resolved 3 unmerged branches (cherry-picked Agent 365 content, merged Learn Monitor URL updates, deleted superseded branch), fixed 12 issues found by 10-agent parallel review (version bumps, role names, footers, regulatory mappings, CHANGELOG catch-up, git hygiene). Framework version bumped to v1.2.41.
+
+**Key accomplishments:**
+
+- **src/ Migration:** Migrated 17 original + 7 ASARD solution artifacts from FSI-AgentGov src/ to 7 solution folders in FSI-AgentGov-Solutions companion repo; deleted src/ directory
+- **Branch Resolution:** Cherry-picked eloquent-jang (Agent 365 capabilities summary, Agent Store Governance, MCP Server Governance, Unified Visibility Architecture); merged learn-monitor/update-14 (30+ URL redirects, eDiscovery/Sentinel notices); deleted learn-monitor/update-6
+- **Companion Repo Scaffolding:** Created README + CHANGELOG for 3 new solutions, CHANGELOG for 2 existing solutions
+- **Quality Fixes:** 10 non-canonical role names, 3 footer metadata values, 11 missing regulatory-mappings entries, 24 stale version footers
+- **CHANGELOG:** Added [1.2.41] entry covering milestones v11-v22
+- **Git Hygiene:** Removed 2 stale worktrees, deleted 5 stale branches (local + remote)
+- **Version Bump:** v1.2.39c → v1.2.41 across 5 config files
+
+**Stats:**
+
+- 8 remediation plans executed
+- Both repos committed and pushed
+- Build validated: mkdocs build --strict (0 errors), verify_controls.py (71/71)
+- Deferred: Excel template re-save (manual), Learn Monitor content changes (informational only)
+- 1 day (2026-02-14)
+
+**What's next:** No active milestone. Excel template re-save requires manual intervention.
+
+---
+
+## v22 Solutions Status Reconciliation (Completed: 2026-02-13)
+
+**Delivered:** Fixed stale "Work In Progress" statuses in solutions-index.md for 2 solutions confirmed shipped in prior milestones — File Upload Security Configurator (v8) and Content Moderation Governance Monitor (v7). Added Production Ready admonitions to detail sections.
+
+**Stats:**
+
+- 1 phase, 1 plan, 3 requirements (100% satisfied — STS-01, STS-02, VAL-01)
+- Documentation-only housekeeping milestone
+- 1 day (2026-02-13)
+
+**What's next:** v23 — Comprehensive Review & Remediation
+
+---
+
 ## v21 Audit Logging Compliance Automation (Completed: 2026-02-13)
 
 **Delivered:** Enterprise-grade audit logging compliance solution for Power Platform environments — automated detection/remediation of Purview unified audit and Dataverse audit logging gaps with Azure Automation Managed Identity auth, entity-level audit enablement, approval-gated remediation, and Dataverse compliance tracking. Complements existing ACV (v4). Maps to Control 1.7 (no new control, framework stays at 71 controls).

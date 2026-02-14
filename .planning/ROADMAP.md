@@ -1,6 +1,16 @@
-# Roadmap: Solutions Status Reconciliation (v22)
+# Roadmap: Solutions Status Reconciliation (v22) — COMPLETE
 
-## Overview
+## Milestone Status
+
+**v22 — Solutions Status Reconciliation:** COMPLETE (2026-02-13). All 3 requirements delivered.
+
+**v23 — Comprehensive Review & Remediation:** COMPLETE (2026-02-14). Full-repo review covering both FSI-AgentGov and FSI-AgentGov-Solutions. src/ migration (24 files), 3 branch resolutions, 12 issues fixed (10-agent parallel review), version bump to v1.2.41, CHANGELOG catch-up (v11-v22), git hygiene. Framework at v1.2.41, 71 controls, 284 playbooks. Both repos pushed.
+
+**No active milestone.** Deferred: Excel template re-save (6 .xlsx files, manual), Learn Monitor HIGH changes (31 items, informational).
+
+---
+
+## v22 Overview (Archived)
 
 Fix stale "Work In Progress" statuses in `docs/reference/solutions-index.md` for solutions confirmed shipped in prior milestones. File Upload Security Configurator (shipped v8) and Content Moderation Governance Monitor (shipped v7) still show WIP status in the solutions catalog.
 
