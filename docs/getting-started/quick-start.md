@@ -151,7 +151,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 - Basic documentation
 - Minimal governance
 
-**Compliance:** None (Zone 1 not examined)
+**Compliance:** Minimal — regulatory obligations may still apply depending on organizational policies and the nature of interactions. See [Zones and Tiers](../framework/zones-and-tiers.md) for details.
 
 ---
 
@@ -262,4 +262,4 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*

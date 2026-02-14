@@ -10,14 +10,14 @@ SharePoint Advanced Management features are available through two licensing path
 
 | License Path | Cost | Scope |
 |--------------|------|-------|
-| **Microsoft 365 Copilot** | Included (11 of 12 features) | One Copilot license assigned activates SAM for entire tenant |
+| **Microsoft 365 Copilot** | Included (most features) | One Copilot license assigned activates SAM for entire tenant |
 | **Standalone SAM** | $3 per user per month | Required only if no Copilot licenses assigned |
 
 ---
 
 ## Features Included with Microsoft 365 Copilot License
 
-Organizations with at least one Microsoft 365 Copilot license assigned receive access to 11 SharePoint Advanced Management features at no additional cost:
+Organizations with at least one Microsoft 365 Copilot license assigned receive access to most SharePoint Advanced Management features at no additional cost. The list below reflects features available as of this writing; Microsoft may add features over time — check the [SAM documentation](https://learn.microsoft.com/en-us/sharepoint/advanced-management) for the current list:
 
 | Feature | Description | Related Control |
 |---------|-------------|-----------------|

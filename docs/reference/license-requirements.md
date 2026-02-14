@@ -10,7 +10,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 |---------|-------------------|-------------|
 | **Power Platform Premium** | 1.1, 1.4, 1.8, 1.14, 1.20, 2.1, 2.2, 2.3, 2.5, 2.8, 2.9, 2.15, 3.2, 3.5, 3.6, 3.7, 3.8 | Managed Environments, ACP |
 | **Microsoft 365 E5** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.21, 1.22 | Purview full suite |
-| **Microsoft 365 E5 Compliance** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.22 | Purview add-on to E3 |
+| **Microsoft Purview Suite** (formerly M365 E5 Compliance) | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.22 | Purview add-on to E3 |
 | **Microsoft 365 E3** | 1.3, 1.11, 1.15, 1.16, 2.10 | Basic security features |
 | **Microsoft Entra ID P1** | 1.11, 1.18, 2.8 | Conditional Access |
 | **Microsoft Entra ID P2** | 1.11, 1.12, 1.23, 4.2 | PIM, Access Reviews |
@@ -45,20 +45,20 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 
 ---
 
-## E5 License Distinction: E5 vs E5 Compliance vs E5 Security
+## E5 License Distinction: E5 vs Microsoft Purview Suite vs E5 Security
 
 !!! warning "These Are Three Distinct Products"
-    Microsoft 365 E5, E5 Compliance, and E5 Security are separate products with different feature sets. Documentation must be precise about which is required.
+    Microsoft 365 E5, Microsoft Purview Suite, and E5 Security are separate products with different feature sets. Documentation must be precise about which is required. Microsoft Purview Suite was formerly named "Microsoft 365 E5 Compliance" (renamed September 2025); older documentation and admin portals may still use the previous name.
 
 | License | What It Includes | Typical Use Case |
 |---------|------------------|------------------|
-| **Microsoft 365 E5** | Full suite: E3 + E5 Compliance + E5 Security + additional services | Enterprise with comprehensive needs |
-| **Microsoft 365 E5 Compliance** | Microsoft Purview suite (DLP, IRM, eDiscovery, Insider Risk, etc.) | Organizations with E3 needing compliance |
+| **Microsoft 365 E5** | Full suite: E3 + Purview Suite + E5 Security + additional services | Enterprise with comprehensive needs |
+| **Microsoft Purview Suite** (formerly E5 Compliance) | Microsoft Purview suite (DLP, IRM, eDiscovery, Insider Risk, etc.) | Organizations with E3 needing compliance |
 | **Microsoft 365 E5 Security** | Microsoft Defender suite (Defender for Office 365 P2, Defender for Endpoint P2, etc.) | Organizations with E3 needing security |
 
 **Key Distinctions:**
 
-| Capability | E5 | E5 Compliance | E5 Security |
+| Capability | E5 | Purview Suite | E5 Security |
 |------------|:--:|:-------------:|:-----------:|
 | Microsoft Purview DLP | ✅ | ✅ | ❌ |
 | Microsoft Purview DSPM for AI | ✅ | ✅ | ❌ |
@@ -69,7 +69,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | Microsoft Defender for Cloud Apps | ✅ | ❌ | ✅ |
 | Microsoft Sentinel (50 MB/user/month) | ✅ | ❌ | ✅ |
 
-**Documentation Guidance:** When referencing E5 requirements, specify whether E5 Compliance is sufficient (Purview features) or full E5/E5 Security is required (Defender features).
+**Documentation Guidance:** When referencing E5 requirements, specify whether Microsoft Purview Suite is sufficient (Purview features) or full E5/E5 Security is required (Defender features).
 
 ---
 

@@ -285,6 +285,14 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 ---
 
+### CFTC Rule 1.31 — Recordkeeping for Swap Dealers
+
+**Overview:** CFTC Rule 1.31 requires swap dealers and major swap participants to maintain records of transactions, communications, and related activities in a format that is identifiable and searchable.
+
+**AI Agent Relevance:** Agent interactions in commodities trading contexts — including automated communications, trade-related outputs, and decision logs — may fall within 1.31 record-keeping scope. Organizations subject to CFTC oversight should consider mapping agent governance controls (particularly Controls 1.7, 1.9, and 2.13) to their 1.31 record-keeping requirements. Implementation specifics depend on institutional use of agents in CFTC-regulated activities.
+
+---
+
 ## Regulation-Zone Mapping
 
 ### FINRA Examination Focus by Zone
@@ -402,6 +410,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 | SOX 302/404 | 6 controls | Internal controls |
 | GLBA 501(b) | 6 controls | Safeguards |
 | OCC 2011-12 / SR 11-7 | 6 controls | Model risk |
+| CFTC 1.31 | 3 controls | Recordkeeping |
 
 **Total:** 71 controls across 4 pillars providing mapped coverage to primary US financial regulations.
 
@@ -410,4 +419,4 @@ Organizations should conduct separate analysis for state-specific requirements.
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*

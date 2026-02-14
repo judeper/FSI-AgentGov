@@ -115,7 +115,7 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 5. Zone-Specific Requirements (Zone 1/2/3 table)
 6. Roles & Responsibilities (admin roles table)
 7. Related Controls (cross-reference table)
-8. Implementation Guides (links to 4 playbooks)
+8. Implementation Playbooks (links to 4 playbooks)
 9. Verification Criteria (verification checklist)
 10. Additional Resources (Microsoft Learn links)
 

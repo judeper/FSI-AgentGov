@@ -25,6 +25,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Entra App Admin** | App registrations and enterprise apps | Application Administrator |
 | **Entra User Admin** | User and group administration | User Administrator |
 | **Entra Identity Governance Admin** | Access reviews, entitlement management | Identity Governance Administrator |
+| **Authentication Administrator** | Manage authentication methods for non-admin users | Authentication Administrator |
 | **Entra Security Admin** | Security configuration, policy, and Defender XDR access | Security Administrator, Defender XDR Admin (informal) |
 | **Entra Global Reader** | Read-only tenant visibility | Global Reader |
 | **Entra Security Reader** | Read-only security visibility | Security Reader |
@@ -42,6 +43,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 
 | Canonical Role | Typical Responsibilities | Accepted Aliases (Normalize From) |
 |---|---|---|
+| **Microsoft Purview Admin** | Purview portal administration and configuration | Purview Administrator |
 | **Purview Compliance Admin** | Core compliance configuration | Compliance Administrator, Purview Compliance Administrator |
 | **Purview Compliance Reader** | Read-only compliance visibility | Compliance Reader |
 | **Purview Compliance Data Admin** | Compliance data access/exports | Compliance Data Administrator |
@@ -53,6 +55,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Purview Communication Compliance Roles** | Communication compliance workflows | Communication Compliance Admin/Analyst/Investigator/Viewer |
 | **Purview Insider Risk Roles** | Insider risk program workflows | Insider Risk Management Admin/Analyst/Investigator/Auditor |
 | **Purview eDiscovery Roles** | eDiscovery workflows | eDiscovery Administrator/Manager/Case Member |
+| **Purview Data Security AI Admin** | Manage DSPM for AI policies, configurations, and data security settings | Data Security AI Administrator |
 | **Purview Data Security AI Viewer** | View-only access to DSPM for AI dashboards and reports | Data Security AI Viewer |
 | **Purview Data Security AI Content Viewer** | View sensitive content flagged by DSPM for AI policies | Data Security AI Content Viewer |
 
@@ -131,6 +134,20 @@ These roles appear in some controls under **Support & Questions** or governance 
 - **AI Governance Lead**
 - **Compliance Officer**
 - **Security Team** (organizational function, not a directory role)
+
+---
+
+## Functional and Operational Roles
+
+Non-admin roles commonly referenced in controls for governance workflows, risk management, and agent development.
+
+| Role | Scope | Description |
+|------|-------|-------------|
+| **Cloud Security Architect** | Organization | Designs cloud security architecture and evaluates AI agent security posture |
+| **Copilot Studio Agent Author** | Power Platform | Creates and configures Copilot Studio agents within governed environments |
+| **Model Risk Manager** | Organization | Oversees model risk management per OCC 2011-12 and Fed SR 11-7 |
+| **Security Architect** | Organization | Defines security standards and reviews agent security configurations |
+| **SOC Analyst** | Organization | Monitors security alerts and investigates AI agent-related incidents |
 
 ---
 

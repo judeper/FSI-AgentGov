@@ -111,7 +111,7 @@ Each control supports three implementation levels:
 | Activity | AI Gov Lead | Compliance | CISO | Legal | Board |
 |----------|-------------|------------|------|-------|-------|
 | Framework ownership | **A** | C | C | I | I |
-| Zone 3 agent approval | R | **A** | A | A | I |
+| Zone 3 agent approval | R | **A** | C | C | I |
 | Security policy | C | C | **A** | I | I |
 | Regulatory alignment | C | **A** | C | C | I |
 | Incident escalation | R | R | R | C | **A** |
@@ -202,12 +202,12 @@ See [Adoption Roadmap](adoption-roadmap.md) for detailed implementation guidance
 
 | Artifact | Location | Retention |
 |----------|----------|-----------|
-| Agent inventory | Control 3.1 | Current + 7 years |
-| Approval records | Governance committee minutes | 7 years |
+| Agent inventory | Control 3.1 | Current + 7 years (SOX 802; supports SEC 17a-4(a), FINRA 4511) |
+| Approval records | Governance committee minutes | 7 years (SOX 802; supports SEC 17a-4(a), FINRA 4511) |
 | Audit logs | Purview Audit | Per zone requirements |
-| Incident reports | Incident management system | 7 years |
-| Training records | HR/LMS system | 7 years |
-| Governance review minutes | SharePoint Compliance Library | 10 years |
+| Incident reports | Incident management system | 7 years (SOX 802; supports SEC 17a-4(a), FINRA 4511) |
+| Training records | HR/LMS system | 7 years (SOX 802; supports SEC 17a-4(a), FINRA 4511) |
+| Governance review minutes | SharePoint Compliance Library | 10 years (per organizational policy) |
 
 ### Examination Response Process
 
@@ -247,4 +247,4 @@ This framework provides governance guidance and does not constitute legal, regul
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.41 - February 2026*
