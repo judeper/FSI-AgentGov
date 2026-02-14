@@ -1,6 +1,6 @@
 # Conditional Access Automation - Deployment Guide
 
-**Status:** February 2026 - FSI-AgentGov v1.2.47
+**Status:** February 2026 - FSI-AgentGov v1.2.48
 **Related Controls:** 1.11 (Conditional Access & MFA), 1.23 (Step-Up Authentication), 1.18 (Application-Level RBAC)
 
 ---
@@ -332,4 +332,4 @@ Record in your governance system:
 
 ---
 
-*FSI Agent Governance Framework v1.2.47 - February 2026*
+*FSI Agent Governance Framework v1.2.48 - February 2026*

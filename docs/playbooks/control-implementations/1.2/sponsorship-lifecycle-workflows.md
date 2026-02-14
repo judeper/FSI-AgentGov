@@ -618,4 +618,4 @@ Get-MgUser -UserId $agentId -ExpandProperty Extensions | Select-Object -ExpandPr
 
 ---
 
-*Updated: February 2026 | Version: v1.2.47*
+*Updated: February 2026 | Version: v1.2.48*

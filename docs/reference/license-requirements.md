@@ -306,4 +306,4 @@ For FSI organizations with multiple tenants (e.g., separate tenants for differen
 
 ---
 
-*Last Updated: February 2026 | Framework Version: v1.2.47*
+*Last Updated: February 2026 | Framework Version: v1.2.48*

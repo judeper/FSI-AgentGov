@@ -1,21 +1,21 @@
 # Project State: FSI-AgentGov
 
 **Last Updated:** 2026-02-14
-**Milestone:** v23 — Comprehensive Review & Remediation
-**Status:** COMPLETE — All remediation delivered. Excel re-save deferred (manual).
+**Milestone:** v24 — GitHub Issues Remediation (#9–#20)
+**Status:** COMPLETE — All 12 GitHub issues resolved, version bumped to v1.2.48.
 
 ## Session Ownership
 
 **Active Tool:** copilot
 **Session Started:** 2026-02-14
-**Handoff Summary:** v23 COMPLETE. All remediation done. Excel re-save pending (manual).
+**Handoff Summary:** v24 COMPLETE. Resolved all 12 GitHub issues (#9–#20) across both repos. Version bumped to v1.2.48. Changes pushed to remote.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** Documentation and solutions that US FSI customers trust.
-**Current focus:** No active milestone. v23 Comprehensive Review & Remediation complete. Framework at v1.2.47, 71 controls, 284 playbooks.
+**Current focus:** No active milestone. v24 GitHub Issues Remediation complete. Framework at v1.2.48, 71 controls, 284 playbooks.
 
 ## Milestone Series Plan
 

@@ -10,7 +10,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 ## Current Milestone: No active milestone — v23 Comprehensive Review complete
 
-**State:** Framework at v1.2.47 with 71 controls and 284 playbooks. All src/ solution artifacts migrated to FSI-AgentGov-Solutions companion repo. No active milestone.
+**State:** Framework at v1.2.48 with 71 controls and 284 playbooks. All src/ solution artifacts migrated to FSI-AgentGov-Solutions companion repo. No active milestone.
 
 **v23 delivered (2026-02-14):**
 - src/ migration: 24 solution artifacts moved to companion repo (2 rounds), src/ deleted

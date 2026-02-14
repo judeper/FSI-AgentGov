@@ -634,4 +634,4 @@ Before enabling any policy, test with What-If:
 
 ---
 
-*Updated: February 2026 | Version: v1.2.47*
+*Updated: February 2026 | Version: v1.2.48*

@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.48] — February 2026 (Comprehensive Repository Review)
+
+### Overview
+
+Resolved all 12 open GitHub issues (#9–#20) from the comprehensive repository review (Phases 1–8). Fixes span both FSI-AgentGov (docs) and FSI-AgentGov-Solutions (deployable solutions).
+
+### Fixed
+
+- **Version consistency (#15):** Updated 24 stale v1.2.43/v1.2.45 footers to v1.2.47; added v1.2–v1.2.47 entries to README version history
+- **Cross-repo alignment (#9):** Synced solutions-integration.md counts (19→25 deployable), updated Solutions README for ACM merge and Azure AD→Entra ID terminology
+- **Solutions README audit (#10):** Fixed Azure AD terminology in 5 solution READMEs, corrected agent-observability-foundation version mismatch
+- **Structural integrity (#11):** Corrected framework document count (9→12 files) in README
+- **Technical content (#14):** Fixed stale PROJECT.md milestone header (v10→v23)
+- **Regulatory accuracy (#13):** Updated DISCLAIMER.md version (v1.1→v1.2), corrected playbook count (256→284)
+- **Link validation (#12):** Fixed Purview portal URL consistency (compliance.microsoft.com→purview.microsoft.com) in README and control 1.26
+- **GitHub infrastructure (#16):** Created PR template with change type checklist and validation steps
+- **FSI language violations (#17):** Resolved 37 prohibited phrase violations ("prevents", "eliminates") across 23 files with hedged alternatives
+- **Solutions index sync (#18):** Added Agent Observability Foundation to index, updated 3 statuses (Planned→WIP), synced counts to 27 solutions
+- **Dataverse API parameterization (#19):** Added API_VERSION class constant to 6 Python client files in Solutions repo, replacing hardcoded v9.2 strings
+- **Get-ZoneClassification consolidation (#20):** Created scripts/shared/ canonical module, replaced 3 identical copies with dot-source wrappers (509→178 lines)
+
+---
+
 ## [1.2.47] — February 2026 (Solution Consolidation)
 
 ### Changed
