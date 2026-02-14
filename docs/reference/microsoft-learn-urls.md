@@ -95,6 +95,13 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Test Your Agent | https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-test-bot | Jan 2026 |
 | VNet Support | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-network-isolation-vnet | Jan 2026 |
 | What's New | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Jan 2026 |
+| **Guidance Hub** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/ | Feb 2026 |
+| Guidance Hub: What's New | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Feb 2026 |
+| Guidance Hub: Plan | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/plan-overview | Feb 2026 |
+| Guidance Hub: Implement | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/implement-overview | Feb 2026 |
+| Guidance Hub: Manage | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/manage-overview | Feb 2026 |
+| Guidance Hub: Improve | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/improve-overview | Feb 2026 |
+| Guidance Hub: Extend | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/extend-overview | Feb 2026 |
 
 ---
 
@@ -477,5 +484,5 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 ---
 
 *Last Updated: February 2026*
-*Total URLs Tracked: 195*
+*Total URLs Tracked: 202*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*

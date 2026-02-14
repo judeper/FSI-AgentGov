@@ -29,12 +29,12 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. Security** | 24 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. Management** | 21 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
-| **3. Reporting** | 10 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback |
+| **1. Security** | 28 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers, Content Moderation, Publishing Restrictions |
+| **2. Management** | 24 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework, Inactivity Timeout, Feature Governance |
+| **3. Reporting** | 12 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback, Exception Management |
 | **4. SharePoint Mgmt** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
-**Total: 62 Comprehensive Controls**
+**Total: 71 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -76,11 +76,11 @@ Strategic governance principles in `docs/framework/`:
 - Agent lifecycle management
 - Operating model and regulatory framework
 
-### Control Files (64 Total)
+### Control Files (71 Total)
 Technical specifications in `docs/controls/`:
-- **Pillar 1:** 25 Security Controls (1.1-1.25)
-- **Pillar 2:** 22 Management Controls (2.1-2.22)
-- **Pillar 3:** 10 Reporting Controls (3.1-3.10)
+- **Pillar 1:** 28 Security Controls (1.1-1.28)
+- **Pillar 2:** 24 Management Controls (2.1-2.24)
+- **Pillar 3:** 12 Reporting Controls (3.1-3.12)
 - **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
 
 Each control includes:
@@ -89,7 +89,7 @@ Each control includes:
 - Zone-specific requirements
 - Verification and testing procedures
 
-### Implementation Playbooks (256 Files)
+### Implementation Playbooks (284 Files)
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **4 playbooks per control** (71 controls × 4 = 284 playbooks)
 - Portal walkthrough guides with click-by-click navigation
@@ -157,10 +157,10 @@ Version 1.1 introduces a three-layer documentation model designed to serve diffe
 **Purpose:** Technical control specifications
 **Audience:** Administrators, engineers, security teams
 
-63 detailed controls organized by pillar:
-- **Pillar 1 - Security:** 25 controls (1.1-1.25)
-- **Pillar 2 - Management:** 21 controls (2.1-2.21)
-- **Pillar 3 - Reporting:** 10 controls (3.1-3.10)
+71 detailed controls organized by pillar:
+- **Pillar 1 - Security:** 28 controls (1.1-1.28)
+- **Pillar 2 - Management:** 24 controls (2.1-2.24)
+- **Pillar 3 - Reporting:** 12 controls (3.1-3.12)
 - **Pillar 4 - SharePoint:** 7 controls (4.1-4.7)
 
 Each control follows a 10-section format including objective, regulatory alignment, configuration points, zone-specific requirements, and verification criteria.
@@ -171,7 +171,7 @@ Each control follows a 10-section format including objective, regulatory alignme
 **Purpose:** Step-by-step implementation procedures
 **Audience:** Hands-on implementers, auditors
 
-248 implementation playbooks (4 per control):
+284 implementation playbooks (4 per control):
 1. **Portal Walkthrough** - Click-by-click configuration in admin portals
 2. **PowerShell Setup** - Automation scripts with validation
 3. **Verification Testing** - Test cases, evidence collection, attestation templates
