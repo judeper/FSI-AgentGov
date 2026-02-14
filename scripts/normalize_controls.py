@@ -1,4 +1,4 @@
-"""Normalize control document metadata across all 62 controls.
+"""Normalize control document metadata across all 71 controls.
 
 This script enforces the v1.1 requirements:
 - Footer must include the exact string: "v1.1 (Jan 2026)"

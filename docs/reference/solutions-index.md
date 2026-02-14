@@ -247,7 +247,7 @@ Automates Conditional Access policy deployment and compliance monitoring for AI 
 !!! success "Production Ready"
     v1.0.0 includes Power Automate flows, Dataverse schema, sample data, and deployment documentation. Power BI template requires manual creation following the 883-line specification.
 
-Provides unified compliance visibility across 62 framework controls with zone-based filtering and trend analysis for regulatory reporting. The 9 controls added in v20.5 (1.26–1.28, 2.23–2.24, 3.10–3.12) are not yet included; a future dashboard update will extend coverage to all 71 controls.
+Provides unified compliance visibility across all 71 framework controls with zone-based filtering and trend analysis for regulatory reporting.
 
 **Components:**
 - Dataverse tables for control assessments, scores, exceptions, and evidence
