@@ -151,7 +151,7 @@ Each control has a dedicated folder with:
 - `troubleshooting.md` — Common issues and solutions
 
 !!! success "Available Now"
-    All 256 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
+    All 284 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
 
 ---
 
