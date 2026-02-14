@@ -14,6 +14,8 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 
 ## Available Solutions
 
+*Control coverage listed here represents the primary controls addressed. See each solution's README for the complete list of related controls.*
+
 | Solution | Version | Status | Description | Related Controls |
 |----------|---------|--------|-------------|------------------|
 | [Environment Lifecycle Management](#environment-lifecycle-management) | v1.1.2 | Completed | Automated Power Platform environment provisioning with zone-based governance classification | 2.1, 2.2, 2.15 |
@@ -133,7 +135,7 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 
 - FINRA 4511 (Books and Records)
 - FINRA 3110 (Supervision)
-- FINRA 25-07 (Communications Recordkeeping)
+- FINRA Regulatory Notice 25-07 (Workplace Modernization)
 - SEC 17a-3/4 (Recordkeeping)
 - SOX 302/404 (Internal Controls)
 - GLBA 501(b) (Safeguards)
@@ -919,7 +921,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | DR Testing Framework | v1.0.0 | February 2026 |
 | File Upload Security Configurator | v1.0.0 | February 2026 |
 | Cross-Solution Integration | v1.0.0 | February 2026 |
-| Configuration Hardening Baseline | v1.0.0 | February 2026 |
+| Configuration Hardening Baseline | v1.1.0 | February 2026 |
 | Agent Usage & Performance Workbook | v1.0.0 | February 2026 |
 | Unrestricted Agent Sharing Detector | v1.0.0 | February 2026 |
 | Agent Sharing Access Restriction Detector | v1.0.0 | February 2026 |
