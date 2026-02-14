@@ -375,7 +375,7 @@ Risk classification for agents:
 |---------|-----------|---------|
 | FINRA 3110 | Supervision Rule | Requires written policies and procedures |
 | FINRA 4511 | Books and Records | Requires 6-year recordkeeping |
-| FINRA 4512 | Continuing Education | Training requirements |
+| FINRA 4512 | Customer Account Information | Customer account record requirements |
 | SEC 17a-3/4 | Recordkeeping | Requires 3–6 year record retention (varies by record type) |
 | SEC 10b-5 | Anti-Fraud Rule | Prohibits deceptive trading practices |
 | Reg BI | Best Interest | Requires best interest for retail customers |

@@ -93,9 +93,9 @@ The framework organizes 71 controls across four pillars:
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. [Security](../controls/pillar-1-security/index.md)** | 25 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. [Management](../controls/pillar-2-management/index.md)** | 22 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
-| **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 10 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
+| **1. [Security](../controls/pillar-1-security/index.md)** | 28 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
+| **2. [Management](../controls/pillar-2-management/index.md)** | 24 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
+| **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 12 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
 | **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
 **Note:** Pillar 4 specializes Pillars 1-3 for SharePoint as an agent knowledge source. Controls address SharePoint-specific implementation of data protection, access governance, and content management.

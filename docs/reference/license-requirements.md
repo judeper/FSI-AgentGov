@@ -34,7 +34,7 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 
 **Key Differences from Enterprise Copilot:**
 
-| Capability | Copilot Business | Copilot for Enterprise |
+| Capability | Copilot Business | Microsoft 365 Copilot |
 |------------|------------------|----------------------|
 | **User limit** | 300 maximum | Unlimited |
 | **Base license** | M365 Business SKUs | M365 E3/E5 |
@@ -101,6 +101,10 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | **1.22** | Information Barriers | Microsoft 365 E5 or E5 Compliance | Purview Information Barriers |
 | **1.23** | Step-Up Authentication | Microsoft Entra ID P2 | Authentication context + Conditional Access |
 | **1.24** | Defender AI-SPM | Microsoft Defender for Cloud (CSPM) | Defender CSPM plan required |
+| **1.25** | MIME Type Restrictions | Power Platform Premium | Managed Environments; optional Purview DLP |
+| **1.26** | Agent File Upload and File Analysis Restrictions | Power Platform Premium | Copilot Studio v8+; Purview DLP for Zone 2+ |
+| **1.27** | AI Agent Content Moderation Enforcement | Power Platform Premium | Native Copilot Studio content moderation |
+| **1.28** | Policy-Based Agent Publishing Restrictions | Power Platform Premium | Tenant DLP policies; PPAC security scans |
 
 ---
 
@@ -129,6 +133,9 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | **2.19** | Customer AI Disclosure | N/A (process) | Transparency/labeling requirement |
 | **2.20** | Adversarial Testing / Red Team | N/A (process) | Process; optional Azure AI safety tools |
 | **2.21** | AI Marketing Claims | N/A (process) | Process/documentation control |
+| **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
+| **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
+| **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium | PPAC Copilot governance page |
 
 ---
 
@@ -146,6 +153,8 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 | **3.8** | Copilot Hub | Power Platform Premium | PPAC Copilot Hub governance dashboard |
 | **3.9** | Microsoft Sentinel Integration | Microsoft Sentinel + E5 Security | Azure Sentinel workspace required |
 | **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
+| **3.11** | Centralized Agent Inventory Enforcement | Power Platform Premium | PPAC Agent Inventory feature |
+| **3.12** | Agent Governance Exception and Override Management | Microsoft 365 E3+ | Dataverse/SharePoint exception register |
 
 ---
 
@@ -190,11 +199,11 @@ Complete license mapping for all 71 FSI Agent Governance Framework controls.
 
 | Product | Premium Connectors | Dataverse Access | Notes |
 |---------|-------------------|------------------|-------|
-| **Copilot Studio** | ✅ Included | ✅ Included (5 GB default) | No additional connector licensing required |
+| **Copilot Studio** | ✅ Included | ✅ Included (15 GB default) | No additional connector licensing required |
 | **Power Apps** | Requires Premium license | Requires Premium license | Per-user or per-app licensing |
 | **Power Automate** | Requires Premium license | Requires Premium license | Per-user or per-flow licensing |
 
-**Common Misconception:** Teams building Copilot Studio agents do NOT need separate premium connector licenses. All premium connectors and Dataverse access (5 GB default capacity) are included with the Copilot Studio license at no additional cost.
+**Common Misconception:** Teams building Copilot Studio agents do NOT need separate premium connector licenses. All premium connectors and Dataverse access (15 GB default capacity) are included with the Copilot Studio license at no additional cost.
 
 **Power Apps/Power Automate Context:** Premium connector and Dataverse access require Power Apps Premium, Power Apps per app, Power Automate Premium, or Power Automate per flow licenses for all accessing users.
 

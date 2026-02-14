@@ -196,7 +196,7 @@ Search-UnifiedAuditLog has limits affecting deny event extraction.
 
 | Parameter | Limit | Mitigation |
 |-----------|------:|------------|
-| Records per query | 50,000 | Use pagination with -SessionId |
+| Records per query (-ResultSize) | 5,000 | Use -SessionId pagination (50,000 per session) |
 | Date range | 90 days (default) | Audit Premium extends to 1 year |
 | Concurrent sessions | 3 per user | Use service account with dedicated sessions |
 | Query timeout | 5 minutes | Narrow date range, add filters |

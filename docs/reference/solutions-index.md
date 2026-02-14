@@ -27,7 +27,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Completed | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
-| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across 62 controls with zone-based filtering | 3.3, 3.1, 3.2 |
+| [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across 71 controls with zone-based filtering | 3.3, 3.1, 3.2 |
 | [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
@@ -59,7 +59,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 
 ### Environment Lifecycle Management
 
-Automates Power Platform environment provisioning using a Copilot Studio intake agent. Ensures consistent zone classification and governance controls from day one.
+Automates Power Platform environment provisioning using a Copilot Studio intake agent. Supports consistent zone classification and governance controls from day one.
 
 **Components:**
 - Copilot Studio intake agent for environment requests
@@ -91,8 +91,8 @@ Polls Microsoft 365 Message Center for platform announcements and delivers struc
 
 ### Pipeline Governance Cleanup
 
-!!! warning "February 2026 Deadline"
-    Organizations should run Pipeline Governance Cleanup **before February 2026** when Microsoft will automatically enable Managed Environments for all pipeline targets. Discover and remediate personal pipelines now to avoid unexpected licensing charges.
+!!! warning "Pipeline Governance Required"
+    Organizations should run Pipeline Governance Cleanup before Microsoft automatically enables Managed Environments for all pipeline targets. Discover and remediate personal pipelines to avoid unexpected licensing charges.
 
     See [Control 2.1](../controls/pillar-2-management/2.1-managed-environments.md#critical-deadline-february-2026-pipeline-requirement) for complete deadline details.
 
@@ -253,7 +253,7 @@ Provides unified compliance visibility across 62 framework controls with zone-ba
 - Dataverse tables for control assessments, scores, exceptions, and evidence
 - Power Automate flows for score calculation and exception monitoring
 - DAX measure library for Power BI
-- Sample data with 62 controls
+- Sample data with 71 controls
 - Python script for demo data loading
 
 **Regulatory Alignment:**
