@@ -23,7 +23,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | v2.0.0 | Validated | Daily deny event correlation across Purview Audit, DLP, and Application Insights with Dataverse persistence, Power Automate orchestration, and evidence export | 1.5, 1.7, 1.8, 3.4 |
 | [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Completed | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
-| [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Completed | Automated validation of tenant and environment audit configurations | 1.7 |
+| [Audit Compliance Manager](#audit-compliance-manager) | v1.0.0 | Completed | Automated validation, drift detection, and remediation of tenant and environment audit configurations with Managed Identity auth and approval workflows | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
 | [Agent Access Governance Monitor](#agent-access-governance-monitor) | v1.0.0 | Completed | Automated detection of overly permissive agent access configurations per governance zone | 3.8 |
 | [Content Moderation Governance Monitor](#content-moderation-governance-monitor) | v1.0.0 | Completed | Automated per-agent content moderation level validation against zone-specific governance requirements | 1.8, 1.14 |
@@ -43,7 +43,6 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Agent Security Configuration Governance](#agent-security-configuration-governance) | v1.0.0 | Completed | Per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance scripts | 1.1, 3.7, 3.8 |
 | [MIME Type Restrictions for File Uploads](#mime-type-restrictions-for-file-uploads) | v1.0.0 | Completed | Zone-based MIME type configuration, server-side magic bytes validation, DLP policy integration, Sentinel monitoring | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 |
 | [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | v1.0.0 | Completed | Policy-driven inactivity timeout validation and enforcement with zone-based maximum duration requirements and Dataverse compliance persistence | 2.22, 1.23, 3.7, 3.8 |
-| [Audit Logging Compliance Automation](#audit-logging-compliance-automation) | v1.0.0 | In Development | Automated detection and remediation of Purview unified audit and Dataverse audit logging gaps with Managed Identity auth, entity-level enablement, and approval-gated remediation | 1.7 |
 | [Agent Sharing Access Restriction Detector](#agent-sharing-access-restriction-detector) | v1.0.0 | Completed | Continuous detection and restriction of agent sharing configurations exceeding zone-based access policies with approval workflows and exception management | 1.18, 2.8 |
 
 ### Status Legend
@@ -402,29 +401,42 @@ Validates AI agent disaster recovery procedures against defined RTO/RPO targets,
 
 ---
 
-### Audit Configuration Validator
+### Audit Compliance Manager
 
-Automated validation of Microsoft 365 and Power Platform audit configurations to support compliance with US financial services regulations.
+Automated validation, drift detection, and remediation of Microsoft 365 and Power Platform audit configurations to support compliance with US financial services regulations. Combines configuration validation with automated gap detection and approval-gated remediation using enterprise-grade Managed Identity authentication.
+
+!!! success "Production Ready"
+    Version 1.0.0 — Consolidates the former Audit Configuration Validator (ACV) and Audit Logging Compliance Automation (ALCA) into a single unified solution.
+
+**Version:** v1.0.0
+**Status:** Completed
 
 **Components:**
-- PowerShell validation scripts (tenant and environment level)
-- Azure Automation runbook wrappers for scheduled execution
-- Power Automate flow definitions for drift detection and alerting
-- Dataverse tables for validation history and environment registry
-- Evidence export with SHA-256 integrity hashing
+
+- `AuditComplianceHelpers.psm1` — Shared PowerShell module (retry logic, MI auth, Dataverse operations, evidence export, email notifications)
+- PowerShell validation scripts (tenant-level: Unified Audit Log, mailbox audit, Purview retention)
+- Environment-level validation (Power Platform audit retention with zone-based thresholds)
+- `Check-AuditLoggingCompliance.ps1` — Detection runbook (environment scanning, Purview + Dataverse audit checks, compliance determination)
+- `Enable-AuditLogging.ps1` — Remediation runbook (org-level + entity-level audit enablement for 6 Copilot Studio entities, WhatIf support)
+- `Compare-ValidationBaseline.ps1` — Drift detection with SHA-256 evidence hashing
+- `Export-AuditValidationEvidence.ps1` — Evidence export with SHA-256 integrity hashing
+- `Test-EvidenceIntegrity.ps1` — Evidence hash verification for audit submissions
+- Dataverse tables for validation history (immutable), environment registry, and compliance tracking
+- Power Automate flows for daily scheduled validation, drift detection alerting, and approval-gated remediation
+- Azure Automation runbook wrappers for scheduled execution with System-Assigned Managed Identity
+- Pester 5 unit tests (29 test cases)
+- Deployment guide, scheduling guide, 15 testing scenarios, 10 troubleshooting issues
 
 **Regulatory Alignment:**
-- FINRA 4511 (Books and Records - Audit Configuration)
-- SEC 17a-3/4 (Recordkeeping - Audit Trail Requirements)
-- SOX 404 (Internal Controls - Audit Logging)
-- GLBA 501(b) (Safeguards - Audit Trail)
+
+- FINRA 4511 (Books and Records — Audit Configuration)
+- SEC 17a-3/4 (Recordkeeping — Audit Trail Requirements)
+- SOX 404 (Internal Controls — Audit Logging Verification)
+- GLBA 501(b) (Safeguards — Audit Trail Integrity)
 
 **Related Control:** [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 
-**Repository Link:** [audit-configuration-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-configuration-validator)
-
-!!! info "Complementary Solution"
-    The **Audit Logging Compliance Automation (ALCA)** solution complements ACV by providing automated detection and remediation of audit logging gaps. While ACV validates configurations with drift detection and SHA-256 evidence, ALCA detects non-compliant environments and enables auditing automatically with approval workflows. See [Audit Logging Compliance Automation](#audit-logging-compliance-automation) below.
+**Repository Link:** [audit-compliance-manager](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager)
 
 ---
 
@@ -512,7 +524,7 @@ Automated detection of non-compliant content moderation settings for Copilot Stu
 
 ### Cross-Solution Integration
 
-Wires five Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compliance Dashboard for automated compliance scoring, adds ELM provisioning hooks for environment auto-registration, and provides unified evidence export with SHA-256 hash chain for audit packages.
+Wires five Tier 2 governance solutions (ACM, SSC, AAM, CMM, FUS) into the Compliance Dashboard for automated compliance scoring, adds ELM provisioning hooks for environment auto-registration, and provides unified evidence export with SHA-256 hash chain for audit packages.
 
 **Components:**
 
@@ -520,7 +532,7 @@ Wires five Tier 2 governance solutions (ACV, SSC, AAM, CMM, FUS) into the Compli
 - Sync-SolutionAssessments.ps1 — batch pipeline for Compliance Dashboard feeds
 - cd-solution-feed-collector.json — Power Automate alternative for dashboard feeds
 - elm-solution-initializer.json — event-driven ELM provisioning hook
-- Register-ProvisionedEnvironment.ps1 — PowerShell ACV registration alternative
+- Register-ProvisionedEnvironment.ps1 — PowerShell ACM registration alternative
 - Export-UnifiedComplianceEvidence.ps1 — unified evidence export pipeline
 - Test-UnifiedEvidenceIntegrity.ps1 — evidence integrity verification
 
@@ -797,48 +809,6 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 ---
 
-### Audit Logging Compliance Automation
-
-Automated detection and remediation of Microsoft 365 and Power Platform audit logging compliance gaps. Enterprise-grade Azure Automation solution with Managed Identity authentication, entity-level audit enablement, and governance-approved remediation workflows.
-
-!!! success "Production Ready"
-    Version 1.0.0 — Helper module (6 functions), detection runbook, remediation runbook, Dataverse compliance tracking, Power Automate approval flow, deployment guide, testing scenarios, and troubleshooting guide.
-
-**Version:** v1.0.0
-**Status:** Completed
-
-**Components:**
-
-- `AuditComplianceHelpers.psm1` — Shared PowerShell module (retry logic, MI auth, Dataverse operations, email notifications)
-- `Check-AuditLoggingCompliance.ps1` — Detection runbook (environment scanning, Purview + Dataverse audit checks, compliance determination)
-- `Enable-AuditLogging.ps1` — Remediation runbook (org-level + entity-level audit enablement, WhatIf support, post-remediation validation)
-- `create_audit_compliance_schema.py` — Dataverse `fsi_auditenvironmentcompliance` table schema with alternate key
-- `audit-remediation-approval-flow.json` — Power Automate approval flow for governance-gated remediation
-- Pester 5 unit tests for helper module (29 test cases)
-- Deployment guide, scheduling guide, 15 testing scenarios, 10 troubleshooting issues
-
-**Regulatory Alignment:**
-
-- FINRA 4511 (Books and Records — Audit Log Configuration)
-- SEC 17a-3/4 (Recordkeeping — Audit Trail Requirements)
-- SOX 404 (Internal Controls — Audit Logging Verification)
-- GLBA 501(b) (Safeguards — Audit Trail Integrity)
-
-**Related Control:** [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
-
-**Repository Link:** [audit-logging-compliance-automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-logging-compliance-automation)
-
-!!! info "Relationship to ACV"
-    ALCA complements the [Audit Configuration Validator](#audit-configuration-validator). ACV validates configurations with drift detection and SHA-256 evidence export. ALCA detects audit logging gaps and remediates them automatically with approval workflows. Together, they provide comprehensive audit logging governance — ACV for validation and evidence, ALCA for detection and remediation.
-
-**Version History:**
-
-| Version | Date | Changes |
-|---------|------|---------|
-| v1.0.0 | February 2026 | Initial release |
-
----
-
 ### Agent Sharing Access Restriction Detector
 
 !!! success "Production Ready"
@@ -903,7 +873,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Solution | Current | Last Updated |
 |----------|---------|--------------|
 | Agent Access Governance Monitor | v1.0.0 | February 2026 |
-| Audit Configuration Validator | v1.0.0 | February 2026 |
+| Audit Compliance Manager | v1.0.0 | February 2026 |
 | Environment Lifecycle Management | v1.1.2 | January 2026 |
 | Message Center Monitor | v2.1.1 | January 2026 |
 | Pipeline Governance Cleanup | v1.0.8 | January 2026 |
@@ -928,7 +898,6 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Agent Security Configuration Governance | v1.0.0 | February 2026 |
 | MIME Type Restrictions for File Uploads | v1.0.0 | February 2026 |
 | Inactivity Timeout Enforcement | v1.0.0 | February 2026 |
-| Audit Logging Compliance Automation | v1.0.0 | February 2026 |
 
 ---
 

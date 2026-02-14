@@ -187,7 +187,7 @@ This hardening baseline complements existing FSI-AgentGov solutions:
 
 | Solution | Integration Point |
 |----------|-------------------|
-| **Audit Configuration Validator** | Validates items 7-9 (audit logging settings) automatically |
+| **Audit Compliance Manager** | Validates items 7-9 (audit logging settings) automatically |
 | **Environment Lifecycle Management** | Validates items 14-17 (environment provisioning) at creation time |
 | **Compliance Dashboard** | Aggregate hardening baseline results into compliance posture scoring |
 | **Hardening Baseline Verification Script** | Validates items 7–9 (audit logging), 14–17 (environment provisioning), and 28–32 (environment security settings) with automated pass/fail and evidence export |

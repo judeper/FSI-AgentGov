@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.47] — February 2026 (Solution Consolidation)
+
+### Changed
+
+- **Solutions consolidation:** Merged Audit Configuration Validator (ACV) and Audit Logging Compliance Automation (ALCA) into unified **Audit Compliance Manager (ACM)** — single solution for validation, drift detection, and approval-gated remediation of audit logging configurations with Managed Identity authentication
+- **solutions-index.md:** Replaced separate ACV and ALCA sections with consolidated ACM entry; updated summary table (27→26 solutions), CSI references, and version history
+- **Control 1.7:** Consolidated two solution callout boxes (ACV + ALCA) into single ACM callout
+- **CONTROL-INDEX.md:** Updated solution references from ACV + ALCA to ACM
+- **solutions-integration.md:** Updated mermaid diagrams, control mapping, CSI data flow, Zone Applicability Matrix, Pillar Coverage, Repository Structure, and status distribution
+- **README.md:** Updated solution names in Security Automation and Cross-Cutting categories
+- **Configuration Hardening Baseline:** Updated solution reference from ACV to ACM
+
+---
+
 ## [1.2.46] — February 2026 (ITE Solution Customer Readiness)
 
 ### Fixed

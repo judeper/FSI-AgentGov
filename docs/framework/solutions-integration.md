@@ -35,7 +35,7 @@ flowchart TB
         DR[DR Testing<br/>Framework]
         SSC[Session Security<br/>Configurator]
         FUS[File Upload<br/>Security]
-        ACV[Audit Config<br/>Validator]
+        ACM[Audit Compliance<br/>Manager]
         AAM[Agent Access<br/>Monitor]
         CMM[Content Moderation<br/>Monitor]
         CSI[Cross-Solution<br/>Integration]
@@ -57,7 +57,7 @@ flowchart TB
     P2 --> DR
     P1 --> SSC
     P1 --> FUS
-    P1 --> ACV
+    P1 --> ACM
     P3 --> AAM
     P1 --> CMM
     P1 --> CSI
@@ -375,19 +375,19 @@ Validates per-agent file upload settings against zone governance policies with d
 
 ---
 
-### Audit Configuration Validator
+### Audit Compliance Manager
 
-Validates tenant and environment audit configurations against framework requirements.
+Validates tenant and environment audit configurations, detects compliance gaps, and provides approval-gated remediation with Managed Identity authentication.
 
 | Control | How Solution Helps |
 |---------|-------------------|
-| **1.7 Comprehensive Audit Logging** | Validates audit log configuration completeness across environments |
+| **1.7 Comprehensive Audit Logging** | Validates audit log configuration completeness, detects gaps, and remediates non-compliant environments with approval workflows |
 
 **Applicable Zones:** All zones
 
-**Status:** Work In Progress
+**Status:** Completed
 
-**Repository Link:** [audit-configuration-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-configuration-validator)
+**Repository Link:** [audit-compliance-manager](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager)
 
 ---
 
@@ -433,7 +433,7 @@ The **Cross-Solution Integration** layer wires five Tier 2 governance solutions 
 ```mermaid
 flowchart TB
     subgraph Tier2["Tier 2 Solutions"]
-        ACV[Audit Config<br/>Validator<br/>→ Control 1.7]
+        ACM[Audit Compliance<br/>Manager<br/>→ Control 1.7]
         SSC[Session Security<br/>Configurator<br/>→ Controls 1.23, 1.11]
         AAM[Agent Access<br/>Monitor<br/>→ Control 3.8]
         CMM[Content Moderation<br/>Monitor<br/>→ Control 1.8]
@@ -452,13 +452,13 @@ flowchart TB
         ELM[Environment<br/>Lifecycle Mgmt]
     end
 
-    ACV --> SYNC
+    ACM --> SYNC
     SSC --> SYNC
     AAM --> SYNC
     CMM --> SYNC
     FUS --> SYNC
 
-    ACV --> FLOW
+    ACM --> FLOW
     SSC --> FLOW
     AAM --> FLOW
     CMM --> FLOW
@@ -470,9 +470,9 @@ flowchart TB
     CONFIG --> FLOW
     CONFIG --> EXPORT
 
-    ELM -->|ProvisioningCompleted| ACV
+    ELM -->|ProvisioningCompleted| ACM
 
-    ACV --> EXPORT
+    ACM --> EXPORT
     SSC --> EXPORT
     AAM --> EXPORT
     CMM --> EXPORT
@@ -486,8 +486,8 @@ flowchart TB
 | **IntegrationConfig.psm1** | PowerShell Module | Shared configuration — solution-to-control mappings, status translation, canonical zone/severity values |
 | **Sync-SolutionAssessments.ps1** | PowerShell Script | Batch pipeline — queries Tier 2 validation tables, translates status, upserts CD assessment records |
 | **cd-solution-feed-collector.json** | Power Automate Flow | Scheduled daily flow — alternative to PowerShell for organizations preferring low-code |
-| **elm-solution-initializer.json** | Power Automate Flow | Event-driven — triggers on ELM ProvisioningCompleted to auto-register environments in ACV |
-| **Register-ProvisionedEnvironment.ps1** | PowerShell Script | Manual/scripted ACV registration — PowerShell alternative to the ELM flow |
+| **elm-solution-initializer.json** | Power Automate Flow | Event-driven — triggers on ELM ProvisioningCompleted to auto-register environments in ACM |
+| **Register-ProvisionedEnvironment.ps1** | PowerShell Script | Manual/scripted ACM registration — PowerShell alternative to the ELM flow |
 | **Export-UnifiedComplianceEvidence.ps1** | PowerShell Script | Exports governance data from all 5 solutions into auditor-ready package with SHA-256 hash chain |
 | **Test-UnifiedEvidenceIntegrity.ps1** | PowerShell Script | Verifies evidence package integrity by recalculating and comparing all hashes |
 
@@ -496,7 +496,7 @@ flowchart TB
 | Source | Target | Mechanism | Frequency |
 |--------|--------|-----------|-----------|
 | 5 Tier 2 solutions | Compliance Dashboard | Sync script or PA flow | Daily |
-| ELM provisioning log | ACV environment registry | PA flow or PS script | Event-driven |
+| ELM provisioning log | ACM environment registry | PA flow or PS script | Event-driven |
 | 5 Tier 2 solutions | Evidence export | PS script | On-demand |
 
 ### Status Translation
@@ -529,7 +529,7 @@ Each Tier 2 solution stores compliance status in different formats. The integrat
 | Scope Drift Monitor | — | ✓ | ✓ | Data minimization for regulated data |
 | Session Security Configurator | — | ✓ | ✓ | Zone-specific session settings |
 | File Upload Security | — | ✓ | ✓ | Per-agent upload validation |
-| Audit Config Validator | ✓ | ✓ | ✓ | Tenant-wide audit configuration |
+| Audit Compliance Manager | ✓ | ✓ | ✓ | Tenant-wide audit configuration |
 | Agent Access Monitor | ✓ | ✓ | ✓ | Organization-wide access governance |
 | Content Moderation Monitor | — | ✓ | ✓ | Moderation for regulated agents |
 | RAG Source Validator | — | ✓ | ✓ | Knowledge integrity for compliance |
@@ -544,7 +544,7 @@ Each Tier 2 solution stores compliance status in different formats. The integrat
 
 | Pillar | Solutions Covering | Coverage Notes |
 |--------|-------------------|----------------|
-| **Pillar 1: Security** | Deny Event Correlation, Conditional Access Automation, Scope Drift Monitor, Session Security Configurator, File Upload Security, Audit Config Validator, Content Moderation Monitor | DLP correlation, access controls, data minimization, session security, audit validation |
+| **Pillar 1: Security** | Deny Event Correlation, Conditional Access Automation, Scope Drift Monitor, Session Security Configurator, File Upload Security, Audit Compliance Manager, Content Moderation Monitor | DLP correlation, access controls, data minimization, session security, audit validation and remediation |
 | **Pillar 2: Management** | ELM, MCM, PGC, FINRA Supervision, Segregation Detector, RAG Validator, COI Testing, DR Testing | Environment lifecycle, change management, supervision, testing |
 | **Pillar 3: Reporting** | Deny Event Correlation, Compliance Dashboard, Hallucination Tracker, Agent Access Monitor | Incident visibility, compliance reporting, feedback loops, access governance |
 | **Pillar 4: SharePoint** | — | SharePoint controls use native admin tools |
@@ -596,7 +596,7 @@ FSI-AgentGov-Solutions/
 ├── rag-source-validator/                 # v1.0.0 (Work In Progress)
 ├── session-security-configurator/        # v1.0.0 (Completed)
 ├── file-upload-security/                 # v1.0.0 (Work In Progress)
-├── audit-configuration-validator/        # v1.0.0 (Work In Progress)
+├── audit-compliance-manager/             # v1.0.0 (Completed)
 ├── agent-access-monitor/                 # v1.0.0 (Work In Progress)
 ├── content-moderation-monitor/           # v1.0.0 (Work In Progress)
 ├── coi-testing/                          # v1.0.0 (Planned)
@@ -655,9 +655,9 @@ For detailed architecture guidance including scalability limits and alternative 
 **Solutions:** 19 deployable automation solutions (including cross-solution integration layer)
 **Control Coverage:** 30 of 71 controls (42.3%) have direct solution support
 **Status Distribution:**
-- Completed: 9 solutions (ELM, MCM, PGC, DEC, SSC, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration)
+- Completed: 10 solutions (ELM, MCM, PGC, DEC, SSC, CAA, ACM, Compliance Dashboard, Scope Drift, Cross-Solution Integration)
 - Validated: 1 solution (FINRA Supervision Workflow)
-- Work In Progress: 6 solutions (Segregation Detector, RAG Source Validator, File Upload Security, Audit Config Validator, Agent Access Monitor, Content Moderation Monitor)
+- Work In Progress: 5 solutions (Segregation Detector, RAG Source Validator, File Upload Security, Agent Access Monitor, Content Moderation Monitor)
 - Planned: 3 solutions
 
 **Pillar Support:**
