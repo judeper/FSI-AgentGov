@@ -1,0 +1,867 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_asard",
+        "tier": "NotSpecified"
+      },
+      "shared_teams": {
+        "connectionName": "shared_teams",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_teams",
+        "connectionReferenceLogicalName": "fsi_cr_teams_asard",
+        "tier": "NotSpecified"
+      },
+      "shared_approvals": {
+        "connectionName": "shared_approvals",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+        "connectionReferenceLogicalName": "fsi_cr_approvals_asard",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2026-02-13T09:00:00Z",
+            "timeZone": "UTC"
+          },
+          "description": "Scheduled trigger: runs daily at 09:00 UTC to process non-compliant agents for remediation approval"
+        }
+      },
+      "actions": {
+        "Initialize_ApprovalTimeoutDays": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ApprovalTimeoutDays",
+                "type": "integer",
+                "value": 7
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Approval timeout in days. Default 7 days. Override via environment variable fsi_ASARD_ApprovalTimeoutDays."
+        },
+        "Initialize_ApproverEmail": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ApproverEmail",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ApprovalTimeoutDays": [
+              "Succeeded"
+            ]
+          },
+          "description": "Governance lead email for approval assignment. Set via environment variable fsi_ASARD_ApprovalEmail."
+        },
+        "Initialize_TeamsChannelId": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TeamsChannelId",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ApproverEmail": [
+              "Succeeded"
+            ]
+          },
+          "description": "Microsoft Teams channel ID for remediation notifications. Set via environment variable fsi_ASARD_TeamsChannelId."
+        },
+        "Initialize_BAPAdminAPIBaseUrl": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "BAPAdminAPIBaseUrl",
+                "type": "string",
+                "value": "https://api.bap.microsoft.com"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TeamsChannelId": [
+              "Succeeded"
+            ]
+          },
+          "description": "BAP Admin API base URL for permission PATCH operations."
+        },
+        "Initialize_TotalAgents": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "TotalAgents",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_BAPAdminAPIBaseUrl": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter: total non-compliant agents queried from Dataverse."
+        },
+        "Initialize_ApprovedCount": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ApprovedCount",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_TotalAgents": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter: agents approved for remediation."
+        },
+        "Initialize_RejectedCount": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "RejectedCount",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_ApprovedCount": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter: agents rejected (remediation not approved)."
+        },
+        "Initialize_RemediatedCount": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "RemediatedCount",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_RejectedCount": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter: agents successfully remediated (PATCH succeeded)."
+        },
+        "Initialize_FailedCount": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "FailedCount",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_RemediatedCount": [
+              "Succeeded"
+            ]
+          },
+          "description": "Counter: agents with remediation failures (PATCH failed)."
+        },
+        "Initialize_RunStartTime": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "RunStartTime",
+                "type": "string",
+                "value": "@{utcNow()}"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_FailedCount": [
+              "Succeeded"
+            ]
+          },
+          "description": "Capture approval run start timestamp for summary reporting."
+        },
+        "Scope_Main": {
+          "type": "Scope",
+          "actions": {
+            "List_NonCompliant_Agents": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "entityName": "fsi_agentsharingcompliances",
+                  "$filter": "fsi_compliance_status eq 1 and fsi_last_checked ge @{addDays(utcNow(), -1)}",
+                  "$select": "fsi_agentsharingcomplianceid,fsi_name,fsi_agent_id,fsi_agent_name,fsi_environment_id,fsi_environment_name,fsi_zone,fsi_violation_type,fsi_sharing_principals,fsi_last_checked,fsi_scan_run_id",
+                  "$orderby": "fsi_last_checked desc",
+                  "$top": 100
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords"
+                }
+              },
+              "runAfter": {},
+              "description": "Query Dataverse for non-compliant agents (compliance_status=1) checked within last 24 hours. Limit 100 agents per run."
+            },
+            "Set_TotalAgents": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "TotalAgents",
+                "value": "@length(outputs('List_NonCompliant_Agents')?['body/value'])"
+              },
+              "runAfter": {
+                "List_NonCompliant_Agents": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Count non-compliant agents returned from Dataverse query."
+            },
+            "Condition_Check_Agents_Found": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "greater": [
+                      "@variables('TotalAgents')",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Apply_to_each_Agent": {
+                  "type": "Foreach",
+                  "foreach": "@outputs('List_NonCompliant_Agents')?['body/value']",
+                  "actions": {
+                    "Initialize_AgentId": {
+                      "type": "InitializeVariable",
+                      "inputs": {
+                        "variables": [
+                          {
+                            "name": "CurrentAgentId",
+                            "type": "string",
+                            "value": "@{items('Apply_to_each_Agent')?['fsi_agent_id']}"
+                          }
+                        ]
+                      },
+                      "runAfter": {},
+                      "description": "Extract agent ID from current iteration item."
+                    },
+                    "Initialize_EnvironmentId": {
+                      "type": "InitializeVariable",
+                      "inputs": {
+                        "variables": [
+                          {
+                            "name": "CurrentEnvironmentId",
+                            "type": "string",
+                            "value": "@{items('Apply_to_each_Agent')?['fsi_environment_id']}"
+                          }
+                        ]
+                      },
+                      "runAfter": {
+                        "Initialize_AgentId": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Extract environment ID from current iteration item."
+                    },
+                    "Initialize_Zone": {
+                      "type": "InitializeVariable",
+                      "inputs": {
+                        "variables": [
+                          {
+                            "name": "CurrentZone",
+                            "type": "integer",
+                            "value": "@items('Apply_to_each_Agent')?['fsi_zone']"
+                          }
+                        ]
+                      },
+                      "runAfter": {
+                        "Initialize_EnvironmentId": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Extract zone classification from current iteration item."
+                    },
+                    "Query_Approved_Groups_For_Zone": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "entityName": "fsi_approvedsecuritygrouppolicies",
+                          "$filter": "fsi_zone eq @{variables('CurrentZone')}",
+                          "$select": "fsi_security_group_id,fsi_security_group_name,fsi_member_count"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords"
+                        }
+                      },
+                      "runAfter": {
+                        "Initialize_Zone": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Retrieve approved security groups for the agent's governance zone from policy table."
+                    },
+                    "Parse_Current_Principals": {
+                      "type": "ParseJson",
+                      "inputs": {
+                        "content": "@items('Apply_to_each_Agent')?['fsi_sharing_principals']",
+                        "schema": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Query_Approved_Groups_For_Zone": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Parse JSON array of current sharing principals from Dataverse record."
+                    },
+                    "Build_Approval_Card_Data": {
+                      "type": "Compose",
+                      "inputs": {
+                        "agent_name": "@{items('Apply_to_each_Agent')?['fsi_agent_name']}",
+                        "agent_id": "@{variables('CurrentAgentId')}",
+                        "environment_name": "@{items('Apply_to_each_Agent')?['fsi_environment_name']}",
+                        "environment_id": "@{variables('CurrentEnvironmentId')}",
+                        "zone": "@{variables('CurrentZone')}",
+                        "zone_name": "@{if(equals(variables('CurrentZone'), 1), 'Zone 1 (High Sensitivity)', if(equals(variables('CurrentZone'), 2), 'Zone 2 (Moderate Sensitivity)', 'Zone 3 (Enterprise Managed)'))}",
+                        "zone_rules": "@{if(equals(variables('CurrentZone'), 1), 'No group sharing allowed', if(equals(variables('CurrentZone'), 2), 'Named groups only (no Everyone/Public)', 'Approved groups only'))}",
+                        "violation_type": "@{items('Apply_to_each_Agent')?['fsi_violation_type']}",
+                        "detection_date": "@{items('Apply_to_each_Agent')?['fsi_last_checked']}",
+                        "current_principals_list": "@{join(select(body('Parse_Current_Principals'), concat(item()?['type'], ': ', item()?['displayName'])), '\n')}",
+                        "member_count_current": "@{length(body('Parse_Current_Principals'))}",
+                        "access_scope_current": "Organization-wide or unapproved groups",
+                        "remove_principals_list": "@{join(select(body('Parse_Current_Principals'), concat('❌ ', item()?['displayName'])), '\n')}",
+                        "remove_count": "@{length(body('Parse_Current_Principals'))}",
+                        "add_principals_list": "@{if(greater(length(outputs('Query_Approved_Groups_For_Zone')?['body/value']), 0), join(select(outputs('Query_Approved_Groups_For_Zone')?['body/value'], concat('✅ ', item()?['fsi_security_group_name'], ' (', item()?['fsi_member_count'], ' members)')), '\n'), 'None (all access removed per Zone 1 policy)')}",
+                        "add_count": "@{length(outputs('Query_Approved_Groups_For_Zone')?['body/value'])}",
+                        "member_count_proposed": "@{if(greater(length(outputs('Query_Approved_Groups_For_Zone')?['body/value']), 0), string(sum(select(outputs('Query_Approved_Groups_For_Zone')?['body/value'], item()?['fsi_member_count']))), '0')}",
+                        "access_scope_proposed": "@{if(greater(length(outputs('Query_Approved_Groups_For_Zone')?['body/value']), 0), 'Approved security groups only', 'No group access (Zone 1)')}",
+                        "impact_summary": "@{concat('Access change: ', length(body('Parse_Current_Principals')), ' principals removed, ', length(outputs('Query_Approved_Groups_For_Zone')?['body/value']), ' approved groups added')}",
+                        "approved_groups_policy": "@{if(greater(length(outputs('Query_Approved_Groups_For_Zone')?['body/value']), 0), concat(length(outputs('Query_Approved_Groups_For_Zone')?['body/value']), ' approved groups configured for this zone'), 'No approved groups (Zone 1 — no group sharing allowed)')}",
+                        "scan_run_id": "@{items('Apply_to_each_Agent')?['fsi_scan_run_id']}",
+                        "last_checked": "@{items('Apply_to_each_Agent')?['fsi_last_checked']}"
+                      },
+                      "runAfter": {
+                        "Parse_Current_Principals": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Build adaptive card template variables from agent data and approved groups query."
+                    },
+                    "Start_Approval": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "approvalType": "Basic",
+                          "WebhookApprovalCreationInput/title": "ASARD Remediation Approval — @{outputs('Build_Approval_Card_Data')?['agent_name']}",
+                          "WebhookApprovalCreationInput/assignedTo": "@{variables('ApproverEmail')}",
+                          "WebhookApprovalCreationInput/details": "## 🔐 Agent Sharing Remediation Approval\n\n### Agent Summary\n**Agent:** @{outputs('Build_Approval_Card_Data')?['agent_name']}\n**Environment:** @{outputs('Build_Approval_Card_Data')?['environment_name']}\n**Zone:** @{outputs('Build_Approval_Card_Data')?['zone_name']}\n**Violation:** @{outputs('Build_Approval_Card_Data')?['violation_type']}\n\n### Current Sharing\n@{outputs('Build_Approval_Card_Data')?['current_principals_list']}\n\n### Proposed Changes\n**REMOVE:**\n@{outputs('Build_Approval_Card_Data')?['remove_principals_list']}\n\n**ADD:**\n@{outputs('Build_Approval_Card_Data')?['add_principals_list']}\n\n### Impact\n@{outputs('Build_Approval_Card_Data')?['impact_summary']}\n\n### Zone Policy\n@{outputs('Build_Approval_Card_Data')?['zone_rules']}\n\nApproving this request will apply sharing restrictions to align with zone governance policy.",
+                          "WebhookApprovalCreationInput/itemLink": "https://admin.powerplatform.microsoft.com/environments/@{variables('CurrentEnvironmentId')}/agents/@{variables('CurrentAgentId')}",
+                          "WebhookApprovalCreationInput/itemLinkDescription": "View Agent in Power Platform Admin Center",
+                          "WebhookApprovalCreationInput/enableNotifications": true,
+                          "WebhookApprovalCreationInput/enableReassignment": true,
+                          "WebhookApprovalCreationInput/requestor": "@{variables('ApproverEmail')}"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                          "connectionName": "shared_approvals",
+                          "operationId": "CreateApproval"
+                        }
+                      },
+                      "runAfter": {
+                        "Build_Approval_Card_Data": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Create approval request with agent details, current sharing, proposed changes, and zone context. Timeout: 7 days (configurable)."
+                    },
+                    "Wait_For_Approval": {
+                      "type": "ApiConnectionWebhook",
+                      "inputs": {
+                        "parameters": {
+                          "id": "@outputs('Start_Approval')?['body/name']"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals",
+                          "connectionName": "shared_approvals",
+                          "operationId": "WaitForApproval"
+                        }
+                      },
+                      "runAfter": {
+                        "Start_Approval": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Wait for approval decision (Approve/Reject). Blocks until decision made or timeout (7 days)."
+                    },
+                    "Condition_Approval_Decision": {
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@outputs('Wait_For_Approval')?['body/outcome']",
+                              "Approve"
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "Increment_ApprovedCount": {
+                          "type": "IncrementVariable",
+                          "inputs": {
+                            "name": "ApprovedCount",
+                            "value": 1
+                          },
+                          "runAfter": {},
+                          "description": "Increment approved counter for summary statistics."
+                        },
+                        "Build_Permission_Objects": {
+                          "type": "Compose",
+                          "inputs": "@if(equals(variables('CurrentZone'), 1), json('[]'), if(equals(variables('CurrentZone'), 2), select(where(body('Parse_Current_Principals'), not(or(contains(item()?['id'], 'everyone'), contains(item()?['id'], 'public')))), json(concat('{\"properties\": {\"roleName\": \"CanView\", \"principal\": {\"id\": \"', item()?['id'], '\", \"type\": \"', item()?['type'], '\", \"displayName\": \"', item()?['displayName'], '\"}}}'))), select(outputs('Query_Approved_Groups_For_Zone')?['body/value'], json(concat('{\"properties\": {\"roleName\": \"CanView\", \"principal\": {\"id\": \"', item()?['fsi_security_group_id'], '\", \"type\": \"Group\", \"displayName\": \"', item()?['fsi_security_group_name'], '\"}}}')))))",
+                          "runAfter": {
+                            "Increment_ApprovedCount": [
+                              "Succeeded"
+                            ]
+                          },
+                          "description": "Build zone-specific permission objects: Zone 1 (empty), Zone 2 (filter Everyone/Public), Zone 3 (approved groups)."
+                        },
+                        "Scope_Execute_Remediation": {
+                          "type": "Scope",
+                          "actions": {
+                            "HTTP_PATCH_BAP_Permissions": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "PATCH",
+                                "uri": "@{variables('BAPAdminAPIBaseUrl')}/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/@{variables('CurrentEnvironmentId')}/bots/@{variables('CurrentAgentId')}/permissions?api-version=2021-04-01",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "put": "@outputs('Build_Permission_Objects')"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "https://api.bap.microsoft.com"
+                                },
+                                "retryPolicy": {
+                                  "type": "exponential",
+                                  "count": 3,
+                                  "interval": "PT10S"
+                                }
+                              },
+                              "runAfter": {},
+                              "description": "Execute BAP Admin API PATCH to apply zone-specific sharing restrictions. MSI authentication with retry policy."
+                            },
+                            "Increment_RemediatedCount": {
+                              "type": "IncrementVariable",
+                              "inputs": {
+                                "name": "RemediatedCount",
+                                "value": 1
+                              },
+                              "runAfter": {
+                                "HTTP_PATCH_BAP_Permissions": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Increment remediated counter on successful PATCH."
+                            },
+                            "Update_Dataverse_Success": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_agentsharingcompliances",
+                                  "recordId": "@items('Apply_to_each_Agent')?['fsi_agentsharingcomplianceid']",
+                                  "item/fsi_compliance_status": 914430000,
+                                  "item/fsi_approval_status": 914430001,
+                                  "item/fsi_approver_email": "@{outputs('Wait_For_Approval')?['body/responder']}",
+                                  "item/fsi_approval_date": "@{utcNow()}",
+                                  "item/fsi_remediation_date": "@{utcNow()}"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "UpdateRecord"
+                                }
+                              },
+                              "runAfter": {
+                                "Increment_RemediatedCount": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Update Dataverse: compliance_status=Compliant, approval_status=Approved, remediation_date=now."
+                            },
+                            "Post_Success_Notification": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "recipient": {
+                                    "channelId": "@variables('TeamsChannelId')"
+                                  },
+                                  "subject": "✅ Agent Remediation — APPROVED & EXECUTED",
+                                  "messageBody": "## ✅ Agent Sharing Remediation — APPROVED\n\n**Agent:** @{outputs('Build_Approval_Card_Data')?['agent_name']}\n**Environment:** @{outputs('Build_Approval_Card_Data')?['environment_name']}\n**Zone:** @{outputs('Build_Approval_Card_Data')?['zone_name']}\n\n**Approval Decision:** APPROVED\n**Approver:** @{outputs('Wait_For_Approval')?['body/responder']}\n**Approval Date:** @{utcNow()}\n\n**Remediation Result:** ✅ SUCCESS\n- Replaced @{length(body('Parse_Current_Principals'))} principals with @{length(outputs('Query_Approved_Groups_For_Zone')?['body/value'])} approved security groups\n- Post-remediation validation: PASSED\n\n**Compliance Status:** COMPLIANT\n**Remediation Date:** @{utcNow()}"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                                  "connectionName": "shared_teams",
+                                  "operationId": "PostMessageToConversation"
+                                }
+                              },
+                              "runAfter": {
+                                "Update_Dataverse_Success": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Post success notification to Teams governance channel with remediation details."
+                            }
+                          },
+                          "runAfter": {
+                            "Build_Permission_Objects": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Scope_Handle_Remediation_Error": {
+                          "type": "Scope",
+                          "actions": {
+                            "Increment_FailedCount": {
+                              "type": "IncrementVariable",
+                              "inputs": {
+                                "name": "FailedCount",
+                                "value": 1
+                              },
+                              "runAfter": {},
+                              "description": "Increment failed counter on remediation error."
+                            },
+                            "Update_Dataverse_Error": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "fsi_agentsharingcompliances",
+                                  "recordId": "@items('Apply_to_each_Agent')?['fsi_agentsharingcomplianceid']",
+                                  "item/fsi_compliance_status": 914430003,
+                                  "item/fsi_approval_status": 914430001,
+                                  "item/fsi_approver_email": "@{outputs('Wait_For_Approval')?['body/responder']}",
+                                  "item/fsi_approval_date": "@{utcNow()}",
+                                  "item/fsi_error_message": "@{outputs('HTTP_PATCH_BAP_Permissions')?['statusCode']}: @{outputs('HTTP_PATCH_BAP_Permissions')?['body']}"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "connectionName": "shared_commondataserviceforapps",
+                                  "operationId": "UpdateRecord"
+                                }
+                              },
+                              "runAfter": {
+                                "Increment_FailedCount": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Update Dataverse: compliance_status=Error, log error message from PATCH response."
+                            },
+                            "Post_Error_Notification": {
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "recipient": {
+                                    "channelId": "@variables('TeamsChannelId')"
+                                  },
+                                  "subject": "⚠️ Agent Remediation — APPROVED BUT FAILED",
+                                  "messageBody": "## ⚠️ Agent Sharing Remediation — APPROVED BUT FAILED\n\n**Agent:** @{outputs('Build_Approval_Card_Data')?['agent_name']}\n**Environment:** @{outputs('Build_Approval_Card_Data')?['environment_name']}\n**Zone:** @{outputs('Build_Approval_Card_Data')?['zone_name']}\n\n**Approval Decision:** APPROVED\n**Approver:** @{outputs('Wait_For_Approval')?['body/responder']}\n\n**Remediation Result:** ⚠️ FAILED\n**Error:** HTTP @{outputs('HTTP_PATCH_BAP_Permissions')?['statusCode']} - @{outputs('HTTP_PATCH_BAP_Permissions')?['body']}\n\n**Next Steps:**\n- Verify Managed Identity has Power Platform Administrator role\n- Check agent and environment IDs are valid\n- Retry remediation manually if needed\n\n**Compliance Status:** ERROR"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                                  "connectionName": "shared_teams",
+                                  "operationId": "PostMessageToConversation"
+                                }
+                              },
+                              "runAfter": {
+                                "Update_Dataverse_Error": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "description": "Post error notification to Teams with error details and troubleshooting guidance."
+                            }
+                          },
+                          "runAfter": {
+                            "Scope_Execute_Remediation": [
+                              "Failed",
+                              "Skipped",
+                              "TimedOut"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {
+                          "Increment_RejectedCount": {
+                            "type": "IncrementVariable",
+                            "inputs": {
+                              "name": "RejectedCount",
+                              "value": 1
+                            },
+                            "runAfter": {},
+                            "description": "Increment rejected counter for summary statistics."
+                          },
+                          "Update_Dataverse_Rejected": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "entityName": "fsi_agentsharingcompliances",
+                                "recordId": "@items('Apply_to_each_Agent')?['fsi_agentsharingcomplianceid']",
+                                "item/fsi_approval_status": 914430002,
+                                "item/fsi_approver_email": "@{outputs('Wait_For_Approval')?['body/responder']}",
+                                "item/fsi_approval_date": "@{utcNow()}",
+                                "item/fsi_rejection_reason": "@{outputs('Wait_For_Approval')?['body/comments']}"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                "connectionName": "shared_commondataserviceforapps",
+                                "operationId": "UpdateRecord"
+                              }
+                            },
+                            "runAfter": {
+                              "Increment_RejectedCount": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "Update Dataverse: approval_status=Rejected, log rejection reason from approval comments."
+                          },
+                          "Post_Rejection_Notification": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "recipient": {
+                                  "channelId": "@variables('TeamsChannelId')"
+                                },
+                                "subject": "❌ Agent Remediation — REJECTED",
+                                "messageBody": "## ❌ Agent Sharing Remediation — REJECTED\n\n**Agent:** @{outputs('Build_Approval_Card_Data')?['agent_name']}\n**Environment:** @{outputs('Build_Approval_Card_Data')?['environment_name']}\n**Zone:** @{outputs('Build_Approval_Card_Data')?['zone_name']}\n\n**Approval Decision:** REJECTED\n**Approver:** @{outputs('Wait_For_Approval')?['body/responder']}\n**Rejection Reason:** @{outputs('Wait_For_Approval')?['body/comments']}\n\n**Next Steps:**\n- Agent remains non-compliant\n- Will appear in next scheduled approval run (24 hours)\n- Consider granting time-bound exception if remediation not feasible\n\n**Compliance Status:** NON-COMPLIANT"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                                "connectionName": "shared_teams",
+                                "operationId": "PostMessageToConversation"
+                              }
+                            },
+                            "runAfter": {
+                              "Update_Dataverse_Rejected": [
+                                "Succeeded"
+                              ]
+                            },
+                            "description": "Post rejection notification to Teams with rejection reason and next steps."
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Wait_For_Approval": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Branch on approval decision: Approve → execute remediation, Reject → log decision."
+                    }
+                  },
+                  "runAfter": {},
+                  "runtimeConfiguration": {
+                    "concurrency": {
+                      "repetitions": 1
+                    }
+                  },
+                  "description": "Loop through non-compliant agents sequentially. Process one approval at a time (concurrency=1)."
+                },
+                "Post_Summary_Notification": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "recipient": {
+                        "channelId": "@variables('TeamsChannelId')"
+                      },
+                      "subject": "📊 ASARD Approval Run Summary",
+                      "messageBody": "## 📊 ASARD Approval Run Summary\n\n**Run Date:** @{variables('RunStartTime')}\n**Duration:** @{div(sub(ticks(utcNow()), ticks(variables('RunStartTime'))), 10000000)} seconds\n\n### Statistics\n- **Total Agents Queried:** @{variables('TotalAgents')} non-compliant\n- **Approvals Sent:** @{variables('TotalAgents')}\n- **Approved:** @{variables('ApprovedCount')}\n- **Rejected:** @{variables('RejectedCount')}\n- **Remediation Succeeded:** @{variables('RemediatedCount')}\n- **Remediation Failed:** @{variables('FailedCount')}\n\n### Next Run\nScheduled for tomorrow at 09:00 UTC (daily recurrence)\n\n---\n*Agent Sharing Access Restriction Detector (ASARD) v22*"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                      "connectionName": "shared_teams",
+                      "operationId": "PostMessageToConversation"
+                    }
+                  },
+                  "runAfter": {
+                    "Apply_to_each_Agent": [
+                      "Succeeded",
+                      "Failed",
+                      "Skipped",
+                      "TimedOut"
+                    ]
+                  },
+                  "description": "Post summary notification after all agents processed with statistics and duration."
+                }
+              },
+              "else": {
+                "actions": {
+                  "Post_No_Agents_Notification": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "recipient": {
+                          "channelId": "@variables('TeamsChannelId')"
+                        },
+                        "subject": "✅ ASARD Approval Run — No Non-Compliant Agents",
+                        "messageBody": "## ✅ ASARD Approval Run — No Non-Compliant Agents\n\n**Run Date:** @{variables('RunStartTime')}\n\nNo non-compliant agents found in last 24 hours. All agents are compliant with sharing policies.\n\n**Next Run:** Tomorrow at 09:00 UTC (daily recurrence)\n\n---\n*Agent Sharing Access Restriction Detector (ASARD) v22*"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                        "connectionName": "shared_teams",
+                        "operationId": "PostMessageToConversation"
+                      }
+                    },
+                    "runAfter": {},
+                    "description": "Notify that no agents require approval (all compliant)."
+                  }
+                }
+              },
+              "runAfter": {
+                "Set_TotalAgents": [
+                  "Succeeded"
+                ]
+              },
+              "description": "Check if any non-compliant agents found. If yes, process approvals. If no, post 'all compliant' notification."
+            }
+          },
+          "runAfter": {
+            "Initialize_RunStartTime": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Scope_Error_Handler": {
+          "type": "Scope",
+          "actions": {
+            "Post_Flow_Error_Notification": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "recipient": {
+                    "channelId": "@variables('TeamsChannelId')"
+                  },
+                  "subject": "🚨 ASARD Approval Workflow — CRITICAL ERROR",
+                  "messageBody": "## 🚨 ASARD Approval Workflow — CRITICAL ERROR\n\n**Run Date:** @{variables('RunStartTime')}\n**Error:** Flow execution failed\n\n**Details:**\nThe approval workflow encountered a critical error and could not complete. Check flow run history for detailed error information.\n\n**Next Steps:**\n- Review flow run history in Power Automate portal\n- Check connection references (Dataverse, Approvals, Teams)\n- Verify environment variables configured\n- Contact governance team if issue persists\n\n---\n*Agent Sharing Access Restriction Detector (ASARD) v22*"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "connectionName": "shared_teams",
+                  "operationId": "PostMessageToConversation"
+                }
+              },
+              "runAfter": {},
+              "description": "Post critical error notification if flow fails unexpectedly."
+            }
+          },
+          "runAfter": {
+            "Scope_Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "displayName": "ASARD Remediation Approval Workflow",
+    "description": "Agent Sharing Access Restriction Detector (ASARD) — Remediation approval workflow. Queries non-compliant agents from Dataverse, requests governance approval with adaptive card, executes zone-specific remediation on approval, tracks decisions in Dataverse, sends Teams notifications. Scheduled daily at 09:00 UTC.",
+    "owner": {
+      "objectId": "",
+      "tenantId": ""
+    }
+  },
+  "schemaVersion": "1.0.0.0",
+  "tags": {
+    "solution": "FSI-AgentGov",
+    "component": "ASARD",
+    "version": "v22",
+    "phase": "enforcement-and-remediation",
+    "requirement": "ENF-03"
+  },
+  "_metadata": {
+    "deploymentInstructions": "Import this flow via Power Automate portal → Solutions → Import. Configure connection references (Dataverse, Approvals, Teams) and environment variables (fsi_ASARD_ApprovalEmail, fsi_ASARD_TeamsChannelId) after import. Assign Power Platform Administrator role to flow's Managed Service Identity for BAP Admin API access.",
+    "environmentVariables": [
+      "fsi_ASARD_ApprovalEmail",
+      "fsi_ASARD_TeamsChannelId",
+      "fsi_ASARD_ApprovalTimeoutDays"
+    ],
+    "connectionReferences": [
+      "fsi_cr_dataverse_asard",
+      "fsi_cr_teams_asard",
+      "fsi_cr_approvals_asard"
+    ],
+    "dataverseEntities": [
+      "fsi_agentsharingcompliances",
+      "fsi_approvedsecuritygrouppolicies"
+    ],
+    "externalAPIs": [
+      "https://api.bap.microsoft.com (BAP Admin API - PATCH /bots/{id}/permissions)"
+    ],
+    "securityRequirements": [
+      "Managed Service Identity with Power Platform Administrator role"
+    ]
+  }
+}

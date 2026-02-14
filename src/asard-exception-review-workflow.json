@@ -1,0 +1,364 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "connectionName": "shared_commondataserviceforapps",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+        "connectionReferenceLogicalName": "fsi_cr_dataverse_asard",
+        "tier": "NotSpecified"
+      },
+      "shared_teams": {
+        "connectionName": "shared_teams",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_teams",
+        "connectionReferenceLogicalName": "fsi_cr_teams_asard",
+        "tier": "NotSpecified"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence_Daily_08AM_UTC": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "schedule": {
+              "hours": [
+                "8"
+              ],
+              "minutes": [
+                0
+              ]
+            },
+            "timeZone": "UTC"
+          },
+          "description": "Daily scheduled trigger at 08:00 UTC to review exception expiration dates"
+        }
+      },
+      "actions": {
+        "Initialize_Today": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Today",
+                "type": "string",
+                "value": "@{utcNow()}"
+              }
+            ]
+          },
+          "runAfter": {},
+          "description": "Capture current UTC date for expiration queries"
+        },
+        "Initialize_ExpiringThreshold": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "ExpiringThreshold",
+                "type": "string",
+                "value": "@{addDays(utcNow(), 14)}"
+              }
+            ]
+          },
+          "runAfter": {
+            "Initialize_Today": [
+              "Succeeded"
+            ]
+          },
+          "description": "Calculate expiring threshold: 14 days from now"
+        },
+        "Parallel_Branch_Expiring_And_Expired": {
+          "type": "Parallel",
+          "runAfter": {
+            "Initialize_ExpiringThreshold": [
+              "Succeeded"
+            ]
+          },
+          "branches": [
+            {
+              "actions": {
+                "Query_Expiring_Exceptions": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "fsi_agentsharingcompliances",
+                      "$select": "fsi_agent_name,fsi_environment_name,fsi_exception_expires_at,fsi_exception_approved_by,fsi_exception_justification",
+                      "$filter": "fsi_compliance_status eq 2 and fsi_exception_expires_at ge @{variables('Today')} and fsi_exception_expires_at le @{variables('ExpiringThreshold')}",
+                      "$orderby": "fsi_exception_expires_at asc"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "description": "Query for exceptions expiring within 14 days (compliance_status=2, expires_at between today and today+14)"
+                },
+                "Condition_Check_Expiring_Exceptions_Exist": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "greater": [
+                          "@length(outputs('Query_Expiring_Exceptions')?['body/value'])",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Query_Expiring_Exceptions": [
+                      "Succeeded"
+                    ]
+                  },
+                  "actions": {
+                    "Build_Expiring_List": {
+                      "type": "Select",
+                      "inputs": {
+                        "from": "@outputs('Query_Expiring_Exceptions')?['body/value']",
+                        "select": {
+                          "agent_name": "@item()?['fsi_agent_name']",
+                          "environment_name": "@item()?['fsi_environment_name']",
+                          "expires_at": "@item()?['fsi_exception_expires_at']",
+                          "days_remaining": "@string(div(sub(ticks(item()?['fsi_exception_expires_at']), ticks(utcNow())), 864000000000))",
+                          "approved_by": "@item()?['fsi_exception_approved_by']",
+                          "justification_preview": "@if(greater(length(item()?['fsi_exception_justification']), 100), concat(substring(item()?['fsi_exception_justification'], 0, 97), '...'), item()?['fsi_exception_justification'])"
+                        }
+                      },
+                      "description": "Transform Dataverse records to expiring list with days_remaining calculation"
+                    },
+                    "Post_Expiring_Notification": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_teams",
+                          "operationId": "PostCardToChannelV3",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams"
+                        },
+                        "parameters": {
+                          "poster": "Flow bot",
+                          "location": "{{TEAMS_CHANNEL_ID}}",
+                          "body/messageBody": "@{outputs('Build_Expiring_Adaptive_Card')}",
+                          "body/messageTitle": "⚠️ Agent Sharing Exceptions Expiring Soon"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Build_Expiring_Adaptive_Card": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Post adaptive card to Teams governance channel with expiring exceptions list"
+                    },
+                    "Build_Expiring_Adaptive_Card": {
+                      "type": "Compose",
+                      "inputs": "@json(replace(replace(replace(replace(string(body('Load_Expiring_Card_Template')), '{{exception_count}}', string(length(outputs('Query_Expiring_Exceptions')?['body/value']))), '{{exception_list}}', join(body('Build_Expiring_List'), '\\n')), '{{review_date}}', formatDateTime(utcNow(), 'yyyy-MM-dd')), '{{timestamp}}', formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')))",
+                      "runAfter": {
+                        "Load_Expiring_Card_Template": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Populate adaptive card template with expiring exception data"
+                    },
+                    "Load_Expiring_Card_Template": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "GET",
+                        "uri": "{{ADAPTIVE_CARD_TEMPLATE_URL}}/adaptive-card-asard-exception-expiring.json"
+                      },
+                      "runAfter": {
+                        "Build_Expiring_List": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Load adaptive card template from source control or blob storage"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "actions": {
+                "Query_Expired_Exceptions": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "fsi_agentsharingcompliances",
+                      "$select": "fsi_agentsharingcomplianceid,fsi_agent_name,fsi_environment_name,fsi_exception_expires_at,fsi_exception_justification",
+                      "$filter": "fsi_compliance_status eq 2 and fsi_exception_expires_at lt @{variables('Today')}",
+                      "$orderby": "fsi_exception_expires_at desc"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "description": "Query for expired exceptions (compliance_status=2, expires_at < today)"
+                },
+                "Condition_Check_Expired_Exceptions_Exist": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "greater": [
+                          "@length(outputs('Query_Expired_Exceptions')?['body/value'])",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Query_Expired_Exceptions": [
+                      "Succeeded"
+                    ]
+                  },
+                  "actions": {
+                    "Apply_To_Each_Expired_Exception": {
+                      "type": "Foreach",
+                      "foreach": "@outputs('Query_Expired_Exceptions')?['body/value']",
+                      "actions": {
+                        "Update_Expired_Exception_To_NonCompliant": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "fsi_agentsharingcompliances",
+                              "recordId": "@item()?['fsi_agentsharingcomplianceid']",
+                              "item/fsi_compliance_status": 1,
+                              "item/fsi_exception_expires_at": null,
+                              "item/fsi_exception_justification": null,
+                              "item/fsi_exception_approved_by": null,
+                              "item/fsi_exception_approved_at": null,
+                              "item/fsi_exception_review_date": null
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "description": "Reset compliance_status to NonCompliant (1) and clear all exception fields"
+                        }
+                      },
+                      "description": "Iterate over expired exceptions and update each record"
+                    },
+                    "Build_Expired_List": {
+                      "type": "Select",
+                      "inputs": {
+                        "from": "@outputs('Query_Expired_Exceptions')?['body/value']",
+                        "select": {
+                          "agent_name": "@item()?['fsi_agent_name']",
+                          "environment_name": "@item()?['fsi_environment_name']",
+                          "expired_date": "@formatDateTime(item()?['fsi_exception_expires_at'], 'yyyy-MM-dd')",
+                          "justification_preview": "@if(greater(length(item()?['fsi_exception_justification']), 100), concat(substring(item()?['fsi_exception_justification'], 0, 97), '...'), item()?['fsi_exception_justification'])"
+                        }
+                      },
+                      "runAfter": {
+                        "Apply_To_Each_Expired_Exception": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Transform expired records to list for notification"
+                    },
+                    "Post_Expired_Notification": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_teams",
+                          "operationId": "PostCardToChannelV3",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams"
+                        },
+                        "parameters": {
+                          "poster": "Flow bot",
+                          "location": "{{TEAMS_CHANNEL_ID}}",
+                          "body/messageBody": "@{outputs('Build_Expired_Adaptive_Card')}",
+                          "body/messageTitle": "🔴 Agent Sharing Exceptions Expired"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Build_Expired_Adaptive_Card": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Post adaptive card to Teams with expired exceptions and auto-remediation notice"
+                    },
+                    "Build_Expired_Adaptive_Card": {
+                      "type": "Compose",
+                      "inputs": "@json(replace(replace(replace(replace(string(body('Load_Expired_Card_Template')), '{{exception_count}}', string(length(outputs('Query_Expired_Exceptions')?['body/value']))), '{{exception_list}}', join(body('Build_Expired_List'), '\\n')), '{{reset_date}}', formatDateTime(utcNow(), 'yyyy-MM-dd')), '{{timestamp}}', formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')))",
+                      "runAfter": {
+                        "Load_Expired_Card_Template": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Populate adaptive card template with expired exception data"
+                    },
+                    "Load_Expired_Card_Template": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "GET",
+                        "uri": "{{ADAPTIVE_CARD_TEMPLATE_URL}}/adaptive-card-asard-exception-expired.json"
+                      },
+                      "runAfter": {
+                        "Build_Expired_List": [
+                          "Succeeded"
+                        ]
+                      },
+                      "description": "Load adaptive card template from source control or blob storage"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "templateName": "asard-exception-review-workflow"
+  },
+  "_metadata": {
+    "workflowName": "ASARD Exception Review Workflow",
+    "workflowVersion": "1.0.0",
+    "solution": "Agent Sharing Access Restriction Detector (ASARD)",
+    "description": "Daily scheduled workflow to review agent sharing exceptions. Sends Teams notifications for expiring exceptions (within 14 days) and auto-resets expired exceptions to NonCompliant status.",
+    "trigger": "Recurrence (daily at 08:00 UTC)",
+    "actions": [
+      "Query Dataverse for expiring exceptions (expires_at <= today+14)",
+      "Send Teams notification with expiring exception list",
+      "Query Dataverse for expired exceptions (expires_at < today)",
+      "Update expired records: Set compliance_status=1, clear exception fields",
+      "Send Teams notification with expired exception list"
+    ],
+    "deploymentInstructions": [
+      "Import flow into target environment via Power Automate portal or ALM pipelines",
+      "Configure connection references: Dataverse (shared_commondataserviceforapps), Teams (shared_teams)",
+      "Update {{TEAMS_CHANNEL_ID}} placeholder with governance leads channel ID",
+      "Update {{ADAPTIVE_CARD_TEMPLATE_URL}} placeholder with adaptive card template hosting URL (e.g., GitHub raw content or Azure Blob Storage)",
+      "Enable flow and verify daily schedule (08:00 UTC)",
+      "Test manually via 'Run' button in Power Automate portal"
+    ],
+    "dependencies": [
+      "fsi_agentsharingcompliances table with exception columns",
+      "adaptive-card-asard-exception-expiring.json template",
+      "adaptive-card-asard-exception-expired.json template",
+      "Teams channel for governance notifications"
+    ]
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "warning",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "⚠️ Agent Sharing Exceptions Expiring Soon",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Agent Sharing Access Restriction Detector (ASARD) · Review Required · {{timestamp}}",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "{{exception_count}}",
+                  "weight": "Bolder",
+                  "size": "ExtraLarge",
+                  "color": "Warning",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "summarySection",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Exception Review Required",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "The following agent sharing exceptions are expiring within the next 14 days. Review each exception and either renew (extend expiration date) or allow to expire for automatic re-scan.",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "FactSet",
+          "spacing": "Medium",
+          "facts": [
+            {
+              "title": "Expiring Exceptions",
+              "value": "{{exception_count}}"
+            },
+            {
+              "title": "Review Date",
+              "value": "{{review_date}}"
+            },
+            {
+              "title": "Action Required",
+              "value": "Review and renew or allow to expire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "exceptionListSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Expiring Exceptions ({{exception_count}})",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Warning",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{exception_list}}",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "instructionsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Review Instructions",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "**To renew an exception:**\n\n1. Navigate to Dataverse `fsi_agentsharingcompliances` table\n2. Locate the agent record by `fsi_agent_id` and `fsi_environment_id`\n3. Update `fsi_exception_expires_at` to new expiration date (future date)\n4. Optionally update `fsi_exception_review_date` for next review cycle\n5. Save the record\n\n**To allow expiration:**\n\nNo action needed. The exception will automatically reset to NonCompliant status on the expiration date, triggering a re-scan during the next detection run.",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "governanceSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Governance Contact",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "For questions about exception management, contact your governance leads or review the ASARD exception management playbook at `docs/playbooks/asard-exception-management.md`.",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Compliance Dashboard",
+      "url": "https://admin.powerplatform.microsoft.com/"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Exception Management Playbook",
+      "url": "{{playbook_url}}"
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "asard-exception-expiring",
+    "templateVersion": "1.0.0",
+    "solution": "Agent Sharing Access Restriction Detector (ASARD)",
+    "description": "Teams adaptive card for expiring agent sharing exceptions. Sent daily by the exception review workflow when exceptions are within 14 days of expiration. Provides governance leads with a list of expiring exceptions and renewal instructions.",
+    "templateVariables": [
+      "exception_count",
+      "exception_list",
+      "review_date",
+      "timestamp",
+      "playbook_url"
+    ],
+    "exceptionListFormat": "Agent: {agent_name} | Environment: {environment_name} | Expires: {expires_at} | Days Remaining: {days_remaining} | Approved By: {approved_by} | Justification: {justification_preview}",
+    "cardStyle": "warning",
+    "icon": "⚠️"
+  }
+}

@@ -628,6 +628,10 @@ nav:
       - Unrestricted Agent Sharing Detector:
         - Overview: playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md
         - Deployment Guide: playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md
+      - Agent Sharing Access Restriction Detector:
+        - Deployment Guide: playbooks/asard-deployment-guide.md
+        - Exception Management: playbooks/asard-exception-management.md
+        - Troubleshooting Guide: playbooks/asard-troubleshooting-guide.md
     - Regulatory Modules:
       - Colorado AI Act Readiness: playbooks/regulatory-modules/colorado-ai-act-readiness.md
       - Colorado AI Impact Assessment: playbooks/regulatory-modules/colorado-ai-impact-assessment.md

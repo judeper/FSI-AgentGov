@@ -1,0 +1,377 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "${header_style}",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${status_icon} Agent Sharing Remediation — ${status_text}",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Agent Sharing Access Restriction Detector (ASARD)",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "agentDetailsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Agent Details",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Agent Name",
+              "value": "${agent_name}"
+            },
+            {
+              "title": "Environment",
+              "value": "${environment_name}"
+            },
+            {
+              "title": "Governance Zone",
+              "value": "${zone_name}"
+            },
+            {
+              "title": "Violation Type",
+              "value": "${violation_type}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "approvalDecisionSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Approval Decision",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Decision",
+              "value": "${approval_decision}"
+            },
+            {
+              "title": "Approver",
+              "value": "${approver_email}"
+            },
+            {
+              "title": "Decision Date",
+              "value": "${approval_date}"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "${decision_notes}",
+          "wrap": true,
+          "spacing": "Medium",
+          "isVisible": "${show_decision_notes}"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "remediationResultSection",
+      "separator": true,
+      "isVisible": "${show_remediation_result}",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Remediation Result",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "${remediation_status_text}",
+          "color": "${remediation_status_color}",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "${remediation_details}",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "currentAccessSection",
+      "separator": true,
+      "isVisible": "${show_current_access}",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Current Access",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "${current_access_list}",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "FactSet",
+          "spacing": "Medium",
+          "facts": [
+            {
+              "title": "Total Members",
+              "value": "${total_members}"
+            },
+            {
+              "title": "Access Scope",
+              "value": "${access_scope}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "errorDetailsSection",
+      "separator": true,
+      "isVisible": "${show_error_details}",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Error Details",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Attention",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "${error_message}",
+          "wrap": true,
+          "color": "Attention",
+          "spacing": "Small"
+        },
+        {
+          "type": "FactSet",
+          "spacing": "Medium",
+          "facts": [
+            {
+              "title": "Error Code",
+              "value": "${error_code}"
+            },
+            {
+              "title": "Timestamp",
+              "value": "${error_timestamp}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "nextStepsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Next Steps",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "${next_steps_text}",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "complianceStatusSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Compliance Status",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Compliance Status",
+              "value": "${compliance_status}"
+            },
+            {
+              "title": "Last Checked",
+              "value": "${last_checked}"
+            },
+            {
+              "title": "Remediation Date",
+              "value": "${remediation_date}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Agent Details",
+      "url": "${agent_details_url}",
+      "isVisible": "${show_action_buttons}"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Compliance Report",
+      "url": "${compliance_report_url}",
+      "isVisible": "${show_action_buttons}"
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "asard-remediation-result",
+    "templateVersion": "1.0.0",
+    "solution": "Agent Sharing Access Restriction Detector (ASARD)",
+    "description": "Adaptive card for agent sharing remediation result notifications — supports success, rejection, and error states with conditional sections",
+    "templateVariables": [
+      "status_icon",
+      "status_text",
+      "header_style",
+      "agent_name",
+      "environment_name",
+      "zone_name",
+      "violation_type",
+      "approval_decision",
+      "approver_email",
+      "approval_date",
+      "decision_notes",
+      "show_decision_notes",
+      "show_remediation_result",
+      "remediation_status_text",
+      "remediation_status_color",
+      "remediation_details",
+      "show_current_access",
+      "current_access_list",
+      "total_members",
+      "access_scope",
+      "show_error_details",
+      "error_message",
+      "error_code",
+      "error_timestamp",
+      "next_steps_text",
+      "compliance_status",
+      "last_checked",
+      "remediation_date",
+      "show_action_buttons",
+      "agent_details_url",
+      "compliance_report_url"
+    ],
+    "usageExamples": {
+      "success": {
+        "status_icon": "✅",
+        "status_text": "APPROVED & REMEDIATED",
+        "header_style": "good",
+        "approval_decision": "APPROVED",
+        "show_decision_notes": "false",
+        "show_remediation_result": "true",
+        "remediation_status_text": "✅ Remediation executed successfully",
+        "remediation_status_color": "Good",
+        "remediation_details": "✅ Replaced 5 principals with 2 approved security groups\\n✅ Post-remediation validation: PASSED",
+        "show_current_access": "true",
+        "show_error_details": "false",
+        "next_steps_text": "Agent is now compliant. Sharing access restricted to approved security groups per zone policy.",
+        "compliance_status": "COMPLIANT",
+        "show_action_buttons": "true"
+      },
+      "rejected": {
+        "status_icon": "❌",
+        "status_text": "REJECTED",
+        "header_style": "attention",
+        "approval_decision": "REJECTED",
+        "decision_notes": "Agent still in active use by legacy team, postpone remediation until migration complete",
+        "show_decision_notes": "true",
+        "show_remediation_result": "false",
+        "show_current_access": "false",
+        "show_error_details": "false",
+        "next_steps_text": "Agent remains non-compliant and will appear in next scheduled approval run (24 hours). Consider granting time-bound exception if remediation not feasible.",
+        "compliance_status": "NON-COMPLIANT",
+        "show_action_buttons": "true"
+      },
+      "error": {
+        "status_icon": "⚠️",
+        "status_text": "APPROVED — REMEDIATION FAILED",
+        "header_style": "warning",
+        "approval_decision": "APPROVED",
+        "show_decision_notes": "false",
+        "show_remediation_result": "true",
+        "remediation_status_text": "⚠️ Remediation failed",
+        "remediation_status_color": "Attention",
+        "remediation_details": "Failed to apply sharing restrictions due to API error. Manual intervention required.",
+        "show_current_access": "false",
+        "show_error_details": "true",
+        "error_message": "HTTP 403 Forbidden - Managed Identity lacks Power Platform Administrator role assignment",
+        "error_code": "403",
+        "next_steps_text": "Verify Managed Identity has Power Platform Administrator role. Retry remediation after role assignment. Contact governance team if issue persists.",
+        "compliance_status": "ERROR",
+        "show_action_buttons": "true"
+      }
+    }
+  }
+}

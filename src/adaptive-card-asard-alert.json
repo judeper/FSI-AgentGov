@@ -1,0 +1,223 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "attention",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "🚨 Agent Sharing Compliance Alert",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Agent Sharing Access Restriction Detector (ASARD) · {{scan_completed}}",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "{{non_compliant_count}}",
+                  "weight": "Bolder",
+                  "size": "ExtraLarge",
+                  "color": "Attention",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "summarySection",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Compliance Summary",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{non_compliant_count}} agent(s) with sharing violations detected",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "ColumnSet",
+          "spacing": "Medium",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "Total Agents",
+                      "value": "{{total_agents}}"
+                    },
+                    {
+                      "title": "Compliant",
+                      "value": "{{compliant_count}}"
+                    },
+                    {
+                      "title": "Non-Compliant",
+                      "value": "{{non_compliant_count}}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "Exceptions",
+                      "value": "{{exception_count}}"
+                    },
+                    {
+                      "title": "Errors",
+                      "value": "{{error_count}}"
+                    },
+                    {
+                      "title": "Environments",
+                      "value": "{{total_environments}}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "violationsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Top Violations (5 of {{non_compliant_count}})",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Attention",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{violation_list}}",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "scanDetailsSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Scan Details",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Scan Run ID",
+              "value": "{{scan_run_id}}"
+            },
+            {
+              "title": "Scan Started",
+              "value": "{{scan_started}}"
+            },
+            {
+              "title": "Scan Completed",
+              "value": "{{scan_completed}}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Full Report",
+      "url": "{{report_url}}"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Manage Exceptions",
+      "url": "{{exceptions_url}}"
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "asard-compliance-alert",
+    "templateVersion": "1.0.0",
+    "solution": "Agent Sharing Access Restriction Detector (ASARD)",
+    "description": "Teams adaptive card for agent sharing compliance alerts with summary statistics and top violations list",
+    "templateVariables": [
+      "scan_run_id",
+      "scan_started",
+      "scan_completed",
+      "total_agents",
+      "total_environments",
+      "compliant_count",
+      "non_compliant_count",
+      "exception_count",
+      "error_count",
+      "violation_list",
+      "report_url",
+      "exceptions_url"
+    ],
+    "violationTypeMapping": {
+      "Everyone": "🔴 Organization-wide sharing",
+      "Public": "🟠 Public internet link",
+      "UnapprovedGroup": "🟡 Unapproved security group",
+      "ExcessiveIndividual": "🟡 Excessive individual sharing",
+      "CrossTenant": "🔴 Cross-tenant access"
+    }
+  }
+}

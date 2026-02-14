@@ -1,0 +1,330 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "emphasis",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "🔐 Agent Sharing Remediation Approval",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Agent Sharing Access Restriction Detector (ASARD) · Approval Required",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "agentSummarySection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Agent Summary",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Agent Name",
+              "value": "${agent_name}"
+            },
+            {
+              "title": "Environment",
+              "value": "${environment_name}"
+            },
+            {
+              "title": "Governance Zone",
+              "value": "${zone_name}"
+            },
+            {
+              "title": "Violation Type",
+              "value": "${violation_type}"
+            },
+            {
+              "title": "Detection Date",
+              "value": "${detection_date}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "currentSharingSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Current Sharing Principals",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Attention",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "The following principals currently have access to this agent:",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        },
+        {
+          "type": "Container",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "${current_principals_list}",
+              "wrap": true,
+              "spacing": "Small"
+            }
+          ]
+        },
+        {
+          "type": "FactSet",
+          "spacing": "Medium",
+          "facts": [
+            {
+              "title": "Current Member Count",
+              "value": "${member_count_current}"
+            },
+            {
+              "title": "Access Scope",
+              "value": "${access_scope_current}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "proposedChangesSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Proposed Remediation",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Good",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "Approving this request will apply the following changes:",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        },
+        {
+          "type": "Container",
+          "style": "attention",
+          "spacing": "Medium",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "REMOVE (${remove_count})",
+              "weight": "Bolder",
+              "color": "Attention",
+              "spacing": "Small"
+            },
+            {
+              "type": "TextBlock",
+              "text": "${remove_principals_list}",
+              "wrap": true,
+              "spacing": "Small"
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "style": "good",
+          "spacing": "Medium",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "ADD (${add_count})",
+              "weight": "Bolder",
+              "color": "Good",
+              "spacing": "Small"
+            },
+            {
+              "type": "TextBlock",
+              "text": "${add_principals_list}",
+              "wrap": true,
+              "spacing": "Small"
+            }
+          ]
+        },
+        {
+          "type": "FactSet",
+          "spacing": "Medium",
+          "facts": [
+            {
+              "title": "Proposed Member Count",
+              "value": "${member_count_proposed}"
+            },
+            {
+              "title": "Access Scope",
+              "value": "${access_scope_proposed}"
+            },
+            {
+              "title": "Impact Summary",
+              "value": "${impact_summary}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "zoneContextSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Zone Context & Policy",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Zone",
+              "value": "${zone}"
+            },
+            {
+              "title": "Zone Name",
+              "value": "${zone_name}"
+            },
+            {
+              "title": "Zone Rules",
+              "value": "${zone_rules}"
+            },
+            {
+              "title": "Approved Groups Policy",
+              "value": "${approved_groups_policy}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "complianceMetadataSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Compliance Metadata",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Scan Run ID",
+              "value": "${scan_run_id}"
+            },
+            {
+              "title": "Last Checked",
+              "value": "${last_checked}"
+            },
+            {
+              "title": "Agent ID",
+              "value": "${agent_id}"
+            },
+            {
+              "title": "Environment ID",
+              "value": "${environment_id}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "asard-remediation-approval",
+    "templateVersion": "1.0.0",
+    "solution": "Agent Sharing Access Restriction Detector (ASARD)",
+    "description": "Adaptive card for agent sharing remediation approval requests with current sharing, proposed changes, zone context, and impact analysis",
+    "templateVariables": [
+      "agent_name",
+      "agent_id",
+      "environment_name",
+      "environment_id",
+      "zone",
+      "zone_name",
+      "zone_rules",
+      "violation_type",
+      "detection_date",
+      "current_principals_list",
+      "member_count_current",
+      "access_scope_current",
+      "remove_principals_list",
+      "remove_count",
+      "add_principals_list",
+      "add_count",
+      "member_count_proposed",
+      "access_scope_proposed",
+      "impact_summary",
+      "approved_groups_policy",
+      "scan_run_id",
+      "last_checked"
+    ],
+    "usageNotes": "This card is displayed in Power Automate approval requests. Approval actions (Approve/Reject) are provided by the Approvals connector, not the card itself.",
+    "violationTypeMapping": {
+      "Everyone": "🔴 Organization-wide sharing",
+      "Public": "🟠 Public internet link",
+      "UnapprovedGroup": "🟡 Unapproved security group",
+      "ExcessiveIndividual": "🟡 Excessive individual sharing",
+      "CrossTenant": "🔴 Cross-tenant access"
+    },
+    "principalIconMapping": {
+      "Everyone": "🔴",
+      "Public": "🟠",
+      "UnapprovedGroup": "🟡",
+      "User": "👤",
+      "Group": "👥"
+    }
+  }
+}

@@ -42,6 +42,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [MIME Type Restrictions for File Uploads](#mime-type-restrictions-for-file-uploads) | v1.0.0 | Completed | Zone-based MIME type configuration, server-side magic bytes validation, DLP policy integration, Sentinel monitoring | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 |
 | [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | v1.0.0 | Completed | Policy-driven inactivity timeout validation and enforcement with zone-based maximum duration requirements and Dataverse compliance persistence | 2.22, 1.23, 3.7, 3.8 |
 | [Audit Logging Compliance Automation](#audit-logging-compliance-automation) | v1.0.0 | Completed | Automated detection and remediation of Purview unified audit and Dataverse audit logging gaps with Managed Identity auth, entity-level enablement, and approval-gated remediation | 1.7 |
+| [Agent Sharing Access Restriction Detector](#agent-sharing-access-restriction-detector) | v1.0.0 | Completed | Continuous detection and restriction of agent sharing configurations exceeding zone-based access policies with approval workflows and exception management | 1.18, 2.8 |
 
 ### Status Legend
 
@@ -834,6 +835,57 @@ Automated detection and remediation of Microsoft 365 and Power Platform audit lo
 |---------|------|---------|
 | v1.0.0 | February 2026 | Initial release |
 
+---
+
+### Agent Sharing Access Restriction Detector
+
+!!! success "Production Ready"
+    v1.0.0 includes daily detection flow with 5 restriction rules, approval-based remediation workflow, PowerShell exception management scripts, Dataverse persistence, SHA-256 evidence export, and zone-based policy enforcement.
+
+Continuous detection and proactive restriction of Copilot Studio agent sharing configurations that exceed zone-based access policies. Enforces organizational sharing limits, prevents public internet links, validates approved group access, restricts excessive individual shares, and blocks cross-tenant access — with structured approval workflows and time-bound exception management.
+
+**Components:**
+
+- Daily detection flow scanning all agents via BAP APIs with 5 restriction rules per zone policy
+- Approval-based remediation workflow with sequential dual approval (Security → Data Owner)
+- Exception management PowerShell scripts with approval tracking and expiration enforcement
+- Dataverse schema (4 tables) for zone policy definitions, restriction tracking, and exception persistence
+- SHA-256 evidence export for examination readiness
+- Teams adaptive card alerts with severity-based styling and action buttons
+- Deployment scripts for automated environment configuration
+
+**Regulatory Alignment:**
+
+- FINRA 4511 (Books and Records — Agent Sharing Access Configuration)
+- SOX 302/404 (Internal Controls — Sharing Policy Enforcement)
+- GLBA 501(b) (Safeguards — Agent Access Controls)
+- SEC 17a-3/4 (Recordkeeping — Sharing Restriction Audit Trail)
+- OCC 2011-12 (Model Risk Management — Access Governance)
+
+**Related Controls:**
+
+- [1.18 - Application-Level Authorization and Role-Based Access Control](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)
+- [2.8 - Access Control and Segregation of Duties](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
+
+**Framework Playbooks:**
+
+- [ASARD Deployment Guide](../playbooks/asard-deployment-guide.md)
+- [ASARD Exception Management](../playbooks/asard-exception-management.md)
+- [ASARD Troubleshooting Guide](../playbooks/asard-troubleshooting-guide.md)
+
+!!! info "Complementary Relationship with UASD"
+    ASARD complements the [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector). UASD provides reactive detection of overly permissive sharing with approval-based remediation. ASARD provides proactive restriction enforcement with policy-based prevention and exception workflows. Together, they provide defense-in-depth for agent sharing governance — UASD for detection and reactive remediation, ASARD for proactive prevention and policy enforcement.
+
+**Version History:**
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0.0 | February 2026 | Initial release |
+
+---
+
+## Deployment Guide
+
 1. Review the relevant framework playbook for architecture and requirements
 2. Clone the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository
 3. Navigate to the solution folder and follow the README
@@ -870,6 +922,7 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 | Configuration Hardening Baseline | v1.0.0 | February 2026 |
 | Agent Usage & Performance Workbook | v1.0.0 | February 2026 |
 | Unrestricted Agent Sharing Detector | v1.0.0 | February 2026 |
+| Agent Sharing Access Restriction Detector | v1.0.0 | February 2026 |
 | Agent Security Configuration Governance | v1.0.0 | February 2026 |
 | MIME Type Restrictions for File Uploads | v1.0.0 | February 2026 |
 | Inactivity Timeout Enforcement | v1.0.0 | February 2026 |

@@ -1,0 +1,189 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "id": "headerSection",
+      "style": "attention",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "🔴 Agent Sharing Exceptions Expired",
+                  "weight": "Bolder",
+                  "size": "Large",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Agent Sharing Access Restriction Detector (ASARD) · Auto-Remediation Triggered · {{timestamp}}",
+                  "spacing": "None",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "{{exception_count}}",
+                  "weight": "Bolder",
+                  "size": "ExtraLarge",
+                  "color": "Attention",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "summarySection",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Exceptions Reset to NonCompliant",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "The following agent sharing exceptions have expired and been automatically reset to NonCompliant status. These agents will be flagged during the next detection scan run and may be remediated if remediation workflows are enabled.",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "FactSet",
+          "spacing": "Medium",
+          "facts": [
+            {
+              "title": "Expired Exceptions",
+              "value": "{{exception_count}}"
+            },
+            {
+              "title": "Reset Date",
+              "value": "{{reset_date}}"
+            },
+            {
+              "title": "Next Action",
+              "value": "Agents will be re-scanned and may be remediated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "exceptionListSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Expired Exceptions ({{exception_count}})",
+          "weight": "Bolder",
+          "size": "Medium",
+          "color": "Attention",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{exception_list}}",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "autoRemediationSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Auto-Remediation Notice",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "**What happened:**\n\nThe exception review workflow detected that these agent sharing exceptions reached their expiration date. The workflow automatically updated the Dataverse records:\n\n- Set `fsi_compliance_status` from `Exception` (2) to `NonCompliant` (1)\n- Cleared all `fsi_exception_*` fields (expires_at, justification, approved_by, approved_at, review_date)\n\n**What's next:**\n\nDuring the next scheduled detection scan, these agents will be evaluated against zone-based sharing rules. If they are still non-compliant, they will be flagged as violations. If remediation workflows are enabled, the agents may be automatically remediated according to zone policies.\n\n**To re-grant an exception:**\n\nIf an agent legitimately requires broader sharing, manually update the Dataverse record with new exception fields (expires_at, justification, approved_by) and set compliance_status back to `Exception` (2).",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "governanceSection",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Governance Contact",
+          "weight": "Bolder",
+          "size": "Medium",
+          "spacing": "Medium",
+          "separator": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "For questions about expired exceptions or to request a new exception, contact your governance leads or review the ASARD exception management playbook at `docs/playbooks/asard-exception-management.md`.",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Compliance Dashboard",
+      "url": "https://admin.powerplatform.microsoft.com/"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Exception Management Playbook",
+      "url": "{{playbook_url}}"
+    }
+  ],
+  "msteams": {
+    "width": "Full"
+  },
+  "_metadata": {
+    "templateName": "asard-exception-expired",
+    "templateVersion": "1.0.0",
+    "solution": "Agent Sharing Access Restriction Detector (ASARD)",
+    "description": "Teams adaptive card for expired agent sharing exceptions. Sent by the exception review workflow when exceptions pass their expiration date and are auto-reset to NonCompliant status. Provides governance leads with a list of expired exceptions and auto-remediation notice.",
+    "templateVariables": [
+      "exception_count",
+      "exception_list",
+      "reset_date",
+      "timestamp",
+      "playbook_url"
+    ],
+    "exceptionListFormat": "Agent: {agent_name} | Environment: {environment_name} | Expired: {expired_date} | Previous Justification: {justification_preview}",
+    "cardStyle": "attention",
+    "icon": "🔴"
+  }
+}
