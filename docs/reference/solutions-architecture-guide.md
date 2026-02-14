@@ -435,4 +435,4 @@ flowchart TB
 
 ---
 
-*FSI Agent Governance Framework v1.2.41 - February 2026*
+*FSI Agent Governance Framework v1.2.43 - February 2026*

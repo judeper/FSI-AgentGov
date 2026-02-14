@@ -262,4 +262,4 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-*FSI Agent Governance Framework v1.2.41 - February 2026*
+*FSI Agent Governance Framework v1.2.43 - February 2026*

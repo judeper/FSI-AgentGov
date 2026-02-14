@@ -66,9 +66,9 @@ The framework is organized into three layers:
 
 | Pillar | Controls | Focus |
 |--------|----------|-------|
-| [Pillar 1: Security](controls/pillar-1-security/index.md) | 25 | DLP, audit, encryption, MFA, eDiscovery |
-| [Pillar 2: Management](controls/pillar-2-management/index.md) | 22 | Lifecycle, testing, model risk, supervision |
-| [Pillar 3: Reporting](controls/pillar-3-reporting/index.md) | 10 | Inventory, usage, PPAC, Sentinel |
+| [Pillar 1: Security](controls/pillar-1-security/index.md) | 28 | DLP, audit, encryption, MFA, eDiscovery |
+| [Pillar 2: Management](controls/pillar-2-management/index.md) | 24 | Lifecycle, testing, model risk, supervision |
+| [Pillar 3: Reporting](controls/pillar-3-reporting/index.md) | 12 | Inventory, usage, PPAC, Sentinel |
 | [Pillar 4: SharePoint](controls/pillar-4-sharepoint/index.md) | 7 | Access, retention, grounding scope |
 
 **Three governance zones** based on risk:

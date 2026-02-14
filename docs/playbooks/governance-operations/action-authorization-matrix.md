@@ -81,7 +81,7 @@ List **only** approved connectors/tools.
 ## 6) Data access policy (high-level reference)
 
 Point to the agent’s detailed data policy (Template: Per-agent Data Handling Policy).
-- **Data policy link:** `../templates/per-agent-data-policy.md` (or your final location)
+- **Data policy link:** `../agent-lifecycle/per-agent-data-policy.md`
 
 ---
 

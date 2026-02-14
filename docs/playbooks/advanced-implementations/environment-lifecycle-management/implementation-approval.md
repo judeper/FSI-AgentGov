@@ -1,6 +1,6 @@
 # Environment Lifecycle Management - Approval Flow
 
-**Status:** February 2026 - FSI-AgentGov v1.2.41
+**Status:** February 2026 - FSI-AgentGov v1.2.43
 **Related Controls:** 2.2 (Environment Groups), 2.8 (Access Control & SoD), 2.3 (Change Management)
 
 ---
@@ -280,4 +280,4 @@ For stale approvals that exceed the timeout:
 
 ---
 
-*FSI Agent Governance Framework v1.2.41 - February 2026*
+*FSI Agent Governance Framework v1.2.43 - February 2026*

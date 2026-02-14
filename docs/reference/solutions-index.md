@@ -18,10 +18,10 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 
 | Solution | Version | Status | Description | Related Controls |
 |----------|---------|--------|-------------|------------------|
-| [Environment Lifecycle Management](#environment-lifecycle-management) | v1.1.2 | Completed | Automated Power Platform environment provisioning with zone-based governance classification | 2.1, 2.2, 2.15 |
+| [Environment Lifecycle Management](#environment-lifecycle-management) | v1.1.2 | Completed | Automated Power Platform environment provisioning with zone-based governance classification | 2.1, 2.2, 2.3, 2.8, 1.7 |
 | [Message Center Monitor](#message-center-monitor) | v2.1.1 | Completed | Monitor M365 Message Center for platform changes affecting AI agents | 2.3, 2.10 |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | v1.0.8 | Completed | Discover, notify, and clean up personal pipelines before enforcing centralized ALM governance | 2.3 |
-| [Deny Event Correlation Report](#deny-event-correlation-report) | v2.0.0 | Completed | Daily deny event correlation across Purview Audit, DLP, and Application Insights with Dataverse persistence, Power Automate orchestration, and evidence export | 1.5, 1.7, 1.8, 3.4 |
+| [Deny Event Correlation Report](#deny-event-correlation-report) | v2.0.0 | Validated | Daily deny event correlation across Purview Audit, DLP, and Application Insights with Dataverse persistence, Power Automate orchestration, and evidence export | 1.5, 1.7, 1.8, 3.4 |
 | [File Upload Security Configurator](#file-upload-security-configurator) | v1.0.0 | Completed | Automated per-agent file upload validation against zone governance policies with drift detection | 1.14, 1.8, 1.4 |
 | [Audit Configuration Validator](#audit-configuration-validator) | v1.0.0 | Completed | Automated validation of tenant and environment audit configurations | 1.7 |
 | [Session Security Configurator](#session-security-configurator) | v1.0.0 | Completed | Automated session security validation per governance zone with drift detection and compliance evidence export | 1.23, 1.11 |
@@ -30,7 +30,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | v1.0.0 | Validated | Automated supervision queue for AI agent outputs (FINRA 3110) | 2.12, 1.10, 1.7 |
 | [Conditional Access Automation](#conditional-access-automation) | v1.1.0 | Completed | CA policy deployment, compliance monitoring, drift detection, and evidence export for AI workloads | 1.11, 1.23, 1.18 |
 | [Compliance Dashboard](#compliance-dashboard) | v1.0.0 | Completed | Aggregated compliance reporting across 71 controls with zone-based filtering | 3.3, 3.1, 3.2 |
-| [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Work In Progress | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
+| [Segregation of Duties Detector](#segregation-of-duties-detector) | v1.0.0 | Validated | Role conflict detection for Maker/Checker enforcement in agent pipelines | 2.8, 2.1, 2.3 |
 | [Scope Drift Monitor](#scope-drift-monitor) | v1.1.0 | Completed | Detect agent data access beyond declared operational scope | 1.14, 1.4, 1.5 |
 | [RAG Source Validator](#rag-source-validator) | v1.0.0 | Work In Progress | Integrity validation for RAG knowledge sources with change detection | 2.16, 1.7, 2.13 |
 | [COI Testing Framework](#coi-testing-framework) | v1.0.0 | Planned | Conflict of interest testing for agent recommendations | 2.18, 2.11, 2.5 |
@@ -43,7 +43,7 @@ The **FSI-AgentGov-Solutions** repository contains ready-to-deploy automation so
 | [Agent Security Configuration Governance](#agent-security-configuration-governance) | v1.0.0 | Completed | Per-agent authentication enforcement, publishing restriction validation, and zone-based access configuration governance scripts | 1.1, 3.7, 3.8 |
 | [MIME Type Restrictions for File Uploads](#mime-type-restrictions-for-file-uploads) | v1.0.0 | Completed | Zone-based MIME type configuration, server-side magic bytes validation, DLP policy integration, Sentinel monitoring | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 |
 | [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | v1.0.0 | Completed | Policy-driven inactivity timeout validation and enforcement with zone-based maximum duration requirements and Dataverse compliance persistence | 2.22, 1.23, 3.7, 3.8 |
-| [Audit Logging Compliance Automation](#audit-logging-compliance-automation) | v1.0.0 | Completed | Automated detection and remediation of Purview unified audit and Dataverse audit logging gaps with Managed Identity auth, entity-level enablement, and approval-gated remediation | 1.7 |
+| [Audit Logging Compliance Automation](#audit-logging-compliance-automation) | v1.0.0 | In Development | Automated detection and remediation of Purview unified audit and Dataverse audit logging gaps with Managed Identity auth, entity-level enablement, and approval-gated remediation | 1.7 |
 | [Agent Sharing Access Restriction Detector](#agent-sharing-access-restriction-detector) | v1.0.0 | Completed | Continuous detection and restriction of agent sharing configurations exceeding zone-based access policies with approval workflows and exception management | 1.18, 2.8 |
 
 ### Status Legend
@@ -932,4 +932,4 @@ Solutions follow semantic versioning. See each solution's README for detailed ch
 
 ---
 
-*FSI Agent Governance Framework v1.2.41 - February 2026*
+*FSI Agent Governance Framework v1.2.43 - February 2026*

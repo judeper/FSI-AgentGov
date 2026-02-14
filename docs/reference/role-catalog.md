@@ -73,6 +73,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 | Canonical Role | When to Use | Accepted Aliases (Normalize From) |
 |---|---|---|
 | **Dataverse System Admin** | When a control requires Dataverse security role elevation | System Administrator, Power Platform System Administrator |
+| **Exchange Online Admin** | Email governance, message retention, transport rules, and DLP enforcement for Exchange workloads | Exchange Administrator, Exchange Admin |
 | **SharePoint Admin** | SharePoint tenant settings and governance | SharePoint Administrator, SharePoint Admin |
 | **SharePoint Site Collection Admin** | Site collection admin operations | Site Collection Administrator |
 | **SharePoint Site Owner** | Site-level ownership tasks | SharePoint Site Owner, Site Owner |

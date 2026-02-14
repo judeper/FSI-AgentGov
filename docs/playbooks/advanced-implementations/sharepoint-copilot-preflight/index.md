@@ -201,4 +201,4 @@ Before assigning Copilot licenses:
 
 ---
 
-*Updated: January 2026 | Framework Version: v1.2.21*
+*Updated: February 2026 | Framework Version: v1.2.43*

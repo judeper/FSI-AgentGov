@@ -106,6 +106,9 @@ Personal sandbox environment for makers to build and test agents with limited go
 
 ## E
 
+**eDiscovery**
+Microsoft Purview capability for identifying, collecting, and producing electronically stored information (ESI) in response to legal requests or regulatory examinations. In the context of AI agents, eDiscovery enables search and export of agent interaction records, conversation histories, and generated content. See [Control 1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md).
+
 **Entra Agent ID**
 Microsoft Entra capability that provides first-class identity objects for AI agents, enabling Conditional Access policies, Identity Protection, and lifecycle management for non-human agent identities. Currently in Public Preview. See [Agent Identity Architecture](../framework/agent-identity-architecture.md).
 
@@ -172,6 +175,9 @@ See RCD (Restricted Content Discovery).
 
 **Immutable Storage**
 Storage where data cannot be deleted or modified (WORM - Write Once, Read Many).
+
+**Information Barriers**
+Microsoft Purview policies that prevent specific groups of users from communicating with or discovering each other. In the context of AI agents, information barriers help prevent agents from accessing data across restricted segments (e.g., investment banking vs. research). See [Control 1.22](../controls/pillar-1-security/1.22-information-barriers.md).
 
 **Insider Risk**
 Risk that employees or authorized users may misuse their access for personal gain or harm.
