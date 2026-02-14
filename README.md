@@ -107,6 +107,12 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
+### Companion Solutions (27 Automation Packages)
+Deployable Power Platform solutions in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
+- 20 completed, 2 validated, 5 in progress or planned
+- Covers security, management, reporting, and cross-cutting automation
+- See [Solutions Index](docs/reference/solutions-index.md) for full catalog
+
 ### Supporting Files
 - **CONTROL-INDEX.md** - [Master index of all controls](docs/controls/CONTROL-INDEX.md)
 - **Administrator Excel Templates** - Role-specific checklists and dashboards (see [Downloads](docs/downloads/index.md))
@@ -193,6 +199,23 @@ graph TD
 
 ---
 
+## 🔗 Companion Solutions
+
+The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides ready-to-deploy Power Platform automation that operationalizes framework controls. Each solution includes Power Automate flows, Dataverse components, and configuration guidance.
+
+**27 solutions** (20 completed, 2 validated, 5 in progress or planned) covering 28 controls across all four pillars.
+
+| Category | Solutions | Controls Addressed |
+|----------|-----------|-------------------|
+| **Security Automation** | Audit Configuration Validator, Session Security Configurator, Conditional Access Automation, Scope Drift Monitor, Content Moderation Monitor, File Upload Security, MIME Type Restrictions, Configuration Hardening Baseline | 1.1, 1.4, 1.5, 1.7, 1.8, 1.11, 1.14, 1.18, 1.23, 1.25 |
+| **Management Automation** | Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Segregation of Duties Detector, Inactivity Timeout Enforcement | 2.1, 2.2, 2.3, 2.8, 2.10, 2.22 |
+| **Reporting & Monitoring** | Compliance Dashboard, Agent Access Governance Monitor, Deny Event Correlation, Agent Usage & Performance Workbook, Unrestricted Agent Sharing Detector, FINRA Supervision Workflow | 3.1, 3.2, 3.3, 3.4, 3.7, 3.8, 3.9 |
+| **Cross-Cutting** | Cross-Solution Integration, Agent Security Configuration Governance, Agent Sharing Access Restriction Detector, Audit Logging Compliance Automation | Multiple pillars |
+
+> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for version details, deployment status, and repository links. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings.
+
+---
+
 ## 🔧 Setup & Verification Workflow
 
 Each control in this framework follows a consistent documentation structure.
@@ -252,6 +275,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
 | **License Requirements** | License mapping for all 71 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
+| **Solutions Index** | Catalog of 27 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
 
 ### Priority Controls (Start Here)
 
@@ -353,6 +377,7 @@ See **[Implementation Checklist](docs/getting-started/checklist.md)** for detail
 - **"What does this term mean?"** → Look up **[Glossary](docs/reference/glossary.md)**
 - **"How do I implement this?"** → Use **[Implementation Checklist](docs/getting-started/checklist.md)**
 - **"Common questions?"** → See **[FAQ](docs/reference/faq.md)**
+- **"How do I automate this?"** → See **[Solutions Index](docs/reference/solutions-index.md)**
 
 ### For Technical Implementation:
 - Reference individual control files (1.1-4.7)
