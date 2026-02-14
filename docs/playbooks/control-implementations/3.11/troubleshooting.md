@@ -367,10 +367,10 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
    - Automate escalation: If Zone 3 agent exceeds 7-day SLA, escalate to AI Governance Lead
    - Monthly governance meeting: Review SLA compliance and remediation velocity
 
-3. **Simplify Metadata Requirements:**
-   - Review mandatory fields and remove any that are not truly necessary
-   - Example: If "Documentation Link" is rarely completed, make it optional for Zone 1/2
-   - Balance compliance burden with governance value
+3. **Use a Phased Metadata Approach:**
+   - If metadata collection is causing adoption friction, consider a phased approach: start with mandatory fields (name, owner, zone) and add supplementary fields (description, data classification, regulatory scope) in subsequent phases
+   - Do NOT remove mandatory governance fields — these are required for Control 3.11 enforcement
+   - Example: Phase 1 requires name, owner, and zone classification; Phase 2 adds description, data classification, and regulatory scope after teams are comfortable with the process
 
 4. **Provide Agent Author Training:**
    - Host monthly training session: "How to Complete Agent Metadata"

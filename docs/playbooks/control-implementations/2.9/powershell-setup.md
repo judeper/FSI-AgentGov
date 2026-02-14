@@ -45,7 +45,7 @@ foreach ($env in $environments) {
     Write-Host "Processing: $($env.DisplayName)" -ForegroundColor Yellow
 
     # Get Copilot Studio agents (bots)
-    $agents = Get-AdminPowerAppCopilot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
+    $agents = Get-AdminPowerAppChatBot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
 
     foreach ($agent in $agents) {
         $analytics += [PSCustomObject]@{

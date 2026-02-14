@@ -25,7 +25,15 @@ $metrics = @{
     UserSatisfactionAvg = 0
 }
 
-# (Query and calculate actual values from conversation logs)
+# Query Copilot interaction audit logs for the past $DaysToAnalyze days
+$auditResults = Search-UnifiedAuditLog -RecordType "CopilotInteraction" `
+    -StartDate $startDate -EndDate (Get-Date) -ResultSize 5000
+if ($auditResults) {
+    $metrics.TotalConversations = $auditResults.Count
+    $metrics.UniqueUsers = ($auditResults | Select-Object -ExpandProperty UserIds -Unique).Count
+}
+# For additional metrics (satisfaction, response time), query Dataverse conversation transcripts:
+# GET /api/data/v9.2/conversationtranscripts?$filter=createdon ge {startDate}
 
 # Calculate performance scores
 $resolutionRate = $metrics.SuccessfulResolutions / $metrics.TotalConversations * 100

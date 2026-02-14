@@ -134,20 +134,22 @@ foreach ($env in $environments) {
     $envName = $env.EnvironmentName
     $envDisplay = $env.DisplayName
     
-    # Query audit logs for chatbot configuration changes
-    # Note: This assumes moderation changes are captured in UpdateChatbot events
-    $auditEvents = Get-AdminPowerAppChatbotAuditLog -EnvironmentName $envName `
-        -StartTime $startDate -ErrorAction SilentlyContinue
+    # Query Unified Audit Log for Copilot Studio configuration changes
+    # Note: Get-AdminPowerAppChatbotAuditLog does not exist. Use Search-UnifiedAuditLog
+    # with the CopilotInteraction record type, or query the Office 365 Management Activity API.
+    $auditEvents = Search-UnifiedAuditLog -RecordType "CopilotInteraction" `
+        -StartDate $startDate -EndDate (Get-Date) -ResultSize 5000 `
+        -FreeText $envName -ErrorAction SilentlyContinue
     
     foreach ($event in $auditEvents) {
-        if ($event.Operation -like "*UpdateChatbot*" -or $event.Operation -like "*ModifyModeration*") {
+        if ($event.Operations -like "*UpdateChatbot*" -or $event.Operations -like "*ModifyModeration*") {
             $moderationChanges += [PSCustomObject]@{
-                Timestamp    = $event.CreationTime
+                Timestamp    = $event.CreationDate
                 Environment  = $envDisplay
-                AgentName    = $event.ChatbotName
-                ModifiedBy   = $event.UserId
-                ChangeType   = $event.Operation
-                Details      = $event.AdditionalInfo
+                AgentName    = ($event.AuditData | ConvertFrom-Json).ChatbotName
+                ModifiedBy   = $event.UserIds
+                ChangeType   = $event.Operations
+                Details      = $event.AuditData
             }
         }
     }
@@ -299,8 +301,10 @@ foreach ($env in $environments) {
         }
         
         # Query topics for this agent
-        # Note: This assumes topic metadata is exposed via API (as of Feb 2026)
-        $topics = Get-AdminPowerAppChatbotTopic -EnvironmentName $envName -ChatbotName $agentId -ErrorAction SilentlyContinue
+        # NOTE: No native cmdlet exists for topic-level audit. Use the Copilot Studio
+        # web interface or Dataverse API to query bot component metadata.
+        # Example Dataverse API: GET /api/data/v9.2/botcomponents?$filter=_parentbotid_value eq '{botId}'
+        $topics = @()  # Populate via Dataverse API or manual export; no PowerShell cmdlet available
         
         foreach ($topic in $topics) {
             $topicName = $topic.Properties.DisplayName
