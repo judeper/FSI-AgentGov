@@ -40,7 +40,7 @@ BeforeAll {
             @{
                 organizationid      = '00000000-0000-0000-0000-000000000001'
                 blockedattachments  = 'ade;adp;app;asa;asp;bat;cdx;cmd;com;cpl;crt;csh;dll;exe;hta;inf;ins;jar;js;jse;lnk;mda;mdb;mde;msc;msi;msp;mst;pcd;pif;reg;scr;sct;shb;shs;tmp;url;vb;vbe;vbs;ws;wsc;wsf;wsh'
-                blockedmimetypes    = 'application/x-msdownload;application/x-msdos-program;application/x-bat;application/x-cmd;application/x-vbs;application/javascript;application/x-javascript;text/javascript;application/x-powershell;application/x-msi;application/hta;application/msaccess;text/scriplet;application/xml;application/prg'
+                blockedmimetypes    = 'application/x-msdownload;application/x-msdos-program;application/x-bat;application/x-cmd;application/x-vbs;application/javascript;application/x-javascript;text/javascript;application/x-powershell;application/x-msi;application/hta;application/msaccess;text/scriptlet;application/xml;application/prg'
             }
         )
     }
@@ -73,18 +73,18 @@ BeforeAll {
             @{
                 organizationid      = '00000000-0000-0000-0000-000000000004'
                 blockedattachments  = 'ade;adp;app;asa;asp;bat;cdx;cmd;com;cpl;crt;csh;dll;exe;hta;inf;ins;jar;js;jse;lnk;mda;mdb;mde;msc;msi;msp;mst;pcd;pif;ps1;reg;scr;sct;shb;shs;tmp;url;vb;vbe;vbs;ws;wsc;wsf;wsh'
-                blockedmimetypes    = 'application/x-msdownload;application/x-msdos-program;application/x-bat;application/x-cmd;application/x-vbs;application/javascript;application/x-javascript;text/javascript;application/x-powershell;application/x-msi;application/hta;application/msaccess;text/scriplet;application/xml;application/prg'
+                blockedmimetypes    = 'application/x-msdownload;application/x-msdos-program;application/x-bat;application/x-cmd;application/x-vbs;application/javascript;application/x-javascript;text/javascript;application/x-powershell;application/x-msi;application/hta;application/msaccess;text/scriptlet;application/xml;application/prg'
             }
         )
     }
 
-    # Full Zone 3 compliant response (extensions + MIME + allowlist)
+    # Full Zone 3 compliant response(extensions + MIME + allowlist)
     $script:mockOrgResponseZone3 = @{
         value = @(
             @{
                 organizationid      = '00000000-0000-0000-0000-000000000005'
                 blockedattachments  = 'ade;adp;app;asa;asp;bat;cab;cdx;cmd;com;cpl;crt;csh;dll;exe;gadget;hta;inf;ins;isp;its;jar;js;jse;lnk;mda;mdb;mde;msc;msi;msp;mst;pcd;pif;ps1;ps1xml;ps2;ps2xml;psc1;psc2;reg;rgs;scr;sct;shb;shs;tmp;url;vb;vbe;vbs;ws;wsc;wsf;wsh'
-                blockedmimetypes    = 'application/x-msdownload;application/x-msdos-program;application/x-bat;application/x-cmd;application/x-vbs;application/javascript;application/x-javascript;text/javascript;application/x-powershell;application/x-msi;application/hta;application/msaccess;text/scriplet;application/xml;application/prg;application/x-shellscript;application/x-sh;application/x-csh;application/java-archive;application/x-ms-shortcut;text/xml'
+                blockedmimetypes    = 'application/x-msdownload;application/x-msdos-program;application/x-bat;application/x-cmd;application/x-vbs;application/javascript;application/x-javascript;text/javascript;application/x-powershell;application/x-msi;application/hta;application/msaccess;text/scriptlet;application/xml;application/prg;application/x-shellscript;application/x-sh;application/x-csh;application/java-archive;application/x-ms-shortcut;text/xml'
                 allowedmimetypes    = 'application/pdf;image/png;image/jpeg;image/gif;image/tiff;text/plain;text/csv;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/vnd.openxmlformats-officedocument.presentationml.presentation'
             }
         )
@@ -244,7 +244,18 @@ Describe 'Get-FsiMimeConfig' {
         }
 
         It 'Handles API error with exception' {
-            { Get-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken } | Should -Throw
+            { Get-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken } | Should -Throw '*Failed to query*'
+        }
+    }
+
+    Context 'Table output' {
+        BeforeAll {
+            Mock Invoke-RestMethod { $script:mockOrgResponse } -ModuleName FsiMimeControl
+        }
+
+        It '-OutputFormat Table returns result object to pipeline' {
+            $result = Get-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken -OutputFormat Table 6>&1
+            ($result | Where-Object { $_ -is [PSCustomObject] -and $_.OrganizationId }).OrganizationId | Should -Be '00000000-0000-0000-0000-000000000001'
         }
     }
 }
@@ -324,6 +335,34 @@ Describe 'Set-FsiMimeConfig' {
 
         $result = Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken -ZoneTemplate zone1
         $result.Applied | Should -BeTrue
+    }
+
+    It 'Custom mode omits blockedmimetypes when -BlockedMimeTypes not specified' {
+        $script:capturedBody = $null
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            $script:capturedBody = $Body
+            $script:mockOrgResponse
+        } -ModuleName FsiMimeControl
+
+        Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken `
+            -BlockedExtensions @('exe', 'bat')
+        $bodyObj = $script:capturedBody | ConvertFrom-Json
+        $bodyObj.blockedattachments | Should -Be 'exe;bat'
+        $bodyObj.PSObject.Properties.Name | Should -Not -Contain 'blockedmimetypes'
+    }
+
+    It 'Custom mode includes blockedmimetypes when -BlockedMimeTypes specified' {
+        $script:capturedBody = $null
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            $script:capturedBody = $Body
+            $script:mockOrgResponse
+        } -ModuleName FsiMimeControl
+
+        Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken `
+            -BlockedExtensions @('exe') -BlockedMimeTypes @('application/x-msdownload')
+        $bodyObj = $script:capturedBody | ConvertFrom-Json
+        $bodyObj.PSObject.Properties.Name | Should -Contain 'blockedmimetypes'
+        $bodyObj.blockedmimetypes | Should -Be 'application/x-msdownload'
     }
 }
 
@@ -486,5 +525,11 @@ Describe 'Connection Management' {
         Mock Invoke-RestMethod { throw 'Connection refused' } -ModuleName FsiMimeControl
 
         { Connect-FsiMimeDataverse -DataverseUrl 'https://invalid.example.com' -AccessToken $script:testToken } | Should -Throw
+    }
+
+    It 'Get-FsiMimeConfig throws when no URL and no session' {
+        # Re-import to clear module state
+        Import-Module (Join-Path $PSScriptRoot 'FsiMimeControl.psm1') -Force
+        { Get-FsiMimeConfig } | Should -Throw '*No Dataverse URL*'
     }
 }
