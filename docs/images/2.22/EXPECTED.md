@@ -15,7 +15,7 @@
 ### Screenshot 3: Dataverse Compliance Records
 
 **Portal Path:** Power Apps → Tables → fsi_inactivitytimeoutcompliance → Data
-**What to capture:** Table view showing compliance records from a completed scan run. Include columns: environment name, compliance status (Compliant/Non-Compliant/Unknown), timeout duration, zone maximum, scan run ID, and created date.
+**What to capture:** Table view showing compliance records from a completed scan run. Include columns: environment name, compliance status (Compliant/Non-Compliant/Unknown), timeout duration, zone maximum, last scan date, and created date.
 
 ### Screenshot 4: Non-Compliance Notification Email
 
