@@ -420,7 +420,8 @@ if ($DataverseUrl) {
         $auditPayload = @{
             fsi_name                     = "$EnvironmentName - $($scanTimestamp.Substring(0,19)) - Remediated"
             fsi_environmentid            = $EnvironmentName
-            fsi_environmentname          = $EnvironmentName
+            # fsi_environmentname omitted — script only has the GUID-like EnvironmentName,
+            # not the human-readable display name. The column is optional (required=False).
             fsi_inactivitytimeoutenabled = $true
             fsi_timeoutduration          = $TimeoutDuration
             fsi_compliancestatus         = 0  # Compliant (remediated) — matches fsi_ITE_compliancestatus option set

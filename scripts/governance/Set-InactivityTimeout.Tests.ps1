@@ -415,11 +415,7 @@ Describe 'Dataverse Audit Record' {
             }
 
             Mock Invoke-RestMethod -ParameterFilter { $Uri -like '*crm.dynamics.com*' } -MockWith {
-                @{
-                    fsi_inactivitytimeoutcomplianceid = '00000000-aaaa-bbbb-cccc-111111111111'
-                    fsi_environmentid                  = 'e1234567-89ab-cdef-0123-456789abcdef'
-                    fsi_compliancestatus               = 0
-                }
+                $script:mockDataverseResponse
             }
         }
 
