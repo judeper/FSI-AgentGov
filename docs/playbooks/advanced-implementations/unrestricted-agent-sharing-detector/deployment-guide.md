@@ -127,6 +127,9 @@ Key environment variables created:
 | `fsi_UASD_TeamsGroupId` | Teams group/team ID for violation alert notifications |
 | `fsi_UASD_DataverseUrl` | Dataverse environment URL |
 
+!!! info "Variables Requiring Manual Configuration"
+    The deployment script creates all 10 variables with default or empty values. Several must be configured manually before the flows will function correctly — these are covered in Phase 3 (Steps 4–6): `fsi_UASD_SecurityApproverEmail`, `fsi_UASD_DataOwnerApproverEmail`, `fsi_UASD_HomeTenantId`, `fsi_UASD_TeamsGroupId`, and `fsi_UASD_DataverseUrl`. Set `fsi_UASD_DataverseUrl` to your environment URL (e.g., `https://<your-org>.crm.dynamics.com`) during Phase 1 verification or before running the detection flow.
+
 ### Step 3: Deploy Connection References
 
 ```powershell
@@ -161,7 +164,7 @@ python scripts/create_uasd_connection_references.py
 Deploy the detection flow using the governance script:
 
 !!! note "Flow Definition Source"
-    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The `-FlowDefinitionPath` parameter below assumes you are running from the FSI-AgentGov-Solutions repo root. If you cloned both repositories side-by-side, adjust the path accordingly.
+    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The explicit `-FlowDefinitionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. If you omit the parameter, the script defaults to `src/uasd-detector-scan-agents.json` (relative to the current directory), which requires running from the `unrestricted-agent-sharing-detector/` subdirectory. If you cloned both repositories side-by-side, adjust the path accordingly.
 
 ```powershell
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
@@ -227,6 +230,8 @@ Review the output for any sharing violations detected across environments. If vi
 
 ### Step 1: Deploy Remediation Flows
 
+The same flow definition source note from Phase 2 applies here — the explicit paths below assume you are running from the FSI-AgentGov-Solutions repo root. The script defaults (`src/uasd-remediation-apply-sharing-policy.json` and `src/uasd-exception-approval-workflow.json`) assume the `unrestricted-agent-sharing-detector/` subdirectory as the working directory.
+
 ```powershell
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
     -EnvironmentId "<your-environment-guid>" `
@@ -279,7 +284,27 @@ Set the approver email addresses for the dual-approval exception workflow:
 !!! warning "Required Before Enabling Exception Workflow"
     The exception approval workflow cannot function without configured approver emails. Both fields must be set before the workflow will process exception requests.
 
-### Step 5: Configure Dry-Run Mode
+### Step 5: Configure Home Tenant ID
+
+Set the home tenant GUID for cross-tenant access detection (Rule 5):
+
+1. Navigate to **Solutions** > **UASD** > **Environment variables**
+2. Edit `fsi_UASD_HomeTenantId` — enter your organization's Entra ID tenant GUID
+
+!!! warning "Required for Cross-Tenant Detection"
+    Without `fsi_UASD_HomeTenantId` configured, the CROSS_TENANT_ACCESS violation rule (Critical severity) cannot evaluate agent sharing. The variable is created with an empty default value and must be set explicitly.
+
+### Step 6: Configure Teams Alert Channel
+
+Set the Teams group/team ID for violation alert notifications:
+
+1. Navigate to **Solutions** > **UASD** > **Environment variables**
+2. Edit `fsi_UASD_TeamsGroupId` — enter the Microsoft Teams team/group ID where violation alerts should be posted
+
+!!! tip "Finding Your Teams Group ID"
+    In Microsoft Teams, right-click the team name > **Get link to team**. The group ID is the GUID in the link URL. Alternatively, use the Microsoft Graph Explorer or Entra admin center to find the group ID.
+
+### Step 7: Configure Dry-Run Mode
 
 The `fsi_UASD_RemediationDryRun` environment variable controls whether remediation actions are applied to agents. Dry-run mode defaults to `true` for safe initial deployment.
 
@@ -293,7 +318,7 @@ The `fsi_UASD_RemediationDryRun` environment variable controls whether remediati
 !!! tip "Safe Rollout"
     Keep dry-run mode enabled for at least one full scan cycle (24 hours) before enabling production remediation. This allows the governance team to review the scope of changes before they take effect.
 
-### Step 6: Configure Break-Glass Exclusions
+### Step 8: Configure Break-Glass Exclusions
 
 Critical agents that must never be automatically remediated can be excluded using the `fsi_break_glass_exclude` tag:
 
@@ -306,7 +331,7 @@ Break-glass agents are still detected and violations are recorded, but remediati
 !!! note "Audit Trail"
     Break-glass exclusions are logged in the violation description field and generate a Teams notification. This supports audit trail requirements for agents that deviate from standard remediation policy.
 
-### Step 7: Import Approved Security Groups
+### Step 9: Import Approved Security Groups
 
 Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
 
@@ -318,7 +343,7 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
 
 The CSV file must contain `GroupId` and `DisplayName` columns. Optional columns: `Zone` (defaults to the `-DefaultZone` parameter value or `All`) and `IsActive` (defaults to `true`).
 
-### Step 8: Import Exception Manager App
+### Step 10: Import Exception Manager App
 
 Import the canvas app for managing exceptions:
 
@@ -395,9 +420,11 @@ Generate the first violation report to validate export functionality:
 | 13 | Violation report exports | `Export-ViolationReport.ps1` produces CSV/JSON output | [ ] |
 | 14 | Evidence hash computed | `-IncludeEvidence` flag produces SHA-256 hash | [ ] |
 | 15 | Teams alerts delivered | Violation alerts appear in configured Teams channel | [ ] |
-| 16 | Approver emails configured | `fsi_UASD_SecurityApproverEmail` and `fsi_UASD_DataOwnerApproverEmail` set | [ ] |
-| 17 | Dry-run mode tested | Remediation flow produces dry-run notifications without applying changes | [ ] |
-| 18 | Break-glass exclusions documented | Critical agents identified and tagged with `fsi_break_glass_exclude` | [ ] |
+| 16 | Teams group ID configured | `fsi_UASD_TeamsGroupId` set to the target team/group GUID | [ ] |
+| 17 | Approver emails configured | `fsi_UASD_SecurityApproverEmail` and `fsi_UASD_DataOwnerApproverEmail` set | [ ] |
+| 18 | Home tenant ID configured | `fsi_UASD_HomeTenantId` set to your tenant GUID (required for cross-tenant detection) | [ ] |
+| 19 | Dry-run mode tested | Remediation flow produces dry-run notifications without applying changes | [ ] |
+| 20 | Break-glass exclusions documented | Critical agents identified and tagged with `fsi_break_glass_exclude` | [ ] |
 
 !!! note "Adaptive Card Template"
     The Teams alert notification uses the `adaptive-card-uasd-alert.json` template from the FSI-AgentGov-Solutions repository. This template is referenced by the detection flow and does not require a separate deployment step — it is embedded in the flow definition at import time.
