@@ -64,7 +64,7 @@
 
 ### Screenshot 8: Agent Moderation Inventory (PowerShell Output)
 **What to capture:**
-- Terminal/PowerShell window showing output from Get-AgentModerationInventory.ps1 script
+- Terminal/PowerShell window showing output from Get-AgentModerationSettings.ps1 script
 - Table or list displaying:
   - Environment names
   - Agent names

@@ -29,6 +29,9 @@ Add-PowerAppsAccount
 
 ---
 
+!!! tip "Automated Solution Available"
+    The **Content Moderation Governance Monitor** solution provides automated per-agent validation with drift detection, Dataverse persistence, and SHA-256 evidence export. The standalone scripts below are useful for ad-hoc assessments; for continuous monitoring, deploy the [automated solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor).
+
 ## Script 1: Get Agent Moderation Configuration Inventory
 
 ```powershell

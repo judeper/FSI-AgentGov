@@ -59,7 +59,7 @@
 
 ### Test 6: Verify Moderation Inventory Accuracy
 
-1. Run the `Get-AgentModerationInventory.ps1` script from the PowerShell Setup playbook
+1. Run the `Get-AgentModerationSettings.ps1` script from the Content Moderation Governance Monitor solution
 2. Compare the output against the documented moderation inventory
 3. Verify all agents are accounted for with accurate moderation levels
 4. Check for agents with "Not Configured" moderation (requires action)

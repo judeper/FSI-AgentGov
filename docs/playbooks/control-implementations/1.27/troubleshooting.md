@@ -171,7 +171,7 @@ Microsoft Purview Compliance Portal → Audit → Search → Activities: "Update
 
 ### Issue: PowerShell Script Returns No Moderation Data
 
-**Symptoms:** The Get-AgentModerationInventory.ps1 script completes but returns no moderation data or shows "Not Configured" for all agents
+**Symptoms:** The Get-AgentModerationSettings.ps1 script completes but returns no moderation data or shows "Not Configured" for all agents
 
 **Resolution:**
 

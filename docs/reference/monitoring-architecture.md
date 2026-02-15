@@ -287,7 +287,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 | Recordkeeping | records, retention, books and records, archive | 3.1, 3.2, 3.3 |
 | Supervision | supervision, review, oversight, monitoring | 2.6, 2.15, 3.5 |
 | Data Protection | privacy, data security, PII, confidential | 1.1, 1.2, 1.3 |
-| Content Moderation | harmful content, content review, moderation | 1.8, 2.16 |
+| Content Moderation | harmful content, content review, moderation | 1.27, 1.8 |
 
 ---
 
