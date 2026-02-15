@@ -11,7 +11,7 @@
 | Zone template application fails | Insufficient permissions or environment locked | Verify Power Platform Admin role; check environment state |
 | DLP policy not triggering on file uploads | DLP policy not scoped to Power Platform or connector | Review DLP policy scope in Purview Compliance Portal |
 | Sentinel query returns no results | Diagnostic settings not configured or data latency | Enable Power Platform admin activity connector in Sentinel |
-| FsiMimeControl module import errors | Module not installed or PowerShell version mismatch | Install module and verify PowerShell 7.0+ |
+| FsiMimeControl module import errors | Module not found or PowerShell version mismatch | Import module from repository path and verify PowerShell 7.0+ |
 
 ---
 
@@ -65,9 +65,10 @@ Power Platform Admin Center → Environments → [Environment] → Settings → 
 1. Verify your account has Power Platform Admin or Entra Global Admin role
 2. Check the environment is not in a locked or read-only state:
    ```powershell
-   Get-FsiMimeConfig -EnvironmentId "your-environment-id" | Select-Object EnvironmentState
+   $config = Get-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token
+   Write-Host "Organization ID: $($config.OrganizationId)"
    ```
-3. Verify the environment ID is correct (copy from PPAC → Environments → Details)
+3. Verify the Dataverse URL is correct (copy from PPAC → Environments → Details)
 4. Check network connectivity to the Dataverse Web API
 5. If the environment is managed by another admin, coordinate before applying changes
 
@@ -119,13 +120,13 @@ Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [P
    ```powershell
    $PSVersionTable.PSVersion
    ```
-2. Install or update the module:
+2. Import the module from the repository path:
    ```powershell
-   Install-Module -Name FsiMimeControl -Force -Scope CurrentUser
+   Import-Module ./scripts/governance/FsiMimeControl.psm1 -Force
    ```
-3. If using a private repository, verify the repository is registered:
+3. Verify the module file exists at the expected path:
    ```powershell
-   Get-PSRepository
+   Test-Path ./scripts/governance/FsiMimeControl.psm1
    ```
 4. Check for module conflicts:
    ```powershell
@@ -160,7 +161,7 @@ Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [P
 ### Check Current MIME Configuration
 
 ```powershell
-Get-FsiMimeConfig -EnvironmentId "your-environment-id" | Format-List
+Get-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token | Format-List
 ```
 
 ### Verify Module Installation
@@ -172,21 +173,20 @@ Get-Module -Name FsiMimeControl -ListAvailable | Format-Table Name, Version, Pat
 ### Quick Compliance Check
 
 ```powershell
-Test-FsiMimeCompliance -EnvironmentId "your-environment-id" -Zone 2
+Test-FsiMimeCompliance -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token -Zone 2
 ```
 
-### List All Managed Environments
+### List All Power Platform Environments
 
 ```powershell
-Get-FsiManagedEnvironments | Format-Table DisplayName, EnvironmentId, Zone
+Get-AdminPowerAppEnvironment | Format-Table DisplayName, EnvironmentName, @{N='Type';E={$_.Internal.properties.environmentType}}
 ```
 
 ### Export Configuration for Audit
 
 ```powershell
-Get-FsiManagedEnvironments | ForEach-Object {
-    Get-FsiMimeConfig -EnvironmentId $_.EnvironmentId
-} | Export-Csv -Path ".\MimeConfigAudit.csv" -NoTypeInformation
+# Export MIME configuration for a specific environment
+Get-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token -OutputFormat JSON -OutputPath '.\MimeConfigAudit.json'
 ```
 
 ---

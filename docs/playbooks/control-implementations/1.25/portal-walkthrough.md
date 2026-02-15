@@ -82,7 +82,7 @@
 | **Allowed MIME Types (Allowlist)** | Not required | Recommended | Required |
 | **DLP Policy for File Uploads** | Not required | Yes | Yes — with alerts |
 | **Sentinel Monitoring** | Not required | Optional | Required |
-| **Review Frequency** | Quarterly | Monthly | Monthly |
+| **Review Frequency** | Quarterly | Monthly | Weekly |
 | **Exception Process** | Informal | Documented | Documented with approval |
 
 ---

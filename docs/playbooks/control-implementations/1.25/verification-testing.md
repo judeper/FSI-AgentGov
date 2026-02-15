@@ -118,7 +118,7 @@ I attest that:
 |------|----------------|---------------------------|-------------------|----------------|----------------|---------------------|
 | Zone 1 | Quarterly | Quarterly | N/A | Quarterly | N/A | N/A |
 | Zone 2 | Monthly | Monthly | Monthly | Monthly | Monthly | Optional |
-| Zone 3 | Monthly | Monthly | Monthly | Monthly | Monthly | Monthly |
+| Zone 3 | Weekly | Weekly | Weekly | Weekly | Weekly | Weekly |
 
 ---
 

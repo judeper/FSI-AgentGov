@@ -759,7 +759,6 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 **Script Locations:**
 
 - `scripts/governance/FsiMimeControl.psm1` (FSI-AgentGov)
-- `scripts/governance/FsiMimeControl.psd1` (FSI-AgentGov)
 - `mime-type-restrictions/src/ValidateMimeTypePlugin.cs` (FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/dlp-policy-template.json` (FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/query-mime-blocks.kql` (FSI-AgentGov-Solutions)
