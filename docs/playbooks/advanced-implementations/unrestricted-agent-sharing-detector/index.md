@@ -126,4 +126,4 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 
 ---
 
-*Updated: February 2026 | Version: v1.0 | Framework: FSI Agent Governance*
+*Updated: February 2026 | Version: v1.0 | Framework: FSI Agent Governance v1.2.48*

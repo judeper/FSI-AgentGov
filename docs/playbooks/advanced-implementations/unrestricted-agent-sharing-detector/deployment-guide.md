@@ -357,7 +357,7 @@ Generate the first violation report to validate export functionality:
 | # | Item | Expected Result | Verified |
 |---|------|----------------|----------|
 | 1 | Dataverse tables deployed | 5 tables with `fsi_` prefix visible in Power Apps | [ ] |
-| 2 | Environment variables created | 4+ variables under UASD solution | [ ] |
+| 2 | Environment variables created | 10 variables under UASD solution | [ ] |
 | 3 | Connection references created | Dataverse and Teams connection references listed | [ ] |
 | 4 | Detection flow imported | Flow visible in Power Automate solutions | [ ] |
 | 5 | Detection flow connections bound | All connection references linked to active connections | [ ] |
@@ -394,7 +394,7 @@ Generate the first violation report to validate export functionality:
 | **No violations detected** | No agents with sharing violations in scope | Run `Invoke-SharingAudit.ps1` directly to verify BAP API connectivity and agent enumeration |
 | **Remediation flow inactive** | Flow imported but not activated | Navigate to the flow in Power Automate and click **Turn on** |
 | **Export returns empty results** | Filter parameters too restrictive or no violations in Dataverse | Try without filters first; verify violations exist in `fsi_SharingViolation` table |
-| **Teams notification not received** | Channel ID incorrect or connector permissions missing | Verify `fsi_UASD_AlertTeamsChannelId` value; check Teams connector permissions |
+| **Teams notification not received** | Channel ID incorrect or connector permissions missing | Verify `fsi_UASD_TeamsGroupId` value; check Teams connector permissions |
 
 ### Diagnostic Steps
 
