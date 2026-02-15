@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.51] — February 2026 (UASD Review Remediation)
+
+### Overview
+
+Comprehensive remediation of external UASD review findings. Fixed 6 critical script-to-documentation mismatches, expanded troubleshooting with 6 new operational scenarios, and added architectural context (control dependencies, API design notes, platform context). Validated via 3 OPUS critique agents before execution and 6-agent phased implementation.
+
+### Fixed
+
+#### Unrestricted Agent Sharing Detector (UASD)
+- **Missing environment variable (CRITICAL):** Added `fsi_UASD_TeamsChannelId` to `create_uasd_environment_variables.py` — script now deploys all 11 documented variables (was 10). Updated all count references in docstrings and CLI help.
+- **Wrong Deploy script parameters (CRITICAL):** Fixed all deployment guide command examples — `-SolutionPath` → `-FlowDefinitionPath` / `-RemediationFlowPath` / `-ExceptionFlowPath`, added mandatory `-EnvironmentId` parameter, fixed remediation to single call with both flow paths.
+- **Wrong module name (CRITICAL):** Fixed `uasd_client` → `caa_client` in deployment guide working directory note and troubleshooting table.
+- **Wrong Option B environment variables (CRITICAL):** Fixed `UASD_*` → `CAA_*` prefix for environment variable authentication (deployment guide Option B).
+- **Stale connection reference warning:** Removed outdated `_uasd` suffix warning — script already uses `_sharingdetector`. Fixed connection reference count from "two" to "three" (includes Approvals).
+- **CSV column mismatch:** Fixed approved groups CSV columns from `GroupId,GroupName,Zone,ApprovedBy` to `GroupId,DisplayName` (required) + `Zone,IsActive` (optional). Added JSON format support note.
+- **Violation type name consistency:** Fixed 4 occurrences of `EXCESSIVE_INDIVIDUAL_SHARING` → `EXCESSIVE_INDIVIDUAL` to match option set definition.
+
+### Added
+
+#### UASD Documentation Enhancements
+- **Control dependencies:** Added Controls 3.1 (Agent Inventory), 1.18 (RBAC), 2.1 (Managed Environments) to Related Controls table in index.md
+- **API Source of Truth note:** BAP APIs are authoritative for sharing; Graph is optional for Teams app discovery only
+- **Platform Context note:** Microsoft's October 2025 admin control for disabling org-wide sharing complements but doesn't replace UASD
+- **PUBLIC_INTERNET_LINK clarification:** Updated violation rule to specify compound condition (NoAuthentication + public web channel)
+- **fsi_SharingPolicy seeding step:** New deployment step for configuring zone-specific policy thresholds
+- **Zone-based scheduling guidance:** Recommended scan frequencies per governance zone
+- **Auto-remediation guardrails:** Explicit documentation that automatic remediation is limited to PUBLIC_INTERNET_LINK only
+- **Exception governance emphasis:** Exception processes are mandatory for broad-access agents
+- **6 new troubleshooting scenarios:** Placeholder GUIDs, automation identity, approved group still flagged, exceptions stuck in pending, policy threshold not configured, remediation 403/Forbidden
+- **Audit evidence production guide:** Dataverse-based evidence export with regulatory alignment context
+- **Connectivity validation framing:** Initial sharing audit as "first proof point" for deployment validation
+
+---
+
 ## [1.2.50] — February 2026 (UASD Connection Reference Warning)
 
 ### Fixed

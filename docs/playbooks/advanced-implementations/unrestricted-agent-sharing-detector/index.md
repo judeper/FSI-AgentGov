@@ -49,6 +49,9 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 └─────────────────────────────────────────────────────────────┘
 ```
 
+!!! info "API Source of Truth"
+    UASD uses Business Application Platform (BAP) APIs as the authoritative source for agent sharing configurations. BAP endpoints enumerate agents and retrieve/modify sharing permissions. Microsoft Graph API may be used for optional discovery of Teams-packaged agents but is not used for sharing evaluation or remediation.
+
 ---
 
 ## Violation Rules
@@ -56,7 +59,7 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 | # | Rule | Trigger Condition | Severity |
 |---|------|-------------------|----------|
 | 1 | `ORG_WIDE_SHARING` | Agent shared with "Everyone" or "All Users" | Critical |
-| 2 | `PUBLIC_INTERNET_LINK` | Agent has public internet-facing link enabled | Critical |
+| 2 | `PUBLIC_INTERNET_LINK` | Agent configured with `NoAuthentication` and published via a public web channel | Critical |
 | 3 | `UNAPPROVED_GROUP` | Agent shared with group not in approved security groups list | High |
 | 4 | `EXCESSIVE_INDIVIDUAL` | Agent shared with more individuals than `MaxIndividualShares` policy threshold | Medium |
 | 5 | `CROSS_TENANT_ACCESS` | Agent shared with external tenant principals | Critical |
@@ -115,6 +118,9 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 |---------|--------------|
 | [1.1 - Restrict Agent Publishing](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | UASD enforces per-agent sharing restrictions that complement publishing authorization controls |
 | [3.8 - Copilot Hub and Governance Dashboard](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | UASD extends governance visibility into per-agent sharing configurations |
+| [3.1 - Agent Inventory and Classification](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | UASD uses agent inventory metadata (zone, owner, risk classification) for zone-aware policy evaluation |
+| [1.18 - Role-Based Access Control for Agent Management](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | UASD validates agent sharing against RBAC-approved security group strategy |
+| [2.1 - Managed Environments for Agent Hosting](../../../controls/pillar-2-management/2.1-managed-environments.md) | Managed environment sharing limits complement UASD per-agent sharing detection |
 
 ---
 
@@ -126,4 +132,7 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 
 ---
 
-*Updated: February 2026 | Version: v1.0 | Framework: FSI Agent Governance v1.2.48*
+!!! note "Platform Context"
+    Beginning October 2025, Microsoft introduced an admin control to disable organization-wide sharing for Copilot Studio agents ([MC post reference](https://admin.microsoft.com)). This tenant-level setting complements UASD by providing a preventive control, while UASD provides continuous detection, remediation workflows, exception tracking, and audit evidence across multiple violation types.
+
+*Updated: February 2026 | Version: v1.1 | Framework: FSI Agent Governance v1.2.51*

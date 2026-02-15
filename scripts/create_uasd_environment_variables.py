@@ -1,6 +1,6 @@
 """Deploy environment variables for Unrestricted Agent Sharing Detector.
 
-Creates 10 environment variables with the ``fsi_UASD_*`` prefix in the
+Creates 11 environment variables with the ``fsi_UASD_*`` prefix in the
 target Dataverse environment.  All operations are idempotent — re-running
 against an environment that already contains the variables is safe.
 
@@ -115,6 +115,15 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
         ),
     },
     {
+        "schema_name": "fsi_UASD_TeamsChannelId",
+        "display_name": "UASD - Teams Channel ID",
+        "type": ENV_VAR_TYPE_STRING,
+        "default_value": "",
+        "description": (
+            "Microsoft Teams channel ID for violation alert notifications"
+        ),
+    },
+    {
         "schema_name": "fsi_UASD_DataverseUrl",
         "display_name": "UASD - Dataverse URL",
         "type": ENV_VAR_TYPE_STRING,
@@ -186,7 +195,7 @@ def create_environment_variables(
     client: CAAClient,
     dry_run: bool = False,
 ) -> Dict[str, int]:
-    """Create all 10 environment variables.
+    """Create all 11 environment variables.
 
     Returns
     -------
@@ -222,7 +231,7 @@ def create_environment_variables(
 def main() -> None:
     """CLI entry point for environment variable deployment."""
     parser = argparse.ArgumentParser(
-        description="Deploy UASD environment variables (10 fsi_UASD_* definitions)"
+        description="Deploy UASD environment variables (11 fsi_UASD_* definitions)"
     )
     parser.add_argument(
         "--dry-run",
