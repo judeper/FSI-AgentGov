@@ -20,15 +20,24 @@ Cross-repo accuracy and completeness review of five solutions, including a deep 
 - **Control 1.27 metadata:** Removed duplicate `Last Verified` line
 - **PowerShell setup:** Added solution tip linking standalone scripts to automated CMM solution
 
-#### Inactivity Timeout Enforcement (ITE)
-- **ITE connection references script:** Replaced unused `fsi_cr_powerplatformforadmins_inactivitytimeout` with `fsi_cr_office365_inactivitytimeout` to match actual flow connector requirements
-- **Control cross-references:** Added Control 2.22 cross-references to Controls 1.23, 1.26, 2.1, 3.8
-- **Solutions index:** Added ITE related controls (1.26, 1.27, 2.1)
-- **Playbook 2.22 portal-walkthrough:** Added environment variables table and notification warning
-- **Playbook 2.22 powershell-setup:** Fixed Az.Accounts 3.x+ SecureString token handling
-- **Playbook 2.22 troubleshooting:** Added remediation tips, concurrency guidance, Issue 9 (env vars), fixed token handling
-- **Role catalog:** Added "Agent Owner" role
-- **Governance scripts:** Fixed SecureString token handling in `Set-InactivityTimeout.ps1`
+#### Inactivity Timeout Enforcement (ITE) — Round 2
+- **Troubleshooting foreach pipeline bug (CRITICAL):** Fixed `foreach` statement piped to `Format-Table` in diagnostic command — produced no output. Collected results into array before piping.
+- **Troubleshooting SecureString tokens:** Fixed 3 `Get-AzAccessToken .Token` diagnostic snippets to handle Az.Accounts ≥4.x SecureString return type
+- **Troubleshooting Issue 10 (NEW):** Added Copilot Studio agent-level session timeout troubleshooting scenario covering UI path changes, license requirements, classic vs. modern agents
+- **Troubleshooting rate limiting:** Added `Retry-After` header guidance and re-scan step for missed environments
+- **Portal walkthrough permissions:** Added specific Dataverse security role and BAP API permission requirements for both connection references
+- **Portal walkthrough email format:** Added semicolon-separated delimiter specification and example for `fsi_ITE_NotificationRecipients`
+- **Portal walkthrough validation:** Added schema deployment validation step (verify tables, env vars, connection refs exist after script execution)
+- **Portal walkthrough Copilot Studio:** Added UI path variance note for session timeout settings
+- **Portal walkthrough Zone 1:** Changed tracker "N/A" to "≤120 (if enabled)" for Zone 1 Required Max
+- **Portal walkthrough flow nav:** Added Power Automate navigation path for manual compliance flow execution
+- **Verification testing prerequisites:** Added script file path, `Connect-AzAccount` requirement, standardized `.\` prefix on all script invocations
+- **Verification testing WhatIf:** Added `-Verbose` flag to TC-2.22-05 (required to see current/proposed values)
+- **Verification testing attestation:** Added 3 missing attestation criteria (daily schedule/immutable records, Unknown status monitoring, remediation documentation)
+- **Verification testing hash link:** Added direct link to evidence hash verification procedure in PowerShell Setup playbook
+- **Python schema script:** Added runtime prerequisite check for `fsi_acv_zone` option set with clear error message
+- **Python env vars script:** Fixed `DisplayName` to use human-readable name instead of schema name
+- **Governance README:** Removed duplicate script entries (old Control 2.8 mapping), fixed test count to 44
 
 #### Unrestricted Agent Sharing Detector (UASD)
 - **Schema deployment failure:** Added missing `@odata.type: OptionSetMetadata` to all 7 UASD option set definitions — Dataverse API would return HTTP 400 without it

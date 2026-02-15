@@ -11,9 +11,10 @@
 - [ ] Control 2.22 implementation complete (portal walkthrough)
 - [ ] `fsi_environmentpolicy` table populated with zone assignments
 - [ ] Detect-InactivityTimeout-NonCompliance flow deployed
-- [ ] Set-InactivityTimeout.ps1 script available
+- [ ] Set-InactivityTimeout.ps1 script available (located at `scripts/governance/Set-InactivityTimeout.ps1` in the FSI-AgentGov repository)
 - [ ] Test environments available (at least one per zone)
 - [ ] Power Platform Admin or Environment Admin credentials (Environment Admin is limited to assigned environments)
+- [ ] Authenticated Azure session via `Connect-AzAccount` (required for PowerShell test cases TC-2.22-05 through TC-2.22-10)
 
 ---
 
@@ -99,8 +100,8 @@
 **Steps:**
 
 1. Select a non-compliant test environment (e.g., Zone 3 with timeout at 120 minutes)
-2. Run `Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60 -WhatIf`
-3. Verify the output shows current and proposed values
+2. Run `.\Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60 -WhatIf -Verbose`
+3. Verify the Verbose output shows current and proposed values (the `-Verbose` flag is required to see the comparison details)
 4. Verify no actual change was made by re-checking PPAC settings or re-running the compliance flow
 
 **Expected Result:** Script outputs preview with current and proposed values; no actual configuration change applied.
@@ -116,7 +117,7 @@
 **Steps:**
 
 1. Select a non-compliant test environment (e.g., Zone 3 with timeout at 120 minutes)
-2. Run `Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60`
+2. Run `.\Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60`
 3. Verify the script completes without errors
 4. Navigate to PPAC → Environment → Settings → Privacy + Security
 5. Confirm the timeout duration now shows 60 minutes
@@ -169,9 +170,9 @@
 
 **Steps:**
 
-1. Run `Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60 -IncludeEvidence -OutputFormat JSON -OutputPath .\evidence\test-hash.json`
+1. Run `.\Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60 -IncludeEvidence -OutputFormat JSON -OutputPath .\evidence\test-hash.json`
 2. Verify the output JSON file contains a non-null `Metadata.IntegrityHash` field
-3. Run the evidence hash verification procedure from the PowerShell Setup playbook
+3. Run the [evidence hash verification procedure](powershell-setup.md#evidence-hash-verification) from the PowerShell Setup playbook
 4. Verify the computed hash matches the recorded hash
 
 **Expected Result:** Evidence file produced with SHA-256 integrity hash; verification procedure confirms hash match.
@@ -240,6 +241,15 @@ I, [Name], [Title], confirm that:
 
 6. Zone 3 agents processing customer data, PII, or PHI have conversation
    session timeout configured at ≤60 minutes.
+
+7. The compliance flow runs on a daily schedule and produces immutable
+   (append-only) compliance records in Dataverse.
+
+8. No governed environments have remained in Unknown compliance status
+   for more than one review cycle without investigation.
+
+9. All remediation actions are documented with before/after configuration
+   values and SHA-256 evidence hashes where applicable.
 
 Date: _______________
 Signature: _______________

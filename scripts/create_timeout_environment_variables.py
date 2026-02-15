@@ -88,7 +88,7 @@ def create_environment_variable(
     # Build definition payload
     definition: Dict[str, Any] = {
         "SchemaName": schema_name,
-        "DisplayName": schema_name,
+        "DisplayName": var_def["display_name"],
         "EnvironmentVariableDisplayName": var_def["display_name"],
         "Description": var_def["description"],
         "Type": var_def["type"],

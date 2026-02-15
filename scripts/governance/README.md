@@ -16,15 +16,13 @@ Scripts for automating governance control implementation.
 | `test-plugin.ps1` | Integration tests for ValidateMimeTypePlugin server-side validation (5 test cases) | Control 1.25 |
 | `validate-exceptions.ps1` | Validate MIME type exception register against environment configuration and zone templates | Control 1.25 |
 | `mime-type-exceptions.csv` | Exception register for approved MIME type deviations from zone templates | Control 1.25 |
-| `Set-InactivityTimeout.ps1` | Configure and enforce Power Platform user inactivity timeout settings per zone | Control 2.8 |
-| `Set-InactivityTimeout.Tests.ps1` | Pester 5 test suite for Set-InactivityTimeout module | Control 2.8 |
+| `Set-InactivityTimeout.ps1` | Remediate inactivity timeout via BAP Admin API PATCH (GET-PATCH-GET pattern with WhatIf, evidence packaging) | Control 2.22 |
+| `Set-InactivityTimeout.Tests.ps1` | Pester 5 validation test suite (44 tests) for Set-InactivityTimeout | Control 2.22 |
 | `Deploy-DetectionFlow.ps1` | Deploy UASD detection flow to Power Automate | Control 1.1 |
 | `Deploy-RemediationFlow.ps1` | Deploy UASD remediation flow to Power Automate | Control 1.1 |
 | `Export-ViolationReport.ps1` | Export sharing violation report with SHA-256 evidence | Control 1.1 |
 | `Import-ApprovedSecurityGroups.ps1` | Import approved security groups for sharing validation | Control 1.1 |
 | `Invoke-SharingAudit.ps1` | On-demand agent sharing audit scan | Control 1.1, 3.8 |
-| `Set-InactivityTimeout.ps1` | Remediate inactivity timeout via BAP Admin API PATCH (GET-PATCH-GET pattern with WhatIf, evidence packaging) | Control 2.22 |
-| `Set-InactivityTimeout.Tests.ps1` | Pester 5 validation test suite (27 tests) for Set-InactivityTimeout | Control 2.22 |
 
 ## Prerequisites
 

@@ -64,7 +64,14 @@ python scripts/create_timeout_environment_variables.py
 python scripts/create_timeout_connection_references.py
 ```
 
-All scripts are idempotent — safe to re-run if needed. Use `--dry-run` to preview changes without making API calls.
+All scripts are idempotent — safe to re-run if needed. Use `--dry-run` to preview changes without making API calls. Alternatively, use `--interactive` to authenticate via browser sign-in (delegated auth) instead of the service principal credentials above.
+
+!!! tip "Schema Deployment Validation"
+    After running all 4 scripts, verify the schema was deployed successfully:
+
+    1. Navigate to [Power Apps](https://make.powerapps.com) → select the governance environment → **Tables**
+    2. Confirm these tables exist: `fsi_environmentpolicy`, `fsi_inactivitytimeoutcompliance`, `fsi_inactivitytimeouterrorlog`
+    3. Open **Solutions** → ITE solution → verify **Environment Variables** and **Connection References** are present
 
 !!! warning "CAA Schema Prerequisite"
     The first script (`create_timeout_dataverse_schema.py`) requires the `fsi_acv_zone` global option set, which is created by the CAA (Conditional Access Automation) schema script. If you see an error referencing `fsi_acv_zone`, deploy the CAA schema first: `python scripts/create_dataverse_schema.py`.
@@ -82,7 +89,9 @@ After importing the ITE solution and deploying the schema, complete these config
 3. Open **Connection References**
 4. For each connection reference (`fsi_cr_dataverse_inactivitytimeout` and `fsi_cr_powerplatformforadmins_inactivitytimeout`):
    - Click the connection reference → select or create an active connection
-   - Authenticate with a service account that has the required permissions
+   - Authenticate with a service account that has the required permissions:
+     - **Dataverse connector** (`fsi_cr_dataverse_inactivitytimeout`): Requires a Dataverse security role with Create/Read permissions on `fsi_environmentpolicy`, `fsi_inactivitytimeoutcompliance`, and `fsi_inactivitytimeouterrorlog` tables
+     - **Power Platform for Admins connector** (`fsi_cr_powerplatformforadmins_inactivitytimeout`): Requires Power Platform Admin role or an Entra app registration with `https://api.bap.microsoft.com/.default` API permission and admin consent
 
 ### Set Environment Variable Current Values
 
@@ -92,11 +101,11 @@ After importing the ITE solution and deploying the schema, complete these config
 | Variable | Default | Action Required |
 |----------|---------|-----------------|
 | `fsi_ITE_ConcurrencyLimit` | 5 | Adjust if your tenant has many environments (reduce for rate-limit avoidance) |
-| `fsi_ITE_NotificationRecipients` | *(empty)* | **Must set** — enter email addresses for compliance alert recipients |
+| `fsi_ITE_NotificationRecipients` | *(empty)* | **Must set** — enter semicolon-separated email addresses (e.g., `admin@contoso.com;compliance@contoso.com`) |
 | `fsi_ITE_ScanFrequencyHours` | 24 | Adjust scan interval if needed |
 
 !!! warning "Notification Recipients Required"
-    The `fsi_ITE_NotificationRecipients` variable has no default value. Notifications will not be sent until you set a current value with valid email addresses.
+    The `fsi_ITE_NotificationRecipients` variable has no default value. Notifications will not be sent until you set a current value with valid email addresses. Use semicolons to separate multiple addresses.
 
 ### Populate Policy Table
 
@@ -192,7 +201,7 @@ After importing the ITE solution and deploying the schema, complete these config
 |-----------------|------|-------------------|--------------------------|--------------|----------------|---------------|
 | *env-prod-01* | Zone 3 | 60 | *30* | *5* | *YYYY-MM-DD* | *Admin Name* |
 | *env-team-collab* | Zone 2 | 120 | *90* | *10* | *YYYY-MM-DD* | *Admin Name* |
-| *env-personal-dev* | Zone 1 | N/A | *120* | *10* | *YYYY-MM-DD* | *Admin Name* |
+| *env-personal-dev* | Zone 1 | ≤120 (if enabled) | *120* | *10* | *YYYY-MM-DD* | *Admin Name* |
 
 ---
 
@@ -203,6 +212,10 @@ In addition to environment-level timeout settings, individual Copilot Studio age
 1. Navigate to [Copilot Studio](https://copilotstudio.microsoft.com) and sign in with your Power Platform Admin or Copilot Studio maker credentials
 2. Select the target agent from the agent list
 3. Go to **Settings** → **Advanced** → **Session timeout**
+
+!!! tip "Copilot Studio UI Changes"
+    The navigation path to session timeout settings may vary depending on your Copilot Studio version. If you cannot locate it at Settings → Advanced → Session timeout, search for "session timeout" in the agent settings or check under Settings → Generative AI → Session management.
+
 4. Set the conversation session timeout duration aligned with the agent's zone classification:
 
 | Zone | Agent-Level Maximum | Recommended Setting | Rationale |
@@ -229,8 +242,11 @@ After configuring all environments:
 !!! warning "Required Before Running Compliance Flow"
     The `fsi_environmentpolicy` table must be populated before running the compliance flow. Environments without policy records will receive MissingPolicy errors (see [Troubleshooting Issue 1](troubleshooting.md#issue-1-compliance-flow-shows-missingpolicy-for-known-environment)).
 
-2. Run the Detect-InactivityTimeout-NonCompliance flow manually to validate initial compliance state
-3. Review compliance records in the `fsi_inactivitytimeoutcompliance` table to confirm all environments show Compliant status
+2. Run the Detect-InactivityTimeout-NonCompliance flow manually to validate initial compliance state:
+   - Navigate to [Power Automate](https://make.powerautomate.com) → select the governance environment
+   - Open **Solutions** → ITE solution → **Cloud flows**
+   - Select **Detect-InactivityTimeout-NonCompliance** → click **Run**
+3. Review compliance records in the `fsi_inactivitytimeoutcompliance` table (Power Apps → Tables → search for `fsi_inactivitytimeoutcompliance` → open the table data view) to confirm all environments show Compliant status
 4. Address any Non-Compliant or Unknown results before enabling the daily schedule
 5. Enable the daily schedule trigger on the compliance flow (default: 06:00 UTC)
 

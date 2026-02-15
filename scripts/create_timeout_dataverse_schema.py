@@ -407,6 +407,17 @@ def create_schema(client: CAAClient, dry_run: bool = False) -> None:
     if dry_run:
         print("\n*** DRY-RUN MODE — no changes will be made ***\n")
 
+    # Prerequisite check: fsi_acv_zone option set must exist
+    if not dry_run:
+        zone_optionset = client.get_global_optionset("fsi_acv_zone")
+        if zone_optionset is None:
+            raise RuntimeError(
+                "Prerequisite missing: global option set 'fsi_acv_zone' not found. "
+                "Deploy the CAA schema first (python scripts/create_dataverse_schema.py) "
+                "before running this script."
+            )
+        print("  ✓ Prerequisite check passed: fsi_acv_zone option set exists")
+
     # 1. Solution-specific option sets (must precede table columns that reference them)
     print("\n[1/3] Creating solution-specific option sets ...")
     create_solution_optionsets(client, dry_run)

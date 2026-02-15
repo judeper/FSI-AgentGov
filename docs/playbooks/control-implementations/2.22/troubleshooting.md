@@ -67,7 +67,13 @@
        -TenantId $tenantId
 
    # Obtain a fresh token for diagnostic API calls
-   $token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
+   # Az.Accounts <4.x returns plain string; >=4.x returns SecureString
+   $tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com"
+   if ($tokenResult.Token -is [securestring]) {
+       $token = $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+   } else {
+       $token = $tokenResult.Token
+   }
    ```
 
 **Root Cause:** Token scope mismatch or expired credentials.
@@ -148,9 +154,14 @@
      - Count: 3
      - Interval: PT30S (30 seconds)
      - Type: Exponential
+   - Honor the `Retry-After` response header — the BAP Admin API returns the recommended wait time in seconds. Ensure the retry interval is at least as long as the `Retry-After` value.
 
 3. **Schedule off-peak execution:**
    - Move the daily scan trigger to off-peak hours (e.g., 02:00 UTC instead of business hours)
+
+4. **Re-scan missed environments:**
+   - After a rate-limited run, check the compliance records to identify which environments were not scanned
+   - Re-run the flow manually during off-peak hours for any environments that were skipped
 
 **Root Cause:** BAP Admin API rate limits exceeded when scanning many environments concurrently.
 
@@ -276,6 +287,38 @@
 
 ---
 
+### Issue 10: Agent Session Timeout Setting Not Available in Copilot Studio
+
+**Symptoms:**
+
+- Session timeout option not visible in Copilot Studio agent settings
+- Setting appears grayed out or read-only
+- No "Advanced" section under agent settings
+
+**Resolution Steps:**
+
+1. **Verify Copilot Studio version:**
+   - Agent-level session timeout requires a current version of Copilot Studio
+   - Check that your tenant has the latest Copilot Studio updates applied
+
+2. **Verify license requirements:**
+   - Agent-level session configuration requires a Copilot Studio license with the appropriate capabilities
+   - Confirm the maker account has a valid Copilot Studio license assigned
+
+3. **Check UI path changes:**
+   - The session timeout setting location may vary by Copilot Studio version
+   - Try: **Settings** → **Advanced** → **Session timeout**
+   - Alternative path: **Settings** → **Generative AI** → **Session management**
+   - Use the in-portal search to locate "session timeout" if neither path works
+
+4. **For classic bots vs. modern agents:**
+   - Classic Power Virtual Agents bots may have the setting under a different navigation path
+   - Modern Copilot Studio agents use the updated settings structure
+
+**Root Cause:** Copilot Studio UI evolves across releases; session timeout settings may appear under different navigation paths depending on the portal version and agent type.
+
+---
+
 ## Escalation Path
 
 | Level | Contact | When to Escalate |
@@ -292,7 +335,7 @@
 | Limitation | Impact | Workaround |
 |------------|--------|------------|
 | Timeout applies to new sessions only | Existing sessions retain old timeout until re-authentication | Force session refresh via Entra ID session revocation for urgent changes |
-| BAP Admin API rate limiting | Large tenant scans may be throttled | Reduce concurrency; schedule off-peak; implement exponential backoff |
+| BAP Admin API rate limiting | Large tenant scans may be throttled | Reduce concurrency; schedule off-peak; implement exponential backoff; honor `Retry-After` header |
 | No per-app timeout granularity | Timeout is environment-level, not per-application | Use separate environments for different timeout requirements |
 | Developer/trial environments | May have restricted API access | Exclude from automated scanning or use manual verification |
 
@@ -305,7 +348,13 @@
 
     ```powershell
     Connect-AzAccount  # If not already authenticated
-    $token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
+    # Az.Accounts <4.x returns plain string; >=4.x returns SecureString
+    $tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com"
+    if ($tokenResult.Token -is [securestring]) {
+        $token = $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+    } else {
+        $token = $tokenResult.Token
+    }
     ```
 
 ### Verify timeout setting via API
@@ -327,7 +376,7 @@ $response.properties | Format-List
 $envList = Invoke-RestMethod -Uri "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments?api-version=2021-04-01" `
     -Headers @{ Authorization = "Bearer $token" } -Method Get
 
-foreach ($env in $envList.value) {
+$results = foreach ($env in $envList.value) {
     $privacyUri = "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/$($env.name)/settings/privacy?api-version=2021-04-01"
     try {
         $privacy = Invoke-RestMethod -Uri $privacyUri -Headers @{ Authorization = "Bearer $token" } -Method Get
@@ -345,7 +394,8 @@ foreach ($env in $envList.value) {
             TimeoutMinutes  = $_.Exception.Message
         }
     }
-} | Format-Table -AutoSize
+}
+$results | Format-Table -AutoSize
 ```
 
 ---
