@@ -386,6 +386,7 @@ function ConvertTo-ViolationRecord {
 
     [PSCustomObject]@{
         ViolationId     = $Entity.fsi_sharingviolationid
+        ViolationName   = $Entity.fsi_violationname
         AgentId         = $Entity.fsi_agentid
         AgentName       = $Entity.fsi_agentname
         EnvironmentId   = $Entity.fsi_environmentid
@@ -470,6 +471,7 @@ Write-Verbose "Step 3: Querying fsi_sharingviolations..."
 $baseUrl = $DataverseUrl.TrimEnd('/')
 $selectColumns = @(
     'fsi_sharingviolationid',
+    'fsi_violationname',
     'fsi_agentid',
     'fsi_agentname',
     'fsi_environmentid',
@@ -530,7 +532,7 @@ $exceptionLookup = @{}
 if ($IncludeExceptions -and $allRecords.Count -gt 0) {
     Write-Verbose "Step 4: Querying fsi_sharingexceptions for joined records..."
 
-    $exceptionUrl = "$baseUrl/api/data/v9.2/fsi_sharingexceptions?`$select=fsi_sharingexceptionid,fsi_violationid,fsi_approvedby,fsi_approvedon,fsi_justification,fsi_expireson,fsi_exceptionstatus&`$orderby=createdon desc"
+    $exceptionUrl = "$baseUrl/api/data/v9.2/fsi_sharingexceptions?`$select=fsi_sharingexceptionid,fsi_violationid,fsi_requestedby,fsi_approvedby,fsi_approvedbysecurity,fsi_approvedbydataowner,fsi_approvedon,fsi_justification,fsi_expireson,fsi_exceptionstatus&`$orderby=createdon desc"
 
     $exceptionPageUrl = $exceptionUrl
     while ($exceptionPageUrl) {
@@ -551,12 +553,15 @@ if ($IncludeExceptions -and $allRecords.Count -gt 0) {
                     } else { 'Unknown' }
 
                     $exceptionLookup[$violationId] = [PSCustomObject]@{
-                        ExceptionId     = $ex.fsi_sharingexceptionid
-                        ApprovedBy      = $ex.fsi_approvedby
-                        ApprovedOn      = $ex.fsi_approvedon
-                        Justification   = $ex.fsi_justification
-                        ExpiresOn       = $ex.fsi_expireson
-                        ExceptionStatus = $exStatusName
+                        ExceptionId         = $ex.fsi_sharingexceptionid
+                        RequestedBy         = $ex.fsi_requestedby
+                        ApprovedBy          = $ex.fsi_approvedby
+                        ApprovedBySecurity  = $ex.fsi_approvedbysecurity
+                        ApprovedByDataOwner = $ex.fsi_approvedbydataowner
+                        ApprovedOn          = $ex.fsi_approvedon
+                        Justification       = $ex.fsi_justification
+                        ExpiresOn           = $ex.fsi_expireson
+                        ExceptionStatus     = $exStatusName
                     }
                 }
             }
@@ -583,7 +588,10 @@ foreach ($raw in $allRecords) {
     if ($IncludeExceptions -and $record.ViolationId -and $exceptionLookup.ContainsKey($record.ViolationId.ToString().ToLower())) {
         $exception = $exceptionLookup[$record.ViolationId.ToString().ToLower()]
         $record | Add-Member -NotePropertyName 'ExceptionId' -NotePropertyValue $exception.ExceptionId
+        $record | Add-Member -NotePropertyName 'ExceptionRequestedBy' -NotePropertyValue $exception.RequestedBy
         $record | Add-Member -NotePropertyName 'ExceptionApprovedBy' -NotePropertyValue $exception.ApprovedBy
+        $record | Add-Member -NotePropertyName 'ExceptionApprovedBySecurity' -NotePropertyValue $exception.ApprovedBySecurity
+        $record | Add-Member -NotePropertyName 'ExceptionApprovedByDataOwner' -NotePropertyValue $exception.ApprovedByDataOwner
         $record | Add-Member -NotePropertyName 'ExceptionApprovedOn' -NotePropertyValue $exception.ApprovedOn
         $record | Add-Member -NotePropertyName 'ExceptionJustification' -NotePropertyValue $exception.Justification
         $record | Add-Member -NotePropertyName 'ExceptionExpiresOn' -NotePropertyValue $exception.ExpiresOn
