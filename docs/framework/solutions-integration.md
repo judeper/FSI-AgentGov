@@ -415,7 +415,6 @@ Validates per-agent content moderation levels against zone-specific governance r
 |---------|-------------------|
 | **1.27 Content Moderation Enforcement** | Validates per-agent content moderation levels against zone-specific governance requirements |
 | **1.8 Runtime Protection** | Validates content moderation settings meet zone protection requirements |
-| **1.14 Data Minimization** | Monitors moderation scope alignment with data minimization policies |
 
 **Applicable Zones:** Zone 2, Zone 3
 
@@ -669,4 +668,4 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ---
 
-*FSI Agent Governance Framework v1.2.42 - February 2026*
+*FSI Agent Governance Framework v1.2.48 - February 2026*
