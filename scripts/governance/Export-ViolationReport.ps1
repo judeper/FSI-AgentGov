@@ -192,6 +192,13 @@ $SeverityMap = @{
     3 = 'Low'
 }
 
+$ExceptionStatusMap = @{
+    0 = 'Pending'
+    1 = 'Approved'
+    2 = 'Denied'
+    3 = 'Expired'
+}
+
 # ═══════════════════════════════════════════════════════════════════════
 # Helper Functions
 # ═══════════════════════════════════════════════════════════════════════
@@ -293,13 +300,13 @@ function Build-ODataFilter {
 
     if ($FilterStartDate) {
         $isoDate = $FilterStartDate.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-        $filters.Add("createdon ge $isoDate")
+        $filters.Add("fsi_detectedat ge $isoDate")
         $descriptions.Add("StartDate >= $($FilterStartDate.ToString('yyyy-MM-dd'))")
     }
 
     if ($FilterEndDate) {
         $isoDate = $FilterEndDate.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-        $filters.Add("createdon le $isoDate")
+        $filters.Add("fsi_detectedat le $isoDate")
         $descriptions.Add("EndDate <= $($FilterEndDate.ToString('yyyy-MM-dd'))")
     }
 
@@ -388,13 +395,14 @@ function ConvertTo-ViolationRecord {
         Zone            = $zoneName
         Severity        = $severityName
         Description     = $Entity.fsi_description
-        DetectedAt      = $Entity.createdon
+        DetectedAt      = if ($Entity.fsi_detectedat) { $Entity.fsi_detectedat } else { $Entity.createdon }
         ModifiedAt      = $Entity.modifiedon
         RemediatedAt    = $Entity.fsi_remediatedon
         RemediatedBy    = $Entity.fsi_remediatedby
         PrincipalCount  = $Entity.fsi_principalcount
         PrincipalDetail = $Entity.fsi_principaldetail
         EvidenceJson    = $Entity.fsi_evidencejson
+        EvidenceHash    = $Entity.fsi_evidencehash
     }
 }
 
@@ -465,16 +473,18 @@ $selectColumns = @(
     'fsi_zone',
     'fsi_severity',
     'fsi_description',
+    'fsi_detectedat',
     'createdon',
     'modifiedon',
     'fsi_remediatedon',
     'fsi_remediatedby',
     'fsi_principalcount',
     'fsi_principaldetail',
-    'fsi_evidencejson'
+    'fsi_evidencejson',
+    'fsi_evidencehash'
 ) -join ','
 
-$queryUrl = "$baseUrl/api/data/v9.2/fsi_sharingviolations?`$select=$selectColumns&`$orderby=createdon desc"
+$queryUrl = "$baseUrl/api/data/v9.2/fsi_sharingviolations?`$select=$selectColumns&`$orderby=fsi_detectedat desc"
 
 if ($filterResult.Filter) {
     $encodedFilter = [System.Uri]::EscapeDataString($filterResult.Filter)
@@ -530,13 +540,18 @@ if ($IncludeExceptions -and $allRecords.Count -gt 0) {
             foreach ($ex in $exResponse.value) {
                 $violationId = $ex.fsi_violationid
                 if ($violationId -and -not $exceptionLookup.ContainsKey($violationId)) {
+                    $exStatusValue = $ex.fsi_exceptionstatus
+                    $exStatusName = if ($null -ne $exStatusValue -and $ExceptionStatusMap.ContainsKey([int]$exStatusValue)) {
+                        $ExceptionStatusMap[[int]$exStatusValue]
+                    } else { 'Unknown' }
+
                     $exceptionLookup[$violationId] = [PSCustomObject]@{
-                        ExceptionId   = $ex.fsi_sharingexceptionid
-                        ApprovedBy    = $ex.fsi_approvedby
-                        ApprovedOn    = $ex.fsi_approvedon
-                        Justification = $ex.fsi_justification
-                        ExpiresOn     = $ex.fsi_expireson
-                        ExceptionStatus = $ex.fsi_exceptionstatus
+                        ExceptionId     = $ex.fsi_sharingexceptionid
+                        ApprovedBy      = $ex.fsi_approvedby
+                        ApprovedOn      = $ex.fsi_approvedon
+                        Justification   = $ex.fsi_justification
+                        ExpiresOn       = $ex.fsi_expireson
+                        ExceptionStatus = $exStatusName
                     }
                 }
             }
@@ -671,8 +686,10 @@ $bannerColor = if ($openCount -gt 0) { 'Yellow' } else { 'Green' }
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor $bannerColor
 Write-Host   "║  Violation Report Complete                              ║" -ForegroundColor $bannerColor
 Write-Host   "╠══════════════════════════════════════════════════════════╣" -ForegroundColor $bannerColor
-Write-Host   "║  Total: $($mappedRecords.Count.ToString().PadRight(8)) Open: $($openCount.ToString().PadRight(8)) Remediated: $($byStatus['Remediated'].ToString().PadRight(5))║" -ForegroundColor $bannerColor
-Write-Host   "║  Critical: $($bySeverity['Critical'].ToString().PadRight(5)) High: $($bySeverity['High'].ToString().PadRight(5)) Medium: $($bySeverity['Medium'].ToString().PadRight(9))║" -ForegroundColor $bannerColor
+$line1 = "  Total: $($mappedRecords.Count)   Open: $openCount   Remediated: $($byStatus['Remediated'])"
+Write-Host   "║$($line1.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line2 = "  Critical: $($bySeverity['Critical'])   High: $($bySeverity['High'])   Medium: $($bySeverity['Medium'])"
+Write-Host   "║$($line2.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor $bannerColor
 
 if ($IncludeEvidence -and $evidenceHash) {
