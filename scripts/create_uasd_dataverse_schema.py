@@ -435,6 +435,7 @@ def _agent_sharing_setting_columns() -> List[Dict[str, Any]]:
         _memo_col("fsi_principals_json", "Principals JSON"),
         _picklist_col("fsi_auth_mode", "Auth Mode", "fsi_UASD_authmode"),
         _datetime_col("fsi_last_scanned", "Last Scanned", required=True),
+        _boolean_col("fsi_break_glass_exclude", "Break Glass Exclude", default=False),
     ]
 
 
@@ -452,9 +453,9 @@ def _sharing_violation_table_definition() -> Dict[str, Any]:
         "EntitySetName": "fsi_sharingviolations",
         "HasNotes": False,
         "HasActivities": False,
-        "PrimaryNameAttribute": "fsi_violation_name",
+        "PrimaryNameAttribute": "fsi_violationname",
         "Attributes": [
-            _string_col("fsi_violation_name", "Violation Name", max_length=256, required=True),
+            _string_col("fsi_violationname", "Violation Name", max_length=256, required=True),
         ],
     }
 
@@ -462,19 +463,23 @@ def _sharing_violation_table_definition() -> Dict[str, Any]:
 def _sharing_violation_columns() -> List[Dict[str, Any]]:
     """Additional columns for fsi_SharingViolation (added after table creation)."""
     return [
-        _string_col("fsi_agent_id", "Agent ID", max_length=100, required=True),
-        _string_col("fsi_agent_name", "Agent Name", max_length=200, required=True),
-        _string_col("fsi_environment_id", "Environment ID", max_length=100, required=True),
-        _picklist_col("fsi_violation_type", "Violation Type", "fsi_UASD_violationtype", required=True),
-        _picklist_col("fsi_violation_status", "Violation Status", "fsi_UASD_violationstatus", required=True),
+        _string_col("fsi_agentid", "Agent ID", max_length=100, required=True),
+        _string_col("fsi_agentname", "Agent Name", max_length=200, required=True),
+        _string_col("fsi_environmentid", "Environment ID", max_length=100, required=True),
+        _string_col("fsi_environmentname", "Environment Name", max_length=200),
+        _picklist_col("fsi_violationtype", "Violation Type", "fsi_UASD_violationtype", required=True),
+        _picklist_col("fsi_violationstatus", "Violation Status", "fsi_UASD_violationstatus", required=True),
         _picklist_col("fsi_severity", "Severity", "fsi_acv_severity", required=True),
+        _picklist_col("fsi_zone", "Zone", "fsi_acv_zone"),
         _memo_col("fsi_description", "Description"),
-        _memo_col("fsi_evidence_json", "Evidence JSON"),
-        _string_col("fsi_evidence_hash", "Evidence Hash", max_length=64),
-        _datetime_col("fsi_remediated_at", "Remediated At"),
-        _string_col("fsi_remediated_by", "Remediated By", max_length=256),
-        _datetime_col("fsi_detected_at", "Detected At", required=True),
-        _string_col("fsi_scan_run_id", "Scan Run ID", max_length=100),
+        _memo_col("fsi_evidencejson", "Evidence JSON"),
+        _string_col("fsi_evidencehash", "Evidence Hash", max_length=64),
+        _datetime_col("fsi_remediatedon", "Remediated On"),
+        _string_col("fsi_remediatedby", "Remediated By", max_length=256),
+        _datetime_col("fsi_detectedat", "Detected At", required=True),
+        _string_col("fsi_scanrunid", "Scan Run ID", max_length=100),
+        _integer_col("fsi_principalcount", "Principal Count"),
+        _memo_col("fsi_principaldetail", "Principal Detail"),
     ]
 
 
@@ -492,9 +497,9 @@ def _sharing_exception_table_definition() -> Dict[str, Any]:
         "EntitySetName": "fsi_sharingexceptions",
         "HasNotes": False,
         "HasActivities": False,
-        "PrimaryNameAttribute": "fsi_exception_name",
+        "PrimaryNameAttribute": "fsi_exceptionname",
         "Attributes": [
-            _string_col("fsi_exception_name", "Exception Name", max_length=256, required=True),
+            _string_col("fsi_exceptionname", "Exception Name", max_length=256, required=True),
         ],
     }
 
@@ -502,19 +507,21 @@ def _sharing_exception_table_definition() -> Dict[str, Any]:
 def _sharing_exception_columns() -> List[Dict[str, Any]]:
     """Additional columns for fsi_SharingException (added after table creation)."""
     return [
-        _string_col("fsi_agent_id", "Agent ID", max_length=100, required=True),
-        _string_col("fsi_agent_name", "Agent Name", max_length=200, required=True),
-        _string_col("fsi_environment_id", "Environment ID", max_length=100, required=True),
-        _picklist_col("fsi_exception_status", "Exception Status", "fsi_UASD_exceptionstatus", required=True),
-        _picklist_col("fsi_violation_type", "Violation Type", "fsi_UASD_violationtype", required=True),
-        _memo_col("fsi_business_justification", "Business Justification", required=True),
-        _picklist_col("fsi_data_classification", "Data Classification", "fsi_UASD_dataclassification", required=True),
-        _string_col("fsi_requested_by", "Requested By", max_length=256, required=True),
-        _string_col("fsi_approved_by_security", "Approved By Security", max_length=256),
-        _string_col("fsi_approved_by_data_owner", "Approved By Data Owner", max_length=256),
-        _datetime_col("fsi_requested_at", "Requested At", required=True),
-        _datetime_col("fsi_approved_at", "Approved At"),
-        _datetime_col("fsi_expires_at", "Expires At", required=True),
+        _string_col("fsi_violationid", "Violation ID", max_length=100, required=True),
+        _string_col("fsi_agentid", "Agent ID", max_length=100, required=True),
+        _string_col("fsi_agentname", "Agent Name", max_length=200, required=True),
+        _string_col("fsi_environmentid", "Environment ID", max_length=100, required=True),
+        _picklist_col("fsi_exceptionstatus", "Exception Status", "fsi_UASD_exceptionstatus", required=True),
+        _picklist_col("fsi_violationtype", "Violation Type", "fsi_UASD_violationtype", required=True),
+        _memo_col("fsi_justification", "Business Justification", required=True),
+        _picklist_col("fsi_dataclassification", "Data Classification", "fsi_UASD_dataclassification", required=True),
+        _string_col("fsi_requestedby", "Requested By", max_length=256, required=True),
+        _string_col("fsi_approvedby", "Approved By", max_length=256),
+        _string_col("fsi_approvedbysecurity", "Approved By Security", max_length=256),
+        _string_col("fsi_approvedbydataowner", "Approved By Data Owner", max_length=256),
+        _datetime_col("fsi_requestedat", "Requested At", required=True),
+        _datetime_col("fsi_approvedon", "Approved On"),
+        _datetime_col("fsi_expireson", "Expires On", required=True),
     ]
 
 
@@ -532,9 +539,9 @@ def _approved_security_group_table_definition() -> Dict[str, Any]:
         "EntitySetName": "fsi_approvedsecuritygroups",
         "HasNotes": False,
         "HasActivities": False,
-        "PrimaryNameAttribute": "fsi_group_display_name",
+        "PrimaryNameAttribute": "fsi_display_name",
         "Attributes": [
-            _string_col("fsi_group_display_name", "Group Display Name", max_length=200, required=True),
+            _string_col("fsi_display_name", "Display Name", max_length=200, required=True),
         ],
     }
 

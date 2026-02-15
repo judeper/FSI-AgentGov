@@ -417,7 +417,7 @@ foreach ($group in $groups) {
         $payload = @{
             fsi_entraid_group_id = $groupId
             fsi_display_name     = $displayName
-            fsi_acv_zone         = $zoneValue
+            fsi_zone             = $zoneValue
             fsi_is_active        = $isActive
             fsi_added_by         = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
             fsi_added_at         = (Get-Date -Format 'o')

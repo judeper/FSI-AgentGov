@@ -74,11 +74,18 @@ pip install -r scripts/requirements.txt
 The schema deployment script creates five Dataverse tables with the `fsi_` publisher prefix.
 
 ```bash
-# Set environment variables
-export DATAVERSE_URL="https://<your-org>.crm.dynamics.com"
-export DATAVERSE_CLIENT_ID="<your-app-client-id>"
-export DATAVERSE_CLIENT_SECRET="<your-app-client-secret>"
-export DATAVERSE_TENANT_ID="<your-tenant-id>"
+# Option A: Use CLI arguments (recommended)
+python scripts/create_uasd_dataverse_schema.py --dry-run \
+    --environment-url "https://<your-org>.crm.dynamics.com" \
+    --tenant-id "<your-tenant-id>" \
+    --client-id "<your-app-client-id>" \
+    --client-secret "<your-app-client-secret>"
+
+# Option B: Use environment variables
+export CAA_ENVIRONMENT_URL="https://<your-org>.crm.dynamics.com"
+export CAA_CLIENT_ID="<your-app-client-id>"
+export CAA_CLIENT_SECRET="<your-app-client-secret>"
+export CAA_TENANT_ID="<your-tenant-id>"
 
 # Deploy schema (dry-run first)
 python scripts/create_uasd_dataverse_schema.py --dry-run
@@ -371,7 +378,7 @@ Generate the first violation report to validate export functionality:
 | 9 | Exception approval flow imported | Exception workflow visible and connections bound | [ ] |
 | 10 | Auto-remediation configured | `fsi_UASD_AutoRemediatePublicLink` set appropriately (default: false) | [ ] |
 | 11 | Approved security groups loaded | Groups visible in `fsi_ApprovedSecurityGroup` table | [ ] |
-| 12 | Exception Manager app imported | Model-driven app accessible and shared with compliance team | [ ] |
+| 12 | Exception Manager app imported | Canvas app accessible and shared with compliance team | [ ] |
 | 13 | Violation report exports | `Export-ViolationReport.ps1` produces CSV/JSON output | [ ] |
 | 14 | Evidence hash computed | `-IncludeEvidence` flag produces SHA-256 hash | [ ] |
 | 15 | Teams alerts delivered | Violation alerts appear in configured Teams channel | [ ] |

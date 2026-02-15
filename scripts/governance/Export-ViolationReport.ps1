@@ -511,7 +511,7 @@ $exceptionLookup = @{}
 if ($IncludeExceptions -and $allRecords.Count -gt 0) {
     Write-Verbose "Step 4: Querying fsi_sharingexceptions for joined records..."
 
-    $exceptionUrl = "$baseUrl/api/data/v9.2/fsi_sharingexceptions?`$select=fsi_sharingexceptionid,fsi_violationid,fsi_approvedby,fsi_approvedon,fsi_justification,fsi_expireson,fsi_status&`$orderby=createdon desc"
+    $exceptionUrl = "$baseUrl/api/data/v9.2/fsi_sharingexceptions?`$select=fsi_sharingexceptionid,fsi_violationid,fsi_approvedby,fsi_approvedon,fsi_justification,fsi_expireson,fsi_exceptionstatus&`$orderby=createdon desc"
 
     $exceptionPageUrl = $exceptionUrl
     while ($exceptionPageUrl) {
@@ -532,7 +532,7 @@ if ($IncludeExceptions -and $allRecords.Count -gt 0) {
                         ApprovedOn    = $ex.fsi_approvedon
                         Justification = $ex.fsi_justification
                         ExpiresOn     = $ex.fsi_expireson
-                        ExceptionStatus = $ex.fsi_status
+                        ExceptionStatus = $ex.fsi_exceptionstatus
                     }
                 }
             }
