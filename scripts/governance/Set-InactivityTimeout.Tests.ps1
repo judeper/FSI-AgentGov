@@ -17,12 +17,12 @@
     All BAP and Dataverse API calls are mocked via Mock Invoke-RestMethod.
     No external API calls are made during test execution.
 
-    Test categories (6 Describe blocks, 29 tests):
+    Test categories (6 Describe blocks, 30 tests):
       1. Parameter Validation (8 tests)
       2. BAP API Interactions (5 tests)
       3. WhatIf Support (3 tests)
       4. Verification (3 tests)
-      5. Result Object (4 tests)
+      5. Result Object (5 tests)
       6. Dataverse Audit Record (6 tests)
 
 .NOTES
@@ -368,6 +368,21 @@ Describe 'Result Object' {
     It 'Metadata includes EnvironmentName' {
         $result = & $script:scriptPath -EnvironmentName $script:testEnvironmentName -Confirm:$false
         $result.Metadata.EnvironmentName | Should -Be $script:testEnvironmentName
+    }
+
+    It '-OutputFormat Object with -OutputPath writes JSON to file' {
+        $tempFile = Join-Path ([System.IO.Path]::GetTempPath()) "ite-test-output-$([guid]::NewGuid()).json"
+        try {
+            $result = & $script:scriptPath -EnvironmentName $script:testEnvironmentName -OutputFormat Object -OutputPath $tempFile -Confirm:$false
+            $result | Should -Not -BeNullOrEmpty
+            $result.Applied | Should -BeTrue
+            Test-Path $tempFile | Should -BeTrue
+            $fileContent = Get-Content $tempFile -Raw | ConvertFrom-Json
+            $fileContent.Metadata.EnvironmentName | Should -Be $script:testEnvironmentName
+        }
+        finally {
+            if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+        }
     }
 }
 

@@ -274,9 +274,8 @@ def _environment_policy_columns() -> List[Dict[str, Any]]:
 def _compliance_table_definition() -> Dict[str, Any]:
     """fsi_InactivityTimeoutCompliance table definition (OrganizationOwned — immutable).
 
-    Post-deployment: remove Write/Delete from security roles to enforce
-    immutability.  Recommended index on ``(fsi_environmentid, fsi_lastscandate)``
-    — create manually in Dataverse admin center.
+    See post-deployment steps at the bottom of this file for security role
+    and index configuration guidance.
     """
     return {
         "SchemaName": "fsi_InactivityTimeoutCompliance",
@@ -506,3 +505,35 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# =========================================================================
+# Post-deployment steps
+# =========================================================================
+# 1. Security roles: Remove Write/Delete privileges from
+#    fsi_InactivityTimeoutCompliance table to enforce immutability.
+#
+# 2. Recommended index: Create a composite index on
+#    fsi_InactivityTimeoutCompliance (fsi_environmentid, fsi_lastscandate)
+#    via Dataverse admin UI.  The Web API does not support programmatic
+#    index creation.
+#
+# 3. Seed data: Populate fsi_environmentpolicy rows with
+#    tenant-specific EnvironmentNames.  Example:
+#
+#    EXAMPLE_POLICIES = [
+#        {
+#            "fsi_environmentid": "<EnvironmentName>",
+#            "fsi_environmentdisplayname": "Production",
+#            "fsi_zone": 2,          # Zone 2
+#            "fsi_requiredmaxduration": 120,
+#            "fsi_notes": "Zone 2 — max 120 min",
+#        },
+#        {
+#            "fsi_environmentid": "<EnvironmentName>",
+#            "fsi_environmentdisplayname": "Finance Prod",
+#            "fsi_zone": 3,          # Zone 3
+#            "fsi_requiredmaxduration": 60,
+#            "fsi_notes": "Zone 3 — max 60 min",
+#        },
+#    ]
+# =========================================================================

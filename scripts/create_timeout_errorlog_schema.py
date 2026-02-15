@@ -267,24 +267,4 @@ if __name__ == "__main__":
 # 2. Recommended index: Create a composite index on
 #    (fsi_environmentid, fsi_timestamp) via Dataverse admin UI.
 #    The Web API does not support programmatic index creation.
-#
-# 3. Seed data: Populate fsi_environmentpolicy rows with
-#    tenant-specific EnvironmentNames.  Example:
-#
-#    EXAMPLE_POLICIES = [
-#        {
-#            "fsi_environmentid": "<EnvironmentName>",
-#            "fsi_environmentdisplayname": "Production",
-#            "fsi_zone": 2,          # Zone 2
-#            "fsi_requiredmaxduration": 120,
-#            "fsi_notes": "Zone 2 — max 120 min",
-#        },
-#        {
-#            "fsi_environmentid": "<EnvironmentName>",
-#            "fsi_environmentdisplayname": "Finance Prod",
-#            "fsi_zone": 3,          # Zone 3
-#            "fsi_requiredmaxduration": 60,
-#            "fsi_notes": "Zone 3 — max 60 min",
-#        },
-#    ]
 # =========================================================================

@@ -796,7 +796,7 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 - `inactivity-timeout-enforcement/src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation (in FSI-AgentGov-Solutions)
 - `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations (in FSI-AgentGov)
-- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (29 tests) (in FSI-AgentGov)
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (30 tests) (in FSI-AgentGov)
 - `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables) (in FSI-AgentGov)
 - `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema (in FSI-AgentGov)
 - `scripts/create_timeout_environment_variables.py` — Environment variable definitions (in FSI-AgentGov)

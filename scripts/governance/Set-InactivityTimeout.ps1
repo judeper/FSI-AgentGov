@@ -308,6 +308,14 @@ function Write-OutputResult {
             }
         }
         'Object' {
+            if ($OutputPath) {
+                $parentDir = Split-Path -Path $OutputPath -Parent
+                if ($parentDir -and -not (Test-Path $parentDir)) {
+                    New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
+                }
+                $Result | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputPath -Encoding utf8
+                Write-Verbose "Results exported to $OutputPath"
+            }
             Write-Output $Result
         }
     }
