@@ -247,11 +247,11 @@ def _environment_policy_table_definition() -> Dict[str, Any]:
         "EntitySetName": "fsi_environmentpolicies",
         "HasNotes": False,
         "HasActivities": False,
-        "PrimaryNameAttribute": "fsi_environmentid",
+        "PrimaryNameAttribute": "fsi_name",
         "Attributes": [
             _string_col(
-                "fsi_environmentid", "Environment ID",
-                max_length=100, required=True,
+                "fsi_name", "Name",
+                max_length=200, required=True,
             ),
         ],
     }
@@ -260,6 +260,10 @@ def _environment_policy_table_definition() -> Dict[str, Any]:
 def _environment_policy_columns() -> List[Dict[str, Any]]:
     """Additional columns for fsi_EnvironmentPolicy (added after table creation)."""
     return [
+        _string_col(
+            "fsi_environmentid", "Environment ID",
+            max_length=100, required=True,
+        ),
         _string_col(
             "fsi_environmentdisplayname", "Environment Display Name",
             max_length=200,
@@ -522,6 +526,7 @@ if __name__ == "__main__":
 #
 #    EXAMPLE_POLICIES = [
 #        {
+#            "fsi_name": "Production",           # PrimaryNameAttribute — required
 #            "fsi_environmentid": "<EnvironmentName>",
 #            "fsi_environmentdisplayname": "Production",
 #            "fsi_zone": 2,          # Zone 2
@@ -529,6 +534,7 @@ if __name__ == "__main__":
 #            "fsi_notes": "Zone 2 — max 120 min",
 #        },
 #        {
+#            "fsi_name": "Finance Prod",         # PrimaryNameAttribute — required
 #            "fsi_environmentid": "<EnvironmentName>",
 #            "fsi_environmentdisplayname": "Finance Prod",
 #            "fsi_zone": 3,          # Zone 3
