@@ -7,7 +7,8 @@
 
 - [ ] Power Platform Admin or Entra Global Admin role
 - [ ] PowerShell 7.0 or later
-- [ ] Microsoft.PowerApps.Administration.PowerShell module v2.0.184+
+- [ ] Microsoft.PowerApps.Administration.PowerShell module (latest version recommended)
+- [ ] ExchangeOnlineManagement module (required for Script 2 — audit log queries)
 
 ---
 
@@ -19,12 +20,18 @@
 # Install or update the Power Platform Administration module
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
 
-# Verify module version
+# Install Exchange Online Management module (required for Script 2 — audit log queries)
+Install-Module -Name ExchangeOnlineManagement -Force
+
+# Verify module versions
 Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable |
     Format-Table Name, Version, Path
 
 # Authenticate to Power Platform
 Add-PowerAppsAccount
+
+# Authenticate to Exchange Online (required for Script 2)
+Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com
 ```
 
 ---
@@ -32,7 +39,9 @@ Add-PowerAppsAccount
 !!! tip "Automated Solution Available"
     The **Content Moderation Governance Monitor** solution provides automated per-agent validation with drift detection, Dataverse persistence, and SHA-256 evidence export. The standalone scripts below are useful for ad-hoc assessments; for continuous monitoring, deploy the [automated solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor).
 
-## Script 1: Get Agent Moderation Configuration Inventory
+> **⚠️ API Availability Note:** The cmdlet `Get-AdminPowerAppChatbot` and property paths used in these scripts (e.g., `Properties.ContentModeration.DefaultLevel`) are based on anticipated API schema as of February 2026. Verify cmdlet availability and property paths in your tenant before use. If the cmdlet is not available, use the Copilot Studio portal or Dataverse Web API for agent moderation inventory.
+
+## Script 1: Get-AgentModerationInventory.ps1
 
 ```powershell
 <#
@@ -106,6 +115,8 @@ Write-Host "Total agents assessed: $($moderationInventory.Count)" -ForegroundCol
 
 ## Script 2: Audit Moderation Configuration Changes
 
+> **⚠️ Anticipated Operation Names:** The filter patterns `*UpdateChatbot*` and `*ModifyModeration*` used in this script are anticipated operation names. Validate these against your tenant's actual Unified Audit Log schema before relying on this script in production. Run `Search-UnifiedAuditLog -RecordType "PowerPlatformAdminActivity"` without a `-FreeText` filter first to discover available operation names.
+
 ```powershell
 <#
 .SYNOPSIS
@@ -117,7 +128,7 @@ Write-Host "Total agents assessed: $($moderationInventory.Count)" -ForegroundCol
 
 .NOTES
     Requires audit logging enabled in the environment.
-    May require Microsoft Purview compliance role for full audit access.
+    May require Purview Compliance Admin role for full audit access.
 #>
 
 param(
@@ -307,6 +318,11 @@ foreach ($env in $environments) {
         # web interface or Dataverse API to query bot component metadata.
         # Example Dataverse API: GET /api/data/v9.2/botcomponents?$filter=_parentbotid_value eq '{botId}'
         $topics = @()  # Populate via Dataverse API or manual export; no PowerShell cmdlet available
+        
+        if ($topics.Count -eq 0) {
+            Write-Warning "No topics loaded for agent '$agentName'. Populate `$topics via Dataverse API or manual CSV import. See comment above."
+            continue
+        }
         
         foreach ($topic in $topics) {
             $topicName = $topic.Properties.DisplayName
