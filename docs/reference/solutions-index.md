@@ -818,6 +818,8 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 - `inactivity-timeout-enforcement/src/detect-inactivity-timeout-noncompliance.json` (FSI-AgentGov-Solutions)
 - `scripts/create_timeout_dataverse_schema.py` (FSI-AgentGov)
 - `scripts/create_timeout_errorlog_schema.py` (FSI-AgentGov)
+- `scripts/create_timeout_environment_variables.py` (FSI-AgentGov)
+- `scripts/create_timeout_connection_references.py` (FSI-AgentGov)
 
 **Repository Link:** [inactivity-timeout-enforcement](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement)
 

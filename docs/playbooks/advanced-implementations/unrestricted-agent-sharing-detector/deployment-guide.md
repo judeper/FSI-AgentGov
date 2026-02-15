@@ -153,14 +153,16 @@ Deploy the detection flow using the governance script:
 
 ```powershell
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json" `
+    -FlowDefinitionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json"
+    -FlowDefinitionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json"
 ```
 
 ### Step 2: Bind Connection References
@@ -212,14 +214,16 @@ Review the output for any sharing violations detected across environments. If vi
 
 ```powershell
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
+    -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json"
+    -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json"
 ```
 
 ### Step 2: Import Exception Approval Flow
@@ -292,11 +296,11 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
     -InputPath .\config\approved-groups.csv
 ```
 
-The CSV file should contain columns: `GroupId`, `GroupName`, `Zone`, `ApprovedBy`.
+The CSV file should contain columns: `GroupId`, `DisplayName`, `Zone`, `IsActive`.
 
 ### Step 8: Import Exception Manager App
 
-Import the model-driven app for managing exceptions:
+Import the canvas app for managing exceptions:
 
 1. Navigate to [Power Apps](https://make.powerapps.com)
 2. Go to **Solutions** > **Import solution**

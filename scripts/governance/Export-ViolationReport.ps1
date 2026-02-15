@@ -33,7 +33,7 @@
     UNAPPROVED_GROUP, EXCESSIVE_INDIVIDUAL, CROSS_TENANT_ACCESS.
 
 .PARAMETER Status
-    Optional violation status filter. Valid: Open, Remediated, Exception_Granted, Dismissed.
+    Optional violation status filter. Valid: Open, Remediated, Exception_Granted, False_Positive.
 
 .PARAMETER Zone
     Optional governance zone filter. Valid: Zone1, Zone2, Zone3, All.
@@ -102,7 +102,7 @@ param(
     [string]$ViolationType,
 
     [Parameter()]
-    [ValidateSet('Open', 'Remediated', 'Exception_Granted', 'Dismissed')]
+    [ValidateSet('Open', 'Remediated', 'Exception_Granted', 'False_Positive')]
     [string]$Status,
 
     [Parameter()]
@@ -160,14 +160,14 @@ $ViolationStatusMap = @{
     0 = 'Open'
     1 = 'Remediated'
     2 = 'Exception_Granted'
-    3 = 'Dismissed'
+    3 = 'False_Positive'
 }
 
 $ViolationStatusReverseMap = @{
     'Open'              = 0
     'Remediated'        = 1
     'Exception_Granted' = 2
-    'Dismissed'         = 3
+    'False_Positive'    = 3
 }
 
 $ZoneMap = @{

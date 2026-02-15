@@ -61,6 +61,7 @@
 #>
 
 #Requires -Version 7.0
+#Requires -Modules Az.Accounts
 #Requires -Modules @{ ModuleName = 'Microsoft.PowerApps.Administration.PowerShell'; ModuleVersion = '2.0.0' }
 
 [CmdletBinding(SupportsShouldProcess)]
