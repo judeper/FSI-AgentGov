@@ -187,6 +187,9 @@ python create_uasd_connection_references.py `
     --client-secret "<your-app-client-secret>"
 ```
 
+!!! warning "Connection Reference Name Mismatch"
+    The connection reference script currently creates references with `_uasd` suffix names (e.g., `fsi_cr_dataverse_uasd`), but the flow definitions expect `_sharingdetector` suffix names (e.g., `fsi_cr_dataverse_sharingdetector`). Until the script is updated, create the connection references manually in **Power Apps** → **Solutions** → **UASD** → **Connection References** using these names: `fsi_cr_dataverse_sharingdetector` (Dataverse), `fsi_cr_teams_sharingdetector` (Teams), and `fsi_cr_approvals_sharingdetector` (Approvals).
+
 ### Step 4: Configure Dataverse URL Variable
 
 Set the `fsi_UASD_DataverseUrl` environment variable so the detection flow can locate your Dataverse environment:
