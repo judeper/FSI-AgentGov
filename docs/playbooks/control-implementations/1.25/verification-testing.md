@@ -9,7 +9,7 @@
 1. Navigate to Power Platform Admin Center → Environments → [Environment] → Settings → Privacy + Security
 2. Locate the **Set blocked file extensions for attachments** field
 3. Compare the configured extensions against the zone template
-4. **EXPECTED:** Blocked extensions include all executable types (exe, bat, cmd, com, vbs, js, wsf, scr, pif, msi, dll, ps1, reg, inf, hta, cpl, msp, mst)
+4. **EXPECTED:** Blocked extensions include all executable types (exe, bat, cmd, com, vbs, js, wsf, scr, pif, msi, dll, reg, inf, hta, cpl, msp, mst); Zone 2+ should also include ps1
 
 ### Test 2: Verify Blocked MIME Types Configured (Zone 2+)
 

@@ -29,12 +29,12 @@
 3. Recommended baseline extensions to block:
 
     ```
-    exe;bat;cmd;com;vbs;js;wsf;scr;pif;msi;dll;ps1;reg;inf;hta;cpl;msp;mst
+    exe;bat;cmd;com;vbs;js;wsf;scr;pif;msi;dll;reg;inf;hta;cpl;msp;mst
     ```
 
 4. Click **Save** to apply changes
 
-> **Note:** The list above covers the most critical executable extensions. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 55 for Zone 3) including additional types such as `.jar`, `.lnk`, `.vbe`, `.wsh`, and others. For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
+> **Note:** The list above covers the most critical executable extensions for a Zone 1 baseline. Zone 2+ environments should also add `ps1` to the blocklist. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 55 for Zone 3) including additional types such as `.jar`, `.lnk`, `.vbe`, `.wsh`, and others. For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
 
 ### Step 3: Configure Blocked MIME Types (Zone 2+)
 
