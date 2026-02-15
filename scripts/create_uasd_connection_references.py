@@ -1,6 +1,6 @@
 """Deploy connection references for Unrestricted Agent Sharing Detector.
 
-Creates 2 connection references with the ``fsi_cr_*`` naming convention
+Creates 3 connection references with the ``fsi_cr_*`` naming convention
 in the target Dataverse environment.  All operations are idempotent —
 re-running against an environment that already contains the references
 is safe.
@@ -43,6 +43,14 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
         "connector_id": "shared_teams",
         "description": (
             "Adaptive card alert delivery for sharing violations"
+        ),
+    },
+    {
+        "logical_name": "fsi_cr_approvals_sharingdetector",
+        "display_name": "Approvals - Sharing Detector",
+        "connector_id": "shared_approvals",
+        "description": (
+            "Approval workflows for exception requests and remediation actions"
         ),
     },
 ]
@@ -127,7 +135,7 @@ def create_connection_references(
     client: CAAClient,
     dry_run: bool = False,
 ) -> Dict[str, int]:
-    """Create all 2 connection references.
+    """Create all 3 connection references.
 
     Returns
     -------
@@ -163,7 +171,7 @@ def create_connection_references(
 def main() -> None:
     """CLI entry point for connection reference deployment."""
     parser = argparse.ArgumentParser(
-        description="Deploy UASD connection references (2 fsi_cr_* definitions)"
+        description="Deploy UASD connection references (3 fsi_cr_* definitions)"
     )
     parser.add_argument(
         "--dry-run",

@@ -705,7 +705,7 @@ def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
     definition = {
         "fsi_policy_name": "Default Sharing Policy",
         "fsi_max_individual_shares": 100,
-        "fsi_governance_zone": 0,  # Unclassified / All
+        "fsi_governance_zone": 3,  # All zones
         "fsi_auto_remediate_public_link": False,
         "fsi_is_active": True,
     }

@@ -533,7 +533,7 @@ foreach ($env in $environments) {
         }
 
         # ─── Rule 5: CROSS_TENANT_ACCESS ──────────────────────────────
-        # Principal tenantId differs from HomeTenantId → High (only if HomeTenantId provided)
+        # Principal tenantId differs from HomeTenantId → Critical (only if HomeTenantId provided)
         if ($HomeTenantId) {
             $crossTenantPrincipals = @($principals | Where-Object {
                 $tenantId = $_.properties.tenantId
@@ -560,7 +560,7 @@ foreach ($env in $environments) {
                     -PrincipalDetails $principalDetail
 
                 $allViolations.Add($violation)
-                Write-Verbose "      [HIGH] CROSS_TENANT_ACCESS detected for '$agentName': TenantId=$xtpTenantId"
+                Write-Verbose "      [CRITICAL] CROSS_TENANT_ACCESS detected for '$agentName': TenantId=$xtpTenantId"
             }
         }
     }

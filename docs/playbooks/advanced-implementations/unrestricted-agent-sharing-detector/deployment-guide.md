@@ -235,14 +235,17 @@ Review the output for any sharing violations detected across environments. If vi
     -ExceptionFlowPath "unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json"
 ```
 
-### Step 2: Import Exception Approval Flow
+### Step 2: Bind Remediation Connection References
 
-Import the exception approval workflow:
+After import, bind the connection references for the remediation and exception flows. These flows require an additional Approvals connector beyond the Dataverse and Teams connectors used by the detection flow:
 
 1. Navigate to [Power Automate](https://make.powerautomate.com)
 2. Go to **Solutions** > **UASD**
-3. Import `unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json` from FSI-AgentGov-Solutions
-4. Bind connection references as in Phase 2, Step 2
+3. Open each connection reference and click **Edit**
+4. Select or create a connection for each reference:
+   - **Dataverse** (`fsi_cr_dataverse_sharingdetector`) — use the service account with System Administrator role
+   - **Microsoft Teams** (`fsi_cr_teams_sharingdetector`) — use the service account for alert notifications
+   - **Microsoft Approvals** (`fsi_cr_approvals_sharingdetector`) — use the service account for exception approval workflows
 
 ### Step 3: Configure Auto-Remediation
 
@@ -371,7 +374,7 @@ Generate the first violation report to validate export functionality:
 |---|------|----------------|----------|
 | 1 | Dataverse tables deployed | 5 tables with `fsi_` prefix visible in Power Apps | [ ] |
 | 2 | Environment variables created | 10 variables under UASD solution | [ ] |
-| 3 | Connection references created | Dataverse and Teams connection references listed | [ ] |
+| 3 | Connection references created | Dataverse, Teams, and Approvals connection references listed | [ ] |
 | 4 | Detection flow imported | Flow visible in Power Automate solutions | [ ] |
 | 5 | Detection flow connections bound | All connection references linked to active connections | [ ] |
 | 6 | Scan schedule configured | `fsi_UASD_ScanFrequencyHours` set to desired interval | [ ] |
