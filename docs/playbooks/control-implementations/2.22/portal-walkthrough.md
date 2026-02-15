@@ -8,10 +8,112 @@
 
 ## Prerequisites
 
+- [ ] CAA Dataverse schema deployed (provides the `fsi_acv_zone` global option set required by the ITE policy table). If not already deployed, run `python scripts/create_dataverse_schema.py` from the Conditional Access Automation solution first.
+- [ ] ITE solution imported into the target Dataverse environment (see [Solutions Index](../../../reference/solutions-index.md#inactivity-timeout-enforcement) for components and deployment scripts)
+- [ ] ITE Dataverse schema deployed via Python scripts (see [Schema Deployment](#schema-deployment) below)
+- [ ] Connection references authenticated and environment variable current values set (see [Post-Import Configuration](#post-import-configuration) below)
 - [ ] Power Platform Admin or Environment Admin role assigned
 - [ ] Access to Power Platform Admin Center ([admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
-- [ ] Environment governance zone assignments documented (Zone 1/2/3)
+- [ ] Environment governance zone assignments documented (Zone 1/2/3) — see [Zones and Tiers](../../../framework/zones-and-tiers.md) for classification guidance
 - [ ] Approved timeout duration values per zone policy
+- [ ] `fsi_environmentpolicy` table populated with zone assignments and required maximum durations for all governed environments
+
+---
+
+## Schema Deployment
+
+Before configuring environment settings, deploy the ITE Dataverse schema. This creates the tables, option sets, environment variables, and connection references the compliance flow and remediation script require.
+
+### Python Environment Setup
+
+The schema scripts require Python 3.8+ and the `caa_client` module (shared with other FSI-AgentGov-Solutions schema scripts).
+
+```bash
+# Install Python dependencies
+pip install msal requests
+
+# The caa_client module must be on the Python path.
+# It is located in scripts/caa_client.py in the FSI-AgentGov repository.
+# Run scripts from the repository root, or add the scripts directory to PYTHONPATH.
+```
+
+Set authentication environment variables (or pass via CLI arguments):
+
+| Variable | Description |
+|----------|-------------|
+| `CAA_TENANT_ID` | Entra ID tenant GUID |
+| `CAA_ENVIRONMENT_URL` | Dataverse environment URL (e.g., `https://org12345.crm.dynamics.com`) |
+| `CAA_CLIENT_ID` | App registration client ID with Dataverse permissions |
+| `CAA_CLIENT_SECRET` | App registration client secret |
+
+### Script Execution Order
+
+Run the scripts in this order from the repository root:
+
+```bash
+# 1. Create policy and compliance tables (+ 2 solution option sets)
+python scripts/create_timeout_dataverse_schema.py
+
+# 2. Create error log table
+python scripts/create_timeout_errorlog_schema.py
+
+# 3. Create 3 environment variables (concurrency, notifications, scan frequency)
+python scripts/create_timeout_environment_variables.py
+
+# 4. Create 2 connection references (Dataverse + Power Platform Admin)
+python scripts/create_timeout_connection_references.py
+```
+
+All scripts are idempotent — safe to re-run if needed. Use `--dry-run` to preview changes without making API calls.
+
+!!! warning "CAA Schema Prerequisite"
+    The first script (`create_timeout_dataverse_schema.py`) requires the `fsi_acv_zone` global option set, which is created by the CAA (Conditional Access Automation) schema script. If you see an error referencing `fsi_acv_zone`, deploy the CAA schema first: `python scripts/create_dataverse_schema.py`.
+
+---
+
+## Post-Import Configuration
+
+After importing the ITE solution and deploying the schema, complete these configuration steps before running the compliance flow.
+
+### Authenticate Connection References
+
+1. Navigate to [Power Apps](https://make.powerapps.com) → select the governance environment
+2. Open **Solutions** → select the ITE solution
+3. Open **Connection References**
+4. For each connection reference (`fsi_cr_dataverse_inactivitytimeout` and `fsi_cr_powerplatformforadmins_inactivitytimeout`):
+   - Click the connection reference → select or create an active connection
+   - Authenticate with a service account that has the required permissions
+
+### Set Environment Variable Current Values
+
+1. In the same ITE solution, open **Environment Variables**
+2. Set the **Current Value** for each variable (Current Value overrides the Default Value for your tenant):
+
+| Variable | Default | Action Required |
+|----------|---------|-----------------|
+| `fsi_ITE_ConcurrencyLimit` | 5 | Adjust if your tenant has many environments (reduce for rate-limit avoidance) |
+| `fsi_ITE_NotificationRecipients` | *(empty)* | **Must set** — enter email addresses for compliance alert recipients |
+| `fsi_ITE_ScanFrequencyHours` | 24 | Adjust scan interval if needed |
+
+!!! warning "Notification Recipients Required"
+    The `fsi_ITE_NotificationRecipients` variable has no default value. Notifications will not be sent until you set a current value with valid email addresses.
+
+### Populate Policy Table
+
+1. Navigate to [Power Apps](https://make.powerapps.com) → select the governance environment
+2. Open **Tables** → search for `fsi_environmentpolicy`
+3. Create a record for each governed environment:
+
+| Column | Description | Example |
+|--------|-------------|---------|
+| `fsi_name` | Descriptive name (required primary name) | "Production" |
+| `fsi_environmentid` | Canonical EnvironmentName GUID from PPAC | "d1234567-abcd-ef01-2345-6789abcdef01" |
+| `fsi_environmentdisplayname` | Human-readable name (optional) | "Production" |
+| `fsi_zone` | Zone classification | Zone 2 or Zone 3 |
+| `fsi_requiredmaxduration` | Maximum allowed timeout in minutes | 120 (Zone 2) or 60 (Zone 3) |
+
+!!! tip "Finding the EnvironmentName GUID"
+    Open PPAC → Environments → select the environment → the EnvironmentName GUID is visible in the browser URL bar. Do NOT use the display name.
 
 ---
 
@@ -94,24 +196,43 @@
 
 ---
 
-## Post-Configuration
+## Step 8: Configure Agent-Level Session Timeout
+
+In addition to environment-level timeout settings, individual Copilot Studio agents have conversation session timeout configurations that control when agent conversation context expires. Configuring agent-level timeouts supports defense-in-depth session security across both platform and agent layers.
+
+1. Navigate to [Copilot Studio](https://copilotstudio.microsoft.com) and sign in with your Power Platform Admin or Copilot Studio maker credentials
+2. Select the target agent from the agent list
+3. Go to **Settings** → **Advanced** → **Session timeout**
+4. Set the conversation session timeout duration aligned with the agent's zone classification:
+
+| Zone | Agent-Level Maximum | Recommended Setting | Rationale |
+|------|---------------------|---------------------|-----------|
+| Zone 3 (Enterprise) | ≤60 minutes (required) | 30 minutes | Helps protect high-sensitivity conversation data (customer data, PII, PHI) from extended exposure in abandoned sessions |
+| Zone 2 (Team) | ≤120 minutes (required) | 90 minutes | Supports session security for team collaboration agents processing organizational data |
+| Zone 1 (Personal) | Optional; ≤120 min if enabled | 120 minutes | Recommended if the agent processes any sensitive organizational data |
+
+5. Click **Save** to apply the agent-level timeout setting
+6. Document the agent name, configured timeout duration, and zone classification in your organization's agent inventory (Control 3.1) for audit trail purposes. If you have not yet implemented Control 3.1, record this information in a spreadsheet for later migration to the inventory system.
+7. Repeat for each governed agent in the environment
+
+!!! note "Quarterly Review Coordination"
+    Agent-level timeout settings should be reviewed during quarterly agent configuration reviews, coordinated with the Control 1.27 review cadence. This periodic review aids in maintaining alignment between agent timeout policies and evolving zone requirements.
+
+---
+
+## Post-Configuration Validation
 
 After configuring all environments:
 
-1. Update the `fsi_environmentpolicy` Dataverse table to reflect current zone assignments and required maximum durations
+1. Verify the `fsi_environmentpolicy` Dataverse table reflects current zone assignments and required maximum durations for all configured environments
+
+!!! warning "Required Before Running Compliance Flow"
+    The `fsi_environmentpolicy` table must be populated before running the compliance flow. Environments without policy records will receive MissingPolicy errors (see [Troubleshooting Issue 1](troubleshooting.md#issue-1-compliance-flow-shows-missingpolicy-for-known-environment)).
+
 2. Run the Detect-InactivityTimeout-NonCompliance flow manually to validate initial compliance state
 3. Review compliance records in the `fsi_inactivitytimeoutcompliance` table to confirm all environments show Compliant status
 4. Address any Non-Compliant or Unknown results before enabling the daily schedule
-5. Verify the following environment variables are configured in the governance Dataverse environment:
-
-| Variable | Type | Default | Purpose |
-|----------|------|---------|---------|
-| `fsi_ITE_ConcurrencyLimit` | Decimal | 5 | Max parallel environment evaluations in the compliance flow |
-| `fsi_ITE_NotificationRecipients` | String | (empty) | Email addresses for non-compliance alerts — must be set for notifications to send |
-| `fsi_ITE_ScanFrequencyHours` | Decimal | 24 | Scan interval in hours for the daily compliance schedule |
-
-!!! warning "Notification Recipients Required"
-    The `fsi_ITE_NotificationRecipients` variable defaults to empty. Set this value before enabling the daily schedule or non-compliance alerts will not be delivered.
+5. Enable the daily schedule trigger on the compliance flow (default: 06:00 UTC)
 
 ---
 

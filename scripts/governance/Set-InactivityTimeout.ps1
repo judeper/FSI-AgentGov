@@ -188,7 +188,7 @@ function Invoke-BapApi {
         switch ($statusCode) {
             401 { throw "BAP API returned 401 Unauthorized. Token may be expired. Re-authenticate with Connect-AzAccount and retry." }
             403 { throw "BAP API returned 403 Forbidden. Insufficient permissions. Requires Power Platform Admin or Global Admin role." }
-            404 { throw "BAP API returned 404 Not Found. Environment '$EnvironmentName' not found. Verify the Environment Name (not display name) via Get-AdminPowerAppEnvironment." }
+            404 { throw "BAP API returned 404 Not Found. The target resource was not found ($Uri). Verify the Environment Name (not display name) via Get-AdminPowerAppEnvironment." }
             429 { throw "BAP API returned 429 Too Many Requests. Rate limited. Retry after a short delay." }
             default { throw "BAP API call failed ($Method $Uri): $($_.Exception.Message)" }
         }
@@ -254,8 +254,22 @@ function Invoke-DataverseApi {
     if ($Body -and $Method -eq 'POST') {
         $params['Body'] = ($Body | ConvertTo-Json -Depth 10 -Compress)
     }
-    $response = Invoke-RestMethod @params
-    return $response
+    try {
+        $response = Invoke-RestMethod @params
+        return $response
+    }
+    catch {
+        $statusCode = $null
+        if ($_.Exception.Response) {
+            $statusCode = [int]$_.Exception.Response.StatusCode
+        }
+        switch ($statusCode) {
+            401 { throw "Dataverse API returned 401 Unauthorized. Token may be expired or scoped to the wrong resource. Re-authenticate with Connect-AzAccount and retry." }
+            403 { throw "Dataverse API returned 403 Forbidden. The service account lacks Create privilege on the target table. Assign the appropriate Dataverse security role." }
+            404 { throw "Dataverse API returned 404 Not Found. Verify the Dataverse URL and table name are correct. Ensure the ITE solution has been imported." }
+            default { throw "Dataverse API call failed ($Method $Uri): $($_.Exception.Message)" }
+        }
+    }
 }
 
 function Write-OutputResult {
@@ -286,9 +300,7 @@ function Write-OutputResult {
                 $json | Out-File -FilePath $OutputPath -Encoding utf8
                 Write-Verbose "Results exported to $OutputPath"
             }
-            else {
-                Write-Output $json
-            }
+            Write-Output $json
         }
         'Table' {
             $Result | Format-Table -Property @(
@@ -360,9 +372,27 @@ if (-not $PSCmdlet.ShouldProcess($EnvironmentName, "Set inactivity timeout to $T
         }
         Applied        = $false
         PreviousConfig = $previousConfig
-        NewConfig      = $null
+        NewConfig      = [PSCustomObject]@{
+            InactivityTimeoutEnabled   = $true
+            InactivityTimeoutInMinutes = $TimeoutDuration
+            InactivityWarningInMinutes = $WarningDuration
+        }
         Verified       = $false
         AuditRecord    = $null
+    }
+
+    # Compute evidence hash even in WhatIf mode (preview evidence packaging)
+    if ($IncludeEvidence) {
+        $resultsJson = $result | ConvertTo-Json -Depth 10 -Compress
+        $sha = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hashBytes = $sha.ComputeHash(
+                [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
+            )
+        } finally {
+            $sha.Dispose()
+        }
+        $result.Metadata.IntegrityHash = [BitConverter]::ToString($hashBytes) -replace '-'
     }
 
     Write-OutputResult -Result $result -OutputFormat $OutputFormat -OutputPath $OutputPath
@@ -478,9 +508,14 @@ $result = [PSCustomObject]@{
 # SHA-256 evidence hash
 if ($IncludeEvidence) {
     $resultsJson = $result | ConvertTo-Json -Depth 10 -Compress
-    $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
-        [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
-    )
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hashBytes = $sha.ComputeHash(
+            [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
+        )
+    } finally {
+        $sha.Dispose()
+    }
     $result.Metadata.IntegrityHash = [BitConverter]::ToString($hashBytes) -replace '-'
 }
 

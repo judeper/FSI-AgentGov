@@ -29,7 +29,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_ITE_ConcurrencyLimit",
         "display_name": "ITE - Concurrency Limit",
-        "type": 100000001,  # Decimal
+        "type": 100000002,  # Whole Number
         "default_value": "5",
         "description": (
             "Max parallel environment evaluations"
@@ -47,7 +47,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_ITE_ScanFrequencyHours",
         "display_name": "ITE - Scan Frequency (Hours)",
-        "type": 100000001,  # Decimal
+        "type": 100000002,  # Whole Number
         "default_value": "24",
         "description": (
             "Scan interval in hours"

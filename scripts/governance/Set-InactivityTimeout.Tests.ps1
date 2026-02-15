@@ -17,13 +17,15 @@
     All BAP and Dataverse API calls are mocked via Mock Invoke-RestMethod.
     No external API calls are made during test execution.
 
-    Test categories (6 Describe blocks, 30 tests):
+    Test categories (8 Describe blocks, 44 tests):
       1. Parameter Validation (8 tests)
-      2. BAP API Interactions (5 tests)
+      2. BAP API Interactions (7 tests)
       3. WhatIf Support (3 tests)
       4. Verification (3 tests)
-      5. Result Object (5 tests)
+      5. Result Object (9 tests)
       6. Dataverse Audit Record (6 tests)
+      7. Evidence Hash (2 tests)
+      8. Cross-Parameter Validation Boundaries (6 tests)
 
 .NOTES
     Run: Invoke-Pester -Path ./scripts/governance/Set-InactivityTimeout.Tests.ps1 -Output Detailed
@@ -227,6 +229,29 @@ Describe 'BAP API Interactions' {
             }
             { & $script:scriptPath -EnvironmentName $script:testEnvironmentName -Confirm:$false } | Should -Throw -ExceptionType ([System.Exception])
         }
+
+        It 'Handles 429 with rate-limiting guidance' {
+            Mock Invoke-RestMethod -ParameterFilter { $Method -ne 'Patch' } -MockWith {
+                $ex = [System.Net.Http.HttpRequestException]::new('Too Many Requests')
+                $response = [System.Net.Http.HttpResponseMessage]::new([System.Net.HttpStatusCode]::TooManyRequests)
+                $ex | Add-Member -NotePropertyName 'Response' -NotePropertyValue $response -Force
+                $errorRecord = [System.Management.Automation.ErrorRecord]::new($ex, 'WebCmdletWebResponseException', 'InvalidOperation', $null)
+                throw $errorRecord
+            }
+            { & $script:scriptPath -EnvironmentName $script:testEnvironmentName -Confirm:$false } | Should -Throw
+        }
+
+        It 'Handles PATCH failure gracefully' {
+            $script:getCallCount = 0
+            Mock Invoke-RestMethod -ParameterFilter { $Method -ne 'Patch' } -MockWith {
+                $script:getCallCount++
+                return @{ properties = @{ InactivityTimeoutEnabled = $false; InactivityTimeoutInMinutes = $null; InactivityWarningInMinutes = $null } }
+            }
+            Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+                throw 'Simulated PATCH failure'
+            }
+            { & $script:scriptPath -EnvironmentName $script:testEnvironmentName -Confirm:$false } | Should -Throw
+        }
     }
 }
 
@@ -384,6 +409,45 @@ Describe 'Result Object' {
             if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
         }
     }
+
+    It '-OutputFormat JSON returns parseable JSON string' {
+        $result = & $script:scriptPath -EnvironmentName $script:testEnvironmentName -OutputFormat JSON -Confirm:$false
+        $result | Should -Not -BeNullOrEmpty
+        $parsed = $result | ConvertFrom-Json
+        $parsed.Applied | Should -BeTrue
+        $parsed.Metadata.EnvironmentName | Should -Be $script:testEnvironmentName
+    }
+
+    It '-OutputFormat JSON with -OutputPath writes file' {
+        $tempFile = Join-Path ([System.IO.Path]::GetTempPath()) "ite-test-json-$([guid]::NewGuid()).json"
+        try {
+            $result = & $script:scriptPath -EnvironmentName $script:testEnvironmentName -OutputFormat JSON -OutputPath $tempFile -Confirm:$false
+            Test-Path $tempFile | Should -BeTrue
+            $fileContent = Get-Content $tempFile -Raw | ConvertFrom-Json
+            $fileContent.Metadata.EnvironmentName | Should -Be $script:testEnvironmentName
+        }
+        finally {
+            if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+        }
+    }
+
+    It '-OutputFormat Table renders without error' {
+        { & $script:scriptPath -EnvironmentName $script:testEnvironmentName -OutputFormat Table -Confirm:$false | Out-Null } |
+            Should -Not -Throw
+    }
+
+    It '-OutputFormat Table with -OutputPath writes JSON to file' {
+        $tempFile = Join-Path ([System.IO.Path]::GetTempPath()) "ite-test-table-$([guid]::NewGuid()).json"
+        try {
+            & $script:scriptPath -EnvironmentName $script:testEnvironmentName -OutputFormat Table -OutputPath $tempFile -Confirm:$false | Out-Null
+            Test-Path $tempFile | Should -BeTrue
+            $fileContent = Get-Content $tempFile -Raw | ConvertFrom-Json
+            $fileContent.Metadata.EnvironmentName | Should -Be $script:testEnvironmentName
+        }
+        finally {
+            if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+        }
+    }
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -485,5 +549,105 @@ Describe 'Dataverse Audit Record' {
             $result.Applied | Should -BeTrue
             $result.AuditRecord | Should -BeNullOrEmpty
         }
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Category 7: Evidence Hash
+# ═══════════════════════════════════════════════════════════════════════
+
+Describe 'Evidence Hash' {
+    BeforeAll {
+        Mock Get-AzAccessToken { [PSCustomObject]@{ Token = 'mock-bap-token' } }
+
+        $script:getCallCount = 0
+        Mock Invoke-RestMethod -ParameterFilter { $Method -ne 'Patch' } -MockWith {
+            $script:getCallCount++
+            if ($script:getCallCount -le 1) {
+                return @{ properties = @{ InactivityTimeoutEnabled = $false; InactivityTimeoutInMinutes = $null; InactivityWarningInMinutes = $null } }
+            }
+            return @{ properties = @{ InactivityTimeoutEnabled = $true; InactivityTimeoutInMinutes = 120; InactivityWarningInMinutes = 5 } }
+        }
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            @{ properties = @{ InactivityTimeoutEnabled = $true; InactivityTimeoutInMinutes = 120; InactivityWarningInMinutes = 5 } }
+        }
+    }
+
+    BeforeEach {
+        $script:getCallCount = 0
+    }
+
+    It '-IncludeEvidence populates IntegrityHash' {
+        $result = & $script:scriptPath -EnvironmentName $script:testEnvironmentName -IncludeEvidence -Confirm:$false
+        $result.Metadata.IntegrityHash | Should -Not -BeNullOrEmpty
+        $result.Metadata.IntegrityHash | Should -Match '^[A-F0-9]{64}$'
+    }
+
+    It 'IntegrityHash is null without -IncludeEvidence' {
+        $result = & $script:scriptPath -EnvironmentName $script:testEnvironmentName -Confirm:$false
+        $result.Metadata.IntegrityHash | Should -BeNullOrEmpty
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Category 8: Cross-Parameter Validation Boundaries
+# ═══════════════════════════════════════════════════════════════════════
+
+Describe 'Cross-Parameter Validation Boundaries' {
+    BeforeAll {
+        Mock Get-AzAccessToken { [PSCustomObject]@{ Token = 'mock-bap-token' } }
+
+        Mock Invoke-RestMethod -ParameterFilter { $Method -ne 'Patch' } -MockWith {
+            @{ properties = @{ InactivityTimeoutEnabled = $true; InactivityTimeoutInMinutes = 5; InactivityWarningInMinutes = 4 } }
+        }
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            @{ properties = @{ InactivityTimeoutEnabled = $true; InactivityTimeoutInMinutes = 5; InactivityWarningInMinutes = 4 } }
+        }
+    }
+
+    It 'Rejects WarningDuration equal to TimeoutDuration' {
+        { & $script:scriptPath -EnvironmentName 'e1234567-89ab-cdef-0123-456789abcdef' -TimeoutDuration 5 -WarningDuration 5 -Confirm:$false 2>$null } |
+            Should -Throw
+    }
+
+    It 'Accepts WarningDuration one less than TimeoutDuration' {
+        { & $script:scriptPath -EnvironmentName 'e1234567-89ab-cdef-0123-456789abcdef' -TimeoutDuration 5 -WarningDuration 4 -Confirm:$false } |
+            Should -Not -Throw
+    }
+
+    It 'Accepts TimeoutDuration at minimum boundary (5)' {
+        { & $script:scriptPath -EnvironmentName 'e1234567-89ab-cdef-0123-456789abcdef' -TimeoutDuration 5 -WarningDuration 1 -Confirm:$false } |
+            Should -Not -Throw
+    }
+
+    It 'Accepts TimeoutDuration at maximum boundary (120)' {
+        $script:getCallCountBoundary = 0
+        Mock Invoke-RestMethod -ParameterFilter { $Method -ne 'Patch' } -MockWith {
+            $script:getCallCountBoundary++
+            if ($script:getCallCountBoundary -le 1) {
+                return @{ properties = @{ InactivityTimeoutEnabled = $false; InactivityTimeoutInMinutes = $null; InactivityWarningInMinutes = $null } }
+            }
+            return @{ properties = @{ InactivityTimeoutEnabled = $true; InactivityTimeoutInMinutes = 120; InactivityWarningInMinutes = 5 } }
+        }
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            @{ properties = @{ InactivityTimeoutEnabled = $true; InactivityTimeoutInMinutes = 120; InactivityWarningInMinutes = 5 } }
+        }
+        { & $script:scriptPath -EnvironmentName 'e1234567-89ab-cdef-0123-456789abcdef' -TimeoutDuration 120 -Confirm:$false } |
+            Should -Not -Throw
+    }
+
+    It '-WhatIf with -IncludeEvidence populates IntegrityHash' {
+        $result = & $script:scriptPath -EnvironmentName 'e1234567-89ab-cdef-0123-456789abcdef' -WhatIf -IncludeEvidence
+        $result.Applied | Should -BeFalse
+        $result.Metadata.IntegrityHash | Should -Not -BeNullOrEmpty
+        $result.Metadata.IntegrityHash | Should -Match '^[A-F0-9]{64}$'
+    }
+
+    It 'WhatIf result includes target NewConfig' {
+        $result = & $script:scriptPath -EnvironmentName 'e1234567-89ab-cdef-0123-456789abcdef' -TimeoutDuration 60 -WarningDuration 10 -WhatIf
+        $result.Applied | Should -BeFalse
+        $result.NewConfig | Should -Not -BeNullOrEmpty
+        $result.NewConfig.InactivityTimeoutInMinutes | Should -Be 60
+        $result.NewConfig.InactivityWarningInMinutes | Should -Be 10
     }
 }

@@ -432,7 +432,7 @@ Automated validation, drift detection, and remediation of Microsoft 365 and Powe
 
 - FINRA 4511 (Books and Records — Audit Configuration)
 - SEC 17a-3/4 (Recordkeeping — Audit Trail Requirements)
-- SOX 404 (Internal Controls — Audit Logging Verification)
+- SOX 302/404 (Internal Controls — Audit Logging Verification)
 - GLBA 501(b) (Safeguards — Audit Trail Integrity)
 
 **Related Control:** [1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
@@ -532,7 +532,7 @@ Automated detection of non-compliant content moderation settings for Copilot Stu
 - FINRA 3110 (Supervisory Controls — Content Moderation Governance)
 - SOX 404 (Internal Controls — Configuration Governance)
 - GLBA 501(b) (Safeguards — Content Safety Controls)
-- SEC AI Priorities (Responsible AI governance)
+- SEC 17a-3/4 (Recordkeeping — AI-generated communication governance)
 
 **Related Control(s):** [1.27 - AI Agent Content Moderation Enforcement](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md), [1.8 - Runtime Protection and External Threat Detection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
 
@@ -796,7 +796,7 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 - `inactivity-timeout-enforcement/src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation (in FSI-AgentGov-Solutions)
 - `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations (in FSI-AgentGov)
-- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (30 tests) (in FSI-AgentGov)
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (44 tests) (in FSI-AgentGov)
 - `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables) (in FSI-AgentGov)
 - `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema (in FSI-AgentGov)
 - `scripts/create_timeout_environment_variables.py` — Environment variable definitions (in FSI-AgentGov)

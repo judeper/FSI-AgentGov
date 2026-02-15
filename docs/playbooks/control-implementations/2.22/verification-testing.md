@@ -13,7 +13,7 @@
 - [ ] Detect-InactivityTimeout-NonCompliance flow deployed
 - [ ] Set-InactivityTimeout.ps1 script available
 - [ ] Test environments available (at least one per zone)
-- [ ] Power Platform Admin credentials
+- [ ] Power Platform Admin or Environment Admin credentials (Environment Admin is limited to assigned environments)
 
 ---
 
@@ -82,9 +82,11 @@
 1. Select a test environment that does NOT have a record in the `fsi_environmentpolicy` table
 2. Run the Detect-InactivityTimeout-NonCompliance flow manually
 3. Check the `fsi_inactivitytimeouterrorlog` table for a MissingPolicy entry
-4. Verify no false Compliant or Non-Compliant record is created
+4. Query the `fsi_inactivitytimeoutcompliance` table, filtering by the test environment's EnvironmentName
+5. Verify the compliance record shows compliance status = Unknown
+6. Verify the error log contains an entry with error type = MissingPolicy for this environment
 
-**Expected Result:** Error log entry with error type = MissingPolicy; compliance status = Unknown or no compliance record created.
+**Expected Result:** Compliance record created with status = Unknown; error log entry created with error type = MissingPolicy.
 
 **Evidence:** Screenshot of error log entry showing MissingPolicy error type.
 
@@ -127,6 +129,75 @@
 
 ---
 
+### TC-2.22-07: Agent-Level Session Timeout Configuration (Zone 3)
+
+**Objective:** Verify agent-level conversation session timeout is configured correctly for Zone 3 agents.
+
+**Steps:**
+
+1. Select a Zone 3 agent that processes customer data or PII
+2. Navigate to Copilot Studio → select the agent → Settings → Advanced → Session timeout
+3. Verify the conversation session timeout is set to ≤60 minutes
+4. Verify the timeout setting is documented in the organization's agent inventory (Control 3.1)
+
+**Expected Result:** Agent-level session timeout ≤60 minutes for Zone 3 agents; setting documented in agent inventory.
+
+**Evidence:** Screenshot of agent session timeout configuration in Copilot Studio; agent inventory export showing the timeout setting.
+
+---
+
+### TC-2.22-08: Agent-Level Timeout Evidence for Audit
+
+**Objective:** Verify agent owners can produce evidence of agent-level timeout configuration during audit reviews.
+
+**Steps:**
+
+1. Select a Zone 2 or Zone 3 agent
+2. Request the agent owner to produce configuration evidence (screenshot or API response showing session timeout setting)
+3. Verify the evidence includes: agent name, timeout duration, configuration date
+4. Verify the evidence matches the agent inventory record
+
+**Expected Result:** Agent owner produces timestamped evidence showing agent-level session timeout configuration matching inventory records.
+
+**Evidence:** Agent configuration screenshot or API response with timestamp.
+
+---
+
+### TC-2.22-09: Remediation Script with Evidence Hash
+
+**Objective:** Verify the PowerShell remediation script produces valid evidence with integrity hash.
+
+**Steps:**
+
+1. Run `Set-InactivityTimeout.ps1 -EnvironmentName <name> -TimeoutDuration 60 -IncludeEvidence -OutputFormat JSON -OutputPath .\evidence\test-hash.json`
+2. Verify the output JSON file contains a non-null `Metadata.IntegrityHash` field
+3. Run the evidence hash verification procedure from the PowerShell Setup playbook
+4. Verify the computed hash matches the recorded hash
+
+**Expected Result:** Evidence file produced with SHA-256 integrity hash; verification procedure confirms hash match.
+
+**Evidence:** JSON evidence file with integrity hash; verification script output showing "Evidence integrity verified".
+
+---
+
+### TC-2.22-10: Bulk Remediation from CSV
+
+**Objective:** Verify bulk remediation via CSV import works correctly across multiple environments.
+
+**Steps:**
+
+1. Create a CSV file with columns `EnvironmentName,TimeoutDuration` containing at least 2 test environments
+2. Run `Import-Csv .\test-environments.csv | ForEach-Object { .\Set-InactivityTimeout.ps1 -EnvironmentName $_.EnvironmentName -TimeoutDuration ([int]$_.TimeoutDuration) -WhatIf }`
+3. Verify WhatIf output shows preview for each environment
+4. Run without -WhatIf to apply changes
+5. Run the compliance flow manually to verify all environments show Compliant
+
+**Expected Result:** All environments remediated successfully; subsequent compliance scan confirms Compliant status for each.
+
+**Evidence:** Bulk remediation output logs; compliance scan results.
+
+---
+
 ## Evidence Checklist
 
 Collect the following evidence for audit documentation:
@@ -139,10 +210,16 @@ Collect the following evidence for audit documentation:
 | 4 | Flow run history showing successful daily execution | Screenshot | [ ] |
 | 5 | Error log entries (if any) from `fsi_inactivitytimeouterrorlog` table | CSV/Screenshot | [ ] |
 | 6 | Remediation script execution logs with before/after values | Text/Screenshot | [ ] |
+| 7 | Evidence hash verification output for remediation records | JSON + Console | [ ] |
+| 8 | Agent-level session timeout configuration screenshots from Copilot Studio | Screenshot | [ ] |
+| 9 | Agent inventory export showing agent-level timeout settings for Zone 2/3 agents | CSV/Screenshot | [ ] |
 
 ---
 
 ## Attestation Template
+
+!!! note "Scope"
+    This attestation covers key operational criteria. For comprehensive verification, confirm all 10 criteria from the [Control 2.22 Verification Criteria](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md#verification-criteria) section.
 
 ```
 I, [Name], [Title], confirm that:
@@ -157,6 +234,12 @@ I, [Name], [Title], confirm that:
    producing daily compliance records in Dataverse.
 
 4. Remediation procedures have been tested and documented.
+
+5. Agent-level conversation session timeout settings are documented in
+   the agent inventory (Control 3.1) for all Zone 2 and Zone 3 agents.
+
+6. Zone 3 agents processing customer data, PII, or PHI have conversation
+   session timeout configured at ≤60 minutes.
 
 Date: _______________
 Signature: _______________

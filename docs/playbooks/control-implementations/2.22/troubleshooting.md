@@ -26,16 +26,14 @@
    - Do NOT use the environment display name
 
 2. **Add the policy record:**
-   - Open the `fsi_environmentpolicy` table in Dataverse
-   - Create a new record with the canonical EnvironmentName
+   - Navigate to [Power Apps](https://make.powerapps.com) → select the governance environment
+   - Open **Tables** → search for `fsi_environmentpolicy`
+   - Click **+ New row** to create a new record with the canonical EnvironmentName
    - Set `fsi_zone` and `fsi_requiredmaxduration` per governance policy
 
 3. **Re-run the compliance flow** to generate a fresh compliance record
 
 **Root Cause:** Environment was provisioned but not registered in the governance policy table, or the EnvironmentName value contains the display name instead of the canonical GUID.
-
-!!! tip "Remediation Script"
-    After adding the policy record and confirming the environment is non-compliant, use `Set-InactivityTimeout.ps1` to apply the correct timeout value via the BAP Admin API. See [PowerShell Setup](powershell-setup.md) for script parameters and usage.
 
 ---
 
@@ -67,8 +65,9 @@
        -ApplicationId $clientId `
        -CertificateThumbprint $thumbprint `
        -TenantId $tenantId
-   $tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com"
-   $token = if ($tokenResult.Token -is [securestring]) { $tokenResult.Token | ConvertFrom-SecureString -AsPlainText } else { $tokenResult.Token }
+
+   # Obtain a fresh token for diagnostic API calls
+   $token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
    ```
 
 **Root Cause:** Token scope mismatch or expired credentials.
@@ -127,9 +126,6 @@
 
 **Root Cause:** Expected behavior — timeout settings are applied at session creation, not retroactively.
 
-!!! tip "Automated Remediation"
-    For environments requiring timeout changes, `Set-InactivityTimeout.ps1` supports `-WhatIf` preview and bulk remediation via CSV input. See [PowerShell Setup](powershell-setup.md) for details.
-
 ---
 
 ### Issue 5: Compliance Flow Fails with HTTP 429 (Rate Limiting)
@@ -142,27 +138,18 @@
 
 **Resolution Steps:**
 
-1. **Reduce concurrency in the flow:**
-   - Open the compliance flow in Power Automate → Edit
-   - Locate the **Apply to Each** action that iterates over environments
-   - Click the **⋯** (three dots) menu on the Apply to Each action → **Settings**
-   - Under **Concurrency Control**, toggle it to **On** if not already enabled
-   - Set the **Degree of Parallelism** slider to 2-3 (default is 5)
-   - Click **Done**, then **Save** the flow
+1. **Reduce concurrency:**
+   - Open the compliance flow in Power Automate
+   - Locate the Apply to Each action that iterates over environments
+   - Reduce the degree of parallelism (default 5; try 2-3)
 
-2. **Alternative — adjust via environment variable:**
-   - Open Power Apps → Tables → search for `environmentvariabledefinitions`
-   - Locate the `fsi_ITE_ConcurrencyLimit` environment variable
-   - Update the current value from `5` to `2` or `3`
-   - The compliance flow reads this variable at runtime to set its concurrency limit
-
-3. **Add retry logic:**
+2. **Add retry logic:**
    - Configure the HTTP action with retry policy:
      - Count: 3
      - Interval: PT30S (30 seconds)
      - Type: Exponential
 
-4. **Schedule off-peak execution:**
+3. **Schedule off-peak execution:**
    - Move the daily scan trigger to off-peak hours (e.g., 02:00 UTC instead of business hours)
 
 **Root Cause:** BAP Admin API rate limits exceeded when scanning many environments concurrently.
@@ -255,41 +242,37 @@
 
 ---
 
-### Issue 9: Environment Variables Not Configured
+### Issue 9: Compliance Flow Fails Due to Missing or Incorrect Environment Variables
 
 **Symptoms:**
 
-- Compliance flow uses unexpected default values (e.g., wrong concurrency, no notifications)
-- Flow runs but notification emails are never sent despite non-compliant environments
-- Concurrency limit does not match organizational expectations
+- Compliance flow fails at the first or second action after trigger
+- Flow run history shows "InvalidTemplate" or "ExpressionEvaluationFailed" errors
+- Environment variables show empty or default values after solution import
 
 **Resolution Steps:**
 
-1. **Verify environment variables exist:**
-   - Open Power Apps → select the governance environment → Tables
-   - Search for `environmentvariabledefinitions`
-   - Confirm these 3 variables are present:
+1. **Verify environment variables are configured:**
+   - Navigate to Power Apps → Solutions → select the ITE solution
+   - Open **Environment Variables** in the solution
+   - Confirm these variables have correct values:
+     - `fsi_ITE_ConcurrencyLimit`: Maximum parallel environment evaluations (default: 5)
+     - `fsi_ITE_NotificationRecipients`: Email addresses for compliance alerts
+     - `fsi_ITE_ScanFrequencyHours`: Scan interval in hours (default: 24)
 
-   | Variable | Type | Default | Purpose |
-   |----------|------|---------|---------|
-   | `fsi_ITE_ConcurrencyLimit` | Decimal | 5 | Max parallel environment evaluations |
-   | `fsi_ITE_NotificationRecipients` | String | (empty) | Email addresses for compliance alerts |
-   | `fsi_ITE_ScanFrequencyHours` | Decimal | 24 | Scan interval in hours |
+2. **Set current values (not just default values):**
+   - Environment variables have both a **Default Value** (defined in the solution) and a **Current Value** (tenant-specific)
+   - After importing the solution, set the **Current Value** for each variable to override the defaults for your environment
+   - `fsi_ITE_NotificationRecipients` has no default — this must be set before the notification action will work
 
-2. **Set current values:**
-   - For each variable, click to open and set the **Current Value** appropriate for your organization
-   - `fsi_ITE_NotificationRecipients` must be populated for notification emails to send (semicolon-separated for multiple addresses)
+3. **Verify connection references are authenticated:**
+   - In the same solution, open **Connection References**
+   - Confirm each connection reference shows an active, authenticated connection
+   - Re-authenticate any connection references showing error or warning states
 
-3. **If variables are missing, re-run the deployment script:**
-   ```bash
-   python scripts/create_timeout_environment_variables.py --verbose
-   ```
+4. **Re-run the compliance flow** after updating environment variables and connection references
 
-4. **Verify after configuration:**
-   - Run the compliance flow manually
-   - Confirm it uses the updated concurrency limit and sends notifications to the configured recipients
-
-**Root Cause:** Environment variables not deployed or current values not set after initial deployment (defaults may not match organizational requirements).
+**Root Cause:** Solution import creates environment variable definitions with default values, but tenant-specific current values must be set manually. Connection references also require authentication after import.
 
 ---
 
@@ -316,6 +299,14 @@
 ---
 
 ## Diagnostic Commands
+
+!!! note "Authentication Required"
+    The diagnostic commands below require an authenticated session and a valid BAP API token. Obtain a token before running any commands:
+
+    ```powershell
+    Connect-AzAccount  # If not already authenticated
+    $token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
+    ```
 
 ### Verify timeout setting via API
 

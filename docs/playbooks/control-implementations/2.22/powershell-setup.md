@@ -3,7 +3,7 @@
 > **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
 
 **Last Updated:** February 2026
-**Module Requirements:** Az.Accounts (for service principal auth), Invoke-RestMethod (built-in)
+**Module Requirements:** Az.Accounts, PowerShell 7.0+
 **Estimated Time:** 30 minutes for setup; 5 minutes per remediation run
 
 ## Prerequisites
@@ -18,6 +18,9 @@
 ---
 
 ## Script: Set-InactivityTimeout.ps1
+
+!!! note "Script Location"
+    The script is located at `scripts/governance/Set-InactivityTimeout.ps1` in the FSI-AgentGov repository. Navigate to the `scripts/governance/` directory or adjust paths in the commands below accordingly.
 
 ### Synopsis
 
@@ -88,14 +91,24 @@ What if: Performing the operation "Set inactivity timeout to 60 min with 5 min w
 #### Bulk remediation from CSV
 
 ```powershell
-# CSV format: EnvironmentName,TimeoutDuration
-# d1234567-abcd-ef01-2345-6789abcdef01,60
-# e2345678-bcde-f012-3456-789abcdef012,120
+# CSV file must include a header row.
+# Required columns: EnvironmentName, TimeoutDuration
+# Optional column: WarningDuration (defaults to 5 if omitted)
+#
+# Example CSV (non-compliant-environments.csv):
+# EnvironmentName,TimeoutDuration,WarningDuration
+# d1234567-abcd-ef01-2345-6789abcdef01,60,10
+# e2345678-bcde-f012-3456-789abcdef012,120,15
 
 Import-Csv ".\non-compliant-environments.csv" | ForEach-Object {
-    .\Set-InactivityTimeout.ps1 `
-        -EnvironmentName $_.EnvironmentName `
-        -TimeoutDuration $_.TimeoutDuration
+    $params = @{
+        EnvironmentName = $_.EnvironmentName
+        TimeoutDuration = [int]$_.TimeoutDuration
+    }
+    if ($_.WarningDuration) {
+        $params['WarningDuration'] = [int]$_.WarningDuration
+    }
+    .\Set-InactivityTimeout.ps1 @params
 }
 ```
 
@@ -103,10 +116,15 @@ Import-Csv ".\non-compliant-environments.csv" | ForEach-Object {
 
 ```powershell
 Import-Csv ".\non-compliant-environments.csv" | ForEach-Object {
-    .\Set-InactivityTimeout.ps1 `
-        -EnvironmentName $_.EnvironmentName `
-        -TimeoutDuration $_.TimeoutDuration `
-        -WhatIf
+    $params = @{
+        EnvironmentName = $_.EnvironmentName
+        TimeoutDuration = [int]$_.TimeoutDuration
+        WhatIf          = $true
+    }
+    if ($_.WarningDuration) {
+        $params['WarningDuration'] = [int]$_.WarningDuration
+    }
+    .\Set-InactivityTimeout.ps1 @params
 }
 ```
 
@@ -156,7 +174,7 @@ Content-Type: application/json
 
 ### Service Principal Configuration
 
-1. Register an application in Azure AD (Entra ID)
+1. Register an application in Microsoft Entra ID
 2. Grant the application the **Power Platform Admin** role, or assign **Environment Admin** per environment
 3. Add the API permission scope: `https://api.bap.microsoft.com/.default`
 4. Grant admin consent for the API permission
@@ -204,6 +222,7 @@ $token = if ($tokenResult.Token -is [securestring]) { $tokenResult.Token | Conve
 | `403 Forbidden` | Insufficient permissions | Verify service principal has Power Platform Admin or Environment Admin role |
 | `404 Not Found` | Invalid EnvironmentName | Use the canonical EnvironmentName (GUID format), not the display name |
 | `429 Too Many Requests` | API rate limiting | Implement retry with exponential backoff; reduce concurrency for bulk runs |
+| Other HTTP errors | Various API issues | Check the error message for details; verify API endpoint availability and request format |
 
 ---
 
@@ -235,7 +254,7 @@ if ($computedHash -eq $recordedHash) {
 ```
 
 !!! warning "Compression Required"
-    The hash is computed on compressed JSON (`ConvertTo-Json -Compress`). Using pretty-printed JSON for verification will produce a different hash.
+    The hash is computed on compressed JSON (`ConvertTo-Json -Compress`). Using pretty-printed JSON for verification will produce a different hash. If hash verification fails on an unmodified file, ensure you are using the same PowerShell version that generated the evidence — JSON property ordering may vary between PowerShell versions.
 
 ---
 
