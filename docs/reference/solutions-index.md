@@ -735,7 +735,7 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 - `mime-type-restrictions/src/dlp-policy-template.json` — Purview DLP policy template for executable file blocking (in FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/query-mime-blocks.kql` — Sentinel KQL query for MIME type block event monitoring (in FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/high-volume-blocks.json` — Sentinel analytics alert rule ARM template for high-volume block detection (in FSI-AgentGov-Solutions)
-- `scripts/governance/mime-exception-register.csv` — Exception register with validation script and request template (in FSI-AgentGov)
+- `scripts/governance/mime-type-exceptions.csv` — Exception register with validation script and request template (in FSI-AgentGov)
 
 **Regulatory Alignment:**
 
@@ -788,7 +788,7 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 - `inactivity-timeout-enforcement/src/detect-inactivity-timeout-noncompliance.json` — Cloud Flow template for daily compliance detection and evaluation (in FSI-AgentGov-Solutions)
 - `scripts/governance/Set-InactivityTimeout.ps1` — PowerShell remediation script for BAP Admin API PATCH operations (in FSI-AgentGov)
-- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (27 tests) (in FSI-AgentGov)
+- `scripts/governance/Set-InactivityTimeout.Tests.ps1` — Pester 5 validation test suite (28 tests) (in FSI-AgentGov)
 - `scripts/create_timeout_dataverse_schema.py` — Dataverse schema creation (environmentpolicy + compliance tables) (in FSI-AgentGov)
 - `scripts/create_timeout_errorlog_schema.py` — Dataverse error log table schema (in FSI-AgentGov)
 - `scripts/create_timeout_environment_variables.py` — Environment variable definitions (in FSI-AgentGov)

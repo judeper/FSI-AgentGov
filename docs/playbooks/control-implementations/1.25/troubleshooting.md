@@ -164,10 +164,10 @@ Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [P
 Get-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token | Format-List
 ```
 
-### Verify Module Installation
+### Verify Module Is Loaded
 
 ```powershell
-Get-Module -Name FsiMimeControl -ListAvailable | Format-Table Name, Version, Path
+Get-Module -Name FsiMimeControl | Format-Table Name, Version, Path
 ```
 
 ### Quick Compliance Check
