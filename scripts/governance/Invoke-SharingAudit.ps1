@@ -30,7 +30,7 @@
     Home tenant GUID for CROSS_TENANT_ACCESS detection. Required for Rule 5.
 
 .PARAMETER MaxIndividualShares
-    Maximum individual shares threshold for EXCESSIVE_INDIVIDUAL rule. Default: 100.
+    Maximum individual shares threshold for EXCESSIVE_INDIVIDUAL rule. Default: 5.
 
 .PARAMETER ApprovedGroupIds
     Optional array of approved Entra security group GUIDs for UNAPPROVED_GROUP rule.
@@ -80,7 +80,7 @@ param(
     [string]$HomeTenantId,
 
     [Parameter()]
-    [int]$MaxIndividualShares = 100,
+    [int]$MaxIndividualShares = 5,
 
     [Parameter()]
     [string[]]$ApprovedGroupIds = @(),
@@ -616,10 +616,12 @@ $bannerColor = if ($allViolations.Count -gt 0) { 'Red' } else { 'Green' }
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor $bannerColor
 Write-Host   "║  Sharing Audit Complete                                 ║" -ForegroundColor $bannerColor
 Write-Host   "╠══════════════════════════════════════════════════════════╣" -ForegroundColor $bannerColor
-Write-Host   "║  Environments: $($envCount.ToString().PadRight(5)) Agents: $($allAgentSettings.Count.ToString().PadRight(5)) Violations: $($allViolations.Count.ToString().PadRight(5))║" -ForegroundColor $bannerColor
+$line1 = "  Environments: $envCount   Agents: $($allAgentSettings.Count)   Violations: $($allViolations.Count)"
+Write-Host   "║$($line1.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
 
 if ($allViolations.Count -gt 0) {
-    Write-Host "║  Critical: $($criticalCount.ToString().PadRight(6)) High: $($highCount.ToString().PadRight(6)) Medium: $($mediumCount.ToString().PadRight(8))║" -ForegroundColor $bannerColor
+    $line2 = "  Critical: $criticalCount   High: $highCount   Medium: $mediumCount"
+    Write-Host "║$($line2.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
 }
 
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor $bannerColor

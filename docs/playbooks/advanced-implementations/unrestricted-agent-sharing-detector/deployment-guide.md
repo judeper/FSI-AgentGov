@@ -73,19 +73,19 @@ pip install -r scripts/requirements.txt
 
 The schema deployment script creates five Dataverse tables with the `fsi_` publisher prefix.
 
-```bash
+```powershell
 # Option A: Use CLI arguments (recommended)
-python scripts/create_uasd_dataverse_schema.py --dry-run \
-    --environment-url "https://<your-org>.crm.dynamics.com" \
-    --tenant-id "<your-tenant-id>" \
-    --client-id "<your-app-client-id>" \
+python scripts/create_uasd_dataverse_schema.py --dry-run `
+    --environment-url "https://<your-org>.crm.dynamics.com" `
+    --tenant-id "<your-tenant-id>" `
+    --client-id "<your-app-client-id>" `
     --client-secret "<your-app-client-secret>"
 
-# Option B: Use environment variables
-export CAA_ENVIRONMENT_URL="https://<your-org>.crm.dynamics.com"
-export CAA_CLIENT_ID="<your-app-client-id>"
-export CAA_CLIENT_SECRET="<your-app-client-secret>"
-export CAA_TENANT_ID="<your-tenant-id>"
+# Option B: Use environment variables (PowerShell)
+$env:CAA_ENVIRONMENT_URL = "https://<your-org>.crm.dynamics.com"
+$env:CAA_CLIENT_ID = "<your-app-client-id>"
+$env:CAA_CLIENT_SECRET = "<your-app-client-secret>"
+$env:CAA_TENANT_ID = "<your-tenant-id>"
 
 # Deploy schema (dry-run first)
 python scripts/create_uasd_dataverse_schema.py --dry-run
@@ -106,8 +106,9 @@ This creates the following tables:
 
 ### Step 2: Deploy Environment Variables
 
-```bash
+```powershell
 # Deploy environment variables for flow configuration
+# Uses the same authentication from Step 1 (CLI arguments or environment variables)
 python scripts/create_uasd_environment_variables.py
 ```
 
@@ -128,8 +129,9 @@ Key environment variables created:
 
 ### Step 3: Deploy Connection References
 
-```bash
+```powershell
 # Deploy connection references
+# Uses the same authentication from Step 1 (CLI arguments or environment variables)
 python scripts/create_uasd_connection_references.py
 ```
 
@@ -158,6 +160,9 @@ python scripts/create_uasd_connection_references.py
 
 Deploy the detection flow using the governance script:
 
+!!! note "Flow Definition Source"
+    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The `-FlowDefinitionPath` parameter below assumes you are running from the FSI-AgentGov-Solutions repo root. If you cloned both repositories side-by-side, adjust the path accordingly.
+
 ```powershell
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
     -EnvironmentId "<your-environment-guid>" `
@@ -182,6 +187,9 @@ After import, bind the connection references to active connections:
 4. Select or create a connection for each reference:
    - **Dataverse** — use the service account with System Administrator role
    - **Microsoft Teams** — use the service account for alert notifications
+
+!!! note "Approvals Connector"
+    The connection reference deployment (Phase 1, Step 3) creates three connection references including **Microsoft Approvals**. The Approvals connector is used by the remediation and exception flows deployed in Phase 3 — you do not need to bind it during Phase 2.
 
 !!! note "Service Account Best Practice"
     Use a dedicated service account for flow connections rather than personal accounts. This helps meet separation-of-duties requirements and avoids flow disruption when personnel changes occur.
@@ -308,7 +316,7 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
     -InputPath .\config\approved-groups.csv
 ```
 
-The CSV file should contain columns: `GroupId`, `DisplayName`, `Zone`, `IsActive`.
+The CSV file must contain `GroupId` and `DisplayName` columns. Optional columns: `Zone` (defaults to the `-DefaultZone` parameter value or `All`) and `IsActive` (defaults to `true`).
 
 ### Step 8: Import Exception Manager App
 
