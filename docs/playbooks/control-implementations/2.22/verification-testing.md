@@ -29,7 +29,7 @@
 2. Configure inactivity timeout to 30 minutes (within the 60-minute Zone 3 maximum)
 3. Ensure the environment has a corresponding `fsi_environmentpolicy` record with `fsi_requiredmaxduration` = 60
 4. Run the Detect-InactivityTimeout-NonCompliance flow manually
-5. Check the `fsi_inactivitytimeout_compliance` table for the scan result
+5. Check the `fsi_inactivitytimeoutcompliance` table for the scan result
 
 **Expected Result:** Compliance record created with status = Compliant; timeout duration = 30; zone maximum = 60.
 
@@ -47,7 +47,7 @@
 2. Configure inactivity timeout to 180 minutes (exceeds the 120-minute Zone 2 maximum)
 3. Ensure the environment has a corresponding `fsi_environmentpolicy` record with `fsi_requiredmaxduration` = 120
 4. Run the Detect-InactivityTimeout-NonCompliance flow manually
-5. Check the `fsi_inactivitytimeout_compliance` table for the scan result
+5. Check the `fsi_inactivitytimeoutcompliance` table for the scan result
 
 **Expected Result:** Compliance record created with status = Non-Compliant; reason indicates duration exceeds zone maximum.
 
@@ -65,7 +65,7 @@
 2. Disable inactivity timeout in PPAC → Settings → Privacy + Security
 3. Ensure the environment has a corresponding `fsi_environmentpolicy` record
 4. Run the Detect-InactivityTimeout-NonCompliance flow manually
-5. Check the `fsi_inactivitytimeout_compliance` table for the scan result
+5. Check the `fsi_inactivitytimeoutcompliance` table for the scan result
 
 **Expected Result:** Compliance record created with status = Non-Compliant; reason indicates timeout is disabled.
 
@@ -81,7 +81,7 @@
 
 1. Select a test environment that does NOT have a record in the `fsi_environmentpolicy` table
 2. Run the Detect-InactivityTimeout-NonCompliance flow manually
-3. Check the `fsi_inactivitytimeout_errorlog` table for a MissingPolicy entry
+3. Check the `fsi_inactivitytimeouterrorlog` table for a MissingPolicy entry
 4. Verify no false Compliant or Non-Compliant record is created
 
 **Expected Result:** Error log entry with error type = MissingPolicy; compliance status = Unknown or no compliance record created.
@@ -135,9 +135,9 @@ Collect the following evidence for audit documentation:
 |---|--------------|--------|-----------|
 | 1 | PPAC Privacy + Security settings for each governed environment | Screenshot | [ ] |
 | 2 | `fsi_environmentpolicy` table export showing zone assignments | CSV/Screenshot | [ ] |
-| 3 | Compliance scan results from `fsi_inactivitytimeout_compliance` table | CSV/Screenshot | [ ] |
+| 3 | Compliance scan results from `fsi_inactivitytimeoutcompliance` table | CSV/Screenshot | [ ] |
 | 4 | Flow run history showing successful daily execution | Screenshot | [ ] |
-| 5 | Error log entries (if any) from `fsi_inactivitytimeout_errorlog` table | CSV/Screenshot | [ ] |
+| 5 | Error log entries (if any) from `fsi_inactivitytimeouterrorlog` table | CSV/Screenshot | [ ] |
 | 6 | Remediation script execution logs with before/after values | Text/Screenshot | [ ] |
 
 ---

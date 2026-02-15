@@ -19,7 +19,7 @@
     regulatory frameworks including GLBA 501(b), SOX 302, and FINRA 4511.
 
     Zone-based duration guidance:
-    - Zone 1 (Personal Productivity): Optional, no maximum enforced
+    - Zone 1 (Personal Productivity): Optional; recommended ≤120 minutes if enabled
     - Zone 2 (Team Collaboration): Required, maximum 120 minutes
     - Zone 3 (Enterprise Managed): Required, maximum 60 minutes
 
@@ -416,13 +416,15 @@ if ($DataverseUrl) {
 
         $dvToken = Get-DataverseToken -ResourceUrl $dvUrl
 
+        $scanTimestamp = Get-Date -Format 'o'
         $auditPayload = @{
+            fsi_name                     = "$EnvironmentName - $($scanTimestamp.Substring(0,19)) - Remediated"
             fsi_environmentid            = $EnvironmentName
             fsi_environmentname          = $EnvironmentName
             fsi_inactivitytimeoutenabled = $true
             fsi_timeoutduration          = $TimeoutDuration
             fsi_compliancestatus         = 0  # Compliant (remediated) — matches fsi_ITE_compliancestatus option set
-            fsi_lastscandate             = (Get-Date -Format 'o')
+            fsi_lastscandate             = $scanTimestamp
             fsi_notes                    = "Remediated by Set-InactivityTimeout.ps1. Before: Enabled=$($previousConfig.InactivityTimeoutEnabled), Duration=$($previousConfig.InactivityTimeoutInMinutes). After: Enabled=True, Duration=$TimeoutDuration, Warning=$WarningDuration."
         }
 
@@ -432,7 +434,7 @@ if ($DataverseUrl) {
             -Method POST `
             -Body $auditPayload
 
-        $auditRecordId = $dvResponse.fsi_inactivitytimeout_complianceid
+        $auditRecordId = $dvResponse.fsi_inactivitytimeoutcomplianceid
         Write-Host "  Audit record written: $auditRecordId" -ForegroundColor Green
     }
     catch {

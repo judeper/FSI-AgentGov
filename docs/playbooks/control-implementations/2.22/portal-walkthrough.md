@@ -100,7 +100,7 @@ After configuring all environments:
 
 1. Update the `fsi_environmentpolicy` Dataverse table to reflect current zone assignments and required maximum durations
 2. Run the Detect-InactivityTimeout-NonCompliance flow manually to validate initial compliance state
-3. Review compliance records in the `fsi_inactivitytimeout_compliance` table to confirm all environments show Compliant status
+3. Review compliance records in the `fsi_inactivitytimeoutcompliance` table to confirm all environments show Compliant status
 4. Address any Non-Compliant or Unknown results before enabling the daily schedule
 5. Verify the following environment variables are configured in the governance Dataverse environment:
 

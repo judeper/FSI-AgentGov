@@ -17,13 +17,13 @@
     All BAP and Dataverse API calls are mocked via Mock Invoke-RestMethod.
     No external API calls are made during test execution.
 
-    Test categories (6 Describe blocks, 27 tests):
+    Test categories (6 Describe blocks, 28 tests):
       1. Parameter Validation (7 tests)
       2. BAP API Interactions (5 tests)
       3. WhatIf Support (3 tests)
       4. Verification (3 tests)
       5. Result Object (4 tests)
-      6. Dataverse Audit Record (5 tests)
+      6. Dataverse Audit Record (6 tests)
 
 .NOTES
     Run: Invoke-Pester -Path ./scripts/governance/Set-InactivityTimeout.Tests.ps1 -Output Detailed
@@ -82,7 +82,8 @@ BeforeAll {
 
     # Dataverse POST response (audit record created)
     $script:mockDataverseResponse = @{
-        fsi_inactivitytimeout_complianceid = '00000000-aaaa-bbbb-cccc-111111111111'
+        fsi_inactivitytimeoutcomplianceid = '00000000-aaaa-bbbb-cccc-111111111111'
+        fsi_name                           = 'e1234567-89ab-cdef-0123-456789abcdef - 2026-02-15T00:00:00 - Remediated'
         fsi_environmentid                  = $script:testEnvironmentName
         fsi_compliancestatus               = 0
     }
@@ -415,7 +416,7 @@ Describe 'Dataverse Audit Record' {
 
             Mock Invoke-RestMethod -ParameterFilter { $Uri -like '*crm.dynamics.com*' } -MockWith {
                 @{
-                    fsi_inactivitytimeout_complianceid = '00000000-aaaa-bbbb-cccc-111111111111'
+                    fsi_inactivitytimeoutcomplianceid = '00000000-aaaa-bbbb-cccc-111111111111'
                     fsi_environmentid                  = 'e1234567-89ab-cdef-0123-456789abcdef'
                     fsi_compliancestatus               = 0
                 }
@@ -447,6 +448,15 @@ Describe 'Dataverse Audit Record' {
             Should -Invoke Invoke-RestMethod -ParameterFilter {
                 $Uri -like '*crm.dynamics.com*' -and
                 $Body -like '*fsi_lastscandate*'
+            } -Times 1 -Exactly
+        }
+
+        It 'Audit record includes fsi_name (required primary name)' {
+            & $script:scriptPath -EnvironmentName $script:testEnvironmentName -DataverseUrl $script:testDataverseUrl -Confirm:$false | Out-Null
+            Should -Invoke Invoke-RestMethod -ParameterFilter {
+                $Uri -like '*crm.dynamics.com*' -and
+                $Body -like '*fsi_name*' -and
+                $Body -like '*Remediated*'
             } -Times 1 -Exactly
         }
 

@@ -228,7 +228,7 @@
 
 **Symptoms:**
 
-- Compliance flow runs without errors but no records appear in `fsi_inactivitytimeout_compliance` table
+- Compliance flow runs without errors but no records appear in `fsi_inactivitytimeoutcompliance` table
 - Flow run history shows Create Record action failed
 - Error references missing table, column, or privilege
 
@@ -236,7 +236,7 @@
 
 1. **Verify Dataverse table exists:**
    - Navigate to Power Apps → Tables
-   - Search for `fsi_inactivitytimeout_compliance`
+   - Search for `fsi_inactivitytimeoutcompliance`
    - Verify the table schema matches expected columns
 
 2. **Check service account permissions:**
