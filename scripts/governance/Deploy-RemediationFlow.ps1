@@ -81,10 +81,10 @@ param(
     [string]$EnvironmentId,
 
     [Parameter()]
-    [string]$RemediationFlowPath = 'src/uasd-remediation-apply-sharing-policy.json',
+    [string]$RemediationFlowPath = (Join-Path 'src' 'uasd-remediation-apply-sharing-policy.json'),
 
     [Parameter()]
-    [string]$ExceptionFlowPath = 'src/uasd-exception-approval-workflow.json',
+    [string]$ExceptionFlowPath = (Join-Path 'src' 'uasd-exception-approval-workflow.json'),
 
     [Parameter(Mandatory)]
     [ValidatePattern('^https://')]
@@ -350,7 +350,8 @@ function Test-ExistingFlow {
         [string]$Token
     )
 
-    $encodedName = [System.Uri]::EscapeDataString("properties/displayName eq '$FlowDisplayName'")
+    $escapedName = $FlowDisplayName -replace "'", "''"
+    $encodedName = [System.Uri]::EscapeDataString("properties/displayName eq '$escapedName'")
     $listUri = "$FLOW_API_BASE/scopes/admin/environments/$EnvironmentId/flows?api-version=2016-11-01&`$filter=$encodedName"
 
     Write-Verbose "Checking for existing flow: $FlowDisplayName"
@@ -474,7 +475,8 @@ function Set-ConnectionReference {
         [string]$Token
     )
 
-    $filterUri = "$DataverseApiBase/connectionreferences?`$filter=connectionreferencelogicalname eq '$LogicalName'&`$select=connectionreferenceid,connectionreferencelogicalname,connectionreferencedisplayname,connectionid,statecode"
+    $escapedLogicalName = $LogicalName -replace "'", "''"
+    $filterUri = "$DataverseApiBase/connectionreferences?`$filter=connectionreferencelogicalname eq '$escapedLogicalName'&`$select=connectionreferenceid,connectionreferencelogicalname,connectionreferencedisplayname,connectionid,statecode"
     Write-Verbose "Querying connection reference: $LogicalName"
 
     try {
@@ -539,7 +541,8 @@ function Set-EnvironmentVariable {
     )
 
     # Query for existing environment variable definition
-    $defUri = "$DataverseApiBase/environmentvariabledefinitions?`$filter=schemaname eq '$SchemaName'&`$select=environmentvariabledefinitionid,schemaname,displayname,defaultvalue"
+    $escapedSchemaName = $SchemaName -replace "'", "''"
+    $defUri = "$DataverseApiBase/environmentvariabledefinitions?`$filter=schemaname eq '$escapedSchemaName'&`$select=environmentvariabledefinitionid,schemaname,displayname,defaultvalue"
     Write-Verbose "Querying environment variable: $SchemaName"
 
     try {
@@ -969,11 +972,16 @@ Write-Host ""
 Write-Host "╔══════════════════════════════════════════════════════════╗" -ForegroundColor $bannerColor
 Write-Host "║  Remediation & Exception Flow Deployment Complete       ║" -ForegroundColor $bannerColor
 Write-Host "╠══════════════════════════════════════════════════════════╣" -ForegroundColor $bannerColor
-Write-Host "║  Remediation: $($remediationImport.Status.PadRight(41))║" -ForegroundColor $bannerColor
-Write-Host "║  Exception:   $($exceptionImport.Status.PadRight(41))║" -ForegroundColor $bannerColor
-Write-Host "║  Connections: $($connectionRefResults.Count) ref(s)$((' ' * 36))║" -ForegroundColor $bannerColor
-Write-Host "║  Auto-Rem:    $($autoRemValue.PadRight(41))║" -ForegroundColor $bannerColor
-Write-Host "║  Checks:      $passedChecks/$totalChecks passed$((' ' * 33))║" -ForegroundColor $bannerColor
+$line1 = "  Remediation: $($remediationImport.Status)"
+Write-Host "║$($line1.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line2 = "  Exception:   $($exceptionImport.Status)"
+Write-Host "║$($line2.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line3 = "  Connections: $($connectionRefResults.Count) ref(s)"
+Write-Host "║$($line3.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line4 = "  Auto-Rem:    $autoRemValue"
+Write-Host "║$($line4.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line5 = "  Checks:      $passedChecks/$totalChecks passed"
+Write-Host "║$($line5.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
 Write-Host "╚══════════════════════════════════════════════════════════╝" -ForegroundColor $bannerColor
 Write-Host ""
 Write-Host "  Duration: $([math]::Round($duration, 2))s" -ForegroundColor DarkGray

@@ -145,22 +145,36 @@ function New-ViolationResult {
 
     $evidenceHash = $null
     if ($EvidenceJson) {
-        $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
-            [System.Text.Encoding]::UTF8.GetBytes($EvidenceJson)
-        )
-        $evidenceHash = [BitConverter]::ToString($hashBytes) -replace '-'
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hashBytes = $sha256.ComputeHash(
+                [System.Text.Encoding]::UTF8.GetBytes($EvidenceJson)
+            )
+            $evidenceHash = [BitConverter]::ToString($hashBytes) -replace '-'
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+
+    $violationName = "$ViolationType — $AgentName"
+    if ($violationName.Length -gt 256) {
+        $violationName = $violationName.Substring(0, 256)
     }
 
     [PSCustomObject]@{
+        ViolationName    = $violationName
         ViolationType    = $ViolationType
         AgentId          = $AgentId
         AgentName        = $AgentName
         EnvironmentId    = $EnvironmentId
         EnvironmentName  = $EnvironmentName
         Severity         = $Severity
+        ViolationStatus  = 'Open'
         Description      = $Description
+        EvidenceJson     = $EvidenceJson
         EvidenceHash     = $evidenceHash
-        PrincipalDetails = $PrincipalDetails
+        PrincipalDetail  = $PrincipalDetails
         DetectedAt       = (Get-Date -Format 'o')
     }
 }
@@ -316,7 +330,11 @@ Write-Verbose "Step 2: Enumerating Power Platform environments..."
 $envApiUrl = 'https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments?api-version=2016-11-01'
 $envResponse = Invoke-BapApi -Uri $envApiUrl -Token $token
 
-if (-not $envResponse -or -not $envResponse.value) {
+if (-not $envResponse) {
+    Write-Error "BAP API call to enumerate environments failed. Cannot produce a valid audit. Check authentication and permissions."
+    return
+}
+if (-not $envResponse.value) {
     Write-Warning "No environments returned from BAP API. Verify admin permissions."
     $environments = @()
 }
@@ -353,16 +371,33 @@ foreach ($env in $environments) {
     $envDisplayName = $env.properties.displayName
     Write-Verbose "[$environmentIndex/$envCount] Scanning environment: $envDisplayName ($envId)"
 
-    # ─── Step 3a: List agents in this environment ─────────────────────
+    # ─── Step 3a: List agents in this environment (with pagination) ──
     $agentsApiUrl = "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/environments/$envId/bots?api-version=2021-04-01"
-    $agentsResponse = Invoke-BapApi -Uri $agentsApiUrl -Token $token
+    $agents = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $agentsPageUrl = $agentsApiUrl
 
-    if (-not $agentsResponse -or -not $agentsResponse.value) {
+    while ($agentsPageUrl) {
+        $agentsResponse = Invoke-BapApi -Uri $agentsPageUrl -Token $token
+
+        if (-not $agentsResponse) {
+            Write-Verbose "  Failed to retrieve agents from '$envDisplayName'."
+            break
+        }
+
+        if ($agentsResponse.value) {
+            foreach ($a in $agentsResponse.value) {
+                $agents.Add($a)
+            }
+        }
+
+        $agentsPageUrl = $agentsResponse.'@odata.nextLink'
+    }
+
+    if ($agents.Count -eq 0) {
         Write-Verbose "  No agents found in environment '$envDisplayName'."
         continue
     }
 
-    $agents = $agentsResponse.value
     Write-Verbose "  Found $($agents.Count) agent(s) in '$envDisplayName'."
 
     # ─── Step 3b: Evaluate each agent ─────────────────────────────────
@@ -503,8 +538,7 @@ foreach ($env in $environments) {
             }
         }
         elseif ($groupPrincipals.Count -gt 0 -and $ApprovedGroupIds.Count -eq 0) {
-            # No approved list provided — flag all groups as informational warning
-            Write-Verbose "      No -ApprovedGroupIds supplied; skipping UNAPPROVED_GROUP evaluation for $($groupPrincipals.Count) group(s)"
+            Write-Warning "Agent '$agentName' shared with $($groupPrincipals.Count) security group(s) but no -ApprovedGroupIds supplied — UNAPPROVED_GROUP rule skipped"
         }
 
         # ─── Rule 4: EXCESSIVE_INDIVIDUAL ─────────────────────────────
@@ -587,6 +621,7 @@ $results = [PSCustomObject]@{
         HomeTenantId        = $HomeTenantId
         MaxIndividualShares = $MaxIndividualShares
         ApprovedGroupCount  = $ApprovedGroupIds.Count
+        Rule3Skipped        = ($ApprovedGroupIds.Count -eq 0)
         IntegrityHash       = $null
     }
     Summary = [PSCustomObject]@{
@@ -604,10 +639,16 @@ $results = [PSCustomObject]@{
 # ─── SHA-256 Evidence Hash ────────────────────────────────────────────
 if ($IncludeEvidence) {
     $resultsJson = $results | ConvertTo-Json -Depth 10 -Compress
-    $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
-        [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
-    )
-    $results.Metadata.IntegrityHash = [BitConverter]::ToString($hashBytes) -replace '-'
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hashBytes = $sha256.ComputeHash(
+            [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
+        )
+        $results.Metadata.IntegrityHash = [BitConverter]::ToString($hashBytes) -replace '-'
+    }
+    finally {
+        $sha256.Dispose()
+    }
 }
 
 # ─── Console Summary Banner ──────────────────────────────────────────
@@ -642,7 +683,7 @@ switch ($OutputFormat) {
             if ($parentDir -and -not (Test-Path $parentDir)) {
                 New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
             }
-            $json | Out-File -FilePath $OutputPath -Encoding utf8
+            $json | Out-File -FilePath $OutputPath -Encoding utf8NoBOM
             Write-Host "Results exported to: $OutputPath" -ForegroundColor Cyan
             if ($IncludeEvidence -and $results.Metadata.IntegrityHash) {
                 Write-Host "Integrity hash: $($results.Metadata.IntegrityHash)" -ForegroundColor DarkGray
@@ -678,7 +719,7 @@ switch ($OutputFormat) {
             if ($parentDir -and -not (Test-Path $parentDir)) {
                 New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
             }
-            $results | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputPath -Encoding utf8
+            $results | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputPath -Encoding utf8NoBOM
             Write-Host "Results exported to: $OutputPath" -ForegroundColor Cyan
             if ($IncludeEvidence -and $results.Metadata.IntegrityHash) {
                 Write-Host "Integrity hash: $($results.Metadata.IntegrityHash)" -ForegroundColor DarkGray

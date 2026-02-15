@@ -421,10 +421,16 @@ function Get-EvidenceHash {
     )
 
     $json = $Data | ConvertTo-Json -Depth 10 -Compress
-    $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
-        [System.Text.Encoding]::UTF8.GetBytes($json)
-    )
-    return [BitConverter]::ToString($hashBytes) -replace '-'
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hashBytes = $sha256.ComputeHash(
+            [System.Text.Encoding]::UTF8.GetBytes($json)
+        )
+        return [BitConverter]::ToString($hashBytes) -replace '-'
+    }
+    finally {
+        $sha256.Dispose()
+    }
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -487,8 +493,7 @@ $selectColumns = @(
 $queryUrl = "$baseUrl/api/data/v9.2/fsi_sharingviolations?`$select=$selectColumns&`$orderby=fsi_detectedat desc"
 
 if ($filterResult.Filter) {
-    $encodedFilter = [System.Uri]::EscapeDataString($filterResult.Filter)
-    $queryUrl += "&`$filter=$encodedFilter"
+    $queryUrl += "&`$filter=$($filterResult.Filter)"
 }
 
 $allRecords = [System.Collections.Generic.List[PSCustomObject]]::new()
@@ -538,7 +543,7 @@ if ($IncludeExceptions -and $allRecords.Count -gt 0) {
 
         if ($exResponse.value) {
             foreach ($ex in $exResponse.value) {
-                $violationId = $ex.fsi_violationid
+                $violationId = if ($ex.fsi_violationid) { $ex.fsi_violationid.ToString().ToLower() } else { $null }
                 if ($violationId -and -not $exceptionLookup.ContainsKey($violationId)) {
                     $exStatusValue = $ex.fsi_exceptionstatus
                     $exStatusName = if ($null -ne $exStatusValue -and $ExceptionStatusMap.ContainsKey([int]$exStatusValue)) {
@@ -575,8 +580,8 @@ foreach ($raw in $allRecords) {
     $record = ConvertTo-ViolationRecord -Entity $raw
 
     # Attach exception data if available
-    if ($IncludeExceptions -and $record.ViolationId -and $exceptionLookup.ContainsKey($record.ViolationId)) {
-        $exception = $exceptionLookup[$record.ViolationId]
+    if ($IncludeExceptions -and $record.ViolationId -and $exceptionLookup.ContainsKey($record.ViolationId.ToString().ToLower())) {
+        $exception = $exceptionLookup[$record.ViolationId.ToString().ToLower()]
         $record | Add-Member -NotePropertyName 'ExceptionId' -NotePropertyValue $exception.ExceptionId
         $record | Add-Member -NotePropertyName 'ExceptionApprovedBy' -NotePropertyValue $exception.ApprovedBy
         $record | Add-Member -NotePropertyName 'ExceptionApprovedOn' -NotePropertyValue $exception.ApprovedOn
@@ -589,6 +594,14 @@ foreach ($raw in $allRecords) {
 }
 
 Write-Verbose "Mapped $($mappedRecords.Count) violation record(s)."
+
+# Warn if exceptions were loaded but none matched violations
+if ($IncludeExceptions -and $exceptionLookup.Count -gt 0) {
+    $matchedCount = @($mappedRecords | Where-Object { $_.PSObject.Properties['ExceptionId'] }).Count
+    if ($matchedCount -eq 0) {
+        Write-Warning "Exception records found ($($exceptionLookup.Count)) but none matched violation IDs. Check fsi_violationid format in fsi_SharingException records."
+    }
+}
 
 # ─── Step 6: Compute Summary Statistics ──────────────────────────────
 Write-Verbose "Step 6: Computing summary statistics..."
@@ -663,7 +676,7 @@ switch ($OutputFormat) {
         if ($parentDir -and -not (Test-Path $parentDir)) {
             New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
         }
-        $mappedRecords | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding utf8
+        $mappedRecords | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding utf8NoBOM
         Write-Host "  Exported $($mappedRecords.Count) record(s) to: $OutputPath" -ForegroundColor Cyan
     }
     'JSON' {
@@ -671,7 +684,7 @@ switch ($OutputFormat) {
         if ($parentDir -and -not (Test-Path $parentDir)) {
             New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
         }
-        $results | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputPath -Encoding utf8
+        $results | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputPath -Encoding utf8NoBOM
         Write-Host "  Exported $($mappedRecords.Count) record(s) to: $OutputPath" -ForegroundColor Cyan
     }
     'Object' {

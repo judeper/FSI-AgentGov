@@ -14,8 +14,10 @@
 
 .PARAMETER InputPath
     Path to the CSV or JSON file containing approved security groups.
-    CSV must contain: GroupId, DisplayName columns.
+    CSV must contain columns: GroupId, DisplayName.
+    Optional CSV columns: Zone (defaults to DefaultZone parameter), IsActive (defaults to true).
     JSON must be an array of objects with GroupId, DisplayName properties.
+    Optional JSON properties: Zone, IsActive.
 
 .PARAMETER InputFormat
     Input file format. Valid values: CSV, JSON.
@@ -80,11 +82,6 @@ $ErrorActionPreference = 'Stop'
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host   "║  UASD — Import Approved Security Groups                ║" -ForegroundColor Cyan
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
-
-# ─── WhatIf Preview ──────────────────────────────────────────────────
-if ($WhatIf) {
-    Write-Host "  [WhatIf] Preview mode — no changes will be written to Dataverse.`n" -ForegroundColor Yellow
-}
 
 # ─── Helper Functions ────────────────────────────────────────────────
 
@@ -227,7 +224,13 @@ function Import-GroupsFromCsv {
         }
 
         $isActive = if ($null -ne $record.IsActive -and $record.IsActive -ne '') {
-            [System.Convert]::ToBoolean($record.IsActive)
+            $val = $record.IsActive.Trim()
+            if ($val -match '^(true|yes|1|y)$') { $true }
+            elseif ($val -match '^(false|no|0|n)$') { $false }
+            else {
+                Write-Warning "Unrecognized IsActive value '$val' for group '$($record.GroupId)' — defaulting to true"
+                $true
+            }
         } else {
             $true
         }
@@ -408,7 +411,8 @@ foreach ($group in $groups) {
 
     try {
         # ─── Query for existing record ────────────────────────────
-        $filterUri = "$apiBase/$entitySetName`?`$filter=fsi_entraid_group_id eq '$groupId'&`$select=fsi_approvedsecuritygroupid,fsi_entraid_group_id,fsi_display_name"
+        $escapedGroupId = $groupId -replace "'", "''"
+        $filterUri = "$apiBase/$entitySetName`?`$filter=fsi_entraid_group_id eq '$escapedGroupId'&`$select=fsi_approvedsecuritygroupid,fsi_entraid_group_id,fsi_display_name"
         $queryResult = Invoke-DataverseApi -Uri $filterUri -Token $token -Method GET
 
         $existingRecord = $null
@@ -421,7 +425,10 @@ foreach ($group in $groups) {
             fsi_display_name     = $displayName
             fsi_zone             = $zoneValue
             fsi_is_active        = $isActive
-            fsi_added_by         = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+            fsi_added_by         = if ($IsWindows -or $null -eq $IsWindows) {
+                try { [System.Security.Principal.WindowsIdentity]::GetCurrent().Name }
+                catch { $env:USERNAME ?? $env:USER ?? 'unknown' }
+            } else { $env:USER ?? 'unknown' }
             fsi_added_at         = (Get-Date -Format 'o')
         }
 
@@ -516,8 +523,10 @@ $bannerColor = if ($errorCount -gt 0) { 'Yellow' } elseif ($createdCount + $upda
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor $bannerColor
 Write-Host   "║  Import Complete                                        ║" -ForegroundColor $bannerColor
 Write-Host   "╠══════════════════════════════════════════════════════════╣" -ForegroundColor $bannerColor
-Write-Host   "║  Total: $($groups.Count.ToString().PadRight(8)) Created: $($createdCount.ToString().PadRight(6)) Updated: $($updatedCount.ToString().PadRight(7))║" -ForegroundColor $bannerColor
-Write-Host   "║  Skipped: $($skippedCount.ToString().PadRight(6)) Errors: $($errorCount.ToString().PadRight(24))║" -ForegroundColor $bannerColor
+$line1 = "  Total: $($groups.Count)   Created: $createdCount   Updated: $updatedCount"
+Write-Host   "║$($line1.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line2 = "  Skipped: $skippedCount   Errors: $errorCount"
+Write-Host   "║$($line2.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
 Write-Host   "╚══════════════════════════════════════════════════════════╝" -ForegroundColor $bannerColor
 Write-Host ""
 Write-Host "  Duration: $([math]::Round($duration, 2))s" -ForegroundColor DarkGray

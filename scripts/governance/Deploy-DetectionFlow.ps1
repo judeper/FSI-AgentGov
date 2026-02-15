@@ -74,7 +74,7 @@ param(
     [string]$EnvironmentId,
 
     [Parameter()]
-    [string]$FlowDefinitionPath = 'src/uasd-detector-scan-agents.json',
+    [string]$FlowDefinitionPath = (Join-Path 'src' 'uasd-detector-scan-agents.json'),
 
     [Parameter(Mandatory)]
     [ValidatePattern('^https://')]
@@ -324,7 +324,8 @@ function Test-ExistingFlow {
         [string]$Token
     )
 
-    $encodedName = [System.Uri]::EscapeDataString("properties/displayName eq '$FlowDisplayName'")
+    $escapedName = $FlowDisplayName -replace "'", "''"
+    $encodedName = [System.Uri]::EscapeDataString("properties/displayName eq '$escapedName'")
     $listUri = "$FLOW_API_BASE/scopes/admin/environments/$EnvironmentId/flows?api-version=2016-11-01&`$filter=$encodedName"
 
     Write-Verbose "Checking for existing flow: $FlowDisplayName"
@@ -449,7 +450,8 @@ function Set-ConnectionReference {
         [string]$Token
     )
 
-    $filterUri = "$DataverseApiBase/connectionreferences?`$filter=connectionreferencelogicalname eq '$LogicalName'&`$select=connectionreferenceid,connectionreferencelogicalname,connectionreferencedisplayname,connectionid,statecode"
+    $escapedLogicalName = $LogicalName -replace "'", "''"
+    $filterUri = "$DataverseApiBase/connectionreferences?`$filter=connectionreferencelogicalname eq '$escapedLogicalName'&`$select=connectionreferenceid,connectionreferencelogicalname,connectionreferencedisplayname,connectionid,statecode"
     Write-Verbose "Querying connection reference: $LogicalName"
 
     try {
@@ -514,7 +516,8 @@ function Set-EnvironmentVariable {
     )
 
     # Query for existing environment variable definition
-    $defUri = "$DataverseApiBase/environmentvariabledefinitions?`$filter=schemaname eq '$SchemaName'&`$select=environmentvariabledefinitionid,schemaname,displayname,defaultvalue"
+    $escapedSchemaName = $SchemaName -replace "'", "''"
+    $defUri = "$DataverseApiBase/environmentvariabledefinitions?`$filter=schemaname eq '$escapedSchemaName'&`$select=environmentvariabledefinitionid,schemaname,displayname,defaultvalue"
     Write-Verbose "Querying environment variable: $SchemaName"
 
     try {
@@ -918,9 +921,12 @@ Write-Host ""
 Write-Host "╔══════════════════════════════════════════════════════════╗" -ForegroundColor $bannerColor
 Write-Host "║  Detection Flow Deployment Complete                     ║" -ForegroundColor $bannerColor
 Write-Host "╠══════════════════════════════════════════════════════════╣" -ForegroundColor $bannerColor
-Write-Host "║  Flow:   $($FLOW_DISPLAY_NAME.PadRight(46))║" -ForegroundColor $bannerColor
-Write-Host "║  Status: $($importResult.Status.PadRight(46))║" -ForegroundColor $bannerColor
-Write-Host "║  Checks: $passedChecks/$totalChecks passed$((' ' * 40))║" -ForegroundColor $bannerColor
+$line1 = "  Flow:   $FLOW_DISPLAY_NAME"
+Write-Host "║$($line1.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line2 = "  Status: $($importResult.Status)"
+Write-Host "║$($line2.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
+$line3 = "  Checks: $passedChecks/$totalChecks passed"
+Write-Host "║$($line3.PadRight(58).Substring(0, 58))║" -ForegroundColor $bannerColor
 Write-Host "╚══════════════════════════════════════════════════════════╝" -ForegroundColor $bannerColor
 Write-Host ""
 Write-Host "  Duration: $([math]::Round($duration, 2))s" -ForegroundColor DarkGray
