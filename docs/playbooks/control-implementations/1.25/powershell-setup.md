@@ -12,17 +12,30 @@
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
+# Install Az.Accounts for automatic token acquisition (recommended)
+Install-Module -Name Az.Accounts -Force -AllowClobber
+Connect-AzAccount
+
 # Import the FsiMimeControl module (shipped with this repository)
 Import-Module ./scripts/governance/FsiMimeControl.psm1 -Force
 
 # Connect to Power Platform
 Add-PowerAppsAccount
 
+# Acquire a Dataverse access token (handles both Az.Accounts 5.0+ SecureString and older string format)
+$azToken = Get-AzAccessToken -ResourceUrl 'https://org.crm.dynamics.com'  # ← Replace with YOUR Dataverse URL
+if ($azToken.Token -is [System.Security.SecureString]) {
+    $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+} else {
+    $token = $azToken.Token
+}
+
 # Verify you can list environments
 Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName
 ```
 
-> **Note:** The `FsiMimeControl` module requires PowerShell 7.0+ and uses the Dataverse Web API to read and write MIME type restriction settings on the Organization entity. Use `Get-AdminPowerAppEnvironment` to enumerate environments and obtain Dataverse URLs.
+> **Note:** Replace `https://org.crm.dynamics.com` with your environment's Dataverse URL. The `FsiMimeControl` module requires PowerShell 7.0+ and uses the Dataverse Web API to read and write MIME type restriction settings on the Organization entity. Use `Get-AdminPowerAppEnvironment` to enumerate environments and obtain Dataverse URLs.
 
 ---
 
@@ -74,9 +87,9 @@ $config = Get-FsiMimeConfig
     Set-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token -ZoneTemplate zone2
 #>
 
-# Preview changes without applying
+# Preview changes without applying (use -Verbose to see comparison output)
 Set-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token `
-    -ZoneTemplate zone2 -WhatIf
+    -ZoneTemplate zone2 -WhatIf -Verbose
 
 # Apply Zone 2 template
 Set-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token `
@@ -140,8 +153,16 @@ Import-Module ./scripts/governance/FsiMimeControl.psm1 -Force
 
 Write-Host "=== Control 1.25 Validation ===" -ForegroundColor Cyan
 
-# Connect once (uses Az.Accounts token fallback if no explicit token)
-Connect-FsiMimeDataverse -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $token
+# Helper: acquire plaintext token for a Dataverse environment URL
+function Get-DataverseToken {
+    param([string]$ResourceUrl)
+    $azToken = Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop
+    if ($azToken.Token -is [System.Security.SecureString]) {
+        return [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+            [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+    }
+    return $azToken.Token
+}
 
 # Enumerate environments
 $environments = Get-AdminPowerAppEnvironment
@@ -154,9 +175,10 @@ foreach ($env in $environments) {
     # Determine zone from your environment classification (customize this mapping)
     $zone = 2  # Default to Zone 2; replace with your environment-to-zone mapping logic
 
-    # Validate compliance
+    # Validate compliance — acquire a token scoped to each environment's URL
     $envUrl = $env.Internal.properties.linkedEnvironmentMetadata.instanceUrl
     if ($envUrl) {
+        $token = Get-DataverseToken -ResourceUrl $envUrl
         $compliance = Test-FsiMimeCompliance -DataverseUrl $envUrl -AccessToken $token -Zone $zone
         $results += [PSCustomObject]@{
             Environment = $env.DisplayName

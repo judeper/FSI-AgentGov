@@ -267,13 +267,13 @@ Describe 'Get-FsiMimeConfig' {
 Describe 'Set-FsiMimeConfig' {
     BeforeAll {
         # Mock GET requests (for Get-FsiMimeConfig calls within Set-FsiMimeConfig)
-        Mock Invoke-RestMethod -ParameterFilter { $Method -ne 'Patch' } -MockWith {
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Get' -or -not $Method } -MockWith {
             $script:mockOrgResponse
         } -ModuleName FsiMimeControl
 
         # Mock PATCH requests
         Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
-            $script:mockOrgResponse
+            $null
         } -ModuleName FsiMimeControl
     }
 
@@ -282,10 +282,11 @@ Describe 'Set-FsiMimeConfig' {
         Should -Not -Invoke Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -ModuleName FsiMimeControl
     }
 
-    It '-WhatIf outputs planned changes to Verbose stream' {
-        $verboseOutput = Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken -ZoneTemplate zone2 -WhatIf -Verbose 4>&1
-        $verboseText = ($verboseOutput | Where-Object { $_ -is [System.Management.Automation.VerboseRecord] }).Message -join ' '
-        $verboseText | Should -Match 'WhatIf'
+    It '-WhatIf outputs planned changes visible without -Verbose' {
+        $output = Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken -ZoneTemplate zone2 -WhatIf 6>&1
+        $hostText = ($output | Where-Object { $_ -is [System.Management.Automation.InformationRecord] }).MessageData -join ' '
+        # WhatIf uses Write-Host so content shows on the information stream
+        ($output | Out-String) | Should -Match 'WhatIf'
     }
 
     It 'Template mode loads correct zone file' {
@@ -355,7 +356,7 @@ Describe 'Set-FsiMimeConfig' {
         $script:capturedBody = $null
         Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
             $script:capturedBody = $Body
-            $script:mockOrgResponse
+            $null
         } -ModuleName FsiMimeControl
 
         Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken `
@@ -363,6 +364,51 @@ Describe 'Set-FsiMimeConfig' {
         $bodyObj = $script:capturedBody | ConvertFrom-Json
         $bodyObj.PSObject.Properties.Name | Should -Contain 'blockedmimetypes'
         $bodyObj.blockedmimetypes | Should -Be 'application/x-msdownload'
+    }
+
+    It 'Template mode zone1 includes blockedmimetypes (empty string) in PATCH' {
+        $script:capturedBody = $null
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            $script:capturedBody = $Body
+            $null
+        } -ModuleName FsiMimeControl
+
+        $result = Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken -ZoneTemplate zone1 -WarningAction SilentlyContinue
+        $result.Applied | Should -BeTrue
+        $bodyObj = $script:capturedBody | ConvertFrom-Json
+        # Zone 1 template mode always sends blockedmimetypes (empty string to clear)
+        $bodyObj.PSObject.Properties.Name | Should -Contain 'blockedmimetypes'
+        $bodyObj.blockedmimetypes | Should -Be ''
+    }
+
+    It 'Template mode zone3 retries PATCH without allowedmimetypes on field error' {
+        $script:patchCallCount = 0
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            $script:patchCallCount++
+            if ($script:patchCallCount -eq 1) {
+                $ex = [System.Net.Http.HttpRequestException]::new('Bad Request: allowedmimetypes field not found')
+                throw $ex
+            }
+            $null
+        } -ModuleName FsiMimeControl
+
+        $result = Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken -ZoneTemplate zone3 -WarningAction SilentlyContinue
+        $result.Applied | Should -BeTrue
+        $result.AllowedMimeTypesSupported | Should -BeFalse
+        $script:patchCallCount | Should -Be 2
+    }
+
+    It 'Custom mode normalizes extensions to lowercase' {
+        $script:capturedBody = $null
+        Mock Invoke-RestMethod -ParameterFilter { $Method -eq 'Patch' } -MockWith {
+            $script:capturedBody = $Body
+            $null
+        } -ModuleName FsiMimeControl
+
+        Set-FsiMimeConfig -DataverseUrl $script:testUrl -AccessToken $script:testToken `
+            -BlockedExtensions @('EXE', 'Bat', 'CMD')
+        $bodyObj = $script:capturedBody | ConvertFrom-Json
+        $bodyObj.blockedattachments | Should -Be 'exe;bat;cmd'
     }
 }
 
@@ -525,6 +571,19 @@ Describe 'Connection Management' {
         Mock Invoke-RestMethod { throw 'Connection refused' } -ModuleName FsiMimeControl
 
         { Connect-FsiMimeDataverse -DataverseUrl 'https://invalid.example.com' -AccessToken $script:testToken } | Should -Throw
+    }
+
+    It 'Handles SecureString token from Az.Accounts 5.0+' {
+        function global:Get-AzAccessToken { param($ResourceUrl, $ErrorAction) }
+        Import-Module (Join-Path $PSScriptRoot 'FsiMimeControl.psm1') -Force
+        Mock Invoke-RestMethod { @{ value = @(@{ organizationid = '00000000-0000-0000-0000-000000000001' }) } } -ModuleName FsiMimeControl
+        $secureToken = ConvertTo-SecureString 'mock-secure-token-12345' -AsPlainText -Force
+        Mock Get-AzAccessToken { [PSCustomObject]@{ Token = $secureToken } } -ModuleName FsiMimeControl
+        Connect-FsiMimeDataverse -DataverseUrl $script:testUrl
+        Should -Invoke Get-AzAccessToken -ModuleName FsiMimeControl
+        $conn = Get-FsiMimeConnection
+        $conn.IsConnected | Should -BeTrue
+        Remove-Item Function:\Get-AzAccessToken -ErrorAction SilentlyContinue
     }
 
     It 'Get-FsiMimeConfig throws when no URL and no session' {

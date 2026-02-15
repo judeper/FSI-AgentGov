@@ -9,7 +9,7 @@
 1. Navigate to Power Platform Admin Center → Environments → [Environment] → Settings → Privacy + Security
 2. Locate the **Set blocked file extensions for attachments** field
 3. Compare the configured extensions against the zone template
-4. **EXPECTED:** Blocked extensions include all executable types (exe, bat, cmd, com, vbs, js, wsf, scr, pif, msi, dll, reg, inf, hta, cpl, msp, mst); Zone 2+ should also include ps1
+4. **EXPECTED:** Blocked extensions include all zone-appropriate extensions (44 for Zone 1, 45 for Zone 2, 55 for Zone 3). Use `Test-FsiMimeCompliance` for automated verification against the complete zone template.
 
 ### Test 2: Verify Blocked MIME Types Configured (Zone 2+)
 
@@ -18,7 +18,7 @@
 3. Verify MIME types are populated
 4. **EXPECTED:** Blocked MIME types include application/x-msdownload, application/x-msdos-program, application/x-bat, application/x-cmd, application/x-vbs, application/javascript, application/x-powershell, application/x-msi
 
-### Test 3: Verify Allowed MIME Types Allowlist (Zone 2+)
+### Test 3: Verify MIME Type Allowlist (Zone 2+)
 
 1. Navigate to Power Platform Admin Center → Environments → [Zone 2/3 Environment] → Settings → Privacy + Security
 2. Locate the **Set allowed mime types for attachments** field
@@ -123,6 +123,8 @@ I attest that:
 ---
 
 ## KQL Queries for Evidence
+
+> **Important:** The operation names and `AdditionalProperties` field names used in the queries below are illustrative examples. Actual values vary by tenant configuration and connector version. Before using these queries in production, run `PowerPlatformAdminActivity | take 10` in your Sentinel workspace to inspect available fields, and run `PowerPlatformAdminActivity | distinct Operation | sort by Operation` to identify the correct operation names for your environment.
 
 ### Query Blocked File Upload Events (Sentinel)
 

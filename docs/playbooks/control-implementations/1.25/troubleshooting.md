@@ -152,6 +152,7 @@ Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [P
 | Settings per environment (not per app) | All apps in an environment share the restriction | Use separate environments for different restriction levels |
 | No built-in audit trail for setting changes | Requires Sentinel connector for change tracking | Enable Power Platform admin activity connector in Sentinel |
 | Allowlist overrides blocklist | If allowlist is set, blocklist is not evaluated | Use allowlist approach for Zone 3; blocklist for Zone 1-2 |
+| `allowedmimetypes` field may not be supported | Older Dataverse versions may not expose the allowed MIME types field | Set-FsiMimeConfig will warn and apply remaining settings; configure allowlist manually in PPAC portal or request environment upgrade |
 | Propagation delay up to 15 minutes | Recent changes may not be enforced immediately | Wait 15 minutes before testing after configuration changes |
 
 ---
@@ -167,7 +168,7 @@ Get-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $tok
 ### Verify Module Is Loaded
 
 ```powershell
-Get-Module -Name FsiMimeControl | Format-Table Name, Version, Path
+Get-Module -Name FsiMimeControl | Format-Table Name, Path -AutoSize
 ```
 
 ### Quick Compliance Check

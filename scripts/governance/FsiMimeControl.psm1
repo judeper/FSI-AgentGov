@@ -70,7 +70,13 @@ function Resolve-DataverseHeaders {
     if (-not $token -and $url) {
         try {
             $azToken = Get-AzAccessToken -ResourceUrl $url -ErrorAction Stop
-            $token = $azToken.Token
+            # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
+            if ($azToken.Token -is [System.Security.SecureString]) {
+                $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+                    [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+            } else {
+                $token = $azToken.Token
+            }
             Write-Verbose "FsiMimeControl: Acquired token via Get-AzAccessToken"
         }
         catch {
@@ -80,6 +86,10 @@ function Resolve-DataverseHeaders {
 
     if (-not $url) {
         throw "No Dataverse URL specified. Provide -DataverseUrl or call Connect-FsiMimeDataverse first."
+    }
+
+    if (-not $token) {
+        throw "No access token available. Provide -AccessToken, call Connect-FsiMimeDataverse, or authenticate with Connect-AzAccount."
     }
 
     $headers = @{
@@ -143,6 +153,8 @@ function Write-OutputResult {
                 }
                 $json | Out-File -FilePath $OutputPath -Encoding utf8
                 Write-Verbose "Results exported to $OutputPath"
+                # Emit the object to the pipeline so callers can use the result
+                Write-Output $Result
             }
             else {
                 Write-Output $json
@@ -150,10 +162,10 @@ function Write-OutputResult {
         }
         'Table' {
             if ($Result.PSObject.Properties.Name -contains 'Checks') {
-                $Result.Checks | Format-Table -Property CheckId, Setting, Status, Expected, Actual -AutoSize
+                $Result.Checks | Format-Table -Property CheckId, Setting, Status, Expected, Actual -AutoSize | Out-Host
             }
             else {
-                $Result | Format-Table -AutoSize
+                $Result | Format-Table -AutoSize | Out-Host
             }
 
             if ($OutputPath) {
@@ -164,6 +176,8 @@ function Write-OutputResult {
                 $Result | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputPath -Encoding utf8
                 Write-Verbose "Results exported to $OutputPath"
             }
+
+            Write-Output $Result
         }
         'Object' {
             Write-Output $Result
@@ -215,7 +229,13 @@ function Connect-FsiMimeDataverse {
     if (-not $token) {
         try {
             $azToken = Get-AzAccessToken -ResourceUrl $url -ErrorAction Stop
-            $token = $azToken.Token
+            # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
+            if ($azToken.Token -is [System.Security.SecureString]) {
+                $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+                    [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+            } else {
+                $token = $azToken.Token
+            }
             Write-Verbose "FsiMimeControl: Acquired token via Get-AzAccessToken"
         }
         catch {
@@ -333,6 +353,9 @@ function Get-FsiMimeConfig {
     }
 
     $org = if ($response.value) { $response.value[0] } else { $response }
+    if (-not $org -or -not $org.organizationid) {
+        throw "Dataverse returned no Organization record. Verify the environment URL and permissions."
+    }
     $orgId = $org.organizationid
 
     # Parse semicolon-separated fields into arrays
@@ -350,8 +373,9 @@ function Get-FsiMimeConfig {
         $allowUri = "$($conn.Url)/api/data/v9.2/organizations?`$select=allowedmimetypes"
         $allowResponse = Invoke-RestMethod -Uri $allowUri -Headers $conn.Headers -Method Get
         $allowOrg = if ($allowResponse.value) { $allowResponse.value[0] } else { $allowResponse }
-        if ($null -ne $allowOrg.allowedmimetypes) {
-            $allowedMimeTypes = ($allowOrg.allowedmimetypes -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+        if ($null -ne $allowOrg.allowedmimetypes -and -not [string]::IsNullOrWhiteSpace($allowOrg.allowedmimetypes)) {
+            $parsed = @($allowOrg.allowedmimetypes -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+            $allowedMimeTypes = if ($parsed.Count -gt 0) { [string[]]$parsed } else { [string[]]::new(0) }
         }
     }
     catch {
@@ -468,6 +492,9 @@ function Set-FsiMimeConfig {
             throw "Zone template not found: $templatePath"
         }
         $template = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
+        if ($null -eq $template.blockedExtensions) {
+            throw "Zone template '$templatePath' is invalid: missing 'blockedExtensions' property."
+        }
         $targetExtensions = $template.blockedExtensions
         $targetMimeTypes  = $template.blockedMimeTypes
         $targetAllowed    = $template.allowedMimeTypes
@@ -477,6 +504,8 @@ function Set-FsiMimeConfig {
         $targetExtensions = $BlockedExtensions
         $targetMimeTypes  = if ($BlockedMimeTypes) { $BlockedMimeTypes } else { @() }
         $targetAllowed    = if ($AllowedMimeTypes)  { $AllowedMimeTypes }  else { @() }
+        # Normalize user-provided extensions to lowercase for Dataverse consistency
+        $targetExtensions = @($targetExtensions | ForEach-Object { $_.Trim().ToLower() })
     }
 
     # Get current configuration for comparison
@@ -485,19 +514,24 @@ function Set-FsiMimeConfig {
     # WhatIf preview
     $targetDescription = if ($templateName) { "zone template '$templateName'" } else { 'custom configuration' }
     if (-not $PSCmdlet.ShouldProcess($conn.Url, "Apply $targetDescription")) {
-        Write-Verbose "WhatIf: Current blocked extensions ($($currentConfig.BlockedExtensions.Count)): $($currentConfig.BlockedExtensions -join '; ')"
-        Write-Verbose "WhatIf: Target blocked extensions ($($targetExtensions.Count)): $($targetExtensions -join '; ')"
-        Write-Verbose "WhatIf: Current blocked MIME types ($($currentConfig.BlockedMimeTypes.Count)): $($currentConfig.BlockedMimeTypes -join '; ')"
-        Write-Verbose "WhatIf: Target blocked MIME types ($($targetMimeTypes.Count)): $($targetMimeTypes -join '; ')"
-        Write-Verbose "WhatIf: Current allowed MIME types ($( if ($currentConfig.AllowedMimeTypes) { $currentConfig.AllowedMimeTypes.Count } else { 'N/A' } ))"
-        Write-Verbose "WhatIf: Target allowed MIME types ($($targetAllowed.Count))"
+        Write-Host "  WhatIf: Current blocked extensions ($($currentConfig.BlockedExtensions.Count)): $($currentConfig.BlockedExtensions -join '; ')" -ForegroundColor DarkYellow
+        Write-Host "  WhatIf: Target blocked extensions ($($targetExtensions.Count)): $($targetExtensions -join '; ')" -ForegroundColor DarkYellow
+        Write-Host "  WhatIf: Current blocked MIME types ($($currentConfig.BlockedMimeTypes.Count)): $($currentConfig.BlockedMimeTypes -join '; ')" -ForegroundColor DarkYellow
+        Write-Host "  WhatIf: Target blocked MIME types ($($targetMimeTypes.Count)): $($targetMimeTypes -join '; ')" -ForegroundColor DarkYellow
+        Write-Host "  WhatIf: Current allowed MIME types ($( if ($currentConfig.AllowedMimeTypes) { $currentConfig.AllowedMimeTypes.Count } else { 'N/A' } ))" -ForegroundColor DarkYellow
+        Write-Host "  WhatIf: Target allowed MIME types ($($targetAllowed.Count))" -ForegroundColor DarkYellow
         return
     }
 
-    # Build PATCH body
+    # Build PATCH body — in Custom mode, only include fields the user explicitly provided
     $patchBody = @{
         blockedattachments = ($targetExtensions -join ';')
-        blockedmimetypes   = ($targetMimeTypes -join ';')
+    }
+    if ($PSCmdlet.ParameterSetName -eq 'Template' -or $PSBoundParameters.ContainsKey('BlockedMimeTypes')) {
+        if ($PSCmdlet.ParameterSetName -eq 'Template' -and $targetMimeTypes.Count -eq 0) {
+            Write-Warning "FsiMimeControl: Zone template '$templateName' defines no blocked MIME types — existing MIME type blocks will be cleared."
+        }
+        $patchBody['blockedmimetypes'] = ($targetMimeTypes -join ';')
     }
 
     # Attempt to include allowedmimetypes
@@ -517,8 +551,11 @@ function Set-FsiMimeConfig {
         Write-Verbose "FsiMimeControl: PATCH applied successfully"
     }
     catch {
-        # If allowedmimetypes field is unsupported, retry without it
-        if ($patchBody.ContainsKey('allowedmimetypes')) {
+        # If allowedmimetypes field is unsupported (HTTP 400 or field-level error), retry without it
+        $isFieldError = ($_.Exception.Response -and $_.Exception.Response.StatusCode -eq 400) -or
+                        ($_.ErrorDetails.Message -match 'allowedmimetypes') -or
+                        ($_.Exception.Message -match 'allowedmimetypes')
+        if ($patchBody.ContainsKey('allowedmimetypes') -and $isFieldError) {
             Write-Warning "FsiMimeControl: allowedmimetypes field not supported by this environment. Retrying without allowlist."
             $allowedMimeTypesSupported = $false
             $patchBody.Remove('allowedmimetypes')
@@ -626,6 +663,9 @@ function Test-FsiMimeCompliance {
         throw "Zone template not found: $templatePath"
     }
     $template = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
+    if ($null -eq $template.blockedExtensions -or $null -eq $template.blockedMimeTypes) {
+        throw "Zone template '$templatePath' is malformed: missing required 'blockedExtensions' or 'blockedMimeTypes' field."
+    }
 
     # Get current configuration
     $config = Get-FsiMimeConfig -DataverseUrl $conn.Url -AccessToken ($conn.Headers['Authorization'] -replace '^Bearer ', '')
@@ -688,7 +728,7 @@ function Test-FsiMimeCompliance {
         $missingMimes = $requiredMimes | Where-Object { $_ -notin $config.BlockedMimeTypes }
         $allMimesPresent = ($missingMimes.Count -eq 0)
         $mime04Status = if ($Zone -eq 1) {
-            if ($allMimesPresent -or $requiredMimes.Count -eq 0) { 'Info' } else { 'Info' }
+            if ($allMimesPresent) { 'Info' } else { 'Warning' }
         } else {
             if ($allMimesPresent) { 'Pass' } else { 'Fail' }
         }
@@ -806,9 +846,10 @@ function Test-FsiMimeCompliance {
 
     # ── SHA-256 Evidence Hash ────────────────────────────────────────
     if ($IncludeEvidence) {
-        $resultsJson = $result | ConvertTo-Json -Depth 10 -Compress
+        $hashInput = $result | Select-Object -Property * -ExcludeProperty EvidenceHash |
+                     ConvertTo-Json -Depth 10 -Compress
         $hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
-            [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
+            [System.Text.Encoding]::UTF8.GetBytes($hashInput)
         )
         $result.EvidenceHash = [BitConverter]::ToString($hashBytes) -replace '-'
     }

@@ -158,8 +158,8 @@ foreach ($item in $publishingItems) {
     if ($publishingScriptExists) {
         $allChecks.Add((New-CheckResult -ItemNumber $item.Number `
             -Setting $item.Setting -CheckGroup 'AgentPublishing' `
-            -Status 'Pass' `
-            -Message "Validated by restrict-agent-publishing.ps1 ($($item.AutoLevel))"))
+            -Status 'Skip' `
+            -Message "Run restrict-agent-publishing.ps1 to validate ($($item.AutoLevel))"))
     } else {
         $allChecks.Add((New-CheckResult -ItemNumber $item.Number `
             -Setting $item.Setting -CheckGroup 'AgentPublishing' `
@@ -177,7 +177,7 @@ try {
     $tenantSettings = Get-TenantSettings
 
     # Item 14 — Environment Creation Restriction
-    $devRestriction = $tenantSettings.powerPlatform.environments.disableNonAdminTrialEnvironmentCreation
+    $devRestriction = $tenantSettings.powerPlatform.environments.disableNonAdminDeveloperEnvironmentCreation
     $prodRestriction = $tenantSettings.powerPlatform.environments.disableNonAdminProductionEnvironmentCreation
     $trialRestriction = $tenantSettings.powerPlatform.environments.disableNonAdminTrialEnvironmentCreation
 
@@ -232,6 +232,9 @@ catch {
 # ═══════════════════════════════════════════════════════════════════════
 Write-Verbose "Check Group 2: Environment Settings (Items 7-8, 17)..."
 
+# Pre-initialize $environments so downstream check groups have a safe default
+$environments = @()
+
 try {
     $environments = Get-AdminPowerAppEnvironment
     if ($EnvironmentFilter) {
@@ -253,13 +256,17 @@ try {
 
         # Item 7 — Environment-Level Auditing
         if ($dataverseUrl) {
+            $dataverseUrl = $dataverseUrl.TrimEnd('/') + '/'
+            $resourceUrl = $dataverseUrl.TrimEnd('/')  # Az.Accounts rejects trailing slash
             try {
                 $orgResponse = Invoke-RestMethod -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=isauditenabled" `
-                    -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $dataverseUrl).Token)" } `
+                    -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $resourceUrl).Token)" } `
                     -Method Get -ErrorAction Stop
 
-                $isAuditEnabled = $orgResponse.value[0].isauditenabled
-                $item7Status = if ($isAuditEnabled -eq $true) { 'Pass' } else { 'Fail' }
+                # isauditenabled is a BooleanManagedProperty — extract .Value
+                $auditProp = $orgResponse.value[0].isauditenabled
+                $isAuditEnabled = if ($auditProp -is [bool]) { $auditProp } else { $auditProp.Value -eq $true }
+                $item7Status = if ($isAuditEnabled) { 'Pass' } else { 'Fail' }
 
                 $allChecks.Add((New-CheckResult -ItemNumber 7 -Setting 'Environment-level auditing' `
                     -CheckGroup 'EnvironmentSettings' -Status $item7Status `
@@ -280,7 +287,7 @@ try {
             # Item 8 — Audit Log Retention Period
             try {
                 $retResponse = Invoke-RestMethod -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=auditretentionperiodv2" `
-                    -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $dataverseUrl).Token)" } `
+                    -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $resourceUrl).Token)" } `
                     -Method Get -ErrorAction Stop
 
                 $retentionDays = $retResponse.value[0].auditretentionperiodv2
@@ -347,6 +354,10 @@ catch {
     Write-Warning "Check Group 2 (Environment Settings) failed: $($_.Exception.Message)"
     $allChecks.Add((New-CheckResult -ItemNumber 7 -Setting 'Environment-level auditing' `
         -CheckGroup 'EnvironmentSettings' -Status 'Skip' -Message "Error: $($_.Exception.Message)"))
+    $allChecks.Add((New-CheckResult -ItemNumber 8 -Setting 'Audit log retention period' `
+        -CheckGroup 'EnvironmentSettings' -Status 'Skip' -Message "Error: $($_.Exception.Message)"))
+    $allChecks.Add((New-CheckResult -ItemNumber 17 -Setting 'Environment security groups' `
+        -CheckGroup 'EnvironmentSettings' -Status 'Skip' -Message "Error: $($_.Exception.Message)"))
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -364,12 +375,16 @@ try {
     if ($defaultEnv) {
         $defaultDataverseUrl = $defaultEnv.Internal.properties.linkedEnvironmentMetadata.instanceUrl
         if ($defaultDataverseUrl) {
+            $defaultDataverseUrl = $defaultDataverseUrl.TrimEnd('/') + '/'
+            $defaultResourceUrl = $defaultDataverseUrl.TrimEnd('/')  # Az.Accounts rejects trailing slash
             $orgResponse = Invoke-RestMethod -Uri "${defaultDataverseUrl}api/data/v9.2/organizations?`$select=isauditenabled" `
-                -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $defaultDataverseUrl).Token)" } `
+                -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $defaultResourceUrl).Token)" } `
                 -Method Get -ErrorAction Stop
 
-            $tenantAuditEnabled = $orgResponse.value[0].isauditenabled
-            $item9Status = if ($tenantAuditEnabled -eq $true) { 'Pass' } else { 'Fail' }
+            # isauditenabled is a BooleanManagedProperty — extract .Value
+            $auditProp = $orgResponse.value[0].isauditenabled
+            $tenantAuditEnabled = if ($auditProp -is [bool]) { $auditProp } else { $auditProp.Value -eq $true }
+            $item9Status = if ($tenantAuditEnabled) { 'Pass' } else { 'Fail' }
 
             $allChecks.Add((New-CheckResult -ItemNumber 9 -Setting 'Tenant-level Dataverse auditing' `
                 -CheckGroup 'TenantAuditing' -Status $item9Status `
@@ -409,8 +424,11 @@ $requiredBlockedExtensions = @('ade','adp','app','asa','asp','bat','cdx','cmd','
     'pcd','pif','reg','scr','sct','shb','shs','tmp','url','vb','vbe','vbs','ws','wsc','wsf','wsh')
 
 # Critical MIME types that should be blocked
-$requiredBlockedMimeTypes = @('application/javascript','application/x-javascript','text/javascript',
-    'application/hta','application/msaccess','text/scriplet','application/xml','application/prg')
+$requiredBlockedMimeTypes = @('application/x-msdownload','application/x-msdos-program',
+    'application/x-bat','application/x-cmd','application/x-vbs',
+    'application/javascript','application/x-javascript','text/javascript',
+    'application/x-powershell','application/x-msi',
+    'application/hta','application/msaccess','text/scriptlet','application/xml','application/prg')
 
 foreach ($env in $environments) {
     $envName = $env.DisplayName
@@ -433,13 +451,17 @@ foreach ($env in $environments) {
         continue
     }
 
+    # Normalize URL to ensure trailing slash for API path construction
+    $dataverseUrl = $dataverseUrl.TrimEnd('/') + '/'
+    $resourceUrl = $dataverseUrl.TrimEnd('/')  # Az.Accounts rejects trailing slash
+
     try {
-        $securityFields = 'blockedattachments,blockedmimetypes,inaborttimeenabled,inactivitytimeoutinmins,' +
+        $securityFields = 'blockedattachments,blockedmimetypes,inactivitytimeoutinmins,' +
             'sessiontimeoutenabled,sessiontimeoutinmins,isaborttimeenabled,' +
             'iscontentsecuritypolicyenabled,contentsecuritypolicyoptions'
         $orgResponse = Invoke-RestMethod `
             -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=$securityFields" `
-            -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $dataverseUrl).Token)" } `
+            -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $resourceUrl).Token)" } `
             -Method Get -ErrorAction Stop
 
         $org = $orgResponse.value[0]
@@ -491,8 +513,7 @@ foreach ($env in $environments) {
         }
 
         # Item 30 — Inactivity Timeout
-        # Note: Field names vary by Dataverse version; try both patterns
-        $inactivityEnabled = $org.inaborttimeenabled -eq $true -or $org.isaborttimeenabled -eq $true
+        $inactivityEnabled = $org.isaborttimeenabled -eq $true
         $inactivityMinutes = $org.inactivitytimeoutinmins
 
         if ($inactivityEnabled -and $inactivityMinutes -and $inactivityMinutes -le 120) {

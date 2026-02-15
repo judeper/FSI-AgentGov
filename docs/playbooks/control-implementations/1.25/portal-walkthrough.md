@@ -26,17 +26,22 @@
 
 1. Locate the **Set blocked file extensions for attachments** field
 2. Enter a semicolon-separated list of file extensions to block
-3. Recommended baseline extensions to block:
+3. The following is a **partial list** of the most critical executable extensions. The complete Zone 1 baseline requires **44 extensions** — use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) for the full list:
 
     ```
     exe;bat;cmd;com;vbs;js;wsf;scr;pif;msi;dll;reg;inf;hta;cpl;msp;mst
     ```
 
+    !!! warning "Partial List"
+        The inline list above covers only 17 of the 44 required Zone 1 extensions. Using this list alone will leave your environment **under-protected**. Apply the complete zone template via PowerShell or copy the full list from `scripts/governance/mime-templates/zone1.json`.
+
 4. Click **Save** to apply changes
 
-> **Note:** The list above covers the most critical executable extensions for a Zone 1 baseline. Zone 2+ environments should also add `ps1` to the blocklist. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 55 for Zone 3) including additional types such as `.jar`, `.lnk`, `.vbe`, `.wsh`, and others. For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
+> **Note:** Zone 2+ environments should also block `ps1`. Zone 3 adds `cab`, `gadget`, `ps1xml`, `ps2`, `ps2xml`, `psc1`, `psc2`, `isp`, `its`, `rgs`, and `ins`. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 55 for Zone 3). For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
 
 ### Step 3: Configure Blocked MIME Types (Zone 2+)
+
+> **Zone 2 and Zone 3 only.** Skip this step for Zone 1 environments.
 
 1. Locate the **Set blocked mime types for attachments** field
 2. Enter a semicolon-separated list of MIME types to block
