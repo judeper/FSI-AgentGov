@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.50] — February 2026 (UASD Connection Reference Warning)
+
+### Fixed
+
+#### Unrestricted Agent Sharing Detector (UASD)
+- **Connection reference script name mismatch warning:** Added `!!! warning` admonition in deployment guide Phase 1 Step 3 alerting customers that `create_uasd_connection_references.py` creates references with `_uasd` suffix names while flow JSONs expect `_sharingdetector` suffix names. Advises manual creation with correct names until script is updated. Discovered via 8-agent deep-dive review (4 standard + 4 Opus).
+
+---
+
 ## [1.2.49] — February 2026 (Five-Solution Deep Dive Corrections)
 
 ### Overview
