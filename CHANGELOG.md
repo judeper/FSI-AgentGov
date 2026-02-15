@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Overview
 
-Cross-repo accuracy and completeness review of five solutions, fixing control reference errors, script name mismatches, documentation gaps, and flow configuration issues.
+Cross-repo accuracy and completeness review of five solutions, including a deep audit of the UASD solution using 7 parallel review agents. Discovered and fixed 18 UASD bugs (5 BLOCKING, 12 HIGH, 1 LOW) across scripts and documentation that would have caused customer deployment failures.
 
 ### Fixed
 
@@ -31,10 +31,22 @@ Cross-repo accuracy and completeness review of five solutions, fixing control re
 - **Governance scripts:** Fixed SecureString token handling in `Set-InactivityTimeout.ps1`
 
 #### Unrestricted Agent Sharing Detector (UASD)
-- Fixes committed in prior commits (env vars, checklist count, version footer, deployment scripts)
+- **Schema deployment failure:** Added missing `@odata.type: OptionSetMetadata` to all 7 UASD option set definitions — Dataverse API would return HTTP 400 without it
+- **Dry-run mode crash:** Added dry-run guard to `_create_table_with_columns` in schema script — was making live API calls during `--dry-run`
+- **CAAClient missing methods:** Added `execute_query()` and `upsert_record()` to `caa_client.py` — remediation script called non-existent methods
+- **Constructor kwarg mismatch:** Fixed `org_url` → `environment_url` in `remediate_agent_sharing.py` — caused `TypeError` at runtime
+- **Unnecessary module requirement:** Removed unused `Microsoft.PowerApps.Administration.PowerShell` from `Invoke-SharingAudit.ps1` `#Requires` — blocked execution on machines without the module
+- **Unverifiable evidence hash:** Fixed `Invoke-SharingAudit.ps1` to hash only Violations+AgentSettings, avoiding circular reference that made SHA-256 hash unverifiable for audit
+- **Idempotency bug:** Fixed `Deploy-DetectionFlow.ps1` to always set scan frequency environment variable regardless of value — previously skipped when using default 24h
+- **Zone 2 false positives:** Fixed `remediate_agent_sharing.py` substring matching (`"public" in name`) to exact matching — was incorrectly removing legitimate groups
+- **Unapproved verb:** Renamed `Build-ODataFilter` → `New-ODataFilter` in `Export-ViolationReport.ps1`
 
 #### MIME Type Restrictions (1.25)
 - Fixes committed in prior commits (KQL fields, rollback docs, design decisions)
+
+### Changed
+
+- **UASD Deployment guide:** Added CAA schema prerequisite section, companion repo clone instructions, explicit DataverseUrl configuration step, Python working directory note, full CLI auth examples for Steps 2–3, CSV format example for approved groups, corrected canvas app import format (.zip not .json), and 2 new troubleshooting entries
 
 ---
 

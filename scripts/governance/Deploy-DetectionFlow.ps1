@@ -842,27 +842,14 @@ Write-Verbose "Step 6: Configuring scan frequency..."
 Write-Host "  Step 6: Configuring scan frequency..." -ForegroundColor Gray
 
 $envVarResult = $null
-if ($ScanFrequencyHours -ne 24) {
-    Write-Verbose "Non-default scan frequency requested: $ScanFrequencyHours hours"
-    $envVarResult = Set-EnvironmentVariable `
-        -SchemaName $ENV_VAR_SCAN_FREQUENCY `
-        -Value $ScanFrequencyHours.ToString() `
-        -DataverseApiBase $dvApiBase `
-        -Token $dvToken
+Write-Verbose "Setting scan frequency to $ScanFrequencyHours hours"
+$envVarResult = Set-EnvironmentVariable `
+    -SchemaName $ENV_VAR_SCAN_FREQUENCY `
+    -Value $ScanFrequencyHours.ToString() `
+    -DataverseApiBase $dvApiBase `
+    -Token $dvToken
 
-    Write-Host "    $ENV_VAR_SCAN_FREQUENCY = $ScanFrequencyHours ($($envVarResult.Status))" -ForegroundColor Green
-}
-else {
-    Write-Verbose "Using default scan frequency (24 hours) — no update needed"
-    Write-Host "    Using default scan frequency (24 hours)" -ForegroundColor Gray
-
-    $envVarResult = [PSCustomObject]@{
-        SchemaName = $ENV_VAR_SCAN_FREQUENCY
-        Status     = 'Default'
-        Value      = '24'
-        Updated    = $false
-    }
-}
+Write-Host "    $ENV_VAR_SCAN_FREQUENCY = $ScanFrequencyHours ($($envVarResult.Status))" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════════════
 # Step 7: Validate Deployment

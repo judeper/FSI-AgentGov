@@ -62,7 +62,6 @@
 
 #Requires -Version 7.0
 #Requires -Modules Az.Accounts
-#Requires -Modules @{ ModuleName = 'Microsoft.PowerApps.Administration.PowerShell'; ModuleVersion = '2.0.0' }
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -638,11 +637,18 @@ $results = [PSCustomObject]@{
 
 # ─── SHA-256 Evidence Hash ────────────────────────────────────────────
 if ($IncludeEvidence) {
-    $resultsJson = $results | ConvertTo-Json -Depth 10 -Compress
+    # Hash over evidence data only (Violations + AgentSettings) so the hash
+    # is verifiable — including Metadata would create a circular reference
+    # because IntegrityHash is stored inside Metadata.
+    $evidencePayload = [PSCustomObject]@{
+        Violations    = $results.Violations
+        AgentSettings = $results.AgentSettings
+    }
+    $evidenceJson = $evidencePayload | ConvertTo-Json -Depth 10 -Compress
     $sha256 = [System.Security.Cryptography.SHA256]::Create()
     try {
         $hashBytes = $sha256.ComputeHash(
-            [System.Text.Encoding]::UTF8.GetBytes($resultsJson)
+            [System.Text.Encoding]::UTF8.GetBytes($evidenceJson)
         )
         $results.Metadata.IntegrityHash = [BitConverter]::ToString($hashBytes) -replace '-'
     }

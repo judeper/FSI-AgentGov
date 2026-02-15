@@ -279,6 +279,69 @@ class CAAClient:
         resp.raise_for_status()
         logger.info("Updated record %s in %s", record_id, entity_set)
 
+    def execute_query(
+        self, query: str
+    ) -> List[Dict[str, Any]]:
+        """Execute a raw OData query URL against the Dataverse API.
+
+        Parameters
+        ----------
+        query
+            Relative OData query string (e.g.
+            ``fsi_approvedsecuritygrouppolicies?$filter=...``).
+
+        Returns
+        -------
+        list[dict]
+            The ``value`` array from the OData response, or an empty list.
+        """
+        url = f"{self.api_url}/{query}"
+        resp = self._session.get(url, headers=self._get_headers(), timeout=60)
+        resp.raise_for_status()
+        return resp.json().get("value", [])
+
+    def upsert_record(
+        self,
+        entity_set: str,
+        alternate_key: str,
+        data: Dict[str, Any],
+    ) -> str:
+        """Upsert (insert-or-update) a record using an alternate key.
+
+        Parameters
+        ----------
+        entity_set
+            Dataverse entity set name (e.g. ``fsi_agentsharingcompliances``).
+        alternate_key
+            OData alternate-key expression, e.g.
+            ``fsi_agent_id='abc',fsi_environment_id='env1'``.
+        data
+            Record payload.
+
+        Returns
+        -------
+        str
+            ``'created'`` or ``'updated'`` indicating the operation performed.
+        """
+        if self.dry_run:
+            print(f"[DRY-RUN] Would upsert record in {entity_set}({alternate_key})")
+            logger.info(
+                "[DRY-RUN] Would upsert record in %s(%s)",
+                entity_set,
+                alternate_key,
+            )
+            return "dry-run"
+
+        url = f"{self.api_url}/{entity_set}({alternate_key})"
+        headers = self._get_headers()
+        headers["If-Match"] = "*"  # upsert semantics
+        resp = self._session.patch(url, headers=headers, json=data, timeout=60)
+        # 204 = updated, if header wasn't matched Dataverse creates
+        resp.raise_for_status()
+        action = "updated" if resp.status_code == 204 else "created"
+        logger.info("Upsert %s in %s(%s)", action, entity_set, alternate_key)
+        return action
+
     # ------------------------------------------------------------------
     # Metadata helpers
     # ------------------------------------------------------------------

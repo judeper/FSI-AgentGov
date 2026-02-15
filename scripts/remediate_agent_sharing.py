@@ -221,10 +221,14 @@ def get_zone_remediation_principals(
             display_name = principal.get("displayName", "").lower()
             
             # Skip Everyone, Public, organization-wide principals
+            # Use exact matching to avoid removing legitimate groups
+            # whose names contain these words (e.g., "Republic Team")
+            _system_names = {"everyone", "everyone except external users",
+                             "public", "all users", "all"}
             if (
-                "everyone" in display_name
-                or "public" in display_name
+                display_name in _system_names
                 or principal_id in ["everyone", "public", "all"]
+                or principal_type in ["organization", "tenant"]
             ):
                 logger.debug(
                     "Zone 2: Removing Everyone/Public principal: %s", display_name
@@ -944,7 +948,7 @@ def main():
         )
         
         dataverse_client = CAAClient(
-            org_url=os.environ.get("DATAVERSE_ORG_URL"),
+            environment_url=os.environ.get("DATAVERSE_ORG_URL") or os.environ.get("CAA_ENVIRONMENT_URL"),
             tenant_id=args.tenant_id or os.environ.get("BAP_TENANT_ID"),
             client_id=args.client_id or os.environ.get("BAP_CLIENT_ID"),
             client_secret=args.client_secret or os.environ.get("BAP_CLIENT_SECRET"),

@@ -51,7 +51,6 @@ This guide walks through end-to-end deployment of the UASD solution, from Datave
 | Python | 3.9+ | Schema and configuration deployment scripts |
 | PowerShell | 7.0+ | Governance scripts (audit, export, import) |
 | Az.Accounts module | Latest | Dataverse OAuth authentication |
-| Microsoft.PowerApps.Administration.PowerShell | 2.0.0+ | On-demand sharing audit |
 
 ```powershell
 # Verify PowerShell version
@@ -59,10 +58,43 @@ $PSVersionTable.PSVersion
 
 # Install required modules
 Install-Module -Name Az.Accounts -Scope CurrentUser -Force
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
 
 # Install Python dependencies
 pip install -r scripts/requirements.txt
+```
+
+### Required Repositories
+
+| Repository | Purpose |
+|------------|---------|
+| **FSI-AgentGov** (this repo) | Documentation, Python deployment scripts, PowerShell governance scripts |
+| **FSI-AgentGov-Solutions** (companion) | Power Automate flow definitions, canvas app package |
+
+!!! warning "Companion Repository Required"
+    The flow JSON files and canvas app package used in Phases 2–3 are located in the **FSI-AgentGov-Solutions** companion repository. Clone it alongside this repository before proceeding:
+
+    ```bash
+    git clone https://github.com/<your-org>/FSI-AgentGov-Solutions.git
+    ```
+
+### Prerequisite Deployments
+
+The UASD Dataverse schema depends on the shared `fsi_acv_zone` global option set created by the CAA (Conditional Access Automation) schema. Deploy the CAA schema first if it has not already been provisioned in your environment:
+
+```powershell
+cd scripts
+python create_dataverse_schema.py --dry-run `
+    --environment-url "https://<your-org>.crm.dynamics.com" `
+    --tenant-id "<your-tenant-id>" `
+    --client-id "<your-app-client-id>" `
+    --client-secret "<your-app-client-secret>"
+
+# After verifying, deploy without --dry-run
+python create_dataverse_schema.py `
+    --environment-url "https://<your-org>.crm.dynamics.com" `
+    --tenant-id "<your-tenant-id>" `
+    --client-id "<your-app-client-id>" `
+    --client-secret "<your-app-client-secret>"
 ```
 
 ---
@@ -73,9 +105,14 @@ pip install -r scripts/requirements.txt
 
 The schema deployment script creates five Dataverse tables with the `fsi_` publisher prefix.
 
+!!! note "Working Directory"
+    All Python scripts must be run from the `scripts/` directory so that the `caa_client` module can be found. Use `cd scripts` before running the commands below.
+
 ```powershell
+cd scripts
+
 # Option A: Use CLI arguments (recommended)
-python scripts/create_uasd_dataverse_schema.py --dry-run `
+python create_uasd_dataverse_schema.py --dry-run `
     --environment-url "https://<your-org>.crm.dynamics.com" `
     --tenant-id "<your-tenant-id>" `
     --client-id "<your-app-client-id>" `
@@ -88,10 +125,10 @@ $env:CAA_CLIENT_SECRET = "<your-app-client-secret>"
 $env:CAA_TENANT_ID = "<your-tenant-id>"
 
 # Deploy schema (dry-run first)
-python scripts/create_uasd_dataverse_schema.py --dry-run
+python create_uasd_dataverse_schema.py --dry-run
 
 # Deploy schema (production)
-python scripts/create_uasd_dataverse_schema.py
+python create_uasd_dataverse_schema.py
 ```
 
 This creates the following tables:
@@ -108,8 +145,13 @@ This creates the following tables:
 
 ```powershell
 # Deploy environment variables for flow configuration
-# Uses the same authentication from Step 1 (CLI arguments or environment variables)
-python scripts/create_uasd_environment_variables.py
+# If you used Option A (CLI args) in Step 1, pass the same arguments again.
+# If you used Option B (env vars), they are already set in your session.
+python create_uasd_environment_variables.py `
+    --environment-url "https://<your-org>.crm.dynamics.com" `
+    --tenant-id "<your-tenant-id>" `
+    --client-id "<your-app-client-id>" `
+    --client-secret "<your-app-client-secret>"
 ```
 
 Key environment variables created:
@@ -128,17 +170,30 @@ Key environment variables created:
 | `fsi_UASD_DataverseUrl` | Dataverse environment URL |
 
 !!! info "Variables Requiring Manual Configuration"
-    The deployment script creates all 10 variables with default or empty values. Several must be configured manually before the flows will function correctly — these are covered in Phase 3 (Steps 4–6): `fsi_UASD_SecurityApproverEmail`, `fsi_UASD_DataOwnerApproverEmail`, `fsi_UASD_HomeTenantId`, `fsi_UASD_TeamsGroupId`, and `fsi_UASD_DataverseUrl`. Set `fsi_UASD_DataverseUrl` to your environment URL (e.g., `https://<your-org>.crm.dynamics.com`) during Phase 1 verification or before running the detection flow.
+    The deployment script creates all 10 variables with default or empty values. Several must be configured manually before the flows will function correctly: `fsi_UASD_DataverseUrl` (configured in Phase 1, Step 4), `fsi_UASD_SecurityApproverEmail`, `fsi_UASD_DataOwnerApproverEmail`, `fsi_UASD_HomeTenantId`, and `fsi_UASD_TeamsGroupId` (covered in Phase 3, Steps 4–6).
 
 ### Step 3: Deploy Connection References
 
 ```powershell
 # Deploy connection references
-# Uses the same authentication from Step 1 (CLI arguments or environment variables)
-python scripts/create_uasd_connection_references.py
+# Pass the same authentication arguments (or use env vars set in Step 1)
+python create_uasd_connection_references.py `
+    --environment-url "https://<your-org>.crm.dynamics.com" `
+    --tenant-id "<your-tenant-id>" `
+    --client-id "<your-app-client-id>" `
+    --client-secret "<your-app-client-secret>"
 ```
 
-### Step 4: Verify Infrastructure
+### Step 4: Configure Dataverse URL Variable
+
+Set the `fsi_UASD_DataverseUrl` environment variable so the detection flow can locate your Dataverse environment:
+
+1. Navigate to [Power Apps](https://make.powerapps.com)
+2. Go to **Solutions** > **UASD** > **Environment variables**
+3. Edit `fsi_UASD_DataverseUrl`
+4. Set the value to your environment URL (e.g., `https://<your-org>.crm.dynamics.com`)
+
+### Step 5: Verify Infrastructure
 
 1. Navigate to [Power Apps](https://make.powerapps.com)
 2. Select the target environment
@@ -343,13 +398,22 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
 
 The CSV file must contain `GroupId` and `DisplayName` columns. Optional columns: `Zone` (defaults to the `-DefaultZone` parameter value or `All`) and `IsActive` (defaults to `true`).
 
+Example CSV format:
+
+```csv
+GroupId,DisplayName,Zone,IsActive
+00000000-0000-0000-0000-000000000001,Finance Team,Zone3,true
+00000000-0000-0000-0000-000000000002,Compliance Officers,Zone2,true
+00000000-0000-0000-0000-000000000003,Executive Assistants,All,true
+```
+
 ### Step 10: Import Exception Manager App
 
-Import the canvas app for managing exceptions:
+Import the canvas app solution package for managing exceptions:
 
 1. Navigate to [Power Apps](https://make.powerapps.com)
 2. Go to **Solutions** > **Import solution**
-3. Select `unrestricted-agent-sharing-detector/src/uasd-exception-manager-app.json` from FSI-AgentGov-Solutions
+3. Select the UASD exception manager solution package (`.zip` file) from the FSI-AgentGov-Solutions companion repository under `unrestricted-agent-sharing-detector/src/`
 4. Complete the import wizard and bind connection references
 5. Share the app with compliance officers who will manage exceptions
 
@@ -437,6 +501,8 @@ Generate the first violation report to validate export functionality:
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
+| **Python `ModuleNotFoundError: caa_client`** | Script run from wrong directory | Run Python scripts from the `scripts/` directory: `cd scripts` then `python create_uasd_dataverse_schema.py ...` |
+| **Schema deployment: `fsi_acv_zone not found`** | CAA schema not deployed | Run `python create_dataverse_schema.py` first to create shared option sets before the UASD schema |
 | **Az.Accounts token failure** | Not signed in or expired session | Run `Connect-AzAccount` and verify the account has Dataverse access |
 | **Dataverse 403 Forbidden** | Insufficient Dataverse permissions | Assign System Administrator or System Customizer security role to the service account |
 | **Schema deployment fails** | Missing Python dependencies or incorrect environment URL | Run `pip install -r scripts/requirements.txt`; verify `CAA_ENVIRONMENT_URL` format includes `https://` |

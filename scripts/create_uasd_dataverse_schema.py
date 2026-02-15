@@ -50,6 +50,7 @@ logger = logging.getLogger(__name__)
 
 SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
     "fsi_UASD_sharingscope": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_sharingscope",
         "DisplayName": {
             "LocalizedLabels": [
@@ -94,6 +95,7 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "fsi_UASD_violationtype": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_violationtype",
         "DisplayName": {
             "LocalizedLabels": [
@@ -146,6 +148,7 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "fsi_UASD_violationstatus": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_violationstatus",
         "DisplayName": {
             "LocalizedLabels": [
@@ -190,6 +193,7 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "fsi_UASD_exceptionstatus": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_exceptionstatus",
         "DisplayName": {
             "LocalizedLabels": [
@@ -234,6 +238,7 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "fsi_UASD_authmode": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_authmode",
         "DisplayName": {
             "LocalizedLabels": [
@@ -262,6 +267,7 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "fsi_UASD_severity": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_severity",
         "DisplayName": {
             "LocalizedLabels": [
@@ -306,6 +312,7 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "fsi_UASD_dataclassification": {
+        "@odata.type": "Microsoft.Dynamics.CRM.OptionSetMetadata",
         "Name": "fsi_UASD_dataclassification",
         "DisplayName": {
             "LocalizedLabels": [
@@ -673,6 +680,13 @@ def _create_table_with_columns(
     """Create a table and then add its columns (idempotent)."""
     logical_name = table_def["SchemaName"].lower()
     schema_name = table_def["SchemaName"]
+
+    if dry_run:
+        print(f"  [DRY-RUN] Would create table {schema_name}")
+        for col in columns:
+            col_name = col.get("SchemaName", "unknown")
+            print(f"    [DRY-RUN] Would add column {col_name}")
+        return
 
     created = client.create_table(table_def)
     if created:

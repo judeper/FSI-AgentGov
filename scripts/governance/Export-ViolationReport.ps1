@@ -269,7 +269,7 @@ function Invoke-DataverseApi {
     }
 }
 
-function Build-ODataFilter {
+function New-ODataFilter {
     <#
     .SYNOPSIS
         Constructs an OData $filter string from the provided parameters.
@@ -455,7 +455,7 @@ catch {
 # ─── Step 2: Build OData Filter ──────────────────────────────────────
 Write-Verbose "Step 2: Building OData filter..."
 
-$filterResult = Build-ODataFilter `
+$filterResult = New-ODataFilter `
     -FilterStartDate $StartDate `
     -FilterEndDate $EndDate `
     -FilterViolationType $ViolationType `
