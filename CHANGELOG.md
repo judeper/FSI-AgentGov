@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Overview
 
-Cross-repo accuracy and completeness review of five solutions, including a deep audit of the UASD solution using 7 parallel review agents. Discovered and fixed 18 UASD bugs (5 BLOCKING, 12 HIGH, 1 LOW) across scripts and documentation that would have caused customer deployment failures.
+Cross-repo accuracy and completeness review of five solutions, including a deep audit of the UASD solution using 7 parallel review agents and a deep audit of the MIME Type Restrictions solution using 5 parallel review agents. Discovered and fixed 18 UASD bugs (5 BLOCKING, 12 HIGH, 1 LOW) and 16 MIME bugs (4 CRITICAL, 3 DATA, 4 DOCS, 5 MINOR) across scripts and documentation that would have caused customer deployment failures.
 
 ### Fixed
 
@@ -50,8 +50,19 @@ Cross-repo accuracy and completeness review of five solutions, including a deep 
 - **Zone 2 false positives:** Fixed `remediate_agent_sharing.py` substring matching (`"public" in name`) to exact matching — was incorrectly removing legitimate groups
 - **Unapproved verb:** Renamed `Build-ODataFilter` → `New-ODataFilter` in `Export-ViolationReport.ps1`
 
-#### MIME Type Restrictions (1.25)
-- Fixes committed in prior commits (KQL fields, rollback docs, design decisions)
+#### MIME Type Restrictions (1.25) — Deep Dive Round 2
+- **SecureString token crash (CRITICAL):** Fixed `register-plugin.ps1` and `test-plugin.ps1` — `Get-AzAccessToken` returns SecureString on Az.Accounts ≥5.0, causing all API calls to fail with 401 Unauthorized (`"Bearer System.Security.SecureString"`)
+- **Zone 1 false positives (CRITICAL):** Fixed `validate-exceptions.ps1` — empty allowlist in Zone 1 template flagged ALL environment MIME types as "Unauthorized"
+- **ConfigPath default (CRITICAL):** Fixed `register-plugin.ps1` — default `src/MimeConfig.json` was CWD-relative and non-existent; changed to `$PSScriptRoot`-relative `mime-templates/zone3.json`
+- **Fabricated MIME type:** Removed `application/prg` (not IANA-registered) from zone2.json and zone3.json; replaced with `application/vnd.ms-access` (correct type for Access databases)
+- **Zone inversion:** Added `image/tiff` to zone2.json allowlist — was only in zone3, violating zone escalation model where Zone 2 must be less restrictive
+- **Content-Type on GET requests:** Moved `Content-Type: application/json` header in `register-plugin.ps1` to only apply when request body is present
+- **WhatIf output hidden:** Changed `validate-exceptions.ps1` WhatIf preview from `Write-Verbose` to `Write-Host` for visibility without `-Verbose` flag
+- **Banner alignment:** Fixed middle banner line width (59→60 chars) in `FsiMimeControl.psm1`, `register-plugin.ps1`, `test-plugin.ps1`
+- **Test count documentation:** Updated test count from 32 to 40 in `FsiMimeControl.Tests.ps1` header and `README.md`
+- **Legacy Office warning:** Added prominent admonition to portal-walkthrough warning that Zone 2/3 allowlists exclude `.doc/.xls/.ppt` — common in FSI regulatory correspondence
+- **Portal walkthrough allowlist:** Updated inline allowlist to include `image/tiff` and corrected zone note
+- **Duplicate component:** Removed duplicate `mime-type-exceptions.csv` entry in solutions-index.md
 
 ### Changed
 
