@@ -32,7 +32,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_dataverse_conditionalaccessautomation",
         "display_name": "Dataverse - Conditional Access Automation",
-        "connector_id": "shared_commondataserviceforapps",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
         "description": (
             "Table CRUD for baselines, history, violations"
         ),
@@ -40,7 +40,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_office365_conditionalaccessautomation",
         "display_name": "Office 365 - Conditional Access Automation",
-        "connector_id": "shared_office365",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_office365",
         "description": (
             "Email notification delivery"
         ),
@@ -48,7 +48,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_teams_conditionalaccessautomation",
         "display_name": "Teams - Conditional Access Automation",
-        "connector_id": "shared_teams",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_teams",
         "description": (
             "Adaptive card alert delivery"
         ),
@@ -56,7 +56,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_graph_conditionalaccessautomation",
         "display_name": "Microsoft Graph - Conditional Access Automation",
-        "connector_id": "shared_microsoftgraphconnector",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_microsoftgraphconnector",
         "description": (
             "CA policy reads from Power Automate flows"
         ),

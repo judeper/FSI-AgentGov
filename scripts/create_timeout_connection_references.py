@@ -32,15 +32,15 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_dataverse_inactivitytimeout",
         "display_name": "Dataverse - Inactivity Timeout Enforcement",
-        "connector_id": "shared_commondataserviceforapps",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
         "description": (
             "Policy, compliance, and error-log table CRUD"
         ),
     },
     {
-        "logical_name": "fsi_cr_office365_inactivitytimeout",
-        "display_name": "Office 365 - Inactivity Timeout Enforcement",
-        "connector_id": "shared_office365",
+        "logical_name": "fsi_cr_powerplatformforadmins_inactivitytimeout",
+        "display_name": "Power Platform for Admins - Inactivity Timeout Enforcement",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_powerplatformforadmins",
         "description": (
             "Email notifications for compliance alerts"
         ),

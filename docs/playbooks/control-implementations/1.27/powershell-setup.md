@@ -388,7 +388,7 @@ IT Helpdesk Agent,Zone 2,High
 ## Automation Notes
 
 - **Scheduled Execution:** Run Script 1 (inventory) weekly for Zone 3, monthly for Zone 2, quarterly for Zone 1
-- **Audit Monitoring:** Run Script 2 (audit log) daily in Zone 3 environments to detect unauthorized moderation changes
+- **Audit Monitoring:** Run Script 2 (audit log) daily in Zone 3 environments to detect unauthorized moderation changes between formal weekly reviews
 - **Compliance Validation:** Run Script 3 (zone compliance) before quarterly governance reviews
 - **Topic Override Review:** Run Script 4 (topic overrides) before deploying agents with custom topics
 

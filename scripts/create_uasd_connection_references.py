@@ -32,7 +32,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_dataverse_sharingdetector",
         "display_name": "Dataverse - Sharing Detector",
-        "connector_id": "shared_commondataserviceforapps",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
         "description": (
             "Table CRUD for sharing settings, violations, exceptions, policies"
         ),
@@ -40,7 +40,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_teams_sharingdetector",
         "display_name": "Teams - Sharing Detector",
-        "connector_id": "shared_teams",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_teams",
         "description": (
             "Adaptive card alert delivery for sharing violations"
         ),
@@ -48,7 +48,7 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
     {
         "logical_name": "fsi_cr_approvals_sharingdetector",
         "display_name": "Approvals - Sharing Detector",
-        "connector_id": "shared_approvals",
+        "connector_id": "/providers/Microsoft.PowerApps/apis/shared_approvals",
         "description": (
             "Approval workflows for exception requests and remediation actions"
         ),
@@ -75,6 +75,16 @@ def create_connection_reference(
     """
     logical_name = ref_def["logical_name"]
 
+    if dry_run:
+        print(
+            f"  [DRY-RUN] Would create {logical_name} "
+            f"(connector={ref_def['connector_id']})"
+        )
+        logger.info(
+            "[DRY-RUN] Would create connection reference %s", logical_name
+        )
+        return True
+
     # Check existence by logical name
     existing = client.query(
         "connectionreferences",
@@ -94,16 +104,6 @@ def create_connection_reference(
         "connectorid": ref_def["connector_id"],
         "description": ref_def["description"],
     }
-
-    if dry_run:
-        print(
-            f"  [DRY-RUN] Would create {logical_name} "
-            f"(connector={ref_def['connector_id']})"
-        )
-        logger.info(
-            "[DRY-RUN] Would create connection reference %s", logical_name
-        )
-        return True
 
     print(f"  Creating {logical_name} ...")
     try:

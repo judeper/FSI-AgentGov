@@ -21,6 +21,10 @@ from caa_client import CAAClient
 
 logger = logging.getLogger(__name__)
 
+# Dataverse Environment Variable Type Codes
+ENV_VAR_TYPE_STRING = 100000000
+ENV_VAR_TYPE_DECIMAL = 100000001
+
 # =========================================================================
 # Environment variable definitions
 # =========================================================================
@@ -29,7 +33,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_AutoRemediatePublicLink",
         "display_name": "UASD - Auto Remediate Public Link",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "false",
         "description": (
             "Whether public internet link violations are auto-remediated "
@@ -39,7 +43,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_ScanFrequencyHours",
         "display_name": "UASD - Scan Frequency (Hours)",
-        "type": 100000001,  # Decimal
+        "type": ENV_VAR_TYPE_DECIMAL,
         "default_value": "24",
         "description": (
             "Detector flow recurrence interval in hours"
@@ -48,7 +52,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_HomeTenantId",
         "display_name": "UASD - Home Tenant ID",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "",
         "description": (
             "Home tenant GUID for cross-tenant access detection"
@@ -57,7 +61,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_DefaultExceptionDays",
         "display_name": "UASD - Default Exception Days",
-        "type": 100000001,  # Decimal
+        "type": ENV_VAR_TYPE_DECIMAL,
         "default_value": "90",
         "description": (
             "Default exception duration in days before expiration"
@@ -66,7 +70,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_SecurityApproverEmail",
         "display_name": "UASD - Security Approver Email",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "",
         "description": (
             "Security team approver email for dual-approval workflow"
@@ -75,7 +79,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_DataOwnerApproverEmail",
         "display_name": "UASD - Data Owner Approver Email",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "",
         "description": (
             "Data owner approver email for dual-approval workflow"
@@ -84,7 +88,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_RemediationDryRun",
         "display_name": "UASD - Remediation Dry Run",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "true",
         "description": (
             "Dry-run mode prevents remediation changes from being applied "
@@ -94,7 +98,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_MaxIndividualShares",
         "display_name": "UASD - Max Individual Shares",
-        "type": 100000001,  # Decimal
+        "type": ENV_VAR_TYPE_DECIMAL,
         "default_value": "5",
         "description": (
             "Maximum individual shares per agent before "
@@ -104,7 +108,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_TeamsGroupId",
         "display_name": "UASD - Teams Group ID",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "",
         "description": (
             "Microsoft Teams team/group ID for violation alert notifications"
@@ -113,7 +117,7 @@ ENVIRONMENT_VARIABLES: List[Dict[str, Any]] = [
     {
         "schema_name": "fsi_UASD_DataverseUrl",
         "display_name": "UASD - Dataverse URL",
-        "type": 100000000,  # String
+        "type": ENV_VAR_TYPE_STRING,
         "default_value": "",
         "description": (
             "Dataverse environment URL "
@@ -142,6 +146,15 @@ def create_environment_variable(
     """
     schema_name = var_def["schema_name"]
 
+    if dry_run:
+        default_display = var_def["default_value"] or "(empty)"
+        print(
+            f"  [DRY-RUN] Would create {schema_name} "
+            f"(type={var_def['type']}, default={default_display})"
+        )
+        logger.info("[DRY-RUN] Would create environment variable %s", schema_name)
+        return True
+
     # Check existence by schema name
     existing = client.query(
         "environmentvariabledefinitions",
@@ -155,21 +168,12 @@ def create_environment_variable(
     # Build definition payload
     definition: Dict[str, Any] = {
         "SchemaName": schema_name,
-        "DisplayName": schema_name,
+        "DisplayName": var_def["display_name"],
         "EnvironmentVariableDisplayName": var_def["display_name"],
         "Description": var_def["description"],
         "Type": var_def["type"],
         "DefaultValue": var_def["default_value"],
     }
-
-    if dry_run:
-        default_display = var_def["default_value"] or "(empty)"
-        print(
-            f"  [DRY-RUN] Would create {schema_name} "
-            f"(type={var_def['type']}, default={default_display})"
-        )
-        logger.info("[DRY-RUN] Would create environment variable %s", schema_name)
-        return True
 
     print(f"  Creating {schema_name} ...")
     client.create_record("environmentvariabledefinitions", definition)

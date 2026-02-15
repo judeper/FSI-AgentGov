@@ -8,8 +8,8 @@ Tables
 4. fsi_ApprovedSecurityGroup     — Admin-managed approved security groups
 5. fsi_SharingPolicy             — Sharing policy thresholds and configuration
 
-Six solution-specific global option sets (``fsi_UASD_*``) plus one
-severity option set are created by this script.  The shared option set
+Seven solution-specific global option sets (``fsi_UASD_*``) are created
+by this script.The shared option set
 ``fsi_acv_zone`` is referenced but **not** created here — it is
 provisioned by the CAA schema script (``create_dataverse_schema.py``).
 
@@ -649,6 +649,10 @@ def _sharing_policy_columns() -> List[Dict[str, Any]]:
 def create_solution_optionsets(client: CAAClient, dry_run: bool = False) -> None:
     """Create UASD solution-specific global option sets (idempotent)."""
     for name, definition in SOLUTION_OPTIONSETS.items():
+        if dry_run:
+            print(f"  [DRY-RUN] Would create global option set {name}")
+            logger.info("[DRY-RUN] Would create global option set %s", name)
+            continue
         existing = client.get_global_optionset(name)
         if existing is not None:
             logger.info("Global option set %s already exists — skipping", name)
@@ -743,6 +747,9 @@ def create_sharing_policy_table(client: CAAClient, dry_run: bool = False) -> Non
 
 def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
     """Insert default sharing policy row (idempotent)."""
+    if dry_run:
+        print("  [DRY-RUN] Would create default sharing policy row")
+        return
     existing = client.query(
         "fsi_sharingpolicies",
         filter="fsi_policy_name eq 'Default Sharing Policy'",
@@ -750,18 +757,15 @@ def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
     if existing:
         print("  Default sharing policy already exists — skipping")
         return
-    if dry_run:
-        print("  [DRY-RUN] Would create default sharing policy row")
-        return
     definition = {
         "fsi_policy_name": "Default Sharing Policy",
-        "fsi_max_individual_shares": 100,
+        "fsi_max_individual_shares": 5,
         "fsi_governance_zone": 0,  # Unclassified (applies to all zones)
         "fsi_auto_remediate_public_link": False,
         "fsi_is_active": True,
     }
     client.create_record("fsi_sharingpolicies", definition)
-    print("  Created default sharing policy (MaxIndividualShares=100, Zone=All)")
+    print("  Created default sharing policy (MaxIndividualShares=5, Zone=All)")
 
 
 def create_schema(client: CAAClient, dry_run: bool = False) -> None:
@@ -778,11 +782,19 @@ def create_schema(client: CAAClient, dry_run: bool = False) -> None:
     if dry_run:
         print("\n*** DRY-RUN MODE — no changes will be made ***\n")
 
+    # Verify prerequisite: fsi_acv_zone must exist (created by CAA schema)
+    if not dry_run:
+        zone_optionset = client.get_global_optionset("fsi_acv_zone")
+        if zone_optionset is None:
+            raise RuntimeError(
+                "Required shared option set 'fsi_acv_zone' not found. "
+                "Run create_dataverse_schema.py (CAA schema) first to create it."
+            )
+
     # 1. Solution-specific option sets (fsi_UASD_*)
     #    NOTE: fsi_acv_zone is shared and created by the CAA schema
-    #    script — not recreated here.  fsi_UASD_severity is created
-    #    above as a UASD-specific option set.
-    print("\n[1/7] Creating UASD solution-specific option sets ...")
+    #    script — not recreated here.
+    print("\n[1/7] Creating 7 UASD solution-specific option sets ...")
     create_solution_optionsets(client, dry_run)
 
     # 2. Agent Sharing Setting table
@@ -822,7 +834,7 @@ def create_schema(client: CAAClient, dry_run: bool = False) -> None:
 def main() -> None:
     """CLI entry point for schema deployment."""
     parser = argparse.ArgumentParser(
-        description="Deploy UASD Dataverse schema (5 tables + 6 option sets + seed data)"
+        description="Deploy UASD Dataverse schema (5 tables + 7 option sets + seed data)"
     )
     parser.add_argument(
         "--dry-run",
