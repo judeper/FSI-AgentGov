@@ -731,6 +731,10 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 **Components:**
 
 - `scripts/governance/FsiMimeControl.psm1` — PowerShell module with Get/Set/Test cmdlets and zone templates for MIME type configuration management (in FSI-AgentGov)
+- `scripts/governance/register-plugin.ps1` — Deployment script for registering ValidateMimeTypePlugin assembly and step in Dataverse (in FSI-AgentGov)
+- `scripts/governance/test-plugin.ps1` — Integration test suite for ValidateMimeTypePlugin server-side validation (in FSI-AgentGov)
+- `scripts/governance/validate-exceptions.ps1` — Exception register validation against environment configuration and zone templates (in FSI-AgentGov)
+- `scripts/governance/mime-type-exceptions.csv` — Exception register with request template (in FSI-AgentGov)
 - `mime-type-restrictions/src/ValidateMimeTypePlugin.cs` — Dataverse plugin for server-side magic bytes validation in Zone 3 environments (in FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/dlp-policy-template.json` — Purview DLP policy template for executable file blocking (in FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/query-mime-blocks.kql` — Sentinel KQL query for MIME type block event monitoring (in FSI-AgentGov-Solutions)
@@ -759,6 +763,10 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 **Script Locations:**
 
 - `scripts/governance/FsiMimeControl.psm1` (FSI-AgentGov)
+- `scripts/governance/register-plugin.ps1` (FSI-AgentGov)
+- `scripts/governance/test-plugin.ps1` (FSI-AgentGov)
+- `scripts/governance/validate-exceptions.ps1` (FSI-AgentGov)
+- `scripts/governance/mime-type-exceptions.csv` (FSI-AgentGov)
 - `mime-type-restrictions/src/ValidateMimeTypePlugin.cs` (FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/dlp-policy-template.json` (FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/query-mime-blocks.kql` (FSI-AgentGov-Solutions)
