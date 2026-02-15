@@ -174,8 +174,10 @@ function ConvertTo-ZoneValue {
     .SYNOPSIS
         Converts a zone string to the fsi_acv_zone option set integer value.
     .DESCRIPTION
-        Maps governance zone names to their Dataverse option set values:
-        Zone1 = 0, Zone2 = 1, Zone3 = 2, All = 3.
+        Maps governance zone names to their Dataverse option set values
+        per the CAA shared fsi_acv_zone option set:
+        Unclassified = 0, Zone1 = 1, Zone2 = 2, Zone3 = 3.
+        'All' maps to Unclassified (0) to indicate zone-independent scope.
     #>
     [CmdletBinding()]
     param(
@@ -184,11 +186,11 @@ function ConvertTo-ZoneValue {
     )
 
     switch ($Zone) {
-        'Zone1' { return 0 }
-        'Zone2' { return 1 }
-        'Zone3' { return 2 }
-        'All'   { return 3 }
-        default { return 3 }  # Default to All
+        'Zone1' { return 1 }
+        'Zone2' { return 2 }
+        'Zone3' { return 3 }
+        'All'   { return 0 }  # Unclassified = zone-independent
+        default { return 0 }  # Default to Unclassified
     }
 }
 

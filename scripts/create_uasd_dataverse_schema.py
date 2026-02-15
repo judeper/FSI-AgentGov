@@ -8,9 +8,9 @@ Tables
 4. fsi_ApprovedSecurityGroup     — Admin-managed approved security groups
 5. fsi_SharingPolicy             — Sharing policy thresholds and configuration
 
-Six solution-specific global option sets (``fsi_UASD_*``) are created by
-this script.  The shared option sets ``fsi_acv_zone`` and
-``fsi_acv_severity`` are referenced but **not** created here — they are
+Six solution-specific global option sets (``fsi_UASD_*``) plus one
+severity option set are created by this script.  The shared option set
+``fsi_acv_zone`` is referenced but **not** created here — it is
 provisioned by the CAA schema script (``create_dataverse_schema.py``).
 
 Usage::
@@ -33,9 +33,16 @@ logger = logging.getLogger(__name__)
 # =========================================================================
 # Shared option sets — referenced but NOT created by this script
 # =========================================================================
-# fsi_acv_zone and fsi_acv_severity are created by the CAA schema script
-# (create_dataverse_schema.py).  UASD tables bind picklist columns to these
-# shared option sets but do not recreate them.
+# fsi_acv_zone is created by the CAA schema script
+# (create_dataverse_schema.py).  UASD tables bind picklist columns to this
+# shared option set but do not recreate it.
+#
+# Zone values (from CAA schema):
+#   0 = Unclassified, 1 = Zone 1, 2 = Zone 2, 3 = Zone 3
+#
+# fsi_UASD_severity is created by THIS script (not shared).  UASD uses
+# its own severity scale (Critical/High/Medium/Low) which differs from
+# the CAA shared fsi_acv_severity (Passed/Warning/GracePeriod/Failed/Error).
 
 # =========================================================================
 # Solution-specific option sets (UASD)
@@ -249,6 +256,50 @@ SOLUTION_OPTIONSETS: Dict[str, Dict[str, Any]] = {
                 "Label": {
                     "LocalizedLabels": [
                         {"Label": "NoAuthentication", "LanguageCode": 1033}
+                    ]
+                },
+            },
+        ],
+    },
+    "fsi_UASD_severity": {
+        "Name": "fsi_UASD_severity",
+        "DisplayName": {
+            "LocalizedLabels": [
+                {"Label": "UASD Violation Severity", "LanguageCode": 1033}
+            ]
+        },
+        "IsGlobal": True,
+        "OptionSetType": "Picklist",
+        "Options": [
+            {
+                "Value": 0,
+                "Label": {
+                    "LocalizedLabels": [
+                        {"Label": "Critical", "LanguageCode": 1033}
+                    ]
+                },
+            },
+            {
+                "Value": 1,
+                "Label": {
+                    "LocalizedLabels": [
+                        {"Label": "High", "LanguageCode": 1033}
+                    ]
+                },
+            },
+            {
+                "Value": 2,
+                "Label": {
+                    "LocalizedLabels": [
+                        {"Label": "Medium", "LanguageCode": 1033}
+                    ]
+                },
+            },
+            {
+                "Value": 3,
+                "Label": {
+                    "LocalizedLabels": [
+                        {"Label": "Low", "LanguageCode": 1033}
                     ]
                 },
             },
@@ -469,7 +520,7 @@ def _sharing_violation_columns() -> List[Dict[str, Any]]:
         _string_col("fsi_environmentname", "Environment Name", max_length=200),
         _picklist_col("fsi_violationtype", "Violation Type", "fsi_UASD_violationtype", required=True),
         _picklist_col("fsi_violationstatus", "Violation Status", "fsi_UASD_violationstatus", required=True),
-        _picklist_col("fsi_severity", "Severity", "fsi_acv_severity", required=True),
+        _picklist_col("fsi_severity", "Severity", "fsi_UASD_severity", required=True),
         _picklist_col("fsi_zone", "Zone", "fsi_acv_zone"),
         _memo_col("fsi_description", "Description"),
         _memo_col("fsi_evidencejson", "Evidence JSON"),
@@ -705,7 +756,7 @@ def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
     definition = {
         "fsi_policy_name": "Default Sharing Policy",
         "fsi_max_individual_shares": 100,
-        "fsi_governance_zone": 3,  # All zones
+        "fsi_governance_zone": 0,  # Unclassified (applies to all zones)
         "fsi_auto_remediate_public_link": False,
         "fsi_is_active": True,
     }
@@ -717,9 +768,8 @@ def create_schema(client: CAAClient, dry_run: bool = False) -> None:
     """Orchestrate creation of all option sets, tables, and seed data.
 
     This function is idempotent — safe to re-run against an existing
-    environment.  Shared option sets (fsi_acv_zone, fsi_acv_severity)
-    are NOT created here; they must already exist from the CAA schema
-    deployment.
+    environment.  The shared option set fsi_acv_zone is NOT created here;
+    it must already exist from the CAA schema deployment.
     """
     print("=" * 60)
     print("UASD Dataverse Schema Deployment")
@@ -729,8 +779,9 @@ def create_schema(client: CAAClient, dry_run: bool = False) -> None:
         print("\n*** DRY-RUN MODE — no changes will be made ***\n")
 
     # 1. Solution-specific option sets (fsi_UASD_*)
-    #    NOTE: fsi_acv_zone and fsi_acv_severity are shared and created
-    #    by the CAA schema script — not recreated here.
+    #    NOTE: fsi_acv_zone is shared and created by the CAA schema
+    #    script — not recreated here.  fsi_UASD_severity is created
+    #    above as a UASD-specific option set.
     print("\n[1/7] Creating UASD solution-specific option sets ...")
     create_solution_optionsets(client, dry_run)
 

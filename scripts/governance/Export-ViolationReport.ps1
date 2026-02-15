@@ -36,7 +36,8 @@
     Optional violation status filter. Valid: Open, Remediated, Exception_Granted, False_Positive.
 
 .PARAMETER Zone
-    Optional governance zone filter. Valid: Zone1, Zone2, Zone3, All.
+    Optional governance zone filter. Valid: Zone1, Zone2, Zone3, Unclassified, All.
+    'All' returns violations from all zones (no zone filter applied).
 
 .PARAMETER IncludeEvidence
     When specified, computes SHA-256 integrity hash over results.
@@ -106,7 +107,7 @@ param(
     [string]$Status,
 
     [Parameter()]
-    [ValidateSet('Zone1', 'Zone2', 'Zone3', 'All')]
+    [ValidateSet('Zone1', 'Zone2', 'Zone3', 'Unclassified', 'All')]
     [string]$Zone,
 
     [Parameter()]
@@ -171,17 +172,17 @@ $ViolationStatusReverseMap = @{
 }
 
 $ZoneMap = @{
-    0 = 'Zone1'
-    1 = 'Zone2'
-    2 = 'Zone3'
-    3 = 'All'
+    0 = 'Unclassified'
+    1 = 'Zone1'
+    2 = 'Zone2'
+    3 = 'Zone3'
 }
 
 $ZoneReverseMap = @{
-    'Zone1' = 0
-    'Zone2' = 1
-    'Zone3' = 2
-    'All'   = 3
+    'Unclassified' = 0
+    'Zone1' = 1
+    'Zone2' = 2
+    'Zone3' = 3
 }
 
 $SeverityMap = @{
@@ -314,10 +315,13 @@ function Build-ODataFilter {
         $descriptions.Add("Status = $FilterStatus")
     }
 
-    if ($FilterZone) {
+    if ($FilterZone -and $FilterZone -ne 'All') {
         $zoneValue = $script:ZoneReverseMap[$FilterZone]
         $filters.Add("fsi_zone eq $zoneValue")
         $descriptions.Add("Zone = $FilterZone")
+    }
+    elseif ($FilterZone -eq 'All') {
+        $descriptions.Add("Zone = All (no filter)")
     }
 
     $filterString = $null
