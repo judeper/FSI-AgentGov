@@ -34,7 +34,7 @@
 
 4. Click **Save** to apply changes
 
-> **Note:** This setting applies to all file attachment fields in Dataverse tables within the selected environment.
+> **Note:** The list above covers the most critical executable extensions. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 56 for Zone 3) including additional types such as `.jar`, `.lnk`, `.vbe`, `.wsh`, and others. For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
 
 ### Step 3: Configure Blocked MIME Types (Zone 2+)
 
@@ -48,7 +48,7 @@
 
 4. Click **Save** to apply changes
 
-> **Note:** Blocking MIME types provides defense-in-depth beyond file extension restrictions, as it helps prevent renamed file bypass attempts.
+> **Note:** The list above covers the most common executable content types. The `FsiMimeControl` zone templates contain extended lists (15 types for Zone 2, 21 for Zone 3) including `text/javascript`, `application/hta`, `application/msaccess`, and others. For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone2` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
 
 ### Step 4: Configure Allowed MIME Types (Zone 2+)
 
@@ -62,7 +62,7 @@
 
 4. Click **Save** to apply changes
 
-> **Important:** When an allowlist is configured, only the listed MIME types are accepted. All other types are rejected regardless of the blocked list.
+> **Important:** When an allowlist is configured, only the listed MIME types are accepted. All other types are rejected regardless of the blocked list. Zone 3 environments should also include `image/tiff` in the allowlist (see zone3.json template for the complete list).
 
 ### Step 5: Review and Apply Zone Template
 
