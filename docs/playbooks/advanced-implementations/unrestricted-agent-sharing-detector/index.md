@@ -58,7 +58,7 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 | 1 | `ORG_WIDE_SHARING` | Agent shared with "Everyone" or "All Users" | Critical |
 | 2 | `PUBLIC_INTERNET_LINK` | Agent has public internet-facing link enabled | Critical |
 | 3 | `UNAPPROVED_GROUP` | Agent shared with group not in approved security groups list | High |
-| 4 | `EXCESSIVE_INDIVIDUAL` | Agent shared with more individuals than `MaxIndividualSharesPerAgent` policy threshold | Medium |
+| 4 | `EXCESSIVE_INDIVIDUAL` | Agent shared with more individuals than `MaxIndividualShares` policy threshold | Medium |
 | 5 | `CROSS_TENANT_ACCESS` | Agent shared with external tenant principals | Critical |
 
 ---
@@ -90,7 +90,7 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 | `fsi_AgentSharingSetting` | Per-agent sharing configuration snapshots with scope, principal count, and auth mode |
 | `fsi_SharingViolation` | Detected sharing policy violations with agent identity, violation type, and remediation status |
 | `fsi_SharingException` | Approved exceptions with dual-approval audit trail and expiration tracking |
-| `fsi_ApprovedSecurityGroup` | Whitelist of security groups approved for agent sharing |
+| `fsi_ApprovedSecurityGroup` | Registry of security groups approved for agent sharing |
 | `fsi_SharingPolicy` | Per-zone sharing policy definitions including maximum individual shares threshold |
 
 ---

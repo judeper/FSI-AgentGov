@@ -224,13 +224,15 @@ Review the output for any sharing violations detected across environments. If vi
     -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
     -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
+    -ExceptionFlowPath "unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
     -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json"
+    -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
+    -ExceptionFlowPath "unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json"
 ```
 
 ### Step 2: Import Exception Approval Flow
@@ -399,7 +401,7 @@ Generate the first violation report to validate export functionality:
 |-------|-------|------------|
 | **Az.Accounts token failure** | Not signed in or expired session | Run `Connect-AzAccount` and verify the account has Dataverse access |
 | **Dataverse 403 Forbidden** | Insufficient Dataverse permissions | Assign System Administrator or System Customizer security role to the service account |
-| **Schema deployment fails** | Missing Python dependencies or incorrect environment URL | Run `pip install -r scripts/requirements.txt`; verify `DATAVERSE_URL` format includes `https://` |
+| **Schema deployment fails** | Missing Python dependencies or incorrect environment URL | Run `pip install -r scripts/requirements.txt`; verify `CAA_ENVIRONMENT_URL` format includes `https://` |
 | **Detection flow import error** | Solution version conflict or missing dependencies | Check that Dataverse schema was deployed first; verify no existing UASD solution with higher version |
 | **Connection reference unbound** | Connection not created or expired | Create a new connection for each required connector; verify service account credentials |
 | **No violations detected** | No agents with sharing violations in scope | Run `Invoke-SharingAudit.ps1` directly to verify BAP API connectivity and agent enumeration |

@@ -554,7 +554,7 @@ foreach ($env in $environments) {
                     -AgentName $agentName `
                     -EnvironmentId $envId `
                     -EnvironmentName $envDisplayName `
-                    -Severity 'High' `
+                    -Severity 'Critical' `
                     -Description "Agent '$agentName' shared with external tenant principal (TenantId: $xtpTenantId)" `
                     -EvidenceJson $evidenceData `
                     -PrincipalDetails $principalDetail
