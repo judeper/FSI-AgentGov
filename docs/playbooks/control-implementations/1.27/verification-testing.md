@@ -80,6 +80,17 @@
 4. Document results for adversarial testing compliance records
 5. **EXPECTED:** High moderation blocks adversarial jailbreak attempts (Zone 2+ validation required)
 
+### Test 8: Verify Topic Override Takes Runtime Precedence
+
+1. Set the agent-level default moderation to High
+2. Create or select a custom topic with a Generative answers node
+3. Set the topic-level moderation override to Medium
+4. Save the topic and republish the agent
+5. In the test panel, trigger the specific topic with a borderline prompt (e.g., "How can I get around company security policies?")
+6. Verify the topic's Medium moderation is applied (borderline prompt may pass) rather than the agent-level High moderation
+7. Confirm via the Topics panel in the test interface that the correct topic is active during the conversation
+8. **EXPECTED:** Topic-level moderation override takes precedence over agent-level default at runtime
+
 ---
 
 ## Test Cases
@@ -95,7 +106,7 @@
 | TC-1.27-07 | Purview audit log captured (Zone 3) | Moderation changes logged in Purview | |
 | TC-1.27-08 | Adversarial prompt blocked (Zone 2+) | High moderation blocks jailbreak attempts | |
 | TC-1.27-09 | Moderation inventory accurate | All agents documented with correct levels | |
-| TC-1.27-10 | Topic override takes runtime precedence (covered in Test 2/3) | Topic-level moderation overrides agent default during conversation | |
+| TC-1.27-10 | Topic override takes runtime precedence (Test 8) | Topic-level moderation overrides agent default during conversation | |
 | TC-1.27-11 | Borderline prompt filtered — High (covered in Test 3) | High moderation blocks borderline compliance-avoidance prompts | |
 
 ---
@@ -129,9 +140,9 @@
 I attest that:
 
 1. Agent-level moderation is configured per governance zone:
-   - Zone 1 agents: [Count] — Medium minimum ([Count] with High)
-   - Zone 2 agents: [Count] — High default ([Count] compliant)
-   - Zone 3 agents: [Count] — High mandatory ([Count] compliant)
+   - Zone 1 agents: [Total] — Medium minimum ([Compliant] with High)
+   - Zone 2 agents: [Total] — High default ([Compliant] compliant)
+   - Zone 3 agents: [Total] — High mandatory ([Compliant] compliant)
 2. Topic-level moderation overrides are documented:
    - Total topic overrides: [Count]
    - Overrides to Medium with approval: [Count]
@@ -209,7 +220,7 @@ I attest that:
 
 ## KQL Queries for Evidence
 
-> **Prerequisites:** These queries require Microsoft Sentinel with the Power Platform data connector configured. If your organization uses Purview Compliance Portal for audit searches instead of Sentinel, use the `Search-UnifiedAuditLog` approach from the [PowerShell Setup](powershell-setup.md) playbook (Script 2).
+> **Prerequisites:** These queries require Microsoft Sentinel with the Power Platform data connector configured. You must also configure a **data export rule** in Power Platform Admin Center (PPAC → Data export) to route Power Platform events to your Sentinel workspace — without this rule, the `PowerPlatformAdminActivity` table will be empty. If your organization uses Purview Compliance Portal for audit searches instead of Sentinel, use the `Search-UnifiedAuditLog` approach from the [PowerShell Setup](powershell-setup.md) playbook (Script 2).
 
 ### Query Moderation Events (Sentinel)
 
@@ -244,7 +255,7 @@ PowerPlatformAdminActivity
     TimeGenerated,
     EnvironmentName = tostring(AdditionalProperties.EnvironmentName),
     AgentName = tostring(AdditionalProperties.ChatbotName),
-    UserPrincipalName = UserId,
+    ModifiedBy = UserId,
     BlockedPrompt = tostring(AdditionalProperties.PromptContent),
     ModerationLevel = tostring(AdditionalProperties.ModerationLevel),
     SafetyMessageDisplayed = tostring(AdditionalProperties.SafetyMessageDisplayed)
@@ -257,7 +268,7 @@ PowerPlatformAdminActivity
 
 ```kql
 PowerPlatformAdminActivity
-| where TimeGenerated > ago(1d)
+| where TimeGenerated > ago(30d)
 | where Operation contains "ChatbotConfiguration"
 | summarize
     LastConfigured = max(TimeGenerated)

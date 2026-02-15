@@ -388,12 +388,22 @@ Script 4 requires topic-level data that is not available via PowerShell cmdlets.
 **Option A: Dataverse API query** — Query bot component metadata directly:
 
 ```powershell
-# Replace {botId} with the agent's Dataverse bot ID
+# Replace {botId} with the agent's Dataverse bot ID (from $agent.ChatbotName in Script 4's loop)
 # Replace {orgUrl} with your Dataverse organization URL (e.g., https://yourorg.crm.dynamics.com)
-$botId = $agent.ChatbotName
+$botId = "your-bot-id-here"  # Copy from Script 4 output or Copilot Studio agent URL
 $orgUrl = "https://yourorg.crm.dynamics.com"
-$topics = Invoke-RestMethod -Uri "$orgUrl/api/data/v9.2/botcomponents?`$filter=_parentbotid_value eq '$botId' and componenttype eq 1" `
+
+# Acquire an access token for Dataverse (requires Az module or MSAL)
+# Option 1: Using Az module (install with Install-Module Az.Accounts)
+# Connect-AzAccount
+# $accessToken = (Get-AzAccessToken -ResourceUrl $orgUrl).Token
+# Option 2: Use an existing token from your authentication flow
+$accessToken = "your-access-token"
+
+# Query topic components (componenttype 0 = Topic)
+$response = Invoke-RestMethod -Uri "$orgUrl/api/data/v9.2/botcomponents?`$filter=_parentbotid_value eq '$botId' and componenttype eq 0" `
     -Headers @{ Authorization = "Bearer $accessToken" }
+$topics = $response.value
 ```
 
 **Option B: Manual CSV import** — Export topic data from Copilot Studio and import:
@@ -436,7 +446,7 @@ IT Helpdesk Agent,Zone 2,High
 ## Automation Notes
 
 - **Scheduled Execution:** Run Script 1 (inventory) weekly for Zone 3, monthly for Zone 2, quarterly for Zone 1
-- **Audit Monitoring:** Run Script 2 (audit log) daily in Zone 3 environments to detect unauthorized moderation changes
+- **Audit Monitoring:** Run Script 2 (audit log) daily in Zone 3 environments to detect unauthorized moderation changes between formal weekly reviews
 - **Compliance Validation:** Run Script 3 (zone compliance) before quarterly governance reviews
 - **Topic Override Review:** Run Script 4 (topic overrides) before deploying agents with custom topics
 
@@ -453,4 +463,4 @@ IT Helpdesk Agent,Zone 2,High
 
 ---
 
-[Back to Control 1.27](../../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 1.27](../../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

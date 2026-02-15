@@ -135,25 +135,21 @@ Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → C
    - Export audit logs or moderation events from Purview
    - Analyze the types of prompts being blocked
    - Determine if blocks are false positives or legitimate safety concerns
-2. Adjust Azure AI Content Safety thresholds (if integrated):
-   - Navigate to Azure portal → Azure AI Content Safety resource
-   - Review category thresholds (hate, sexual, violence, self-harm)
-   - Consider lowering sensitivity for specific categories if false positives occur
-3. Use topic-level override for specific conversation paths:
-   - If certain topics require less restrictive filtering, configure a topic-level override to Medium
-   - Document the justification and obtain approval (Zone 2+)
-4. Understand the Copilot Studio and Azure AI Content Safety relationship:
+2. Understand the Copilot Studio and Azure AI Content Safety relationship:
    - Copilot Studio content moderation uses Azure AI Content Safety under the hood
    - The Azure AI Content Safety resource is managed by Microsoft and may not be directly accessible in all tenants
    - If you can access your Azure AI Content Safety resource, you can adjust category thresholds:
      - Navigate to Azure portal → Azure AI Content Safety resource → Content filtering → Severity thresholds
      - Consider lowering sensitivity for specific categories if false positives occur
    - If you cannot access the Azure portal path, work with your Azure subscription admin or contact Microsoft support
-5. Refine the agent's generative answers prompt:
+3. Use topic-level override for specific conversation paths:
+   - If certain topics require less restrictive filtering, configure a topic-level override to Medium
+   - Document the justification and obtain approval (Zone 2+)
+4. Refine the agent's generative answers prompt:
    - Adjust the system prompt to guide the agent toward compliant responses
    - Add explicit instructions to avoid triggering content filters
    - Test prompt variations to reduce false positive blocks
-6. Escalate to Microsoft support if persistent false positives occur
+5. Escalate to Microsoft support if persistent false positives occur
 
 **Portal Path:**
 ```
@@ -210,7 +206,7 @@ Azure Portal → Azure AI Content Safety → [Resource] → Content filtering �
    - Ensure you have Purview Compliance Admin or Audit Viewer role
    - Audit logs are only visible to users with appropriate roles
 3. Allow time for audit log propagation:
-   - Audit events may take 30-60 minutes to appear after the action occurs
+   - Audit events may take 15-60 minutes to appear after the action occurs (typically 15-30 minutes)
    - Check again after waiting for propagation
 4. Verify the correct search parameters:
    - In Purview Audit search, use keywords: "Chatbot", "Copilot", "ContentModeration"
@@ -295,7 +291,7 @@ Microsoft Purview Compliance Portal → Audit → Search → Activities: "Update
 1. **Copilot Studio Agent Author** — Topic-level moderation configuration, custom safety messages, agent publishing
 2. **Power Platform Admin** — Environment settings, feature flags, moderation policy enforcement
 3. **Purview Compliance Admin** — Audit log configuration, compliance reporting, retention policies
-4. **Security Operations** — Moderation alert monitoring, anomaly investigation, incident triage
+4. **Security Team** — Moderation alert monitoring, anomaly investigation, incident triage
 5. **Microsoft Support** — Platform-level issues with content moderation features, API availability, feature rollout status
 
 ---
@@ -309,9 +305,10 @@ Microsoft Purview Compliance Portal → Audit → Search → Activities: "Update
 | Moderation changes may require agent republish | Settings may not take effect until agent is published | Always republish after moderation configuration changes |
 | Custom safety messages have character limits | Long messages may be truncated or rejected | Keep messages concise (1-2 sentences maximum) |
 | High moderation may have false positives | Legitimate prompts may be blocked incorrectly | Use topic-level overrides with approval; refine agent prompts |
-| Purview audit log propagation delay | Moderation events may not appear immediately | Allow 30-60 minutes for audit log propagation before querying |
+| Purview audit log propagation delay | Moderation events may not appear immediately | Allow 15-60 minutes for audit log propagation before querying |
 | No bulk moderation configuration via API | Cannot set moderation levels at scale via script | Use portal for configuration; automate inventory reporting only |
 | Azure AI Content Safety thresholds are global | Cannot set per-agent sensitivity thresholds | Use topic-level overrides to adjust filtering per conversation path |
+| Audit log retention limited to 90 days (default) | Historical moderation changes may not be available beyond retention window | Export audit logs to external SIEM/logging system for long-term retention |
 
 ---
 
@@ -410,4 +407,4 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 
 ---
 
-[Back to Control 1.27](../../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+[Back to Control 1.27](../../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
