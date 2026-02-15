@@ -146,6 +146,7 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 |------|-------|-------------|
 | **Cloud Security Architect** | Organization | Designs cloud security architecture and evaluates AI agent security posture |
 | **Copilot Studio Agent Author** | Power Platform | Creates and configures Copilot Studio agents within governed environments |
+| **Agent Owner** | Power Platform | Owns agent lifecycle, configuration, and compliance for assigned agents |
 | **Model Risk Manager** | Organization | Oversees model risk management per OCC 2011-12 and Fed SR 11-7 |
 | **Security Architect** | Organization | Defines security standards and reviews agent security configurations |
 | **SOC Analyst** | Organization | Monitors security alerts and investigates AI agent-related incidents |

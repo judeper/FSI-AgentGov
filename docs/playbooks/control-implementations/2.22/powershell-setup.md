@@ -190,7 +190,8 @@ Connect-AzAccount -TenantId $tenantId
 For standalone API calls outside the script (e.g., troubleshooting diagnostics):
 
 ```powershell
-$token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
+$tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com"
+$token = if ($tokenResult.Token -is [securestring]) { $tokenResult.Token | ConvertFrom-SecureString -AsPlainText } else { $tokenResult.Token }
 ```
 
 ---

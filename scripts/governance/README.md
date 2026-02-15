@@ -15,6 +15,8 @@ Scripts for automating governance control implementation.
 | `Export-ViolationReport.ps1` | Export sharing violation report with SHA-256 evidence | Control 1.1 |
 | `Import-ApprovedSecurityGroups.ps1` | Import approved security groups for sharing validation | Control 1.1 |
 | `Invoke-SharingAudit.ps1` | On-demand agent sharing audit scan | Control 1.1, 3.8 |
+| `Set-InactivityTimeout.ps1` | Remediate inactivity timeout via BAP Admin API PATCH (GET-PATCH-GET pattern with WhatIf, evidence packaging) | Control 2.22 |
+| `Set-InactivityTimeout.Tests.ps1` | Pester 5 validation test suite (27 tests) for Set-InactivityTimeout | Control 2.22 |
 
 ## Prerequisites
 

@@ -102,6 +102,16 @@ After configuring all environments:
 2. Run the Detect-InactivityTimeout-NonCompliance flow manually to validate initial compliance state
 3. Review compliance records in the `fsi_inactivitytimeout_compliance` table to confirm all environments show Compliant status
 4. Address any Non-Compliant or Unknown results before enabling the daily schedule
+5. Verify the following environment variables are configured in the governance Dataverse environment:
+
+| Variable | Type | Default | Purpose |
+|----------|------|---------|---------|
+| `fsi_ITE_ConcurrencyLimit` | Decimal | 5 | Max parallel environment evaluations in the compliance flow |
+| `fsi_ITE_NotificationRecipients` | String | (empty) | Email addresses for non-compliance alerts — must be set for notifications to send |
+| `fsi_ITE_ScanFrequencyHours` | Decimal | 24 | Scan interval in hours for the daily compliance schedule |
+
+!!! warning "Notification Recipients Required"
+    The `fsi_ITE_NotificationRecipients` variable defaults to empty. Set this value before enabling the daily schedule or non-compliance alerts will not be delivered.
 
 ---
 

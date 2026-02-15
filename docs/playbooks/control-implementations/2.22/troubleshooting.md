@@ -34,6 +34,9 @@
 
 **Root Cause:** Environment was provisioned but not registered in the governance policy table, or the EnvironmentName value contains the display name instead of the canonical GUID.
 
+!!! tip "Remediation Script"
+    After adding the policy record and confirming the environment is non-compliant, use `Set-InactivityTimeout.ps1` to apply the correct timeout value via the BAP Admin API. See [PowerShell Setup](powershell-setup.md) for script parameters and usage.
+
 ---
 
 ### Issue 2: BAP Admin API Returns 401 Unauthorized
@@ -64,7 +67,8 @@
        -ApplicationId $clientId `
        -CertificateThumbprint $thumbprint `
        -TenantId $tenantId
-   $token = (Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com").Token
+   $tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com"
+   $token = if ($tokenResult.Token -is [securestring]) { $tokenResult.Token | ConvertFrom-SecureString -AsPlainText } else { $tokenResult.Token }
    ```
 
 **Root Cause:** Token scope mismatch or expired credentials.
@@ -123,6 +127,9 @@
 
 **Root Cause:** Expected behavior — timeout settings are applied at session creation, not retroactively.
 
+!!! tip "Automated Remediation"
+    For environments requiring timeout changes, `Set-InactivityTimeout.ps1` supports `-WhatIf` preview and bulk remediation via CSV input. See [PowerShell Setup](powershell-setup.md) for details.
+
 ---
 
 ### Issue 5: Compliance Flow Fails with HTTP 429 (Rate Limiting)
@@ -135,18 +142,27 @@
 
 **Resolution Steps:**
 
-1. **Reduce concurrency:**
-   - Open the compliance flow in Power Automate
-   - Locate the Apply to Each action that iterates over environments
-   - Reduce the degree of parallelism (default 5; try 2-3)
+1. **Reduce concurrency in the flow:**
+   - Open the compliance flow in Power Automate → Edit
+   - Locate the **Apply to Each** action that iterates over environments
+   - Click the **⋯** (three dots) menu on the Apply to Each action → **Settings**
+   - Under **Concurrency Control**, toggle it to **On** if not already enabled
+   - Set the **Degree of Parallelism** slider to 2-3 (default is 5)
+   - Click **Done**, then **Save** the flow
 
-2. **Add retry logic:**
+2. **Alternative — adjust via environment variable:**
+   - Open Power Apps → Tables → search for `environmentvariabledefinitions`
+   - Locate the `fsi_ITE_ConcurrencyLimit` environment variable
+   - Update the current value from `5` to `2` or `3`
+   - The compliance flow reads this variable at runtime to set its concurrency limit
+
+3. **Add retry logic:**
    - Configure the HTTP action with retry policy:
      - Count: 3
      - Interval: PT30S (30 seconds)
      - Type: Exponential
 
-3. **Schedule off-peak execution:**
+4. **Schedule off-peak execution:**
    - Move the daily scan trigger to off-peak hours (e.g., 02:00 UTC instead of business hours)
 
 **Root Cause:** BAP Admin API rate limits exceeded when scanning many environments concurrently.
@@ -236,6 +252,44 @@
    - Navigate to Power Apps → Solutions → check import status
 
 **Root Cause:** Missing table, insufficient Dataverse privileges, or column name mismatch.
+
+---
+
+### Issue 9: Environment Variables Not Configured
+
+**Symptoms:**
+
+- Compliance flow uses unexpected default values (e.g., wrong concurrency, no notifications)
+- Flow runs but notification emails are never sent despite non-compliant environments
+- Concurrency limit does not match organizational expectations
+
+**Resolution Steps:**
+
+1. **Verify environment variables exist:**
+   - Open Power Apps → select the governance environment → Tables
+   - Search for `environmentvariabledefinitions`
+   - Confirm these 3 variables are present:
+
+   | Variable | Type | Default | Purpose |
+   |----------|------|---------|---------|
+   | `fsi_ITE_ConcurrencyLimit` | Decimal | 5 | Max parallel environment evaluations |
+   | `fsi_ITE_NotificationRecipients` | String | (empty) | Email addresses for compliance alerts |
+   | `fsi_ITE_ScanFrequencyHours` | Decimal | 24 | Scan interval in hours |
+
+2. **Set current values:**
+   - For each variable, click to open and set the **Current Value** appropriate for your organization
+   - `fsi_ITE_NotificationRecipients` must be populated for notification emails to send (semicolon-separated for multiple addresses)
+
+3. **If variables are missing, re-run the deployment script:**
+   ```bash
+   python scripts/create_timeout_environment_variables.py --verbose
+   ```
+
+4. **Verify after configuration:**
+   - Run the compliance flow manually
+   - Confirm it uses the updated concurrency limit and sends notifications to the configured recipients
+
+**Root Cause:** Environment variables not deployed or current values not set after initial deployment (defaults may not match organizational requirements).
 
 ---
 

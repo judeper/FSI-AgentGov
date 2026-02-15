@@ -805,6 +805,9 @@ Helps validate and enforce Power Platform user inactivity timeout settings acros
 
 - [2.22 - Inactivity Timeout Enforcement](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
 - [1.23 - Step-Up Authentication for AI Agent Operations](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md)
+- [1.26 - Agent File Upload Restrictions](../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md)
+- [1.27 - Content Moderation Enforcement](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md)
+- [2.1 - Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md)
 - [3.7 - PPAC Security Posture Assessment](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md)
 - [3.8 - Copilot Hub](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
 

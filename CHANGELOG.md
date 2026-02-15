@@ -6,6 +6,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.49] — February 2026 (Five-Solution Deep Dive Corrections)
+
+### Overview
+
+Cross-repo accuracy and completeness review of five solutions, fixing control reference errors, script name mismatches, documentation gaps, and flow configuration issues.
+
+### Fixed
+
+#### Content Moderation Monitor (CMM)
+- **Control references:** Fixed wrong control IDs in playbook script references (`Get-AgentModerationInventory.ps1` → `Get-AgentModerationSettings.ps1` in verification-testing, troubleshooting, EXPECTED.md)
+- **Monitoring architecture:** Corrected Content Moderation keyword mapping from `1.8, 2.16` → `1.27, 1.8` in `docs/reference/monitoring-architecture.md`
+- **Control 1.27 metadata:** Removed duplicate `Last Verified` line
+- **PowerShell setup:** Added solution tip linking standalone scripts to automated CMM solution
+
+#### Inactivity Timeout Enforcement (ITE)
+- **ITE connection references script:** Replaced unused `fsi_cr_powerplatformforadmins_inactivitytimeout` with `fsi_cr_office365_inactivitytimeout` to match actual flow connector requirements
+- **Control cross-references:** Added Control 2.22 cross-references to Controls 1.23, 1.26, 2.1, 3.8
+- **Solutions index:** Added ITE related controls (1.26, 1.27, 2.1)
+- **Playbook 2.22 portal-walkthrough:** Added environment variables table and notification warning
+- **Playbook 2.22 powershell-setup:** Fixed Az.Accounts 3.x+ SecureString token handling
+- **Playbook 2.22 troubleshooting:** Added remediation tips, concurrency guidance, Issue 9 (env vars), fixed token handling
+- **Role catalog:** Added "Agent Owner" role
+- **Governance scripts:** Fixed SecureString token handling in `Set-InactivityTimeout.ps1`
+
+#### Unrestricted Agent Sharing Detector (UASD)
+- Fixes committed in prior commits (env vars, checklist count, version footer, deployment scripts)
+
+#### MIME Type Restrictions (1.25)
+- Fixes committed in prior commits (KQL fields, rollback docs, design decisions)
+
+---
+
 ## [1.2.48] — February 2026 (Comprehensive Repository Review)
 
 ### Overview

@@ -38,11 +38,11 @@ CONNECTION_REFERENCES: List[Dict[str, Any]] = [
         ),
     },
     {
-        "logical_name": "fsi_cr_powerplatformforadmins_inactivitytimeout",
-        "display_name": "Power Platform for Admins - Inactivity Timeout Enforcement",
-        "connector_id": "shared_powerplatformforadmins",
+        "logical_name": "fsi_cr_office365_inactivitytimeout",
+        "display_name": "Office 365 - Inactivity Timeout Enforcement",
+        "connector_id": "shared_office365",
         "description": (
-            "Environment enumeration for compliance scanning"
+            "Email notifications for compliance alerts"
         ),
     },
 ]
