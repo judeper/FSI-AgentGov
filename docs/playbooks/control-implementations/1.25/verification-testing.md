@@ -59,7 +59,7 @@
 | TC-1.25-05 | DLP alert on blocked upload (Zone 2+) | DLP policy match logged in Activity explorer | |
 | TC-1.25-06 | Sentinel data for blocked uploads (Zone 3) | KQL query returns blocked upload events | |
 | TC-1.25-07 | Allowed file upload accepted | Upload of approved file type (.pdf) succeeds | |
-| TC-1.25-08 | Zone template compliance | Test-FsiMimeCompliance returns COMPLIANT | |
+| TC-1.25-08 | Zone template compliance | Test-FsiMimeCompliance returns IsCompliant = True | |
 
 ---
 

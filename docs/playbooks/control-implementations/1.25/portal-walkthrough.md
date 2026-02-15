@@ -37,7 +37,7 @@
 
 4. Click **Save** to apply changes
 
-> **Note:** Zone 2+ environments should also block `ps1`. Zone 3 adds `cab`, `gadget`, `ps1xml`, `ps2`, `ps2xml`, `psc1`, `psc2`, `isp`, `its`, `rgs`, and `ins`. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 55 for Zone 3). For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
+> **Note:** Zone 2+ environments should also block `ps1`. Zone 3 adds `cab`, `gadget`, `ps1xml`, `ps2`, `ps2xml`, `psc1`, `psc2`, `isp`, `its`, and `rgs`. The `FsiMimeControl` zone templates at `scripts/governance/mime-templates/` contain the complete lists (44 extensions for Zone 1, 45 for Zone 2, 55 for Zone 3). For full compliance, use `Set-FsiMimeConfig -ZoneTemplate zone1` from the [PowerShell Setup](powershell-setup.md) playbook or copy the complete list from the zone template JSON file.
 
 ### Step 3: Configure Blocked MIME Types (Zone 2+)
 
