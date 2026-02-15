@@ -108,7 +108,7 @@ python create_dataverse_schema.py `
 The schema deployment script creates five Dataverse tables with the `fsi_` publisher prefix.
 
 !!! note "Working Directory"
-    All Python scripts must be run from the `scripts/` directory so that the `uasd_client` module can be found. Use `cd scripts` before running the commands below.
+    All Python scripts must be run from the `scripts/` directory so that the `caa_client` module can be found. Use `cd scripts` before running the commands below.
 
 ```powershell
 cd scripts
@@ -121,10 +121,10 @@ python create_uasd_dataverse_schema.py --dry-run `
     --client-secret "<your-app-client-secret>"
 
 # Option B: Use environment variables (PowerShell)
-$env:UASD_ENVIRONMENT_URL = "https://<your-org>.crm.dynamics.com"
-$env:UASD_CLIENT_ID = "<your-app-client-id>"
-$env:UASD_CLIENT_SECRET = "<your-app-client-secret>"
-$env:UASD_TENANT_ID = "<your-tenant-id>"
+$env:CAA_ENVIRONMENT_URL = "https://<your-org>.crm.dynamics.com"
+$env:CAA_CLIENT_ID = "<your-app-client-id>"
+$env:CAA_CLIENT_SECRET = "<your-app-client-secret>"
+$env:CAA_TENANT_ID = "<your-tenant-id>"
 
 # Deploy schema (dry-run first)
 python create_uasd_dataverse_schema.py --dry-run
@@ -187,9 +187,6 @@ python create_uasd_connection_references.py `
     --client-secret "<your-app-client-secret>"
 ```
 
-!!! warning "Connection Reference Name Mismatch"
-    The connection reference script currently creates references with `_uasd` suffix names (e.g., `fsi_cr_dataverse_uasd`), but the flow definitions expect `_sharingdetector` suffix names (e.g., `fsi_cr_dataverse_sharingdetector`). Until the script is updated, create the connection references manually in **Power Apps** → **Solutions** → **UASD** → **Connection References** using these names: `fsi_cr_dataverse_sharingdetector` (Dataverse), `fsi_cr_teams_sharingdetector` (Teams), and `fsi_cr_approvals_sharingdetector` (Approvals).
-
 ### Step 4: Configure Dataverse URL Variable
 
 Set the `fsi_UASD_DataverseUrl` environment variable so the detection flow can locate your Dataverse environment:
@@ -225,18 +222,20 @@ Set the `fsi_UASD_DataverseUrl` environment variable so the detection flow can l
 Deploy the detection flow using the governance script:
 
 !!! note "Flow Definition Source"
-    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The `-SolutionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. If you cloned both repositories side-by-side, adjust the path accordingly.
+    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The `-FlowDefinitionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. If you cloned both repositories side-by-side, adjust the path accordingly.
 
 ```powershell
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-detector-scan-agents.json" `
+    -FlowDefinitionPath "unrestricted-agent-sharing-detector\src\uasd-detector-scan-agents.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-detector-scan-agents.json"
+    -FlowDefinitionPath "unrestricted-agent-sharing-detector\src\uasd-detector-scan-agents.json"
 ```
 
 ### Step 2: Bind Connection References
@@ -250,8 +249,8 @@ After import, bind the connection references to active connections:
    - **Dataverse** — use the service account with System Administrator role
    - **Microsoft Teams** — use the service account for alert notifications
 
-!!! note "Approvals Connector"
-    The connection reference deployment (Phase 1, Step 3) creates two connection references (Dataverse and Teams). The **Microsoft Approvals** connector is used by the remediation and exception flows deployed in Phase 3 — create it manually when binding connection references in Phase 3, Step 2.
+!!! note "Connection References"
+    The connection reference deployment (Phase 1, Step 3) creates three connection references (Dataverse, Teams, and Approvals). All three are used across the detection, remediation, and exception flows.
 
 !!! note "Service Account Best Practice"
     Use a dedicated service account for flow connections rather than personal accounts. This helps meet separation-of-duties requirements and avoids flow disruption when personnel changes occur.
@@ -268,6 +267,17 @@ To adjust the schedule:
 1. Navigate to **Solutions** > **UASD** > **Environment variables**
 2. Edit `fsi_UASD_ScanFrequencyHours`
 3. Set the desired interval in hours
+
+**Recommended zone-based scheduling model:**
+
+| Zone | Recommended Frequency | Rationale |
+|------|----------------------|-----------|
+| Zone 3 (Enterprise Managed) | 4 hours | High-sensitivity agents require near-real-time violation detection |
+| Zone 2 (Team Collaboration) | 8–12 hours | Moderate sensitivity with same-day detection |
+| Zone 1 (Personal Productivity) | 24 hours (daily) | Lower sensitivity, daily scans sufficient |
+
+!!! note "Per-Zone Frequency Limitation"
+    The current implementation uses a single `fsi_UASD_ScanFrequencyHours` variable for all zones. Organizations needing per-zone scan frequencies should deploy separate detection flow instances per zone, each configured with a zone-scoped filter and its own recurrence interval.
 
 ### Step 4: Validate Detection Flow
 
@@ -289,29 +299,23 @@ Review the output for any sharing violations detected across environments. If vi
 
 ### Step 1: Deploy Remediation Flows
 
-The `-SolutionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. Each flow must be deployed separately.
+The flow definition paths below assume you are running from the FSI-AgentGov-Solutions repo root. Both the remediation flow and exception approval workflow are deployed in a single script invocation.
 
 ```powershell
-# Deploy remediation flow
+# Preview deployment (WhatIf)
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-remediation-apply-sharing-policy.json" `
+    -RemediationFlowPath "unrestricted-agent-sharing-detector\src\uasd-remediation-apply-sharing-policy.json" `
+    -ExceptionFlowPath "unrestricted-agent-sharing-detector\src\uasd-exception-approval-workflow.json" `
     -WhatIf
 
-# Deploy exception approval workflow
+# Deploy (production)
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
+    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-exception-approval-workflow.json" `
-    -WhatIf
-
-# After verifying, run both without -WhatIf
-.\scripts\governance\Deploy-RemediationFlow.ps1 `
-    -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-remediation-apply-sharing-policy.json"
-
-.\scripts\governance\Deploy-RemediationFlow.ps1 `
-    -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-exception-approval-workflow.json"
+    -RemediationFlowPath "unrestricted-agent-sharing-detector\src\uasd-remediation-apply-sharing-policy.json" `
+    -ExceptionFlowPath "unrestricted-agent-sharing-detector\src\uasd-exception-approval-workflow.json"
 ```
 
 ### Step 2: Bind Remediation Connection References
@@ -333,6 +337,9 @@ The `fsi_UASD_AutoRemediatePublicLink` environment variable controls whether pub
 !!! warning "FSI Default: Auto-Remediation Disabled"
     For financial services organizations, auto-remediation is **disabled by default** (`false`). This is recommended to allow compliance review before remediation actions. Enable only after establishing a documented review process and obtaining compliance officer approval.
 
+!!! info "Auto-Remediation Scope"
+    Per the solution design, the default remediation mode is **approval-required for all zones**. Fully automatic remediation is allowed **only** for `PUBLIC_INTERNET_LINK` violations when `fsi_UASD_AutoRemediatePublicLink` is explicitly set to `true`. All other violation types (`ORG_WIDE_SHARING`, `UNAPPROVED_GROUP`, `EXCESSIVE_INDIVIDUAL`, `CROSS_TENANT_ACCESS`) always require approval regardless of this setting.
+
 To enable auto-remediation (after compliance review):
 
 1. Navigate to **Solutions** > **UASD** > **Environment variables**
@@ -349,6 +356,9 @@ Set the approver email addresses for the dual-approval exception workflow:
 
 !!! warning "Required Before Enabling Exception Workflow"
     The exception approval workflow cannot function without configured approver emails. Both fields must be set before the workflow will process exception requests.
+
+!!! note "Exception Governance Is Not Optional"
+    Organizations that intentionally maintain broad-access agents must not silently tolerate those configurations. The solution requires such agents to be tracked through the exception workflow with documented approvals and time-bound expirations (`fsi_UASD_DefaultExceptionDays`). Unmanaged exceptions represent audit findings under FINRA 4511 and SEC 17a-4 recordkeeping requirements.
 
 ### Step 5: Configure Home Tenant ID
 
@@ -408,18 +418,37 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
     -InputPath .\config\approved-groups.csv
 ```
 
-The CSV file must contain four columns: `GroupId`, `GroupName`, `Zone`, and `ApprovedBy`. All columns are required.
+The CSV file requires two columns: `GroupId` and `DisplayName`. Optional columns: `Zone` (defaults to the `-DefaultZone` parameter value, which defaults to `All`) and `IsActive` (defaults to `true`). The script auto-populates `fsi_added_by` from the current user identity.
+
+!!! tip "JSON Format Supported"
+    The script auto-detects the input format from the file extension. JSON files (`.json`) containing an array of objects with `GroupId` and `DisplayName` properties are also accepted.
 
 Example CSV format:
 
 ```csv
-GroupId,GroupName,Zone,ApprovedBy
-00000000-0000-0000-0000-000000000001,Finance Team,3,admin@contoso.com
-00000000-0000-0000-0000-000000000002,Compliance Officers,2,admin@contoso.com
-00000000-0000-0000-0000-000000000003,Executive Assistants,2,admin@contoso.com
+GroupId,DisplayName,Zone,IsActive
+00000000-0000-0000-0000-000000000001,Finance Team,Zone3,true
+00000000-0000-0000-0000-000000000002,Compliance Officers,Zone2,true
+00000000-0000-0000-0000-000000000003,Executive Assistants,Zone2,true
 ```
 
-### Step 10: Import Exception Manager App
+### Step 10: Configure Sharing Policy Thresholds
+
+The `fsi_SharingPolicy` table stores zone-specific policy definitions including the `MaxIndividualSharesPerAgent` threshold used by the `EXCESSIVE_INDIVIDUAL` detection rule. Populate this table with organization-specific thresholds per zone:
+
+1. Navigate to **Power Apps** > **Dataverse** > **Tables** > **fsi_SharingPolicy**
+2. Create a record for each governance zone with appropriate thresholds:
+
+| Zone | Recommended `MaxIndividualSharesPerAgent` | Rationale |
+|------|-------------------------------------------|-----------|
+| Zone 1 (Personal Productivity) | 10 | Lower sensitivity, broader personal use |
+| Zone 2 (Team Collaboration) | 25 | Team-scoped sharing with moderate controls |
+| Zone 3 (Enterprise Managed) | 5 | Strictest controls for enterprise-critical agents |
+
+!!! warning "Required for Excessive Sharing Detection"
+    Without populating the `fsi_SharingPolicy` table, the `EXCESSIVE_INDIVIDUAL` rule may not function as designed. The `fsi_UASD_MaxIndividualShares` environment variable provides a global default fallback, but the table enables zone-specific overrides that align with the three-zone governance model.
+
+### Step 11: Import Exception Manager App
 
 Import the canvas app solution package for managing exceptions:
 
@@ -435,7 +464,7 @@ Import the canvas app solution package for managing exceptions:
 
 ### Step 1: Run Initial Sharing Audit
 
-Execute a full sharing audit to establish the baseline:
+Execute a full sharing audit to establish the baseline. This initial report serves as the first proof point that identity permissions, BAP API calls, and Dataverse connectivity are working correctly — a successfully populated report confirms the detector can enumerate agents and interpret sharing state as designed.
 
 ```powershell
 .\scripts\governance\Invoke-SharingAudit.ps1 `
@@ -514,7 +543,7 @@ Generate the first violation report to validate export functionality:
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| **Python `ModuleNotFoundError: uasd_client`** | Script run from wrong directory | Run Python scripts from the `scripts/` directory: `cd scripts` then `python create_uasd_dataverse_schema.py ...` |
+| **Python `ModuleNotFoundError: No module named 'caa_client'`** | Script run from wrong directory | Run Python scripts from the `scripts/` directory: `cd scripts` then `python create_uasd_dataverse_schema.py ...`. Verify the `caa_client` package is installed via `pip install -r scripts/requirements.txt`. |
 | **Schema deployment: `fsi_acv_zone not found`** | CAA schema not deployed | Run `python create_dataverse_schema.py` first to create shared option sets before the UASD schema |
 | **Az.Accounts token failure** | Not signed in or expired session | Run `Connect-AzAccount` and verify the account has Dataverse access |
 | **Dataverse 403 Forbidden** | Insufficient Dataverse permissions | Assign System Administrator or System Customizer security role to the service account |
@@ -525,6 +554,42 @@ Generate the first violation report to validate export functionality:
 | **Remediation flow inactive** | Flow imported but not activated | Navigate to the flow in Power Automate and click **Turn on** |
 | **Export returns empty results** | Filter parameters too restrictive or no violations in Dataverse | Try without filters first; verify violations exist in `fsi_SharingViolation` table |
 | **Teams notification not received** | Channel ID incorrect or connector permissions missing | Verify `fsi_UASD_TeamsGroupId` and `fsi_UASD_TeamsChannelId` values; check Teams connector permissions |
+
+### Deployment & Operational Issues
+
+| Issue | Severity | Cause | Resolution |
+|-------|----------|-------|------------|
+| **Unedited approved groups (placeholder GUIDs)** | High | The example CSV/JSON contains placeholder GUIDs that don't match real Entra group IDs | Replace all placeholder `GroupId` values with actual Entra group object IDs from your tenant before importing. Placeholder IDs cause universal `UNAPPROVED_GROUP` violations. |
+| **Automation identity running as personal account** | High | Detection or remediation flows running under a user account instead of a dedicated service principal | Configure flows to run under a dedicated Entra service principal or managed identity with minimum required scopes for BAP, Dataverse, and optionally Graph directory resolution. |
+| **Approved group still flagged as violation** | Medium | The `fsi_ApprovedSecurityGroup` record uses an incorrect Entra object ID, is marked inactive, or has a zone mismatch | Verify the record in Dataverse: confirm `fsi_entraid_group_id` matches the exact Entra object ID, `fsi_is_active` is `true`, and `fsi_zone` matches the agent's governance zone. |
+| **Exceptions stuck in Pending** | Medium | Approver email addresses not configured or exception approval flow is inactive | Verify `fsi_UASD_SecurityApproverEmail` and `fsi_UASD_DataOwnerApproverEmail` are set to valid email addresses. Check that the exception approval flow is turned on in Power Automate. Ensure exception approvals create active, non-expired records so the detector can suppress violations until expiration. |
+| **Policy threshold not configured** | Low | `fsi_SharingPolicy` table not seeded with zone-specific thresholds | Populate `fsi_SharingPolicy` with `MaxIndividualSharesPerAgent` values per zone. Without this configuration, the `EXCESSIVE_INDIVIDUAL` rule may use only the global `fsi_UASD_MaxIndividualShares` environment variable default. |
+| **Remediation returns 403/Forbidden** | High | Execution identity lacks write permissions for BAP remediation APIs or DLP policy blocks the connector | Validate that the service principal has permissions to call BAP bot permissions endpoints. Check that DLP policies in the target environment allow the Power Platform connector used by the remediation flow. |
+
+### Audit Evidence Production
+
+The UASD solution maintains a complete audit trail in Dataverse for regulatory compliance evidence:
+
+- **Violation records** (`fsi_SharingViolation`) — timestamped detection events with agent identity, violation type, severity, and sharing state snapshot
+- **Remediation records** — before/after governance state with remediation timestamp and operator identity
+- **Exception records** (`fsi_SharingException`) — dual-approval audit trail with business justification, expiration tracking, and approval timestamps
+
+To export evidence for compliance review:
+
+```powershell
+# Export violations with SHA-256 integrity hash
+.\scripts\governance\Export-ViolationReport.ps1 `
+    -DataverseUrl "https://<your-org>.crm.dynamics.com" `
+    -OutputFormat JSON `
+    -OutputPath .\evidence\violations-evidence.json `
+    -IncludeEvidence `
+    -IncludeExceptions
+```
+
+Dataverse records support evidence requirements for FINRA 4511 (books and records), GLBA 501(b) (safeguards through least privilege), and SOX 302/404 (internal controls and access governance). Organizations should validate that exported evidence meets their specific compliance program requirements.
+
+!!! tip "Alternative Environment Variable for Remediation Script"
+    The `remediate_agent_sharing.py` script accepts `DATAVERSE_ORG_URL` as an alternative to `CAA_ENVIRONMENT_URL` for specifying the Dataverse endpoint. If using environment variables for authentication, either variable name is accepted.
 
 ### Diagnostic Steps
 
