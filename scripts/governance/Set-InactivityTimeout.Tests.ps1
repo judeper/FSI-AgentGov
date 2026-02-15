@@ -17,8 +17,8 @@
     All BAP and Dataverse API calls are mocked via Mock Invoke-RestMethod.
     No external API calls are made during test execution.
 
-    Test categories (6 Describe blocks, 28 tests):
-      1. Parameter Validation (7 tests)
+    Test categories (6 Describe blocks, 29 tests):
+      1. Parameter Validation (8 tests)
       2. BAP API Interactions (5 tests)
       3. WhatIf Support (3 tests)
       4. Verification (3 tests)
@@ -138,6 +138,11 @@ Describe 'Parameter Validation' {
 
     It 'WarningDuration rejects value above 30' {
         { & $script:scriptPath -EnvironmentName $script:testEnvironmentName -WarningDuration 50 -Confirm:$false 2>$null } |
+            Should -Throw
+    }
+
+    It 'Rejects WarningDuration greater than or equal to TimeoutDuration' {
+        { & $script:scriptPath -EnvironmentName $script:testEnvironmentName -TimeoutDuration 5 -WarningDuration 10 -Confirm:$false 2>$null } |
             Should -Throw
     }
 }

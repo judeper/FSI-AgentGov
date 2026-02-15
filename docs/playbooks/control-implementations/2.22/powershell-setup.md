@@ -29,7 +29,7 @@ Configures the inactivity timeout duration for a Power Platform environment via 
 |-----------|------|----------|---------|-------------|
 | `-EnvironmentName` | String | Yes | — | Power Platform Environment Name (canonical GUID, not display name) |
 | `-TimeoutDuration` | Int32 | No | 120 | Inactivity timeout duration in minutes (valid range: 5-120) |
-| `-WarningDuration` | Int32 | No | 5 | Warning notification duration in minutes before timeout (valid range: 1-30) |
+| `-WarningDuration` | Int32 | No | 5 | Warning notification duration in minutes before timeout (valid range: 1-30; must be less than `-TimeoutDuration`) |
 | `-DataverseUrl` | String | No | — | Dataverse environment URL for writing remediation audit records (e.g., `https://org12345.crm.dynamics.com/`) |
 | `-OutputFormat` | String | No | Object | Output format: `Table`, `JSON`, or `Object` |
 | `-OutputPath` | String | No | — | File path to export JSON results |
@@ -204,6 +204,38 @@ $token = if ($tokenResult.Token -is [securestring]) { $tokenResult.Token | Conve
 | `403 Forbidden` | Insufficient permissions | Verify service principal has Power Platform Admin or Environment Admin role |
 | `404 Not Found` | Invalid EnvironmentName | Use the canonical EnvironmentName (GUID format), not the display name |
 | `429 Too Many Requests` | API rate limiting | Implement retry with exponential backoff; reduce concurrency for bulk runs |
+
+---
+
+## Evidence Hash Verification
+
+When `-IncludeEvidence` is used, the script computes a SHA-256 integrity hash over the result object. The hash is computed on **compressed JSON** (no whitespace). To verify a previously exported evidence file:
+
+```powershell
+# 1. Read the exported evidence JSON
+$evidence = Get-Content .\evidence\timeout-remediation.json -Raw | ConvertFrom-Json
+
+# 2. Capture the recorded hash, then null it out for recomputation
+$recordedHash = $evidence.Metadata.IntegrityHash
+$evidence.Metadata.IntegrityHash = $null
+
+# 3. Recompute the hash using compressed JSON (must match original format)
+$json = $evidence | ConvertTo-Json -Depth 10 -Compress
+$hashBytes = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+    [System.Text.Encoding]::UTF8.GetBytes($json)
+)
+$computedHash = [BitConverter]::ToString($hashBytes) -replace '-'
+
+# 4. Compare
+if ($computedHash -eq $recordedHash) {
+    Write-Host "Evidence integrity verified" -ForegroundColor Green
+} else {
+    Write-Warning "Hash mismatch — evidence may have been modified"
+}
+```
+
+!!! warning "Compression Required"
+    The hash is computed on compressed JSON (`ConvertTo-Json -Compress`). Using pretty-printed JSON for verification will produce a different hash.
 
 ---
 

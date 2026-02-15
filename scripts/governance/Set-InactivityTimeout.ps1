@@ -110,6 +110,12 @@ param(
 $ErrorActionPreference = 'Stop'
 $startTime = [DateTime]::UtcNow
 
+# ─── Cross-parameter validation ───────────────────────────────────────
+if ($WarningDuration -ge $TimeoutDuration) {
+    throw "WarningDuration ($WarningDuration) must be less than TimeoutDuration ($TimeoutDuration). " +
+          "The warning notification fires WarningDuration minutes before session expiry; it cannot exceed or equal the timeout itself."
+}
+
 # ─── Banner ───────────────────────────────────────────────────────────
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host   "║  FSI Agent Governance — Inactivity Timeout Remediation ║" -ForegroundColor Cyan
