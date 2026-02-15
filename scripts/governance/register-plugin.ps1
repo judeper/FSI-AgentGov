@@ -71,7 +71,7 @@ param(
     [string]$AssemblyPath,
 
     [Parameter()]
-    [string]$ConfigPath = 'src/MimeConfig.json',
+    [string]$ConfigPath = (Join-Path $PSScriptRoot 'mime-templates' 'zone3.json'),
 
     [Parameter()]
     [string]$AccessToken
@@ -91,7 +91,7 @@ $STAGE          = 10  # Pre-validation
 
 # ─── Banner ───────────────────────────────────────────────────────────
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host   "║  FSI Agent Governance — Register MIME Validation Plugin ║" -ForegroundColor Cyan
+Write-Host   "║  FSI Agent Governance — Register MIME Validation Plugin  ║" -ForegroundColor Cyan
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 Write-Host "  Dataverse URL:  $DataverseUrl" -ForegroundColor Gray
@@ -106,7 +106,13 @@ if (-not $AccessToken) {
     try {
         Write-Verbose "No AccessToken provided — acquiring via Get-AzAccessToken."
         $azToken = Get-AzAccessToken -ResourceUrl $baseUrl -ErrorAction Stop
-        $AccessToken = $azToken.Token
+        # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
+        if ($azToken.Token -is [System.Security.SecureString]) {
+            $AccessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+                [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+        } else {
+            $AccessToken = $azToken.Token
+        }
         Write-Host "  [OK] Token acquired via Az.Accounts" -ForegroundColor Green
     }
     catch {
@@ -116,7 +122,6 @@ if (-not $AccessToken) {
 
 $headers = @{
     'Authorization' = "Bearer $AccessToken"
-    'Content-Type'  = 'application/json'
     'OData-MaxVersion' = '4.0'
     'OData-Version'    = '4.0'
     'Accept'           = 'application/json'
@@ -185,6 +190,7 @@ function Invoke-DataverseApi {
 
     if ($Body) {
         $params['Body'] = ($Body | ConvertTo-Json -Depth 10 -Compress)
+        $params['ContentType'] = 'application/json'
     }
 
     try {
@@ -291,7 +297,7 @@ $messageId = $msgResult.value[0].sdkmessageid
 Write-Verbose "SdkMessage '$MESSAGE_NAME' ID: $messageId"
 
 # Get message filter for annotation entity
-$filterResult = Invoke-DataverseApi -Method GET -Uri "$apiBase/sdkmessagefilters?`$filter=sdkmessageid/sdkmessageid eq $messageId and primaryobjecttypecode eq '$ENTITY_NAME'&`$select=sdkmessagefilterid"
+$filterResult = Invoke-DataverseApi -Method GET -Uri "$apiBase/sdkmessagefilters?`$filter=_sdkmessageid_value eq $messageId and primaryobjecttypecode eq '$ENTITY_NAME'&`$select=sdkmessagefilterid"
 if (-not $filterResult.value -or $filterResult.value.Count -eq 0) {
     throw "SDK message filter for '$MESSAGE_NAME' on '$ENTITY_NAME' not found."
 }
@@ -305,7 +311,7 @@ Write-Host "  Step 5: Registering plugin step..." -ForegroundColor White
 $existingStep = $null
 try {
     $filter = "name eq '$STEP_NAME'"
-    $result = Invoke-DataverseApi -Method GET -Uri "$apiBase/sdkmessageprocessingsteps?`$filter=$filter&`$select=sdkmessageprocessingstepid,name"
+    $result = Invoke-DataverseApi -Method GET -Uri "$apiBase/sdkmessageprocessingsteps?`$filter=$filter&`$select=sdkmessageprocessingstepid,name,_sdkmessageprocessingstepsecureconfigid_value"
     if ($result.value -and $result.value.Count -gt 0) {
         $existingStep = $result.value[0]
         Write-Host "    Found existing step: $($existingStep.sdkmessageprocessingstepid)" -ForegroundColor Yellow
@@ -322,21 +328,35 @@ $stepPayload = @{
     rank                                    = 1
     mode                                    = 0  # Synchronous
     supporteddeployment                     = 0  # Server only
-    configuration                           = $mimeConfig
     filteringattributes                     = 'documentbody,mimetype,filename'
     'sdkmessageid@odata.bind'               = "sdkmessages($messageId)"
     'sdkmessagefilterid@odata.bind'         = "sdkmessagefilters($filterId)"
     'plugintypeid@odata.bind'               = "plugintypes($typeId)"
 }
 
+# Create or update secure configuration record for the MIME policy
+Write-Host "    Creating secure configuration record..." -ForegroundColor Yellow
+$secureConfigPayload = @{ secureconfig = $mimeConfig }
+
 $stepId = $null
 
 if ($existingStep) {
     $stepId = $existingStep.sdkmessageprocessingstepid
+    # Update existing secure config if present, otherwise create new
+    $existingSecureConfigId = $existingStep._sdkmessageprocessingstepsecureconfigid_value
+    if ($existingSecureConfigId) {
+        Invoke-DataverseApi -Method PATCH -Uri "$apiBase/sdkmessageprocessingstepsecureconfigs($existingSecureConfigId)" -Body $secureConfigPayload
+    }
+    else {
+        $secureConfigResp = Invoke-DataverseApi -Method POST -Uri "$apiBase/sdkmessageprocessingstepsecureconfigs" -Body $secureConfigPayload
+        $stepPayload['sdkmessageprocessingstepsecureconfigid@odata.bind'] = "sdkmessageprocessingstepsecureconfigs($($secureConfigResp.sdkmessageprocessingstepsecureconfigid))"
+    }
     Invoke-DataverseApi -Method PATCH -Uri "$apiBase/sdkmessageprocessingsteps($stepId)" -Body $stepPayload
     Write-Host "    [OK] Step updated: $stepId" -ForegroundColor Green
 }
 else {
+    $secureConfigResp = Invoke-DataverseApi -Method POST -Uri "$apiBase/sdkmessageprocessingstepsecureconfigs" -Body $secureConfigPayload
+    $stepPayload['sdkmessageprocessingstepsecureconfigid@odata.bind'] = "sdkmessageprocessingstepsecureconfigs($($secureConfigResp.sdkmessageprocessingstepsecureconfigid))"
     $newStep = Invoke-DataverseApi -Method POST -Uri "$apiBase/sdkmessageprocessingsteps" -Body $stepPayload
     $stepId = $newStep.sdkmessageprocessingstepid
     Write-Host "    [OK] Step registered: $stepId" -ForegroundColor Green
@@ -373,5 +393,5 @@ $result = [PSCustomObject]@{
     }
 }
 
-$result | Format-List
+$result | Format-List | Out-Host
 return $result

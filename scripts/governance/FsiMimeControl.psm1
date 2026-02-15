@@ -36,7 +36,7 @@ $script:TemplateBasePath = Join-Path $PSScriptRoot 'mime-templates'
 
 # ─── Banner ───────────────────────────────────────────────────────────
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host   "║  FSI Agent Governance — MIME Type Configuration Module  ║" -ForegroundColor Cyan
+Write-Host   "║  FSI Agent Governance — MIME Type Configuration Module   ║" -ForegroundColor Cyan
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 # ═══════════════════════════════════════════════════════════════════════

@@ -15,13 +15,13 @@
     All Dataverse API calls are mocked via Mock Invoke-RestMethod.
     No external API calls are made during test execution.
 
-    Test categories (6 Describe blocks, ~32 tests):
+    Test categories (6 Describe blocks, ~40 tests):
       1. Module Loading (3 tests)
       2. Zone Templates (6 tests)
-      3. Get-FsiMimeConfig (5 tests)
-      4. Set-FsiMimeConfig (6 tests)
+      3. Get-FsiMimeConfig (6 tests)
+      4. Set-FsiMimeConfig (11 tests)
       5. Test-FsiMimeCompliance (8 tests)
-      6. Connection Management (4 tests)
+      6. Connection Management (6 tests)
 
 .NOTES
     Run: Invoke-Pester -Path ./scripts/governance/FsiMimeControl.Tests.ps1 -Output Detailed

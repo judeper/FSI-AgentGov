@@ -739,7 +739,6 @@ Helps prevent malicious or high-risk file types from being uploaded to AI agent 
 - `mime-type-restrictions/src/dlp-policy-template.json` — Purview DLP policy template for executable file blocking (in FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/query-mime-blocks.kql` — Sentinel KQL query for MIME type block event monitoring (in FSI-AgentGov-Solutions)
 - `mime-type-restrictions/src/high-volume-blocks.json` — Sentinel analytics alert rule ARM template for high-volume block detection (in FSI-AgentGov-Solutions)
-- `scripts/governance/mime-type-exceptions.csv` — Exception register with validation script and request template (in FSI-AgentGov)
 
 **Regulatory Alignment:**
 

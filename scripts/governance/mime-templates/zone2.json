@@ -23,15 +23,16 @@
     "application/x-msi",
     "application/hta",
     "application/msaccess",
-    "text/scriplet",
-    "application/xml",
-    "application/prg"
+    "application/vnd.ms-access",
+    "text/scriptlet",
+    "application/xml"
   ],
   "allowedMimeTypes": [
     "application/pdf",
     "image/png",
     "image/jpeg",
     "image/gif",
+    "image/tiff",
     "text/plain",
     "text/csv",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

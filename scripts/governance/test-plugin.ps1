@@ -82,7 +82,7 @@ $TEST_PREFIX    = 'FSI-MIME-TEST'
 
 # ─── Banner ───────────────────────────────────────────────────────────
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host   "║  FSI Agent Governance — MIME Plugin Integration Tests   ║" -ForegroundColor Cyan
+Write-Host   "║  FSI Agent Governance — MIME Plugin Integration Tests    ║" -ForegroundColor Cyan
 Write-Host   "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 Write-Host "  Dataverse URL: $DataverseUrl" -ForegroundColor Gray
@@ -95,7 +95,13 @@ if (-not $AccessToken) {
     try {
         Write-Verbose "No AccessToken provided — acquiring via Get-AzAccessToken."
         $azToken = Get-AzAccessToken -ResourceUrl $baseUrl -ErrorAction Stop
-        $AccessToken = $azToken.Token
+        # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
+        if ($azToken.Token -is [System.Security.SecureString]) {
+            $AccessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+                [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+        } else {
+            $AccessToken = $azToken.Token
+        }
         Write-Host "  [OK] Token acquired via Az.Accounts" -ForegroundColor Green
     }
     catch {
@@ -109,6 +115,7 @@ $headers = @{
     'OData-MaxVersion' = '4.0'
     'OData-Version'    = '4.0'
     'Accept'           = 'application/json'
+    'Prefer'           = 'return=representation'
 }
 
 $apiBase = "$baseUrl/api/data/$API_VERSION"
@@ -165,20 +172,21 @@ function New-TestAnnotation {
         }
     }
     catch {
+        $apiError = $_
         $statusCode = $null
-        $errorMessage = $_.Exception.Message
+        $errorMessage = $apiError.Exception.Message
 
-        if ($_.Exception.Response) {
-            $statusCode = [int]$_.Exception.Response.StatusCode
+        if ($apiError.Exception.Response) {
+            $statusCode = [int]$apiError.Exception.Response.StatusCode
         }
 
-        if ($_.ErrorDetails.Message) {
+        if ($apiError.ErrorDetails.Message) {
             try {
-                $errorDetail = $_.ErrorDetails.Message | ConvertFrom-Json
+                $errorDetail = $apiError.ErrorDetails.Message | ConvertFrom-Json
                 $errorMessage = $errorDetail.error.message
             }
             catch {
-                $errorMessage = $_.ErrorDetails.Message
+                $errorMessage = $apiError.ErrorDetails.Message
             }
         }
 
@@ -322,7 +330,7 @@ $testResults | Format-Table -Property @(
     @{ Label = 'Status'; Expression = { $_.Status }; Width = 8 }
     @{ Label = 'Test'; Expression = { $_.Test }; Width = 30 }
     @{ Label = 'Detail'; Expression = { $_.Detail } }
-) -AutoSize
+) -AutoSize | Out-Host
 
 $result = [PSCustomObject]@{
     Metadata = [PSCustomObject]@{

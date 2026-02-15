@@ -62,12 +62,15 @@
 3. Recommended allowlist for regulated environments:
 
     ```
-    application/pdf;image/png;image/jpeg;image/gif;text/plain;text/csv;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/vnd.openxmlformats-officedocument.presentationml.presentation
+    application/pdf;image/png;image/jpeg;image/gif;image/tiff;text/plain;text/csv;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/vnd.openxmlformats-officedocument.presentationml.presentation
     ```
 
 4. Click **Save** to apply changes
 
-> **Important:** When an allowlist is configured, only the listed MIME types are accepted. All other types are rejected regardless of the blocked list. Zone 3 environments should also include `image/tiff` in the allowlist (see zone3.json template for the complete list).
+> **Important:** When an allowlist is configured, only the listed MIME types are accepted. All other types are rejected regardless of the blocked list. Both Zone 2 and Zone 3 templates include `image/tiff` in the allowlist — see the zone template JSON files for the complete list.
+
+!!! warning "Legacy Office Formats Not Included"
+    The zone template allowlists include modern Office formats (`.docx`, `.xlsx`, `.pptx`) but **not** legacy binary formats (`.doc`, `.xls`, `.ppt`). If your organization exchanges legacy Office documents — common in FSI for regulatory correspondence and historical records — add `application/msword`, `application/vnd.ms-excel`, and `application/vnd.ms-powerpoint` to your environment's allowed MIME types list. Alternatively, use an exception request per the [exception template](../../../templates/exception-template.md).
 
 ### Step 5: Review and Apply Zone Template
 

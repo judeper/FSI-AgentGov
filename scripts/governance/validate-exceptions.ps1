@@ -99,7 +99,10 @@ $startTime = [DateTime]::UtcNow
 
 # ─── WhatIf Preview ──────────────────────────────────────────────────
 if (-not $PSCmdlet.ShouldProcess("Dataverse: $DataverseUrl", "Validate MIME exceptions against $ZoneTemplate template")) {
-    Write-Verbose "WhatIf: Would validate MIME configuration against $ZoneTemplate template and exception register at $ExceptionRegisterPath"
+    Write-Host "  [WhatIf] Would validate MIME configuration against $ZoneTemplate template" -ForegroundColor Yellow
+    Write-Host "    Zone template:      $ZoneTemplate" -ForegroundColor Yellow
+    Write-Host "    Exception register: $ExceptionRegisterPath" -ForegroundColor Yellow
+    Write-Host "    Dataverse URL:      $DataverseUrl" -ForegroundColor Yellow
     return
 }
 
@@ -147,19 +150,24 @@ $allExceptions = Import-Csv -Path $ExceptionRegisterPath -Encoding UTF8
 # Extract environment ID from Dataverse URL for matching
 $envIdFromUrl = $DataverseUrl.TrimEnd('/')
 
-# Filter active exceptions matching this environment
+# Filter active exceptions matching this environment (case-insensitive Status comparison)
 $activeExceptions = $allExceptions | Where-Object {
-    $_.Status -eq 'Active' -and (
-        $_.EnvironmentId -eq $envIdFromUrl -or
-        $_.EnvironmentId -eq $envConfig.OrganizationId -or
+    $_.Status -ieq 'Active' -and (
+        $_.EnvironmentId -ieq $envIdFromUrl -or
+        $_.EnvironmentId -ieq $envConfig.OrganizationId -or
         [string]::IsNullOrWhiteSpace($_.EnvironmentId)
     )
 }
 
+if ($activeExceptions.Count -eq 0 -and ($allExceptions | Where-Object { $_.Status -ieq 'Active' }).Count -gt 0) {
+    Write-Warning "No exceptions matched this environment. CSV EnvironmentId values may not match the Dataverse URL or Organization ID. URL: $envIdFromUrl, OrgId: $($envConfig.OrganizationId)"
+}
+
 Write-Verbose "Found $($allExceptions.Count) total exceptions, $($activeExceptions.Count) active for this environment"
 
-# Build lookup of active exception MIME types
-$exceptionMimeTypes = @{}
+# Build lookup of active exception MIME types (case-insensitive)
+$exceptionMimeTypes = [System.Collections.Generic.Dictionary[string,object]]::new(
+    [System.StringComparer]::OrdinalIgnoreCase)
 foreach ($exc in $activeExceptions) {
     $exceptionMimeTypes[$exc.MimeType] = $exc
 }
@@ -169,12 +177,26 @@ Write-Host "  Validating MIME types against $ZoneTemplate template and exception
 
 $results = [System.Collections.Generic.List[PSCustomObject]]::new()
 
+# Zone 1 templates define no allowlist — all allowed MIME types are acceptable
+$templateHasAllowlist = $allowedBaseline.Count -gt 0
+
 # Check each MIME type in the environment's allowed list against template + exceptions
 foreach ($mime in $envMimeTypes) {
-    $inTemplate = $mime -in $allowedBaseline
+    $inTemplate = $templateHasAllowlist -and ($mime -iin $allowedBaseline)
     $inException = $exceptionMimeTypes.ContainsKey($mime)
 
-    if ($inTemplate) {
+    if (-not $templateHasAllowlist) {
+        # Zone template does not define an allowlist — all allowed MIME types are compliant
+        $results.Add([PSCustomObject]@{
+            MimeType       = $mime
+            Source         = 'Template'
+            ExceptionId    = $null
+            Status         = 'Compliant'
+            ExpirationDate = $null
+            Action         = 'OK'
+        })
+    }
+    elseif ($inTemplate) {
         $results.Add([PSCustomObject]@{
             MimeType       = $mime
             Source         = 'Template'
@@ -186,7 +208,7 @@ foreach ($mime in $envMimeTypes) {
     }
     elseif ($inException) {
         $exc = $exceptionMimeTypes[$mime]
-        $expDate = if ($exc.ExpirationDate) { [datetime]::Parse($exc.ExpirationDate) } else { $null }
+        $expDate = if ($exc.ExpirationDate) { [datetime]::Parse($exc.ExpirationDate, [System.Globalization.CultureInfo]::InvariantCulture) } else { $null }
         $now = [DateTime]::UtcNow
 
         $action = 'OK'
@@ -230,8 +252,8 @@ foreach ($exc in $allExceptions) {
     # Check ReviewDate
     if (-not [string]::IsNullOrWhiteSpace($exc.ReviewDate)) {
         try {
-            $reviewDate = [datetime]::Parse($exc.ReviewDate)
-            if ($reviewDate -lt $now -and $exc.Status -eq 'Active') {
+            $reviewDate = [datetime]::Parse($exc.ReviewDate, [System.Globalization.CultureInfo]::InvariantCulture)
+            if ($reviewDate -lt $now -and $exc.Status -ieq 'Active') {
                 $expiredExceptions.Add([PSCustomObject]@{
                     ExceptionId = $exc.ExceptionId
                     MimeType    = $exc.MimeType
@@ -241,7 +263,7 @@ foreach ($exc in $allExceptions) {
                     Message     = "Review date has passed — exception requires re-evaluation"
                 })
             }
-            elseif ($reviewDate -gt $now -and ($reviewDate - $now).TotalDays -le 30 -and $exc.Status -eq 'Active') {
+            elseif ($reviewDate -gt $now -and ($reviewDate - $now).TotalDays -le 30 -and $exc.Status -ieq 'Active') {
                 $expiringExceptions.Add([PSCustomObject]@{
                     ExceptionId = $exc.ExceptionId
                     MimeType    = $exc.MimeType
@@ -260,8 +282,8 @@ foreach ($exc in $allExceptions) {
     # Check ExpirationDate
     if (-not [string]::IsNullOrWhiteSpace($exc.ExpirationDate)) {
         try {
-            $expDate = [datetime]::Parse($exc.ExpirationDate)
-            if ($expDate -lt $now -and $exc.Status -eq 'Active') {
+            $expDate = [datetime]::Parse($exc.ExpirationDate, [System.Globalization.CultureInfo]::InvariantCulture)
+            if ($expDate -lt $now -and $exc.Status -ieq 'Active') {
                 $expiredExceptions.Add([PSCustomObject]@{
                     ExceptionId = $exc.ExceptionId
                     MimeType    = $exc.MimeType
@@ -271,7 +293,7 @@ foreach ($exc in $allExceptions) {
                     Message     = "Exception has expired — MIME type allowance should be revoked or renewed"
                 })
             }
-            elseif ($expDate -gt $now -and ($expDate - $now).TotalDays -le 30 -and $exc.Status -eq 'Active') {
+            elseif ($expDate -gt $now -and ($expDate - $now).TotalDays -le 30 -and $exc.Status -ieq 'Active') {
                 $expiringExceptions.Add([PSCustomObject]@{
                     ExceptionId = $exc.ExceptionId
                     MimeType    = $exc.MimeType

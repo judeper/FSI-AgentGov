@@ -11,7 +11,7 @@ Scripts for automating governance control implementation.
 | `Test-AgentAuthConfiguration.ps1` | Validate per-agent authentication configuration against 6 SSPM items with zone-based logic | Control 1.1 |
 | `Test-ZoneAgentAccess.ps1` | Validate M365 agent access settings against zone-based governance policies (agent access policy, admin exclusion groups, deployment groups, web search) | Control 3.8 |
 | `FsiMimeControl.psm1` | PowerShell module for zone-based MIME type configuration management via Dataverse Web API (Get/Set/Test cmdlets) | Control 1.25 |
-| `FsiMimeControl.Tests.ps1` | Pester 5 test suite for FsiMimeControl module (32 tests, 6 categories) | Control 1.25 |
+| `FsiMimeControl.Tests.ps1` | Pester 5 test suite for FsiMimeControl module (40 tests, 6 categories) | Control 1.25 |
 | `register-plugin.ps1` | Register ValidateMimeTypePlugin assembly and step in Dataverse for server-side magic bytes validation | Control 1.25 |
 | `test-plugin.ps1` | Integration tests for ValidateMimeTypePlugin server-side validation (5 test cases) | Control 1.25 |
 | `validate-exceptions.ps1` | Validate MIME type exception register against environment configuration and zone templates | Control 1.25 |
