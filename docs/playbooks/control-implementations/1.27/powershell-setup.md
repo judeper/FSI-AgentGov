@@ -6,7 +6,7 @@
 ## Prerequisites
 
 - [ ] Power Platform Admin or Entra Global Admin role
-- [ ] PowerShell 7.0 or later
+- [ ] PowerShell 7.0 or later (Windows PowerShell 5.1 may work but 7+ is recommended; install via `winget install Microsoft.PowerShell`)
 - [ ] Microsoft.PowerApps.Administration.PowerShell module (latest version recommended)
 - [ ] ExchangeOnlineManagement module (required for Script 2 — audit log queries)
 
@@ -20,7 +20,7 @@
 # Install or update the Power Platform Administration module
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
 
-# Install Exchange Online Management module (required for Script 2 — audit log queries)
+# Install Exchange Online Management module (required for Script 2 -- audit log queries)
 Install-Module -Name ExchangeOnlineManagement -Force
 
 # Verify module versions
@@ -31,15 +31,20 @@ Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable |
 Add-PowerAppsAccount
 
 # Authenticate to Exchange Online (required for Script 2)
+# Replace admin@yourdomain.com with your actual admin UPN (e.g., jsmith@contoso.com)
 Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com
 ```
 
 ---
 
-!!! tip "Automated Solution Available"
-    The **Content Moderation Governance Monitor** solution provides automated per-agent validation with drift detection, Dataverse persistence, and SHA-256 evidence export. The standalone scripts below are useful for ad-hoc assessments; for continuous monitoring, deploy the [automated solution](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor).
+!!! danger "API Availability — Verify Before Use"
+    The cmdlet `Get-AdminPowerAppChatbot` and property paths used in these scripts (e.g., `Properties.ContentModeration.DefaultLevel`) are based on **anticipated API schema** as of February 2026. These scripts are reporting templates — they may not return data in your tenant. Before running any script, test cmdlet availability:
 
-> **⚠️ API Availability Note:** The cmdlet `Get-AdminPowerAppChatbot` and property paths used in these scripts (e.g., `Properties.ContentModeration.DefaultLevel`) are based on anticipated API schema as of February 2026. Verify cmdlet availability and property paths in your tenant before use. If the cmdlet is not available, use the Copilot Studio portal or Dataverse Web API for agent moderation inventory.
+    ```powershell
+    Get-AdminPowerAppChatbot -EnvironmentName "your-env" | Select-Object -First 1 | ConvertTo-Json -Depth 5
+    ```
+
+    If the cmdlet is not available or returns no `ContentModeration` properties, use the [Portal Walkthrough](portal-walkthrough.md) for manual configuration and inventory.
 
 ## Script 1: Get-AgentModerationInventory.ps1
 
@@ -155,6 +160,9 @@ foreach ($env in $environments) {
         -FreeText $envName -ErrorAction SilentlyContinue
     
     foreach ($event in $auditEvents) {
+        # NOTE: Operation names "UpdateChatbot" and "ModifyModeration" are anticipated
+        # values. Run a broad Search-UnifiedAuditLog query without operation filters
+        # first to discover actual operation names in your tenant.
         if ($event.Operations -like "*UpdateChatbot*" -or $event.Operations -like "*ModifyModeration*") {
             $moderationChanges += [PSCustomObject]@{
                 Timestamp    = $event.CreationDate
@@ -230,8 +238,8 @@ foreach ($env in $environments) {
                 "Not Configured"
             }
             
-            # Compare to required level
-            $isCompliant = $currentModeration -eq $zoneInfo.RequiredModeration
+            # Compare to required level (case-insensitive)
+            $isCompliant = $currentModeration -ieq $zoneInfo.RequiredModeration
             
             $complianceResults += [PSCustomObject]@{
                 Environment        = $env.DisplayName
@@ -287,7 +295,10 @@ Write-Host "`nFull compliance report exported to: $outputPath" -ForegroundColor 
     identifying topics that may require approval or review.
 
 .NOTES
-    Requires agent metadata API access for topic-level settings.
+    This script is a reporting template. No native PowerShell cmdlet exists for
+    topic-level moderation queries. The $topics variable must be populated via
+    Dataverse API or manual CSV import before the script produces results.
+    See the "Populating Topic Data" section below for instructions.
 #>
 
 $environments = Get-AdminPowerAppEnvironment
@@ -370,9 +381,46 @@ if ($lowOverrides.Count -gt 0) {
 
 ---
 
+### Populating Topic Data for Script 4
+
+Script 4 requires topic-level data that is not available via PowerShell cmdlets. Use one of these approaches to populate the `$topics` variable:
+
+**Option A: Dataverse API query** — Query bot component metadata directly:
+
+```powershell
+# Replace {botId} with the agent's Dataverse bot ID
+# Replace {orgUrl} with your Dataverse organization URL (e.g., https://yourorg.crm.dynamics.com)
+$botId = $agent.ChatbotName
+$orgUrl = "https://yourorg.crm.dynamics.com"
+$topics = Invoke-RestMethod -Uri "$orgUrl/api/data/v9.2/botcomponents?`$filter=_parentbotid_value eq '$botId' and componenttype eq 1" `
+    -Headers @{ Authorization = "Bearer $accessToken" }
+```
+
+**Option B: Manual CSV import** — Export topic data from Copilot Studio and import:
+
+```csv
+DisplayName,ContentModerationLevel
+Customer Inquiry Topic,High
+Account Balance Topic,Medium
+General FAQ Topic,High
+```
+
+```powershell
+$topics = Import-Csv -Path ".\AgentTopics.csv" | ForEach-Object {
+    [PSCustomObject]@{
+        Properties = @{
+            DisplayName = $_.DisplayName
+            ContentModeration = @{ Level = $_.ContentModerationLevel }
+        }
+    }
+}
+```
+
+---
+
 ## Sample Zone Mapping File
 
-Create `AgentZoneMapping.csv` for use with Script 3:
+Create `AgentZoneMapping.csv` for use with Script 3. Classify each agent using the zone decision framework in [Zones and Tiers](../../../framework/zones-and-tiers.md): Zone 1 = personal use only, Zone 2 = shared with team, Zone 3 = customer-facing or regulated.
 
 ```csv
 AgentName,GovernanceZone,RequiredModeration
@@ -388,7 +436,7 @@ IT Helpdesk Agent,Zone 2,High
 ## Automation Notes
 
 - **Scheduled Execution:** Run Script 1 (inventory) weekly for Zone 3, monthly for Zone 2, quarterly for Zone 1
-- **Audit Monitoring:** Run Script 2 (audit log) daily in Zone 3 environments to detect unauthorized moderation changes between formal weekly reviews
+- **Audit Monitoring:** Run Script 2 (audit log) daily in Zone 3 environments to detect unauthorized moderation changes
 - **Compliance Validation:** Run Script 3 (zone compliance) before quarterly governance reviews
 - **Topic Override Review:** Run Script 4 (topic overrides) before deploying agents with custom topics
 

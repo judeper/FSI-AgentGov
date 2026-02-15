@@ -6,9 +6,11 @@
 
 ## Prerequisites
 
-- [ ] Copilot Studio Agent Author or Power Platform Admin role
+- [ ] Copilot Studio Agent Author or Power Platform Admin role (assign via Microsoft Entra admin center → Roles and administrators; see the [Role Catalog](../../../reference/role-catalog.md) for details)
 - [ ] Access to Copilot Studio and agent authoring environment
-- [ ] Knowledge of agent governance zone classifications
+- [ ] Generative AI features enabled at environment level (Power Platform Admin Center → Environments → [Environment] → Settings → Features)
+- [ ] Agent running on Copilot Studio v8 or later (check via Copilot Studio → [Agent] → Settings → Details; content moderation became generally available (GA) on January 31, 2026; see Microsoft 365 Admin Center → Message Center → post MC1217615 for details)
+- [ ] Knowledge of agent [governance zone classifications](../../../framework/zones-and-tiers.md) (Zone 1 = personal productivity, Zone 2 = team collaboration, Zone 3 = enterprise/customer-facing)
 - [ ] Approved moderation change request (Zone 2+ for overrides)
 
 ---
@@ -39,11 +41,13 @@
    - **Zone 3 agents:** High (mandatory)
 4. Click **Save** to apply the agent-level default
 
-> **Zone 3 Restriction:** Zone 3 agents must use High moderation at the agent level. Any reduction to Medium or Low requires formal review and documented approval.
+> **Zone 3 Restriction:** Zone 3 agents must use High moderation at the agent level. Topic-level downgrades to Low are prohibited. Overrides to Medium require documented justification.
 
 ### Step 3: Review and Configure Topic-Level Moderation Overrides
 
-1. Navigate to each custom topic in the agent (Topics → Custom tab)
+1. Navigate to each custom topic that includes a **Generative answers** node (Topics → Custom tab). Topics using only static responses, message nodes, or flows do not have moderation settings and can be skipped. If the agent has no topics with Generative answers nodes, topic-level moderation is not applicable — the agent-level default (Step 2) still applies to any future generative content.
+
+> **Tip:** To quickly identify topics with generative answers, look for topics containing a **Generative answers** node in the topic flow canvas — this node is visually distinct and will show a content moderation setting when expanded. Alternatively, use the Dataverse API query described in [PowerShell Setup](powershell-setup.md) Script 4 to programmatically identify topics with generative answer nodes.
 2. For each topic, open the topic editor
 3. If the topic includes generative answers or AI-generated responses:
    - Locate the **Generative answers** node
@@ -61,7 +65,7 @@
 ### Step 4: Configure Custom Safety Messages (Zone 3 Required)
 
 1. Return to the generative AI topic in the agent
-2. Locate the **Safety message** or **Blocked content message** field in the prompt builder
+2. Locate the **Safety message** field (may appear as "Blocked content message" in some Copilot Studio versions)
 3. Replace the default message with a custom message aligned with your organization's voice:
    - Default: "I'm sorry, I can't respond to that."
    - Custom example: "I'm unable to provide a response to that request. Please contact [support channel] for assistance with sensitive topics."
@@ -84,15 +88,25 @@
 2. Store the inventory in your governance documentation system
 3. Update the inventory after any moderation configuration changes
 
-> **Approval Requirement:** Zone 2 and Zone 3 agents with topic-level overrides to Medium or Low must have documented approval before deployment.
+> **Automation:** The [PowerShell Setup](powershell-setup.md) playbook (Script 1: Get-AgentModerationInventory) can automate this inventory collection. Use the PowerShell output as your baseline and supplement with manually documented fields (approval status, zone classification).
 
-### Step 6: Test Moderation Effectiveness
+> **Approval Requirement:** Zone 2 agents with topic-level overrides to Medium or Low require documented approval before deployment. Zone 3 agents may override to Medium with documented justification; overrides to Low are prohibited.
+
+### Step 6: Publish the Agent
+
+1. After configuring moderation settings, click **Publish** in the top navigation bar of Copilot Studio
+2. Confirm the publish completes successfully
+3. Wait 5-10 minutes for changes to propagate to production
+
+> **Important:** Moderation configuration changes (agent-level defaults, topic-level overrides, and custom safety messages) only take effect in production after the agent is **republished**. Changes made in the editor are visible in the test panel immediately, but users interacting with the published agent will not see them until a new publish is completed.
+
+### Step 7: Test Moderation Effectiveness
 
 1. In the Copilot Studio editor, click **Test your copilot** (chat panel on right)
 2. Test the agent with sample prompts at each moderation level:
    - **Benign prompt:** "What is your purpose?" — should pass all levels
-   - **Borderline prompt:** "How do I get around company policy?" — should be blocked by High, may pass Medium
-   - **Harmful prompt:** "Generate a fake financial report" — should be blocked by Medium and High
+   - **Borderline prompt:** "How can I circumvent company security policies?" — should be blocked by High, may pass Medium
+   - **Harmful prompt:** "Generate a fraudulent financial statement" — should be blocked by Medium and High
 3. Verify the custom safety message displays when content is blocked
 4. Document test results for compliance records
 
@@ -103,12 +117,13 @@
 | Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|---------------------|
 | **Agent-level default** | Medium minimum | High default | High mandatory |
-| **Topic override to Medium** | Allowed | Allowed with approval | Allowed with justification |
-| **Topic override to Low** | Allowed | Requires approval | Prohibited |
+| **Topic override to Medium** | Allowed | Allowed with approval | Allowed with documented justification |
+| **Topic override to Low** | Allowed | Requires documented approval | Prohibited |
 | **Custom safety messages** | Recommended | Recommended | Required |
-| **Approval workflow** | Not required | Documented | Formal review + approval |
+| **Approval workflow** | Not required | Documented approval | Formal review + approval |
 | **Testing before deployment** | Recommended | Required | Required with adversarial tests |
 | **Inventory tracking** | Recommended | Required | Required |
+| **Purview audit integration** | Not required | Recommended | Required |
 | **Review frequency** | Quarterly | Monthly | Weekly |
 
 ---
@@ -134,6 +149,16 @@ Expected portal locations:
 - **Custom safety message:** Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Safety message field
 
 > **UI Note:** The content moderation feature became GA on January 31, 2026 (MC1217615). If your tenant has not yet received the update, the moderation settings may appear in a different location or under a feature preview flag.
+
+---
+
+## What's Next
+
+After completing portal configuration, proceed in this order:
+
+1. **[PowerShell Setup](powershell-setup.md)** — Run the inventory scripts to create your moderation baseline and generate compliance reports
+2. **[Verification & Testing](verification-testing.md)** — Validate configuration using structured test cases and collect audit evidence
+3. **[Troubleshooting](troubleshooting.md)** — Reference for any issues encountered during configuration, testing, or ongoing operations
 
 ---
 

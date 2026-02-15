@@ -7,6 +7,8 @@
 | Issue | Cause | Resolution |
 |-------|-------|------------|
 | Content moderation settings not visible in agent | Agent version below v8 or feature not enabled | Verify agent is on Copilot Studio v8+; check environment feature flags |
+| Generative AI system topic not found | Agent does not have generative AI enabled | Enable generative answers for the agent; verify agent type supports generative AI |
+| Agent publish fails after moderation changes | Validation errors, permission issues, or environment capacity | Check publish dialog for errors; verify Agent Author role; check environment capacity |
 | Topic-level override not taking precedence | Topic setting not saved or agent not republished | Save topic changes; republish agent; clear cache |
 | High moderation blocking legitimate prompts | Overly restrictive filter tuning or false positives | Review Azure AI Content Safety settings; adjust sensitivity thresholds |
 | Custom safety message not displaying | Message not saved or default message still configured | Verify message is saved in generative AI topic; check for typos in message field |
@@ -44,6 +46,56 @@ Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → C
 ```
 
 > **Note:** If the feature is still not visible after verification, contact Microsoft support to confirm feature availability for your tenant region.
+
+---
+
+### Issue: Generative AI System Topic Not Found
+
+**Symptoms:** The System tab under Topics does not show a generative AI topic (typically named "Conversational boosting" or "Generative answers")
+
+**Resolution:**
+
+1. Verify the agent has generative AI enabled:
+   - Open the agent in Copilot Studio
+   - Navigate to Topics → System tab
+   - If no generative AI topic is listed, the agent may not have generative answers enabled
+2. Enable generative answers for the agent:
+   - Navigate to Topics → System → look for a disabled "Generative answers" entry
+   - Enable the topic if it exists but is disabled
+   - If no generative AI topic exists, the agent type may not support generative AI (e.g., classic PVA agents created before Copilot Studio v8)
+3. Verify the agent type supports generative AI:
+   - Classic Power Virtual Agents bots (pre-Copilot Studio) may not have generative AI capabilities
+   - Migrate the agent to Copilot Studio v8+ format if necessary
+4. Check environment-level generative AI settings:
+   - Navigate to Power Platform Admin Center → Environments → [Environment] → Settings → Features
+   - Verify generative AI features are enabled at the environment level
+
+> **Note:** If the agent uses only static/rule-based topics without generative answers, topic-level content moderation settings are not applicable. The agent-level default moderation (configured in Step 2 of the Portal Walkthrough) still applies to any future generative content added to the agent.
+
+---
+
+### Issue: Agent Publish Fails After Moderation Configuration
+
+**Symptoms:** Clicking Publish in Copilot Studio produces an error, hangs indefinitely, or the publish does not complete successfully
+
+**Resolution:**
+
+1. Check for validation errors in the publish dialog:
+   - Review any error messages displayed during the publish process
+   - Common causes: incomplete topic configurations, unresolved topic errors, or missing required fields
+2. Verify you have publishing permissions:
+   - Ensure your account has Copilot Studio Agent Author or Environment Maker role for the agent's environment
+   - Agent ownership or co-ownership may be required for publishing
+3. Check environment capacity:
+   - Navigate to Power Platform Admin Center → Environments → [Environment] → Resources → Capacity
+   - Verify the environment has available Dataverse storage capacity
+4. Try alternative approaches:
+   - Save all changes, close the agent editor, reopen the agent, and try publishing again
+   - Try publishing from a different browser or clear browser cache
+   - If using multiple browser tabs with the same agent, close other tabs to avoid concurrent editing conflicts
+5. If publish fails with a specific error code, search [Microsoft Learn documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) for the error code
+
+> **Important:** Moderation configuration changes only take effect in production after successful publishing. If publishing fails, the previous moderation settings remain active for the published agent.
 
 ---
 
@@ -90,11 +142,18 @@ Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → C
 3. Use topic-level override for specific conversation paths:
    - If certain topics require less restrictive filtering, configure a topic-level override to Medium
    - Document the justification and obtain approval (Zone 2+)
-4. Refine the agent's generative answers prompt:
+4. Understand the Copilot Studio and Azure AI Content Safety relationship:
+   - Copilot Studio content moderation uses Azure AI Content Safety under the hood
+   - The Azure AI Content Safety resource is managed by Microsoft and may not be directly accessible in all tenants
+   - If you can access your Azure AI Content Safety resource, you can adjust category thresholds:
+     - Navigate to Azure portal → Azure AI Content Safety resource → Content filtering → Severity thresholds
+     - Consider lowering sensitivity for specific categories if false positives occur
+   - If you cannot access the Azure portal path, work with your Azure subscription admin or contact Microsoft support
+5. Refine the agent's generative answers prompt:
    - Adjust the system prompt to guide the agent toward compliant responses
    - Add explicit instructions to avoid triggering content filters
    - Test prompt variations to reduce false positive blocks
-5. Escalate to Microsoft support if persistent false positives occur
+6. Escalate to Microsoft support if persistent false positives occur
 
 **Portal Path:**
 ```
@@ -112,7 +171,7 @@ Azure Portal → Azure AI Content Safety → [Resource] → Content filtering �
 **Resolution:**
 
 1. Verify the custom safety message is configured:
-   - Navigate to the agent's generative AI topic (Topics → System → Conversational boosting)
+   - Navigate to the agent's generative AI topic (Topics → System → generative AI topic, typically named "Conversational boosting" or "Generative answers")
    - Locate the **Safety message** or **Blocked content message** field
    - Ensure the field contains your custom message (not empty or default text)
 2. Check for unsaved changes:
@@ -215,6 +274,7 @@ Microsoft Purview Compliance Portal → Audit → Search → Activities: "Update
    ```
 2. Connect to Exchange Online before running Script 2:
    ```powershell
+   # Replace admin@yourdomain.com with your actual admin UPN
    Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com
    ```
 3. Verify the connection:
@@ -262,6 +322,8 @@ Microsoft Purview Compliance Portal → Audit → Search → Activities: "Update
 ### Check Agent Moderation Status
 
 ```powershell
+# Replace "your-environment-name" with your actual environment name
+# Run Get-AdminPowerAppEnvironment to list available environment names
 Get-AdminPowerAppChatbot -EnvironmentName "your-environment-name" |
     Select-Object @{N='Agent';E={$_.Properties.DisplayName}},
                   @{N='ModerationLevel';E={$_.Properties.ContentModeration.DefaultLevel}},
