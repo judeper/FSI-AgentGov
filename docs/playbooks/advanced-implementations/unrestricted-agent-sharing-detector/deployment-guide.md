@@ -51,6 +51,7 @@ This guide walks through end-to-end deployment of the UASD solution, from Datave
 | Python | 3.9+ | Schema and configuration deployment scripts |
 | PowerShell | 7.0+ | Governance scripts (audit, export, import) |
 | Az.Accounts module | Latest | Dataverse OAuth authentication |
+| Microsoft.PowerApps.Administration.PowerShell module | Latest | On-demand sharing audit (Invoke-SharingAudit) |
 
 ```powershell
 # Verify PowerShell version
@@ -58,6 +59,7 @@ $PSVersionTable.PSVersion
 
 # Install required modules
 Install-Module -Name Az.Accounts -Scope CurrentUser -Force
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
 
 # Install Python dependencies
 pip install -r scripts/requirements.txt
@@ -67,8 +69,8 @@ pip install -r scripts/requirements.txt
 
 | Repository | Purpose |
 |------------|---------|
-| **FSI-AgentGov** (this repo) | Documentation, Python deployment scripts, PowerShell governance scripts |
-| **FSI-AgentGov-Solutions** (companion) | Power Automate flow definitions, canvas app package |
+| **FSI-AgentGov** (this repo) | Documentation and deployment guide |
+| **FSI-AgentGov-Solutions** (companion) | Python deployment scripts, PowerShell governance scripts, Power Automate flow definitions, canvas app package |
 
 !!! warning "Companion Repository Required"
     The flow JSON files and canvas app package used in Phases 2–3 are located in the **FSI-AgentGov-Solutions** companion repository. Clone it alongside this repository before proceeding:
@@ -106,7 +108,7 @@ python create_dataverse_schema.py `
 The schema deployment script creates five Dataverse tables with the `fsi_` publisher prefix.
 
 !!! note "Working Directory"
-    All Python scripts must be run from the `scripts/` directory so that the `caa_client` module can be found. Use `cd scripts` before running the commands below.
+    All Python scripts must be run from the `scripts/` directory so that the `uasd_client` module can be found. Use `cd scripts` before running the commands below.
 
 ```powershell
 cd scripts
@@ -119,10 +121,10 @@ python create_uasd_dataverse_schema.py --dry-run `
     --client-secret "<your-app-client-secret>"
 
 # Option B: Use environment variables (PowerShell)
-$env:CAA_ENVIRONMENT_URL = "https://<your-org>.crm.dynamics.com"
-$env:CAA_CLIENT_ID = "<your-app-client-id>"
-$env:CAA_CLIENT_SECRET = "<your-app-client-secret>"
-$env:CAA_TENANT_ID = "<your-tenant-id>"
+$env:UASD_ENVIRONMENT_URL = "https://<your-org>.crm.dynamics.com"
+$env:UASD_CLIENT_ID = "<your-app-client-id>"
+$env:UASD_CLIENT_SECRET = "<your-app-client-secret>"
+$env:UASD_TENANT_ID = "<your-tenant-id>"
 
 # Deploy schema (dry-run first)
 python create_uasd_dataverse_schema.py --dry-run
@@ -167,10 +169,11 @@ Key environment variables created:
 | `fsi_UASD_DataOwnerApproverEmail` | Data owner approver email for dual-approval workflow |
 | `fsi_UASD_RemediationDryRun` | Dry-run mode — prevents remediation changes (default: true) |
 | `fsi_UASD_TeamsGroupId` | Teams group/team ID for violation alert notifications |
+| `fsi_UASD_TeamsChannelId` | Teams channel ID for violation alert notifications |
 | `fsi_UASD_DataverseUrl` | Dataverse environment URL |
 
 !!! info "Variables Requiring Manual Configuration"
-    The deployment script creates all 10 variables with default or empty values. Several must be configured manually before the flows will function correctly: `fsi_UASD_DataverseUrl` (configured in Phase 1, Step 4), `fsi_UASD_SecurityApproverEmail`, `fsi_UASD_DataOwnerApproverEmail`, `fsi_UASD_HomeTenantId`, and `fsi_UASD_TeamsGroupId` (covered in Phase 3, Steps 4–6).
+    The deployment script creates all 11 variables with default or empty values. Several must be configured manually before the flows will function correctly: `fsi_UASD_DataverseUrl` (configured in Phase 1, Step 4), `fsi_UASD_SecurityApproverEmail`, `fsi_UASD_DataOwnerApproverEmail`, `fsi_UASD_HomeTenantId`, `fsi_UASD_TeamsGroupId`, and `fsi_UASD_TeamsChannelId` (covered in Phase 3, Steps 4–6).
 
 ### Step 3: Deploy Connection References
 
@@ -219,20 +222,18 @@ Set the `fsi_UASD_DataverseUrl` environment variable so the detection flow can l
 Deploy the detection flow using the governance script:
 
 !!! note "Flow Definition Source"
-    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The explicit `-FlowDefinitionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. If you omit the parameter, the script defaults to `src/uasd-detector-scan-agents.json` (relative to the current directory), which requires running from the `unrestricted-agent-sharing-detector/` subdirectory. If you cloned both repositories side-by-side, adjust the path accordingly.
+    The flow JSON files are located in the **FSI-AgentGov-Solutions** companion repository under `unrestricted-agent-sharing-detector/src/`. The `-SolutionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. If you cloned both repositories side-by-side, adjust the path accordingly.
 
 ```powershell
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
-    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -FlowDefinitionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json" `
+    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-detector-scan-agents.json" `
     -WhatIf
 
 # After verifying, run without -WhatIf
 .\scripts\governance\Deploy-DetectionFlow.ps1 `
-    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -FlowDefinitionPath "unrestricted-agent-sharing-detector/src/uasd-detector-scan-agents.json"
+    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-detector-scan-agents.json"
 ```
 
 ### Step 2: Bind Connection References
@@ -247,7 +248,7 @@ After import, bind the connection references to active connections:
    - **Microsoft Teams** — use the service account for alert notifications
 
 !!! note "Approvals Connector"
-    The connection reference deployment (Phase 1, Step 3) creates three connection references including **Microsoft Approvals**. The Approvals connector is used by the remediation and exception flows deployed in Phase 3 — you do not need to bind it during Phase 2.
+    The connection reference deployment (Phase 1, Step 3) creates two connection references (Dataverse and Teams). The **Microsoft Approvals** connector is used by the remediation and exception flows deployed in Phase 3 — create it manually when binding connection references in Phase 3, Step 2.
 
 !!! note "Service Account Best Practice"
     Use a dedicated service account for flow connections rather than personal accounts. This helps meet separation-of-duties requirements and avoids flow disruption when personnel changes occur.
@@ -285,22 +286,29 @@ Review the output for any sharing violations detected across environments. If vi
 
 ### Step 1: Deploy Remediation Flows
 
-The same flow definition source note from Phase 2 applies here — the explicit paths below assume you are running from the FSI-AgentGov-Solutions repo root. The script defaults (`src/uasd-remediation-apply-sharing-policy.json` and `src/uasd-exception-approval-workflow.json`) assume the `unrestricted-agent-sharing-detector/` subdirectory as the working directory.
+The `-SolutionPath` values below assume you are running from the FSI-AgentGov-Solutions repo root. Each flow must be deployed separately.
 
 ```powershell
+# Deploy remediation flow
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
-    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
-    -ExceptionFlowPath "unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json" `
+    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-remediation-apply-sharing-policy.json" `
     -WhatIf
 
-# After verifying, run without -WhatIf
+# Deploy exception approval workflow
 .\scripts\governance\Deploy-RemediationFlow.ps1 `
-    -EnvironmentId "<your-environment-guid>" `
     -DataverseUrl "https://<your-org>.crm.dynamics.com" `
-    -RemediationFlowPath "unrestricted-agent-sharing-detector/src/uasd-remediation-apply-sharing-policy.json" `
-    -ExceptionFlowPath "unrestricted-agent-sharing-detector/src/uasd-exception-approval-workflow.json"
+    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-exception-approval-workflow.json" `
+    -WhatIf
+
+# After verifying, run both without -WhatIf
+.\scripts\governance\Deploy-RemediationFlow.ps1 `
+    -DataverseUrl "https://<your-org>.crm.dynamics.com" `
+    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-remediation-apply-sharing-policy.json"
+
+.\scripts\governance\Deploy-RemediationFlow.ps1 `
+    -DataverseUrl "https://<your-org>.crm.dynamics.com" `
+    -SolutionPath "unrestricted-agent-sharing-detector\src\uasd-exception-approval-workflow.json"
 ```
 
 ### Step 2: Bind Remediation Connection References
@@ -351,10 +359,11 @@ Set the home tenant GUID for cross-tenant access detection (Rule 5):
 
 ### Step 6: Configure Teams Alert Channel
 
-Set the Teams group/team ID for violation alert notifications:
+Set the Teams group/team ID and channel ID for violation alert notifications:
 
 1. Navigate to **Solutions** > **UASD** > **Environment variables**
 2. Edit `fsi_UASD_TeamsGroupId` — enter the Microsoft Teams team/group ID where violation alerts should be posted
+3. Edit `fsi_UASD_TeamsChannelId` — enter the Teams channel ID within that team where alerts should be posted
 
 !!! tip "Finding Your Teams Group ID"
     In Microsoft Teams, right-click the team name > **Get link to team**. The group ID is the GUID in the link URL. Alternatively, use the Microsoft Graph Explorer or Entra admin center to find the group ID.
@@ -396,15 +405,15 @@ Load pre-approved security groups for the UNAPPROVED_GROUP violation rule:
     -InputPath .\config\approved-groups.csv
 ```
 
-The CSV file must contain `GroupId` and `DisplayName` columns. Optional columns: `Zone` (defaults to the `-DefaultZone` parameter value or `All`) and `IsActive` (defaults to `true`).
+The CSV file must contain four columns: `GroupId`, `GroupName`, `Zone`, and `ApprovedBy`. All columns are required.
 
 Example CSV format:
 
 ```csv
-GroupId,DisplayName,Zone,IsActive
-00000000-0000-0000-0000-000000000001,Finance Team,Zone3,true
-00000000-0000-0000-0000-000000000002,Compliance Officers,Zone2,true
-00000000-0000-0000-0000-000000000003,Executive Assistants,All,true
+GroupId,GroupName,Zone,ApprovedBy
+00000000-0000-0000-0000-000000000001,Finance Team,3,admin@contoso.com
+00000000-0000-0000-0000-000000000002,Compliance Officers,2,admin@contoso.com
+00000000-0000-0000-0000-000000000003,Executive Assistants,2,admin@contoso.com
 ```
 
 ### Step 10: Import Exception Manager App
@@ -470,8 +479,8 @@ Generate the first violation report to validate export functionality:
 | # | Item | Expected Result | Verified |
 |---|------|----------------|----------|
 | 1 | Dataverse tables deployed | 5 tables with `fsi_` prefix visible in Power Apps | [ ] |
-| 2 | Environment variables created | 10 variables under UASD solution | [ ] |
-| 3 | Connection references created | Dataverse, Teams, and Approvals connection references listed | [ ] |
+| 2 | Environment variables created | 11 variables under UASD solution | [ ] |
+| 3 | Connection references created | Dataverse and Teams connection references listed | [ ] |
 | 4 | Detection flow imported | Flow visible in Power Automate solutions | [ ] |
 | 5 | Detection flow connections bound | All connection references linked to active connections | [ ] |
 | 6 | Scan schedule configured | `fsi_UASD_ScanFrequencyHours` set to desired interval | [ ] |
@@ -485,10 +494,11 @@ Generate the first violation report to validate export functionality:
 | 14 | Evidence hash computed | `-IncludeEvidence` flag produces SHA-256 hash | [ ] |
 | 15 | Teams alerts delivered | Violation alerts appear in configured Teams channel | [ ] |
 | 16 | Teams group ID configured | `fsi_UASD_TeamsGroupId` set to the target team/group GUID | [ ] |
-| 17 | Approver emails configured | `fsi_UASD_SecurityApproverEmail` and `fsi_UASD_DataOwnerApproverEmail` set | [ ] |
-| 18 | Home tenant ID configured | `fsi_UASD_HomeTenantId` set to your tenant GUID (required for cross-tenant detection) | [ ] |
-| 19 | Dry-run mode tested | Remediation flow produces dry-run notifications without applying changes | [ ] |
-| 20 | Break-glass exclusions documented | Critical agents identified and tagged with `fsi_break_glass_exclude` | [ ] |
+| 17 | Teams channel ID configured | `fsi_UASD_TeamsChannelId` set to the target channel ID | [ ] |
+| 18 | Approver emails configured | `fsi_UASD_SecurityApproverEmail` and `fsi_UASD_DataOwnerApproverEmail` set | [ ] |
+| 19 | Home tenant ID configured | `fsi_UASD_HomeTenantId` set to your tenant GUID (required for cross-tenant detection) | [ ] |
+| 20 | Dry-run mode tested | Remediation flow produces dry-run notifications without applying changes | [ ] |
+| 21 | Break-glass exclusions documented | Critical agents identified and tagged with `fsi_break_glass_exclude` | [ ] |
 
 !!! note "Adaptive Card Template"
     The Teams alert notification uses the `adaptive-card-uasd-alert.json` template from the FSI-AgentGov-Solutions repository. This template is referenced by the detection flow and does not require a separate deployment step — it is embedded in the flow definition at import time.
@@ -501,17 +511,17 @@ Generate the first violation report to validate export functionality:
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| **Python `ModuleNotFoundError: caa_client`** | Script run from wrong directory | Run Python scripts from the `scripts/` directory: `cd scripts` then `python create_uasd_dataverse_schema.py ...` |
+| **Python `ModuleNotFoundError: uasd_client`** | Script run from wrong directory | Run Python scripts from the `scripts/` directory: `cd scripts` then `python create_uasd_dataverse_schema.py ...` |
 | **Schema deployment: `fsi_acv_zone not found`** | CAA schema not deployed | Run `python create_dataverse_schema.py` first to create shared option sets before the UASD schema |
 | **Az.Accounts token failure** | Not signed in or expired session | Run `Connect-AzAccount` and verify the account has Dataverse access |
 | **Dataverse 403 Forbidden** | Insufficient Dataverse permissions | Assign System Administrator or System Customizer security role to the service account |
-| **Schema deployment fails** | Missing Python dependencies or incorrect environment URL | Run `pip install -r scripts/requirements.txt`; verify `CAA_ENVIRONMENT_URL` format includes `https://` |
+| **Schema deployment fails** | Missing Python dependencies or incorrect environment URL | Run `pip install -r scripts/requirements.txt`; verify `UASD_ENVIRONMENT_URL` format includes `https://` |
 | **Detection flow import error** | Solution version conflict or missing dependencies | Check that Dataverse schema was deployed first; verify no existing UASD solution with higher version |
 | **Connection reference unbound** | Connection not created or expired | Create a new connection for each required connector; verify service account credentials |
 | **No violations detected** | No agents with sharing violations in scope | Run `Invoke-SharingAudit.ps1` directly to verify BAP API connectivity and agent enumeration |
 | **Remediation flow inactive** | Flow imported but not activated | Navigate to the flow in Power Automate and click **Turn on** |
 | **Export returns empty results** | Filter parameters too restrictive or no violations in Dataverse | Try without filters first; verify violations exist in `fsi_SharingViolation` table |
-| **Teams notification not received** | Channel ID incorrect or connector permissions missing | Verify `fsi_UASD_TeamsGroupId` value; check Teams connector permissions |
+| **Teams notification not received** | Channel ID incorrect or connector permissions missing | Verify `fsi_UASD_TeamsGroupId` and `fsi_UASD_TeamsChannelId` values; check Teams connector permissions |
 
 ### Diagnostic Steps
 
