@@ -155,4 +155,4 @@ This means governance evidence should not depend exclusively on "full transcript
 
 ---
 
-*FSI Agent Governance Framework v1.2.48 - February 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

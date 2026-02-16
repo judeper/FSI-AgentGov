@@ -297,4 +297,4 @@ This workbook directly addresses a governance gap for organizations subject to s
 
 ---
 
-*FSI Agent Governance Framework v1.2.48 - February 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

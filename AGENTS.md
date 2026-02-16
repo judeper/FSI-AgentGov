@@ -4,7 +4,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.48** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
+**FSI Agent Governance Framework v1.2.51** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
 
 - **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)

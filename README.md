@@ -11,7 +11,7 @@ Comprehensive governance framework for Microsoft 365 AI agents in financial serv
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.2.48 (February 2026)
+**Version:** 1.2.51 (February 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -407,6 +407,8 @@ This framework is designed for continuous evolution:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.2.51 | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | FSI Governance Team |
+| 1.2.49 | Feb 2026 | Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes | FSI Governance Team |
 | 1.2.48 | Feb 2026 | Comprehensive repository review — 12 GitHub issues resolved across both repos | FSI Governance Team |
 | 1.2.47 | Feb 2026 | Solution consolidation (ACV + ALCA → ACM), version alignment | FSI Governance Team |
 | 1.2.46 | Feb 2026 | ITE solution customer readiness, PowerShell playbook fixes | FSI Governance Team |
@@ -448,5 +450,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.2.47 - February 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

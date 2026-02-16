@@ -59,7 +59,7 @@ git commit -m "docs(1.23): add baseline capture playbook (solutions: abc1234)"
 Major changes should be recorded in `CHANGELOG.md`:
 
 ```markdown
-## [1.2.39] - YYYY-MM-DD
+## [1.2.51] - YYYY-MM-DD
 
 ### Added
 - Description of new feature
