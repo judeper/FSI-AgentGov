@@ -203,7 +203,7 @@ Azure Portal → Azure AI Content Safety → [Resource] → Content filtering �
    - If disabled, enable audit logging (may take up to 24 hours to activate)
 2. Verify your account has Purview compliance role:
    - Navigate to Microsoft Purview → Roles and scopes
-   - Ensure you have Purview Compliance Admin or Audit Viewer role
+   - Ensure you have Purview Compliance Admin or Purview Audit Reader role
    - Audit logs are only visible to users with appropriate roles
 3. Allow time for audit log propagation:
    - Audit events may take 15-60 minutes to appear after the action occurs (typically 15-30 minutes)
@@ -279,7 +279,7 @@ Microsoft Purview Compliance Portal → Audit → Search → Activities: "Update
    ```
 4. If connection fails due to MFA or Conditional Access:
    - Use `-UserPrincipalName` to trigger the interactive login
-   - Ensure your account has the Purview Compliance Admin or Audit Reader role
+   - Ensure your account has the Purview Compliance Admin or Purview Audit Reader role
    - Check that your IP/device satisfies Conditional Access policies
 
 > **Note:** `Search-UnifiedAuditLog` is part of the Exchange Online Management module, not the Power Platform Administration module. Both modules must be installed to run all scripts in this playbook.
