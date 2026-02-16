@@ -256,14 +256,26 @@ class BAPAdminClient:
         params = {"api-version": "2016-11-01"}
 
         try:
-            resp = self._session.get(
-                url, headers=self._get_headers(), params=params, timeout=60
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            environments = data.get("value", [])
-            logger.info("Retrieved %d environment(s)", len(environments))
-            return environments
+            headers = self._get_headers()
+            all_environments: List[Dict[str, Any]] = []
+            next_url: Optional[str] = None
+            first_page = True
+            while first_page or next_url:
+                first_page = False
+                if next_url:
+                    resp = self._session.get(
+                        next_url, headers=headers, timeout=60
+                    )
+                else:
+                    resp = self._session.get(
+                        url, headers=headers, params=params, timeout=60
+                    )
+                resp.raise_for_status()
+                data = resp.json()
+                all_environments.extend(data.get("value", []))
+                next_url = data.get("@odata.nextLink")
+            logger.info("Retrieved %d environment(s)", len(all_environments))
+            return all_environments
         except requests.RequestException as exc:
             logger.error("Failed to list environments: %s", exc)
             return []
@@ -307,16 +319,28 @@ class BAPAdminClient:
         params = {"api-version": "2021-04-01"}
 
         try:
-            resp = self._session.get(
-                url, headers=self._get_headers(), params=params, timeout=60
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            agents = data.get("value", [])
+            headers = self._get_headers()
+            all_agents: List[Dict[str, Any]] = []
+            next_url: Optional[str] = None
+            first_page = True
+            while first_page or next_url:
+                first_page = False
+                if next_url:
+                    resp = self._session.get(
+                        next_url, headers=headers, timeout=60
+                    )
+                else:
+                    resp = self._session.get(
+                        url, headers=headers, params=params, timeout=60
+                    )
+                resp.raise_for_status()
+                data = resp.json()
+                all_agents.extend(data.get("value", []))
+                next_url = data.get("@odata.nextLink")
             logger.debug(
-                "Retrieved %d agent(s) from environment %s", len(agents), environment_id
+                "Retrieved %d agent(s) from environment %s", len(all_agents), environment_id
             )
-            return agents
+            return all_agents
         except requests.RequestException as exc:
             logger.warning(
                 "Failed to list agents for environment %s: %s", environment_id, exc

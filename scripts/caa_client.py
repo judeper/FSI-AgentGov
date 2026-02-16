@@ -230,9 +230,21 @@ class CAAClient:
         if top is not None:
             params["$top"] = str(top)
 
-        resp = self._session.get(url, headers=self._get_headers(), params=params, timeout=60)
-        resp.raise_for_status()
-        return resp.json().get("value", [])
+        headers = self._get_headers()
+        all_results: List[Dict[str, Any]] = []
+        next_url: Optional[str] = None
+        first_page = True
+        while first_page or next_url:
+            first_page = False
+            if next_url:
+                resp = self._session.get(next_url, headers=headers, timeout=60)
+            else:
+                resp = self._session.get(url, headers=headers, params=params, timeout=60)
+            resp.raise_for_status()
+            data = resp.json()
+            all_results.extend(data.get("value", []))
+            next_url = data.get("@odata.nextLink")
+        return all_results
 
     def create_record(self, entity_set: str, data: Dict[str, Any]) -> Optional[str]:
         """Create a record in *entity_set*.
