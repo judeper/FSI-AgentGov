@@ -14,7 +14,7 @@
 
 | Issue | Solutions Affected | Risk Level |
 |-------|-------------------|------------|
-| No Dataverse pagination | ELM, ALCA, FUS, SSC, AAM, HT, RAG, Dashboard (8) | Critical — silent data loss >5000 records |
+| No Dataverse pagination | ELM, ACM, FUS, SSC, AAM, HT, RAG, Dashboard (8) | Critical — silent data loss >5000 records |
 | Client secret as CLI argument | CAA, DECR, FUS, SSC, SEG, MIME (6+) | High — secret in process listing |
 | No Graph API retry/backoff | CAA, DECR, FUS, SSC (4) | High — 429 throttling crashes |
 | Wildcard cert store `Cert:\*\` | AAM, CMM, FUS, SSC (4) | Medium — performance/security |
@@ -24,7 +24,7 @@
 
 ## Critical Findings (17)
 
-### ALCA — Audit Logging Compliance Automation
+### ACM — Audit Compliance Manager (formerly ALCA)
 
 | # | Symptom | Impact | Root Cause | File:Line | Recommended Fix |
 |---|---------|--------|------------|-----------|-----------------|

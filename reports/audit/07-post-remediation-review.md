@@ -36,7 +36,7 @@ All 12 P0 and 15 sampled P1/P2 fixes from the initial audit were **confirmed cor
 ## Phase 1: Prior Fix Verification — ✅ ALL PASSED
 
 All 12 P0 critical fixes confirmed present in files:
-- ALCA: PS 5.1, PATCH method, valid RecordTypes, PP auth with -AccessToken ✅
+- ACM (formerly ALCA): PS 5.1, PATCH method, valid RecordTypes, PP auth with -AccessToken ✅
 - SSC: create_schema() returns dict, 100000000-range option sets ✅
 - DR: recovery in non-DryRun branch ✅
 - CAA: no secret in output, CopilotStudio pattern ✅

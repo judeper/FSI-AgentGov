@@ -21,7 +21,7 @@ The documentation framework is **structurally sound** — all 71 controls follow
 
 ## Top 5 Critical Issues (P0 — Fix Immediately)
 
-1. **ALCA: PowerShell 7 + PS 5.1-only module** — `#Requires -Version 7.2` combined with `Microsoft.PowerApps.Administration.PowerShell` (PS 5.1 only). Scripts cannot execute. *[Enable-AuditLogging.ps1]*
+1. **ACM (formerly ALCA): PowerShell 7 + PS 5.1-only module** — `#Requires -Version 7.2` combined with `Microsoft.PowerApps.Administration.PowerShell` (PS 5.1 only). Scripts cannot execute. *[Enable-AuditLogging.ps1]*
 
 2. **SSC: Schema deployment crashes every run** — `create_schema()` returns `None`; caller dereferences `result["errors"]`. Zone option sets use 0-3 vs PowerShell's 100000001-3, causing all queries to return empty. *[create_dataverse_schema.py + PS scripts]*
 
@@ -35,7 +35,7 @@ The documentation framework is **structurally sound** — all 71 controls follow
 
 | Issue | Solutions Affected | Risk |
 |-------|-------------------|------|
-| No Dataverse pagination (>5000 record loss) | ELM, ALCA, FUS, SSC, AAM, HT, RAG, Dashboard | Data integrity |
+| No Dataverse pagination (>5000 record loss) | ELM, ACM, FUS, SSC, AAM, HT, RAG, Dashboard | Data integrity |
 | `--client-secret` as CLI argument | 6+ solutions | Secret exposure |
 | No Graph API retry/backoff | CAA, DECR, FUS, SSC | Throttling failures |
 | Option set value mismatch (Python vs PS) | FUS, SSC | Zero query results |

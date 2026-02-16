@@ -70,8 +70,7 @@ FSI-AgentGov-Solutions/
 ├── agent-access-monitor/              # Agent access governance monitoring
 ├── agent-observability-foundation/    # Telemetry and observability (v1.1.0)
 ├── agent-sharing-access-restriction-detector/  # Sharing restriction detection
-├── audit-configuration-validator/     # Audit config validation (v1.0.0)
-├── audit-logging-compliance-automation/ # Audit logging automation (v1.0.0)
+├── audit-compliance-manager/             # Unified audit compliance manager (v1.0.0, consolidates former ACV + ALCA)
 ├── coi-testing/                       # Conflict of interest testing (planned)
 ├── compliance-dashboard/              # Aggregated compliance reporting (v1.0.0)
 ├── conditional-access-automation/     # CA policy deployment (v1.1.0)

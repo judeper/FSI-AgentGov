@@ -30,7 +30,7 @@
 
 | # | Owner | Difficulty | Type | Description | Acceptance Criteria | File(s) |
 |---|-------|-----------|------|-------------|-------------------|---------|
-| 1 | Eng | M | Script fix | ALCA: Remove `#Requires -Version 7.2`; add PS 5.1 requirement. Fix `Add-PowerAppsAccount` to pass `-AccessToken`. Change PUT to PATCH for EntityDefinitions. Remove invalid RecordType values. | Scripts run successfully in PS 5.1; PATCH used for metadata; only valid RecordTypes queried | Enable-AuditLogging.ps1 |
+| 1 | Eng | M | Script fix | ACM (formerly ALCA): Remove `#Requires -Version 7.2`; add PS 5.1 requirement. Fix `Add-PowerAppsAccount` to pass `-AccessToken`. Change PUT to PATCH for EntityDefinitions. Remove invalid RecordType values. | Scripts run successfully in PS 5.1; PATCH used for metadata; only valid RecordTypes queried | Enable-AuditLogging.ps1 |
 | 2 | Eng | M | Script fix | SSC: Add `return` statement to `create_schema()`. Align option set values to Dataverse convention (100000000-range) in both Python and PowerShell. | `deploy.py` completes without crash; zone queries return data | create_dataverse_schema.py, PS scripts |
 | 3 | Eng | S | Script fix | DR Testing: Move recovery logic from `if ($DryRun)` to production branch. | Production mode executes recovery steps; DryRun only simulates | Invoke-DRTest.ps1 |
 | 4 | Eng | S | Script fix | CAA: Remove `Write-Host` of client secret in catch block; `throw` on failure. Add `CA-CopilotStudio-*` to policy filter patterns. | No secret in output; compliance check matches template policies | Register-ServicePrincipal.ps1, Test-PolicyCompliance.ps1 |
@@ -118,7 +118,7 @@
 
 | # | Type | Description | Solutions Affected |
 |---|------|-------------|-------------------|
-| 62 | Script fix | Add Dataverse pagination loop | ELM, ALCA, FUS, SSC, AAM, HT, RAG, Dashboard |
+| 62 | Script fix | Add Dataverse pagination loop | ELM, ACM, FUS, SSC, AAM, HT, RAG, Dashboard |
 | 63 | Script fix | Move secrets to Key Vault; remove `--client-secret` CLI args | CAA, DECR, FUS, SSC, SEG, MIME |
 | 64 | Script fix | Add Graph API retry/backoff with exponential delay | CAA, DECR, FUS, SSC |
 | 65 | Script fix | Replace wildcard `Cert:\*\` with specific store path | AAM, CMM, FUS, SSC |

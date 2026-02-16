@@ -74,8 +74,7 @@
 | 1 | agent-access-monitor | 1.2.41 | PowerShell, Graph API |
 | 2 | agent-observability-foundation | 1.2.41 | KQL, Log Analytics |
 | 3 | agent-sharing-access-restriction-detector | 1.2.41 | PowerShell, Copilot Studio API |
-| 4 | audit-configuration-validator | 1.2.41 | Python, Dataverse |
-| 5 | audit-logging-compliance-automation | 1.2.41 | PowerShell, Exchange, Dataverse |
+| 4 | audit-compliance-manager | 1.2.47 | PowerShell, Python, Exchange, Dataverse (consolidates former ACV + ALCA) |
 | 6 | coi-testing | 1.2.41 | Python, Azure AI |
 | 7 | compliance-dashboard | 1.2.41 | Python, Dataverse, Power BI |
 | 8 | conditional-access-automation | 1.2.41 | PowerShell, Graph API, Entra CA |
