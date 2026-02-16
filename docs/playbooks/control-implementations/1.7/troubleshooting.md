@@ -143,7 +143,7 @@ Disconnect-ExchangeOnline -Confirm:$false
 
 1. Verify environment-level auditing is enabled: **PPAC** > **Environments** > select environment > **Settings** > **Audit and logs** > **Audit settings** > "Start Auditing" must be enabled
 2. Verify tenant-level auditing: **PPAC** > **Security** > **Compliance** > **Auditing** > both "User Sign-In" and "Activity" must be enabled
-3. Check audit log retention is set to ≥180 days
+3. Check audit log retention meets zone requirements (Zone 1: ≥180 days, Zone 2: ≥365 days, Zone 3: ≥730 days)
 4. Ensure auditing is enabled on the specific Dataverse tables/entities you expect to see
 5. Allow for ingestion latency (may take up to several hours for Dataverse events)
 

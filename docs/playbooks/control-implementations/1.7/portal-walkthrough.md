@@ -94,12 +94,13 @@
 
 ### Creating Retention Policies
 
-1. Navigate to **Audit > Policies**
-2. Click **Create policy**
-3. Configure retention period
-4. Select record types to retain
-5. Assign to users or entire organization
-6. Save policy
+1. Navigate to **Audit** > **Audit retention policies** tab
+2. Click **+ New audit retention policy**
+3. Enter a descriptive **Policy name** (e.g., "FSI Zone 3 - 10 Year Retention")
+4. Set **Duration** to the retention period matching your governance zone
+5. Under **Record types**, select the audit record types to retain (e.g., `CopilotInteraction`, `ExchangeAdmin`)
+6. Under **Users**, select specific users or choose **All users** for organization-wide coverage
+7. Review the policy summary and click **Save**
 
 ### FSI Retention Requirements
 
