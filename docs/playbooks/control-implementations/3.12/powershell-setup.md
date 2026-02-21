@@ -343,7 +343,7 @@ $fetchXmlExpired = @"
     <attribute name="fsi_renewalcount" />
     <filter type="and">
       <condition attribute="fsi_approvalstatus" operator="eq" value="Fully Approved" />
-      <condition attribute="fsi_expirationdate" operator="last-x-days" value="0" />
+      <condition attribute="fsi_expirationdate" operator="lt" value="$today" />
     </filter>
     <order attribute="fsi_expirationdate" descending="false" />
   </entity>
@@ -660,17 +660,44 @@ if (-not $conn.IsReady) {
 
 Write-Host "✓ Connected successfully" -ForegroundColor Green
 
-# Export all exceptions (same query as Script 1)
+# Export all approved exceptions
 Write-Host "Exporting exception register..." -ForegroundColor Cyan
 
-# [FetchXML query from Script 1 - omitted for brevity]
+$fetchXmlAll = @"
+<fetch>
+  <entity name="fsi_governanceexception">
+    <attribute name="fsi_governanceexceptionid" />
+    <attribute name="fsi_name" />
+    <attribute name="fsi_agentname" />
+    <attribute name="fsi_requestor" />
+    <attribute name="fsi_governancezone" />
+    <attribute name="fsi_exceptiontype" />
+    <attribute name="fsi_expirationdate" />
+    <attribute name="fsi_renewalcount" />
+    <attribute name="fsi_approver1" />
+    <attribute name="fsi_approver2" />
+    <attribute name="fsi_approver3" />
+    <attribute name="fsi_approvalstatus" />
+    <attribute name="createdon" />
+    <filter type="and">
+      <condition attribute="fsi_approvalstatus" operator="eq" value="Fully Approved" />
+    </filter>
+    <order attribute="fsi_expirationdate" descending="false" />
+  </entity>
+</fetch>
+"@
 
-# ... (execute query and export as in Script 1)
+$allExceptions = Get-CrmRecords -conn $conn -Fetch $fetchXmlAll
+
+$exportData = $allExceptions.CrmRecords | Select-Object `
+    fsi_name, fsi_agentname, fsi_requestor, fsi_governancezone, `
+    fsi_exceptiontype, fsi_expirationdate, fsi_renewalcount, `
+    fsi_approver1, fsi_approver2, fsi_approver3, fsi_approvalstatus, createdon
 
 $exportFile = Join-Path $evidenceDir "ExceptionRegister.csv"
-# $exportData | Export-Csv -Path $exportFile -NoTypeInformation -Encoding UTF8
+$exportData | Export-Csv -Path $exportFile -NoTypeInformation -Encoding UTF8
 
-Write-Host "✓ Exception register exported" -ForegroundColor Green
+Write-Host "✓ Exception register exported ($($exportData.Count) records)" -ForegroundColor Green
 
 # Calculate SHA-256 hash
 Write-Host "Calculating SHA-256 integrity hash..." -ForegroundColor Cyan
@@ -682,6 +709,11 @@ $fileStream.Close()
 $hash = [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
 
 Write-Host "✓ SHA-256 hash: $hash" -ForegroundColor Green
+
+# Compute date range from exported data
+$dates = $exportData | Where-Object { $_.fsi_expirationdate } | ForEach-Object { [datetime]$_.fsi_expirationdate }
+$firstDate = if ($dates) { ($dates | Measure-Object -Minimum).Minimum.ToString("yyyy-MM-dd") } else { "N/A" }
+$lastDate = if ($dates) { ($dates | Measure-Object -Maximum).Maximum.ToString("yyyy-MM-dd") } else { "N/A" }
 
 # Create chain of custody metadata
 $metadata = @"
@@ -702,8 +734,8 @@ File Size: $((Get-Item $exportFile).Length) bytes
 SHA-256 Hash: $hash
 
 --- DATA SUMMARY ---
-Total Records: [COUNT]
-Date Range: [FIRST] to [LAST]
+Total Records: $($exportData.Count)
+Date Range: $firstDate to $lastDate
 
 ===========================================
 "@
