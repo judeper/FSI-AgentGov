@@ -43,6 +43,26 @@ param(
     [string]$OutputPath = ".\results"
 )
 
+function Evaluate-Criterion {
+    param($Response, $Criterion)
+
+    switch ($Criterion.type) {
+        "contains" {
+            return @{ Passed = $Response -match $Criterion.pattern }
+        }
+        "not_contains" {
+            return @{ Passed = $Response -notmatch $Criterion.pattern }
+        }
+        "sentiment" {
+            # Would integrate with sentiment analysis API
+            return @{ Passed = $true }
+        }
+        default {
+            return @{ Passed = $true }
+        }
+    }
+}
+
 Write-Host "=== COI Test Suite Execution ===" -ForegroundColor Cyan
 Write-Host "Agent: $AgentEndpoint"
 Write-Host "Test Suite: $TestSuitePath"
