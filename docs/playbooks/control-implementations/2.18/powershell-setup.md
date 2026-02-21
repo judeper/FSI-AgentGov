@@ -43,7 +43,7 @@ param(
     [string]$OutputPath = ".\results"
 )
 
-function Evaluate-Criterion {
+function Test-Criterion {
     param($Response, $Criterion)
 
     switch ($Criterion.type) {
@@ -114,7 +114,7 @@ foreach ($testFile in $testFiles) {
         $violations = @()
 
         foreach ($criterion in $testCase.criteria) {
-            $evaluation = Evaluate-Criterion -Response $response.message -Criterion $criterion
+            $evaluation = Test-Criterion -Response $response.message -Criterion $criterion
             if (-not $evaluation.Passed) {
                 $passed = $false
                 $violations += $criterion.name

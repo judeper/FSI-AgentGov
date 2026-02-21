@@ -50,6 +50,9 @@ Write-Host "=== Orchestration Event Query ===" -ForegroundColor Cyan
 Write-Host "Date Range: $StartDate to $EndDate"
 
 # Search for Copilot Studio agent events
+# NOTE: Verify the RecordType value against your tenant's available audit record types.
+# Use Get-MailboxAuditBypassAssociation or the Microsoft Purview compliance portal
+# to confirm the correct record type for Copilot agent events in your environment.
 $auditResults = Search-UnifiedAuditLog `
     -StartDate $StartDate `
     -EndDate $EndDate `
@@ -273,6 +276,7 @@ try {
     Write-Host "[INFO] Querying audit logs from $startDate to $endDate" -ForegroundColor Cyan
 
     # Search for Copilot/agent events
+    # NOTE: Verify "CopilotInteraction" against your tenant's audit record types.
     $auditResults = Search-UnifiedAuditLog `
         -StartDate $startDate `
         -EndDate $endDate `
