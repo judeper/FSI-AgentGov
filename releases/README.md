@@ -16,7 +16,8 @@ releases/
 
 | Version | Date | Status |
 |---------|------|--------|
-| v1.1 | January 2026 | Current |
+| v1.2 | February 2026 | Current |
+| v1.1 | January 2026 | Superseded |
 | v1.0 | January 2026 | Superseded |
 
 ## PDF Generation
@@ -46,4 +47,4 @@ If you received a PDF version of this framework, note:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*

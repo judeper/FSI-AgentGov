@@ -499,3 +499,7 @@ If initial scan reveals a large number of violations:
 - [ASARD Troubleshooting Guide](asard-troubleshooting-guide.md)
 - [Power Platform Admin API Documentation](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-getting-started)
 - [Dataverse Security Concepts](https://learn.microsoft.com/power-apps/developer/data-platform/security-concepts)
+
+---
+
+*Updated: February 2026 | Version: v1.2*
