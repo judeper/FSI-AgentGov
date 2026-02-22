@@ -43,7 +43,6 @@ foreach ($sub in $subscriptions) {
 
         # Check extensions
         $extensions = $pricing.Extension
-        $aiSpm = $extensions | Where-Object { $_.Name -eq "SensitiveDataDiscovery" -or $_.Name -eq "AgentlessDiscoveryForKubernetes" }
         Write-Host "  Extensions enabled: $($extensions.Name -join ', ')"
     } else {
         Write-Host "  Defender CSPM: Not enabled" -ForegroundColor Red
@@ -76,8 +75,7 @@ Resources
 | where type in~ (
     'microsoft.cognitiveservices/accounts',
     'microsoft.machinelearningservices/workspaces',
-    'microsoft.search/searchservices',
-    'microsoft.openai/accounts'
+    'microsoft.search/searchservices'
 )
 | project
     name,
@@ -130,7 +128,14 @@ if ($SubscriptionId) {
 }
 
 # Get attack paths via REST API (PowerShell module doesn't have direct cmdlet)
-$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
+# Acquire token (handles both Az.Accounts 5.0+ SecureString and older string format)
+$azToken = Get-AzAccessToken -ResourceUrl "https://management.azure.com"
+if ($azToken.Token -is [System.Security.SecureString]) {
+    $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+} else {
+    $token = $azToken.Token
+}
 $headers = @{
     "Authorization" = "Bearer $token"
     "Content-Type" = "application/json"
@@ -286,8 +291,7 @@ try {
 Resources
 | where type in~ (
     'microsoft.cognitiveservices/accounts',
-    'microsoft.machinelearningservices/workspaces',
-    'microsoft.openai/accounts'
+    'microsoft.machinelearningservices/workspaces'
 )
 | project name, type, resourceGroup, location
 "@

@@ -125,8 +125,7 @@ SecurityAlert
 Resources
 | where type in~ (
     'microsoft.cognitiveservices/accounts',
-    'microsoft.machinelearningservices/workspaces',
-    'microsoft.openai/accounts'
+    'microsoft.machinelearningservices/workspaces'
 )
 | summarize count() by type, location
 ```
