@@ -14,7 +14,7 @@
 
 ## Verification Focus
 
-- Groups align with governance zones (Zone 1-4)
+- Groups align with governance zones (Zone 1-3)
 - Environments are assigned to correct groups
 - Rules enforce zone-appropriate policies
 - Rules are published and active
