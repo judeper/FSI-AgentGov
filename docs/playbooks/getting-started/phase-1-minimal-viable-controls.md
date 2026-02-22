@@ -27,7 +27,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
    - Admin vs. auditor
 2. Review current role assignments
 3. Remediate any conflicts
-4. Configure role-based access in PPAC
+4. Configure role-based access in Power Platform Admin Center (PPAC)
 
 **Verification:**
 
@@ -154,7 +154,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
    - Compliance Officer
    - CISO
    - General Counsel
-   - CRO (if applicable)
+   - CRO (Chief Risk Officer) (if applicable)
 3. Schedule monthly meetings
 4. Create meeting templates
 
