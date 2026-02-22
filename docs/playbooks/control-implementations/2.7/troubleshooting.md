@@ -1,4 +1,4 @@
-# Control 2.7: Vendor and Third-Party Risk Management - Troubleshooting
+# Troubleshooting: Control 2.7 - Vendor and Third-Party Risk Management
 
 > This playbook provides troubleshooting guidance for [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md).
 

@@ -16,7 +16,7 @@ The Equal Credit Opportunity Act (ECOA) and Regulation B prohibit discrimination
 | 6 | **Marital Status** | 15 U.S.C. § 1691(a)(1) | Single, married, divorced, widowed, separated |
 | 7 | **Age** | 15 U.S.C. § 1691(a)(1) | Protect applicants who can legally contract |
 | 8 | **Public Assistance** | 15 U.S.C. § 1691(a)(2) | Recipients of public assistance income |
-| 9 | **Good Faith Exercise of CCPA Rights** | 15 U.S.C. § 1691(a)(3) | Applicants who exercised consumer rights |
+| 9 | **Good Faith Exercise of Consumer Credit Protection Act (CCPA) Rights** | 15 U.S.C. § 1691(a)(3) | Applicants who exercised consumer rights |
 
 **Note:** State laws may add additional protected classes (e.g., sexual orientation, gender identity, military status). Consult legal counsel for your jurisdiction.
 

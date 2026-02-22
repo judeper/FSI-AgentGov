@@ -1,4 +1,4 @@
-# Control 2.7: Vendor and Third-Party Risk Management - Verification & Testing
+# Verification & Testing: Control 2.7 - Vendor and Third-Party Risk Management
 
 > This playbook provides verification and testing guidance for [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md).
 
@@ -103,7 +103,7 @@
 
 ## Transitive Data Exposure Mapping Template
 
-```
+```text
 TRANSITIVE DATA EXPOSURE MAPPING
 ================================
 Agent: [Agent Name]

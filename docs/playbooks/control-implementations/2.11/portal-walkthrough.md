@@ -22,11 +22,14 @@ Document protected classes per ECOA and state law:
 | Protected Class | Attribute | Data Source |
 |-----------------|-----------|-------------|
 | Race | Demographics | Customer profile |
+| Color | Demographics | Customer profile |
+| Religion | Demographics | Customer profile |
 | National Origin | Demographics | Customer profile |
 | Sex | Demographics | Customer profile |
 | Age | Date of birth | Customer profile |
 | Marital Status | Demographics | Customer profile |
 | Public Assistance | Income source | Application data |
+| Good Faith Exercise of Consumer Credit Protection Act Rights | Rights exercise | Application data |
 
 ### Step 2: Create Test Dataset
 

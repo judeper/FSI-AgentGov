@@ -90,7 +90,7 @@ $summary = [PSCustomObject]@{
     Approved = $approved
     Rejected = $rejected
     Pending = $pending
-    ApprovalRate = [math]::Round($approved / $total * 100, 1)
+    ApprovalRate = if ($total -gt 0) { [math]::Round($approved / $total * 100, 1) } else { 0 }
 }
 
 # By risk level
@@ -98,7 +98,7 @@ $byRisk = $log | Group-Object RiskLevel | ForEach-Object {
     [PSCustomObject]@{
         RiskLevel = $_.Name
         Count = $_.Count
-        Percentage = [math]::Round($_.Count / $total * 100, 1)
+        Percentage = if ($total -gt 0) { [math]::Round($_.Count / $total * 100, 1) } else { 0 }
     }
 }
 
@@ -203,9 +203,9 @@ try {
         Add-PnPField -List $ListName -DisplayName "Conversation ID" -InternalName "ConversationId" -Type Text
         Add-PnPField -List $ListName -DisplayName "Review Date" -InternalName "ReviewDate" -Type DateTime
         Add-PnPField -List $ListName -DisplayName "Reviewer" -InternalName "Reviewer" -Type User
-        Add-PnPField -List $ListName -DisplayName "Decision" -InternalName "Decision" -Type Choice -Choices "Approved", "Rejected", "Pending", "Escalated"
+        Add-PnPField -List $ListName -DisplayName "Decision" -InternalName "Decision" -Type Choice -Choices @("Approved", "Rejected", "Pending", "Escalated")
         Add-PnPField -List $ListName -DisplayName "Comments" -InternalName "Comments" -Type Note
-        Add-PnPField -List $ListName -DisplayName "Risk Level" -InternalName "RiskLevel" -Type Choice -Choices "Low", "Medium", "High"
+        Add-PnPField -List $ListName -DisplayName "Risk Level" -InternalName "RiskLevel" -Type Choice -Choices @("Low", "Medium", "High")
 
         Write-Host "[PASS] Supervision log list created" -ForegroundColor Green
     } else {
