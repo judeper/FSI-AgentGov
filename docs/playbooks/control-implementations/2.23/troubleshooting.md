@@ -467,7 +467,7 @@ Get-MgIdentityConditionalAccessPolicy | Where-Object { $_.Conditions.Application
 **Step 5: Schedule periodic consent expiration checks**
 - Implement a scheduled Power Automate flow that runs daily:
   - Query fsi_aiconsent table for records older than 90 days
-  - Flag these records as expired (add `fsi_isx expired` field)
+  - Flag these records as expired (add `fsi_isexpired` field)
   - Send notification to users with expired consent to re-acknowledge
 - Update the agent's greeting topic to check the `fsi_isexpired` field and prompt accordingly
 

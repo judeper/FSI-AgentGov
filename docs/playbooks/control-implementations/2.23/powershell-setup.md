@@ -295,6 +295,16 @@ param(
     [int]$DaysBack = 30
 )
 
+# Helper function to get access token (conceptual - implement based on your auth method)
+function Get-AccessToken {
+    param([string]$EnvironmentUrl)
+    # This is a placeholder - implement actual OAuth token acquisition
+    # Example: Use MSAL.PS or Azure CLI to get token
+    # az account get-access-token --resource $EnvironmentUrl --query accessToken -o tsv
+    Write-Warning "Implement Get-AccessToken function with your authentication method"
+    return ""
+}
+
 Write-Host "Retrieving consent records from Dataverse..." -ForegroundColor Cyan
 
 # Calculate date filter
@@ -370,16 +380,6 @@ try {
 }
 catch {
     Write-Error "Failed to retrieve consent records: $_"
-}
-
-# Helper function to get access token (conceptual - implement based on your auth method)
-function Get-AccessToken {
-    param([string]$EnvironmentUrl)
-    # This is a placeholder - implement actual OAuth token acquisition
-    # Example: Use MSAL.PS or Azure CLI to get token
-    # az account get-access-token --resource $EnvironmentUrl --query accessToken -o tsv
-    Write-Warning "Implement Get-AccessToken function with your authentication method"
-    return ""
 }
 ```
 
