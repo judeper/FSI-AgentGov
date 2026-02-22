@@ -31,4 +31,4 @@ Pillar 4 addresses SharePoint-specific governance requirements when SharePoint s
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*
