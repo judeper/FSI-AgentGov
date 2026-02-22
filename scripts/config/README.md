@@ -156,9 +156,9 @@ keyword_control_map:
   - keyword: sanctions
     controls:
       - id: "1.3"
-        name: "Data Loss Prevention Policies"
+        name: "SharePoint Content Governance and Permissions"
       - id: "2.6"
-        name: "Risk Assessment Framework"
+        name: "Model Risk Management (Alignment with OCC 2011-12/SR 11-7)"
 ```
 
 **Notes:**
