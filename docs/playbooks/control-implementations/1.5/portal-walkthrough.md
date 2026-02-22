@@ -135,14 +135,14 @@ For Zone 3 environments, apply strictest controls for customer-facing and regula
 
 | Connector | Zone 3 Classification | Governance Control |
 |-----------|----------------------|-------------------|
-| AI Builder (GPT) | Business | Monitor via Control 3.1 (Usage Dashboards) |
+| AI Builder (GPT) | Business | Monitor via Control 3.2 (Usage Analytics and Activity Monitoring) |
 | AI Builder (Document Processing) | Business | Log all document uploads |
 | Copilot Studio Topics | Business | Core functionality; no restrictions |
 | Copilot Studio Skills | Business | Require flow approval per Control 2.2 |
 | Copilot Studio Knowledge | Business | **Prerequisites:** Control 1.3 + Control 4.1 must be implemented |
 | HTTP with Microsoft Entra ID | Business | **Required:** HTTP endpoint allow list filtering (see below) |
 | HTTP Webhook | **Blocked** | Data exfiltration risk; use Entra-authenticated alternative |
-| Direct Line | Business | Monitor via Control 3.3 (Conversation Transcripts) |
+| Direct Line | Business | Monitor via Control 3.3 (Compliance and Regulatory Reporting) |
 | Microsoft Teams Channel | Business | Approved internal publishing channel |
 | SharePoint Channel | **Blocked** | Embedding poses XSS risk; requires security review |
 | Custom Website Channel | **Blocked** | External publishing requires penetration testing |
