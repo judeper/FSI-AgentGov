@@ -113,7 +113,7 @@ Select two regions that meet your organization's data residency and operational 
    - Power Platform
    - Dataverse
    - SharePoint Online (if used for knowledge)
-   - Azure Active Directory
+   - Microsoft Entra ID
 
 ### Communication Plan
 
@@ -233,8 +233,6 @@ Phase 3: Failback (Target: <2 hours)
 - Corrective actions
 - Lessons learned
 - Sign-off from business owners
-
----
 
 ---
 

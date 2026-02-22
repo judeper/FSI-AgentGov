@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.1 - Managed Environments
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Portal:** Power Platform Admin Center
 **Estimated Time:** 30-45 minutes per environment
 
@@ -254,7 +254,7 @@ After completing these steps, verify:
 
 ---
 
-## Step 7: Restrict Environment Creation
+### Step 11: Restrict Environment Creation
 
 1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
 2. Navigate to **Manage** > **Tenant Settings**
@@ -267,21 +267,21 @@ After completing these steps, verify:
 !!! warning "Uncontrolled Environment Sprawl"
     If left as "Everyone," any user can create trial or developer environments that may store sensitive data outside of governance controls.
 
-### Step 8: Configure Environment Routing
+### Step 12: Configure Environment Routing
 
 1. In **PPAC > Manage > Tenant Settings > Environment Routing**
 2. Configure routing rules to direct new environments to the correct region
 3. Align with data residency requirements for your jurisdiction
 4. Select **Save**
 
-### Step 9: Enable Tenant Isolation
+### Step 13: Enable Tenant Isolation
 
 1. In **PPAC > Security > Identity and access > Tenant Isolation**
 2. Enable **"Restrict Cross-Tenant Connections"**
 3. Configure explicit exceptions by Tenant ID and direction only for trusted partner tenants
 4. Select **Save**
 
-### Step 10: Assign Environment Security Groups
+### Step 14: Assign Environment Security Groups
 
 1. In **PPAC > Environments**, select each Zone 2/3 environment
 2. Select **Edit** and locate the **Security group** field

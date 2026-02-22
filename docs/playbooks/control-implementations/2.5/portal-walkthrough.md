@@ -240,8 +240,6 @@ Compliance Representative (enterprise-managed only)
 
 ---
 
----
-
 [Back to Control 2.5](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---

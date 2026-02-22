@@ -50,7 +50,7 @@ The dashboard displays:
 | **Solution deployments across regions** | Allow cross-region deployments | Configure per policy |
 | **Allow makers to import shared solution deployments** | Makers can import shared solutions | Enable for team/enterprise |
 
-> **Warning:** Target environments in pipelines must be enabled as Managed Environments. This ensures every environment used in pipelines meets Microsoft Enterprise compliance standards.
+> **Warning:** Target environments in pipelines must be enabled as Managed Environments. This helps ensure every environment used in pipelines meets Microsoft Enterprise compliance standards.
 
 ---
 
@@ -177,8 +177,6 @@ After completing the configuration, verify:
 7. [ ] Deployment history visible in PPAC
 
 **Expected Result:** Solutions deploy through governed pipelines with appropriate approval gates, and all deployment activity is logged for audit purposes.
-
----
 
 ---
 
