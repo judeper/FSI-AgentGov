@@ -18,5 +18,5 @@
 
 - CA policies target Power Platform and Copilot apps
 - Phishing-resistant MFA required for privileged access
-- Risk-based policies for Zone 3-4 environments
+- Risk-based policies for Zone 3 environments
 - Session controls limit token lifetime
