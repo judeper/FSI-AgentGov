@@ -73,7 +73,7 @@ Two implementation paths address different organizational needs:
 | **Recommended For** | Most FSI organizations | Large IT organizations with existing ADO investment |
 
 !!! tip "Start with Path A"
-    Most organizations should implement Path A first. Path B can be added later if Azure DevOps integration becomes necessary. Path A provides complete regulatory compliance without the additional complexity of bi-directional sync.
+    Most organizations should implement Path A first. Path B can be added later if Azure DevOps integration becomes necessary. Path A helps support regulatory compliance requirements without the additional complexity of bi-directional sync.
 
 ---
 

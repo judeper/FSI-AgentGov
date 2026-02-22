@@ -266,7 +266,7 @@ This workbook directly addresses a governance gap for organizations subject to s
 | **Impact** | Production operators cannot access usage data without elevated privileges that may violate separation-of-duties policies |
 | **Solution** | Application Insights workbook provides equivalent visibility using Azure RBAC (`Monitoring Reader`) |
 | **Regulatory alignment** | Supports SOX 302/404 separation of duties; aids FINRA 3110 supervisory review |
-| **Control reference** | Control 2.8 — Agent Lifecycle Management |
+| **Control reference** | Control 2.8 — Access Control and Segregation of Duties |
 
 !!! tip "Implementation Caveat"
     While this workbook helps meet separation-of-duties requirements by removing the need for PPAC admin roles, organizations should still document the RBAC assignments and include them in periodic access reviews as part of their broader identity governance program.
@@ -297,4 +297,4 @@ This workbook directly addresses a governance gap for organizations subject to s
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.48 - February 2026*
