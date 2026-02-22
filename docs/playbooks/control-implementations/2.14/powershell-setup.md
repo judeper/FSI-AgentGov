@@ -132,7 +132,7 @@ $complianceReport = $requiredUsers | ForEach-Object {
 $total = $complianceReport.Count
 $compliant = ($complianceReport | Where-Object { $_.Status -eq "Compliant" }).Count
 $nonCompliant = $total - $compliant
-$complianceRate = [math]::Round(($compliant / $total) * 100, 1)
+$complianceRate = if ($total -gt 0) { [math]::Round(($compliant / $total) * 100, 1) } else { 0 }
 
 Write-Host "`n=== Training Compliance Summary ===" -ForegroundColor Cyan
 Write-Host "Total Users: $total"
@@ -171,8 +171,8 @@ if ($nonCompliantUsers) {
 
 param(
     [string]$NonCompliantFile = "Training-Non-Compliant.csv",
-    [string]$SenderEmail = "aigovernance@company.com",
-    [string]$TrainingUrl = "https://learning.company.com/ai-governance"
+    [string]$SenderEmail = "aigovernance@contoso.com",
+    [string]$TrainingUrl = "https://learning.contoso.com/ai-governance"
 )
 
 # Connect to Exchange Online
@@ -204,7 +204,7 @@ AI Governance Team
         BodyAsHtml = $false
     }
 
-    # Note: Actual sending would use Send-MailMessage or Graph API
+    # Note: Actual sending would use Send-MgUserMail (Graph API)
     Write-Host "Would send reminder to: $($user.Email)" -ForegroundColor Yellow
 }
 

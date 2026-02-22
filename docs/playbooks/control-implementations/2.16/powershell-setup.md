@@ -11,7 +11,7 @@ Install-Module -Name PnP.PowerShell -Force -Scope CurrentUser
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Scope CurrentUser
 
 # Connect to SharePoint Online
-Connect-PnPOnline -Url "https://yourtenant.sharepoint.com" -Interactive
+Connect-PnPOnline -Url "https://contoso.sharepoint.com" -Interactive
 
 # Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
@@ -47,7 +47,7 @@ Add-PowerAppsAccount
     Document library name
 
 .EXAMPLE
-    .\Audit-KnowledgeSource.ps1 -SiteUrl "https://company.sharepoint.com/sites/research" -LibraryName "Research Library"
+    .\Audit-KnowledgeSource.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/research" -LibraryName "Research Library"
 #>
 
 param(
@@ -113,7 +113,7 @@ Write-Host "`nReport exported to: $reportPath"
     SharePoint site URL
 
 .EXAMPLE
-    .\Check-VersioningConfig.ps1 -SiteUrl "https://company.sharepoint.com/sites/research"
+    .\Check-VersioningConfig.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/research"
 #>
 
 param(
@@ -172,7 +172,7 @@ $versioningReport | Export-Csv -Path "Versioning-Config-$(Get-Date -Format 'yyyy
     Number of days to consider content stale (default: 365)
 
 .EXAMPLE
-    .\Get-StaleContent.ps1 -SiteUrl "https://company.sharepoint.com/sites/research" -DaysThreshold 180
+    .\Get-StaleContent.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/research" -DaysThreshold 180
 #>
 
 param(
@@ -230,7 +230,7 @@ if ($allStaleItems.Count -gt 0) {
     Checks knowledge source configuration and compliance
 
 .EXAMPLE
-    .\Validate-Control-2.16.ps1 -SiteUrl "https://company.sharepoint.com/sites/research"
+    .\Validate-Control-2.16.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/research"
 #>
 
 param(
@@ -286,7 +286,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
     Path for output reports
 
 .EXAMPLE
-    .\Configure-Control-2.16.ps1 -SiteUrl "https://company.sharepoint.com/sites/research" -OutputPath ".\RAGIntegrity"
+    .\Configure-Control-2.16.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/research" -OutputPath ".\RAGIntegrity"
 
 .NOTES
     Last Updated: January 2026

@@ -55,6 +55,26 @@ $testFiles = Get-ChildItem -Path $TestSuitePath -Filter "*.json" -Recurse
 
 $results = @()
 
+function Evaluate-Criterion {
+    param($Response, $Criterion)
+
+    switch ($Criterion.type) {
+        "contains" {
+            return @{ Passed = $Response -match $Criterion.pattern }
+        }
+        "not_contains" {
+            return @{ Passed = $Response -notmatch $Criterion.pattern }
+        }
+        "sentiment" {
+            # Would integrate with sentiment analysis API
+            return @{ Passed = $true }
+        }
+        default {
+            return @{ Passed = $true }
+        }
+    }
+}
+
 foreach ($testFile in $testFiles) {
     Write-Host "Running: $($testFile.Name)" -ForegroundColor Yellow
 
@@ -126,26 +146,6 @@ if ($failedTests -gt 0) {
     Write-Host "`n=== Failed Tests ===" -ForegroundColor Red
     $results | Where-Object { -not $_.Passed } | Format-Table Category, TestName, Violations
     exit 1
-}
-
-function Evaluate-Criterion {
-    param($Response, $Criterion)
-
-    switch ($Criterion.type) {
-        "contains" {
-            return @{ Passed = $Response -match $Criterion.pattern }
-        }
-        "not_contains" {
-            return @{ Passed = $Response -notmatch $Criterion.pattern }
-        }
-        "sentiment" {
-            # Would integrate with sentiment analysis API
-            return @{ Passed = $true }
-        }
-        default {
-            return @{ Passed = $true }
-        }
-    }
 }
 ```
 

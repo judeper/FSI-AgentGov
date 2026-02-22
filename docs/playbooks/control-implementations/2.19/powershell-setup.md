@@ -43,7 +43,7 @@ param(
 )
 
 # Connect to Dataverse
-$conn = Connect-CrmOnline -ServerUrl "https://yourorg.crm.dynamics.com"
+$conn = Connect-CrmOnline -ServerUrl "https://contoso.crm.dynamics.com"
 
 Write-Host "=== AI Disclosure Log Query ===" -ForegroundColor Cyan
 Write-Host "Period: $StartDate to $EndDate"
@@ -253,7 +253,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
     Path for output reports
 
 .EXAMPLE
-    .\Configure-Control-2.19.ps1 -DataverseUrl "https://yourorg.crm.dynamics.com" -OutputPath ".\Disclosure"
+    .\Configure-Control-2.19.ps1 -DataverseUrl "https://contoso.crm.dynamics.com" -OutputPath ".\Disclosure"
 
 .NOTES
     Last Updated: January 2026

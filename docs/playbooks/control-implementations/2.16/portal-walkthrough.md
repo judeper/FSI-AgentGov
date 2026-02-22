@@ -103,14 +103,14 @@ Environment: FSI-Wealth-Prod
 
 Knowledge Sources:
   1. Source: SharePoint - Investment Research Library
-     URL: https://company.sharepoint.com/sites/research/library
+     URL: https://contoso.sharepoint.com/sites/research/library
      Scope: "Published Research" folder only
      Approval: Content approval workflow enabled
      Owner: Research Team Lead
      Review Frequency: Monthly
 
   2. Source: SharePoint - Product Documentation
-     URL: https://company.sharepoint.com/sites/products/docs
+     URL: https://contoso.sharepoint.com/sites/products/docs
      Scope: "Approved Documents" library
      Approval: Major versions only (minor = draft)
      Owner: Product Management
