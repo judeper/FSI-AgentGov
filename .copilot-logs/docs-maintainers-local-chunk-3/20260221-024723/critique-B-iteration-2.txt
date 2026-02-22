@@ -1,0 +1,14 @@
+Now let me verify the specific issues in each affected file.
+Let me verify one more detail about the link formats and version convention.
+I now have complete evidence to assess the risk. Here is my analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE — All five proposed fixes are localized formatting or path corrections confined to single files. None alter cross-reference chains, mkdocs nav entries, or control structure. No fix risks cascading build failures.
+**SEVERITY_CORRECTIONS:**
+- **agent-inventory-entry.md (lines 56, 67, 87) — downgrade from CRITICAL to WARNING.** The broken paths are backtick-wrapped inline code (`../templates/per-agent-data-policy.md`), not rendered markdown links (`[text](path)`). MkDocs does not validate backtick-wrapped paths; these will never cause a `mkdocs build --strict` failure. They are incorrect instructional references in a template/spec document — misleading but not rendering-breaking. The three evidence-pack and decision-log issues are correctly classified CRITICAL because they produce visible rendering defects (stray text, unformatted code blocks, swallowed sections).
+**FIX_ORDERING:**
+NONE — All five fixes are independent with no inter-file or ordering dependencies. They can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- **Fix 5 (version footer v1.2 → v1.2.51) should be dropped from this batch.** Evidence shows the repo has **20+ playbooks** using `v1.2` in footers, while only recently-created documents (dspm-for-ai-policy-pack.md, deployment guides from Feb 2026) use `v1.2.51`. The `v1.2` in playbook footers is the *document version*, not the framework release version — controls use the same convention (`Version: v1.2` / `v1.3`). Updating only confidence-and-routing.md and zone1-min-explainability.md to `v1.2.51` while leaving 20+ siblings at `v1.2` creates *more* inconsistency, not less. Either leave as-is or perform a repo-wide footer normalization in a separate dedicated sweep.
+- **The WARNING about "10 of 14 files have no version footer"** is an observation, not a fix — correctly left as a warning with no proposed action. Good restraint.
+**CRITIQUE_SUMMARY:** The review is thorough and all findings are verified accurate against the source files. Two corrections: the agent-inventory-entry.md backtick-path issues should be WARNINGs (not CRITICAL) since they're non-rendered instructional references, and the version footer fix should be dropped from this batch to avoid creating a worse inconsistency than it solves.

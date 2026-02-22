@@ -1,0 +1,11 @@
+Now let me check the 1.17 sibling files and remaining files for completeness.
+All files verified. Here is the audit:
+**FALSE_POSITIVES:**
+- NONE — All 10 claimed issues are real and verified against the source files.
+**MISSED_ISSUES:**
+- **1.19/troubleshooting.md has "KeyQL" typo in 3 additional places** (lines 9, 25, 66) — the reviewer only caught the single occurrence in portal-walkthrough.md but missed all three instances of the same typo in the sibling troubleshooting file. Fix 1 as written would leave 3 "KeyQL" typos unfixed.
+- **1.16/powershell-setup.md: `$OfflineDays`, `$BlockPrint`, `$BlockCopy` parameters** (lines 74-76) are declared and echoed in the success output (lines 103-105) but never applied to any cmdlet — the same dead-code pattern as the `$irmSettings` hashtable the reviewer caught. The script's `[PASS]` message misleadingly reports these values as configured.
+**FIX_CONCERNS:**
+- **Fix 1 is incomplete**: Only targets 1.19/portal-walkthrough.md line 49, but `KeyQL` also appears 3 times in 1.19/troubleshooting.md (lines 9, 25, 66). All 4 occurrences need correction to `KQL`.
+- **Fix 3 is incomplete**: Removing `$irmSettings` and consolidating into `Set-PnPList -IrmEnabled $true -IrmExpire $true -IrmReject $true` is correct, but the script also accepts `$OfflineDays`, `$BlockPrint`, and `$BlockCopy` parameters that are never applied — these should either be wired into the `Set-PnPList` call or removed from the parameter block.
+**CRITIQUE_SUMMARY:** The review is accurate with zero false positives and correct structural analysis, but it missed 3 additional "KeyQL" typos in the troubleshooting file and unused script parameters that compound the dead-code problem it already identified — reducing fix completeness if applied as-is.

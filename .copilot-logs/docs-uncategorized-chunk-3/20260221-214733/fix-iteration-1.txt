@@ -1,0 +1,15 @@
+Now let me verify the actual Pillar 1 control filenames and Getting Started files.
+Let me get the actual control titles from the H1 headers:
+Now I have all the actual titles. I also need to extract the Technologies column from the actual control files to update the inventory properly. Let me also check what technologies are mentioned for each control, but first let me check if the inventory includes a Technologies column.
+Looking at the inventory, the Pillar 1 table has `| ID | Title | Technologies |` columns. I need to update titles and keep reasonable technology values. Let me now apply all 6 fixes.
+Now let me verify all changes were applied correctly:
+All 6 fixes applied correctly. Let me commit:
+Changes are staged/modified. The commit was blocked by permissions but all edits are applied in the working tree.
+CHANGES:
+- reports/audit/03-learn-validation-matrix.md: Updated summary table counts from 15/4/3/22 to 22/5/4/31 to match actual detail table rows
+- reports/audit/03-learn-validation-matrix.md: Fixed item 3 Learn URL from `/exchangepowershell/` to canonical `/exchange/` path
+- reports/audit/02-inventory.md: Replaced all 23 incorrect Pillar 1 control titles with actual names from control file H1 headers
+- reports/audit/02-inventory.md: Fixed Getting Started files from "overview.md, quick-start.md" to "quick-start.md, checklist.md"
+- reports/audit/07-post-remediation-review.md: Changed "5 waves" to "4 waves" on line 5 to match 06-remediation-backlog.md (W1-W4)
+- reports/audit/appendix-learn-urls.md: Removed duplicate `/exchangepowershell/search-unifiedauditlog` entry, keeping only canonical `/exchange/` entry
+FIX_STATUS: COMPLETE

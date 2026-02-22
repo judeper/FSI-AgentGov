@@ -1,0 +1,12 @@
+Now let me spot-check a few more files for potentially missed issues.
+Now let me check a few more files for potential issues the reviewer may have missed.
+Good — no language or role naming violations. Let me verify the footer metadata claim more precisely.
+Only one instance. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE
+**MISSED_ISSUES:**
+- The reviewer arbitrarily scoped 1.19 to only portal-walkthrough.md, excluding 3 substantive files (powershell-setup.md, verification-testing.md, troubleshooting.md) from review. All 3 contain real implementation content and should have been reviewed, making the true in-scope count 28 files, not 25. The footer metadata warning count should be 22 missing (not 19).
+**FIX_CONCERNS:**
+- NONE. The suggested fix (`Set-AipServiceSuperUserGroup -GroupEmailAddress "SG-Compliance-SuperUsers@contoso.com"`) is correct per Microsoft's AIPService module documentation. `Add-AipServiceSuperUser` accepts only `-EmailAddress` (individual users) or `-ServicePrincipalId`, not `-Group`. The NEEDS_HUMAN_REVIEW tag is appropriate since the exact group email domain should be verified against the example conventions used elsewhere in the playbook.
+**CRITIQUE_SUMMARY:** The critical PowerShell cmdlet finding is verified correct and the fix suggestion is accurate. The reviewer's main gap is under-scoping: 3 substantive 1.19 files were excluded without justification, and the footer count is consequently understated (22 missing, not 19).

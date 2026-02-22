@@ -1,0 +1,24 @@
+All claims verified against the source files. Here is the synthesized final review:
+---
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/framework/executive-summary.md (line 118): RACI violation — "Annual governance review" has TWO Accountable roles (Compliance AND Board). RACI requires exactly one Accountable entity per activity; dual accountability creates ambiguity about final decision authority
+WARNINGS:
+- docs/framework/agent-identity-architecture.md (line 1063): External URL `https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906` reported as HTTP 400 by automated pre-pass; needs manual verification before removal (downgraded from CRITICAL — broken blog link does not affect governance correctness or build integrity)
+- docs/framework/index.md, executive-summary.md, governance-fundamentals.md, zones-and-tiers.md, agent-lifecycle.md, regulatory-framework.md, operating-model.md, governance-cadence.md, adoption-roadmap.md, agent-identity-architecture.md: Version footer shows v1.2.42 but project version is v1.2.51 (solutions-integration.md already updated to v1.2.51)
+- docs/framework/solutions-integration.md: Internal count inconsistency — mermaid diagram label says "24 Deployable Automation Solutions" (line 21) but Summary Statistics says "27 automation solutions (25 deployable + 2 framework-integrated)" (line 655); body describes only ~18 individual solutions. All three numbers need reconciliation against the companion FSI-AgentGov-Solutions repository
+- docs/framework/solutions-integration.md: Status contradictions between individual solution entries and Summary Statistics — DECR listed "Completed" (line 130) but Summary says "Validated" (line 659); Segregation Detector listed "Work In Progress" (line 217) but Summary says "Validated" (line 659); File Upload Security listed "Work In Progress" (line 372) but Summary says "Completed" (line 658); Agent Access Governance Monitor listed "Work In Progress" (line 404) but Summary says "Completed" (line 658); COI Testing, Hallucination Tracker, DR Testing status entries may also conflict — total of 7+ contradictions
+- docs/framework/solutions-integration.md: Structural inconsistency — first three solutions (ELM, MCM, PGC at lines 73–114) lack `**Status:**` fields entirely while all other solutions include them
+- docs/framework/governance-fundamentals.md (line 179): References "5-point maturity scale" but lists only 4 items (Level 0, Level 1, Level 2-3, Level 4); collapsed presentation of Levels 2 and 3 makes the "5-point" label confusing
+- docs/framework/index.md (lines 44-45): After consolidation into agent-identity-architecture.md, the Framework Components table has two separate entries ("Agent 365 Architecture" and "Agent Identity Architecture") both linking to the same file; related: mkdocs.yml line 94 still has an "Agent 365 Architecture (Archived)" nav entry pointing to the redirect stub
+GAPS:
+- NONE
+FIXES:
+1. docs/framework/executive-summary.md (line 118): Fix RACI for "Annual governance review" — assign single Accountable role (recommend Compliance as A, Board as I, consistent with Board's role in other operational rows)
+2. docs/framework/index.md (lines 44-45): Merge the duplicate "Agent 365 Architecture" / "Agent Identity Architecture" table rows into a single entry with a combined description covering both platform architecture and identity patterns; also consider removing the archived nav entry at mkdocs.yml line 94
+3. docs/framework/governance-fundamentals.md (line 179): Change "5-point maturity scale" to "maturity scale" (simpler option) or explicitly list all 5 levels ungrouped
+4. docs/framework/agent-identity-architecture.md (line 1063): Manually verify the techcommunity blog URL; if confirmed broken, replace with correct URL or remove the entry
+5. docs/framework/index.md + 9 other files: Update version footers from v1.2.42 to v1.2.51 to match current project version (bulk search-and-replace, single atomic commit)
+6. docs/framework/solutions-integration.md (counts — lines 21, 655): RESEARCH REQUIRED — reconcile mermaid diagram count, Summary Statistics count, and actual body entries against FSI-AgentGov-Solutions repository before editing; do not guess correct numbers
+7. docs/framework/solutions-integration.md (statuses — lines 130, 217, 372, 404, 658-660): RESEARCH REQUIRED — reconcile all 7+ individual status fields against Summary Statistics using FSI-AgentGov-Solutions as source of truth; also add missing Status fields to ELM, MCM, and PGC entries (lines 73-114)
+STATUS: ISSUES_FOUND

@@ -1,0 +1,4 @@
+CHANGES:
+- docs/playbooks/control-implementations/4.5/powershell-setup.md: Replaced 3-line guarded disconnect block with direct `Disconnect-SPOService -ErrorAction SilentlyContinue`
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: Replaced 3-line guarded disconnect block with direct `Disconnect-SPOService -ErrorAction SilentlyContinue`
+FIX_STATUS: COMPLETE

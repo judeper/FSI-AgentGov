@@ -1,0 +1,13 @@
+Now let me check the verification-testing.md footer for 3.8 and the 3.12 portal-walkthrough footer for reference:
+Now I have all the context. Let me apply all 6 fixes:
+Now fix the 3.12 missing footers. The 3.9 cmdlet warning is a NEEDS_HUMAN_REVIEW — I'll skip modifying that file since it requires human verification of cmdlet signatures. Let me add footers to the three 3.12 files:
+All fixes applied. Note: The 3.9 cmdlet warning (NEEDS_HUMAN_REVIEW for `New-AzSentinelAlertRule`/`Get-AzSentinelIncident` parameter sets) requires human verification of current Az.SecurityInsights module signatures — no code change made for that item.
+CHANGES:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: Fixed `$GroupName` default from `"CopilotForM365AdminExclusionGroup"` to `"CopilotForM365AdminExclude"` to match all other functions
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Removed `<!-- NEEDS_HUMAN_REVIEW -->` comment from SEC Rule 206(4)-7 citation (line 161)
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Removed non-standard `| Classification: Verification Testing` suffix from footer
+- docs/playbooks/control-implementations/3.10/verification-testing.md: Replaced out-of-scope `CFPB UDAAP` with in-scope `FINRA 4511` in compliance checklist
+- docs/playbooks/control-implementations/3.12/powershell-setup.md: Added missing `*Updated: February 2026 | Version: v1.2*` footer
+- docs/playbooks/control-implementations/3.12/verification-testing.md: Added missing `*Updated: February 2026 | Version: v1.2*` footer
+- docs/playbooks/control-implementations/3.12/troubleshooting.md: Added missing `*Updated: February 2026 | Version: v1.2*` footer
+FIX_STATUS: COMPLETE

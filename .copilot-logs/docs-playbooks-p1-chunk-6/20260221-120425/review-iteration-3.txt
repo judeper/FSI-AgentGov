@@ -1,0 +1,15 @@
+All 15 files have been read. Let me now produce the review output.
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.21/portal-walkthrough.md (lines 39-47, 54-57): KQL queries reference the `AuditLogs` Sentinel table and `TargetResources` field to detect adversarial prompt text (e.g., "ignore previous", "jailbreak"). `AuditLogs` contains Entra ID audit events, not Copilot conversation content — adversarial prompt strings would not appear in `TargetResources`. NEEDS_HUMAN_REVIEW: verify correct Sentinel table (e.g., `OfficeActivity`, `CloudAppEvents`, or a Copilot-specific table) and field for Copilot interaction content.
+- docs/playbooks/control-implementations/1.21/powershell-setup.md (lines 90-95, 259-263): Same KQL query issue repeated in Sentinel rule creation guidance — `AuditLogs` table and `TargetResources` field unlikely to contain Copilot user prompt text. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/1.20/portal-walkthrough.md (line 20): Confirmed broken URL `https://admin.powerplatform.microsoft.com` (HTTP 405). This is the standard PPAC URL and likely a scanner false positive (admin portals block automated requests). No fix needed if URL is valid for browser access; optionally remove the hyperlink and present as plain text.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.21/portal-walkthrough.md: Review and correct the KQL Sentinel table used in Steps 3-4. Replace `AuditLogs` / `TargetResources` with the appropriate Sentinel table and field that contains Copilot interaction content (consult current Microsoft Sentinel schema for M365 Copilot data connector).
+2. docs/playbooks/control-implementations/1.21/powershell-setup.md: Apply the same KQL table/field correction in the Sentinel analytics rule query (lines 90-95) and the complete configuration script KQL block (lines 259-263).
+3. docs/playbooks/control-implementations/1.20/portal-walkthrough.md: Optionally convert the PPAC link on line 20 to plain text `admin.powerplatform.microsoft.com` to avoid automated URL-check failures, or accept as scanner false positive.
+STATUS: ISSUES_FOUND

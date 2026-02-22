@@ -1,0 +1,25 @@
+Now let me fix the issues I've found.
+Permission denied on edits — this is likely a read-only worktree. Providing the review report:
+ISSUE_COUNT: 12 (plus ~300 mkdocs nav orphans from Section A — systemic worktree artifact, not content issues)
+CRITICAL:
+- 3.8/powershell-setup.md line 127: `Import-AdminExclusionGroupFromCSV` defaults to `$GroupName = "CopilotForM365AdminExclusionGroup"` but all other functions and the portal walkthrough (which states the name is case-sensitive) use `"CopilotForM365AdminExclude"`. This mismatch will cause the bulk import to target a non-existent group.
+WARNINGS:
+- 3.5/powershell-setup.md line 282: `New-AzConsumptionBudget` is from `Az.Consumption` module but prerequisites only install `Az.CostManagement`. NEEDS_HUMAN_REVIEW — verify correct module/cmdlet pairing.
+- 3.5/troubleshooting.md line 71: `Get-AzConsumptionBudget` same module mismatch — prerequisites don't install `Az.Consumption`.
+- 3.6/portal-walkthrough.md lines 127-129: Double horizontal rule (`---`) creates an empty visual section before footer links.
+- 3.7 playbooks: Version inconsistency — portal-walkthrough.md and verification-testing.md show "February 2026 | v1.3" while powershell-setup.md and troubleshooting.md show "January 2026 | v1.2".
+- 3.8 playbooks: Version inconsistency — portal-walkthrough.md shows "February 2026 | v1.3" while powershell-setup.md shows "January 2026 | v1.2".
+- 3.7/verification-testing.md: "Next Steps" navigation links (line 95) appear mid-document before the "SSPM Configuration Verification" section (line 103). Navigation should be at end.
+- Section A: 3 broken external URLs flagged (HTTP 405). Note: `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` are admin portals that return 405 to automated GET — they work for authenticated browser users. The Graph API URL in 3.8/powershell-setup.md is inside a PowerShell code block (variable interpolation), not a navigable link.
+GAPS:
+- 3.6/portal-walkthrough.md: Missing Validation section. All other portal-walkthroughs in this batch (3.5, 3.7, 3.8) include a Validation checklist before the footer; 3.6 does not.
+FIXES:
+1. 3.8/powershell-setup.md line 127: Change `$GroupName = "CopilotForM365AdminExclusionGroup"` to `$GroupName = "CopilotForM365AdminExclude"` to match all other references.
+2. 3.5/powershell-setup.md: Add `Install-Module -Name Az.Consumption -Force -AllowClobber` to prerequisites section, or replace `New-AzConsumptionBudget` with the `Az.CostManagement` equivalent. NEEDS_HUMAN_REVIEW.
+3. 3.5/troubleshooting.md: Same module fix — add `Az.Consumption` prerequisite or use `Az.CostManagement` cmdlet equivalent.
+4. 3.6/portal-walkthrough.md: Remove duplicate `---` at lines 127-129, add a Validation checklist section (similar to 3.5/portal-walkthrough.md) before the footer links.
+5. 3.7/powershell-setup.md and 3.7/troubleshooting.md: Update footer to "February 2026 | v1.3" to match portal-walkthrough and verification-testing.
+6. 3.8/powershell-setup.md: Update footer to "February 2026 | v1.3" to match portal-walkthrough.
+7. 3.7/verification-testing.md: Move "Next Steps" section (lines 95-99) to after the "SSPM Configuration Verification" section at end of document.
+8. mkdocs nav orphans (~300 entries): No fix needed in reviewed files — these are a worktree artifact from sparse checkout. All referenced files exist in the main repository.
+STATUS: ISSUES_FOUND

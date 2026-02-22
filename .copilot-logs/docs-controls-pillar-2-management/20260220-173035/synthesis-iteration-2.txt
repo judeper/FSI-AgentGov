@@ -1,0 +1,22 @@
+ISSUE_COUNT: 7
+CRITICAL:
+- NONE
+WARNINGS:
+- 2.22-inactivity-timeout-enforcement.md: Missing `**Last Verified:**` header metadata field — 23 of 24 Pillar 2 controls include this field. Note: this is a cross-file consistency issue, not a template violation (the canonical template specifies `**Last UI Verified:**`, not `**Last Verified:**`). Date value requires human confirmation.
+- 2.22-inactivity-timeout-enforcement.md: Code block at line 63 missing language tag — should use `` ```http `` or `` ```text `` instead of bare `` ``` `` (all other code blocks in the pillar have language tags)
+- 2.13-documentation-and-record-keeping.md: External URL `https://www.sec.gov/rules/interp/34-47806.htm` returns HTTP 403 — NEEDS_HUMAN_REVIEW (SEC bot-blocking; verify URL is still valid via browser)
+- 2.18-automated-conflict-of-interest-testing.md: External URLs `sec.gov/regulation-best-interest` and `sec.gov/about/what-we-do/examination-priorities` return HTTP 403 — NEEDS_HUMAN_REVIEW (SEC bot-blocking)
+- 2.19-customer-ai-disclosure-and-transparency.md: External URL `sec.gov/tm/faq-regulation-best-interest` returns HTTP 403 — NEEDS_HUMAN_REVIEW (SEC bot-blocking)
+- 2.21-ai-marketing-claims-and-substantiation.md: External URLs `sec.gov/rules/final/2020/ia-5653.pdf`, `sec.gov/news/press-release/2024-36`, and `ftc.gov/business-guidance/blog/2023/02/keep-your-ai-claims-check` return HTTP 403 — NEEDS_HUMAN_REVIEW (government site bot-blocking)
+- 2.23-user-consent-and-ai-disclosure-enforcement.md: External URL `sec.gov/files/ia-6353.pdf` returns HTTP 403 — NEEDS_HUMAN_REVIEW (SEC bot-blocking)
+GAPS:
+- NONE
+FIXES:
+1. 2.22-inactivity-timeout-enforcement.md: NEEDS_HUMAN_REVIEW — add `**Last Verified:**` field after `**Governance Levels:**` line to match other Pillar 2 controls. Human must confirm correct date (v1.3 controls 2.23/2.24 use `2026-02-12`; majority use `2026-02-03`). Also consider whether field should be `**Last UI Verified:**` per canonical template.
+2. 2.22-inactivity-timeout-enforcement.md: Change bare `` ``` `` at line 63 to `` ```http `` to add language tag to the API endpoint code block
+3. 2.13-documentation-and-record-keeping.md: NEEDS_HUMAN_REVIEW — manually verify `https://www.sec.gov/rules/interp/34-47806.htm` is accessible via browser; if relocated, update to current SEC URL
+4. 2.18-automated-conflict-of-interest-testing.md: NEEDS_HUMAN_REVIEW — manually verify 2 SEC URLs are accessible via browser
+5. 2.19-customer-ai-disclosure-and-transparency.md: NEEDS_HUMAN_REVIEW — manually verify SEC FAQ URL is accessible via browser
+6. 2.21-ai-marketing-claims-and-substantiation.md: NEEDS_HUMAN_REVIEW — manually verify 2 SEC URLs and 1 FTC URL are accessible via browser
+7. 2.23-user-consent-and-ai-disclosure-enforcement.md: NEEDS_HUMAN_REVIEW — manually verify SEC PDF URL is accessible via browser
+STATUS: ISSUES_FOUND

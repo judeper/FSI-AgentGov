@@ -1,0 +1,16 @@
+Now let me verify the actual control titles and check footer versions.
+Now let me verify the Mermaid diagram node count and check the `agent-365-architecture.md` file (which is 12th framework file not mentioned in the review).
+Let me verify a few more details to check for missed issues.
+I now have all the data needed. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All 11 issues are confirmed real against the actual files.
+**MISSED_ISSUES:**
+- **solutions-integration.md: 6 status mismatches between individual solution sections and Summary Statistics (line 655–661).** The summary claims "Planned: 0" and lumps COI Testing, Hallucination Tracker, and DR Testing under "Work In Progress", but their individual entries (lines 286, 309, 332) all say `**Status:** Planned`. Similarly, Deny Event Correlation (line 130) says `Completed` but the summary lists it under `Validated`; Segregation Detector (line 217) says `Work In Progress` but the summary lists it under `Validated`; File Upload Security (line 372) and Agent Access Monitor (line 404) say `Work In Progress` but the summary lists them as `Completed`. This is a more significant data integrity issue than the "24 vs 27" count mismatch that *was* caught.
+- **solutions-integration.md Mermaid diagram (lines 21–42): Only 19 solution nodes are actually drawn**, not the 24 claimed in the subgraph title. The review caught the 24-vs-27 discrepancy with the summary but missed that the diagram itself only visualizes 19 boxes (8 solutions in the summary have no corresponding Mermaid node at all).
+- **governance-fundamentals.md: Line number citation is wrong** — the version text is on line 11, not line 14 as the review states. The issue itself is real; only the citation is off.
+**FIX_CONCERNS:**
+- **Fix 1 (broken URL):** The suggested alternative URL (`/t5/.../ba-p/4478906`) uses TechCommunity's legacy path format. This may also 404 since Microsoft has migrated to the `/blog/` format. The fix should confirm the replacement URL actually resolves before applying.
+- **Fix 6 (Mermaid count):** The suggestion says "update to match 25 or 27" but doesn't resolve which number is correct, and doesn't address that only 19 nodes are drawn. The fix should either add the missing 5–8 solution nodes to the diagram or change the title to match what's actually visualized (19), alongside resolving the 24/25/27 discrepancy in the text.
+- **Fix 10 (RACI dual-A):** Suggesting "likely Board" is speculative. Both Compliance and Board are defensible as the single Accountable for annual governance review. This should be NEEDS_HUMAN_REVIEW, not a prescriptive fix.
+**CRITIQUE_SUMMARY:** The review correctly identified all 11 issues with no false positives, but missed a significant data integrity problem: 6 solution status mismatches between the individual sections and the Summary Statistics block in solutions-integration.md. The Mermaid diagram node count (19 drawn vs. 24 claimed) was also only partially caught. Fix suggestions are directionally correct but three need refinement before application.

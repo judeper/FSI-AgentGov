@@ -1,0 +1,15 @@
+Now let me check the reference patterns from other files to match the header metadata format:
+Now I have all the context. Let me also check which files are in the batch to confirm scope:
+Now I have all context. Let me apply all fixes:
+Now verify the changes:
+All edits applied correctly. Now let me commit:
+Git staging is blocked by environment permissions. The file edits are applied successfully. Let me verify the changes are correct:
+All changes verified. The SEC 17a-4 retention period inconsistency (GAP 1) spans files in multiple batches (2.13, 4.3 are outside this batch) and requires a regulatory SME decision — skipped per scope constraint.
+CHANGES:
+- docs/playbooks/control-implementations/1.1/verification-testing.md: Swapped footer ordering — nav links now come before "Updated" line, matching dominant pattern
+- docs/playbooks/control-implementations/1.4/portal-walkthrough.md: Replaced blockquote intro with standard header metadata block (Last Updated, Portal, Estimated Time)
+- docs/playbooks/control-implementations/1.4/powershell-setup.md: Replaced blockquote intro with standard header metadata block (Last Updated, Modules Required)
+- docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Changed version footer from "v1.2.48" to "v1.2" for consistency with major.minor pattern
+- docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Added HTML review comment on 10-year retention row (L434) flagging missing regulatory citation
+- SKIPPED: SEC 17a-4 retention period alignment (GAP 1) — requires regulatory SME decision and spans files outside batch scope (2.13, 4.3)
+FIX_STATUS: COMPLETE

@@ -1,0 +1,15 @@
+Now let me verify the specific issues claimed in the review. Let me examine all the key files in parallel.
+Now let me check the 2.8+ files for heading format comparison, and also look at some other chunk files to see if there are missed issues.
+Now let me check for issues the reviewer might have missed — prohibited language, content accuracy, and cross-reference integrity across the batch scope.
+Good, no prohibited language. Let me now check the heading format inconsistency more broadly and verify the ECOA claim one more time by checking the exact ECOA protected classes.
+Now I have all the data needed. Let me compile the audit.
+**FALSE_POSITIVES:**
+NONE
+**MISSED_ISSUES:**
+- **2.7/powershell-setup.md `Export-ConnectorInventory` function (lines 60-93):** The function is named `Export-ConnectorInventory` but only exports environment-level data (EnvironmentName, EnvironmentId, EnvironmentType, DLPPoliciesApplied). It does not list any actual connectors. This is a content-accuracy issue beyond just the section heading — the function body itself is misaligned with its name and purported purpose. The reviewer caught the heading ("Get Connectors in Use") but missed this second naming/behavior mismatch in the same file.
+- **Heading format inconsistency under-scoped:** The review attributes the old heading format (`# Control X.X: [Name] - [Type]`) only to 2.7, but controls 2.3, 2.4, 2.5, and 2.6 all use the same old format. Fix #3 should target 2.3–2.7, not just 2.7.
+- **Missing footer metadata in 2.8–2.13:** Controls 2.3–2.7 have footer metadata (`*Updated: January 2026 | Version: v1.2*`) but all 2.8–2.13 playbooks (24 files) lack any footer metadata line entirely. This is the converse of the heading inconsistency and was not flagged.
+**FIX_CONCERNS:**
+- **Fix #1** is correct in substance. Minor note: the review abbreviates the 9th protected class as "Good Faith Exercise of CCPA Rights" — while this matches the document's own parenthetical abbreviation, "CCPA" is far more commonly associated with the California Consumer Privacy Act. The fix text should spell out "Consumer Credit Protection Act" to avoid ambiguity.
+- **Fix #3** is under-scoped — it proposes normalizing only 2.7 headings but controls 2.3–2.6 have the identical old format and should be included. The fix also doesn't mention adding footer metadata to 2.8–2.13 (or removing it from 2.3–2.7) to achieve full consistency.
+**CRITIQUE_SUMMARY:** The review's findings are all genuine — the ECOA protected class gap is a legitimate content defect, and the heading/script naming issues are real. However, the review under-scopes the formatting inconsistency (affects 2.3–2.7, not just 2.7), misses the `Export-ConnectorInventory` function body mismatch in the same file it flagged, and overlooks the converse footer-metadata gap in 2.8–2.13.

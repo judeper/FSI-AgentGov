@@ -1,0 +1,36 @@
+All 25 files exist. Let me now read all of them in parallel batches.
+Now I have all 25 files reviewed. Let me compile the findings.
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/playbooks/control-implementations/4.7/portal-walkthrough.md (line 41): RCD UI description says "set to **Restricted**" but 4.1 (line 37) and 4.6 (line 46) describe the identical setting as a toggle set to "**On**". Inconsistent UI instruction could confuse administrators configuring the same feature.
+- docs/playbooks/control-implementations/4.1/troubleshooting.md (lines 129, 135): Uses property name `RestrictedSearchEnabled` and cmdlet `Get-SPOSearchSiteConfiguration` for RSS status, but 4.1/powershell-setup.md (lines 71-79) uses `EnableRestrictedSearchAllList` and `Get-SPOTenantRestrictedSearchAllowedList` for the same feature. Admins following troubleshooting steps will get errors. NEEDS_HUMAN_REVIEW.
+WARNINGS:
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md (line 34): References "SOX 404" for 7-year document retention, but the record retention requirement is under SOX Section 802. The same repo's 4.3/powershell-setup.md (line 87) correctly cites "SOX 802". NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md (line 34): GLBA retention listed as "5-7 years" but GLBA/Gramm-Leach-Bliley does not specify exact retention periods; this is industry practice, not regulation. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 161): Claims "Remove-SPOExternalUser was deprecated July 2024" — specific deprecation date should be verified. NEEDS_HUMAN_REVIEW.
+- 4.1/4.2 files use title format "Portal Walkthrough: Control X.X - Name" while 4.3-4.7 use "Control X.X: Name - Portal Walkthrough" — inconsistent heading convention across the pillar.
+- 4.1/4.2 files lack `*Updated: January 2026 | Version: v1.2*` footer present in all 4.3-4.7 files — inconsistent metadata pattern.
+- 4.3-4.7 portal-walkthrough files use governance sub-levels (Level 1/2/3/4) that don't map to the framework's 3-zone or 3-tier governance model; "Level 4" has no framework definition.
+GAPS:
+- 12 files across controls 4.3-4.6 (powershell-setup.md, troubleshooting.md, verification-testing.md for each) are missing cross-navigation footer links (`[Back to Control X.X] | [Portal Walkthrough] | ...`) that are present in all 4.1 and 4.2 playbook files.
+FIXES:
+1. docs/playbooks/control-implementations/4.7/portal-walkthrough.md (line 41): Change "set to **Restricted**" to "toggle **Restrict content from Microsoft 365 Copilot** to **On**" to match the UI description in 4.1 and 4.6.
+2. docs/playbooks/control-implementations/4.1/troubleshooting.md (line 129): Change `RestrictedSearchEnabled` to `EnableRestrictedSearchAllList` to match the property name used in 4.1/powershell-setup.md.
+3. docs/playbooks/control-implementations/4.1/troubleshooting.md (line 135): Change `Get-SPOSearchSiteConfiguration` to `Get-SPOTenantRestrictedSearchAllowedList` to match the cmdlet used in 4.1/powershell-setup.md.
+4. docs/playbooks/control-implementations/4.3/portal-walkthrough.md (line 34): Change "SOX 404" to "SOX 802" for the 7-year retention row to match the correct section for record retention requirements.
+5. docs/playbooks/control-implementations/4.3/powershell-setup.md: Add cross-navigation footer links before the version footer.
+6. docs/playbooks/control-implementations/4.3/troubleshooting.md: Add cross-navigation footer links before the version footer.
+7. docs/playbooks/control-implementations/4.3/verification-testing.md: Add cross-navigation footer links before the version footer.
+8. docs/playbooks/control-implementations/4.4/powershell-setup.md: Add cross-navigation footer links before the version footer.
+9. docs/playbooks/control-implementations/4.4/troubleshooting.md: Add cross-navigation footer links before the version footer.
+10. docs/playbooks/control-implementations/4.4/verification-testing.md: Add cross-navigation footer links before the version footer.
+11. docs/playbooks/control-implementations/4.5/powershell-setup.md: Add cross-navigation footer links before the version footer.
+12. docs/playbooks/control-implementations/4.5/troubleshooting.md: Add cross-navigation footer links before the version footer.
+13. docs/playbooks/control-implementations/4.5/verification-testing.md: Add cross-navigation footer links before the version footer.
+14. docs/playbooks/control-implementations/4.6/powershell-setup.md: Add cross-navigation footer links before the version footer.
+15. docs/playbooks/control-implementations/4.6/troubleshooting.md: Add cross-navigation footer links before the version footer.
+16. docs/playbooks/control-implementations/4.6/verification-testing.md: Add cross-navigation footer links before the version footer.
+NOTE ON SECTION A FINDINGS:
+- **Broken External URLs:** All 30 flagged URLs are intentional placeholder/example URLs (`yourtenant.sharepoint.com`, `contoso.sharepoint.com`, `tenant-admin.sharepoint.com`, `admin.sharepoint.com`) used in code blocks and documentation examples. These are standard Microsoft documentation placeholder domains and are NOT broken links. No fixes needed.
+- **MkDocs Nav Orphans:** All ~300 orphans are files from the full repository that are not present in this partial worktree. The playbook files in scope (4.1-4.7) exist at the correct paths. No fixes needed for the in-scope files.
+STATUS: ISSUES_FOUND

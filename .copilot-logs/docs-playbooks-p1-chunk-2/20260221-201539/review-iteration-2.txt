@@ -1,0 +1,13 @@
+Fixes 1, 2, and 3 are confirmed resolved. Now checking Fix 4 (placeholder GUIDs) and Fix 5 (cmdlet availability) — both were NEEDS_HUMAN_REVIEW items.
+Fix 4 has been addressed — a prominent admonition was added at line 63 clearly warning that placeholder GUIDs must be replaced with tenant-specific values, and inline comments were added. Fix 5 (cmdlet availability) was a NEEDS_HUMAN_REVIEW item that remains as-is, which is expected.
+ISSUE_COUNT: 0
+CRITICAL:
+- NONE
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+- NONE
+STATUS: CLEAN
+**Verification summary:** All 3 auto-fixable issues (Fix 1: version/date in 1.8 powershell-setup, Fix 2: version in 1.8 troubleshooting, Fix 3: `kusto`→`kql` fence tag) are confirmed resolved. Fix 4 (placeholder GUIDs) was addressed with a visible admonition and inline comments. Fix 5 (cmdlet availability) remains a NEEDS_HUMAN_REVIEW item as expected.

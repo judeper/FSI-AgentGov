@@ -1,0 +1,18 @@
+All findings verified against source. Here is the final synthesized review:
+ISSUE_COUNT: 4
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 5 (New-DisclosureComplianceReport.ps1) lines 506 and 526 — `Write-Host "=" * 80` and `Write-Host "`n" + "=" * 80` will fail at runtime; PowerShell requires parentheses for expression evaluation: `Write-Host ("=" * 80)`
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 2 uses `Get-AdminPowerAppChatBot` and `Get-AdminPowerAppChatBotTopic` cmdlets which may not exist in the Microsoft.PowerApps.Administration.PowerShell module — NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 1 uses `Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/admin/copilot/settings"` — the `/admin/copilot/settings` Graph API endpoint may not exist in v1.0; script already has a caveat comment but users may attempt to run as-is — NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/2.23/troubleshooting.md: Line 230 code block uses ` ```sql ` tag but contains FetchXML (XML), not SQL — should be ` ```xml `
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.23/powershell-setup.md (line 506): Change `Write-Host "=" * 80 -ForegroundColor Cyan` to `Write-Host ("=" * 80) -ForegroundColor Cyan`
+2. docs/playbooks/control-implementations/2.23/powershell-setup.md (line 526): Change `Write-Host "`n" + "=" * 80 -ForegroundColor Cyan` to `Write-Host ("`n" + "=" * 80) -ForegroundColor Cyan`
+3. docs/playbooks/control-implementations/2.23/troubleshooting.md (line 230): Change ` ```sql ` to ` ```xml ` and change line 231 `-- FetchXML query` to `<!-- FetchXML query -->` for consistent XML syntax highlighting
+STATUS: ISSUES_FOUND
+---
+**Synthesis notes:** Dropped original Warning #2 (Get-AccessToken function ordering) and Fix #4. Both critiques confirmed that lines 334–336 already contain an explicit `IMPORTANT:` caveat stating the function is a conceptual placeholder requiring implementation before use. The script is intentionally non-runnable as-is by design, making code restructuring unnecessary diff noise.

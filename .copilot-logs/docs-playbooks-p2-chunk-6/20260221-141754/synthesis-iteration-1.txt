@@ -1,0 +1,16 @@
+ISSUE_COUNT: 4
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 3 (`Get-ConsentRecords.ps1`) defines helper function `Get-AccessToken` at line 376 AFTER it is called at line 335. In PowerShell top-to-bottom execution, this causes a runtime error. Function must be moved before the `try` block. The script's "conceptual approach" comment (line 331) should be preserved. (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 2 (`Get-AgentDisclosureInventory.ps1`) uses `Get-AdminPowerAppChatBotTopic` (line 195) and `Get-AdminPowerAppChatBot` (line 188), which do not appear to be real cmdlets in `Microsoft.PowerApps.Administration.PowerShell`. Verify against current module documentation. (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/2.21/verification-testing.md: Attestation template references "Framework Version: 1.1" (line 153) but current framework version is 1.2.x. This is inside a compliance attestation artifact that gets signed — an incorrect version creates audit trail confusion. Must be updated.
+- docs/playbooks/control-implementations/2.19/verification-testing.md, 2.20/*, 2.21/*, 2.23/*: Missing version footers. The 2.22 playbooks consistently include `*Updated: February 2026 | Version: v1.3*` footers, but 2.19, 2.20, 2.21, and 2.23 playbooks do not, creating inconsistency across the batch.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.23/powershell-setup.md: Move the `Get-AccessToken` function definition (lines 376-383) above the `try` block (before line 330) in Script 3. Keep the existing conceptual disclaimer comment intact — do not rewrite the auth pattern.
+2. docs/playbooks/control-implementations/2.23/powershell-setup.md: Verify `Get-AdminPowerAppChatBot` and `Get-AdminPowerAppChatBotTopic` cmdlet names against current `Microsoft.PowerApps.Administration.PowerShell` module; if no real equivalent exists, add a comment marking these as conceptual placeholders.
+3. docs/playbooks/control-implementations/2.21/verification-testing.md: Update "Framework Version: 1.1" to "Framework Version: 1.2" in the attestation template (line 153).
+4. docs/playbooks/control-implementations/2.19/*, 2.20/*, 2.21/*, 2.23/*: Add version footers consistent with the 2.22 pattern (`*Updated: [Month Year] | Version: v[X.X]*`) to all 16 playbook files missing them. Fixes 1+2 can be committed together (same file), Fix 3 alone, Fix 4 as a batch.
+STATUS: ISSUES_FOUND

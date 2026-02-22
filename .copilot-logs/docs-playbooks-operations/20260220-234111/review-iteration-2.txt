@@ -1,0 +1,18 @@
+All three in-scope files exist on disk and I've verified the nav orphan findings. The files referenced in the orphan list actually DO exist — I confirmed controls, framework, reference, and playbook files all resolve correctly. The automated orphan detector produced false positives (likely a path resolution or working directory issue in the tooling).
+Here is my review of the three in-scope files:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-0-governance-setup.md (line 104): "Microsoft Purview compliance portal" uses outdated naming — Microsoft rebranded to "Microsoft Purview portal" (dropped "compliance" from the portal name). NEEDS_HUMAN_REVIEW — verify current portal branding.
+- phase-1-minimal-viable-controls.md (line 202): "per FINRA 3110" should use formal citation "per FINRA Rule 3110" for regulatory precision, consistent with framework language standards.
+- phase-1-minimal-viable-controls.md & phase-2-hardening.md: Control 2.11 (Bias Testing) appears in both Phase 1 (Month 5, "Establish fairness assessment process") and Phase 2 (Quarter 4, "Comprehensive Bias Testing") without any cross-reference between the two phases. Phase 2's section should note it builds upon the Phase 1 foundation to avoid reader confusion.
+GAPS:
+- NONE
+FIXES:
+1. phase-0-governance-setup.md (line 104): Change "Microsoft Purview compliance portal" → "Microsoft Purview portal" (pending human verification of current branding)
+2. phase-1-minimal-viable-controls.md (line 202): Change "per FINRA 3110" → "per FINRA Rule 3110"
+3. phase-2-hardening.md (line 159, Control 2.11 section): Add note such as "Building on the initial bias testing process established in Phase 1" to the Purpose or Steps to clarify the phased relationship
+NOTE ON SECTION A NAV ORPHANS: All 400+ entries reported as "Referenced in mkdocs.yml nav but file not found" are **false positives**. I verified representative samples across all categories (controls/pillar-1-security/, framework/, reference/, playbooks/getting-started/, playbooks/control-implementations/) — every file exists at the expected path under `docs/`. The automated orphan detector appears to have a path resolution error. These should NOT be counted as issues.
+STATUS: ISSUES_FOUND

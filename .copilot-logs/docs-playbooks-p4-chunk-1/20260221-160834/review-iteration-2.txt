@@ -1,0 +1,20 @@
+Now I have all 15 files read. Let me compile the review findings.
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Step 2 directs users to Microsoft Purview > Data lifecycle management > "Inactive site policies" — this feature is typically located in SharePoint Admin Center > Policies > Site lifecycle management. NEEDS_HUMAN_REVIEW: verify correct portal path.
+- docs/playbooks/control-implementations/4.3/powershell-setup.md: Section heading "Create and Publish Retention Labels" (line 83) is misleading — code creates labels via `New-ComplianceTag` then creates a separate retention policy/rule, but does not actually publish the labels via a label publishing policy (would require `-PublishComplianceTag` parameter). The policy at lines 107-117 is unrelated to the labels created above it.
+- docs/playbooks/control-implementations/4.2/powershell-setup.md: Access review instance properties `ReviewersCompleted` and `ReviewersTotal` (line 95) may not exist in the Microsoft Graph PowerShell SDK `AccessReviewInstance` resource type. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md, 4.4/portal-walkthrough.md: Governance level headers use non-standard numbering ("Level 1", "Level 2-3", "Level 4") not present in the framework's zone/tier model. Inconsistent with 4.1/4.2 which use unnumbered "Baseline / Recommended / Regulated" column headers.
+- All 22 pre-pass broken external URLs are false positives: placeholder/example URLs in PowerShell code blocks (`yourtenant`, `contoso`, `tenant`) or authenticated portal URLs (`admin.sharepoint.com`). No fix needed — these are intentional template URLs for admin customization.
+- Pre-pass mkdocs nav orphans (300+ entries) are a worktree artifact — files exist in the main repository but this worktree only contains batch-scoped files. Not actionable in this batch.
+GAPS:
+- 4.1 and 4.2 playbook files (8 files total) are missing the footer metadata line `*Updated: January 2026 | Version: v1.2*` and the introductory blockquote `> This playbook provides...` that 4.3 and 4.4 files consistently include. This creates a formatting inconsistency within Pillar 4 playbooks.
+FIXES:
+1. docs/playbooks/control-implementations/4.1/*.md and 4.2/*.md (8 files): Add footer `*Updated: January 2026 | Version: v1.2*` to match 4.3/4.4 format consistency.
+2. docs/playbooks/control-implementations/4.3/portal-walkthrough.md: NEEDS_HUMAN_REVIEW — verify whether "Inactive site policies" is in Purview or in SharePoint Admin Center > Policies > Site lifecycle management. Update Step 2 navigation path accordingly.
+3. docs/playbooks/control-implementations/4.3/powershell-setup.md: Either rename section "Create and Publish Retention Labels" to "Create Retention Labels and Policy" or replace lines 106-117 with actual label publishing code using `New-RetentionCompliancePolicy -PublishComplianceTag`.
+4. docs/playbooks/control-implementations/4.2/powershell-setup.md: NEEDS_HUMAN_REVIEW — verify `$_.ReviewersCompleted` and `$_.ReviewersTotal` properties on line 95 against current Microsoft Graph SDK `AccessReviewInstance` schema.
+5. docs/playbooks/control-implementations/4.3/portal-walkthrough.md, 4.4/portal-walkthrough.md: Remove "(Level N)" suffixes from governance subsection headers to align with framework terminology used in 4.1/4.2.
+STATUS: ISSUES_FOUND

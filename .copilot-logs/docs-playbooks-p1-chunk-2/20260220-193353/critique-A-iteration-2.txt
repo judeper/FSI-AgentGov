@@ -1,0 +1,15 @@
+Now let me check the remaining files in this batch to look for missed issues.
+Let me check for additional potential issues the reviewer may have missed.
+Here is my critique of the review:
+---
+**FALSE_POSITIVES:**
+NONE
+All three claimed issues are real and verified against the actual files:
+1. **`kusto` vs `kql` (1.8/powershell-setup.md:412):** Confirmed — this is the *only* instance of ` ```kusto ` across the entire batch. All other 30+ KQL blocks use ` ```kql `.
+2. **Insider Risk cmdlets (1.12/powershell-setup.md):** Confirmed — `Get-InsiderRiskPolicy` (lines 18, 107, 212), `Get-InsiderRiskAlert` (lines 35, 108, 218), and `Get-InsiderRiskPriorityUserGroup` (line 27) are not documented in Microsoft's Security & Compliance PowerShell reference. Insider Risk Management operations are primarily available through the Microsoft Graph API, not PowerShell cmdlets.
+3. **`Get-DispositionItem` (1.9/powershell-setup.md:151):** Confirmed — `Get-ComplianceTagStorage | Get-DispositionItem -Status Pending` uses a cmdlet not documented in Microsoft's Security & Compliance PowerShell reference. Disposition review is a portal-only workflow in Microsoft Purview.
+**MISSED_ISSUES:**
+- `Set-AdminPowerAppEnvironmentThreatDetection` (1.8/powershell-setup.md:314) appears to be a fabricated cmdlet. Though presented in a comment, the preceding text says "For actual API call, use:" which implies it's a real cmdlet an admin could invoke. No such cmdlet exists in the Power Platform Admin PowerShell module. Low severity since it's commented out, but could still mislead. NEEDS_HUMAN_REVIEW.
+**FIX_CONCERNS:**
+NONE — All three fix suggestions are appropriate and correctly scoped. The `kusto` → `kql` change is safe to apply directly. The two cmdlet verification fixes correctly recommend either replacing with supported alternatives or adding disclaimers, which is the right approach for documentation that FSI administrators will follow in production.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all three findings are confirmed real with correct fix guidance, and the pre-pass false-positive dispositions (portal SPAs returning 405, worktree nav orphans) are well-reasoned. One minor miss: the fabricated `Set-AdminPowerAppEnvironmentThreatDetection` cmdlet in 1.8/powershell-setup.md is a low-severity concern of the same category as the other flagged cmdlets.

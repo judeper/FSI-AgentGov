@@ -1,0 +1,11 @@
+Analysis complete. Here is the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- The `Get-AdminPowerAppChatbot` cmdlet warning (item 5) is correctly flagged as NEEDS_HUMAN_REVIEW, but its severity is **lower than implied**. Line 17 already contains an explicit note telling admins to verify `Get-AdminPowerAppChatbot` availability with `Get-Command`. The caveat gap is narrower than the review suggests — it's present at the file level, just not repeated per-usage like `Set-AdminPowerAppChatbot`. Downgrade from "warning needing fix" to "informational, verify with SME."
+**FIX_ORDERING:**
+- Only one actionable fix exists (line 47 role name change in 1.23/troubleshooting.md). No ordering dependencies.
+**OVER_ENGINEERED:**
+- Items 2–4 (URL warnings for `management.azure.com`, `admin.powerplatform.microsoft.com`, `copilotstudio.microsoft.com`) are correctly dismissed as not-actionable but didn't need to be listed as warnings at all — they're informational noise. The review correctly concluded "no fix needed" but elevated them to WARNING status unnecessarily.
+**CRITIQUE_SUMMARY:** The review is accurate and conservative. The single actionable fix ("Entra Admin" → "Entra Global Admin" on line 47) is a one-word change in a plaintext escalation list with zero cross-reference or build risk. The `Get-AdminPowerAppChatbot` caveat concern is already partially addressed by the file's introductory note on line 17, making the gap cosmetic rather than functional.

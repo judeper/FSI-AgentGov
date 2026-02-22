@@ -1,0 +1,16 @@
+ISSUE_COUNT: 4
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.7/*.md (all 4 files): Use old header/footer format (`# Control 2.7: Name - Type`, `> This playbook provides...` intro, mixed footer styles) vs the `# Type: Control X.X - Name` + `**Last Updated:**` metadata format used by 2.8–2.13. Note: controls 2.3–2.6 share the same old format (20 files total across 5 controls), so this is a cross-batch boundary, not unique to 2.7.
+- docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Uses nav-link bar footer (`[Back to Control 2.7]... | ...`) while the other three 2.7 files use a `## Related Playbooks` section with markdown list links — two footer patterns within the same control.
+- docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Duplicate consecutive `---` horizontal rules before the nav-link bar (cosmetic).
+- docs/playbooks/control-implementations/2.12/portal-walkthrough.md: Title includes "(FINRA Rule 3110)" (`# Portal Walkthrough: Control 2.12 - Supervision and Oversight (FINRA Rule 3110)`) while the other three 2.12 files omit it — minor cross-file title inconsistency within one control.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Remove one of the duplicate `---` horizontal rules (zero-risk cosmetic fix).
+2. docs/playbooks/control-implementations/2.7/*.md (all 4 files): **Defer** header/footer normalization to a single batch that covers controls 2.3–2.7 together (20 files). Fixing only 2.7 shifts the inconsistency boundary (2.3–2.6 old, 2.7 normalized, 2.8+ new) rather than eliminating it. No functional impact — all cross-references use file paths, not heading anchors.
+3. docs/playbooks/control-implementations/2.7/portal-walkthrough.md: **Defer** footer pattern normalization (nav-link bar → Related Playbooks section) to the same batch as fix #2.
+4. docs/playbooks/control-implementations/2.12/portal-walkthrough.md: **Defer** — remove "(FINRA Rule 3110)" from H1 title to match sibling files, or add it to all three siblings. Low priority, cosmetic only.
+STATUS: ISSUES_FOUND

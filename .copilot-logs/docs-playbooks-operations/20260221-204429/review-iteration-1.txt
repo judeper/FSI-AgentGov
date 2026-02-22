@@ -1,0 +1,24 @@
+Files exist. Let me read all three.
+Let me verify the mkdocs nav configuration and cross-references.
+All three target files exist at the correct paths. Let me verify the version discrepancy across files.
+Here is my review:
+---
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+- NOTE: The MKDOCS NAV ORPHANS for the 3 in-scope files (`playbooks/getting-started/phase-0-governance-setup.md`, `phase-1-minimal-viable-controls.md`, `phase-2-hardening.md`) are **FALSE POSITIVES**. All 3 files exist at the correct paths under `docs/` and the mkdocs.yml nav entries (lines 549-551) resolve correctly. The remaining ~350 orphan entries are outside this batch scope and were independently verified to also exist on disk — the automated pre-pass has a systematic path resolution error.
+WARNINGS:
+- phase-0-governance-setup.md (line 269): Footer version "v1.2" does not match project version v1.2.51 (mkdocs.yml copyright says "v1.2.51 - February 2026")
+- phase-1-minimal-viable-controls.md (line 357): Same footer version mismatch — "v1.2" vs v1.2.51
+- phase-2-hardening.md (line 293): Same footer version mismatch — "v1.2" vs v1.2.51
+- phase-1-minimal-viable-controls.md (line 157): "CRO" acronym used without expansion; should read "CRO (Chief Risk Officer)" for clarity
+- All 3 files: "Last Updated: January 2026" is stale; project site copyright shows "February 2026"
+GAPS:
+- NONE
+FIXES:
+1. phase-0-governance-setup.md (line 268-269): Change `*Last Updated: January 2026*` → `*Last Updated: February 2026*` and `*FSI Agent Governance Framework v1.2*` → `*FSI Agent Governance Framework v1.2.51*`
+2. phase-1-minimal-viable-controls.md (line 356-357): Same footer update as fix #1
+3. phase-2-hardening.md (line 292-293): Same footer update as fix #1
+4. phase-1-minimal-viable-controls.md (line 157): Change `- CRO (if applicable)` → `- CRO / Chief Risk Officer (if applicable)`
+5. SECTION A orphan findings for these 3 files: No fix needed — files exist at correct paths; automated pre-pass result is erroneous
+STATUS: ISSUES_FOUND

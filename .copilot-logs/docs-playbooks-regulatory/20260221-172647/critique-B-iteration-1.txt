@@ -1,0 +1,16 @@
+I've verified the files, confirmed citation counts, and checked cross-reference dependencies. Here's the analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE
+All three fixes are content-only changes within the file body. Both files are properly registered in `mkdocs.yml` (lines 636–638). Cross-references from 4 other docs (`colorado-ai-act-readiness.md`, `playbooks/index.md`, `evidence-pack-assembly.md`, `regulatory-mappings.md`) link to the file path, not internal anchors. Adding or removing citation markers will not break any cross-references or the mkdocs build.
+**SEVERITY_CORRECTIONS:**
+NONE
+Severity classifications are accurate. The citation markers are correctly WARNINGS (not CRITICAL) — they degrade reader experience but don't break the build or create compliance risk. The `<sup>[11]</sup>` / `<sup>[12]</sup>` markers render as visible superscripts that readers cannot resolve, which is a quality defect but not a functional failure. The SB 25B-004 flag as NEEDS_HUMAN_REVIEW is appropriately cautious for a legislative bill number claim.
+**FIX_ORDERING:**
+- Fix 1 (colorado references) and Fix 2 (supply-chain references) are fully independent — can be done in parallel or any order.
+- Fix 3 (SB 25B-004 verification) should complete before Fix 1 if adding a references section, since the answer may affect how [11] is defined. If removing markers instead, Fix 3 is independent.
+- Recommended order: Fix 3 (verify bill number) → Fix 1 (colorado references) → Fix 2 (supply-chain references).
+**OVER_ENGINEERED:**
+NONE
+The review correctly offers two approaches per file (add references section OR remove markers) without prescribing an elaborate solution. Both are proportionate to the problem. One nuance: for these files, **adding references is the better choice** — the markers consistently map to real statutory provisions (`[11]` = deployer obligation sections, `[12]` = definition sections of SB24-205), and the `[web:21]`/`[web:92]` markers trace to FINRA/SEC 2026 guidance. Removing them would lose substantive regulatory traceability in a governance template.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — issue counts, severities, and proposed fixes are all validated against the actual files. The only refinement is fix ordering: the SB 25B-004 human verification (Fix 3) should gate the colorado references section (Fix 1) since the bill number may need correction before being cited in the new bibliography.

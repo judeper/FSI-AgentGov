@@ -1,0 +1,18 @@
+Now let me see the footer links in the 1.27 files and the end of the 1.28 verification-testing file:
+Now let me check the other 1.27 files and the 1.25/1.26 footer patterns for comparison:
+Now I have all the context. Let me also check the 1.28 footer nav links:
+Good. Now I have all context. Let me apply all 4 fixes:
+Now handle the remaining "Verification & Testing" reference in 1.27/troubleshooting.md line 384:
+This is body text referencing the playbook by name, not a footer nav link. The review finding specifically targets footer nav links. The file's title is "Verification & Testing" so this inline reference is appropriate. I'll leave it as-is since the review only flagged footer nav links.
+Now let me commit the changes:
+The files aren't staged yet. Let me try again:
+The git add/commit commands are being blocked by permission restrictions. The edits have been applied successfully to all 6 files. Let me verify the changes are correct:
+All changes verified. The git add/commit is blocked by environment permissions, but all file edits are applied correctly.
+CHANGES:
+- docs/playbooks/control-implementations/1.26/powershell-setup.md: Added `!!! danger "API Availability — Verify Before Use"` admonition after Prerequisites section for `Set-AdminPowerAppChatbot`, `Get-AdminPowerAppChatbot`, and `Properties.FileUploadEnabled`
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Added `!!! danger "API Availability — Verify Before Use"` admonition after Module Installation section for `Get-AdminPowerAppChatbot` and speculative properties
+- docs/playbooks/control-implementations/1.28/verification-testing.md: Added `## Attestation Statement Template` section before `## Ongoing Monitoring`, covering DLP policy enforcement, channel restrictions, approval workflow, environment promotion pipeline, and audit log capture
+- docs/playbooks/control-implementations/1.27/portal-walkthrough.md: Changed "Verification & Testing" to "Verification Testing" in body text and footer nav link
+- docs/playbooks/control-implementations/1.27/powershell-setup.md: Changed "Verification & Testing" to "Verification Testing" in footer nav link
+- docs/playbooks/control-implementations/1.27/troubleshooting.md: Changed "Verification & Testing" to "Verification Testing" in footer nav link
+FIX_STATUS: COMPLETE

@@ -1,0 +1,14 @@
+One more file has a "Zone 3-4" reference that was missed. Let me verify the framework's zone definitions.
+Confirmed: only 3 zones exist. The review missed `1.15/EXPECTED.md`. Here's my assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Both fixes target `EXPECTED.md` screenshot-verification checklists inside `docs/images/`, which are gitignored local-only files not included in mkdocs navigation or cross-referenced by any control doc. Zero risk of breaking the mkdocs build or any cross-references.
+**SEVERITY_CORRECTIONS:**
+- Both issues are correctly classified as CRITICAL. Referencing a non-existent "Zone 4" in verification checklists could cause maintainers to verify against wrong zone requirements, leading to missed or incorrect screenshot validation.
+**FIX_ORDERING:**
+- NONE. The two fixes are independent — no ordering constraints.
+**OVER_ENGINEERED:**
+- The WARNING about format inconsistency (6 detailed vs 15 compact EXPECTED.md files) is over-engineered. These are local-only verification checklists; format variation is harmless and standardizing would be unnecessary churn across 21 files with zero user-facing benefit.
+**MISSED ISSUE:**
+- `docs/images/1.15/EXPECTED.md` (line 19): References "Zone 3-4" — same Zone 4 error. This was not caught by the review and should be added as a third CRITICAL fix: change "Zone 3-4" → "Zone 3" (customer-managed keys are a Zone 3 enterprise requirement, not a range).
+**CRITIQUE_SUMMARY:** The two proposed fixes are zero-risk, correctly classified, and should be applied. However, the review missed an identical "Zone 3-4" error in `docs/images/1.15/EXPECTED.md` — add that as a third fix before executing.

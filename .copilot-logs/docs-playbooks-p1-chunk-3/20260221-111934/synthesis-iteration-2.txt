@@ -1,0 +1,12 @@
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Line 314 references `Set-AdminPowerAppEnvironmentThreatDetection` — not a standard Power Platform cmdlet. Commented out with `# For actual API call, use:` but may mislead readers (NEEDS_HUMAN_REVIEW).
+- docs/playbooks/control-implementations/1.9/powershell-setup.md: Line 151 uses `Get-DispositionItem` — not a standard Security & Compliance PowerShell cmdlet (NEEDS_HUMAN_REVIEW).
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.8/powershell-setup.md: Append `(hypothetical — not a real cmdlet)` to the existing comment on line 314. Do not remove the block — surrounding context (lines 316-317) already directs users to the portal UI.
+2. docs/playbooks/control-implementations/1.9/powershell-setup.md: Add inline comment `# illustrative — verify cmdlet availability` next to `Get-DispositionItem` on line 151. If confirmed non-existent, replace with a valid approach or note as illustrative.
+STATUS: ISSUES_FOUND

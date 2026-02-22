@@ -1,0 +1,21 @@
+I've now verified all disputed findings against the actual files. Here is the reconciled output:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/images/2.23/EXPECTED.md (line 105): Trigger name "When a Power Virtual Agent calls a flow" uses deprecated "Power Virtual Agents" branding — Microsoft renamed to Copilot Studio. NEEDS_HUMAN_REVIEW whether the Power Automate UI trigger name has been updated.
+- docs/images/1.22/EXPECTED.md (lines 6, 13): Portal path uses deprecated "Microsoft Purview Compliance Center" while other EXPECTED.md files (1.27, 1.28, 2.23) correctly use "Microsoft Purview Compliance Portal". Naming inconsistency. NEEDS_HUMAN_REVIEW.
+- docs/images/1.28/EXPECTED.md (line 10): References "Office 365 Groups" as a DLP connector name. Microsoft has been rebranding to "Microsoft 365 Groups". NEEDS_HUMAN_REVIEW whether the connector label has been updated in the Power Platform DLP policy UI.
+GAPS:
+- NONE
+FIXES:
+1. docs/images/2.23/EXPECTED.md (line 105): Verify current Power Automate trigger name; if updated, change "When a Power Virtual Agent calls a flow" to the current Copilot Studio trigger name.
+2. docs/images/1.22/EXPECTED.md (lines 6, 13): If confirmed in the live portal, update "Microsoft Purview Compliance Center" to "Microsoft Purview compliance portal" to match other EXPECTED.md files and current Microsoft naming.
+3. docs/images/1.28/EXPECTED.md (line 10): Verify current DLP connector label in Power Platform Admin Center; if updated, change "Office 365 Groups" to "Microsoft 365 Groups".
+STATUS: ISSUES_FOUND
+---
+**Reconciliation notes:**
+- **Original CRITICAL (mkdocs nav ~290 missing files):** Verified as **false positive**. The worktree contains 552 `.md` files under `docs/` against 476 nav references. Control docs, playbooks, and framework files all exist. Critique A was correct.
+- **Original WARNING (contoso.crm.dynamics.com in 3.12):** Confirmed as intentional example domain — dropped. Critique A noted the same pattern in 2.24/EXPECTED.md (lines 320, 322, 335, 352) — also intentional, not an issue.
+- **Three NEEDS_HUMAN_REVIEW warnings retained:** All depend on verifying current Microsoft portal UI labels, which cannot be resolved from code alone.

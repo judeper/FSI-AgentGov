@@ -1,0 +1,4 @@
+CHANGES:
+- 3.4-incident-reporting-and-root-cause-analysis.md (line 21): Changed SEC press release URL from `2024-63` to `2024-58` to correctly cite the Regulation S-P amendments
+- 3.7-ppac-security-posture-assessment.md (line 130): Changed `../../controls/pillar-2-management/` to `../pillar-2-management/` to match consistent cross-pillar link pattern
+FIX_STATUS: COMPLETE

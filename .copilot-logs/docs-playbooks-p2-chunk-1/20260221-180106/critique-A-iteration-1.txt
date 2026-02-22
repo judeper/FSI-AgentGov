@@ -1,0 +1,14 @@
+Now let me check the remaining files that were part of the batch but weren't flagged for issues.
+Now I have all the data needed. Here is my critique:
+---
+**FALSE_POSITIVES:**
+- The `CHG-2025-001234` warning (2.3/powershell-setup.md line 335) is borderline. A change request ID from 2025 in a January 2026 document is realistic — it could plausibly reference a change from the prior month. This is a placeholder example in a code block, not a document timestamp. Borderline false positive — not worth fixing.
+**MISSED_ISSUES:**
+- docs/playbooks/control-implementations/2.1/portal-walkthrough.md: The duplicate Steps 7–10 (lines 257–291) appear **after** the Validation section (lines 239–253), which itself already references those same items as checklist bullets (lines 250–253). This is a structural/sequencing problem beyond just the numbering — these steps should logically precede their own validation checklist.
+- Footer placement inconsistency within 2.1: `verification-testing.md` places the footer *before* the navigation links, while `portal-walkthrough.md` places it *after*. Minor but not flagged.
+**FIX_CONCERNS:**
+- Fix 2 (date inconsistency): The review assumes the footer date "February 2026" is authoritative and proposes changing the header to match. But it could be the reverse — the header "January 2026" may be correct and the footer wrong. NEEDS_HUMAN_REVIEW to determine which date reflects the actual last update.
+- Fixes 8–11 (2.2 footer additions): The suggested format includes a `Classification:` field (e.g., `*Updated: January 2026 | Version: v1.2 | Classification: Portal Walkthrough*`), but the existing 2.3 and 2.4 footers use the shorter format without `Classification:` (e.g., `*Updated: January 2026 | Version: v1.2*`). Adding `Classification:` to 2.2 but not 2.3/2.4 introduces a new cross-control inconsistency. Either add `Classification:` to all or omit it from all.
+- Minor line number inaccuracy: The review cites "Azure Active Directory" at line 118 in 2.4/portal-walkthrough.md; it is actually at line 116. Doesn't affect the fix, but imprecise.
+- Fix 1 (renumber to Steps 11–14): Correct mechanically, but does not address the deeper issue that these steps are sequenced after the Validation section that references them. A better fix would relocate Steps 11–14 above the Validation section, or restructure the validation checklist. However, renumbering alone is a reasonable minimal fix.
+**CRITIQUE_SUMMARY:** The review is thorough and accurate — all 14 findings are real, the pre-pass false-positive triage is correct, and the fix suggestions are directionally sound. The two main concerns are (1) the date inconsistency fix needs human confirmation on which date is correct, and (2) the proposed footer format with `Classification:` will create inconsistency with 2.3/2.4 footers that lack it.

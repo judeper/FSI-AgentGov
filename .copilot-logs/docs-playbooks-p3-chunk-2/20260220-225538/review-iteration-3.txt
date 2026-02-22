@@ -1,0 +1,57 @@
+Now I have all the context needed. Let me check for language violations and cross-reference issues.
+I now have all the data needed. Let me verify one more detail on the 3.8/powershell-setup.md group name issue.
+All data confirmed. Here is the complete review report:
+---
+**BATCH:** playbooks-p3-chunk-2
+**SCOPE:** 23 files across controls 3.7–3.12
+**REVIEWED:** All 23 files read in full
+---
+**ISSUE_COUNT:** 16
+**CRITICAL:**
+1. **3.8/powershell-setup.md:127 — Inconsistent default group name in `Import-AdminExclusionGroupFromCSV`**
+   The `Import-AdminExclusionGroupFromCSV` function defaults to `"CopilotForM365AdminExclusionGroup"` while the other 3 functions in the same file (`New-CopilotAdminExclusionGroup` at line 41, `Add-UsersToAdminExclusionGroup` at line 79, `Export-AdminExclusionGroupMembers` at line 164) all default to `"CopilotForM365AdminExclude"`. An admin using the bulk import function without explicitly specifying `-GroupName` will target a non-existent group, causing the import to fail silently or error out.
+2. **3.8/verification-testing.md:228 — Legacy Test Case 1 has wrong propagation time**
+   Legacy "Test Case 1: Admin Exclusion Group Access Control" at line 228 states "Wait for propagation (up to 8 hours)" for Admin Exclusion Group membership changes. The correct propagation time is 24 hours, as correctly documented in the detailed FAC-01 test case at line 73 of the same file. The 8-hour figure applies to Copilot settings changes (deployment groups), not group membership changes. An admin following the legacy test case would check too early and falsely conclude the control failed.
+**WARNINGS:**
+1. **3.7/verification-testing.md:190 — Version footer mismatch within control 3.7**
+   Footer says `*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*` while the other two in-scope 3.7 files (powershell-setup.md:297, troubleshooting.md:95) both say `*Updated: January 2026 | Version: v1.2*`. This version discrepancy within the same control could indicate an incomplete update pass.
+2. **3.8/verification-testing.md:220-298 — Duplicate legacy test cases create contradiction risk**
+   Lines 220-298 contain legacy "Test Case 1" through "Test Case 6" that substantially duplicate the more detailed FAC-01, FAC-02, FAC-03 test cases at lines 58-218. Beyond the propagation time error in CRITICAL #2, maintaining parallel test case sets creates ongoing risk of conflicting guidance. Recommend removing the legacy section or clearly marking it as superseded.
+3. **3.9/portal-walkthrough.md:215-216 — Double horizontal rule**
+   Two consecutive `---` horizontal rules appear back-to-back with only a blank line between them, creating a rendering artifact. One should be removed.
+4. **3.11 (all 4 files) — Missing standardized footer metadata**
+   Files `portal-walkthrough.md`, `powershell-setup.md`, `troubleshooting.md`, and `verification-testing.md` for control 3.11 all lack the `*Updated: Month Year | Version: vX.X*` footer metadata present in 3.7–3.10 files. These files end with a navigation link line only.
+5. **3.12 (all 4 files) — Missing standardized footer metadata**
+   Same as above — all four 3.12 files lack footer metadata.
+**Section A — Broken External URLs (9, pre-confirmed):**
+| # | File | URL | HTTP | Assessment |
+|---|------|-----|------|------------|
+| 1 | 3.8/portal-walkthrough.md | `https://admin.powerplatform.microsoft.com` | 405 | Portal URL; 405 expected for automated checks — valid for browser |
+| 2 | 3.8/portal-walkthrough.md | `https://copilotstudio.microsoft.com` | 405 | Portal URL; same as above |
+| 3 | 3.8/powershell-setup.md | `https://graph.microsoft.com/v1.0/directoryObjects/$($user.Id` | 405 | In-code URL with PowerShell variable interpolation — not a clickable doc link |
+| 4 | 3.10/powershell-setup.md | `https://contoso.sharepoint.com/sites/AI-Governance` | -1 | Intentional placeholder (contoso = Microsoft's example tenant) |
+| 5 | 3.11/portal-walkthrough.md | `https://make.powerautomate.com` | 405 | Portal URL; 405 expected for automated checks |
+| 6 | 3.11/portal-walkthrough.md | `https://api.powerplatform.com/agentInventory/v1/inventory` | 404 | Preview API endpoint; documented with "API Availability Note" caveat at line 202 |
+| 7 | 3.11/troubleshooting.md | `https://api.powerplatform.com/agentInventory/v1/inventory` | 404 | Same preview endpoint; used in diagnostic context |
+| 8 | 3.11/troubleshooting.md | `https://techcommunity.microsoft.com/` | 400 | Valid URL; 400 for automated HTTP checks |
+| 9 | 3.12/powershell-setup.md | `https://contoso.crm.dynamics.com` | -1 | Intentional placeholder (contoso = example tenant) |
+**Assessment:** URLs #1-2, #5, #8 are valid portal URLs that return non-200 to automated HTTP clients. URLs #4, #9 are intentional example placeholders. URL #3 is inside a PowerShell code block. URLs #6-7 are preview API endpoints with appropriate documentation caveats. **No URLs require content fixes.**
+**Section A — Mkdocs Nav Orphans (300+, pre-confirmed):**
+All orphaned entries are files referenced in `mkdocs.yml` that don't exist on disk in this worktree. This is expected — this is a partial worktree (`playbooks-p3-chunk-2`) that only contains playbook files, not the full docs tree (controls, framework, getting-started, etc.). **These are worktree artifacts, not content issues.** Verify against the main repo branch if concerned.
+**GAPS:**
+No content gaps identified within the 23 in-scope files. All files are structurally complete with appropriate sections, navigation links, cross-references, zone-specific configurations, and regulatory context. No prohibited language violations found (`ensures compliance`, `guarantees`, etc. — all clean).
+**Positive observations:**
+- 3.11/powershell-setup.md appropriately marks `Get-AdminPowerAppCopilotStudioAgent` as unverified with a clear caveat comment
+- 3.11/portal-walkthrough.md includes a thorough "API Availability Note" for the preview Agent Inventory API
+- 3.12 files provide comprehensive exception management workflows with proper regulatory retention references (FINRA 4511, SEC 17a-4)
+- All files maintain appropriate hedged language for regulatory references
+**FIXES:**
+1. **3.8/powershell-setup.md:127** — Change `"CopilotForM365AdminExclusionGroup"` to `"CopilotForM365AdminExclude"` in the `Import-AdminExclusionGroupFromCSV` function default parameter
+2. **3.8/verification-testing.md:228** — Change `"up to 8 hours"` to `"up to 24 hours"` in legacy Test Case 1 step 3
+3. **3.8/verification-testing.md:220-298** — Consider removing legacy test cases section entirely (it duplicates FAC-01/02/03 content and introduces contradiction risk)
+4. **3.9/portal-walkthrough.md:215-216** — Remove one of the two consecutive `---` horizontal rules
+5. **3.11 (4 files)** — Add standardized footer metadata: `*Updated: February 2026 | Version: v1.3*` to portal-walkthrough.md, powershell-setup.md, troubleshooting.md, verification-testing.md
+6. **3.12 (4 files)** — Add standardized footer metadata: `*Updated: February 2026 | Version: v1.3*` to portal-walkthrough.md, powershell-setup.md, troubleshooting.md, verification-testing.md
+7. **Nav orphans** — No fix needed in scope files; verify mkdocs.yml nav entries match file paths in main repo branch
+**Note:** Fixes #1-4 were attempted via edit tool but blocked by file permissions in this worktree. Fixes should be applied in the main repo or a writable worktree.
+**STATUS:** ISSUES_FOUND

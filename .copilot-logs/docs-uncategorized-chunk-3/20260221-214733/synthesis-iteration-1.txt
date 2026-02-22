@@ -1,0 +1,21 @@
+Now let me read the disputed files to verify each claim.
+I've verified all claims against the actual files. Here's the reconciled output:
+---
+ISSUE_COUNT: 5
+CRITICAL:
+- 03-learn-validation-matrix.md: Summary table counts (Contradicted=15, Not Found=4, Partially Verified=3, Total=22) don't match detail tables. Actual: Contradicted=22 (items 1-22), Not Found=5 (items 1-5), Partially Verified=4 (items 1-4), Total=31.
+- 02-inventory.md: Pillar 1 control titles are wrong for 23 of 28 controls. Inventory contains a different taxonomy than actual filenames. Only 1.5, 1.8, 1.11, 1.19, and 1.25 are correct or close matches. Examples: 1.1 listed as "Copilot Studio DLP Governance" but actual file is "Restrict Agent Publishing by Authorization"; 1.12 listed as "Network Isolation and Private Endpoints" but actual file is "Insider Risk Detection and Response"; 1.9 listed as "Secure Development Lifecycle" but actual file is "Data Retention and Deletion Policies".
+WARNINGS:
+- 07-post-remediation-review.md: Line 5 states "all remediated across 5 waves" but 06-remediation-backlog.md documents only 4 waves (W1-W4).
+- 02-inventory.md: Line 106 lists Getting Started files as "overview.md, quick-start.md" but actual directory contains quick-start.md and checklist.md — no overview.md exists.
+- appendix-learn-urls.md: Lines 38-39 list two Search-UnifiedAuditLog entries with different module paths (`/exchange/` and `/exchangepowershell/`). The `/exchangepowershell/` entry originates from matrix item 3's non-canonical citation; both the appendix duplicate and the matrix source need correction.
+GAPS:
+- NONE
+FIXES:
+1. 03-learn-validation-matrix.md: Update summary table to Contradicted=22, Not Found=5, Partially Verified=4, Total flagged=31.
+2. 02-inventory.md: Replace all 23 incorrect Pillar 1 control titles with actual names from filenames (near-total rewrite of Pillar 1 table; only 1.5, 1.8, 1.11, 1.19, 1.25 are correct).
+3. 07-post-remediation-review.md: Change "5 waves" to "4 waves" on line 5.
+4. 02-inventory.md: Change Getting Started files from "overview.md, quick-start.md" to "quick-start.md, checklist.md" on line 106.
+5. appendix-learn-urls.md: Remove the `/exchangepowershell/` duplicate entry on line 39; keep only the canonical `/exchange/` entry on line 38.
+6. 03-learn-validation-matrix.md: Update item 3 Learn URL from `/exchangepowershell/search-unifiedauditlog` to `/exchange/search-unifiedauditlog` to match canonical module path.
+STATUS: ISSUES_FOUND

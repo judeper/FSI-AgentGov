@@ -1,0 +1,15 @@
+Now let me check the remaining items: the NEEDS_HUMAN_REVIEW cmdlets, and the 3.1/3.2 portal-walkthrough footer gaps.
+Let me check a non-flagged portal-walkthrough for comparison and verify the double `---` pattern more carefully.
+Now let me check the NEEDS_HUMAN_REVIEW comment additions and verification-testing gap fixes.
+Let me check 3.7/verification-testing.md which was flagged as missing from the original gap list.
+Now I have all the data. Let me verify the 3.7/verification-testing.md file to confirm the gap remains.
+ISSUE_COUNT: 1
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+- docs/playbooks/control-implementations/3.7/verification-testing.md: REMAINING — Missing `## Automated Validation Script` placeholder section. Controls 3.3–3.6 received the placeholder fix but 3.7 was omitted. Should get the same `!!! note "Automated validation not yet available"` block for consistency.
+FIXES:
+1. docs/playbooks/control-implementations/3.7/verification-testing.md: Add `## Automated Validation Script` placeholder section (matching the format added to 3.3–3.6) before `## Evidence Collection`.
+STATUS: ISSUES_FOUND

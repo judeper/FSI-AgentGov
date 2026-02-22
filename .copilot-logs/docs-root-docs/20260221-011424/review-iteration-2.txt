@@ -1,0 +1,16 @@
+Let me verify key referenced files exist.
+Good — no prohibited FSI language found. Let me verify the phase name mismatch and the v1.2 date issue.
+ISSUE_COUNT: 2
+CRITICAL:
+- README.md (lines 364-367): Phase names in "Implementation Timeline" section don't match `docs/getting-started/checklist.md`. README says "Regulatory Compliance Baseline / Security Enhancements / Finalization & Operationalization" but checklist says "Assessment & Planning / Foundation Implementation / Finalization & Operations" (3 of 4 phases differ).
+WARNINGS:
+- docs/index.md (line 127): "v1.2 (January–February 2026)" date range is inaccurate — all v1.2.x entries in README version history are February 2026; January applies to v1.1 only. Should read "v1.2 (February 2026)".
+GAPS:
+- NONE
+SECTION A DISPOSITION:
+- **Broken external URLs (2):** FALSE POSITIVES. `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` are authentication-gated admin portals that return HTTP 405 to unauthenticated requests. These are valid, working URLs.
+- **MkDocs nav orphans (300+):** FALSE POSITIVES. All listed files exist under `docs/` and are correctly referenced in `mkdocs.yml` relative to the docs directory. Verified by filesystem inspection (`docs/controls/index.md`, `docs/controls/pillar-1-security/1.1-*.md`, etc. all exist).
+FIXES:
+1. README.md (lines 364-367): Align phase names with checklist.md — change "Regulatory Compliance Baseline" → "Assessment & Planning", "Security Enhancements" → "Foundation Implementation", "Finalization & Operationalization" → "Finalization & Operations"
+2. docs/index.md (line 127): Change "v1.2 (January–February 2026)" → "v1.2 (February 2026)"
+STATUS: ISSUES_FOUND

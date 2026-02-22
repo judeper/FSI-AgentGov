@@ -1,0 +1,16 @@
+Both critical fixes are confirmed. Let me also verify the legacy test cases were annotated (warning #3) and check the other context lines referenced in the report.
+All fixes verified. Here's the verification report:
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+- Issue #1 (3.8/powershell-setup.md:127 group name mismatch): **FIXED** — Now reads `"CopilotForM365AdminExclude"`, consistent with lines 41, 79, 164.
+- Issue #2 (3.8/verification-testing.md:228 propagation time): **FIXED** — Now reads "up to 24 hours" at line 231.
+WARNINGS:
+NONE
+- Warning #3 (duplicate legacy test cases): **FIXED** — Legacy tests now wrapped in a `!!! warning "Deprecated Legacy Test Cases"` admonition directing users to FAC-prefixed tests.
+- Warnings #4, #5, #6 were informational/monitor-only items with no fix required.
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN

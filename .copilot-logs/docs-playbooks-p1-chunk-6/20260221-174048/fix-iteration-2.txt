@@ -1,0 +1,3 @@
+CHANGES:
+- docs/playbooks/control-implementations/1.19/portal-walkthrough.md: Line 49 replaced "KeyQL" with "KQL (Keyword Query Language)"
+FIX_STATUS: COMPLETE

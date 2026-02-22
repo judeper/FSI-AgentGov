@@ -1,0 +1,14 @@
+Read-only worktree — proceeding with synthesis from the evidence in the critiques.
+**Final Corrected Review — Batch: images-expected-chunk-2**
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/images/3.8/EXPECTED.md: H1 title says "Control 3.8: Copilot Hub" but should be "Control 3.8: Copilot Hub and Governance Dashboard" per the canonical control filename and H1
+- docs/images/\*/EXPECTED.md: 22 files (controls 1.21–1.28, 2.16–2.24, 3.10–3.12, 4.6–4.7) append "- Screenshot Specifications" to the H1 while the remaining ~49 files omit it; stylistic inconsistency across the repo
+GAPS:
+- NONE
+FIXES:
+1. docs/images/3.8/EXPECTED.md: Update H1 from `# Control 3.8: Copilot Hub` to `# Control 3.8: Copilot Hub and Governance Dashboard`
+2. docs/images/\*/EXPECTED.md: Standardize H1 format across all EXPECTED.md files — either all include "- Screenshot Specifications" suffix or none do (repo-wide decision needed)
+STATUS: ISSUES_FOUND

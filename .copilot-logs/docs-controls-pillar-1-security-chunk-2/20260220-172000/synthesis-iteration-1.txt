@@ -1,0 +1,21 @@
+All disputed facts verified. Here is the final synthesized review:
+---
+ISSUE_COUNT: 6
+CRITICAL:
+- 1.7 (line 227): Broken external URL `https://www.sec.gov/rules/interp/34-47806.htm` returns HTTP 403
+- index.md (line 7): States "These 25 controls" but Pillar 1 has 28 controls (1.1–1.28)
+- index.md (lines 22–45): Missing controls 1.25–1.28 from controls list; only lists through 1.24
+- index.md (lines 13–19): Categories table missing row for controls 1.25–1.28
+WARNINGS:
+- 1.8 (lines 389, 391): Duplicate Microsoft Learn URLs — "Additional Threat Detection Configuration" and "Power Platform Security Best Practices" both link to `https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview`
+- 1.8 (line 147): Configuration Requirements numbered list breaks at item 4 — uses `- **SLA Requirements**` instead of `4. **SLA Requirements**`
+GAPS:
+- NONE
+FIXES:
+1. 1.7 (line 227): Replace `https://www.sec.gov/rules/interp/34-47806.htm` with `https://www.ecfr.gov/current/title-17/section-240.17a-4`. Note: original was SEC Interpretive Release 34-47806 (electronic storage guidance), replacement is the codified 17a-4 rule text; the link label "SEC Rule 17a-4" matches the replacement target better.
+2. index.md (line 7): Change "These 25 controls" to "These 28 controls"
+3. index.md (after line 19): Add category row `| Content & Publishing Controls | 1.25-1.28 | MIME types, file upload restrictions, content moderation, publishing restrictions |`
+4. index.md (after line 45): Add four control entries: `- [1.25 MIME Type Restrictions](1.25-mime-type-restrictions.md)`, `- [1.26 Agent File Upload and File Analysis Restrictions](1.26-agent-file-upload-and-file-analysis-restrictions.md)`, `- [1.27 AI Agent Content Moderation Enforcement](1.27-ai-agent-content-moderation-enforcement.md)`, `- [1.28 Policy-Based Agent Publishing Restrictions](1.28-policy-based-agent-publishing-restrictions.md)` — apply fixes 2, 3, 4 together in one commit.
+5. 1.8 (lines 389, 391): Deduplicate URLs — keep both display-name entries but change one URL to point to its intended distinct target (e.g., change "Additional Threat Detection Configuration" to link to the Defender or threat-detection-specific Learn page), or if both truly reference the same page, merge into a single entry.
+6. 1.8 (line 147): Change `- **SLA Requirements**` to `4. **SLA Requirements**`
+STATUS: ISSUES_FOUND

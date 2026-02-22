@@ -1,0 +1,13 @@
+Now let me verify the scope claim ("25 files") and check for missed language violations across the batch.
+All claimed issues verified against source files. Here is my assessment:
+---
+**FALSE_POSITIVES:**
+- NONE — All reviewer classifications are correct. The `admin.powerplatform.microsoft.com` / `copilotstudio.microsoft.com` HTTP 405s are indeed legitimate authenticated SPA portals. The `$(Get-Date -Format 'yyyyMMdd')` inside fenced PowerShell code blocks is correctly identified as a link-checker false positive.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/2.14/powershell-setup.md` line 174: Placeholder email `aigovernance@company.com` in the same param block as the flagged URL (line 175) was not mentioned. Same class of intentional placeholder — low severity but should be noted for completeness.
+- `docs/playbooks/control-implementations/2.16/powershell-setup.md` line 14: `https://yourtenant.sharepoint.com` is a *different* placeholder convention (`yourtenant` vs `company`) not flagged by the reviewer. Intentional but represents a minor inconsistency in placeholder naming within the same file — lines 50/116/175/233/289 use `company.sharepoint.com` while line 14 uses `yourtenant.sharepoint.com`.
+- `docs/playbooks/control-implementations/2.19/powershell-setup.md` line 256: A second occurrence of `yourorg.crm.dynamics.com` was not mentioned (reviewer only noted line 46). Minor omission.
+- The `$(Get-Date)` false-positive count is stated as ×2 but there are actually ×3 occurrences (lines 100, 155, 216). Doesn't change the classification but the count is inaccurate.
+**FIX_CONCERNS:**
+- The contoso.com consistency suggestion for 2.14 is reasonable, but if applied, it should extend batch-wide — `company.sharepoint.com` (5 occurrences in 2.16/powershell-setup.md, 2 in 2.16/portal-walkthrough.md), `aigovernance@company.com` (2.14), and `yourorg.crm.dynamics.com` (2.19) should all be evaluated under the same placeholder convention policy. The reviewer isolated the suggestion to one file rather than recognizing it as a cross-file pattern.
+**CRITIQUE_SUMMARY:** The review is accurate and well-reasoned — all false positive classifications are correct, no prohibited language was missed (independently verified), and the single optional fix is sound. The only gaps are minor: a few additional placeholder instances in the same files were not enumerated, and the contoso.com consistency concern should have been framed as a batch-wide placeholder convention question rather than a single-file suggestion.

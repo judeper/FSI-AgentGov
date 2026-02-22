@@ -1,0 +1,15 @@
+Now let me verify the 1.2 remaining files and check what the prevailing H1 pattern is across the broader playbook set.
+I now have complete evidence to assess the risk. Here's my analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 11 (1.1/portal-walkthrough.md heading demotion H2→H3): Changing `## Step 6` through `## Step 9` to `### Step 6` etc. will alter mkdocs-generated anchor IDs (e.g., `#step-6-configure-agent-level-authentication-copilot-studio`). Any existing bookmarks, browser history, or cross-document fragment links to those anchors will break silently. Verify no other playbook or control file links to these specific anchors before applying. The structural issue is real but the fix carries anchor-breakage risk.
+**SEVERITY_CORRECTIONS:**
+- Fixes 9-10 (1.4 H1 format + metadata block): **Downgrade from WARNING to INFO/deferred.** The review frames 1.4 as an outlier using "Control X.X: Name - Portal Walkthrough" instead of "Portal Walkthrough: Control X.X - Name." In reality, **~28 of 71 portal-walkthrough files** use the same suffix pattern (including 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 2.3–2.7, 3.3–3.10, 4.3–4.7). This is not a 1.4-specific defect — it's a repo-wide split (~60/40). Fixing only 1.4 moves one file between two equally-sized inconsistent groups without achieving consistency.
+**FIX_ORDERING:**
+- Fixes 1–8 (date alignment): Fully independent, zero interdependencies, safe to apply in parallel or any order.
+- Fixes 9–10 (1.4 format): Independent of 1–8 but should be **deferred** (see Over-Engineered).
+- Fix 11 (heading hierarchy): Independent, but apply after verifying no inbound anchor links.
+- Fix 12 (SSPM-1.1-05 path): Correctly deferred to NEEDS_HUMAN_REVIEW — no automated fix ordering needed.
+**OVER_ENGINEERED:**
+- Fixes 9–10 (1.4 H1 rename + metadata block): Renaming one file's H1 pattern when 28 others share the same format is scope creep for a chunk-1 batch. This should be a **separate repo-wide normalization task** covering all 71 portal-walkthrough files, not a surgical fix on one control. Adding a metadata block to 1.4 only also creates a different inconsistency (1.4 has metadata while its suffix-pattern siblings don't).
+**CRITIQUE_SUMMARY:** Fixes 1–8 (date alignment) and fix 12 (deferred human review) are correctly scoped, low-risk, and ready to apply. Fixes 9–10 should be deferred to a repo-wide H1 normalization pass to avoid creating a new inconsistency, and fix 11 needs an anchor-link check before execution.

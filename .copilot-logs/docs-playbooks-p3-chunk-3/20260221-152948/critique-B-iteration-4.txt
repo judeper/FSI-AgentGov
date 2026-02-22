@@ -1,0 +1,13 @@
+Now I have sufficient evidence. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 2 (3.8 verification-testing.md version alignment): The review recommends aligning to "v1.2" but **portal-walkthrough.md is also v1.3** (February 2026). The v1.3 files were intentionally updated together. Downgrading verification-testing.md to v1.2 would create a *new* inconsistency with portal-walkthrough.md. The correct action is to leave v1.3 alone (or upgrade the two v1.2 siblings). The "Classification" suffix removal remains valid.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (3.8 troubleshooting headings): Correctly classified as WARNING, but severity is **lower than stated**. The H3 issues at lines 161/174/187/200 sit *after* the `### General Copilot Issues` section header (line 146), making them visually peer-level sections rather than children of it. MkDocs renders both patterns without error. This is a cosmetic consistency preference, not a structural defect — downgrade to **STYLE_NIT**.
+- Fix 2 (3.8 verification-testing version): The version mismatch analysis is **factually incorrect** — the reviewer compared against troubleshooting.md (v1.2) but missed that portal-walkthrough.md is already v1.3. The real split is 2 files at v1.2, 2 at v1.3, reflecting staggered updates. Downgrade to **INFO** for the version part; keep WARNING for the non-standard "Classification" suffix only.
+**FIX_ORDERING:**
+- Fixes are fully independent. No ordering constraints. Fix 1 and Fix 2 touch different files in the same control (3.8) but different sections. Fixes 3 and 4 are NEEDS_HUMAN_REVIEW items requiring manual judgment — they should not be auto-applied.
+**OVER_ENGINEERED:**
+- Fix 2: Proposing version alignment across all four sibling playbooks for a documentation version stamp is over-scoped for this batch. The "Classification" suffix removal is the only actionable part.
+- Fix 4: Adding a "version compatibility note" to PowerShell cmdlets is premature — the cmdlets `New-AzSentinelAlertRule` and `Get-AzSentinelIncident` are the current canonical names. A compatibility note would add noise without confirmed breakage. Flag for periodic review instead.
+**CRITIQUE_SUMMARY:** The review correctly identified the heading inconsistency and CFPB UDAAP scope concern, but the version mismatch finding is partially wrong — portal-walkthrough.md already matches v1.3, so the proposed fix would introduce a new inconsistency. Only 2 of 4 fixes are safe to auto-apply: the heading level fix (Fix 1) and the "Classification" suffix removal from Fix 2.

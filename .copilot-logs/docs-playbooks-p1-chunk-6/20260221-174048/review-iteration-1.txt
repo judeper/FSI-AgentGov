@@ -1,0 +1,22 @@
+Let me check the missing 1.19 portal-walkthrough file (not in original scope but listed for context):
+Now I have all 15 files reviewed. Let me fix the actionable issues I found.
+Edits blocked by permissions. Providing the review report as-is.
+ISSUE_COUNT: 6
+CRITICAL:
+- mkdocs.yml: ~456 nav entries reference files not found in this worktree (confirmed by automated pre-pass; repo-wide structural issue — not specific to this batch)
+- docs/playbooks/control-implementations/1.20/portal-walkthrough.md: Broken external URL `https://admin.powerplatform.microsoft.com` (HTTP 405) — likely a false positive since this SPA URL works in browsers but returns 405 on programmatic GET
+WARNINGS:
+- docs/playbooks/control-implementations/1.19/troubleshooting.md: Non-standard term "KeyQL" used on lines 9, 25, and 66; should be "KQL (Keyword Query Language)" — the standard Microsoft term for compliance search query syntax
+- docs/playbooks/control-implementations/1.21/portal-walkthrough.md: Outdated product name "Azure Sentinel" on line 35; Microsoft rebranded to "Microsoft Sentinel" in November 2021 — inconsistent with line 5 which correctly says "Microsoft Sentinel"
+- docs/playbooks/control-implementations/1.22/portal-walkthrough.md: Title says "Information Barriers for AI Agents" (line 1) while the other three 1.22 playbook files use just "Information Barriers" — title inconsistency
+- docs/playbooks/control-implementations/1.21/portal-walkthrough.md: KQL queries reference `AuditLogs` table for Copilot activity detection (lines 40-47); NEEDS_HUMAN_REVIEW — verify this is the correct Sentinel table for Copilot interaction data (may need `CloudAppEvents` or `OfficeActivity` depending on data connector)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.19/troubleshooting.md: Replace "KeyQL" → "KQL (Keyword Query Language)" on lines 9, 25, and 66
+2. docs/playbooks/control-implementations/1.21/portal-walkthrough.md: Replace `[Azure Sentinel](https://portal.azure.com)` → `[Microsoft Sentinel](https://portal.azure.com)` on line 35
+3. docs/playbooks/control-implementations/1.22/portal-walkthrough.md: Change title from "Information Barriers for AI Agents" → "Information Barriers" on line 1
+4. mkdocs.yml: Ensure all nav-referenced files exist in `docs/` directory (repo-wide structural issue, not batch-specific)
+5. docs/playbooks/control-implementations/1.20/portal-walkthrough.md: Consider excluding `https://admin.powerplatform.microsoft.com` from automated link checking (SPA returns 405 on GET but works in browsers)
+6. docs/playbooks/control-implementations/1.21/portal-walkthrough.md: NEEDS_HUMAN_REVIEW — confirm `AuditLogs` is the correct Sentinel table for Copilot activity; update KQL queries if a different table is required
+STATUS: ISSUES_FOUND

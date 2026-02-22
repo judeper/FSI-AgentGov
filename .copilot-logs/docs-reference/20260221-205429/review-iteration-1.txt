@@ -1,0 +1,110 @@
+Now let me check the remaining file and verify a specific reference issue I found.
+Confirmed: learn-monitor-guide.md and monitoring-architecture.md consistently say "207", while learn-monitor-ai-enhancement.md says "209". Now let me verify the actual URL count.
+The actual URL count is **209**, meaning learn-monitor-guide.md and monitoring-architecture.md say "207" but are stale. Now I'll compile the final report.
+---
+## Reference Batch Review Report
+**BATCH:** reference
+**FILES_REVIEWED:** 22
+**ISSUE_COUNT:** 8 (3 CRITICAL, 4 WARNING, 1 GAP)
+**STATUS:** ISSUES_FOUND
+---
+### CRITICAL (3)
+**C1 — Regulatory Misattribution**
+**File:** `docs/reference/raci-matrix.md` line 269
+**Issue:** Text says "(OCC SR 11-7)" — SR 11-7 is Federal Reserve guidance, not OCC. OCC issued Bulletin 2011-12 as the companion document. Conflating the two misrepresents which regulator issued which guidance. This is a factual regulatory error in a compliance-facing document.
+**Severity rationale:** Incorrect regulatory attribution in FSI governance documentation could undermine credibility during examinations.
+**C2 — Stale Directory Path**
+**File:** `docs/reference/learn-monitor-guide.md` line 281
+**Issue:** References `reports/learn-changes/` but the unified monitoring architecture uses `reports/monitoring/`. The correct path for Learn change reports is `reports/monitoring/learn-changes-*.md` per the monitoring-architecture.md specification.
+**Severity rationale:** Directs users to a non-existent directory path, causing workflow failure.
+**C3 — Internal Version Contradiction**
+**File:** `docs/reference/agent-365-capabilities-summary.md`
+**Issue:** Header (line 4) says `Version: v1.2.48` but footer (line 195) says `v1.2.51`. A single document cannot credibly claim two different versions.
+**Severity rationale:** Self-contradictory metadata undermines document reliability.
+---
+### WARNINGS (4)
+**W1 — Version String Staleness Across Files**
+Multiple reference files have version strings that predate the current framework version (v1.2.51):
+| File | Current Version | Line |
+|------|----------------|------|
+| `index.md` | v1.2 | 76 |
+| `faq.md` | v1.2 | footer |
+| `raci-matrix.md` | v1.2 | footer |
+| `nist-ai-rmf-crosswalk.md` | v1.2 | footer |
+| `agent-audit-event-taxonomy.md` | v1.2.6 | footer |
+| `agent-essentials-control-mapping.md` | v1.2.6 | footer |
+| `license-requirements.md` | v1.2.48 | footer |
+| `sharepoint-advanced-management-licensing.md` | v1.2.48 | footer |
+| `agent-365-capabilities-summary.md` | v1.2.48 (header) | 4 |
+**W2 — URL Count Discrepancy (207 vs 209)**
+`microsoft-learn-urls.md` contains **209** actual Learn URLs. However, `learn-monitor-guide.md` (lines 20, 32, 67, 385) and `monitoring-architecture.md` (lines 14, 175, 232) all say "207". The correct count is 209; seven references across two files are stale.
+**W3 — Section A: Broken URL in faq.md (FALSE POSITIVE)**
+`https://api.applicationinsights.io` returns HTTP 404. However, this URL appears inside a PowerShell `Get-AzAccessToken -ResourceUrl` call as an OAuth resource identifier — it is not a browsable web page. HTTP 404 on a bare GET is expected behavior for API endpoints.
+**Recommendation:** No fix needed. Suppress in future automated scans or add a `<!-- markdownlint-disable-link -->` annotation.
+**W4 — Section A: Broken URL in license-requirements.md (FALSE POSITIVE)**
+`https://admin.powerplatform.microsoft.com` returns HTTP 405 (Method Not Allowed). This is an authentication-protected SPA portal; unauthenticated HEAD/GET requests are rejected by design.
+**Recommendation:** No fix needed. Suppress in future scans.
+---
+### GAPS (1)
+**G1 — index.md Missing Links to 10 Reference Documents**
+`docs/reference/index.md` links to only 12 of the 22 reference documents. The following 10 documents are not linked from the landing page:
+1. `raci-matrix.md` — RACI Matrix
+2. `regulatory-mappings.md` — Regulatory Mappings
+3. `solutions-index.md` — Solutions Index
+4. `solutions-coverage-gaps.md` — Solutions Coverage Gaps
+5. `solutions-architecture-guide.md` — Solutions Architecture Guide
+6. `nist-ai-rmf-crosswalk.md` — NIST AI RMF Crosswalk
+7. `monitoring-architecture.md` — Monitoring Architecture
+8. `learn-monitor-ai-enhancement.md` — Learn Monitor AI Enhancement
+9. `sharepoint-advanced-management-licensing.md` — SharePoint Advanced Management Licensing
+10. `agent-365-capabilities-summary.md` — Agent 365 Capabilities Summary
+---
+### SECTION A — NAV ORPHANS (OUT OF SCOPE)
+The ~300 mkdocs.yml nav orphans are **not content issues** in the reference files. This worktree (`reference-20260221-205429`) contains only `docs/reference/` files. All orphans are from `controls/`, `playbooks/`, `framework/`, `getting-started/`, and `downloads/` — directories that do not exist in this partial worktree. The nav entries are valid in the full repository.
+---
+### FIXES (6 actionable)
+**FIX 1 — C1: Correct regulatory attribution in raci-matrix.md**
+```
+File: docs/reference/raci-matrix.md
+Line: 269
+Old: - Model risk governance (OCC SR 11-7)
+New: - Model risk governance (OCC 2011-12 / Fed SR 11-7)
+```
+**FIX 2 — C2: Correct stale directory path in learn-monitor-guide.md**
+```
+File: docs/reference/learn-monitor-guide.md
+Line: 281
+Old: 1. **Review the change report** in `reports/learn-changes/`
+New: 1. **Review the change report** in `reports/monitoring/`
+```
+**FIX 3 — C3: Resolve version contradiction in agent-365-capabilities-summary.md**
+```
+File: docs/reference/agent-365-capabilities-summary.md
+Line: 4
+Old: **Version:** v1.2.48
+New: **Version:** v1.2.51
+```
+**FIX 4 — W2: Update URL count from 207 to 209**
+Update all 7 occurrences across 2 files:
+```
+File: docs/reference/learn-monitor-guide.md
+Lines: 20, 32, 67, 385
+Replace: 207 → 209
+File: docs/reference/monitoring-architecture.md
+Lines: 14, 175, 232
+Replace: 207 → 209
+```
+**FIX 5 — W1: Update stale version strings (batch)**
+Update footer version strings in 8 files to `v1.2.51`. This is a routine maintenance task — each file's footer `*FSI Agent Governance Framework v{X.X}*` line should read `v1.2.51`.
+**FIX 6 — G1: Add missing document links to index.md**
+Add 3 new table sections to `docs/reference/index.md` covering the 10 missing documents:
+- **Regulatory & Compliance**: raci-matrix.md, regulatory-mappings.md, nist-ai-rmf-crosswalk.md
+- **Solutions**: solutions-index.md, solutions-coverage-gaps.md, solutions-architecture-guide.md
+- **Monitoring & Architecture**: monitoring-architecture.md, learn-monitor-ai-enhancement.md, agent-365-capabilities-summary.md, sharepoint-advanced-management-licensing.md
+---
+### NOTES
+- **Large files partially reviewed:** `regulatory-mappings.md` (87.8KB), `microsoft-learn-urls.md` (30.3KB), `solutions-index.md` (52.6KB) were too large to read in full. Additional issues may exist in unread portions.
+- **monitoring-architecture.md line 574** also references old path `reports/learn-changes/`, but this is inside a "Rejected Alternative" discussion block documenting a past design decision — the old path is historically accurate in that context and does not need correction.
+- **No prohibited language violations** found across the 22 files reviewed. All regulatory references use hedged language ("supports compliance with", "helps meet").
+- **PowerShell samples** in faq.md, fsi-configuration-examples.md, and evidence-standards.md use correct cmdlets and parameter syntax.
+- **Cross-references** between the 22 reference files are internally consistent (e.g., glossary terms match usage, role-catalog names match raci-matrix entries, solutions-index entries align with solutions-coverage-gaps).

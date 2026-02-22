@@ -1,0 +1,16 @@
+Analysis complete. Here's my assessment:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 3 (replace `Get-AdminPowerAppEnvironmentAnalytics`)** and **Fix 4 (replace `Get-MgComplianceManagement`)**: MEDIUM-HIGH risk. Both cmdlets are likely fabricated, but replacing them with alternative cmdlets carries equal hallucination risk — the replacement could be equally fictitious. The review correctly flagged NEEDS_HUMAN_REVIEW. Any automated replacement must be verified against live Microsoft documentation before committing. Prefer replacing the code block with a comment directing users to the portal UI rather than substituting another unverified cmdlet.
+**SEVERITY_CORRECTIONS:**
+- **Fix 5 (heading standardization)** is over-classified as a WARNING. It's a **COSMETIC/INFO** item. The 3.5–3.8 files already use the `# Control X.X: [Name] - [Type]` format, confirming 3.1/3.2 are the outliers. However, heading text changes alter mkdocs-generated anchor IDs, which could break any deep-links or bookmarks. Since playbooks are linked by file path (not anchor), actual breakage risk is negligible — but it's still a non-zero side effect the review didn't mention.
+- **Fix 6 (add footers/blockquotes to 3.1/3.2)** is over-classified as a WARNING. It's purely **COSMETIC/INFO** — missing footers don't affect build, navigation, or content accuracy.
+- All other severity classifications are accurate.
+**FIX_ORDERING:**
+1. **Fixes 1–2 first** (duplicate `---` removal) — zero-risk, independent, no dependencies, immediate commit.
+2. **Fixes 3–4 second** (suspect cmdlets) — require human verification of replacement cmdlets before execution. These block on external validation and should not be auto-fixed.
+3. **Fixes 5–6 last, batched together per-file** — both touch the same 8 files in 3.1/3.2. If done separately, the second pass creates unnecessary merge churn. Execute heading renames and footer additions in a single pass per file.
+**OVER_ENGINEERED:**
+- **Fix 6 (add footer metadata and blockquote intros to all 3.1/3.2 files)**: Touches 8 files for cosmetic consistency. This should be deferred to a repo-wide consistency sweep rather than scoped to this batch — applying it only to 3.1/3.2 creates a partial fix that still leaves other pillar playbooks potentially inconsistent. The batch review should not invent work beyond what it found.
+- **Fix 5 (heading standardization across 3.1–3.4)**: Borderline. The inconsistency is real and the target format is confirmed correct (3.5–3.8 match 3.3/3.4 pattern). But renaming headings in 8 working files for format alignment is low-value churn within a batch scoped to "fixes." Consider deferring to a dedicated formatting pass.
+**CRITIQUE_SUMMARY:** The review is well-structured with accurate false-positive identification and correct NEEDS_HUMAN_REVIEW flags on the suspect cmdlets. However, Fixes 5–6 expand scope from "fix defects" to "enforce consistency," which is over-engineering for a targeted batch — defer both to a repo-wide formatting pass and execute only Fixes 1–4 in this batch.

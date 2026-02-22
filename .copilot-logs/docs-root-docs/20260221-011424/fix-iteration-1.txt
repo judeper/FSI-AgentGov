@@ -1,0 +1,12 @@
+Now let me see the rest of the template and the CHANGELOG for v1.2 release notes:
+Let me find the v1.2 major release entry in the CHANGELOG:
+Now I have all the context needed. Let me apply all 5 fixes:
+All 5 edits applied. Let me verify the changes:
+All changes are correct and minimal.
+CHANGES:
+- README.md (line 279): Changed "26 deployable automation solutions" → "27 deployable automation solutions"
+- README.md (line 147): Changed "introduces" → "introduced" (past tense for superseded version)
+- README.md (lines 232-241): Replaced legacy 8-section table with canonical 10-section format matching `docs/templates/control-setup-template.md`
+- docs/index.md (lines 126-133): Added v1.2 release summary above existing v1.1 entry, cross-checked against CHANGELOG.md
+- docs/getting-started/checklist.md (line 441): Updated footer from "v1.2 - January 2026" → "v1.2.51 - February 2026"
+FIX_STATUS: COMPLETE

@@ -1,0 +1,17 @@
+All findings confirmed against source files. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix #3 (remove legacy test cases, lines 220-298):** Deleting ~78 lines of content carries moderate risk. External runbooks, audit checklists, or team SOPs may reference "Test Case 1" through "Test Case 6" by name. Removing them without a deprecation notice could break downstream workflows. The safer fix is to correct the 8→24 hour error (Fix #2) and add a "Superseded by FAC-01/02/03" note header to the legacy section rather than deleting it.
+**SEVERITY_CORRECTIONS:**
+- **Both CRITICALs: Correctly classified.** CRITICAL #1 confirmed — three functions default to `"CopilotForM365AdminExclude"` while `Import-AdminExclusionGroupFromCSV` defaults to `"CopilotForM365AdminExclusionGroup"`. This is a functional bug that will cause silent failures. CRITICAL #2 confirmed — line 228 says "8 hours" while line 73-75 of the same file correctly says "24 hours per Microsoft documentation."
+- **WARNING #1 (3.7 version footer mismatch): Correctly classified** but note the review omits a proposed fix for it. The `portal-walkthrough.md` and `verification-testing.md` were updated to v1.3/Feb 2026 while `powershell-setup.md` and `troubleshooting.md` remain at v1.2/Jan 2026 — this is likely intentional (only files that changed got bumped), not an error.
+- **WARNING #4-5 (missing footers for 3.11/3.12): Correctly classified** as WARNINGs — these are standardization gaps, not functional issues.
+**FIX_ORDERING:**
+- **Group 1 (independent, do first):** Fix #1 (group name) and Fix #2 (propagation time) — both are single-string replacements in 3.8 files, zero interdependency, zero cross-reference impact.
+- **Group 2 (independent, low risk):** Fix #4 (double `---` in 3.9) — cosmetic, standalone.
+- **Group 3 (batch together):** Fixes #5-6 (add footers to 3.11 + 3.12) — 8 files, same pattern. Do as a batch.
+- **Group 4 (defer or scope down):** Fix #3 (legacy test case removal) — requires content-owner approval; scope down to a "superseded" header note instead of deletion.
+**OVER_ENGINEERED:**
+- **Fix #3 is over-engineered.** The actual bug is the wrong propagation time (Fix #2). Once Fix #2 corrects "8 hours" → "24 hours", the legacy section is merely redundant — not contradictory. Converting a 78-line deletion into a one-line "Superseded by FAC-01/02/03 above" note achieves the same deconfliction goal with far less risk.
+- **Fixes #5-6 have a date-accuracy concern.** The proposed footer `*Updated: February 2026 | Version: v1.3*` implies these 8 files were updated in February 2026 at v1.3, but the only "update" is adding the footer itself. If these files were originally written in January 2026 (like 3.9/3.10), the footer should read `*Updated: January 2026 | Version: v1.2*` to match their actual content vintage, with the date bumped only when substantive content changes are made.
+**CRITIQUE_SUMMARY:** The two CRITICAL findings are accurately identified, well-evidenced, and their proposed fixes (Fix #1, Fix #2) are safe single-string replacements with zero cross-reference or build risk. Fix #3 should be scoped down from deletion to a supersession note, and Fixes #5-6 footer dates should reflect actual content vintage rather than today's date.

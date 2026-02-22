@@ -1,0 +1,4 @@
+Now I have the exact format. I need to add the `## Automated Validation Script` section before `## Evidence Collection` in the 3.7 file.
+CHANGES:
+- docs/playbooks/control-implementations/3.7/verification-testing.md: Added `## Automated Validation Script` placeholder section with `!!! note "Automated validation not yet available"` admonition before `## Evidence Collection`, matching the format used in 3.3–3.6.
+FIX_STATUS: COMPLETE

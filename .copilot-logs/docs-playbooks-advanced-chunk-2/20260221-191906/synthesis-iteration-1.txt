@@ -1,0 +1,25 @@
+All issues verified. Now applying fixes.
+Write access is restricted in this environment. Producing the verified reconciled issue list based on file verification:
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Orphaned code fence (```) at line 860 breaks page rendering — "### Rollback Procedure" section and subsequent mermaid diagram are swallowed into an unintended code block
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 688)
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 546)
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 1032)
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md: Version mismatch — header says "v1.2.48" (line 3), footer says "v1.2.51" (line 283); header is stale
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 637)
+WARNINGS:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md (line 10): Uses prohibited language "ensures consistent security controls from environment creation" — should use "supports consistent"
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md (line 71): Uses prohibited language "Zone rule inheritance ensures consistent governance from creation" — should use "supports consistent governance"
+GAPS:
+- NONE
+FIXES:
+1. implementation-provisioning.md: Remove orphaned ``` on line 860 (between the admonition closing and "### Rollback Procedure")
+2. evidence-and-audit.md: Update footer (line 688) from "v1.2.10" to "v1.2.12" to match header
+3. implementation-copilot-intake.md: Update footer (line 546) from "v1.2.10" to "v1.2.12" to match header
+4. implementation-provisioning.md: Update footer (line 1032) from "v1.2.10" to "v1.2.12" to match header
+5. implementation-approval.md: Update header (line 3) from "v1.2.48" to "v1.2.51" to match footer (project is at v1.2.51; footer is correct)
+6. architecture.md: Update footer (line 637) from "v1.2.10" to "v1.2.12" to match header
+7. index.md (line 10): Change "ensures consistent security controls" to "supports consistent security controls"
+8. index.md (line 71): Change "ensures consistent governance" to "supports consistent governance"
+STATUS: ISSUES_FOUND

@@ -1,0 +1,32 @@
+Now I have all verification data. Here is the final synthesized review:
+---
+ISSUE_COUNT: 14
+CRITICAL:
+- docs/playbooks/governance-operations/decision-log-schema.md: Missing closing code fence (```) after JSON block at line 156; Section "6) Approval and lifecycle" (line 157) renders inside the code block and lacks a `##` heading prefix — active rendering corruption making Section 6 invisible to readers
+- docs/framework/agent-identity-architecture.md (lines 1056-1058), docs/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md (lines 267-269), docs/reference/agent-365-capabilities-summary.md (line 185), docs/playbooks/advanced-implementations/agent-365-observability/index.md (line 265), docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md (line 301), docs/reference/agent-audit-event-taxonomy.md (line 439): 4 Microsoft Learn preview URLs (`microsoft-agent-365/developer/identity`, `microsoft-agent-365/developer/observability`, `entra/id-governance/what-are-lifecycle-workflows`, `defender-cloud-apps/tutorial-shadow-it`) used as **clickable markdown links** may return HTTP 404 — NEEDS_HUMAN_REVIEW (verify current HTTP status; these are labeled "(Preview)" and may be legitimately unavailable)
+WARNINGS:
+- docs/playbooks/asard-exception-management.md: Line 385 backtick-wrapped path references `docs/playbooks/asard-deployment.md` but actual file is `asard-deployment-guide.md` (inline code text, not a clickable link — documentation accuracy issue only)
+- docs/playbooks/agent-lifecycle/agent-inventory-entry.md: Lines 56, 67, 87 backtick-wrapped paths reference `../templates/per-agent-data-policy.md`, `../templates/action-authorization-matrix.md`, `../templates/escalation-matrix.md` — no `../templates/` directory exists; correct paths are `per-agent-data-policy.md` (same dir), `../governance-operations/action-authorization-matrix.md`, `../governance-operations/escalation-matrix.md` (inline code text, not clickable links)
+- docs/playbooks/monitoring-and-validation/purview-audit-query-pack.md: Lines 102-105 backtick-wrapped paths reference `templates/` prefix that doesn't exist; correct paths use `../agent-lifecycle/` and `../governance-operations/` prefixes (inline code text, not clickable links)
+- AGENTS.md: Lines 254 and 258 use `"` instead of apostrophe — `don"t` and `you"re` should be `don't` and `you're`
+- CODE_OF_CONDUCT.md: Version footer says "v1.1 - January 2026" vs current v1.2.51 — NEEDS_HUMAN_REVIEW (may be intentionally versioned separately; jumping from v1.1 to v1.2.51 requires confirmation)
+- DISCLAIMER.md + docs/disclaimer.md: Version footer says "v1.2 - January 2026" — behind current v1.2.51
+- SECURITY.md: Version footer says "v1.2.48" — behind current v1.2.51
+- releases/README.md: Version footer says "v1.2 - January 2026" — behind current v1.2.51
+- 16 playbook files with stale version footers: docs/playbooks/index.md, governance-operations/governance-operating-calendar.md, governance-operations/raci-governance-template.md (say "v1.2 - January 2026"); monitoring-and-validation/health-check-procedures.md, agent-lifecycle/agent-decommissioning.md, agent-lifecycle/agent-promotion-checklist.md (say "v1.2"); plus 10 others in advanced-implementations/, incident-and-risk/, validation-testing/ — all behind v1.2.51
+- releases/v1.1/CHANGELOG.md: States "All 60 controls validated" but current framework has 71 controls — NEEDS_HUMAN_REVIEW (likely historically accurate for v1.1 release)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/governance-operations/decision-log-schema.md: Add closing ``` fence after line 156 (`}`), then add `## 6) Approval and lifecycle` as a proper markdown heading on the next line [HIGHEST PRIORITY — only fix causing active rendering corruption, zero risk]
+2. AGENTS.md: Lines 254 and 258 — replace `don"t` → `don't` and `you"re` → `you're` [trivial, zero risk]
+3. docs/playbooks/asard-exception-management.md: Line 385 change `docs/playbooks/asard-deployment.md` → `asard-deployment-guide.md`
+4. docs/playbooks/agent-lifecycle/agent-inventory-entry.md: Fix 3 backtick cross-reference paths — `../templates/per-agent-data-policy.md` → `per-agent-data-policy.md`, `../templates/action-authorization-matrix.md` → `../governance-operations/action-authorization-matrix.md`, `../templates/escalation-matrix.md` → `../governance-operations/escalation-matrix.md`
+5. docs/playbooks/monitoring-and-validation/purview-audit-query-pack.md: Fix 4 backtick cross-reference paths — `templates/agent-inventory-entry.md` → `../agent-lifecycle/agent-inventory-entry.md`, `templates/action-authorization-matrix.md` → `../governance-operations/action-authorization-matrix.md`, `templates/decision-log-schema.md` → `../governance-operations/decision-log-schema.md`, `templates/per-agent-data-policy.md` → `../agent-lifecycle/per-agent-data-policy.md`
+6. 6 doc files with Microsoft Learn preview URLs: Verify HTTP status of the 4 URLs; if confirmed 404, either update to current URLs or add "(Preview — URL may change)" annotation. Do NOT edit the CHANGELOG entries — those are historical records in backtick code spans [NEEDS_HUMAN_REVIEW]
+7. DISCLAIMER.md + docs/disclaimer.md: Update version footer from "v1.2 - January 2026" to "v1.2.51 - February 2026"
+8. SECURITY.md: Update version from "v1.2.48" to "v1.2.51"
+9. releases/README.md: Update version footer from "v1.2 - January 2026" to "v1.2.51 - February 2026"
+10. 16 playbook files (in monitoring-and-validation/, agent-lifecycle/, governance-operations/, advanced-implementations/, incident-and-risk/, validation-testing/): Update version footers to "v1.2.51 - February 2026" (note correct subdirectory paths — health-check-procedures.md is in monitoring-and-validation/, agent-decommissioning.md and agent-promotion-checklist.md are in agent-lifecycle/)
+11. CODE_OF_CONDUCT.md: Confirm whether CoC version should track framework version before updating from "v1.1" [NEEDS_HUMAN_REVIEW]
+STATUS: ISSUES_FOUND

@@ -1,0 +1,12 @@
+I've examined all flagged locations. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **KQL table correction (Fixes 1 & 2):** MEDIUM-HIGH RISK. The `AuditLogs` → correct table swap touches KQL blocks in 3 locations across 2 files. The fix itself is straightforward text replacement and won't break cross-references or mkdocs build. However, the **content risk is high** — choosing the wrong replacement table (e.g., `CloudAppEvents` vs `CopilotInteractions` vs a Copilot-specific connector table) would replace one incorrect query with another incorrect query. Microsoft's Sentinel schema for M365 Copilot data is evolving; the correct table must be verified against current Microsoft documentation before committing. Deploying an unvalidated KQL fix is worse than leaving a `NEEDS_HUMAN_REVIEW` marker.
+**SEVERITY_CORRECTIONS:**
+- NONE. The severity classifications are accurate. The KQL issues are correctly flagged as WARNINGS (not CRITICAL) — the queries are illustrative guidance, not executable automation that would silently fail. The PPAC URL is correctly identified as a probable scanner false positive since `admin.powerplatform.microsoft.com` is the canonical URL and blocks non-browser requests.
+**FIX_ORDERING:**
+- Fix 1 and Fix 2 (KQL corrections) are **coupled** — they must use the identical replacement table/field and should be applied together in a single commit to avoid inconsistency between portal-walkthrough.md and powershell-setup.md for control 1.21.
+- Fix 3 (PPAC URL) is **independent** and can be applied in any order, or skipped entirely.
+**OVER_ENGINEERED:**
+- **Fix 3 (PPAC URL → plain text):** Over-engineered. `https://admin.powerplatform.microsoft.com` is the correct, canonical Microsoft URL. Converting it to plain text degrades user experience (no clickable link) to satisfy an automated scanner false positive. The URL returns HTTP 405 because it's a SPA that rejects non-browser requests — this is expected behavior, not a broken link. **Recommendation: skip this fix entirely.**
+**CRITIQUE_SUMMARY:** The KQL table issue is a legitimate finding that requires human/SME verification of the correct Sentinel table before any fix is applied — do not auto-fix. The PPAC URL fix should be dropped as over-engineered; it addresses a scanner artifact, not a real user-facing problem.

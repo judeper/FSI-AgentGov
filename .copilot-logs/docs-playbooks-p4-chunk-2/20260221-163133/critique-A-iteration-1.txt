@@ -1,0 +1,16 @@
+Now let me read the remaining files in the batch to check for missed issues.
+Let me check what other control playbook directories are in this batch.
+The review claims 13 files. With 4.6 (4 files) + 4.7 (4 files) = 8, the batch likely includes 4.5 (4 files) + index.md = 13. Let me check 4.5 for missed issues.
+Now I have all the evidence needed. Here is my audit:
+---
+**FALSE_POSITIVES:**
+NONE — All three warnings are verified as real issues against the actual file content.
+**MISSED_ISSUES:**
+- **Line reference inaccuracy (Warning 1):** The review cites "line 44" for the "set to **Restricted**" text, but it's actually on **line 41** (`5. Under **Microsoft 365 Copilot**, set to **Restricted**`). Line 44 is inside the EEEU admonition body. The issue itself is real, but the line reference is wrong.
+- **4.5/powershell-setup.md: Missing `Microsoft.Graph` prerequisite.** The prerequisites (lines 10-12) only install `Microsoft.Online.SharePoint.PowerShell` and `ExchangeOnlineManagement`, but the file uses `Get-MgUserMemberOf` (line 174) which requires `Microsoft.Graph`. The same Graph cmdlet appears in 4.5/verification-testing.md (line 95) and 4.5/troubleshooting.md (line 41), and `Get-MgSubscribedSku` in 4.5/verification-testing.md (line 86). By contrast, 4.7/powershell-setup.md correctly lists `Microsoft.Graph` in its prerequisites. An admin following the 4.5 playbook from scratch would encounter errors.
+- **index.md: Stale control counts and missing playbook links (low priority, cross-pillar).** The index file lists Pillar 1 as "25 controls" (should be 28; missing 1.26-1.28), Pillar 2 as "22 controls" (should be 24; missing 2.23-2.24), and Pillar 3 as "10 controls" (should be 12; missing 3.11-3.12). Playbook directories for these controls exist in the worktree. This is pre-existing and spans all pillars, so it's arguably outside p4-chunk-2 scope, but the reviewer read the file as part of the 13-file batch without noting it.
+**FIX_CONCERNS:**
+- **Fix 1:** The suggested replacement text is correct and consistent with 4.6's documented toggle behavior. The line reference should be corrected from "line 44" to "line 41" when applying.
+- **Fix 2:** Correct approach. The Copilot SKU filter pattern from 4.7/powershell-setup.md (lines 37-55) is the right replacement. Note the replacement is more than a 2-line swap — it requires the `Get-MgSubscribedSku` lookup plus the filtered `Get-MgUser` pipeline (~10 lines replacing 2), so the fix description slightly understates the change scope.
+- **Fix 3:** Correct. The reindexing admonition from 4.6/portal-walkthrough.md (lines 48-52) is appropriate for 4.7 since both configure RCD exclusions via the same mechanism. Note that 4.7/troubleshooting.md line 21 mentions "Allow 24 hours for index propagation" but only as a troubleshooting resolution, not as a proactive configuration warning — so the gap is real.
+**CRITIQUE_SUMMARY:** The review is accurate and well-reasoned — all three claimed issues are real, the Section A dispositions are correct, and the fix suggestions are sound. However, the review missed a functional gap (4.5/powershell-setup.md missing the `Microsoft.Graph` prerequisite despite using Graph cmdlets) and has a minor line-reference error in Warning 1 (line 41, not 44).

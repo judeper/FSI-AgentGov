@@ -1,0 +1,12 @@
+Let me check the remaining files in this batch and verify the full troubleshooting file for missed issues.
+Let me check the remaining files not mentioned in the review for potential missed issues.
+I've now reviewed all 8 files in this batch and verified each claimed issue against the actual file content. Here is my audit:
+---
+FALSE_POSITIVES:
+- NONE — All false positive assessments in the review are correct. The contoso.com URLs are intentional example domains, the Microsoft portal URLs (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com) return HTTP 405 to non-browser clients as expected, and the PowerShell `@("...")` array literals in fenced code blocks are correctly identified as link-checker misparsing.
+MISSED_ISSUES:
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 452): A second ` ```sql ` code block contains a conceptual SQL INSERT statement for Dataverse, which doesn't support raw SQL. The `sql` tag provides useful syntax highlighting for the INSERT/VALUES syntax, so this is borderline — but the reviewer could have noted it for consistency with their line-230 finding. LOW PRIORITY; acceptable to leave as-is since the content IS syntactically SQL.
+FIX_CONCERNS:
+- Fix 1 (line 230): Correct. Changing ` ```sql ` → ` ```xml ` and `-- FetchXML query` → `<!-- FetchXML query -->` is accurate — the content is FetchXML (XML), and the comment syntax should match the language tag. The resulting XML will be valid.
+- Fix 2 (line 470): Correct. `fsi_isx expired` (with space) is clearly a typo for `fsi_isexpired`, which matches the consistent field name on line 472. However, the fix description says "fsi_isx expired" → "fsi_isexpired" — note that the original has both a stray `x` placement AND a space; the reviewer's description captures this correctly.
+CRITIQUE_SUMMARY: The review is accurate and thorough. Both real issues (wrong code fence language tag, field name typo) are correctly identified with appropriate fixes, and all 9 false positives are correctly dismissed with sound reasoning. No significant issues were missed.

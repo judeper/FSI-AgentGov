@@ -1,0 +1,9 @@
+Now applying all 5 fixes:
+Commit blocked by permissions, but all edits are applied.
+CHANGES:
+- docs/playbooks/control-implementations/1.19/troubleshooting.md: "KeyQL" → "KQL (Keyword Query Language)" on lines 9, 25, 66
+- docs/playbooks/control-implementations/1.19/portal-walkthrough.md: "KeyQL" → "KQL (Keyword Query Language)" on line 49
+- docs/playbooks/control-implementations/1.21/portal-walkthrough.md: "Azure Sentinel" → "Microsoft Sentinel" on line 34
+- docs/playbooks/control-implementations/1.21/powershell-setup.md: "Azure Sentinel" → "Microsoft Sentinel" on line 130
+- docs/playbooks/control-implementations/1.22/portal-walkthrough.md: Title "Information Barriers for AI Agents" → "Information Barriers" on line 1
+FIX_STATUS: COMPLETE

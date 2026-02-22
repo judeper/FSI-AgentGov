@@ -1,0 +1,22 @@
+Now let me read the large 3.11 portal-walkthrough file in sections:
+Now I have all 15 files reviewed. Let me compile findings.
+Good — no prohibited language. Here is my complete review:
+---
+ISSUE_COUNT: 13
+CRITICAL:
+- mkdocs.yml: ~300 nav entries reference files not found in this worktree (systemic worktree artifact; files are expected to exist in the main repo — no action needed in this batch)
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Propagation time inconsistency — Legacy Test Case 1 (line 229) says "up to 8 hours" for Admin Exclusion Group, but detailed FAC-01 (line 73-75) and troubleshooting.md (line 19) both say "24 hours". The 24-hour figure is correct per Microsoft documentation.
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Duplicate test cases — Legacy Test Cases 1-3 (lines 220-272) and Test Case 6 (lines 288-299) are abbreviated duplicates of the detailed FAC-01/02/03 test cases above them. This creates maintenance risk for conflicting information.
+- docs/playbooks/control-implementations/3.9/portal-walkthrough.md: Double `---` separator on lines 215-216 creates an empty visual section between content and footer navigation.
+- docs/playbooks/control-implementations/3.10/troubleshooting.md: `Get-AdminFlow -EnvironmentName "Default"` (line 87) — EnvironmentName parameter typically requires the environment GUID, not the string "Default" (NEEDS_HUMAN_REVIEW).
+- Pre-pass broken URLs (7 entries): 5 are Microsoft portal URLs (copilotstudio.microsoft.com, admin.powerplatform.microsoft.com, make.powerautomate.com, techcommunity.microsoft.com) that return 405/400 to automated scanners but are valid interactive URLs — no fix needed. 1 is `contoso.sharepoint.com` which is an intentional example placeholder. 1 is `api.powerplatform.com/agentInventory/v1/inventory` which is an explicitly documented preview endpoint marked as example in the text — no fix needed.
+GAPS:
+- docs/playbooks/control-implementations/3.11/portal-walkthrough.md, 3.11/powershell-setup.md, 3.11/troubleshooting.md, 3.11/verification-testing.md, 3.12/portal-walkthrough.md: All 5 files missing standard footer metadata line (`*Updated: Month Year | Version: vX.X*`) that the 3.8/3.9/3.10 playbooks consistently include. The 3.11/3.12 files use header metadata instead (`**Last Updated:** February 2026`) but lack the version number in a consistent footer format.
+FIXES:
+1. docs/playbooks/control-implementations/3.8/verification-testing.md (line 229): Change "Wait for propagation (up to 8 hours)" to "Wait for propagation (up to 24 hours)" in Legacy Test Case 1 to match FAC-01 and troubleshooting guidance.
+2. docs/playbooks/control-implementations/3.8/verification-testing.md: Consider removing Legacy Test Cases 1-3 and 6 (lines 220-299) as they duplicate the more detailed and accurate FAC-01/02/03 test cases with less detail and conflicting propagation times.
+3. docs/playbooks/control-implementations/3.9/portal-walkthrough.md (line 215 or 216): Remove one of the duplicate `---` separators.
+4. docs/playbooks/control-implementations/3.11/portal-walkthrough.md, 3.11/powershell-setup.md, 3.11/troubleshooting.md, 3.11/verification-testing.md, 3.12/portal-walkthrough.md: Add standard footer metadata line (e.g., `*Updated: February 2026 | Version: v1.2*`) for consistency with other playbooks in this batch.
+5. docs/playbooks/control-implementations/3.10/troubleshooting.md (line 87): Verify `Get-AdminFlow -EnvironmentName "Default"` uses correct parameter value — may need environment GUID instead of "Default" (NEEDS_HUMAN_REVIEW).
+STATUS: ISSUES_FOUND

@@ -1,0 +1,14 @@
+Now let me check for any missed issues by scanning the remaining playbook files in this batch.
+The batch is "playbooks-p4-chunk-1" so this covers controls 4.1–4.7 (28 files). Let me read the remaining files the reviewer should have checked for missed issues.
+Now let me read the remaining files (4.3, 4.4 complete, 4.5, 4.6, 4.7):
+Now I have the full picture. Let me also verify one more cross-file inconsistency:
+I now have complete evidence to deliver the audit verdict.
+---
+**FALSE_POSITIVES:**
+NONE — All three reported issues are real and verified against source files.
+**MISSED_ISSUES:**
+- **4.5/powershell-setup.md (lines 9–13, 174):** Same pattern as the 4.4 finding — `Get-MgUserMemberOf` on line 174 requires `Microsoft.Graph`, but Prerequisites (lines 10–13) only list `Microsoft.Online.SharePoint.PowerShell` and `ExchangeOnlineManagement`. Admins running the "Verify Audit Logging Status" section will get a `CommandNotFoundException`.
+- **Cross-control RSS property inconsistency (4.1 vs 4.6):** The reviewer flagged the inconsistency within 4.1 (powershell-setup vs troubleshooting), but the broader inconsistency is that 4.1/powershell-setup.md uses the *older* parameter `IsDataAccessInSharePointOnlineDisabled` (line 77, 84) while 4.6/powershell-setup.md uses the *current* parameter `EnableRestrictedSearchAllList` (line 193–197) for the same Restricted Search feature. Both controls cover RSS, so admins following 4.1 and 4.6 together will see conflicting cmdlet syntax.
+**FIX_CONCERNS:**
+- **Fix 1 (RSS property alignment):** The reviewer suggests aligning to `IsDataAccessInSharePointOnlineDisabled` as "likely" the correct one, but the evidence points the other direction — 4.6/powershell-setup.md, 4.1/troubleshooting.md (line 134 & 171), and 4.6/troubleshooting.md all consistently use `EnableRestrictedSearchAllList`. The 4.1/powershell-setup.md itself includes a caveat at line 75–76 acknowledging the parameter name may be outdated. Standardize on `EnableRestrictedSearchAllList`, not the older name.
+**CRITIQUE_SUMMARY:** The review correctly identified three real issues and appropriately used NEEDS_HUMAN_REVIEW for the two that require Microsoft documentation verification. However, it missed one additional missing-prerequisite instance (4.5) and understated the RSS property inconsistency — the divergence spans 4.1 and 4.6 controls, and the fix should standardize on `EnableRestrictedSearchAllList` (the newer name), not the older name the reviewer suggested.

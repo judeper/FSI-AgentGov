@@ -1,0 +1,23 @@
+Let me check the actual directory contents using view instead.
+Let me verify the control names used in the config README against CONTROL-INDEX.md.
+All 8 issues verified against the actual filesystem and CONTROL-INDEX.md. Here is my verification report:
+---
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN
+**Verification details:**
+1. ✅ `scripts/README.md` governance tree now lists all 19 items — matches actual directory contents exactly
+2. ✅ Heading changed to "Governance Automation" (line 225) with reference to `governance/README.md` — no "Planned" language
+3. ✅ `config/` directory with `README.md` and `monitoring-config.yaml` added to tree (lines 64-66)
+4. ✅ `private/` directory with all 6 PowerShell files added to tree (lines 89-95) — matches actual directory
+5. ✅ Inventory tables now cover 7 categories totaling 42 scripts — all root-level files accounted for
+6. ✅ Footer updated to "v1.2 - February 2026" (line 359)
+7. ✅ `verify_language_rules.py` added to Validation Scripts table (line 276)
+8. ✅ `config/README.md` control names now match CONTROL-INDEX.md: 1.3 → "SharePoint Content Governance and Permissions", 2.6 → "Model Risk Management (Alignment with OCC 2011-12/SR 11-7)"

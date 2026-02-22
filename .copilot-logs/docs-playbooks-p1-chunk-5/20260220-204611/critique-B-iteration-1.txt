@@ -1,0 +1,12 @@
+Now I have all the evidence needed. Here's my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All four proposed fixes (1–4) are scoped to inline content within individual markdown files — no cross-references, no link paths, no `mkdocs.yml` nav entries, and no filenames change. Zero risk to build integrity.
+**SEVERITY_CORRECTIONS:**
+- Fix 3 (powershell-setup.md Script 3 `Get-PowerAppChatBot` → `Get-AdminPowerAppChatbot`): Should be **CRITICAL**, not just CRITICAL-adjacent. Controls 1.26 and 1.27 both use `Get-AdminPowerAppChatbot` with `$agent.Properties.DisplayName`. Script 3 in 1.28 uses the non-admin variant with different property paths — an admin running this script with the documented Power Platform Admin role will get different result sets (non-admin cmdlet returns only user-owned bots, not tenant-wide). This is a functional correctness bug, not merely an inconsistency.
+- Warning about `Get-AdminPowerAppEnvironmentGroup` (line 369): Severity is appropriate as WARNING with NEEDS_HUMAN_REVIEW. The cmdlet's existence depends on module version; a disclaimer is warranted but not blocking.
+**FIX_ORDERING:**
+- Fixes are independent — no ordering dependencies. Fix 1 and Fix 2 touch different line ranges in the same file (troubleshooting.md) but do not overlap. Fix 3 and Fix 4 touch different scripts in the same file (powershell-setup.md) but do not overlap. All four can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- NONE. The proposed fixes are appropriately scoped: Fix 1 adds a disclaimer consistent with an existing one at line 401; Fix 2 is a two-instance cmdlet rename; Fix 3 is a cmdlet rename plus property path alignment; Fix 4 changes one misleading success message. No unnecessary restructuring proposed.
+**CRITIQUE_SUMMARY:** The review is well-evidenced and correctly identifies the two most impactful issues — non-existent cmdlets without disclaimers and non-admin cmdlet usage in admin scripts. Fix 3 deserves explicit CRITICAL classification given that `Get-PowerAppChatBot` returns user-scoped results while the script's purpose is tenant-wide admin auditing, but all four proposed fixes are minimal, safe, and should be applied.

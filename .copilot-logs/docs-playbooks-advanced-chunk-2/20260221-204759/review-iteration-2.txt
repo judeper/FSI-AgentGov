@@ -1,0 +1,20 @@
+All in-scope fixes verified. Here's the result:
+ISSUE_COUNT: 0
+CRITICAL:
+- NONE
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+- NONE
+STATUS: CLEAN
+**Verification details:**
+1. ✅ `deployment-guide.md` line 269: Now correctly says "Control 2.8 — Access Control and Segregation of Duties"
+2. ✅ `index.md` line 4: Header now lists "2.9, 3.1, 3.2, 3.3, 3.7, 3.8, 3.9"
+3. ✅ `agent-365-observability/*.md` (4 files): All footers now show "v1.2.51"
+4. ✅ `customization-guide.md`: Header and footer both show "v1.2.51"
+5. ✅ `deployment-guide.md` line 5: Header now shows "v1.2.51", matching footer
+6. ✅ `evidence-and-audit.md` line 289: Comment corrected to "requires Microsoft.Xrm.Data.PowerShell"
+7. ✅ `application-insights-workbooks.md`: Now uses `New-AzResource` instead of `New-AzApplicationInsightsWorkbook`
+*Note: `agent-blueprint-promotion-gates/*.md` files were in the previous findings but are outside this batch's verification scope.*

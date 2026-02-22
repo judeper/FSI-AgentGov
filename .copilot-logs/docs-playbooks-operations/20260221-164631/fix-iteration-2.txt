@@ -1,0 +1,6 @@
+Now verify the fix:
+CHANGES:
+- phase-1-minimal-viable-controls.md (line 183): Changed heading from "Control 1.9: 10-Year Retention" to "Control 1.9: Data Retention and Deletion Policies" and updated Purpose line to contextualize 10-year retention as a Zone 3 requirement within the broader control scope.
+- Footer version (`v1.2` vs `v1.2.51`): SKIPPED — NEEDS_HUMAN_DECISION per review. No automated fix applied.
+- Systemic non-canonical control names (~25 references): SKIPPED — review notes most simplifications are "defensible in a getting-started playbook context" and requires maintainer decision on convention. Only the Control 1.9 misrepresentation was actionable.
+FIX_STATUS: COMPLETE

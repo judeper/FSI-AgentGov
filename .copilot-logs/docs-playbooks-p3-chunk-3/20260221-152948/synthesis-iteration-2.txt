@@ -1,0 +1,35 @@
+Now I have all the data to produce the corrected review. All original issues verified, critiques validated — 3 missed footers in 3.12, 1 missed embedded review comment in 3.8, and fix 6 line range needs correction.
+ISSUE_COUNT: 11
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.11/portal-walkthrough.md: Missing standard footer metadata line (`*Updated: Month Year | Version: vX.X*`)
+- docs/playbooks/control-implementations/3.11/powershell-setup.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.11/troubleshooting.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.11/verification-testing.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.12/portal-walkthrough.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.12/powershell-setup.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.12/troubleshooting.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.12/verification-testing.md: Missing standard footer metadata line
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Legacy Test Cases 1–8 (lines 220–325) are redundant duplicates of the detailed FAC-01/02/03 test cases (lines 50–218); Test Cases 1 and 6 are marked "(Legacy)" but Test Cases 2–5 and 7–8 are not, creating inconsistency
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Embedded HTML comment at line 161 `<!-- NEEDS_HUMAN_REVIEW: Verify SEC Rule 206(4)-7 is the correct citation for controlled change management; consult compliance team -->` — unresolved prior review flag requiring human decision
+- docs/playbooks/control-implementations/3.10/verification-testing.md: Line 42 references "CFPB UDAAP" which is outside the project's listed target regulations (FINRA/SEC/SOX/GLBA/OCC/Fed SR 11-7/CFTC) — NEEDS_HUMAN_REVIEW to confirm this regulatory reference is intentional
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/3.11/portal-walkthrough.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+2. docs/playbooks/control-implementations/3.11/powershell-setup.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+3. docs/playbooks/control-implementations/3.11/troubleshooting.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+4. docs/playbooks/control-implementations/3.11/verification-testing.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+5. docs/playbooks/control-implementations/3.12/portal-walkthrough.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+6. docs/playbooks/control-implementations/3.12/powershell-setup.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+7. docs/playbooks/control-implementations/3.12/troubleshooting.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+8. docs/playbooks/control-implementations/3.12/verification-testing.md: Add footer after the navigation links: `*Updated: February 2026 | Version: v1.2*`
+9. docs/playbooks/control-implementations/3.8/verification-testing.md: Remove or consolidate all 8 legacy Test Cases (lines 220–325) which duplicate the detailed FAC-01/02/03 test cases; alternatively mark all eight consistently as "(Legacy)" for clarity
+10. docs/playbooks/control-implementations/3.8/verification-testing.md: Human review needed — resolve embedded `<!-- NEEDS_HUMAN_REVIEW -->` comment at line 161; confirm SEC Rule 206(4)-7 is the correct citation for controlled change management in the FAC-02 regulatory mapping, or replace with appropriate regulation from the project's target list
+11. docs/playbooks/control-implementations/3.10/verification-testing.md: Human review needed — confirm "CFPB UDAAP" on line 42 is an intentional regulatory reference for hallucination tracking, or replace with a regulation from the project's target list
+NOTE ON SECTION A PRE-PASS FINDINGS:
+- **Broken URLs (7 flagged):** All are false positives — Microsoft portal URLs require authentication (HTTP 405/400); contoso.sharepoint.com is an example/placeholder URL; api.powerplatform.com/agentInventory is a documented preview API. No fixes needed.
+- **MkDocs nav orphans (~300 entries):** Worktree infrastructure artifact — this worktree contains only playbook files while mkdocs.yml references the full doc set. Not fixable in this batch.
+FIX ORDERING: Apply fixes 1–8 first (trivial append-only footer additions, safe in parallel). Fix 9 after verifying full legacy block scope. Defer fixes 10–11 (require human decision).
+STATUS: ISSUES_FOUND

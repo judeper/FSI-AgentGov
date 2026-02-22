@@ -1,0 +1,16 @@
+Now let me check for any issues the reviewer may have missed.
+All claimed issues verified against source files. Here is the audit:
+---
+**FALSE_POSITIVES:**
+NONE
+All seven findings are substantiated by the source files:
+- **CRITICAL ($agent.Properties.*)**: Confirmed. Lines 309/311/315/316 of 1.28/powershell-setup.md use `$agent.DisplayName` etc. while 1.27/powershell-setup.md line 80 correctly uses `$agent.Properties.DisplayName`. The `ChatBotName` at line 310 is correctly left alone — it's a top-level property in both files.
+- **DLP cmdlet inconsistency**: Confirmed. `Get-DlpPolicy`/`New-DlpPolicy` in scripts vs `Get-AdminDlpPolicy` in validation section.
+- **Three URL false positives**: Correctly dismissed (placeholder URL and auth-gated portal 405s).
+- **Get-AdminPowerAppEnvironmentGroup**: Confirmed at line 372 of troubleshooting.md. Appropriate NEEDS_HUMAN_REVIEW.
+- **Missing attestation template**: Confirmed. 1.26 has it (lines 84-117), 1.27 has it (lines 131-171), 1.28 lacks it entirely — file jumps from "Evidence Package" (line 383) to "Ongoing Monitoring" (line 415).
+**MISSED_ISSUES:**
+NONE — The review is thorough for the playbook scope. No prohibited language phrases found in either 1.27 or 1.28 playbooks. The `ChatBotName` vs `ChatbotName` casing difference between 1.27 and 1.28 is cosmetic-only (PowerShell is case-insensitive) and not worth flagging.
+**FIX_CONCERNS:**
+- **Fix 2 (DLP cmdlet harmonization)**: The reviewer says "use one or the other" but should be more specific. Since the declared module is `Microsoft.PowerApps.Administration.PowerShell`, the correct cmdlets are the `*-Admin*` variants (`New-AdminDlpPolicy`, `Get-AdminDlpPolicy`). The scripts at lines 60, 212, 290 should be changed to use the `-Admin-` forms, not just "harmonized" to either option. The NEEDS_HUMAN_REVIEW tag covers this, but the fix text could mislead an implementer into standardizing on the wrong cmdlet name.
+**CRITIQUE_SUMMARY:** The review is accurate and well-structured — all seven findings are real, false positives are correctly dismissed, and the property-access CRITICAL is the highest-value catch. The only refinement needed is that Fix 2 should explicitly recommend `Get-AdminDlpPolicy`/`New-AdminDlpPolicy` as the correct forms for the declared module, rather than presenting both options as equally valid.

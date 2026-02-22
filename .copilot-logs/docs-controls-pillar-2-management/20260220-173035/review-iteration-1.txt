@@ -1,0 +1,34 @@
+Now I have all the information needed. Let me compile the final report.
+ISSUE_COUNT: 16
+CRITICAL:
+- docs/controls/pillar-2-management/index.md: Missing controls 2.23 and 2.24 from the control list (line 48 ends at 2.22; both files exist and are in mkdocs.yml nav)
+- docs/controls/pillar-2-management/index.md: Overview text (line 7) states "These 22 controls" but there are 24 controls (2.1-2.24)
+- docs/controls/pillar-2-management/index.md: Categories table (lines 13-19) omits controls 2.20-2.24 — Adversarial Testing, AI Marketing Claims, Inactivity Timeout, User Consent, and Feature Governance have no category assignment
+- docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md: Broken external link — `https://www.sardine.ai/blog/agentic-ai-oversight` returns HTTP 404 (genuinely removed)
+WARNINGS:
+- docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md: External URL `https://www.sec.gov/rules/interp/34-47806.htm` returns HTTP 403 (SEC anti-bot blocking; NEEDS_HUMAN_REVIEW — verify URL is still correct or update to current SEC EDGAR path)
+- docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md: External URL `https://www.sec.gov/regulation-best-interest` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md: External URL `https://www.sec.gov/about/what-we-do/examination-priorities` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md: External URL `https://www.sec.gov/tm/faq-regulation-best-interest` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md: External URL `https://www.sec.gov/rules/final/2020/ia-5653.pdf` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md: External URL `https://www.sec.gov/news/press-release/2024-36` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md: External URL `https://www.ftc.gov/business-guidance/blog/2023/02/keep-your-ai-claims-check` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md: External URL `https://www.sec.gov/files/ia-6353.pdf` returns HTTP 403 (NEEDS_HUMAN_REVIEW)
+- docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md: Two `api.bap.microsoft.com` URLs flagged as HTTP 502 — these are API endpoint examples inside code blocks (line 64) and OAuth scope strings (line 113), not clickable links; false positive from automated URL checker
+- docs/controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md: `https://admin.powerplatform.microsoft.com` returns HTTP 405 — this is a portal URL that rejects automated HEAD/GET requests; false positive from URL checker
+- docs/controls/pillar-2-management/index.md: Footer version "v1.2 - January 2026" (line 52) is behind framework version v1.2.51 and inconsistent with controls updated to v1.3
+- MKDOCS NAV ORPHANS: All 300+ nav orphan entries from automated pre-pass are **false positives** — glob verification confirms every referenced file exists on disk at the correct path relative to docs_dir. Automated tooling likely had a permissions or path resolution issue in this worktree.
+GAPS:
+- docs/controls/pillar-2-management/index.md: The "Customer Transparency" category row only lists control 2.19; controls 2.20-2.24 (added later) need category assignments to maintain the category grouping table
+FIXES:
+1. docs/controls/pillar-2-management/index.md (line 7): Change "These 22 controls" to "These 24 controls"
+2. docs/controls/pillar-2-management/index.md (lines 18-19): Add rows to the categories table for controls 2.20-2.24 (e.g., "AI Assurance & Transparency | 2.20-2.24 | Adversarial testing, marketing claims, timeouts, consent, feature governance")
+3. docs/controls/pillar-2-management/index.md (after line 48): Add entries `- [2.23 User Consent and AI Disclosure Enforcement](2.23-user-consent-and-ai-disclosure-enforcement.md)` and `- [2.24 Agent Feature Enablement and Restriction Governance](2.24-agent-feature-enablement-and-restriction-governance.md)`
+4. docs/controls/pillar-2-management/index.md (line 52): Update footer from "v1.2 - January 2026" to "v1.2.51 - February 2026"
+5. docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md (line 229): Remove or replace the broken Sardine.ai link (`https://www.sardine.ai/blog/agentic-ai-oversight` — HTTP 404)
+6. docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md (line 126): NEEDS_HUMAN_REVIEW — verify SEC URL `https://www.sec.gov/rules/interp/34-47806.htm` and update if SEC has migrated this page
+7. docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md (lines 153, 156): NEEDS_HUMAN_REVIEW — verify two SEC URLs and update paths if migrated
+8. docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md (line 114): NEEDS_HUMAN_REVIEW — verify SEC Reg BI FAQ URL
+9. docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md (lines 177-180): NEEDS_HUMAN_REVIEW — verify three URLs (SEC Marketing Rule, SEC AI Washing press release, FTC AI Claims guidance)
+10. docs/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md (line 181): NEEDS_HUMAN_REVIEW — verify SEC AI/Predictive Analytics PDF URL
+STATUS: ISSUES_FOUND

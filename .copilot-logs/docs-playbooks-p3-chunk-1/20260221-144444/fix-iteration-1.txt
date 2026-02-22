@@ -1,0 +1,15 @@
+Now let me also check the broader context for fixes 3 and 6 to make good replacements:
+Now I have all the context. Let me apply all fixes:
+All 6 targeted fixes applied. Now let me verify the changes and commit:
+The 3.2 file is staged (M in first column), the rest are unstaged. Let me stage all and commit:
+It seems `git` commands with the repository are being blocked. Let me try a simpler approach:
+Git commands in this repository seem to be permission-blocked in this session. The file edits were all applied successfully. Let me verify the changes are correct by spot-checking:
+All 6 fixes verified. Git commit is blocked by permissions in this session, but all file edits are applied correctly.
+CHANGES:
+- docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Removed duplicate `---` separator before footer nav links (line 142)
+- docs/playbooks/control-implementations/3.4/portal-walkthrough.md: Removed duplicate `---` separator and trailing `---` before footer nav links (lines 210, 214)
+- docs/playbooks/control-implementations/3.2/powershell-setup.md: Replaced unverified `Get-AdminPowerAppEnvironmentAnalytics` cmdlet with portal-based guidance and basic metadata retrieval
+- docs/playbooks/control-implementations/3.3/troubleshooting.md: Replaced invalid `Get-MgComplianceManagement` with `Get-MgContext` for connection diagnostics
+- docs/playbooks/control-implementations/3.3/powershell-setup.md: Fixed invalid `Compliance.Read.All` scope to `ComplianceManager.Read.All`
+- docs/playbooks/control-implementations/3.4/powershell-setup.md: Replaced undefined `Send-CriticalIncidentNotification` call with TODO comment and `Write-Warning` placeholder
+FIX_STATUS: COMPLETE

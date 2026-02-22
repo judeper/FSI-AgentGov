@@ -1,0 +1,16 @@
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (`Get-DlpPolicy` → `Get-AdminDlpPolicy`): Severity is accurate as WARNING. Confirmed the inconsistency at lines 212-214, 290 (uses `Get-DlpPolicy`) vs lines 409, 415 (uses `Get-AdminDlpPolicy`). Users copy-pasting Script 2/3 would get errors if only `Microsoft.PowerApps.Administration.PowerShell` is loaded. Straightforward text replacement — no functional risk.
+- Warning for `Get-AdminPowerAppEnvironmentGroup` (troubleshooting.md line 371): Correctly flagged as NEEDS_HUMAN_REVIEW. This is appropriate — it's a cmdlet existence question that requires verification against the current module version, not something to auto-fix.
+- Fix 2 (bare `Set-AdminPowerAppEnvironment` no-op): Severity is accurate. The call at line 385 executes without any parameters that configure approvals. The surrounding NOTE block (lines 379-384) already documents this thoroughly. Low-impact fix.
+**FIX_ORDERING:**
+- Fix 1 first (cmdlet rename in powershell-setup.md + troubleshooting.md) — atomic change across 2 files, zero dependencies on other fixes
+- Fix 2 second (comment out no-op cmdlet in powershell-setup.md) — same file as Fix 1 but non-overlapping lines
+- Fix 3 third (add "save Script 3" note in powershell-setup.md) — same file, non-overlapping section (line 432 area)
+- Fix 4 fourth (1.26/verification-testing.md test cases) — independent file, requires content decision
+- Fix 5 last (1.28/portal-walkthrough.md "What's Next") — independent file, lowest priority
+**OVER_ENGINEERED:**
+- **Fix 4 (add Test 7/8 for TC-1.26-07 and TC-1.26-08):** The simpler path is to annotate the table entries with "(Verified via Test 1 zone alignment)" and "(Verified via Test 3 file upload limit)" rather than writing two full new test procedures. TC-1.26-07 (Zone 3 default deny) is implicitly covered by Test 1's zone-toggle verification; TC-1.26-08 (20-file limit) could be a brief addendum to Test 3 rather than a standalone procedure.
+- **Fix 5 (add "What's Next" section to 1.28/portal-walkthrough.md):** The file already has a complete navigation footer at line 229 linking to all four playbooks (`PowerShell Setup | Verification & Testing | Troubleshooting`). Adding a prose "What's Next" section duplicates this navigation. The consistency gap with 1.27 is cosmetic — the footer already serves the same purpose. Recommend skipping or limiting to a single sentence above the footer.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — severity classifications are accurate, the 3 external URL warnings are correctly dismissed as false positives, and the 5 proposed fixes are all low-risk text-only changes with no cross-reference or build breakage potential. Fix 4 and Fix 5 are slightly over-scoped: the test case gap can be closed with table annotations instead of new procedures, and the "What's Next" section duplicates an existing navigation footer.

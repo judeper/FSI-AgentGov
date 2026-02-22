@@ -1,0 +1,17 @@
+Now let me check the footers of the 1.2 and 1.3 files.
+Now I have all the data needed. Here's my audit:
+---
+**FALSE_POSITIVES:**
+- NONE — all 13 issues are verified as real against the actual files.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/1.4/troubleshooting.md`: Missing navigation footer links (same issue as 1.4/powershell-setup.md — no `[Back to Control 1.4] | [Portal Walkthrough] | ...` line). Only 1.4/portal-walkthrough.md has the nav footer among the 1.4 files.
+- `docs/playbooks/control-implementations/1.4/verification-testing.md`: Missing navigation footer links (same issue — grep for "Back to Control" returns empty for both files).
+- `docs/playbooks/control-implementations/1.2/powershell-setup.md`: `.NOTES` block (line 174) also says "Last Updated: January 2026" — same pattern the reviewer correctly flagged for 1.1/powershell-setup.md but missed here. Fix 4 only addresses the header, not the .NOTES block.
+- `docs/playbooks/control-implementations/1.3/powershell-setup.md`: `.NOTES` block (line 187) also says "Last Updated: January 2026" — same omission. Fix 8 only addresses the header, not the .NOTES block.
+**FIX_CONCERNS:**
+- **Fix 1** (move Steps 6-9): The heading fix (`##` → `###` for Step 6) is clearly correct — Steps 7-9 currently appear as sub-steps of Step 6 due to H3-under-H2 nesting, which is semantically wrong. However, the "move above Configuration by Governance Level" portion is a structural reorganization that may have been intentionally separated (Steps 0-5 cover environment/platform setup; Steps 6-9 cover per-agent and tenant-level settings in different portals). **NEEDS_HUMAN_REVIEW** on the move; heading fix is unambiguous.
+- **Fix 4** (`1.2/powershell-setup.md`): Incomplete — also needs `.NOTES` block at line 174 changed from "January 2026" to "February 2026".
+- **Fix 8** (`1.3/powershell-setup.md`): Incomplete — also needs `.NOTES` block at line 187 changed from "January 2026" to "February 2026".
+- **Fix 11** (`1.4/powershell-setup.md` nav footer): Correct but incomplete — `1.4/troubleshooting.md` and `1.4/verification-testing.md` are also missing the nav footer and need the same fix.
+- **Fix 12** (change `v1.2.48` to `v1.2`): Reasonable for local consistency, but `v1.2.48` may intentionally track the framework release version (project is at v1.2.51). Confirm which versioning convention applies to this file type.
+**CRITIQUE_SUMMARY:** The review is accurate — all 13 flagged issues are real, the Section A false-positive dismissals are correct, and the fix directions are sound. However, the reviewer missed 4 additional instances of the same patterns already identified (2 missing nav footers in 1.4, 2 .NOTES date mismatches in 1.2/1.3), and 3 of the fix suggestions are incomplete because they don't cover all affected locations within the same file.

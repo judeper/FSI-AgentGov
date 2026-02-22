@@ -1,0 +1,19 @@
+All files verified. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 1 (renumber duplicate steps 7–10 → 11–14 in 2.1/portal-walkthrough.md): **Medium-high structural risk.** The duplicate Steps 7–10 (lines 257–290) appear *after* the Validation section, and the Validation checklist (lines 250–253) already references these items ("Environment creation restricted…", "Environment routing configured…", "Tenant isolation enabled…", "Security groups assigned…"). Simply renumbering to 11–14 without moving them above Validation creates a walkthrough where validation precedes the steps it validates. The correct fix is to **move** lines 257–291 to before the `## Validation` heading (line 239) and then renumber. This is a content reordering operation — higher risk than a simple find-replace renumber.
+**SEVERITY_CORRECTIONS:**
+- "Azure Active Directory" → "Microsoft Entra ID" (2.4, line 116, not line 118 as stated): Classified as CRITICAL but should be **WARNING**. The reference appears inside a bullet list of M365 Admin Center service health alert categories. Microsoft's own admin portal may still surface "Azure Active Directory" as a service health category label. This is a cosmetic product-name update, not a broken procedure. No administrator will fail to complete the walkthrough because of this label.
+- Heading hierarchy break in 2.1 (line 257 `## Step 7` vs `### Step N`): Listed as a separate WARNING but is **a symptom of the CRITICAL duplicate-step issue**, not an independent problem. Fixing the CRITICAL resolves this automatically. Should be collapsed into CRITICAL item 1.
+- Missing footer metadata (6 GAP items for 2.1 and 2.2 playbooks): The 10-section footer requirement in `fsi-control-template.instructions.md` applies to **control files** (`docs/controls/**/*.md`), not playbooks. These are consistency nice-to-haves, not template violations. Severity should be **COSMETIC**, not GAP.
+**FIX_ORDERING:**
+1. Fix 1 first (structural: move + renumber duplicate steps in 2.1/portal-walkthrough.md) — highest complexity, must be done carefully
+2. Fix 2 (date reconciliation in same file) — do concurrently with Fix 1 since same file
+3. Fixes 4–5 (double `---` removal in 2.3, 2.4) — independent, no ordering constraint
+4. Fix 3 (AAD → Entra ID in 2.4) — independent, trivial
+5. Fixes 6–11 (footer additions) — independent, batch together, lowest priority
+6. Fix 12 (XrmTooling review) — correctly deferred to human; no action now
+**OVER_ENGINEERED:**
+- Fixes 6–11 (adding footer metadata to 6 playbook files): The footer template requirement applies to control docs, not playbooks. Adding these creates a maintenance burden (version numbers to keep current) with minimal reader benefit. If applied, use a simpler format without version numbers to reduce future maintenance.
+- Fix 12 is correctly scoped as NEEDS_HUMAN_REVIEW — not over-engineered, appropriately deferred.
+**CRITIQUE_SUMMARY:** The review correctly identified the two genuinely impactful issues (duplicate step numbering, outdated product name) but over-classified the AAD rename as CRITICAL and applied control-file template requirements to playbooks. Fix 1 needs a more careful approach — steps must be relocated above the Validation section, not just renumbered in place.

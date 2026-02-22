@@ -1,0 +1,18 @@
+All three 4.7 files still lack cross-navigation footers. The fixes were NOT applied. Let me verify this isn't elsewhere in the files and also check the pattern from a working file for reference.
+All three fixes remain unapplied. Now applying them:
+Now I see the pattern — the cross-nav links go before the final `---` and version footer. Let me apply all three fixes:
+The worktree is read-only — cannot apply edits. Reporting verification results:
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- NONE
+GAPS:
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: REMAINING — Missing cross-navigation footer links (fix 1 not applied)
+- docs/playbooks/control-implementations/4.7/troubleshooting.md: REMAINING — Missing cross-navigation footer links (fix 2 not applied)
+- docs/playbooks/control-implementations/4.7/verification-testing.md: REMAINING — Missing cross-navigation footer links (fix 3 not applied)
+FIXES:
+1. docs/playbooks/control-implementations/4.7/powershell-setup.md: Replace final `---` + version footer with: `---` + newline + `[Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)` + newline + `---` + newline + `*Updated: January 2026 | Version: v1.2*`
+2. docs/playbooks/control-implementations/4.7/troubleshooting.md: Replace final `---` + version footer with: `---` + newline + `[Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)` + newline + `---` + newline + `*Updated: January 2026 | Version: v1.2*`
+3. docs/playbooks/control-implementations/4.7/verification-testing.md: Replace final `---` + version footer with: `---` + newline + `[Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)` + newline + `---` + newline + `*Updated: January 2026 | Version: v1.2*`
+STATUS: ISSUES_FOUND

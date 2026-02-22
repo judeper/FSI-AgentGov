@@ -1,0 +1,22 @@
+Now let me check the remaining files and cross-references to complete the risk assessment.
+Let me check a few more details for the title inconsistency and the verification-testing date discrepancy.
+Now I have all the data needed. Here is my analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All proposed fixes are content-only changes to markdown files (text edits, date updates, metadata additions). None alter file paths, filenames, cross-reference links, or `mkdocs.yml` navigation entries. No fix can break cross-references or the mkdocs build.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (SSPM-1.1-05 portal path): CRITICAL classification is **accurate**. Confirmed: portal-walkthrough.md Step 8 (line 182-188) clearly states tenant-level path `Manage > Tenant Settings`, while verification-testing.md SSPM-1.1-05 (line 169, 201-207) sends admins to `Environments > Settings > Features` and says "disabled at environment level." This mismatch would cause a failed audit test or misconfigured control.
+- Fix 2 (SSPM-1.1-06 portal path): WARNING classification is **accurate**. Confirmed: portal-walkthrough.md Step 9 (line 189-195) uses `M365 Admin Center > Copilot > Agents & connectors > Agent Inventory`, while verification-testing.md SSPM-1.1-06 (line 170, 210-215) says `Teams Admin Center > Manage Apps`. Different portal entirely. Could arguably be CRITICAL since it sends admins to the wrong product.
+- Fix 3 (date inconsistency): WARNING is **accurate**. The header `Last Updated` field on verification-testing.md says "January 2026" (line 3) while the footer says "February 2026" (line 220). Same file has internally inconsistent dates. Low-impact but worth noting the review missed this internal discrepancy — the fix should address the header, not just the cross-file mismatch.
+- Fix 6 (Exchange Online cmdlet): WARNING with NEEDS_HUMAN_REVIEW is **accurate**. `Get-AdminAuditLogConfig` (line 79) is an Exchange Online Management cmdlet, not a Power Platform cmdlet. Prerequisites only list Power Platform module.
+- Fix 7 (`attributeChangeTrigger`): WARNING with NEEDS_HUMAN_REVIEW is **accurate**. The file uses `timeBasedAttributeTrigger` (line 145, 330) and `membershipChangeTrigger` (line 273) — both valid — but `attributeChangeTrigger` (line 392) is not a documented Lifecycle Workflows trigger type. However, this is in a preview-feature context (Agentic Users), so the trigger may become valid.
+**FIX_ORDERING:**
+- Fix 1 and Fix 2 should be applied together (same file: `verification-testing.md`). No dependency between other fixes.
+- Fix 3 (date normalization) should also update the `Last Updated` header on verification-testing.md line 3 from "January 2026" to "February 2026" — the review only called out powershell-setup.md and troubleshooting.md but missed that the header/footer disagree within verification-testing.md itself.
+- Fixes 4 and 5 (title normalization, footer metadata) are independent cosmetic changes with no ordering constraints.
+- Fix 6 is standalone.
+**OVER_ENGINEERED:**
+- Fix 4 (title normalization for 1.4): The 1.4 title format (`Control 1.4: Name - Type`) is consistent **within** 1.4's own files and is also a valid heading style. Normalizing to match 1.1-1.3's `Type: Control X.X - Name` pattern is cosmetic and risks introducing churn. **Recommend deferring** unless a batch normalizes all 71×4 playbook titles at once. Doing 2 files in isolation creates partial consistency.
+- Fix 5 (add footer to 10 files): Adding footers to 10 files is correct but should be batched across all playbook chunks, not just this chunk. Adding footers to some files while others in later batches remain missing creates the same inconsistency. **Recommend tracking as a cross-batch task** rather than partially applying here.
+**CRITIQUE_SUMMARY:** The review is high-quality — the CRITICAL and top WARNING findings are verified and actionable. Fixes 1-3 and 6 should proceed; Fixes 4-5 are cosmetic normalization best deferred to a cross-batch consistency pass to avoid partial-consistency churn.

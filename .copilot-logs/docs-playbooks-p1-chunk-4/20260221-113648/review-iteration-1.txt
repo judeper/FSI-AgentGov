@@ -1,0 +1,34 @@
+Let me count the nav orphans precisely.
+Now I have all the data. Here's my complete review:
+ISSUE_COUNT: 489
+CRITICAL:
+- NONE in the 15 reviewed files' content
+WARNINGS:
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Missing standard footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/1.14/powershell-setup.md: Missing standard footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/1.14/troubleshooting.md: Missing standard footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/1.14/verification-testing.md: Missing standard footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/1.15/portal-walkthrough.md: Missing standard footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/1.15/powershell-setup.md: Missing standard footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Heading format `# Portal Walkthrough: Control 1.14` inconsistent with batch pattern `# Control X.XX: Name - Portal Walkthrough` used by 1.11-1.13
+- docs/playbooks/control-implementations/1.14/powershell-setup.md: Heading format `# PowerShell Setup: Control 1.14` inconsistent with batch pattern
+- docs/playbooks/control-implementations/1.14/troubleshooting.md: Heading format `# Troubleshooting: Control 1.14` inconsistent with batch pattern
+- docs/playbooks/control-implementations/1.14/verification-testing.md: Heading format `# Verification & Testing: Control 1.14` inconsistent with batch pattern
+- docs/playbooks/control-implementations/1.15/portal-walkthrough.md: Heading format `# Portal Walkthrough: Control 1.15` inconsistent with batch pattern
+- docs/playbooks/control-implementations/1.15/powershell-setup.md: Heading format `# PowerShell Setup: Control 1.15` inconsistent with batch pattern
+- docs/playbooks/control-implementations/1.13/troubleshooting.md: Intro blockquote uses `> **Parent Control:**` format instead of standard `> This playbook provides troubleshooting guidance for` used by other troubleshooting files
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Pre-verified broken URL https://admin.powerplatform.microsoft.com (HTTP 405 — expected for auth-protected admin portals)
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Pre-verified broken URL https://copilotstudio.microsoft.com (HTTP 405 — expected for auth-protected admin portals)
+- docs/playbooks/control-implementations/1.14/powershell-setup.md: Pre-verified broken URL https://tenant.sharepoint.com/sites/HR (HTTP -1 — intentional placeholder in `.EXAMPLE` block)
+- mkdocs.yml: 473 nav orphans — mkdocs.yml references files not present in this worktree (systemic worktree/branch issue, not a per-file bug)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Add `---` separator and `*Updated: January 2026 | Version: v1.2*` footer after nav links
+2. docs/playbooks/control-implementations/1.14/powershell-setup.md: Add `---` separator and `*Updated: January 2026 | Version: v1.2*` footer after nav links
+3. docs/playbooks/control-implementations/1.14/troubleshooting.md: Add `---` separator and `*Updated: January 2026 | Version: v1.2*` footer after nav links
+4. docs/playbooks/control-implementations/1.14/verification-testing.md: Add `---` separator and `*Updated: January 2026 | Version: v1.2*` footer after nav links
+5. docs/playbooks/control-implementations/1.15/portal-walkthrough.md: Add `---` separator and `*Updated: January 2026 | Version: v1.2*` footer after nav links
+6. docs/playbooks/control-implementations/1.15/powershell-setup.md: Add `---` separator and `*Updated: January 2026 | Version: v1.2*` footer after nav links
+7. mkdocs.yml: 473 nav entries reference files not present in this worktree — create missing `docs/` files or sync worktree with main branch to resolve
+STATUS: ISSUES_FOUND

@@ -1,0 +1,23 @@
+Let me verify a few cross-references and check the actual state of directories.
+Now I have all the information needed. Let me compile the review.
+ISSUE_COUNT: 7
+CRITICAL:
+- `scripts/README.md`: Directory tree is factually stale — shows `governance/` containing only `Invoke-HardeningBaselineCheck.ps1` but the actual directory has 16+ scripts (FsiMimeControl, Set-InactivityTimeout, Deploy-DetectionFlow, Test-ZoneAgentAccess, restrict-agent-publishing, etc.)
+- `scripts/README.md`: Section "Governance Automation (Planned)" with placeholder future scripts is incorrect — governance/ already has 16+ implemented scripts, directly contradicting `scripts/governance/README.md` which documents them as current
+WARNINGS:
+- `scripts/README.md`: Directory tree completely omits `config/` subdirectory (which contains `README.md` and `monitoring-config.yaml`) — readers won't discover the monitoring configuration guide
+- `scripts/README.md`: Script inventory tables list 13 scripts but 37+ Python scripts and 2+ PowerShell scripts exist at root level (e.g., `learn_monitor.py`, `regulatory_monitor.py`, `deploy.py`, `detect_agent_sharing_violations.py`, `remediate_agent_sharing.py`, `Start-CAAValidationRunbook.ps1`, `Test-PolicyCompliance.ps1`, `verify_language_rules.py`, 9× `create_*.py` scripts, `generate_excel_templates.py`, etc.)
+- `scripts/README.md`: Footer says "v1.1 - January 2026" but project version is v1.2.51
+- `scripts/config/README.md`: Example keyword mapping uses incorrect control names — maps `sanctions` to Control 1.3 "Data Loss Prevention Policies" (actual: "SharePoint Content Governance and Permissions") and Control 2.6 "Risk Assessment Framework" (actual: "Model Risk Management Alignment with OCC 2011-12/SR 11-7") — NEEDS_HUMAN_REVIEW on whether the example should use accurate control names or remain illustrative
+GAPS:
+- `scripts/README.md`: No mention of monitoring scripts (`learn_monitor.py`, `regulatory_monitor.py`, `monitoring_shared.py`) or their `config/` directory, despite these being a significant functional category with their own configuration guide
+FIXES:
+1. `scripts/README.md`: Update directory tree to add `config/` directory with `README.md` and `monitoring-config.yaml`
+2. `scripts/README.md`: Update directory tree to reflect all 16+ governance scripts (or summarize as "16 scripts — see governance/README.md")
+3. `scripts/README.md`: Change "Governance Automation (Planned)" heading to "Governance Automation" and replace the future-scripts placeholder list with a reference to `governance/README.md` for the full inventory
+4. `scripts/README.md`: Add inventory categories for monitoring scripts, solution deployment scripts (`create_*`, `deploy.py`), UASD/ASARD scripts, and the root-level PowerShell scripts
+5. `scripts/README.md`: Update footer version from "v1.1 - January 2026" to "v1.2 - February 2026"
+6. `scripts/config/README.md`: Correct the example keyword mapping control names to match `CONTROL-INDEX.md` (1.3 → "SharePoint Content Governance and Permissions", 2.6 → "Model Risk Management Alignment"), or add a note that names are illustrative
+7. `scripts/README.md`: Add `verify_language_rules.py` to the validation scripts inventory table
+**NOTE ON SECTION A (MKDOCS NAV ORPHANS):** All 350+ reported orphans are **false positives**. Every listed file exists under `docs/` which is MkDocs' default `docs_dir`. The automated tooling appears to have checked for files relative to the repo root (e.g., `controls/index.md`) rather than under `docs/` (e.g., `docs/controls/index.md`). Verified by spot-checking `docs/controls/index.md`, `docs/framework/index.md`, `docs/downloads/index.md`, `docs/playbooks/index.md`, `docs/controls/pillar-1-security/1.1-*.md`, `docs/playbooks/control-implementations/1.1/*.md`, and `docs/reference/glossary.md` — all exist. These should not be counted as issues.
+STATUS: ISSUES_FOUND

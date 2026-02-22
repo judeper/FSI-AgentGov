@@ -1,0 +1,27 @@
+The review files map to the actual docs. Let me read all 14 files in parallel.
+Now I have all the data needed for the review. Let me verify the nav orphan finding accuracy and count.
+All 13 spot-checked nav orphan files exist. The pre-pass findings appear to be false positives. Here is my complete review:
+ISSUE_COUNT: 12
+CRITICAL:
+- evidence-pack-assembly.md: Line 1 has stray `text` keyword before the document heading — renders as literal text in output
+- evidence-pack-assembly.md: Lines 44–83 folder structure not wrapped in code fences (``` block missing); line 84 has another stray `text` keyword — both are remnants of a malformed `text` code fence
+- decision-log-schema.md: Missing closing ``` code fence after JSON block (line 156). Section "6) Approval and lifecycle" (lines 157–167) is trapped inside the JSON code block, rendering as code. Section 6 also lacks `## ` heading prefix and proper bullet/markdown formatting
+- agent-inventory-entry.md (line 56): Broken cross-reference `../templates/per-agent-data-policy.md` — directory `docs/playbooks/templates/` does not exist. File is in the same directory; correct path is `per-agent-data-policy.md`
+- agent-inventory-entry.md (line 67): Broken cross-reference `../templates/action-authorization-matrix.md` — correct path is `../governance-operations/action-authorization-matrix.md`
+- agent-inventory-entry.md (line 87): Broken cross-reference `../templates/escalation-matrix.md` — correct path is `../governance-operations/escalation-matrix.md`
+WARNINGS:
+- purview-audit-query-pack.md (lines 101–105): Section 5 correlation references use non-existent `templates/` path prefix (e.g., `templates/agent-inventory-entry.md`). Correct paths are `../agent-lifecycle/agent-inventory-entry.md`, `../governance-operations/action-authorization-matrix.md`, `../governance-operations/decision-log-schema.md`, `../agent-lifecycle/per-agent-data-policy.md`
+- confidence-and-routing.md (line 138): Version footer says "v1.2" — inconsistent with current framework version v1.2.51
+- zone1-min-explainability.md (line 123): Version footer says "v1.2" — inconsistent with current framework version v1.2.51
+- 10 of 14 reviewed files have no version footer at all, while 3 files (confidence-and-routing.md, zone1-min-explainability.md, dspm-for-ai-policy-pack.md) do — inconsistent practice across the spec/template set
+- evidence-pack-assembly.md: `[web:21]` and `[web:92]` citation markers (lines 6–7) and `<sup>[3]</sup>`, `<sup>[19]</sup>` markers (lines 120–124, 150) appear to be unresolved research reference tags that should be removed or replaced with actual citations
+GAPS:
+- NONE
+FIXES:
+1. evidence-pack-assembly.md: Remove stray `text` on line 1. Wrap lines 44–83 in ````text` / ```` code fences and remove stray `text` on line 84. Clean up unresolved citation markers `[web:21]`, `[web:92]`, `<sup>[19]</sup>`, `<sup>[3]</sup>`
+2. decision-log-schema.md: Add closing ```` before line 157. Reformat section 6 with proper `## 6) Approval and lifecycle` heading and markdown bullet list for Owner/Approved/Version/Next review fields
+3. agent-inventory-entry.md: Fix line 56 link to `per-agent-data-policy.md`, line 67 link to `../governance-operations/action-authorization-matrix.md`, line 87 link to `../governance-operations/escalation-matrix.md`
+4. purview-audit-query-pack.md: Update section 5 template path references to use correct relative paths
+5. confidence-and-routing.md + zone1-min-explainability.md: Update version footers from "v1.2" to "v1.2.51"
+NOTE ON MKDOCS NAV ORPHANS (Section A): The automated pre-pass reported ~473 nav orphan entries. Spot-checking 13 representative files across all major directories (controls, framework, playbooks, reference, downloads, getting-started, index.md) confirmed ALL files exist at their expected locations under `docs/`. These appear to be **false positives** — the pre-pass tool may have resolved paths relative to the repo root rather than the `docs_dir`, or ran against a different checkout state. Recommend re-running the orphan check with `mkdocs build --strict` which correctly resolves nav paths relative to `docs/`.
+STATUS: ISSUES_FOUND

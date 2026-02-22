@@ -1,0 +1,22 @@
+All findings verified against the source files. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 3 (property name alignment `RestrictedSearchEnabled` vs `EnableRestrictedSearchAllList`):** Both property names exist in different SPO module versions. Blindly aligning to one without verifying the current module version could introduce incorrect guidance. Changing the wrong one breaks the other playbook. **Must confirm correct property name against current SPO module docs before editing either file.**
+- **Fix 9 (H1 title unification across 4.3/4.4):** Touches 8 files' H1 headings. Any `mkdocs.yml` `nav:` entry or cross-reference using heading anchors would break. Additionally, the heading format for 4.3/4.4 may be the *intended* new convention going forward — unifying to the 4.1/4.2 pattern could be backwards. **Defer until a project-wide convention decision is made.**
+**SEVERITY_CORRECTIONS:**
+- **Fix 1 (SOX 404 → SOX 802):** Correctly classified as CRITICAL. Verified: `powershell-setup.md` line 87 says "SOX 802" and labels the item "Audit-Workpapers-7Y". SOX Section 802 is the correct citation for 7-year audit workpaper retention. SOX 404 covers internal controls over financial reporting, not retention periods. **Severity is accurate.**
+- **Fix 2 (non-existent cmdlet):** Correctly classified as CRITICAL. `Get-SPOSearchSiteConfiguration` does not exist in the SPO module. Admins copying this will get a hard error. **Severity is accurate.**
+- **Warning (4.3 portal path for inactive site policies):** Under-classified — should be **CRITICAL**, not NEEDS_HUMAN_REVIEW. The validation checklist at line 127 of the same file contradicts Step 2, confirming the portal path is wrong. Sending admins to Purview Data Lifecycle Management instead of SharePoint Admin Center will cause them to fail the procedure. **Upgrade to CRITICAL.**
+- **Warning (Remove-MgUser vs Remove-SPOExternalUser):** Correctly flagged as NEEDS_HUMAN_REVIEW. The risk is real (accidental Entra ID guest deletion vs SPO external user removal), but the note already uses `Remove-MgUser` deliberately — the fix is additive clarification, not a correction. **Severity is accurate.**
+- **Gap (unpublished retention labels):** Under-classified. The script creates labels and a generic retention policy but never publishes labels to locations via `New-RetentionCompliancePolicy -PublishComplianceTag`. Admins following this script will have labels that don't appear in SharePoint document libraries. **Should be WARNING, not GAP.**
+**FIX_ORDERING:**
+1. **Fix 1** (SOX 404→802) — standalone, zero dependencies, one-word change
+2. **Fix 2** (cmdlet replacement) — standalone, zero dependencies, one-line change
+3. **Fixes 4–8** (navigation footers) — batch together, all additive, no dependencies on other fixes. Do 4.3 files together, then 4.4 files together
+4. **Fix 10** (Remove-MgUser warning) — standalone additive clarification
+5. **Fix 3** (property name) — **blocked until human confirms correct SPO property name**
+6. **Fix 9** (H1 unification) — **defer to separate PR with project-wide convention decision**
+**OVER_ENGINEERED:**
+- **Fix 9 (H1 title unification):** Out of scope for a playbook content-quality review. This is a formatting convention decision that affects the entire playbooks directory, not just this batch. Should be logged as a separate backlog item, not bundled with content fixes.
+- **Gap item (admonition consistency):** Adding `!!! warning` admonitions to 4.3/4.4 to match 4.1/4.2 style is polish work. Low value relative to the critical content fixes. Defer.
+**CRITIQUE_SUMMARY:** The review accurately identified the two most dangerous issues (wrong regulatory citation, non-existent cmdlet) and correctly triaged the false positives. The portal path issue for 4.3 Step 2 should be upgraded to CRITICAL since internal evidence confirms it's wrong, and Fix 9 (heading unification) should be deferred to avoid unnecessary churn in this batch.

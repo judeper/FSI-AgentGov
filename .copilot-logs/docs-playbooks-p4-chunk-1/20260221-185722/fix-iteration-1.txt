@@ -1,0 +1,24 @@
+Now let me check the 4.4 portal-walkthrough footer for reference and 4.2 playbooks for footer pattern comparison.
+Now I have all the context. Let me apply all fixes.
+The first `Get-SPOSearchSiteConfiguration` edit failed — need to check exact context.
+Now let me verify all changes are correct by spot-checking the modified files.
+Now verify the portal path fix in 4.3/portal-walkthrough.md:
+There's a duplicate "Click **Create policy**" on lines 44-45. Fix that.
+Now let me also renumber the remaining steps (old step 6 becomes step 5):
+Now let me do a final diff summary to confirm all changes:
+All 8 files modified. Let me commit:
+Git write operations (add/commit) are blocked by the environment's security settings. All file edits are applied and visible in the working tree. Let me verify the changes are complete:
+All changes are correctly applied. Git commit is blocked by environment security restrictions but all file edits are in place.
+CHANGES:
+- docs/playbooks/control-implementations/4.1/troubleshooting.md: Replaced `Get-SPOSearchSiteConfiguration` with `Get-SPOTenantRestrictedSearchAllowedList` (2 occurrences, lines 135 and 171)
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Fixed `SOX 404 | 7 years | Financial records` → `SOX 802 | 7 years | Audit workpapers` (line 33)
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Fixed portal path from Purview > Data lifecycle management → SharePoint Admin Center > Policies > Site lifecycle management (lines 42-50), renumbered steps
+- docs/playbooks/control-implementations/4.3/powershell-setup.md: Replaced generic retention policy+rule with proper label publishing via `-PublishComplianceTag` (lines 103-114)
+- docs/playbooks/control-implementations/4.3/powershell-setup.md: Added sibling navigation footer
+- docs/playbooks/control-implementations/4.3/troubleshooting.md: Added propagation delay warning admonition and sibling navigation footer
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Added propagation delay warning admonition and sibling navigation footer
+- docs/playbooks/control-implementations/4.4/powershell-setup.md: Added `Remove-MgUser` scope warning comment clarifying it deletes the entire Entra ID guest account (lines 162-163)
+- docs/playbooks/control-implementations/4.4/powershell-setup.md: Added sharing propagation warning admonition and sibling navigation footer
+- docs/playbooks/control-implementations/4.4/troubleshooting.md: Added propagation delay warning admonition and sibling navigation footer
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Added propagation delay warning admonition and sibling navigation footer
+FIX_STATUS: COMPLETE

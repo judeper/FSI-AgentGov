@@ -1,0 +1,5 @@
+CHANGES:
+- 4.2-site-access-reviews-and-certification.md: Promoted `#### Oversharing Baseline Report (GA)` to `### Oversharing Baseline Report (GA)` (line 79)
+- 4.2-site-access-reviews-and-certification.md: Promoted `#### Additional Data Access Governance Reports (GA)` to `### Additional Data Access Governance Reports (GA)` (line 90)
+- 4.7-microsoft-365-copilot-data-governance.md: Promoted `#### Anthropic Subprocessor (January 2026)` to `### Anthropic Subprocessor (January 2026)` (line 57)
+FIX_STATUS: COMPLETE

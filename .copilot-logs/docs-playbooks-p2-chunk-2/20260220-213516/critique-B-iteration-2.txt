@@ -1,0 +1,14 @@
+I've verified all findings against the actual files. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix #3 (CCPA disambiguation) severity is CORRECT as WARNING+NEEDS_HUMAN_REVIEW. The repo uses "CCPA" elsewhere (controls 1.14, regulatory-mappings.md, governance-fundamentals.md) to mean California Consumer Privacy Act (§1798.100), while 2.11 line 19 correctly references the Consumer Credit Protection Act (15 U.S.C. §1691(a)(3)). This dual usage in an FSI-regulated repo is a genuine ambiguity risk — expanding the acronym is low-risk technically but the regulatory content choice warrants human sign-off.
+- Fix #1 ($Tier → $Zone) severity is accurate. Confirmed 3 occurrences all within one fenced code block — self-contained rename with zero cross-file impact.
+- Fix #2 ($connectorUsage unused) severity is accurate. Single line 34, never referenced again. Trivial dead-code cleanup.
+**FIX_ORDERING:**
+- Fixes 1, 2, and 3 are fully independent — no ordering constraints between them. Execute in any order or in parallel.
+- Fix 4 (formatting normalization) should be deferred and executed last, if at all, since it touches 22 files and is cosmetic. It should not block fixes 1–3.
+**OVER_ENGINEERED:**
+- **Fix #4 is over-engineered.** Normalizing footer/header metadata across 22 files for cosmetic consistency has a high blast radius (22-file diff) for low value. The two formats (blockquote intro + footer vs. header metadata + bottom nav) are both functional and neither breaks builds or confuses readers. This should be a separate batch task under a dedicated formatting-normalization effort, not bundled with substantive content fixes. If pursued now, it inflates the PR diff and obscures the meaningful changes in fixes 1–3.
+**CRITIQUE_SUMMARY:** The review is well-executed — all three substantive findings (fixes 1–3) are confirmed accurate, correctly classified, and independently safe to apply with zero build or cross-reference risk. Fix #4 should be split out as a separate formatting-normalization task to keep this batch's PR clean and reviewable.

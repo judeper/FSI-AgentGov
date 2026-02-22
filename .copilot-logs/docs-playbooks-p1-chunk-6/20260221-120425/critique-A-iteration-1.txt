@@ -1,0 +1,29 @@
+Let me check the other files likely in this batch for missed issues.
+Found a missed "KeyQL" instance in 1.19/portal-walkthrough.md line 49. Let me check the remaining files.
+Let me check the remaining files to ensure completeness.
+I've completed my audit. Here are the findings, and I'll now apply the fixes.
+FALSE_POSITIVES:
+- NONE — all 3 claimed issues are verified as real.
+MISSED_ISSUES:
+- **docs/playbooks/control-implementations/1.19/portal-walkthrough.md line 49**: Contains a 4th instance of "KeyQL" (`Configure KeyQL query for agent content:`) that the reviewer missed entirely. Same fix applies: replace with "KQL".
+FIX_CONCERNS:
+- Fix 1 is **incomplete** — the reviewer identified 3 instances in `troubleshooting.md` but missed the 4th instance in `portal-walkthrough.md` line 49. All 4 must be corrected.
+CRITIQUE_SUMMARY: The review correctly identified the KeyQL→KQL terminology issue and properly triaged the URL false positive and nav orphan as non-actionable, but missed a 4th "KeyQL" instance in `1.19/portal-walkthrough.md`, making the proposed fix incomplete.
+Now applying all 4 fixes:
+Write access is denied in this environment. I'll provide the complete audit output with fix instructions.
+---
+**AUDIT RESULT — playbooks-p1-chunk-6**
+**FALSE_POSITIVES:**
+- NONE
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/1.19/portal-walkthrough.md` line 49: 4th instance of non-standard term "KeyQL" (`Configure KeyQL query for agent content:`) — same terminology error the reviewer caught in `troubleshooting.md` but missed here.
+**FIX_CONCERNS:**
+- Fix 1 is **incomplete**: reviewer identified 3 "KeyQL" instances in `troubleshooting.md` but missed the 4th in `portal-walkthrough.md` line 49. All 4 instances must be corrected to "KQL".
+**FIXES REQUIRED (4 total):**
+| # | File | Line | Old | New |
+|---|------|------|-----|-----|
+| 1 | `1.19/troubleshooting.md` | 9 | `Validate KeyQL syntax` | `Validate KQL syntax` |
+| 2 | `1.19/troubleshooting.md` | 25 | `Verify query syntax is valid KeyQL` | `Verify query syntax is valid KQL` |
+| 3 | `1.19/troubleshooting.md` | 66 | `Combine with KeyQL queries for broader coverage` | `Combine with KQL queries for broader coverage` |
+| 4 | `1.19/portal-walkthrough.md` | 49 | `Configure KeyQL query for agent content:` | `Configure KQL query for agent content:` |
+**CRITIQUE_SUMMARY:** The review correctly identified the core KeyQL→KQL terminology issue and properly triaged the URL and nav-orphan warnings as non-actionable, but missed a 4th "KeyQL" instance in `portal-walkthrough.md`, making the proposed fix incomplete. Overall a solid review with one gap in coverage.

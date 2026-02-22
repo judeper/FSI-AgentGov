@@ -1,0 +1,22 @@
+Now let me read the 3.11 portal-walkthrough which was too large.
+Let me check for language rule violations and the SkuId issue.
+Now I have all the data needed. Let me compile the review.
+ISSUE_COUNT: 12
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/troubleshooting.md:218: PowerShell diagnostic command `$_.AssignedLicenses.SkuId -like "*copilot*"` will never match — `SkuId` is a GUID (e.g., `639dec6b-bb19-468b-871c-c5c441c4b0cb`), not a human-readable string. This filter returns zero results in all cases. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.8/verification-testing.md:216: Regulatory mapping "FINRA (MNPI protection)" is vague — no specific FINRA rule number cited (e.g., FINRA Rule 2241/2242 or FINRA Rule 3110). NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.8/verification-testing.md:348: Footer version `v1.3` is inconsistent with all other files in batch which use `v1.2`
+- docs/playbooks/control-implementations/3.10/troubleshooting.md:87: `Get-AdminFlow` cmdlet may not be the current cmdlet name for Power Automate administration; verify against current Microsoft.PowerApps.Administration.PowerShell module. NEEDS_HUMAN_REVIEW
+- Section A (7 broken external URLs): All 7 flagged URLs are false positives — valid SPA portal URLs returning HTTP 405 to HEAD requests (copilotstudio.microsoft.com, admin.powerplatform.microsoft.com, make.powerautomate.com), intentional placeholder URLs (contoso.sharepoint.com), documented preview APIs (api.powerplatform.com/agentInventory — the doc explicitly states "adjust based on actual API when available"), and valid community URLs (techcommunity.microsoft.com). No content changes needed.
+- Section A (mkdocs nav orphans): 300+ nav entries reference files not present in this worktree. This is a worktree structural issue (branch contains only playbook files, not the full docs/ directory). Not a content defect in the reviewed files.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/3.8/troubleshooting.md:217-219: Replace SkuId string match with GUID-based filter or use `Get-MgUserLicenseDetail` for accurate Copilot license detection. Example fix: replace `-like "*copilot*"` with the known M365 Copilot SKU GUID, or switch to `Get-MgUserLicenseDetail -UserId $_.Id | Where-Object { $_.ServicePlans.ServicePlanName -like "*Copilot*" }`. NEEDS_HUMAN_REVIEW — verify current SKU GUID for your tenant.
+2. docs/playbooks/control-implementations/3.8/verification-testing.md:216: Add specific FINRA rule number for MNPI protection reference (e.g., "FINRA Rule 3110 (MNPI supervisory procedures)"). NEEDS_HUMAN_REVIEW — consult compliance team for preferred citation.
+3. docs/playbooks/control-implementations/3.10/troubleshooting.md:87: Verify `Get-AdminFlow` is still the correct cmdlet; may need updating to current Power Platform admin cmdlet. NEEDS_HUMAN_REVIEW.
+4. Section A broken URLs: No fixes needed — all are valid portal URLs, documented preview endpoints, or intentional placeholders.
+5. Section A nav orphans: No fixes within scope — ensure full docs/ directory is present when building mkdocs site.
+STATUS: ISSUES_FOUND

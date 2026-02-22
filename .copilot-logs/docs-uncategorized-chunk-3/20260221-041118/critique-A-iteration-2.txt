@@ -1,0 +1,20 @@
+Now let me verify the specific claims by checking actual control file names and the instruction file references.
+Let me verify the specific files referenced in the review claims.
+Let me check a few more things to find any missed issues.
+I've verified all claims against the actual filesystem and source files. Here is my critique:
+---
+**FALSE_POSITIVES:**
+NONE
+All 6 issues are verified as real:
+- **CRITICAL #1**: Confirmed by spot-checking control files — 1.3 (SharePoint) is mapped to "Entra ID, Conditional Access"; 1.7 (Audit Logging) to "Custom Connectors, API Management"; 1.12 (Insider Risk) to "Azure Networking, Private Link". Technologies column is systematically shifted.
+- **CRITICAL #2**: All 10 stale file names confirmed against filesystem (e.g., actual `2.12-supervision-and-oversight-finra-rule-3110.md`, not `2.12-agent-identity-and-lifecycle.md`).
+- **All 4 warnings**: Confirmed via grep and file inspection.
+**MISSED_ISSUES:**
+- 06-remediation-backlog.md **item 11** (line 43) also uses stale name `2.12-agent-identity-and-lifecycle.md` — reviewer only called out items 16, 18, 25, 26 but missed this one.
+- 06-remediation-backlog.md **item 61** (line 115) uses stale name `3.6-agent-inventory.md` (actual: `3.6-orphaned-agent-detection-and-remediation.md`) — also not flagged in the reviewer's warning #3 or fix #3.
+- The "Implementation Guides" inconsistency exists not only in `.github/instructions/fsi-control-template.instructions.md` but also in `.github/agents/doc-writer.agent.md` (line 30) and `.github/agents/doc-verifier.agent.md` (line 34) — these additional instances were not flagged.
+- 06-remediation-backlog.md header declares "✅ ALL 87 ITEMS RESOLVED" yet items 11, 16, 18, 25, 26, 51, 61 still contain stale/incorrect references — reviewer noted the stale names but didn't flag the contradiction with the "100% resolved" claim.
+**FIX_CONCERNS:**
+- **Fix #3** is incomplete: only targets items 16, 18, 25, 26 in 06-remediation-backlog.md but items 11 and 61 also have stale file names that need the same correction.
+- **Fix #5** is incomplete: updating 05-documentation-findings.md alone leaves the identical misattribution in 06-remediation-backlog.md item 51 (line 100) uncorrected. Should also note the "Implementation Guides" wording in `doc-writer.agent.md` and `doc-verifier.agent.md`.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all 6 findings are verified, with no false positives. However, it undercounts stale file name propagation in 06-remediation-backlog.md (items 11 and 61 also affected) and the "Implementation Guides" misattribution fix is incomplete (also present in item 51 of the backlog and two agent config files).

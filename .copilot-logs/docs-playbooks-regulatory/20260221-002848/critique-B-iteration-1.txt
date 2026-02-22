@@ -1,0 +1,15 @@
+All data gathered. Here's the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+NONE. All 4 proposed fixes are additive (appending references sections, converting plain text to hyperlinks, replacing a URL). None modify existing nav structure, rename files, or alter cross-references that other files depend on. Zero mkdocs build risk.
+**SEVERITY_CORRECTIONS:**
+- The two CRITICALs are correctly classified. The `<sup>[11]</sup>`/`<sup>[12]</sup>` markers (21 instances) and `[web:21]`/`[web:92]`/`<sup>[3]</sup>` markers (4 instances) are unresolved research citations in published content — readers hit dead references. This is a content integrity issue warranting CRITICAL.
+- The GAP (missing `index.md`) is **over-classified**. mkdocs.yml lines 635–638 define the nav group with explicit page entries — no `index.md` is required for MkDocs Material to render the section. The section will render fine without it. Downgrade to INFORMATIONAL or drop entirely.
+**FIX_ORDERING:**
+- Fixes 1 and 2 (add References sections) are independent and can be done in parallel.
+- Fix 3 (hyperlink control references in supply-chain file) depends on confirming the exact filenames — all 5 referenced controls (2.7, 2.4, 2.3, 1.7, 3.3) exist at expected paths, so this is safe to execute in parallel with fixes 1–2.
+- Fix 4 (colorado.gov link) is independent. However, it requires finding the correct specific URL or making a judgment call to remove, so it should be last (NEEDS_HUMAN_REVIEW for replacement URL).
+- **Recommended order:** Fixes 1+2+3 in parallel → Fix 4 after human confirmation of replacement URL.
+**OVER_ENGINEERED:**
+- The GAP recommendation to create an `index.md` for the regulatory-modules directory is unnecessary. MkDocs Material renders section navigation from mkdocs.yml entries without requiring an index page. The 3 files are already explicitly listed in nav (lines 636–638). Adding an index.md would require a new nav entry and content authoring for zero functional benefit — skip it.
+**CRITIQUE_SUMMARY:** The review correctly identifies the two genuine content defects (unresolved citation markers) and the severity classifications are accurate for those. The GAP item is a false finding — no index.md is needed — and should be dropped to avoid unnecessary work.

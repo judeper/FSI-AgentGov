@@ -1,0 +1,24 @@
+Let me check if the nav orphan issue is a worktree artifact.
+The control files exist — the nav orphans are false positives from the automated tool checking paths from repo root instead of mkdocs `docs_dir`. Now I have complete data for the review.
+ISSUE_COUNT: 9
+CRITICAL:
+- `docs/playbooks/control-implementations/1.16/troubleshooting.md` (line 125): PowerShell cmdlet `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` uses incorrect syntax. The `-Group` parameter does not exist on `Add-AipServiceSuperUser`. The correct cmdlet for adding a group is `Add-AipServiceSuperUserGroup -GroupEmailAddress`. NEEDS_HUMAN_REVIEW.
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md`: Steps 7–9 (Agent Action Consent, Connected Agent Governance, Review Environment Admin Roles) appear AFTER the Validation checklist section (line 96), breaking the logical step-by-step flow. Steps should precede Validation.
+WARNINGS:
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` (line 111): Step 7 uses `## Step 7:` (H2) while Steps 1–6, 8–9 use `### Step N:` (H3) — heading level inconsistency.
+- `docs/playbooks/control-implementations/1.17/troubleshooting.md`: "Last Updated: January 2026" while sibling portal-walkthrough.md and verification-testing.md say "February 2026" — date inconsistency within same control.
+- `docs/playbooks/control-implementations/1.15/troubleshooting.md` (line 27), `1.16/troubleshooting.md` (line 71), `1.17/troubleshooting.md` (lines 26, 54, 78): Code blocks use bare ``` without language tags; should use ```text or appropriate language.
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` and `1.18/verification-testing.md`: Footer says "Version: v1.3" but project version is v1.2.51.
+GAPS:
+- `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Missing "How to Confirm Configuration is Active" section that is present in all other troubleshooting files in this batch (1.15, 1.16, 1.17).
+FIXES:
+1. `docs/playbooks/control-implementations/1.16/troubleshooting.md` (line 124–125): Change `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` to `Add-AipServiceSuperUserGroup -GroupEmailAddress "SG-Compliance-SuperUsers@contoso.com"` (verify correct cmdlet against current AIPService module docs).
+2. `docs/playbooks/control-implementations/1.18/portal-walkthrough.md`: Move Steps 7–9 (lines 111–141) above the Validation section (before line 96), and change `## Step 7:` to `### Step 7:` for consistent heading level.
+3. `docs/playbooks/control-implementations/1.17/troubleshooting.md` (line 3): Change "Last Updated: January 2026" to "Last Updated: February 2026" to match sibling files.
+4. `docs/playbooks/control-implementations/1.15/troubleshooting.md`, `1.16/troubleshooting.md`, `1.17/troubleshooting.md`: Add language tags to bare code blocks (use `text` for portal paths, `powershell` for commands).
+5. `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` and `1.18/verification-testing.md`: Change footer version from "v1.3" to "v1.2" to align with project versioning.
+6. `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Add "How to Confirm Configuration is Active" section with checks for security group existence, PIM configuration status, column-level security enforcement, and access review schedule.
+SECTION A NOTES:
+- **Broken URLs (4)**: All false positives. `https://tenant.sharepoint.com/sites/HR` and `https://tenant-admin.sharepoint.com` are intentional placeholder URLs in `.EXAMPLE` code blocks. `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` are legitimate Microsoft admin portals returning HTTP 405 to unauthenticated crawlers. No fixes needed.
+- **MkDocs nav orphans (~300)**: All false positives. Files exist under `docs/` directory (confirmed by glob). The automated checker appears to have resolved paths from repo root instead of mkdocs `docs_dir`. No fixes needed.
+STATUS: ISSUES_FOUND

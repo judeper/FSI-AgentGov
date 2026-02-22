@@ -1,0 +1,10 @@
+Now I have all the data needed.
+FALSE_POSITIVES:
+NONE — Both claimed issues are confirmed real.
+MISSED_ISSUES:
+- **verification-testing.md lines 126, 143**: Same "June 2026" forward-looking GA date (per MC1191257) appears twice. Reviewer only flagged this pattern in portal-walkthrough.md but missed it in verification-testing.md.
+- **troubleshooting.md line 118**: Same "June 2026" forward-looking GA date appears again ("GA expected June 2026; unified experience will become available for all tenants at GA"). Reviewer missed this third file entirely.
+- Note: portal-walkthrough.md lines 37 and 130 use "Prevent" but these are direct descriptions of Microsoft product capabilities (Purview Get Started wizard step names and DLP product purpose), not control-level compliance claims — NOT violations of FSI language rules.
+FIX_CONCERNS:
+- Fix 2 (June 2026 date) is incomplete: the reviewer only targets portal-walkthrough.md line 231, but the same date claim must also be verified/updated in **verification-testing.md** (lines 126, 143) and **troubleshooting.md** (line 118). All three files should be updated together if the timeline changes.
+CRITIQUE_SUMMARY: The reviewer correctly identified both issues and the pre-pass false-positive dispositions are sound, but missed that the "June 2026" forward-looking date pattern recurs in two additional 1.6 playbook files (verification-testing.md and troubleshooting.md), meaning the fix scope is understated — 3 files need date verification, not 1.

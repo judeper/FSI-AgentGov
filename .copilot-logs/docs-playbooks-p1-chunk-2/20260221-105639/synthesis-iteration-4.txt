@@ -1,0 +1,10 @@
+ISSUE_COUNT: 1
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md (line 14): "DLP administrator access verified" uses non-canonical role name; canonical name is "Purview Compliance Admin" per role catalog and confirmed by parent control 1.5's Roles & Responsibilities table (line 278)
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.5/portal-walkthrough.md (line 14): Change "DLP administrator access verified" to "Purview Compliance Admin access verified"
+STATUS: ISSUES_FOUND

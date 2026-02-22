@@ -1,0 +1,11 @@
+All findings confirmed. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix 4 (GUID verification) is correctly flagged NEEDS_HUMAN_REVIEW. The GUIDs (especially `12a0c4dd-...-9e8e8e8e8e8e` with its repeating `8e` suffix) are almost certainly fabricated placeholders. However, this should be escalated to **WARNING → CRITICAL** — if an admin copies these into a Conditional Access policy, they'd block nothing or block the wrong apps, creating a false sense of security.
+**FIX_ORDERING:**
+- Fixes 1–3 are independent of each other; apply in any order. Fix 4 is blocked on human verification of real Entra app IDs — do not fabricate replacements.
+**OVER_ENGINEERED:**
+- NONE. All three version/date fixes are single-line changes. The Section A dispositions (405 URLs, nav orphans) are correctly dismissed as non-actionable — good restraint.
+**CRITIQUE_SUMMARY:** The review is accurate and well-scoped — fixes 1–3 are trivial metadata corrections with zero cross-reference or build risk. Fix 4 (placeholder GUIDs) deserves a severity bump to CRITICAL since incorrect application IDs in Conditional Access policy examples could lead admins to deploy ineffective security controls.

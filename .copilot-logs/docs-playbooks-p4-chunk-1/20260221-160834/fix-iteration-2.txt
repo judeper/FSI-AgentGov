@@ -1,0 +1,24 @@
+Now I'll apply all fixes. Let me organize the edits by category.
+All 25 edits applied. Let me spot-check a few files to verify correctness.
+All fixes verified:
+- Blockquotes and footers added to all 8 files (4.1/4.2)
+- `PublishComplianceTag` references removed (4.3 verification-testing + troubleshooting)
+- Section heading renamed to "Create Retention Labels and Policy" (4.3 powershell-setup)
+- Governance level headings standardized to `## Configuration by Governance Level` (4.3/4.4)
+- Level N numbering removed from subsection headers (4.3/4.4)
+- The "Level 1/2/3/4" in escalation paths (troubleshooting files) are unrelated to governance levels — those are escalation tiers, correctly left unchanged
+CHANGES:
+- 4.1/portal-walkthrough.md: Added introductory blockquote + footer `*Updated: January 2026 | Version: v1.2*`
+- 4.1/powershell-setup.md: Added introductory blockquote + footer
+- 4.1/verification-testing.md: Added introductory blockquote + footer
+- 4.1/troubleshooting.md: Added introductory blockquote + footer
+- 4.2/portal-walkthrough.md: Added introductory blockquote + footer
+- 4.2/powershell-setup.md: Added introductory blockquote + footer
+- 4.2/verification-testing.md: Added introductory blockquote + footer
+- 4.2/troubleshooting.md: Added introductory blockquote + footer
+- 4.3/powershell-setup.md: Renamed heading "Create and Publish Retention Labels" → "Create Retention Labels and Policy"
+- 4.3/verification-testing.md: Replaced `PublishComplianceTag` with `DistributionStatus`, updated comment
+- 4.3/troubleshooting.md: Replaced `PublishComplianceTag` with `DistributionStatus`, updated comment
+- 4.3/portal-walkthrough.md: Changed `## Governance Level Configurations` → `## Configuration by Governance Level`; removed "(Level 1)", "(Level 2-3)", "(Level 4)" from subsection headers
+- 4.4/portal-walkthrough.md: Changed `## Governance Level Configurations` → `## Configuration by Governance Level`; removed "(Level 1)", "(Level 2-3)", "(Level 4)" from subsection headers
+FIX_STATUS: COMPLETE

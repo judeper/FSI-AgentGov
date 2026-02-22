@@ -1,0 +1,18 @@
+I've read all 15 files. Now let me verify whether the nav orphan entries for files in my batch are actually missing or a worktree artifact.
+All files exist — the nav orphans are false positives from the automated tool (likely a path resolution issue). Now I have all data for my review.
+ISSUE_COUNT: 4
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.13/portal-walkthrough.md: Custom SIT 3 (MNPI Indicators) labels confidence level 65 as "Medium (65)" but per Microsoft's standard SIT confidence tiers, 65 is "Low" — inconsistent with SIT 2 which correctly labels 75 as "Medium (75)". NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/1.12/powershell-setup.md: `Get-InsiderRiskPolicy`, `Get-InsiderRiskAlert`, `Get-InsiderRiskPriorityUserGroup` cmdlets and especially the `-Filter "Status -eq 'NeedsReview'"` parameter syntax should be verified against current module version. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/1.15/portal-walkthrough.md: Zone 3 transit encryption listed as "TLS 1.3 + mTLS" (line 100) — mTLS is not universally supported across all Microsoft 365 services; this may overstate current platform capabilities. NEEDS_HUMAN_REVIEW
+- Inconsistent header metadata across batch: Files for controls 1.13 (troubleshooting), 1.14 (all 4), and 1.15 (both) include a `**Last Updated:**` header line, while 1.11 and 1.12 files use footer-only date format
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.13/portal-walkthrough.md: Change "**Confidence level:** Medium (65)" to "**Confidence level:** Low (65)" for Custom SIT 3 (MNPI Indicators) on line 79 to align with Microsoft's standard confidence tier naming
+NOTES ON PRE-PASS FINDINGS:
+- **Broken URLs (3):** All are false positives. `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` return HTTP 405 because they require authentication (expected for admin portals). `tenant.sharepoint.com/sites/HR` is an intentional placeholder in a `.EXAMPLE` block — not a real link.
+- **MkDocs nav orphans (~300):** All are false positives. Spot-checked files from the orphan list (controls, framework, batch playbooks) — all exist on disk. The automated tool likely had a path resolution issue.
+STATUS: ISSUES_FOUND

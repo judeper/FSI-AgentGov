@@ -1,0 +1,12 @@
+Here is my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Both proposed fixes (1.8 line 314, 1.9 line 151) are isolated to code comment blocks within single files. Neither is cross-referenced by other documents or affects mkdocs navigation. Changes are confined to inline PowerShell comments/snippets with no build impact.
+**SEVERITY_CORRECTIONS:**
+- NONE. Classifications are accurate. The two cmdlet warnings correctly use NEEDS_HUMAN_REVIEW — they are not broken links or build failures, but potential reader confusion issues. The placeholder URL dismissals and mkdocs orphan false-positive calls are sound.
+**FIX_ORDERING:**
+- Fixes 1 and 2 are independent — no ordering dependency. Either can be applied first. Both are single-line, single-file edits.
+**OVER_ENGINEERED:**
+- Fix 1 (1.8 line 314): The review suggests adding an explicit note OR removing the line. Adding a note is sufficient; the line already has a `# For actual API call, use:` comment plus the `[INFO]` fallback below it. Simply appending `(hypothetical — not a real cmdlet)` to the existing comment is the minimal fix. Removing the entire commented block would be over-correction since the surrounding context (lines 316-317) already directs users to the portal UI.
+- Fix 2 (1.9 line 151): Same principle — a brief inline comment `# illustrative — verify cmdlet availability` is sufficient. No need to rewrite the disposition check section.
+**CRITIQUE_SUMMARY:** The review is conservative and well-calibrated — 4 of 6 warnings are correctly dismissed as no-fix-needed, and the 2 actionable fixes are low-risk single-line comment edits with zero cross-reference or build impact.

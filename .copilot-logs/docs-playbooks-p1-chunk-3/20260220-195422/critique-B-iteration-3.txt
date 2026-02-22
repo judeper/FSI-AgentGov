@@ -1,0 +1,16 @@
+Now I have enough data to complete the risk analysis.
+---
+**HIGH_RISK_FIXES:**
+NONE
+**SEVERITY_CORRECTIONS:**
+- Fix 16 (1.13/verification-testing.md attestation gap): Correctly classified as GAP, not WARNING. However, the severity is appropriate — this is a content parity gap, not a broken reference. No correction needed.
+- Fixes 14–15 (1.18 footer normalization — version downgrade from v1.3 to v1.2): **Upgrade to WARNING.** The review proposes downgrading v1.3 → v1.2, but the v1.3 version and Classification fields on the two 1.18 files may be intentional (both 1.18/portal-walkthrough.md and 1.18/verification-testing.md have them, suggesting a deliberate authoring choice, not a typo). Downgrading a version number is a lossy change — if these files were genuinely updated to v1.3 content, reverting the version misrepresents their revision history. **Recommendation:** Remove the Classification field for consistency, but preserve v1.3 unless the batch owner confirms it was accidental.
+**FIX_ORDERING:**
+- Fixes 1–12 (header date corrections) are fully independent of each other — execute in any order or in parallel.
+- Fix 13 (1.18/verification-testing.md footer reorder) must be applied **before** Fix 15 (footer normalization on the same file), since both modify the footer region. Applying Fix 15 first would change the text that Fix 13 needs to match for reordering.
+- Fix 14 (1.18/portal-walkthrough.md footer) is independent of all other fixes.
+- Fix 16 (1.13 attestation addition) is independent of all other fixes.
+**OVER_ENGINEERED:**
+- Fix 13 (reorder nav link and footer + add `---` separator in 1.18/verification-testing.md): The review's description is slightly over-specified. The actual issue in 1.18/verification-testing.md is that the `*Updated:...*` line appears **before** the nav links, reversing standard order. The fix should simply swap the two lines and ensure a `---` separator sits between them — matching 1.14/1.15 standard pattern. No additional restructuring needed.
+- Fix 16 ("Consider adding attestation statement template"): Appropriately hedged with "Consider." Adding a full attestation template section is additive content authoring, not a metadata fix. It belongs in a separate content-enhancement pass, not a consistency/metadata fix batch. Including it here risks scope creep.
+**CRITIQUE_SUMMARY:** The review is accurate and well-classified — all 12 header date fixes (1–12) are safe mechanical changes with zero cross-reference risk. The only analytical concern is Fixes 14–15: downgrading version numbers from v1.3 to v1.2 is a lossy change that should be confirmed as intentional rather than applied as a normalization assumption.

@@ -1,0 +1,21 @@
+Now let me verify the worktree structure to confirm the nav orphans are worktree artifacts.
+All "nav orphan" files actually exist under `docs/` — the automated check appears to have used repo-root paths instead of mkdocs `docs_dir`-relative paths. These are false positives.
+Here is my final review report:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.11/portal-walkthrough.md + verification-testing.md: Inconsistent minimum sample sizes — portal-walkthrough (line 37) states "Minimum 500 test cases per protected class for Zone 1; 1,000 for Zone 2; 2,000 for Zone 3" but verification-testing.md (lines 42-45) states "Binary: 100 per group, Multi-category: 50 per category, Continuous: 200 total." These give conflicting guidance on minimum sample sizes for bias testing.
+- docs/playbooks/control-implementations/2.9/powershell-setup.md (line 48): `Get-AdminPowerAppChatBot` cmdlet may have been renamed to reflect Copilot Studio rebranding (formerly Power Virtual Agents). NEEDS_HUMAN_REVIEW — verify current cmdlet name in Microsoft.PowerApps.Administration.PowerShell module.
+- docs/playbooks/control-implementations/2.9/powershell-setup.md (lines 75-81): Uses `$Tier` parameter naming ("Tier 1/2/3") while the rest of the documentation suite consistently uses "Zone 1/2/3" terminology. The help comment at line 75 even says "Zone 2 governance classification" but the parameter is named `$Tier`.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.11/portal-walkthrough.md + verification-testing.md: Reconcile the minimum sample size guidance. Either (a) align verification-testing.md minimums upward to match portal-walkthrough zone-based sizes, or (b) clarify that portal-walkthrough numbers are recommended operational sizes while verification-testing numbers are statistical minimums. Add a note in one doc cross-referencing the other.
+2. docs/playbooks/control-implementations/2.9/powershell-setup.md: Verify `Get-AdminPowerAppChatBot` is still the correct cmdlet name post-Copilot Studio rebrand. If renamed, update to current cmdlet.
+3. docs/playbooks/control-implementations/2.9/powershell-setup.md: Rename `$Tier` parameter to `$Zone` (and update references on lines 81, 83, 86-89, 92-93) to align with the "Zone" terminology used throughout all other documentation.
+NOTES ON SECTION A FINDINGS:
+- BROKEN EXTERNAL URLS (3): All three URLs (admin.powerplatform.microsoft.com, make.powerautomate.com, copilotstudio.microsoft.com) are valid Microsoft portal URLs. HTTP 405 responses are expected — these portals require authentication and do not respond to unauthenticated GET requests. No fix needed.
+- MKDOCS NAV ORPHANS (~473): FALSE POSITIVES. All referenced files exist correctly under `docs/`. Verified by spot-checking: `docs/controls/index.md`, `docs/framework/executive-summary.md`, `docs/reference/glossary.md`, `docs/downloads/index.md`, `docs/playbooks/control-implementations/2.8/portal-walkthrough.md` — all present. The automated check appears to have looked for files relative to the repo root instead of the mkdocs `docs_dir` (`docs/`). No fix needed.
+STATUS: ISSUES_FOUND

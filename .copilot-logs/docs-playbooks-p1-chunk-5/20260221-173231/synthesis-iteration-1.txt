@@ -1,0 +1,26 @@
+Now let me check the remaining files for code block language tags and other sibling details.
+All files read. Now I have complete data to reconcile. Here is the verified output:
+ISSUE_COUNT: 10
+CRITICAL:
+- `docs/playbooks/control-implementations/1.16/troubleshooting.md` (line 124): PowerShell cmdlet `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` is incorrect — the `-Group` parameter does not exist on `Add-AipServiceSuperUser`. NEEDS_HUMAN_REVIEW. Note: the original review's proposed fix (`Add-AipServiceSuperUserGroup`) is also likely wrong per Critique A; the correct cmdlet is probably `Set-AipServiceSuperUserGroup -GroupEmailAddress`. Verify against current AIPService module docs before fixing.
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md`: Steps 7–9 (lines 111–141) appear AFTER the Validation checklist (line 96), breaking logical step-by-step flow. Steps should precede Validation. Both critiques confirmed.
+WARNINGS:
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` (line 111): `## Step 7:` uses H2 while Steps 1–6, 8–9 use `### Step N:` (H3) — heading level inconsistency.
+- `docs/playbooks/control-implementations/1.17/troubleshooting.md` (line 2): "Last Updated: January 2026" while sibling portal-walkthrough.md and verification-testing.md say "February 2026".
+- `docs/playbooks/control-implementations/1.15/troubleshooting.md` (line 26), `1.16/troubleshooting.md` (line 71), `1.17/troubleshooting.md` (lines 26, 54, 78): Code blocks use bare ``` without language tags; should use ```text for portal paths.
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` (line 147) and `1.18/verification-testing.md` (line 143): Footer says "Version: v1.3" but project version is v1.2.51; should be "v1.2".
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` and `1.18/verification-testing.md`: Internal header/footer date conflict — header (line 3) says "Last Updated: January 2026" but footer says "Updated: February 2026". Missed by original review, caught by both critiques.
+- Footer metadata inconsistency: Only 2 of 16 playbook files in this batch (`1.18/portal-walkthrough.md`, `1.18/verification-testing.md`) include the `*Updated: ... | Version: ... | Classification: ...*` footer line; the remaining 14 files have none.
+GAPS:
+- `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Missing "How to Confirm Configuration is Active" section that is present in all other troubleshooting files in this batch (1.15, 1.16, 1.17).
+- `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Common issues table lists 5 issues but only 3 have corresponding detailed `### Issue:` sections. "Column security not working" and "Access review stuck" lack detailed troubleshooting breakdowns, unlike the other three troubleshooting files in the batch where every table entry has a matching section.
+FIXES:
+1. `docs/playbooks/control-implementations/1.16/troubleshooting.md` (line 124): Replace `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` — verify correct cmdlet against current AIPService module docs (likely `Set-AipServiceSuperUserGroup -GroupEmailAddress "SG-Compliance-SuperUsers@contoso.com"`). NEEDS_HUMAN_REVIEW.
+2. `docs/playbooks/control-implementations/1.18/portal-walkthrough.md`: Move Steps 7–9 (lines 111–141) above the Validation section (before line 96); change `## Step 7:` to `### Step 7:` for consistent heading level.
+3. `docs/playbooks/control-implementations/1.17/troubleshooting.md` (line 2): Change "Last Updated: January 2026" to "Last Updated: February 2026" to match sibling files.
+4. Add language tags to bare code blocks: `1.15/troubleshooting.md` line 26, `1.16/troubleshooting.md` line 71, `1.17/troubleshooting.md` lines 26/54/78 — use ```text for portal navigation paths.
+5. `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` (line 147) and `1.18/verification-testing.md` (line 143): Change "Version: v1.3" to "Version: v1.2".
+6. `docs/playbooks/control-implementations/1.18/portal-walkthrough.md` and `1.18/verification-testing.md`: Reconcile header/footer dates to a single consistent value — recommend "February 2026" in both header and footer.
+7. `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Add "How to Confirm Configuration is Active" section with checks for security group existence, PIM configuration status, column-level security enforcement, and access review schedule.
+8. `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Add detailed `### Issue:` sections for "Column Security Not Working" and "Access Review Stuck" with symptoms, diagnostic steps, and resolution — matching the pattern used by the other 3 detailed sections in the same file and all sibling troubleshooting files.
+STATUS: ISSUES_FOUND

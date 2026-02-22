@@ -1,0 +1,8 @@
+Now I have all the context. Let me apply all 5 fixes:
+Let me verify the changes are correct:
+CHANGES:
+- docs/playbooks/control-implementations/4.1/powershell-setup.md: Standardized RSS property from `IsDataAccessInSharePointOnlineDisabled` to `EnableRestrictedSearchAllList` (Set-SPOTenant and Select-Object)
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 98): Changed `-DisableSharingForNonOwnersStatus $true` to `-DisableSharingForNonOwners` (correct writable parameter)
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (lines 4, 14): Added `Microsoft.Graph` to both the header Modules Required and Prerequisites Install-Module block
+- docs/playbooks/control-implementations/4.5/powershell-setup.md (line 12): Added `Install-Module -Name Microsoft.Graph` to Prerequisites for `Get-MgUserMemberOf` usage
+FIX_STATUS: COMPLETE

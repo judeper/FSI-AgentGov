@@ -1,0 +1,16 @@
+Let me verify the worktree structure to understand the nav orphan context.
+The nav orphan files all exist on disk — this is a false positive from the automated tool. Let me compile the final review.
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE (the ~470 mkdocs nav orphans reported by automated tooling are **false positives** — all referenced files exist on disk at the correct paths under `docs/`. Verified by inspecting `docs/controls/`, `docs/framework/`, `docs/playbooks/control-implementations/`, etc. The automated tool appears to have a path resolution error.)
+WARNINGS:
+- docs/playbooks/control-implementations/1.23/troubleshooting.md (line 48): "Entra Admin" is not a canonical role name per `docs/reference/role-catalog.md`. Should be "Entra Global Admin" or "Entra Authentication Admin" for the authentication methods context.
+- docs/playbooks/control-implementations/1.24/powershell-setup.md: The 2 flagged `https://management.azure.com` URLs (lines 133, 146) are REST API endpoints used in PowerShell code blocks, not documentation links. They correctly return HTTP 400 without authentication. Not actionable — no fix needed.
+- docs/playbooks/control-implementations/1.25/portal-walkthrough.md: The flagged `https://admin.powerplatform.microsoft.com` URL (line 19) is an authentication-gated admin portal. HTTP 405 to unauthenticated crawlers is expected. Not actionable.
+- docs/playbooks/control-implementations/1.26/portal-walkthrough.md: The flagged `https://copilotstudio.microsoft.com` URL (line 20) is an authentication-gated portal. HTTP 405 to unauthenticated crawlers is expected. Not actionable.
+- docs/playbooks/control-implementations/1.26/powershell-setup.md: `Get-AdminPowerAppChatbot` cmdlet is used extensively (lines 51, 130, 209, 302) without the same `!!! warning "Cmdlet Verification Required"` caveat given to `Set-AdminPowerAppChatbot`. NEEDS_HUMAN_REVIEW — verify cmdlet exists in current module versions.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.23/troubleshooting.md (line 48): Change `2. **Entra Admin** - Authentication methods` to `2. **Entra Global Admin** - Authentication methods` to use the canonical role name from the role catalog.
+STATUS: ISSUES_FOUND

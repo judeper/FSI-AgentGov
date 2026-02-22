@@ -1,0 +1,9 @@
+Now I'll apply all 4 fixes simultaneously:
+Verify the changes:
+All 4 fixes applied correctly and verified.
+CHANGES:
+- docs/playbooks/control-implementations/4.7/verification-testing.md (lines 81-87): Replaced generic `Get-MgUser` license count with Copilot-specific SKU filtering using `Get-MgSubscribedSku` and `SkuPartNumber -match 'Copilot'`
+- docs/playbooks/control-implementations/4.7/verification-testing.md (line 90): Aligned `$sensitivePatterns` with powershell-setup.md by adding `"board", "merger", "acquisition"`
+- docs/playbooks/control-implementations/4.7/powershell-setup.md (lines 308-309): Removed unnecessary `Get-SPOSite` connectivity guard; `Disconnect-SPOService` now called directly with `-ErrorAction SilentlyContinue`
+- docs/playbooks/control-implementations/4.7/powershell-setup.md (line 24): Added inline comment `# Replace 'tenant' with your tenant name`
+FIX_STATUS: COMPLETE

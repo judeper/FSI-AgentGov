@@ -1,0 +1,15 @@
+Now let me check the remaining files in the batch and verify a few specific details.
+Now let me check a few more files that might have missed issues.
+Now let me verify the additional `Get-DlpPolicy` instances in the troubleshooting file and check nav link consistency across 1.26 files.
+I now have all the evidence needed. Here is my audit critique:
+---
+**FALSE_POSITIVES:**
+- NONE. All 9 findings in the review are verified as real issues against the actual file contents.
+**MISSED_ISSUES:**
+- **1.28/troubleshooting.md lines 96 and 175**: Fix #1 only targets `Get-DlpPolicy` at troubleshooting.md line 31, but the same cmdlet also appears at lines 96 (`Get-DlpPolicy | Where-Object { $_.Environments -contains $env }`) and 175 (`Get-DlpPolicy | Select-Object DisplayName, PolicyName`), plus the inline comment at line 174 referencing `Get-DlpPolicy`. All three instances need the same fix.
+- **1.26 footer nav links use "Verification Testing" instead of "Verification & Testing"**: All four 1.26 playbooks (portal-walkthrough.md:101, powershell-setup.md:478, troubleshooting.md:234, verification-testing.md:184) use `[Verification Testing]` in footer nav, while 1.27 and 1.28 playbooks consistently use `[Verification & Testing]`. Minor display text inconsistency.
+- **1.28/verification-testing.md Test Case 10 (line 335)**: References `.\Audit-AgentPublishingCompliance.ps1` as a standalone script file, same underlying issue as the Automation Schedule path — the script is only defined inline in powershell-setup.md as Script 3, not as a standalone `.ps1` file.
+**FIX_CONCERNS:**
+- **Fix #1 is incomplete**: The reviewer identified `Get-DlpPolicy` in Script 2 (lines 212-214), Script 3 (line 290), and troubleshooting.md line 31, but missed two additional instances in troubleshooting.md at lines 96 and 175 (plus the comment at line 174). All five code instances across both files need updating.
+- **Fix #4 (add Test 7/Test 8 steps)**: The suggestion to "remove them from the test case table if covered implicitly" is reasonable as an alternative, but should be the secondary option — adding the steps is preferred since these are distinct testable scenarios (Zone 3 default deny enforcement and file count limit) not explicitly covered by Tests 1-6.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all 9 findings are verified as genuine issues with correct diagnoses. The main gap is that Fix #1 undercounts `Get-DlpPolicy` instances in `1.28/troubleshooting.md` (2 additional code instances at lines 96 and 175 were missed), and a minor cross-file nav link text inconsistency in the 1.26 playbooks was overlooked.

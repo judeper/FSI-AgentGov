@@ -1,0 +1,5 @@
+CHANGES:
+- phase-1-minimal-viable-controls.md (line 185): Changed `Configure retention for Zone 3 regulatory requirements` to `Configure retention for Zone 3 per SEC 17a-4 and FINRA Rule 4511 requirements`
+- phase-1-minimal-viable-controls.md (line 201): Changed `Document supervisory procedures per FINRA 3110` to `Document supervisory procedures per FINRA Rule 3110`
+- phase-1-minimal-viable-controls.md (line 253): Changed `Align with OCC 2011-12 / SR 11-7 guidance` to `Align with OCC 2011-12 / Fed SR 11-7 guidance`
+FIX_STATUS: COMPLETE

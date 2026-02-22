@@ -1,0 +1,23 @@
+Now let me read the large deployment guide file in sections.
+Now I have all the data needed for the review. Let me compile findings.
+ISSUE_COUNT: 6
+CRITICAL:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Orphaned code fence (```) at line 859 breaks page rendering — the "### Rollback Procedure" section and subsequent mermaid diagram are swallowed into an unintended code block
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 688)
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 546)
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Version mismatch — header says "v1.2.12" (line 3), footer says "v1.2.10" (line 1032)
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md: Version mismatch — header says "v1.2.48" (line 3), footer says "v1.2.51" (line 283)
+WARNINGS:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md (line 31): Uses prohibited language "ensures consistent security controls from environment creation" — should use "supports consistent" or "helps ensure consistent" per FSI language rules
+- Pre-pass broken external URLs (15 entries): All are false positives — 7 are intentional placeholder domains (yourorg.crm.dynamics.com, contoso.sharepoint.com, contoso.crm.dynamics.com), 8 are API endpoint URIs or OAuth scope strings inside code blocks/inline code that are not clickable links. No documentation fixes needed.
+- Pre-pass nav orphans (~300 entries): Systemic scanner artifact — every single mkdocs.yml nav entry is listed as orphan (including files confirmed present in this worktree), indicating the scanner ran against a partial worktree. No documentation fixes needed.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Remove orphaned ``` on line 859 (between the "Complete Error Handling" admonition and "### Rollback Procedure")
+2. docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md: Update footer (line 688) from "v1.2.10" to "v1.2.12" to match header
+3. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md: Update footer (line 546) from "v1.2.10" to "v1.2.12" to match header
+4. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Update footer (line 1032) from "v1.2.10" to "v1.2.12" to match header
+5. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md: Reconcile version — update header (line 3) from "v1.2.48" to "v1.2.51" to match footer, or vice versa
+6. docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md: Change "ensures consistent security controls" to "supports consistent security controls" on line 31
+STATUS: ISSUES_FOUND

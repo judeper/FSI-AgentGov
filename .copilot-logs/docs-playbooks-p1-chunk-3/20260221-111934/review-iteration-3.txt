@@ -1,0 +1,23 @@
+I've now read all 15 files. Let me verify the worktree structure for the nav orphans.
+The files all exist under `docs/` — the nav orphan checker appears to be checking relative to repo root instead of `docs_dir`. These are false positives. Let me finalize my review.
+ISSUE_COUNT: 7
+CRITICAL:
+- NONE (the ~300 mkdocs nav orphans are false positives — all referenced files exist under `docs/` which is the default `docs_dir`; the checker appears to resolve paths from repo root instead of the docs directory)
+WARNINGS:
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Three example URLs in `.EXAMPLE` comment blocks use non-reserved domains (`defender-webhook.azurewebsites.net`, `my-security-provider.com`, `webhook.example.com`) that could be mistaken for real endpoints; recommend using `example.com` per RFC 2606 consistently
+- docs/playbooks/control-implementations/1.8/verification-testing.md: Placeholder URL `https://your-webhook-endpoint/api/evaluate` in Test 8 (line 81) uses a non-reserved domain; recommend `https://webhook.example.com/api/evaluate`
+- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Policy 4 (Break-Glass) configuration table says "Grant: Block access" which contradicts break-glass emergency access pattern; break-glass accounts should be EXCLUDED from blocking policies, not targeted with a block grant
+- docs/playbooks/control-implementations/1.10/powershell-setup.md: Role group name `"Communication Compliance Admins"` (lines 45, 119) may not match actual Purview role group name `"Communication Compliance"` — NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: PPAC app GUID `5e3ce6c0-2b1f-4285-8d4b-75ee78787346` (line 152) lacks the `# TODO: Replace placeholder` comment that other placeholder GUIDs have, creating ambiguity about whether this is a well-known or placeholder ID — NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/1.9/powershell-setup.md: `Get-ComplianceTagStorage | Get-DispositionItem -Status Pending` (line 151) uses a pipeline pattern with `Get-DispositionItem` which is not a documented cmdlet; the inline comment acknowledges this ("illustrative — verify cmdlet availability") but the command will likely fail — NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: `Set-AdminPowerAppEnvironmentThreatDetection` (line 314) is explicitly noted as "hypothetical — not a real cmdlet" which is good transparency, but could confuse users who copy-paste code blocks without reading comments
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.8/powershell-setup.md: Replace example URLs `defender-webhook.azurewebsites.net` and `my-security-provider.com` with RFC 2606 reserved domains (e.g., `webhook.example.com/api/evaluate`, `security.example.com/webhook`)
+2. docs/playbooks/control-implementations/1.8/verification-testing.md: Replace `https://your-webhook-endpoint/api/evaluate` with `https://webhook.example.com/api/evaluate`
+3. docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Rewrite Policy 4 configuration to clarify that break-glass accounts should be EXCLUDED from all blocking policies (not targeted with "Block access" grant), or change the policy description to accurately reflect a monitoring-only intent
+4. docs/playbooks/control-implementations/1.10/powershell-setup.md: Verify the actual Purview role group name for Communication Compliance admins and update `"Communication Compliance Admins"` if the built-in group is named differently (NEEDS_HUMAN_REVIEW)
+5. docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Add `# placeholder, replace with actual app ID` comment to PPAC GUID on line 152, consistent with other placeholder GUIDs in the file
+6. mkdocs.yml nav orphans: No fix needed — automated checker false positive; all ~300 referenced files exist correctly under `docs/` directory
+STATUS: ISSUES_FOUND

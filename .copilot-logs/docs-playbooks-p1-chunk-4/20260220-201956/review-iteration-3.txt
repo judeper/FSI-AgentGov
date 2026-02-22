@@ -1,0 +1,14 @@
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN
+**Section A Notes (pre-pass findings):**
+- **Broken External URLs (3):** All false positives. `https://admin.powerplatform.microsoft.com` (HTTP 405) is a valid admin portal that rejects unauthenticated GET requests. The two `https://management.azure.com` URLs (HTTP 400) are Azure REST API endpoints used as `ResourceUrl` parameters in PowerShell `Get-AzAccessToken` calls and `Invoke-RestMethod` URIs — they are code values, not navigable links. No fixes needed.
+- **MkDocs Nav Orphans (300+):** These are a worktree artifact — this partial worktree contains only playbook files, while `mkdocs.yml` references the full site (controls, framework, reference, etc.). The referenced files exist in the main repo but are not present in this worktree checkout. No changes to the 25 reviewed playbook files are needed.
+**Review summary across all 25 files:** No prohibited language violations found. All internal cross-references between sibling playbooks resolve correctly. All external file references (`docs/templates/exception-template.md`, `scripts/governance/FsiMimeControl.psm1`, zone template JSONs) exist. Heading hierarchies are consistent (H1→H2→H3). Code blocks use correct language tags (`powershell`, `kql`, `markdown`). PowerShell cmdlets and parameters appear valid. Regulatory references are contextually appropriate without overclaims.

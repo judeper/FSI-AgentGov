@@ -1,0 +1,14 @@
+All claims verified. Here is the final synthesized review:
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.22/portal-walkthrough.md: H1 title uses "Information Barriers for AI Agents" (matching control doc 1.22), but the other three 1.22 playbooks (powershell-setup, verification-testing, troubleshooting) use "Information Barriers" — inconsistent naming. The portal-walkthrough is correct per the control doc; the other three playbooks are the outliers.
+- docs/playbooks/control-implementations/1.21/portal-walkthrough.md and powershell-setup.md: KQL queries reference `AuditLogs` table in 4 places (portal-walkthrough lines 40, 55; powershell-setup lines 91, 260). `AuditLogs` contains Entra ID audit data; Copilot interaction data typically ingests into `OfficeActivity` or dedicated Copilot tables depending on connector configuration. NEEDS_HUMAN_REVIEW.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.22/powershell-setup.md, verification-testing.md, troubleshooting.md: Update H1 titles from "Information Barriers" to "Information Barriers for AI Agents" to match the control doc and portal-walkthrough. All four playbook titles must be consistent with the parent control.
+2. docs/playbooks/control-implementations/1.21/portal-walkthrough.md (lines 40, 55) and powershell-setup.md (lines 91, 260): NEEDS_HUMAN_REVIEW — verify the Sentinel table name (`AuditLogs` vs `OfficeActivity`/`CopilotInteractions`) matches the actual data connector configuration for Copilot interactions in your environment. All 4 occurrences across both files must be updated together if the table name changes.
+STATUS: ISSUES_FOUND

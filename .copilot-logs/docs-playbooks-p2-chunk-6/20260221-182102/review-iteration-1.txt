@@ -1,0 +1,16 @@
+All 15 files read and all batch files confirmed to exist in the worktree. Here is my review:
+ISSUE_COUNT: 2
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 3 (`Get-ConsentRecords.ps1`) defines `Get-AccessToken` helper function at line 376 AFTER it is called at line 335 inside the `try` block. PowerShell `.ps1` scripts execute top-to-bottom; this ordering causes a runtime error if copied verbatim. Move the function definition above the `try` block.
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 2 (`Get-AgentDisclosureInventory.ps1`) uses `Get-AdminPowerAppChatBot` (line 188) and `Get-AdminPowerAppChatBotTopic` (line 195) — these are not standard cmdlets in `Microsoft.PowerApps.Administration.PowerShell`. The script has a partial disclaimer ("note: actual API may differ") but the cmdlet names should be verified or more prominently marked as conceptual. NEEDS_HUMAN_REVIEW.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.23/powershell-setup.md: In Script 3, move the `Get-AccessToken` function definition (lines 376-383) to BEFORE the `try` block (above line 300) so the function is defined before its call site at line 335.
+2. docs/playbooks/control-implementations/2.23/powershell-setup.md: In Script 2, add explicit "Conceptual — verify cmdlet availability" comments on `Get-AdminPowerAppChatBot` and `Get-AdminPowerAppChatBotTopic` lines, or replace with Dataverse Web API calls matching the pattern used in Script 3. NEEDS_HUMAN_REVIEW.
+**Note on Section A automated findings:**
+- **BROKEN EXTERNAL URLS (all 16):** All are false positives. They fall into three categories: (1) admin portal URLs that return 405 to unauthenticated scanners (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com, make.powerautomate.com, graph.microsoft.com); (2) intentional example/placeholder domains (contoso.sharepoint.com, tenant.sharepoint.com, org12345.crm.dynamics.com, intranet.contoso.com, contoso.crm.dynamics.com); (3) API endpoint URLs in code examples (api.bap.microsoft.com). No fixes warranted.
+- **MKDOCS NAV ORPHANS:** Verified via filesystem — ALL referenced files exist in this worktree (confirmed `docs/controls/`, `docs/framework/`, `docs/reference/`, `docs/getting-started/`, `docs/index.md`, and all batch playbook files). The automated orphan detection produced false positives. No fixes warranted.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,12 @@
+Both issues confirmed in source. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE — Both fixes are single-line text changes within prose content. No cross-references, links, anchors, headings, or mkdocs structure are affected. Zero build risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (1.2 line 63): Severity is correctly classified as CRITICAL. "ensures" is explicitly on the prohibited phrase list per `.github/instructions/fsi-language-rules.instructions.md`. The proposed replacement ("requires") is accurate and appropriate — it conveys the same operational meaning without implying a legal guarantee.
+- Fix 2 (1.6 line 37): Severity is correctly classified as WARNING. "Prevent" alone is not prohibited, but as an absolute claim in a task description table it borders on overclaim. The text appears to mirror Microsoft's DSPM UI language, so hedging to "Helps prevent" is proportionate.
+**FIX_ORDERING:**
+- NONE — The two fixes are independent, in different files, with no dependencies. They can be applied in any order or simultaneously.
+**OVER_ENGINEERED:**
+- NONE — Both fixes are minimal single-word insertions/substitutions. The reviewer correctly avoided rewriting surrounding sentences or restructuring content.
+**CRITIQUE_SUMMARY:** Both proposed fixes are low-risk, correctly scoped, and appropriately classified. The false-positive assessments for URLs and nav orphans are sound — no action is needed beyond the two text changes.

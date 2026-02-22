@@ -1,0 +1,11 @@
+Confirmed the critical cmdlet issue at the cited lines. Both critiques validated all findings — no false positives, no missed issues. Both critiques agree fixes 2 & 3 should be deferred to a repo-wide placeholder normalization pass.
+ISSUE_COUNT: 1
+CRITICAL:
+- docs/playbooks/control-implementations/1.16/troubleshooting.md (line 124): Incorrect PowerShell cmdlet `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"`. The `Add-AipServiceSuperUser` cmdlet accepts `-EmailAddress` for individual users, not `-Group`. For group-based super user access, the correct cmdlet is `Set-AipServiceSuperUserGroup -GroupEmailAddress`. NEEDS_HUMAN_REVIEW
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.16/troubleshooting.md (lines 123-124): Replace `# Add super user group` / `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` with `# Set super user group (requires group email address)` / `Set-AipServiceSuperUserGroup -GroupEmailAddress "SG-Compliance-SuperUsers@contoso.com"`. NEEDS_HUMAN_REVIEW — confirm against current Microsoft AIPService module docs before applying.
+STATUS: ISSUES_FOUND

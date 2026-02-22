@@ -1,0 +1,27 @@
+Let me verify additional details.
+Now let me verify the remaining status contradictions the reviewer may have missed.
+I now have all the data needed. Here is the audit.
+---
+**FALSE_POSITIVES:**
+- **CRITICAL - DECR status contradiction (partial):** The reviewer claims DECR's body text says "Completed" (line 130) but summary says "Validated" (line 659). This is **confirmed real**, not a false positive. However, note it's the reviewer's characterization of the summary that's imprecise — the summary lists DECR under "Validated" while the body says "Completed." Those are different labels in this framework (Validated is a post-Completed gate). The finding direction is correct.
+- **WARNING - "Full compliance" language (lines 62-68):** This is a **borderline call, not a false positive**, but the severity is debatable. "Full compliance" here labels the scope of regulatory applicability per zone, not a guarantee the framework delivers compliance. However, given FSI language rules prohibit "ensures compliance" and the phrase could be misread, the WARNING classification is appropriate. No false positive.
+NONE confirmed. All findings are substantiated by file content.
+---
+**MISSED_ISSUES:**
+- **CRITICAL - 5 additional status contradictions in solutions-integration.md not flagged.** The reviewer only caught 2 of 7 body-vs-summary status conflicts:
+  - **FUS (File Upload Security):** body line 372 = "Work In Progress", summary line 658 lists FUS under "Completed"
+  - **AAM (Agent Access Monitor):** body line 404 = "Work In Progress", summary line 658 lists AAM under "Completed"
+  - **COI (Conflict of Interest Testing):** body line 286 = "Planned", summary line 660 lists under "Work In Progress"
+  - **HT (Hallucination Tracker):** body line 309 = "Planned", summary line 660 lists under "Work In Progress"
+  - **DR (DR Testing Framework):** body line 332 = "Planned", summary line 660 lists under "Work In Progress"
+- **WARNING - Summary "Planned: 0" contradicts body text.** The body has 3 solutions explicitly marked `**Status:** Planned` (COI line 286, HT line 309, DR line 332), but the summary at line 661 says "Planned: 0 solutions."
+- **WARNING - 8 phantom solution abbreviations in summary with no detail sections.** Summary line 658 lists CHB, AUPW, UASD, ASCG, MIME, ITE, ASARD, AOF as Completed solutions, but none of these have corresponding `###` sections in the body. These solutions are counted in the "27 total" but are undocumented in the file.
+- **WARNING - Mermaid diagram internal inconsistency.** The diagram subgraph label says "24 Deployable Automation Solutions" (line 21) but only renders 19 nodes (ELM through CSI). The reviewer flagged the 24-vs-body discrepancy but didn't note the diagram is also internally inconsistent with itself.
+- **INFO - Three solutions (ELM, MCM, PGC) lack explicit `**Status:**` fields** while all 15 other solution sections include one. Minor structural inconsistency in section format.
+---
+**FIX_CONCERNS:**
+- **Fix 3 is incomplete.** It only addresses 2 of 7 status contradictions (DECR and SDD). The fix must also reconcile FUS, AAM, COI, HT, DR statuses between body and summary, and either add detail sections for the 8 phantom abbreviations or remove them from the summary count.
+- **Fix 2 needs clarification.** The reviewer says to update the mermaid label "from 24 to match the actual count." But the correct count is ambiguous — is it 19 (nodes in diagram), 18 (detail sections in body), 25 (summary deployable count), or something else? The fix should first determine the authoritative count from the companion repo, then align all three locations (diagram label, diagram nodes, and summary stats).
+- **Fix 1 cannot be independently verified.** The broken URL claim is based on an automated pre-pass returning HTTP 400. I could not confirm this (network access restricted). Recommend **NEEDS_HUMAN_REVIEW** — manually verify the URL before acting.
+---
+**CRITIQUE_SUMMARY:** The review correctly identified the major problem areas (solution count inconsistency, status contradictions, RACI violation, version drift) but significantly undercounted the status contradictions — finding 2 of 7 — and missed that the summary references 8 solutions with no corresponding detail sections. Fix 3 should be expanded to cover all 7 contradictions and the phantom abbreviations before execution.

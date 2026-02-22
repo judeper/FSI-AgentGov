@@ -1,0 +1,12 @@
+Now let me do a broader scan for potential missed issues.
+Let me check a few more potential issues in the scoped files.
+All findings verified. Here is my critique:
+---
+**FALSE_POSITIVES:**
+- NONE — All four substantive findings (Issues 1–3 and the formatting inconsistency) are confirmed as real.
+**MISSED_ISSUES:**
+- docs/playbooks/control-implementations/2.9/powershell-setup.md line 173: The HTML report template also contains a `<th>Tier</th>` column header that should be `<th>Zone</th>`. The reviewer's fix suggestion for Issue 1 mentions `$Tier`, `$thresholds`, and display strings but does not mention this HTML table header, so the fix would leave one "Tier" reference behind.
+**FIX_CONCERNS:**
+- Fix 1 (Tier→Zone): Mostly correct but incomplete — must also update the `<th>Tier</th>` on line 173 to `<th>Zone</th>` to avoid a residual terminology mismatch.
+- Fix 4 (formatting normalization): The reviewer correctly identifies the inconsistency but offers two directions (add footer to 2.8–2.13, or remove footer from 2.7) without recommending one. Given that 2.8–2.13 represent 22 of the 25 files in scope (the majority pattern), normalizing 2.7's 4 files to match the majority pattern (header metadata, bottom nav, no footer line) would be the lower-risk direction.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all flagged issues are real, the false-positive dismissals are correct, and the NEEDS_HUMAN_REVIEW escalation on the CCPA acronym is appropriate. The only gap is a missed `<th>Tier</th>` HTML reference on line 173 of the same file as Issue 1, which would survive the proposed fix.

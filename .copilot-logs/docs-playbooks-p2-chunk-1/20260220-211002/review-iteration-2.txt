@@ -1,0 +1,28 @@
+Now I have all 25 files. Let me compile findings.
+Good - confirmed the "ensures" language at 2.3/portal-walkthrough.md:53. Now let me verify the Exchange module issue in 2.6.
+Confirmed: `Search-UnifiedAuditLog` is used (line 29) but the file has no prerequisites section listing the required `ExchangeOnlineManagement` module. The file jumps directly into scripts without a prerequisites block.
+Here is my complete review:
+---
+ISSUE_COUNT: 17
+CRITICAL:
+- 2.6/powershell-setup.md: `Search-UnifiedAuditLog` cmdlet (line 29) requires the `ExchangeOnlineManagement` module and `Connect-ExchangeOnline`, but no prerequisites section exists in this file listing the required module or connection. Script will fail without it.
+WARNINGS:
+- 2.1/portal-walkthrough.md: Steps 11-14 (lines 257-293) appear AFTER the Validation section (lines 239-253), breaking logical document flow. Validation references items configured in Steps 11-14 that a reader hasn't reached yet.
+- 2.1/powershell-setup.md: Missing footer metadata line (`*Updated: ... | Version: ... | Classification: ...*`); other 2.1 playbooks have it.
+- 2.1/troubleshooting.md: Missing footer metadata line; inconsistent with portal-walkthrough.md and verification-testing.md which have v1.3 footers.
+- 2.3/portal-walkthrough.md (line 53): Near-prohibited language — "This ensures every environment used in pipelines meets Microsoft Enterprise compliance standards." While referencing platform standards (not regulatory), "ensures...compliance standards" is close to the prohibited "ensures compliance" pattern. Recommend: "This helps ensure..."
+- 2.6/portal-walkthrough.md (lines 65-68): GPT-5 listed as "GA (Nov 2025)" and GPT-5.2 as "Preview" — these model names and availability dates are unverifiable. NEEDS_HUMAN_REVIEW.
+- Section A pre-pass: 8 broken external URLs are all portal URLs returning HTTP 405 to bots (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com) or placeholder/example URLs in code blocks (dev-fsi.crm.dynamics.com, yourorg.crm.dynamics.com, etc.). Non-actionable — these are by design.
+- Section A pre-pass: 2 "broken internal links" (`[$responseTimes.Count * 0.5]` and `[$responseTimes.Count * 0.95]` in 2.5/powershell-setup.md) are false positives — PowerShell array indexing expressions inside fenced code blocks, not markdown links.
+- Section A pre-pass: ~469 mkdocs nav orphans listed. These are a systemic worktree issue — all referenced files (including the 25 files in this review batch) are reported as missing, yet they exist and are readable. The orphan checker likely ran against incorrect paths.
+GAPS:
+- NONE
+FIXES:
+1. 2.6/powershell-setup.md: Add a `## Prerequisites` section before the first script block listing `ExchangeOnlineManagement` module installation (`Install-Module -Name ExchangeOnlineManagement`) and `Connect-ExchangeOnline` connection step.
+2. 2.1/portal-walkthrough.md: Move Steps 11-14 (Restrict Environment Creation, Configure Environment Routing, Enable Tenant Isolation, Assign Environment Security Groups) to before the Validation section so all configuration steps precede validation.
+3. 2.1/powershell-setup.md: Add footer metadata: `*Updated: February 2026 | Version: v1.3 | Classification: PowerShell Setup*`
+4. 2.1/troubleshooting.md: Add footer metadata: `*Updated: February 2026 | Version: v1.3 | Classification: Troubleshooting*`
+5. 2.3/portal-walkthrough.md (line 53): Change "This ensures every environment" to "This helps ensure every environment"
+6. 2.6/portal-walkthrough.md: Verify GPT-5/GPT-5.2 model names and GA dates against current Microsoft documentation (NEEDS_HUMAN_REVIEW — not auto-fixable)
+7. Section A nav orphans: Verify mkdocs nav orphan checker is running from the correct docs_dir path; re-run after confirming worktree file presence.
+STATUS: ISSUES_FOUND

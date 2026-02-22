@@ -1,0 +1,5 @@
+The single remaining issue is in `app-insights-rai-telemetry.md`, which is explicitly **outside the batch scope**. Per the SCOPE CONSTRAINT, I must skip it.
+All in-scope issues were already resolved in previous iterations.
+CHANGES:
+- (none — the only remaining issue is in a file outside batch scope and must be skipped per security requirement)
+FIX_STATUS: COMPLETE

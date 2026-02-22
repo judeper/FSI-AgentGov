@@ -1,0 +1,10 @@
+Now let me see the end of each file to find where to insert the cross-nav footers.
+Now let me check an existing 4.3-4.6 file for the cross-nav footer pattern.
+Now I have the pattern. Let me apply the fixes to all three files.
+Verify the changes:
+All three fixes applied correctly, matching the pattern from 4.3–4.6. Each footer links back to Control 4.7 and to the other three sibling playbooks (excluding self).
+CHANGES:
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: Added cross-navigation footer with links to Control 4.7, Portal Walkthrough, Verification Testing, and Troubleshooting
+- docs/playbooks/control-implementations/4.7/troubleshooting.md: Added cross-navigation footer with links to Control 4.7, Portal Walkthrough, PowerShell Setup, and Verification Testing
+- docs/playbooks/control-implementations/4.7/verification-testing.md: Added cross-navigation footer with links to Control 4.7, Portal Walkthrough, PowerShell Setup, and Troubleshooting
+FIX_STATUS: COMPLETE

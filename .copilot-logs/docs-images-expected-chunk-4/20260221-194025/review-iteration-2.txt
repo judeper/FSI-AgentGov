@@ -1,0 +1,14 @@
+Both fixes confirmed:
+1. **docs/images/1.11/EXPECTED.md (line 21):** ✅ Fixed — now reads "Risk-based policies for Zone 3 environments" (removed invalid "Zone 4" reference).
+2. **docs/images/3.8/EXPECTED.md (line 1):** ✅ Fixed — now reads "# Control 3.8: Copilot Hub and Governance Dashboard" (full title).
+No new problems introduced by either fix.
+ISSUE_COUNT: 0
+CRITICAL:
+- NONE
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+- NONE
+STATUS: CLEAN

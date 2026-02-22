@@ -1,0 +1,19 @@
+Here is the risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 2** (architecture.md table restructure): Moving the admonition block (lines 93–95) to after line 129 is structurally correct, but the executor must preserve the exact table pipe-alignment on the rows that follow (lines 96–129) so they re-attach to the header at line 83. Misalignment would break the entire table. Risk: **MEDIUM** — verify with `mkdocs build --strict` after the move.
+- **Fix 11** (severity reconciliation in hardening baseline): The review correctly identified that items 9, 28–32 are labeled "Medium" in the checklist tables but cited as "High-severity" in the review scope at line 134. However, the fix must decide *which side is wrong* — the scope or the severity labels. Changing severity labels could affect any automation scripts (none found in this worktree, but the companion `FSI-AgentGov-Solutions` repo may reference them). Risk: **MEDIUM** — recommend changing line 134's parenthetical to "High and medium-severity items" rather than re-labeling checklist severities.
+**SEVERITY_CORRECTIONS:**
+- **Fix 9** ("immutable" overclaim) should be escalated from WARNING to **CRITICAL**. The FSI language rules explicitly prohibit overclaims, and "immutable" directly contradicts the ELM architecture doc (line 192–193) which states System Admins retain full access. This is a compliance liability, not just a style issue.
+- All other severity classifications are accurate. The two CRITICALs (version mismatch, broken table) are correctly identified as rendering/accuracy defects.
+**FIX_ORDERING:**
+1. **Fix 2** first (broken table) — rendering defect blocks readers from accessing content
+2. **Fix 1** (v1.3 → v1.2.51) — factual error, no dependencies
+3. **Fix 9** (immutable overclaim) — compliance language violation
+4. **Fixes 4–8** (footer version bumps) — batch together, independent, zero risk
+5. **Fix 11** (severity scope) — after deciding scope-vs-label direction
+6. **Fix 3** (Dataverse naming note) — lowest priority, optional
+7. **Fix 10** (Reg BI) — deferred to human review, do not attempt
+**OVER_ENGINEERED:**
+- **Fix 3** (Dataverse naming clarification note): Over-engineered. `fsi_denyevents` (entity set / OData) vs. `fsi_DenyEvent` (display name) are standard Dataverse conventions that Power BI practitioners already understand. The files serve different audiences (Power BI setup vs. architecture overview). Adding a note adds clutter for minimal reader benefit. **Recommend: skip this fix.**
+**CRITIQUE_SUMMARY:** The review is thorough and well-evidenced — 10 of 11 findings are confirmed valid with correct line references. The only adjustment needed is promoting Fix 9 to CRITICAL (FSI language rule violation) and skipping Fix 3 as unnecessary.

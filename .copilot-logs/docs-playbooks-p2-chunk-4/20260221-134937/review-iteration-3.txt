@@ -1,0 +1,20 @@
+Now I have all 15 files reviewed. Let me check for cross-reference consistency and the portal-walkthrough for 2.12 (not in batch but referenced).
+All cross-referenced files exist. Now let me compile my final review report.
+ISSUE_COUNT: 9
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.13/powershell-setup.md: Validation script Check 3 (line 167) references only "WORM Storage" but the companion portal-walkthrough documents both WORM and audit-trail alternatives per the October 2022 SEC 17a-4 amendments. The check description should say "WORM Storage or Audit-Trail Alternative" for consistency.
+- docs/playbooks/control-implementations/2.14/powershell-setup.md: Prerequisites (line 15) request `LearningContent.Read.All` Graph scope, but no script in the file uses Viva Learning APIs. The actual scripts use `User.Read.All` and `RoleManagement.Read.All` (line 36). Unnecessary scope request violates least-privilege principle.
+- docs/playbooks/control-implementations/2.12/powershell-setup.md: Broken URL `https://tenant.sharepoint.com/sites/AIGovernance` (HTTP -1) — false positive; this is an intentional placeholder in `.EXAMPLE` blocks. No fix needed.
+- docs/playbooks/control-implementations/2.13/portal-walkthrough.md: Broken URL `https://tenant.sharepoint.com/sites/AI-Governance` (HTTP -1) — false positive; intentional placeholder in YAML example block. No fix needed.
+- docs/playbooks/control-implementations/2.13/powershell-setup.md: Broken URL `https://tenant-admin.sharepoint.com` (HTTP -1) — false positive; intentional placeholder in `.EXAMPLE` blocks. No fix needed.
+- docs/playbooks/control-implementations/2.14/powershell-setup.md: Broken URL `https://learning.company.com/ai-governance` (HTTP -1) — false positive; intentional placeholder default parameter value. No fix needed.
+- docs/playbooks/control-implementations/2.15/portal-walkthrough.md: Broken URLs `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` (HTTP 405) — false positives; legitimate Microsoft portal URLs that require authentication. No fix needed.
+- mkdocs.yml nav orphans (300+ entries): Systemic worktree issue — this is an isolated worktree (`.ralph-doc-worktrees/`) that does not contain the full docs tree. The batch files themselves exist at their expected paths. No fix needed in batch files.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.13/powershell-setup.md (line 167): Change `Write-Host "[Check 3] WORM Storage" -ForegroundColor Cyan` to `Write-Host "[Check 3] SEC 17a-4 Compliant Storage (WORM or Audit-Trail)" -ForegroundColor Cyan` and update the info line (line 168) from `"[INFO] Verify immutable storage for Zone 3 (SEC 17a-4)"` to `"[INFO] Verify WORM storage or audit-trail alternative for Zone 3 (SEC 17a-4)"` to match the portal-walkthrough's documented options.
+2. docs/playbooks/control-implementations/2.14/powershell-setup.md (line 15): Change `Connect-MgGraph -Scopes "User.Read.All", "LearningContent.Read.All"` to `Connect-MgGraph -Scopes "User.Read.All", "RoleManagement.Read.All"` to match the scopes actually used by the scripts and follow least-privilege.
+STATUS: ISSUES_FOUND

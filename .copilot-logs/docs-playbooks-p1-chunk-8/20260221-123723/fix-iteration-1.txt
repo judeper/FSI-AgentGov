@@ -1,0 +1,11 @@
+Now let me also check the powershell-setup.md for the disclaimer pattern to use:
+Now I have all context. Let me apply all 6 fixes:
+Now let me verify the changes and commit:
+All 6 fixes applied across 4 files. The commit was blocked by permissions but the changes are staged.
+CHANGES:
+- docs/playbooks/control-implementations/1.27/troubleshooting.md: Changed "Get-AgentModerationSettings.ps1" → "Get-AgentModerationInventory.ps1" (line 230)
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: Replaced non-existent `Test-PowerAppChatBotDlpCompliance` with `Get-DlpPolicy` + disclaimer at lines 27-33 and line 172
+- docs/playbooks/control-implementations/1.28/portal-walkthrough.md: Fixed footer "Verification Testing" → "Verification & Testing"
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Fixed footer "Verification Testing" → "Verification & Testing"
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: Fixed footer "Verification Testing" → "Verification & Testing"
+FIX_STATUS: COMPLETE

@@ -1,0 +1,18 @@
+Verified all claims against source files. Here is the final corrected review:
+---
+ISSUE_COUNT: 4
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/troubleshooting.md:218: PowerShell diagnostic command `$_.AssignedLicenses.SkuId -like "*copilot*"` will never return results — `SkuId` is a GUID (e.g., `639dec6b-bb19-468b-871c-c5c441c4b0cb`), not a human-readable string. Any admin running this will get empty output and incorrectly conclude no users have Copilot licenses. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.8/verification-testing.md:216: Regulatory mapping "FINRA (MNPI protection)" is vague — no specific FINRA rule number cited (e.g., FINRA Rule 2241/2242 or FINRA Rule 3110). NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.10/troubleshooting.md:87: `Get-AdminFlow` is a valid cmdlet in the Microsoft.PowerApps.Administration.PowerShell module but cmdlet names change over time — verify against current module version. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.12: Three of four playbook files (verification-testing.md, powershell-setup.md, troubleshooting.md) are missing the required `*Updated: Month Year | Version: vX.X*` footer line. Only portal-walkthrough.md has it. Template compliance gap.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/3.8/troubleshooting.md:218: Replace `-like "*copilot*"` with the known M365 Copilot SKU GUID (e.g., `-eq "639dec6b-bb19-468b-871c-c5c441c4b0cb"`), or use `SkuPartNumber -eq "Microsoft_365_Copilot"` via `Get-MgSubscribedSku`. Do not use per-user `Get-MgUserLicenseDetail` inside a pipeline over all users — it creates O(n) Graph API calls and will throttle on larger tenants. NEEDS_HUMAN_REVIEW — verify current SKU GUID for your tenant.
+2. docs/playbooks/control-implementations/3.8/verification-testing.md:216: Add specific FINRA rule number for MNPI protection reference (e.g., "FINRA Rule 3110 (MNPI supervisory procedures)"). NEEDS_HUMAN_REVIEW — consult compliance team for preferred citation.
+3. docs/playbooks/control-implementations/3.10/troubleshooting.md:87: Verify `Get-AdminFlow` is still the current cmdlet name in the latest Microsoft.PowerApps.Administration.PowerShell module release. NEEDS_HUMAN_REVIEW.
+4. docs/playbooks/control-implementations/3.12/{verification-testing,powershell-setup,troubleshooting}.md: Add missing footer metadata line `*Updated: February 2026 | Version: v1.2*` to match portal-walkthrough.md.
+STATUS: ISSUES_FOUND

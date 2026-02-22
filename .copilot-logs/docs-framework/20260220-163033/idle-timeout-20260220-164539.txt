@@ -1,0 +1,7 @@
+Timestamp: 2026-02-20T16:45:39.4113290-06:00
+Attempt: 1/3
+Model: claude-opus-4.6-fast
+Idle Timeout: 300s
+Partial Output:
+
+Stderr:

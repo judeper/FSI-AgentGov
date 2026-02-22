@@ -1,0 +1,16 @@
+All findings verified. Here is the final synthesized review:
+ISSUE_COUNT: 5
+CRITICAL:
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 98): `Set-SPOSite` uses `-DisableSharingForNonOwnersStatus $true` — this is a read-only property returned by `Get-SPOSite`, not a writable parameter. The command will throw a PowerShell error at runtime. The correct writable parameter is likely `-DisableSharingForNonOwners`. NEEDS_HUMAN_REVIEW — verify against current SPO module docs.
+WARNINGS:
+- docs/playbooks/control-implementations/4.1/powershell-setup.md (lines 77, 84) vs 4.1/troubleshooting.md (lines 134, 171) and 4.6/powershell-setup.md (lines 194, 197): RSS property name inconsistency across controls. 4.1/powershell-setup.md uses the older `IsDataAccessInSharePointOnlineDisabled` while 4.1/troubleshooting.md, 4.6/powershell-setup.md, and 4.6/troubleshooting.md all use the current `EnableRestrictedSearchAllList`. Admins following 4.1 and 4.6 together will see conflicting cmdlet syntax. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (lines 163–166): "Audit Guest Access" section uses `Get-MgUser` and `Remove-MgUser` (Microsoft.Graph module), but Prerequisites (line 14) only lists `Microsoft.Online.SharePoint.PowerShell`. Admins will hit `CommandNotFoundException`.
+- docs/playbooks/control-implementations/4.5/powershell-setup.md (line 174): `Get-MgUserMemberOf` requires `Microsoft.Graph`, but Prerequisites (lines 10–13) only list `Microsoft.Online.SharePoint.PowerShell` and `ExchangeOnlineManagement`. Admins running the "Verify Audit Logging Status" section will get a `CommandNotFoundException`.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.1/powershell-setup.md (lines 77, 84): Standardize RSS property to `EnableRestrictedSearchAllList` — this matches 4.1/troubleshooting.md (lines 134, 171), 4.6/powershell-setup.md (lines 194, 197), and the 4.1/powershell-setup.md caveat at lines 75–76 already acknowledges the parameter name may be outdated. Change `Set-SPOTenant -IsDataAccessInSharePointOnlineDisabled $true` → `Set-SPOTenant -EnableRestrictedSearchAllList $true` and update the `Select-Object` property accordingly. NEEDS_HUMAN_REVIEW — confirm `EnableRestrictedSearchAllList` is current for your SPO module version.
+2. docs/playbooks/control-implementations/4.4/powershell-setup.md (line 98): Change `-DisableSharingForNonOwnersStatus $true` to the correct writable parameter (likely `-DisableSharingForNonOwners`). NEEDS_HUMAN_REVIEW — verify against current SPO module documentation.
+3. docs/playbooks/control-implementations/4.4/powershell-setup.md (line 14): Add `Microsoft.Graph` to Prerequisites — insert `Install-Module -Name Microsoft.Graph -Scope CurrentUser` after the existing `Install-Module` line. Apply fixes 2 and 3 together in a single commit (fix 3 first at line 14, then fix 2 at line 98, top-down).
+4. docs/playbooks/control-implementations/4.5/powershell-setup.md (lines 10–13): Add `Microsoft.Graph` to Prerequisites — insert `Install-Module -Name Microsoft.Graph -Scope CurrentUser` after the existing module install lines, since `Get-MgUserMemberOf` at line 174 requires it.
+STATUS: ISSUES_FOUND

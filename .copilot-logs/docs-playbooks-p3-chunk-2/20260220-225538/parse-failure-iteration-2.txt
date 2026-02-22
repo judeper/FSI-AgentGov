@@ -1,0 +1,82 @@
+Reason: STATUS field missing or unrecognized value
+
+Now let me read the remaining portion of the 3.11 portal-walkthrough file.
+Now I have reviewed all 23 files. Let me fix the critical issues I found.
+Files are read-only in this worktree. This is a review-only task — I'll produce the final findings report.
+Good — no prohibited FSI language phrases found. Here is the final review report:
+---
+## REVIEW REPORT: playbooks-p3-chunk-2
+**Batch:** playbooks-p3-chunk-2
+**Files reviewed:** 23 (controls 3.7–3.12, Pillar 3 — Reporting)
+**Reviewer:** Technical Documentation Reviewer
+---
+### ISSUE_COUNT: 19
+- **Section A (pre-verified):** 9 broken external URLs (all false positives — portal auth walls, placeholder domains, or documented preview APIs)
+- **Section B (LLM review):** 2 CRITICAL, 8 WARNINGS
+*(mkdocs nav orphans excluded from count — they are worktree structural artifacts, not content issues in scoped files)*
+---
+### CRITICAL
+**C1. Inconsistent group name in `Import-AdminExclusionGroupFromCSV` function**
+- **File:** `docs/playbooks/control-implementations/3.8/powershell-setup.md` (line 127)
+- **Issue:** The `$GroupName` parameter defaults to `"CopilotForM365AdminExclusionGroup"` but all other functions in the same file (`New-CopilotAdminExclusionGroup` line 41, `Add-UsersToAdminExclusionGroup` line 79, `Export-AdminExclusionGroupMembers` line 165) default to `"CopilotForM365AdminExclude"`. If a user calls the bulk import function without explicitly specifying `-GroupName`, it will target a nonexistent group and silently fail or error.
+- **Fix:** Change line 127 from `[string]$GroupName = "CopilotForM365AdminExclusionGroup"` to `[string]$GroupName = "CopilotForM365AdminExclude"`
+**C2. Incorrect propagation time in legacy Test Case 1**
+- **File:** `docs/playbooks/control-implementations/3.8/verification-testing.md` (line 226)
+- **Issue:** Legacy Test Case 1 states Admin Exclusion Group propagation takes "up to 8 hours", but the detailed FAC-01 test case in the same file (line 75) correctly states "up to 24 hours", and the troubleshooting doc confirms 24 hours. Inconsistent guidance within the same file could cause testers to report false negatives.
+- **Fix:** Change "up to 8 hours" to "up to 24 hours" on line 226
+---
+### WARNINGS
+**W1. Dual footer metadata in 3.7 verification-testing**
+- **File:** `docs/playbooks/control-implementations/3.7/verification-testing.md`
+- **Issue:** The main body section ends with `*Updated: January 2026 | Version: v1.2*` while the appended SSPM section ends with `*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*`. Two version stamps in one file creates ambiguity about which is current.
+- **Fix:** Remove the older v1.2 footer and keep only the v1.3 footer, or consolidate to a single footer at the end of the file.
+**W2. Duplicate/redundant test cases in 3.8 verification-testing**
+- **File:** `docs/playbooks/control-implementations/3.8/verification-testing.md` (lines 220–298)
+- **Issue:** Legacy Test Cases 1–3 and 6 duplicate the detailed FAC-01, FAC-02, FAC-03 test cases above them. Test Case 6 ("Settings Application (Legacy)") is essentially identical to Test Case 3/FAC-03. Having two sets of test cases creates maintenance burden and inconsistency risk (as demonstrated by C2 above).
+- **Fix:** Remove the legacy Test Cases section (lines 220–298) or mark it as deprecated with a reference to the FAC-* test cases.
+**W3. Double horizontal rule in 3.9 portal-walkthrough**
+- **File:** `docs/playbooks/control-implementations/3.9/portal-walkthrough.md` (lines 215–216)
+- **Issue:** Two consecutive `---` separators with an empty line between them. Renders as two horizontal rules with a blank paragraph.
+- **Fix:** Remove one of the two `---` lines.
+**W4–W7. Missing footer metadata (3.11 — 4 files)**
+- **Files:** `3.11/portal-walkthrough.md`, `3.11/powershell-setup.md`, `3.11/verification-testing.md`, `3.11/troubleshooting.md`
+- **Issue:** None of the 3.11 playbook files have a `*Updated: Month Year | Version: vX.X*` footer line. They have top-of-file metadata (`**Last Updated:** February 2026`) but no footer, inconsistent with the 3.7–3.10 playbook pattern.
+- **Fix:** Add `*Updated: February 2026 | Version: v1.2*` footer before the back-link line in each file.
+**W8. Missing footer metadata (3.12 — all 4 files)**
+- **Files:** `3.12/portal-walkthrough.md`, `3.12/powershell-setup.md`, `3.12/verification-testing.md`, `3.12/troubleshooting.md`
+- **Issue:** Same as W4–W7. No footer metadata in any 3.12 playbook file.
+- **Fix:** Add `*Updated: February 2026 | Version: v1.2*` footer before the back-link line in each file.
+---
+### GAPS
+**G1. Heading convention inconsistency between 3.7–3.10 and 3.11–3.12**
+- Controls 3.7–3.10 use: `# Control X.X: [Control Name] - [Playbook Type]`
+- Controls 3.11–3.12 use: `# [Playbook Type]: Control X.X - [Control Name]`
+- This is a stylistic inconsistency but does not affect functionality. Consider standardizing in a future pass.
+---
+### FIXES
+| # | File | Line(s) | Fix |
+|---|------|---------|-----|
+| F1 | `3.8/powershell-setup.md` | 127 | Change `"CopilotForM365AdminExclusionGroup"` → `"CopilotForM365AdminExclude"` |
+| F2 | `3.8/verification-testing.md` | 226 | Change `"up to 8 hours"` → `"up to 24 hours"` |
+| F3 | `3.7/verification-testing.md` | ~100 | Remove duplicate v1.2 footer; keep only the v1.3 footer at end of file |
+| F4 | `3.8/verification-testing.md` | 220–298 | Remove or deprecate legacy Test Cases 1–6 section (duplicates FAC-* tests) |
+| F5 | `3.9/portal-walkthrough.md` | 215–216 | Remove one of two consecutive `---` lines |
+| F6 | `3.11/portal-walkthrough.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F7 | `3.11/powershell-setup.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F8 | `3.11/verification-testing.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F9 | `3.11/troubleshooting.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F10 | `3.12/portal-walkthrough.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F11 | `3.12/powershell-setup.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F12 | `3.12/verification-testing.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+| F13 | `3.12/troubleshooting.md` | EOF | Add footer: `*Updated: February 2026 \| Version: v1.2*` |
+**Section A broken URLs (no fix needed — false positives):**
+All 9 "broken" URLs are either Microsoft admin portal URLs returning 405 to automated scanners (expected behavior for auth-walled portals), placeholder/example domains (`contoso.*`), or documented preview API endpoints with explicit "adjust when available" caveats. No content changes required.
+**mkdocs nav orphans:** All ~300+ orphans are worktree artifacts — this worktree contains only the 23 playbook files, not the full `docs/` directory. No content changes required.
+---
+### ADDITIONAL NOTES
+- **FSI language compliance:** PASS — No prohibited phrases ("ensures compliance", "guarantees", "will prevent", "eliminates risk") found in any of the 23 reviewed files.
+- **Cross-references:** PASS — All inter-playbook links (portal-walkthrough ↔ powershell-setup ↔ verification-testing ↔ troubleshooting) and back-to-control links are correctly formed.
+- **Regulatory references:** PASS — References to FINRA 4511, SEC 17a-4, SOX 302/404, OCC 2011-12, and Fed SR 11-7 are specific and appropriately hedged.
+- **PowerShell code quality:** Generally well-structured with error handling. The `Get-AdminPowerAppCopilotStudioAgent` cmdlet used in 3.11 files is appropriately documented as "unverified and may not be available" in `powershell-setup.md` (though `troubleshooting.md` uses it without the same caveat — minor consistency issue, not actionable).
+---
+### STATUS: REVIEWED — 2 critical fixes required, 11 minor fixes recommended

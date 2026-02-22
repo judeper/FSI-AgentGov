@@ -1,0 +1,12 @@
+All findings verified against source. Here's the analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE — All four fixes target content inside fenced code blocks (```` ``` ````). No file renames, no nav changes, no cross-reference modifications. Zero risk to mkdocs build or link integrity.
+**SEVERITY_CORRECTIONS:**
+- Fix 4 (Get-AccessToken ordering): **Downgrade from WARNING to INFO.** Lines 334–336 already contain an explicit `IMPORTANT:` comment warning users the function is a placeholder defined at end-of-script and must be implemented before use. The reviewer's proposed fix ("add a prominent warning") is already present. The function-ordering bug is real but the documentation already mitigates it; no code change needed.
+- NEEDS_HUMAN_REVIEW items (Graph API endpoint, PowerApps cmdlets): Severity is appropriate — these are API existence questions that cannot be validated from documentation alone.
+**FIX_ORDERING:**
+NONE — Fixes 1, 2, 3 are independent single-line edits in two different files with no dependencies. Apply in any order.
+**OVER_ENGINEERED:**
+- Fix 4: Moving the `Get-AccessToken` function definition is unnecessary. The existing 3-line `IMPORTANT:` caveat at lines 334–336 already tells the reader the function is a conceptual placeholder requiring implementation. Restructuring the code block adds diff noise for no user-facing benefit — the script is explicitly non-runnable as-is by design.
+**CRITIQUE_SUMMARY:** Fixes 1–3 are clean, zero-risk, single-line corrections that should be applied. Fix 4 should be dropped — the existing inline caveat already addresses the concern, making the proposed restructuring redundant.

@@ -1,0 +1,15 @@
+All three files read. Let me verify the internal cross-reference anchors exist as referenced.
+Cross-references verified, no prohibited language found. Here is my review:
+ISSUE_COUNT: 8
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: 6 placeholder URLs flagged by automated scanner (tenant-admin.sharepoint.com, tenant.sharepoint.com/sites/*, contoso-admin.sharepoint.com) — all are inside fenced code blocks with explicit "Replace with your actual..." comments. These are intentional example URLs, not rendered hyperlinks. FALSE POSITIVES — no fix needed.
+- docs/playbooks/control-implementations/4.7/troubleshooting.md: 1 placeholder URL flagged (tenant.sharepoint.com/sites/SiteName) — same situation, inside code block with replacement comment on line 73. FALSE POSITIVE — no fix needed.
+- mkdocs.yml nav orphans (300+ entries): This is a worktree artifact — this partial worktree contains only the 3 playbook files under review, so all other mkdocs.yml nav references naturally show as "not found." These files exist in the main repository. NOT actionable within this review scope.
+GAPS:
+- NONE
+FIXES:
+1. No fixes required for the 3 in-scope files. All placeholder URLs are inside code blocks and correctly documented as examples requiring tenant-specific replacement. The nav orphans are a worktree infrastructure issue, not a defect in the reviewed files.
+STATUS: CLEAN
+**Summary:** All three Control 4.7 playbooks are well-structured: PowerShell cmdlets are current and correct (`RestrictContentOrgWideSearch` is the GA parameter), heading hierarchy is clean (H1→H2→H3, no skips), code blocks have proper `powershell` language tags, the admonition on line 30 of powershell-setup.md uses valid mkdocs-material syntax, internal cross-references between the three files resolve correctly (verified anchors `#graph-connector-acl-validation` and `#diagnostic-commands`), zone-specific verification covers all three zones, and no prohibited FSI language was found.

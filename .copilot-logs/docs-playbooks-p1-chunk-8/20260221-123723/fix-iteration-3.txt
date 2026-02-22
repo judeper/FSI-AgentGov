@@ -1,0 +1,13 @@
+Now let me check 1.27's API availability disclaimer for the pattern to match:
+Now I have all the context. Let me apply all fixes:
+The troubleshooting edits failed — let me check the exact content:
+The indentation uses spaces — let me match exactly:
+Now verify no remaining instances of the old cmdlet name:
+All fixes applied. Let me do a final verification of the changes:
+CHANGES:
+- 1.28/powershell-setup.md: Added API availability disclaimer admonition before Script 1, matching 1.27's pattern
+- 1.28/powershell-setup.md: Replaced `Get-PowerAppChatBot` with `Get-AdminPowerAppChatbot` at lines 275, 288; added `-ErrorAction SilentlyContinue` to both calls
+- 1.28/powershell-setup.md: Added inline `# Verify cmdlet availability in your module version` comment to all three `Add-AdminPowerAppEnvironmentToPolicy` calls (lines 211, 223, 235)
+- 1.28/troubleshooting.md: Replaced `Get-PowerAppChatBot` with `Get-AdminPowerAppChatbot` at lines 93 and 574; added `-ErrorAction SilentlyContinue` to both
+- 1.28/powershell-setup.md: Property access pattern (`$agent.DisplayName` vs `$agent.Properties.DisplayName`) deferred — NEEDS_HUMAN_REVIEW
+FIX_STATUS: COMPLETE

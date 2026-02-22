@@ -1,0 +1,5 @@
+Now I'll apply both fixes — adding the missing `Az.Consumption` module to 3.5 prerequisites, and clarifying the SDK version note in 3.8.
+CHANGES:
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: Added `Install-Module -Name Az.Consumption -Force -AllowClobber` to prerequisites — `New-AzConsumptionBudget` (line 283) requires the `Az.Consumption` module, which was missing while only `Az.CostManagement` was installed
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: Clarified SDK version requirement in comment for `New-MgGroupMember -DirectoryObjectId` (line 102–103) — this parameter form is valid in Microsoft.Graph.Groups v2.x+, confirming the cmdlet is correct for the target SDK version
+FIX_STATUS: COMPLETE

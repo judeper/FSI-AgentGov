@@ -1,0 +1,35 @@
+Good, found it. Now let me read the critical files to verify the claims.
+Now let me check the remaining parts — Pillar 1 TOC continuation, Pillar 2 TOC continuation, the Quick Reference section in file 00, and the notes files.
+Now let me check the remaining notes files and verify the Pillar 2 Categories table claims more carefully.
+Now let me verify the Pillar 2 categories table missing 2.20-2.21 (Critique A's missed issue) and the Quick Reference details in file 00.
+Now let me verify the Pillar 3 file for 3.11 and 3.12 content, and verify the Pillar 2 Controls list to confirm 2.22-2.24 are missing there too.
+All critical claims verified against actual files. Here is the reconciled output:
+---
+ISSUE_COUNT: 11
+CRITICAL:
+- researcher-package/00-FSI-AgentGov-Summary-and-Review-Guide.md: Quick Reference section (lines 225-293) shows stale counts — "Pillar 1: (24 Controls)", "Pillar 2: (21 Controls)", "Pillar 3: (10 Controls)" while overview table correctly states 28/24/12. Controls 1.25-1.28, 2.22-2.24, 3.11-3.12 missing from Quick Reference listing tables. Document Navigation table (lines 550-553) also stale with same old counts. Agent Essentials table (line 449) references "1.1-1.24" instead of 1.1-1.28.
+- researcher-package/01-Pillar-1-Security-Controls.md: Controls list (lines 30-53), TOC (lines 62-85), and Categories table (lines 21-27) only cover 1.1-1.24 but overview correctly says "28 controls" and body contains all 28 headings including 1.25-1.28. Controls 1.25-1.28 missing from all three overview structures.
+- researcher-package/02-Pillar-2-Management-Controls.md: Controls list (lines 35-55) only includes 2.1-2.21 but overview correctly says "24 controls" and body contains 2.22-2.24 headings. Categories table (lines 21-27) stops at "Customer Transparency | 2.19" — missing 5 controls (2.20-2.24), not just 3 as the original review stated. Controls 2.20-2.21 appear in the Controls list but are uncategorized.
+- researcher-package/03-Pillar-3-Reporting-Controls.md: Controls list (lines 30-39), TOC (lines 48-57), and Categories table (lines 21-27) only cover 3.1-3.10 but overview correctly says "12 controls" and body contains 3.11-3.12 headings.
+- notes/claude-code-gsd-guide.md: Line 45 states "62 controls across 4 pillars" — should be 71. Line 5 shows version "v1.2.40" — current is v1.2.51.
+WARNINGS:
+- notes/codex-cli-guide.md: Line 4 shows version "v1.2.39" — current is v1.2.51. Internal scratch note; low-impact but should be updated.
+- notes/structure.md: Shows 48 controls, old paths (docs/reference/pillar-* instead of docs/controls/pillar-*), counts 19/15/9/5, v1.0 Beta. Historical snapshot from Dec 2025 — add disclaimer header rather than rewrite.
+- notes/implementation-plan.md: References "48 controls" (lines 3, 206, 265). Historical implementation plan from v1.0 era.
+- analysis/Phase 1_ Repository Orientation Summary.md: References "48 controls" with old directory structure and pillar counts 19/15/9/5. Historical snapshot from Dec 2025.
+- analysis/VALIDATION-CHECKLIST.md: References "v1.0 Beta" and "December 2025" throughout with no caveat indicating historical artifact status.
+- reviews/2026-01-jan-update-review/ (8 files): All reference "48 controls" as framework baseline. Accurate at time of writing (pre-v1.1) but no annotation marking them as historical snapshots.
+GAPS:
+- 01-Pillar-1: Controls list, TOC, and Categories table need 1.25 (MIME Type Restrictions), 1.26 (Agent File Upload and File Analysis Restrictions), 1.27 (AI Agent Content Moderation Enforcement), 1.28 (Policy-Based Agent Publishing Restrictions).
+- 02-Pillar-2: Controls list needs 2.22-2.24. Categories table needs 2.20-2.24 (5 controls uncategorized, not 3 — 2.20 Adversarial Testing and 2.21 AI Marketing Claims are also missing from categories despite being in the Controls list).
+- 03-Pillar-3: Controls list, TOC, and Categories table need 3.11 (Centralized Agent Inventory Enforcement), 3.12 (Agent Governance Exception and Override Management).
+FIXES:
+1. researcher-package/00-FSI-AgentGov-Summary-and-Review-Guide.md: Update Quick Reference headings to 28/24/12. Add 1.25-1.28, 2.22-2.24, 3.11-3.12 to respective listing tables. Update Document Navigation table (lines 550-553) to show 1.1-1.28/28, 2.1-2.24/24, 3.1-3.12/12. Update Agent Essentials row (line 449) to "1.1-1.28".
+2. researcher-package/01-Pillar-1-Security-Controls.md: Add 1.25-1.28 to Controls list, TOC, and add a new Categories row (e.g., "Content & Publishing Governance | 1.25-1.28").
+3. researcher-package/02-Pillar-2-Management-Controls.md: Add 2.22-2.24 to Controls list. Add categories for 2.20-2.24 (all 5 are uncategorized — e.g., "Security Testing | 2.20", "Marketing Governance | 2.21", "Session & Consent | 2.22-2.23", "Feature Governance | 2.24").
+4. researcher-package/03-Pillar-3-Reporting-Controls.md: Add 3.11-3.12 to Controls list, TOC, and add a new Categories row (e.g., "Governance Operations | 3.11-3.12").
+5. notes/claude-code-gsd-guide.md: Change "62 controls across 4 pillars" to "71 controls across 4 pillars" (line 45). Update version from "v1.2.40" to "v1.2.51" (line 5).
+6. notes/codex-cli-guide.md: Update version from "v1.2.39" to "v1.2.51" (line 4).
+7. notes/structure.md: Add historical disclaimer header (e.g., "⚠️ Historical snapshot from Dec 2025 v1.0 Beta — see docs/controls/CONTROL-INDEX.md for current structure") rather than rewriting the entire file.
+8. Section A nav orphans: No fix needed — confirmed FALSE POSITIVE. All files exist.
+STATUS: ISSUES_FOUND

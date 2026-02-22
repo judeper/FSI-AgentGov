@@ -1,0 +1,18 @@
+Files exist. Let me now read all three files and check the specific lines referenced in the review.
+Now let me verify the Control 1.9 canonical name and check other control names for accuracy.
+Let me check how other playbooks reference version in footers to evaluate the version fix.
+I now have all data needed. Here is my critique:
+**FALSE_POSITIVES:**
+- **Fixes 1–3 (version footer v1.2 → v1.2.51) are misleading.** `v1.2` is the dominant convention across **50+ playbook files** in this repo. Only a handful of newer advanced-implementation docs (Feb 2026) use the full patch version. Changing just these 3 files to `v1.2.51` would make them outliers and *increase* inconsistency. If this is a real issue, it's repo-wide — not specific to these files.
+**MISSED_ISSUES:**
+- **Systemic control name truncation** — The reviewer flagged only Control 1.9, but many other headings drop significant scope from canonical names. Notable omissions:
+  - Control 2.8 labeled "Segregation of Duties" — canonical is "Access Control and Segregation of Duties" (drops "Access Control")
+  - Control 1.11 labeled "Conditional Access" — canonical is "Conditional Access and Phishing-Resistant MFA" (drops the MFA component, which is the security-critical part)
+  - Control 2.6 labeled "Model Risk Assessment" — canonical is "Model Risk Management Alignment with OCC 2011-12 / SR 11-7" (drops the specific regulatory reference, important for FSI context)
+  - Control 2.12 labeled "Supervision Controls" — canonical is "Supervision and Oversight (FINRA Rule 3110)" (drops the FINRA rule reference)
+  - Control 1.7 labeled "Audit Logging (Baseline)" — canonical is "Comprehensive Audit Logging and Compliance" (adds a non-canonical "(Baseline)" qualifier)
+  If 1.9 is flagged for name inaccuracy, at minimum 1.11 and 2.6 warrant equal attention since they drop regulatory-relevant specifics.
+**FIX_CONCERNS:**
+- **Fixes 1–3:** Applying v1.2.51 only to these 3 files is counterproductive. Either scope the fix as a repo-wide version normalization task (out of scope for this batch) or downgrade to a GAP noting the inconsistency. Applying the fix as written creates a new inconsistency.
+- **Fix 4 (Control 1.9 rename):** Correct and well-reasoned. The parenthetical note to update the Purpose line to clarify Zone 3 focus is appropriate — the heading should reflect the canonical name while the body can focus on the 10-year retention aspect.
+**CRITIQUE_SUMMARY:** The review correctly identifies the Control 1.9 naming issue and the hyperlink/disclaimer gaps, but its highest-count findings (the 3 version footer warnings and their fixes) are effectively false positives — `v1.2` is the established convention across 50+ playbook files, and applying the fix as written would create inconsistency rather than resolve it. The review also missed that the control name truncation pattern it flagged for 1.9 applies to at least 5 other controls with varying severity.

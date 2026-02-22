@@ -1,0 +1,17 @@
+Now let me check the remaining files in this batch for missed issues.
+Let me also check the parent control files for cross-reference consistency.
+I've now reviewed all relevant files. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE
+All 4 claimed issues are verified as real:
+1. **CRITICAL (Missing ECOA classes):** CONFIRMED. Portal-walkthrough.md Step 1 table (lines 22–29) lists exactly 6 classes. Verification-testing.md (lines 9–19) lists all 9. The parent control doc (line 34) also lists 8 classes including Color, Religion — confirming the portal-walkthrough is incomplete. The 3 missing classes identified (Color, Religion, Good Faith Exercise of Consumer Credit Protection Act Rights) are correct.
+2. **WARNING (CCPA ambiguity):** CONFIRMED. Line 19 of verification-testing.md uses "CCPA" which overwhelmingly connotes California Consumer Privacy Act in modern usage, despite the ECOA citation on the same line providing disambiguation.
+3. **WARNING (Test dataset contradiction):** CONFIRMED. Step 2 line 34 states "Minimum 1,000 test cases per protected class" unqualified, while the governance-level table line 71 sets Zone 1 Baseline at "500/group". Direct contradiction within the same file.
+4. **WARNING (Access review 14 days):** CONFIRMED as legitimate concern. The troubleshooting.md line 72 states "Access review max 14 days" as a Known Limitation. Microsoft Entra access reviews support configurable durations well beyond 14 days. Notably, the 2.8 portal-walkthrough.md (line 65) also uses `Duration: 14 days` — but as a recommended configuration value, not a platform limit. The troubleshooting file incorrectly reframes a configuration choice as a platform maximum. NEEDS_HUMAN_REVIEW is appropriate.
+**MISSED_ISSUES:**
+- NONE within the playbook batch scope. Controls 2.9 and 2.10 playbooks (8 additional files) are clean — no language violations, no internal contradictions, no inaccurate platform claims. The parent control doc for 2.11 (line 14) uses "ensuring compliance with fair lending laws" which is a prohibited phrase per FSI language rules, but this file is in `docs/controls/` and outside the playbook batch scope.
+**FIX_CONCERNS:**
+- Fix 3 (reconcile test dataset sizes): Both options offered are valid, but the reviewer should recommend a preference. The zone table (500/group for Zone 1, 1,000/group for Zone 2, 2,000/group for Zone 3) appears to be the more deliberate specification, so qualifying Step 2 as "Zone 2+ minimum" is the safer correction rather than raising the Zone 1 figure.
+- Minor line number discrepancy: The review cites "line 33" for Step 2 text — the 1,000 figure is actually on line 34 (line 33 is the numbered list header). Trivial but worth noting.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all 4 issues are verified as real, no false positives were raised, and no significant issues were missed within the batch scope. Fix suggestions are sound, with only a minor preference recommendation needed for Fix 3.

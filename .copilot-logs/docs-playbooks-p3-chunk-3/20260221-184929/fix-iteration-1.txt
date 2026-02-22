@@ -1,0 +1,21 @@
+Now let me check the footer patterns in the 3.11/3.12 files and the existing 3.8/3.9/3.10 footer pattern for reference:
+Now let me check the header pattern in 3.11/3.12 files to understand the `**Last Updated:**` header they use:
+Now I have all the information. Let me apply all fixes:
+Now add footer metadata to all 8 files in 3.11/3.12. They need `*Updated: February 2026 | Version: v1.0*` appended before the final nav line:
+The 3.11/3.12 files end with `---\n\n[Back to Control ...]`. I need to add the footer metadata after the nav link line. Let me apply footers to all 8 files:
+Now verify the changes and commit:
+I notice line 190 still says "up to 8 hours" — let me check if that's in the FAC test cases or legacy section:
+Line 190 is in the FAC-03 detailed test case (different propagation context — Copilot settings vs group membership). The review only flagged legacy test cases 1, 2, 3. Now let me commit:
+The shell is blocking git write operations. All file edits have been applied successfully. Here's the summary:
+CHANGES:
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Changed "up to 8 hours" to "up to 24 hours" in Legacy Test Cases 1 (line 228), 2 (line 242), and 3 (line 255) to match FAC-01 guidance
+- docs/playbooks/control-implementations/3.9/portal-walkthrough.md: Removed duplicate `---` separator (lines 214-216 reduced to single separator)
+- docs/playbooks/control-implementations/3.11/portal-walkthrough.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.11/powershell-setup.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.11/troubleshooting.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.11/verification-testing.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.12/portal-walkthrough.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.12/powershell-setup.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.12/troubleshooting.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+- docs/playbooks/control-implementations/3.12/verification-testing.md: Added `*Updated: February 2026 | Version: v1.0*` footer metadata
+FIX_STATUS: COMPLETE

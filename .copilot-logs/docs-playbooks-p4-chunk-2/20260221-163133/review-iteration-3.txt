@@ -1,0 +1,25 @@
+Now let me verify the nav orphan situation for my batch files and check cross-references.
+All 13 files exist in the worktree and no prohibited FSI language found. Here is my review:
+---
+ISSUE_COUNT: 18
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.5/portal-walkthrough.md: Broken URL `https://admin.sharepoint.com` flagged by scanner — FALSE POSITIVE: this is the real SharePoint Admin Center URL requiring authentication; no fix needed
+- docs/playbooks/control-implementations/4.5/powershell-setup.md: Broken URL `https://contoso-admin.sharepoint.com` — FALSE POSITIVE: intentional placeholder/example URL in code block
+- docs/playbooks/control-implementations/4.6/portal-walkthrough.md: Broken URLs `https://tenant-admin.sharepoint.com`, `https://contoso.sharepoint.com/sites/ApprovedKnowledge` — FALSE POSITIVE: intentional placeholder URLs in code blocks
+- docs/playbooks/control-implementations/4.6/powershell-setup.md: 4 broken URLs (`tenant.sharepoint.com/sites/*`, `contoso.sharepoint.com/sites/*`) — FALSE POSITIVE: intentional placeholder URLs in code blocks
+- docs/playbooks/control-implementations/4.6/troubleshooting.md: 3 broken URLs (`tenant.sharepoint.com/sites/*`, `contoso.sharepoint.com/sites/*`) — FALSE POSITIVE: intentional placeholder URLs in code blocks
+- docs/playbooks/control-implementations/4.6/verification-testing.md: Broken URL `https://tenant.sharepoint.com/sites/DraftDocs` — FALSE POSITIVE: intentional placeholder URL in code block
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: 4 broken URLs (`tenant.sharepoint.com/sites/*`) — FALSE POSITIVE: intentional placeholder URLs in code blocks
+- docs/playbooks/control-implementations/4.5/powershell-setup.md (line 284): Fragile disconnect pattern in `finally` block — `if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue)` before `Disconnect-SPOService` may silently skip disconnect if session is in partial state; should call `Disconnect-SPOService -ErrorAction SilentlyContinue` directly
+- docs/playbooks/control-implementations/4.7/powershell-setup.md (line 309): Same fragile disconnect pattern as 4.5/powershell-setup.md
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.5/powershell-setup.md (line 284): Replace `if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) { Disconnect-SPOService -ErrorAction SilentlyContinue }` with `Disconnect-SPOService -ErrorAction SilentlyContinue` (remove the guard check)
+2. docs/playbooks/control-implementations/4.7/powershell-setup.md (line 309): Same fix — replace `if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) { Disconnect-SPOService -ErrorAction SilentlyContinue }` with `Disconnect-SPOService -ErrorAction SilentlyContinue`
+NOTE ON SECTION A FINDINGS:
+- **Broken external URLs (16):** All 16 are intentional placeholder/example URLs (`contoso`, `tenant`, `tenant-admin`) in PowerShell code blocks, following standard Microsoft documentation patterns. No fixes needed.
+- **MkDocs nav orphans:** All 13 batch files verified to exist in this worktree. The hundreds of other nav orphans are outside batch scope and appear to be worktree artifacts (files exist in main repo but not in this partial worktree). Not actionable for this review.
+STATUS: ISSUES_FOUND

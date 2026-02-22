@@ -1,0 +1,14 @@
+Now I have all the content. Let me verify the cross-references between the batch files and check the language compliance.
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-1-minimal-viable-controls.md (line 201): "per FINRA 3110" should be "per FINRA Rule 3110" — FSI language rules require regulatory references by name and section (e.g., "FINRA Rule 3110")
+- phase-1-minimal-viable-controls.md (line 188): Control 1.9 purpose says "Configure retention for Zone 3 regulatory requirements" without citing specific regulations; should reference SEC 17a-4 and FINRA Rule 4511 per language rule "Reference specific regulations by name and section"
+GAPS:
+- NONE
+FIXES:
+1. phase-1-minimal-viable-controls.md line 201: Change `Document supervisory procedures per FINRA 3110` to `Document supervisory procedures per FINRA Rule 3110`
+2. phase-1-minimal-viable-controls.md line 188: Change `Configure retention for Zone 3 regulatory requirements` to `Configure retention for Zone 3 per SEC 17a-4 and FINRA Rule 4511 requirements`
+NOTE ON SECTION A NAV ORPHANS: All 3 batch files (`phase-0-governance-setup.md`, `phase-1-minimal-viable-controls.md`, `phase-2-hardening.md`) verified to **exist on disk** at `docs/playbooks/getting-started/` and are correctly referenced in `mkdocs.yml` (lines 549-551). The automated pre-pass flagged ALL 300+ mkdocs.yml nav entries as orphans, indicating a systemic pre-pass environment issue (likely wrong working directory), not actual missing files. No fix needed for these 3 entries.
+STATUS: ISSUES_FOUND

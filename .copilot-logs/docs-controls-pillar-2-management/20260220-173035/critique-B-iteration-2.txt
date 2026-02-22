@@ -1,0 +1,16 @@
+Data gathered. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+Both proposed automated fixes (Fix 1: add `**Last Verified:**` to 2.22, Fix 2: add `http` language tag to code block) are additive-only single-line changes. Neither modifies content, cross-references, nav structure, or anything that could cause an `mkdocs build --strict` failure. Fixes 3–7 are correctly deferred to human review with no code changes proposed.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 severity is slightly overstated: The review says "all other 23 controls include this field" — confirmed via grep (23/24 controls have `**Last Verified:**`). However, `**Last Verified:**` is **not in the canonical control template** (`.github/instructions/fsi-control-template.instructions.md` only specifies `**Last UI Verified:**`). This is an informal consistency convention, not a template violation. WARNING is acceptable but should note it's a consistency issue, not a template compliance gap.
+- All other severities are accurate. The SEC/FTC HTTP 403s are correctly classified as NEEDS_HUMAN_REVIEW (government sites routinely block automated requests — the URLs are very likely valid).
+- The three FALSE POSITIVE classifications (api.bap.microsoft.com in code block, admin.powerplatform.microsoft.com SPA 405, sardine.ai already resolved) are all correct and well-reasoned.
+- The NAV ORPHANS false positive is correctly identified as a scanner bug in the worktree context — confirmed by the fact that all files exist at their declared paths.
+**FIX_ORDERING:**
+- Fix 1 and Fix 2 are independent; no ordering constraint. Both target the same file (2.22) but different locations (line 8 vs line 63) — safe to apply in any order or together in one commit.
+- Fixes 3–7 are all independent human review tasks with no dependencies between them. Can be verified in parallel by a human.
+**OVER_ENGINEERED:**
+- NONE. All fixes are appropriately scoped. The review correctly avoids proposing automated URL replacements for the SEC/FTC 403s and instead defers to human verification — this is the right call since government URLs may be valid but bot-blocked.
+**CRITIQUE_SUMMARY:** Clean, low-risk review. The two automated fixes are trivial additive changes with zero breakage potential; the five human-review items are correctly deferred rather than speculatively "fixed." The only minor calibration note is that the missing `**Last Verified:**` field is a pillar consistency convention rather than a template compliance gap, but this doesn't change the recommended action.

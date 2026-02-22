@@ -1,0 +1,17 @@
+All findings confirmed against source files. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 2 (3.5/powershell-setup.md `Az.Consumption` vs `Az.CostManagement`): Correctly flagged NEEDS_HUMAN_REVIEW. `New-AzConsumptionBudget` is from the deprecated `Az.Consumption` module; the `Az.CostManagement` replacement is `New-AzCostManagementBudget` with a different parameter schema. A naive module swap without cmdlet/parameter rewrite will break the script. **Do not fix without verifying the full cmdlet signature.**
+- Fix 3 (3.5/troubleshooting.md same module issue): Same risk — `Get-AzConsumptionBudget` becomes `Get-AzCostManagementBudget` with different output schema. Coupled with Fix 2.
+**SEVERITY_CORRECTIONS:**
+- NONE. Severities are accurate. The 3.8 group name mismatch is correctly CRITICAL — an admin running the CSV import function would target a non-existent group (`CopilotForM365AdminExclusionGroup`) while all 11 other references across 4 files use `CopilotForM365AdminExclude`. The version inconsistencies and structural issues are appropriately WARNING-level.
+**FIX_ORDERING:**
+1. **Fix 1 first** (3.8 group name — CRITICAL, zero dependency, single-line change, no risk of cascading breakage)
+2. **Fix 7 next** (3.7/verification-testing.md section reorder — self-contained, no cross-file impact)
+3. **Fix 4 next** (3.6 double rule + validation section — self-contained structural fix)
+4. **Fixes 5 & 6 together** (version footer alignment for 3.7 and 3.8 — batch these, they're identical in nature)
+5. **Fixes 2 & 3 last** (Az.Consumption module mismatch — these are coupled and require human review of the correct `Az.CostManagement` cmdlet equivalents before applying)
+**OVER_ENGINEERED:**
+- Fix 4 proposes adding a full Validation checklist section to 3.6/portal-walkthrough.md for consistency with other walkthroughs. The duplicate `---` removal is trivial and correct, but the Validation section addition is scope creep — it's a gap, not a bug. Defer to a separate consistency pass rather than mixing it with bug fixes. Split into: (a) remove double `---` now, (b) add Validation section as a tracked follow-up.
+- Fix 8 (mkdocs nav orphans) is correctly assessed as no-op — good call not to fix. Confirmed: this is a worktree artifact.
+**CRITIQUE_SUMMARY:** The review is thorough and well-prioritized; the CRITICAL finding (3.8 group name mismatch) is a genuine functional bug that would break admin workflows. The only adjustment needed is treating Fixes 2+3 (`Az.Consumption`) as a deferred pair requiring human validation of the replacement cmdlet API, and splitting Fix 4 to avoid scope creep.

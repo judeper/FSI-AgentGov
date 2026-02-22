@@ -1,0 +1,19 @@
+Now I have all 15 files reviewed. Let me compile findings.
+ISSUE_COUNT: 4
+CRITICAL:
+- docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Step 1 "Protected Classes" table lists only 6 of 9 ECOA classes (Race, National Origin, Sex, Age, Marital Status, Public Assistance). Missing: **Color**, **Religion**, and **Good Faith Exercise of Consumer Credit Protection Act Rights**. The same control's verification-testing.md correctly enumerates all 9 classes. This omission could cause incomplete bias testing in an ECOA-regulated workflow.
+WARNINGS:
+- docs/playbooks/control-implementations/2.11/verification-testing.md (line 19): Protected class #9 labeled "Good Faith Exercise of **CCPA** Rights" — "CCPA" here means Consumer Credit Protection Act but will be widely confused with the California Consumer Privacy Act. Recommend spelling out "Consumer Credit Protection Act" in full. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Step 2 text (line 33) states "Minimum 1,000 test cases per protected class" without zone differentiation, but the governance-level table (line 71) sets Zone 1 (Baseline) at "500/group". These contradict — either the Step 2 text should note the 1,000 figure applies to Zone 2+, or the table minimum for Zone 1 should be 1,000.
+- docs/playbooks/control-implementations/2.8/troubleshooting.md (line 72): "Access review max 14 days" listed as a Known Limitation is likely incorrect — Microsoft Entra ID access reviews support durations up to 365 days. NEEDS_HUMAN_REVIEW
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Add the 3 missing ECOA protected classes to the Step 1 table — Color, Religion, and Good Faith Exercise of Consumer Credit Protection Act Rights — to match the 9 classes in verification-testing.md.
+2. docs/playbooks/control-implementations/2.11/verification-testing.md (line 19): Replace "CCPA Rights" with "Consumer Credit Protection Act Rights" to eliminate ambiguity with California Consumer Privacy Act.
+3. docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Reconcile Step 2 minimum ("1,000 per class") with Zone 1 config table ("500/group") — either qualify Step 2 as Zone 2+ or raise Zone 1 minimum.
+4. docs/playbooks/control-implementations/2.8/troubleshooting.md: Verify the "14 days" access review limitation claim; if incorrect, update or remove the row.
+SECTION A NOTES:
+- **Broken external URLs (3):** Investigated — `admin.powerplatform.microsoft.com`, `make.powerautomate.com`, `copilotstudio.microsoft.com` are interactive admin portals that return HTTP 405 to automated probes. These are correct documentation links (users open them in a browser). False positives — no fix needed.
+- **MkDocs nav orphans (~298):** Investigated — all referenced files (e.g., `docs/controls/index.md`, `docs/framework/index.md`, `docs/playbooks/control-implementations/2.8/portal-walkthrough.md`) **exist on disk** in this worktree. The automated scanner had a path resolution error. False positives — no fix needed.
+STATUS: ISSUES_FOUND

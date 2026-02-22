@@ -1,0 +1,31 @@
+Now I have reviewed all 25 files. Let me compile the findings.
+ISSUE_COUNT: 16
+CRITICAL:
+- index.md (line 7): States "These 22 controls" but Pillar 2 has 24 controls (2.1-2.24). Controls 2.23 and 2.24 exist as files and in mkdocs.yml nav but are missing from this index page.
+- index.md (lines 27-48): Controls list at bottom only goes through 2.22; missing entries for 2.23 (User Consent and AI Disclosure Enforcement) and 2.24 (Agent Feature Enablement and Restriction Governance).
+- index.md (lines 14-19): Control Categories table is incomplete — does not categorize controls 2.20-2.24 (Adversarial Testing, Marketing Claims, Inactivity Timeout, User Consent, Feature Enablement).
+WARNINGS:
+- 2.22-inactivity-timeout-enforcement.md: Missing `Last Verified` date field in header metadata that all other 23 controls include.
+- 2.24-agent-feature-enablement-and-restriction-governance.md (lines 239-240): Duplicate URL in Additional Resources — "Copilot Studio Feature Management" and "AI Builder in Copilot Studio" both link to `https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/ai-capabilities`.
+- index.md (line 52): Footer says "v1.2 - January 2026" but multiple controls (2.1, 2.8, 2.9, 2.12, 2.17, 2.18, 2.20, 2.22, 2.23, 2.24) have been updated to February 2026 / v1.3.
+- 2.17-multi-agent-orchestration-limits.md: Broken external URL `https://www.sardine.ai/blog/agentic-ai-oversight` returns HTTP 404 (content removed).
+- 2.13-documentation-and-record-keeping.md: SEC URL `https://www.sec.gov/rules/interp/34-47806.htm` returns HTTP 403 — NEEDS_HUMAN_REVIEW (may be crawler blocking or URL restructuring).
+- 2.18-automated-conflict-of-interest-testing.md: Two SEC URLs return HTTP 403 (`/regulation-best-interest`, `/about/what-we-do/examination-priorities`) — NEEDS_HUMAN_REVIEW.
+- 2.19-customer-ai-disclosure-and-transparency.md: SEC URL `https://www.sec.gov/tm/faq-regulation-best-interest` returns HTTP 403 — NEEDS_HUMAN_REVIEW.
+- 2.21-ai-marketing-claims-and-substantiation.md: Three URLs return HTTP 403 (SEC ia-5653.pdf, SEC press-release/2024-36, FTC ai-claims-check) — NEEDS_HUMAN_REVIEW.
+- 2.23-user-consent-and-ai-disclosure-enforcement.md: SEC URL `https://www.sec.gov/files/ia-6353.pdf` returns HTTP 403 — NEEDS_HUMAN_REVIEW.
+- 2.22-inactivity-timeout-enforcement.md: Two API endpoint references (`api.bap.microsoft.com/...privacy`, `api.bap.microsoft.com/.default`) flagged as broken — these are API endpoint templates and OAuth scopes in documentation, NOT clickable links. False positive from automated scanner.
+- 2.24-agent-feature-enablement-and-restriction-governance.md: `https://admin.powerplatform.microsoft.com` returns HTTP 405 — this is a portal requiring authentication. Expected behavior, not a broken link.
+- MKDOCS NAV ORPHANS: All 300+ reported orphans are FALSE POSITIVES. Files exist at correct paths under `docs/` directory (verified). The automated tool appears to have resolved nav paths from the repo root instead of relative to mkdocs `docs_dir` (default: `docs/`). No fix needed.
+GAPS:
+- index.md: Control Categories table lacks a row for controls 2.20-2.24 (Adversarial Testing, Marketing Claims, Inactivity Timeout, User Consent, Feature Enablement governance).
+FIXES:
+1. index.md: Change "These 22 controls" to "These 24 controls" (line 7).
+2. index.md: Add `- [2.23 User Consent and AI Disclosure Enforcement](2.23-user-consent-and-ai-disclosure-enforcement.md)` and `- [2.24 Agent Feature Enablement and Restriction Governance](2.24-agent-feature-enablement-and-restriction-governance.md)` to the Controls list after 2.22.
+3. index.md: Add rows to Control Categories table for missing controls — e.g., add "Adversarial & Security Testing" category for 2.20, expand "Customer Transparency" to "Customer Transparency & Marketing" covering 2.19, 2.21, 2.23, and add "Feature & Session Governance" for 2.22, 2.24.
+4. index.md: Update footer from "v1.2 - January 2026" to "v1.2 - February 2026".
+5. 2.22-inactivity-timeout-enforcement.md: Add `**Last Verified:** 2026-02-12` after the Governance Levels header field.
+6. 2.24-agent-feature-enablement-and-restriction-governance.md: Change duplicate "AI Builder in Copilot Studio" URL to correct AI Builder URL (e.g., `https://learn.microsoft.com/en-us/ai-builder/overview`).
+7. 2.17-multi-agent-orchestration-limits.md: Remove or replace broken sardine.ai link (HTTP 404) with alternative reference or archived version.
+8. NEEDS_HUMAN_REVIEW: Manually verify 8 SEC/FTC URLs returning HTTP 403 — these government sites commonly block automated crawlers; URLs may still be valid for human browsers. If URLs have been restructured, update to current locations.
+STATUS: ISSUES_FOUND

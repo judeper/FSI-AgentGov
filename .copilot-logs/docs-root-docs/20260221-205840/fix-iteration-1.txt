@@ -1,0 +1,12 @@
+Let me check README.md line 207 and get more CHANGELOG context for the v1.2 highlights.
+Now let me get CHANGELOG v1.2 highlights for the index.md update.
+Now I'll apply all three fixes.
+Now verify the changes and run build validation.
+All three fixes applied cleanly. Now commit.
+Changes applied but commit requires permission. All edits are staged and ready.
+CHANGES:
+- README.md (line 279): Changed "Catalog of 26 deployable automation solutions" → "Catalog of 27 deployable automation solutions"
+- docs/framework/solutions-integration.md (line 21): Changed Mermaid subgraph label "24 Deployable Automation Solutions" → "25 Deployable Automation Solutions"
+- docs/index.md (lines 127-133): Added `**v1.2 (February 2026):**` entry with 4 highlights above existing v1.1 entry
+- Stale footers (26 files): SKIPPED — review flagged as NEEDS_HUMAN_REVIEW; batch update deferred to avoid unintended semantics change
+FIX_STATUS: COMPLETE

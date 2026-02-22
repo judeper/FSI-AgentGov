@@ -1,0 +1,19 @@
+Now let me check the remaining files for heading format and footer patterns.
+Now let me check footer links across 4.2 and 4.4 playbooks.
+Now I have all the data needed. Here is my audit:
+---
+**FALSE_POSITIVES:**
+NONE — All 10 findings verified as genuine against the actual file contents.
+- **CRITICAL 1 (SOX 404 → SOX 802):** Confirmed. Line 33 of `4.3/portal-walkthrough.md` says `SOX 404 | 7 years | Financial records`. Line 87 of `4.3/powershell-setup.md` correctly says `SOX 802`. The 7-year retention requirement comes from SOX Section 802 (audit workpapers), not SOX 404 (internal controls assessment). Real inconsistency and inaccurate citation.
+- **CRITICAL 2 (`Get-SPOSearchSiteConfiguration`):** Confirmed at line 135. The correct cmdlet `Get-SPOTenantRestrictedSearchAllowedList` is used in powershell-setup.md line 79. Real issue.
+- **All WARNINGs and GAPs:** Confirmed by file inspection — missing footers, heading inconsistency, `Remove-MgUser` scope mismatch, portal path concern, and missing label publishing are all real.
+**MISSED_ISSUES:**
+- `Get-SPOSearchSiteConfiguration` appears a **second time at line 171** of `4.1/troubleshooting.md` in the "Diagnostic Commands" section. The reviewer only flagged line 135. FIX 2 must also cover line 171.
+- **4.4/verification-testing.md also lacks sibling navigation footer links.** The reviewer listed only `4.4/powershell-setup.md` and `4.4/troubleshooting.md` as missing footers for 4.4, but verification-testing.md (ends at line 136 with just the `*Updated*` line, no `[Back to Control]` link) is also missing. Fixes 7-8 should be expanded to include fix for 4.4/verification-testing.md.
+- **FIX 1 is incomplete on content type:** The portal-walkthrough says `SOX 404 | 7 years | Financial records` but SOX 802 specifically covers **audit workpapers**, not generic "financial records." The powershell-setup.md label description at line 87 correctly says "audit workpapers." The fix should change both the regulation reference AND the content type column to stay internally consistent.
+**FIX_CONCERNS:**
+- **FIX 1:** Correctly identifies SOX 404 → SOX 802, but should also change `Financial records` to `Audit workpapers` in the same table row (line 33) to match the SOX 802 scope and align with the powershell-setup.md label.
+- **FIX 2:** Only addresses line 135 — must also fix `Get-SPOSearchSiteConfiguration` at line 171 in the same file's Diagnostic Commands section.
+- **FIXes 7-8 (4.4 footers):** Missing 4.4/verification-testing.md — should be FIXes 7-9 covering all three files.
+- **FIX 3 (`RestrictedSearchEnabled` vs `EnableRestrictedSearchAllList`):** The same inconsistent property name `RestrictedSearchEnabled` also appears at line 167 in the Diagnostic Commands section of 4.1/troubleshooting.md. The fix should address both occurrences (lines 130 and 167), not just line 129.
+**CRITIQUE_SUMMARY:** The review is high-quality — all 10 findings are genuine with no false positives, and the NEEDS_HUMAN_REVIEW tags are appropriately applied. However, the reviewer missed a second occurrence of the invalid cmdlet `Get-SPOSearchSiteConfiguration` at line 171, omitted `4.4/verification-testing.md` from the missing-footer findings, and the SOX 404 fix should also correct the content type from "Financial records" to "Audit workpapers" to match SOX 802's actual scope.

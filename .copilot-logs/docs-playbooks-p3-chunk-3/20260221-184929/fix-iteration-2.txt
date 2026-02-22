@@ -1,0 +1,4 @@
+The `Get-AdminFlow -EnvironmentName "Default"` should use a placeholder for the environment GUID rather than a literal `"Default"` string, since Power Platform environments are identified by GUIDs.
+CHANGES:
+- docs/playbooks/control-implementations/3.10/troubleshooting.md: Replaced literal `"Default"` with placeholder `"<your-environment-GUID>"` in `Get-AdminFlow -EnvironmentName` parameter (line 87)
+FIX_STATUS: COMPLETE

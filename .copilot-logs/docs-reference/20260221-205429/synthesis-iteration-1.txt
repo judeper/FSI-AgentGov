@@ -1,0 +1,22 @@
+All key files verified. Here is the reconciled output:
+---
+ISSUE_COUNT: 7
+CRITICAL:
+- `docs/reference/raci-matrix.md` line 269: Regulatory misattribution — says "(OCC SR 11-7)" but SR 11-7 is Federal Reserve guidance. OCC issued Bulletin 2011-12. Verified: glossary.md uses "OCC Bulletin 2011-12 and Fed SR 11-7" as canonical form.
+- `docs/reference/learn-monitor-guide.md` line 281: Stale directory path — references `reports/learn-changes/` but canonical path is `reports/monitoring/` per monitoring-architecture.md.
+- `docs/reference/agent-365-capabilities-summary.md`: Version contradiction — header (line 4) says `v1.2.48`, footer (line 195) says `v1.2.51`.
+WARNINGS:
+- `docs/reference/learn-monitor-guide.md` (lines 20, 32, 67, 385) and `docs/reference/monitoring-architecture.md` (lines 14, 175, 232): URL count says "207" but `microsoft-learn-urls.md` contains 209 Learn URLs. Seven stale references across two files.
+- `docs/reference/faq.md` line 554: Uses "OCC/SR 11-7" — same class of misattribution as C1. Misleadingly pairs OCC with a Federal Reserve document designation. Canonical form is "OCC 2011-12 / Fed SR 11-7".
+- Multiple files have stale footer version strings predating v1.2.51, but per Critique B, only files receiving substantive content changes in this batch should be version-bumped (not a blanket update).
+GAPS:
+- `docs/reference/index.md` links to only 11 of 22 reference documents (review said 12; actual verified count is 11). Ten documents have no link from the landing page: raci-matrix.md, regulatory-mappings.md, solutions-index.md, solutions-coverage-gaps.md, solutions-architecture-guide.md, nist-ai-rmf-crosswalk.md, monitoring-architecture.md, learn-monitor-ai-enhancement.md, sharepoint-advanced-management-licensing.md, agent-365-capabilities-summary.md.
+FIXES:
+1. `docs/reference/raci-matrix.md` line 269: Change `(OCC SR 11-7)` → `(OCC 2011-12 / Fed SR 11-7)`
+2. `docs/reference/learn-monitor-guide.md` line 281: Change `reports/learn-changes/` → `reports/monitoring/`
+3. `docs/reference/agent-365-capabilities-summary.md` line 4: Change `v1.2.48` → `v1.2.51` (aligns header with footer)
+4. `docs/reference/learn-monitor-guide.md` lines 20, 32, 67, 385 and `docs/reference/monitoring-architecture.md` lines 14, 175, 232: Change `207` → `209` (7 occurrences across 2 files)
+5. `docs/reference/faq.md` line 554: Change `OCC/SR 11-7` → `OCC 2011-12 / Fed SR 11-7`
+6. `docs/reference/index.md`: Add table sections for 10 missing reference documents (Regulatory & Compliance, Solutions, Monitoring & Architecture)
+7. `docs/reference/agent-365-capabilities-summary.md` and `docs/reference/index.md`: Bump footer version strings to v1.2.51 ONLY for these two files (which received substantive content changes via FIX 3 and FIX 6). Do NOT blanket-update other files' version strings without corresponding content changes.
+STATUS: ISSUES_FOUND

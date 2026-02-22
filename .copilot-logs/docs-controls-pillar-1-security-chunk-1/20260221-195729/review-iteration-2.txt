@@ -1,0 +1,29 @@
+Now let me check if the `**Last Verified:**` field was added to 1.25 and 1.27, and verify fix 6 more closely. Let me also check a reference control for the `Last Verified` pattern.
+All the evidence I need is collected. Let me produce the verification output.
+**Verification of all 9 issues:**
+| Fix | File | Status |
+|-----|------|--------|
+| Fix 1 | 1.5 line 134: `per Control 2.3 (Change Management)` | ✅ FIXED |
+| Fix 2 | 1.5 line 196: `per Control 2.3` | ✅ FIXED |
+| Fix 3 | 1.5 line 206: `per Control 2.7 (Third-Party Risk)` | ✅ FIXED |
+| Fix 4 | 1.5 line 120: `per Control 2.3 (Change Management)` | ✅ FIXED |
+| Fix 5 | 1.5 line 124: `Control 3.3 (Compliance and Regulatory Reporting)` | ✅ FIXED |
+| Fix 6 | 1.5 line 117: `Control 3.2 (Usage Analytics)` | ✅ FIXED |
+| Fix 7 | 1.25, 1.27: `**Last Verified:**` field | ❌ REMAINING — not added |
+| Fix 8 | 1.10: extra "Regulatory Requirements" section | ❌ REMAINING (deferred by design) |
+| Fix 9 | 1.11, 1.12: SEC Reg SHO relevance | ❌ REMAINING (deferred for human review) |
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- 1.25-mime-type-restrictions.md: REMAINING — Missing `**Last Verified:**` date field. 26 of 28 Pillar 1 controls have this field on line 8; 1.25 does not. Add `**Last Verified:** 2026-02-12` after `**Governance Levels:**` line to match the established pattern.
+- 1.27-ai-agent-content-moderation-enforcement.md: REMAINING — Same issue as 1.25. Missing `**Last Verified:**` date field.
+- 1.10-communication-compliance-monitoring.md: REMAINING (deferred) — Extra "Regulatory Requirements" section (line 129) creates 11 sections instead of the standard 10. Deferred to a template-compliance pass per original plan.
+GAPS:
+- NONE
+FIXES:
+1. 1.25-mime-type-restrictions.md: Add `**Last Verified:** 2026-02-12` on line 8 (after `**Governance Levels:**` line) to match the 26-control pattern.
+2. 1.27-ai-agent-content-moderation-enforcement.md: Add `**Last Verified:** 2026-02-12` on line 8 (after `**Governance Levels:**` line) to match the 26-control pattern.
+3. 1.10-communication-compliance-monitoring.md: Deferred — merge "Regulatory Requirements" content into Section 2 or 3 in a separate template-compliance pass.
+STATUS: ISSUES_FOUND

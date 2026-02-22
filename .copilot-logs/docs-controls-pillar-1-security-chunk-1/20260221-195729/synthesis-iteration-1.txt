@@ -1,0 +1,29 @@
+Now I have all evidence needed. Let me verify one more disputed item — the 1.10 section structure to count sections.
+All evidence collected. Now applying fixes to Control 1.5 — the file with verified cross-reference errors.
+Files are read-only in this worktree. Producing the verified reconciliation output based on file evidence.
+ISSUE_COUNT: 9
+CRITICAL:
+- 1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 134): Cross-reference error — "per Control 2.1 (Change Management)" is wrong. Control 2.1 is "Managed Environments"; should reference Control 2.3 (Change Management and Release Planning). **Verified: both critiques agree, confirmed against 2.1/2.3 filenames.**
+- 1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 196): Same error — "per Control 2.1" should be "per Control 2.3". **Verified: same class of error as line 134.**
+- 1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 206): Cross-reference error — "per Control 2.3 (Third-Party Risk)" is wrong. Control 2.3 is "Change Management and Release Planning"; should reference Control 2.7 (Vendor and Third-Party Risk Management). **Verified: both critiques agree.**
+- 1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 120): Cross-reference error — "require flow approval per Control 2.2" is wrong. Control 2.2 is "Environment Groups and Tier Classification", unrelated to flow approval. Likely target is Control 2.3 (Change Management). **Upgraded from WARNING to CRITICAL per Critique A — same class of error as above. NEEDS_HUMAN_REVIEW on correct target.**
+- 1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 124): Cross-reference error — "monitor via Control 3.3 (Conversation Transcripts)" is wrong. Control 3.3 is "Compliance and Regulatory Reporting", not "Conversation Transcripts". **Missed by original review, caught by Critique A, verified against 3.3 filename.**
+WARNINGS:
+- 1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 117): "Control 3.1 (Usage Dashboards)" is misnamed. Control 3.1 is "Agent Inventory and Metadata Management"; usage dashboards are Control 3.2 (Usage Analytics and Activity Monitoring). NEEDS_HUMAN_REVIEW — monitoring could arguably map to either, but 3.2 is the stronger match. **Both critiques agree.**
+- 1.25-mime-type-restrictions.md, 1.27-ai-agent-content-moderation-enforcement.md: Missing `**Last Verified:**` date field. Both have `**Last UI Verified:** February 2026` (not a false positive on that field), but 26 of 28 controls in Pillar 1 carry an additional `**Last Verified:** YYYY-MM-DD` field that these two lack. **Severity downgraded from original WARNING to INFO-level inconsistency per both critiques. Original Fix 5 was wrong — do NOT add a redundant field; instead add the missing `Last Verified` field to match the 26-control pattern.**
+- 1.10-communication-compliance-monitoring.md: Extra "Regulatory Requirements" section (line 129) creates 11 sections instead of the standard 10. Content is substantive (FINRA 2210/24-09). **Both critiques agree this is real but recommend deferring to a template-compliance pass rather than bundling with cross-reference fixes.**
+- 1.11-conditional-access-and-phishing-resistant-mfa.md, 1.12-insider-risk-detection-and-response.md: Both cite "SEC Reg SHO" — Reg SHO governs short selling. Relevance to conditional access (1.11: "Identity verification controls") is tenuous. For insider risk (1.12: "Detect potential market manipulation via insider access"), the connection is slightly stronger but still a stretch. NEEDS_HUMAN_REVIEW. **Both critiques did not dispute; verified in files.**
+GAPS:
+- NONE
+FIXES:
+1. 1.5 line 134: Change `per Control 2.1 (Change Management)` → `per Control 2.3 (Change Management)`
+2. 1.5 line 196: Change `per Control 2.1` → `per Control 2.3`
+3. 1.5 line 206: Change `per Control 2.3 (Third-Party Risk)` → `per Control 2.7 (Third-Party Risk)`
+4. 1.5 line 120: Change `per Control 2.2` → likely `per Control 2.3` (NEEDS_HUMAN_REVIEW on correct target)
+5. 1.5 line 124: Change `Control 3.3 (Conversation Transcripts)` → `Control 3.3 (Compliance and Regulatory Reporting)`
+6. 1.5 line 117: Change `Control 3.1 (Usage Dashboards)` → `Control 3.2 (Usage Analytics)` (NEEDS_HUMAN_REVIEW)
+7. 1.25, 1.27: Add `**Last Verified:** 2026-02-12` field after `**Governance Levels:**` line to match other 26 controls
+8. 1.10: Defer — merge "Regulatory Requirements" content into Section 2 or 3 in a separate template-compliance pass
+9. 1.11, 1.12: NEEDS_HUMAN_REVIEW — verify SEC Reg SHO relevance with compliance team
+NOTE: Fixes 1-5 are high-confidence automated fixes (all in 1.5, non-overlapping lines, apply as single atomic commit). Fix 6 requires human judgment. Fix 7 is minor metadata. Fixes 8-9 require human review and should not be bundled with cross-reference corrections.
+STATUS: ISSUES_FOUND

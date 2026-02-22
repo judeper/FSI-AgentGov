@@ -1,0 +1,19 @@
+All evidence verified. Here is the final synthesized review:
+ISSUE_COUNT: 6
+CRITICAL:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: Line 127 `Import-AdminExclusionGroupFromCSV` defaults to `$GroupName = "CopilotForM365AdminExclusionGroup"` but all other functions (lines 41, 79, 164) and all sibling playbooks use `"CopilotForM365AdminExclude"`. Calling without `-GroupName` will target a non-existent group — functional bug.
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Line 161 contains an unresolved `<!-- NEEDS_HUMAN_REVIEW -->` HTML comment questioning whether SEC Rule 206(4)-7 is the correct regulatory citation. Unresolved regulatory uncertainty in published documentation.
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Footer includes non-standard `| Classification: Verification Testing` suffix not present in any other playbook footer in this batch. (Note: the v1.3 version is correct — portal-walkthrough.md is also v1.3, reflecting a staggered update; only the Classification suffix is anomalous.)
+- docs/playbooks/control-implementations/3.10/verification-testing.md: Compliance checklist line 41 references "CFPB UDAAP" which is outside the project's target regulation set (FINRA/SEC/SOX/GLBA/OCC/Fed/CFTC). NEEDS_HUMAN_REVIEW — verify whether CFPB UDAAP is intentionally in scope for feedback controls.
+- docs/playbooks/control-implementations/3.9/powershell-setup.md: `New-AzSentinelAlertRule` and `Get-AzSentinelIncident` cmdlet parameter sets may have changed in recent Az.SecurityInsights module versions. NEEDS_HUMAN_REVIEW — verify cmdlet signatures against current module.
+GAPS:
+- docs/playbooks/control-implementations/3.12: Three of four playbooks (powershell-setup.md, verification-testing.md, troubleshooting.md) are missing the standard `*Updated: Month Year | Version: vX.X*` footer. Only portal-walkthrough.md has it (v1.2).
+FIXES:
+1. docs/playbooks/control-implementations/3.8/powershell-setup.md line 127: Change `$GroupName = "CopilotForM365AdminExclusionGroup"` to `$GroupName = "CopilotForM365AdminExclude"` to match all other functions in this file.
+2. docs/playbooks/control-implementations/3.8/verification-testing.md line 161: Resolve the `<!-- NEEDS_HUMAN_REVIEW -->` comment — confirm or correct the SEC Rule 206(4)-7 citation with compliance team, then remove the HTML comment.
+3. docs/playbooks/control-implementations/3.8/verification-testing.md footer: Remove the `| Classification: Verification Testing` suffix, leaving `*Updated: February 2026 | Version: v1.3*`.
+4. docs/playbooks/control-implementations/3.10/verification-testing.md line 41: Confirm CFPB UDAAP is in-scope; if not, replace with a target regulation (e.g., OCC 2011-12 for operational risk or FINRA 3110 for supervisory procedures).
+5. docs/playbooks/control-implementations/3.9/powershell-setup.md: Verify `New-AzSentinelAlertRule` and `Get-AzSentinelIncident` signatures against current Az.SecurityInsights module version.
+6. docs/playbooks/control-implementations/3.12: Add standard footer `*Updated: February 2026 | Version: v1.2*` to powershell-setup.md, verification-testing.md, and troubleshooting.md.
+STATUS: ISSUES_FOUND

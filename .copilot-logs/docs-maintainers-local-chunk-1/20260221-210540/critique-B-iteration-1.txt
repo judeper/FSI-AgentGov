@@ -1,0 +1,17 @@
+All proposed fixes target files inside `maintainers-local/`, which is **gitignored** and doesn't even exist in this worktree. This is the decisive factor for the entire risk analysis.
+---
+**HIGH_RISK_FIXES:**
+NONE
+All 10 proposed fixes target files in `maintainers-local/` — a gitignored, local-only directory. No fix can break cross-references, mkdocs build, or any published content. These files are never committed, never deployed, and never referenced by `mkdocs.yml` or any control doc. Build impact is zero.
+**SEVERITY_CORRECTIONS:**
+- Fixes 1–7 (adding staleness header notes to historical audit files): Classified as if they were CRITICAL fixes, but they are **cosmetic annotations on local-only, non-shipped files**. Correct severity: **LOW**. These are informational bookkeeping — useful if a maintainer re-reads the file, but the files already have dates and version numbers that signal their age. A maintainer encountering `documentation-audit-2025-12-29.md` can see from the filename alone it's 14 months old.
+- Fix 9 (Colorado AI Act date): Correctly flagged, but the fix location is in **published docs** (`docs/playbooks/regulatory-modules/`), not in `maintainers-local/`. This is the only fix with real production impact and should be elevated to the **highest priority** — yet it's buried as item 9. Severity should be **CRITICAL** for the published docs portion.
+- Fix 10 (NIST coverage 92% vs 78%): Same — the actionable fix is in `docs/reference/nist-ai-rmf-crosswalk.md` (published). NEEDS_HUMAN_REVIEW is correct, but this should also be flagged as higher priority than the `maintainers-local/` annotations.
+**FIX_ORDERING:**
+- Fixes 9 and 10 (published doc corrections) should be executed **first** — they are the only ones affecting shipped content.
+- Fixes 1–7 (staleness notes) are independent of each other and can be done in any order, or deferred indefinitely. They have no dependencies.
+- Fix 8 (no action needed) is correctly a no-op.
+**OVER_ENGINEERED:**
+- Fixes 1–7 are over-engineered. Adding formatted staleness banners to 7 local-only historical audit files that already carry their own date/version context in filenames and body text is low-value busy work. A single `maintainers-local/reports/STALENESS-NOTE.md` saying "All reports pre-date v1.2.51 (71 controls)" would achieve the same goal with one file instead of editing seven. Alternatively, these files could simply be left as-is — maintainers know to check dates.
+- The review itself is over-scoped: spending 12 findings on gitignored local files while the two genuinely impactful items (Colorado AI Act date, NIST coverage percentage) are subordinated to item positions 9 and 10.
+**CRITIQUE_SUMMARY:** The review correctly identified the two real issues (Colorado AI Act date discrepancy, NIST coverage accuracy) but buried them under 7 low-value annotations to gitignored local-only files that can never affect the published site or build. Prioritize fixes 9 and 10; defer or skip fixes 1–7.

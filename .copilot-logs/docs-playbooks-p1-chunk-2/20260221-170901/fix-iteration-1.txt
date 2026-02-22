@@ -1,0 +1,10 @@
+Now I have the evidence. Let me apply all fixes. The control doc is out of batch scope, so I'll only fix playbook files.
+All fixes applied. Let me verify the changes are correct:
+CHANGES:
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Fixed "Control 3.1 (Usage Dashboards)" → "Control 3.2 (Usage Analytics and Activity Monitoring)" to match CONTROL-INDEX
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Fixed "Control 3.3 (Conversation Transcripts)" → "Control 3.3 (Compliance and Regulatory Reporting)" to match CONTROL-INDEX
+- docs/playbooks/control-implementations/1.5/powershell-setup.md: Fixed "Control 3.9 (Compliance Reporting)" → "Control 3.9 (Microsoft Sentinel Integration)" to match CONTROL-INDEX
+- docs/playbooks/control-implementations/1.5/powershell-setup.md: Added beta API cmdlet warning note for Get-MgBetaInformationProtectionSensitivityPolicyLabel
+- docs/playbooks/control-implementations/1.6/powershell-setup.md: Fixed -RecordType to query each record type separately since the parameter accepts a single enum value
+- SKIPPED: docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md fixes (out of batch scope)
+FIX_STATUS: COMPLETE

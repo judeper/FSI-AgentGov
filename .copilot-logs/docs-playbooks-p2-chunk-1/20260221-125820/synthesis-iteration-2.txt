@@ -1,0 +1,20 @@
+All issues verified against source files. Here is the final synthesized review:
+---
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.1/powershell-setup.md: Date mismatch — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026" (line 308)
+- docs/playbooks/control-implementations/2.1/troubleshooting.md: Date mismatch — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026" (line 269)
+- docs/playbooks/control-implementations/2.1/verification-testing.md: Footer metadata (line 269) appears BEFORE navigation links (line 271), reversed from sibling playbooks; also missing `---` separator between nav links and footer metadata
+- Cross-file PowerShell inconsistency (NEEDS_HUMAN_REVIEW): 2.2 files use `Properties.governanceConfiguration.protectionLevel` while 2.1, 1.4, 1.8, and 2.15 all use `Properties.protectionLevel` — the 5-control consensus strongly suggests 2.2 is the outlier with the wrong API path, which would cause its scripts to silently return incorrect managed-environment status (a compliance-evidence gap)
+- docs/playbooks/control-implementations/2.3 and 2.4 (powershell-setup.md, troubleshooting.md, verification-testing.md — 6 files): Missing `[Back to Control X.X]` parent navigation link — the sibling portal-walkthrough.md files in both 2.3 and 2.4 include this link, but these 6 files only link to sibling playbooks via `## Related Playbooks` bullet lists
+GAPS:
+- Header metadata format divergence within batch: 2.1/2.2 playbooks use structured header fields (`**Last Updated:** ...`, `**Modules Required:** ...`) while 2.3/2.4 playbooks use a blockquote description format with no header date field — a cross-control format inconsistency that should be tracked for a future normalization pass
+FIXES:
+1. docs/playbooks/control-implementations/2.1/powershell-setup.md line 3: Change `**Last Updated:** January 2026` to `**Last Updated:** February 2026` to match footer
+2. docs/playbooks/control-implementations/2.1/troubleshooting.md line 3: Change `**Last Updated:** January 2026` to `**Last Updated:** February 2026` to match footer
+3. docs/playbooks/control-implementations/2.1/verification-testing.md lines 267–271: Reorder so nav links appear before footer metadata and add `---` separator between them — canonical pattern is: `---` → nav links → `---` → footer metadata (currently: `---` → footer metadata → blank → nav links with no closing separator)
+4. NEEDS_HUMAN_REVIEW — 2.2 PowerShell files (powershell-setup.md, verification-testing.md, troubleshooting.md): Verify against a live tenant whether the correct property path is `Properties.protectionLevel` (used by 5 controls) or `Properties.governanceConfiguration.protectionLevel` (used only by 2.2) — do not apply until confirmed; the 5:1 usage ratio suggests 2.2 is wrong
+5. docs/playbooks/control-implementations/2.3 and 2.4 (powershell-setup.md, troubleshooting.md, verification-testing.md — 6 files): Add a `[Back to Control X.X](../../../controls/pillar-2-management/X.X-control-name.md)` parent link to each file's `## Related Playbooks` section — do not reformat from bullet-list to inline style (style normalization deferred to a dedicated cross-playbook pass)
+STATUS: ISSUES_FOUND

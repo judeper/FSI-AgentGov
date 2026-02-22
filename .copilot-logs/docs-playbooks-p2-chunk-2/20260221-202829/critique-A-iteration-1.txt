@@ -1,0 +1,17 @@
+Now let me check the H1 headings for 2.7 and compare with 2.8-2.13.
+Now let me check for language violations and any other missed issues across all files in this batch.
+Good — the bare opening fence at line 106 is confirmed. Now let me check the `Add-PnPField -Choices` lines more carefully to verify the reviewer's claim about lines 207 and 208.
+Let me check for additional issues the reviewer may have missed.
+Good — no prohibited language found. Now let me verify the reviewer's fix #4 claim that there are three `-Choices` calls, and check for any other issues.
+Let me check for a potential divide-by-zero issue the reviewer may have missed.
+I now have all the data needed for the critique.
+---
+**FALSE_POSITIVES:**
+- NONE — all claimed issues are real and verified against the source files.
+**MISSED_ISSUES:**
+- **2.12/powershell-setup.md line 93**: The standalone "Generate Supervision Report" script computes `$approved / $total * 100` without guarding against `$total` being 0. If an empty CSV is passed, this will throw a divide-by-zero error. The "Complete Configuration Script" later in the same file (line 247) correctly guards with `if ($total -gt 0)`, but the standalone script does not. Same issue at line 101 (`$_.Count / $total * 100`).
+**FIX_CONCERNS:**
+- **Fix #4 (line count error)**: The reviewer says "apply same fix to the two other `Add-PnPField` calls with `-Choices` on lines 207 and 208." This is wrong — line 207 is `-Type Note` with no `-Choices` parameter. There are only **2** calls with `-Choices` (lines 206 and 208), not 3. The fix description should say "apply same fix to the other `-Choices` call on line 208."
+- **Fix #4 (severity overstatement)**: In PowerShell, `-Choices "Approved", "Rejected", "Pending", "Escalated"` is valid implicit array syntax — the comma operator creates an array that binds correctly to the parameter. Using `@()` is a readability best practice, not a reliability fix. The issue is a minor style concern, not a correctness bug.
+- **Fix #5 (incomplete file list)**: The fix lists only 3 files (`powershell-setup.md`, `troubleshooting.md`, `verification-testing.md`) but all **4** files in 2.7 have the reversed heading pattern — `portal-walkthrough.md` is also `# Control 2.7: ... - Portal Walkthrough` and needs the same fix.
+**CRITIQUE_SUMMARY:** The review is thorough and all identified issues are genuine, with the ECOA completeness gap being a legitimately important finding. However, Fix #4 contains a factual error about which lines have `-Choices` and overstates the severity, Fix #5 misses one of the four affected files, and a divide-by-zero risk in the standalone supervision report script (2.12 line 93) was overlooked.

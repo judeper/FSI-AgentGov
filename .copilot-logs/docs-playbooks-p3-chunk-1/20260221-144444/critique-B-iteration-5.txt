@@ -1,0 +1,13 @@
+**HIGH_RISK_FIXES:**
+- NONE
+All six fixes are content-additive or structural reformatting within individual files. No cross-references, nav entries, or internal links are modified. No fix touches `mkdocs.yml` or control files. Build breakage risk is negligible.
+**SEVERITY_CORRECTIONS:**
+- Fixes 5 and 6 (troubleshooting duplicate headings) should be elevated from WARNING to **WARNING-HIGH**. The duplicate `### Issue:` headings (e.g., "Compliance Manager Data Not Syncing" appears at both line 9 and line 76 in 3.3) produce duplicate anchor IDs in MkDocs, which can cause `mkdocs build --strict` warnings and break deep-linking. This is a functional concern, not merely cosmetic.
+**FIX_ORDERING:**
+- Fixes 1+3 must be applied together (both edit `3.3/portal-walkthrough.md`) — add Validation section first, then reorder footer/nav.
+- Fixes 2+4 must be applied together (both edit `3.4/portal-walkthrough.md`) — same rationale.
+- Fixes 5 and 6 are independent of each other and of fixes 1-4; can execute in any order.
+- Recommended sequence: **5 → 6 → (1+3) → (2+4)** — address the duplicate-heading structural issue first since it has the highest functional impact.
+**OVER_ENGINEERED:**
+- NONE. All six fixes are proportionate. The table conversion (fixes 5/6) may initially seem heavy but it simultaneously eliminates the duplicate heading problem and aligns with the established 3.1/3.2 pattern. The proposed Validation checklist items (fixes 1/2) correctly mirror each file's 7 steps without adding extraneous content.
+**CRITIQUE_SUMMARY:** The review is accurate and well-calibrated — all findings are verified against the source files, false positive determinations are correct, and the proposed fixes are minimal-risk content/formatting changes that won't affect the build or cross-references.

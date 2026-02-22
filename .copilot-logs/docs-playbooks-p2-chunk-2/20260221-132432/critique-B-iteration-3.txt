@@ -1,0 +1,11 @@
+Confirmed the violation at line 87. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE — The single fix is a two-word swap (`Ensures` → `Supports`) inside a table cell. It does not alter any link, file path, heading anchor, or cross-reference. Zero risk to mkdocs build or navigation.
+**SEVERITY_CORRECTIONS:**
+- NONE — "Ensures regulatory accuracy" is correctly classified as CRITICAL per the FSI language rules (`.github/instructions/fsi-language-rules.instructions.md` explicitly prohibits "ensures"). The warnings are correctly downgraded: HTTP 405 on auth-gated portals is expected, the PowerShell expressions are scanner false positives, and worktree nav orphans are out of scope.
+**FIX_ORDERING:**
+- NONE — There is exactly one fix. No ordering or dependencies to manage.
+**OVER_ENGINEERED:**
+- NONE — Single-word substitution is the minimum viable fix. No unnecessary refactoring proposed.
+**CRITIQUE_SUMMARY:** The review is accurate and well-scoped — one genuine FSI language violation, correctly classified as critical, with a surgically minimal fix that carries zero build or cross-reference risk. The three warnings are properly triaged as no-action-needed items.

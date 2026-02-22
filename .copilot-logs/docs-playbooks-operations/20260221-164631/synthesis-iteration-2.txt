@@ -1,0 +1,14 @@
+Evidence gathered. Here is the final synthesized review:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-1-minimal-viable-controls.md (line 183): Control 1.9 heading "10-Year Retention" misrepresents the control's scope. Canonical name is "Data Retention and Deletion Policies" per CONTROL-INDEX.md. 10-year retention is only one Zone 3 requirement within that control. Cross-reference confusion risk is real.
+- phase-0-governance-setup.md (line 269), phase-1-minimal-viable-controls.md (line 357), phase-2-hardening.md (line 293): Footer references `v1.2` while mkdocs.yml copyright uses `v1.2.51`. This may be an intentional major.minor convention for playbook footers, but it is undocumented and creates ambiguity. Requires maintainer decision: pin patch version, standardize on major.minor, or remove version from individual file footers.
+GAPS:
+- Systemic non-canonical control names across all 3 files (~25 of ~28 control references use simplified headings instead of canonical names from CONTROL-INDEX.md). Examples: "Control 1.1: Restrict Agent Publishing" vs canonical "Restrict Agent Publishing by Authorization"; "Control 1.5: DLP Policies" vs canonical "Data Loss Prevention (DLP) and Sensitivity Labels"; "Control 2.8: Segregation of Duties" vs canonical "Access Control and Segregation of Duties". Most simplifications are defensible in a getting-started playbook context, but Control 1.9 crosses into misrepresentation. Maintainer should decide whether to adopt a consistent convention (simplified names OK in playbooks) or batch-rename to canonical names.
+FIXES:
+1. phase-1-minimal-viable-controls.md (line 183): Change `### Control 1.9: 10-Year Retention` to `### Control 1.9: Data Retention and Deletion Policies` and update the Purpose line beneath to mention 10-year retention as the Zone 3 context.
+2. All 3 files (footers): NEEDS_HUMAN_DECISION — choose one: (a) update to `v1.2.51`, (b) keep `v1.2` as intentional major.minor convention, or (c) remove version from playbook footers to avoid staleness. No automated fix applied pending decision.
+STATUS: ISSUES_FOUND

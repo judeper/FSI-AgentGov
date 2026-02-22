@@ -1,0 +1,42 @@
+I've read all 15 files. Now let me verify the worktree structure for the nav orphans.
+The files ALL exist in this worktree — the Section A nav orphans are **false positives** from the automated checker (likely a path resolution issue). Let me verify mkdocs nav format.
+All files referenced in mkdocs.yml exist under `docs/`. The Section A nav orphans are **all false positives** — the automated checker had a path resolution issue. The Section A broken URLs are also false positives (auth-gated portals and intentional example placeholders).
+Here is my review report:
+---
+ISSUE_COUNT: 13
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Steps 6–9 (lines 148–196) are placed AFTER "Configuration by Governance Level" and "Microsoft 365 Integrated Surfaces" sections, breaking the procedural flow; additionally Step 6 uses H2 (`##`) while Steps 7–9 use H3 (`###`), inconsistent with Steps 1–5 which are all H3
+- docs/playbooks/control-implementations/1.1/powershell-setup.md: Script `.NOTES` block (line 135) says "Last Updated: January 2026" but file header and footer say "February 2026"
+- docs/playbooks/control-implementations/1.2/portal-walkthrough.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.2/powershell-setup.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.2/troubleshooting.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.2/verification-testing.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.3/portal-walkthrough.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.3/powershell-setup.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.3/troubleshooting.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.3/verification-testing.md: Header says "Last Updated: January 2026", footer says "Updated: February 2026"
+- docs/playbooks/control-implementations/1.4/powershell-setup.md: Missing navigation footer links to sibling playbooks and parent control (all other powershell-setup.md files have "[Back to Control X.X] | [Portal Walkthrough] | [Verification Testing] | [Troubleshooting]" footer)
+- docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Footer version "v1.2.48" is inconsistent with the "v1.2" or "v1.3" pattern used across all other files in this batch
+- docs/playbooks/control-implementations/1.3/powershell-setup.md: Complete configuration script has mismatched step numbering — code comments count Steps 1–4 but Write-Host output labels them Steps 1–3 (Step 2 "Export site report" has no numbered output message)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Move Steps 6–9 above the "Configuration by Governance Level" section, and change Step 6 heading from `##` to `###` to match Steps 1–5 hierarchy
+2. docs/playbooks/control-implementations/1.1/powershell-setup.md: Change `.NOTES` "Last Updated" from "January 2026" to "February 2026" (line 135)
+3. docs/playbooks/control-implementations/1.2/portal-walkthrough.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+4. docs/playbooks/control-implementations/1.2/powershell-setup.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+5. docs/playbooks/control-implementations/1.2/troubleshooting.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+6. docs/playbooks/control-implementations/1.2/verification-testing.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+7. docs/playbooks/control-implementations/1.3/portal-walkthrough.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+8. docs/playbooks/control-implementations/1.3/powershell-setup.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+9. docs/playbooks/control-implementations/1.3/troubleshooting.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+10. docs/playbooks/control-implementations/1.3/verification-testing.md: Change header "Last Updated" from "January 2026" to "February 2026" (line 3)
+11. docs/playbooks/control-implementations/1.4/powershell-setup.md: Add navigation footer before the `*Updated:` line: `[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)`
+12. docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Change footer version from "v1.2.48" to "v1.2" for consistency (line 624)
+13. docs/playbooks/control-implementations/1.3/powershell-setup.md: Align script step numbering — either add `Write-Host "Step 2: Exporting site report..."` output message (line ~209) or renumber code comments to match output
+SECTION A DISPOSITION:
+- BROKEN EXTERNAL URLS (10 entries): ALL FALSE POSITIVES. The 3 portal URLs (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com, make.powerautomate.com) return HTTP 405 because they are auth-gated portals, not broken links. The 7 contoso.sharepoint.com and internal.bank.com URLs are intentional example/placeholder URLs in PowerShell code samples and configuration tables. No fixes needed.
+- MKDOCS NAV ORPHANS (~300 entries): ALL FALSE POSITIVES. Verified that all referenced files exist under `docs/` in this worktree (e.g., `docs/controls/pillar-1-security/` contains all 28 control files, `docs/framework/` contains all 12 framework files). The automated orphan checker likely had a path resolution issue. No fixes needed.
+STATUS: ISSUES_FOUND

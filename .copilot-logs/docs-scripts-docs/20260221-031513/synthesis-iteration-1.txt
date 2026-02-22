@@ -1,0 +1,40 @@
+Now let me verify the remaining key claims.
+I've verified all claims. Here is the final corrected review:
+---
+ISSUE_COUNT: 19
+CRITICAL:
+- scripts/README.md: Directory structure tree omits `config/` and `private/` subdirectories entirely, shows only 1 of 16+ governance/ scripts — severely underrepresents actual directory contents
+- scripts/README.md: Script Inventory tables list 13 scripts but 40 script-related files exist at root level (37 .py + 2 .ps1 + 1 .psd1); 29 scripts completely undocumented including monitoring scripts, solution deployment scripts, UASD/ASARD utilities, CAA PowerShell scripts, and test files
+- scripts/README.md: "Governance Automation (Planned)" section lists 3 hypothetical future scripts while `governance/` already has 16 implemented scripts plus data files — misleads readers about implementation maturity
+WARNINGS:
+- scripts/README.md: Footer says "v1.1 - January 2026" but project version is v1.2.51
+- scripts/config/README.md: Example keyword mapping uses illustrative control names ("Data Loss Prevention Policies" for 1.3, "Risk Assessment Framework" for 2.6) that don't match actual control names (1.3 = "SharePoint Content Governance and Permissions", 2.6 = "Model Risk Management (Alignment with OCC 2011-12/SR 11-7)") — may confuse users referencing CONTROL-INDEX.md
+- scripts/governance/README.md: Integration Notes reference `src/adaptive-card-zone-access-alert.json` and `src/adaptive-card-uasd-alert.json` without specifying which repository contains them (main repo has no `src/` directory)
+- scripts/governance/README.md: Missing mention of `mime-templates/` subdirectory (contains zone1.json, zone2.json, zone3.json)
+- scripts/governance/README.md: `Test-AgentAuthConfiguration.ps1` mapped to "Control 1.1" (Restrict Agent Publishing by Authorization) but validates per-agent authentication configuration — may be better mapped to Control 1.11 (Conditional Access and Phishing-Resistant MFA) or 1.23 (Step-Up Authentication) (NEEDS_HUMAN_REVIEW)
+- scripts/governance/README.md: No version/date footer metadata
+- scripts/reporting/README.md: No version/date footer metadata
+- mkdocs.yml: 1 nav entry references a file not found under `docs/` (`playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md`)
+GAPS:
+- scripts/README.md: No documentation of `private/` subdirectory (6 PowerShell files: CAAClient.psm1, Compare-PolicyBaseline.ps1, Connect-GraphSession.ps1, Get-PolicyBaseline.ps1, Get-ZoneClassification.ps1, Test-ParameterValidation.ps1)
+- scripts/README.md: No documentation of `config/` subdirectory or `monitoring-config.yaml` configuration file
+- scripts/README.md: No documentation of monitoring scripts (`learn_monitor.py`, `regulatory_monitor.py`, `monitoring_shared.py`)
+- scripts/README.md: No documentation of solution deployment scripts (`deploy.py`, `create_*_dataverse_schema.py`, `create_*_connection_references.py`, `create_*_environment_variables.py` — 12 files)
+- scripts/README.md: No documentation of UASD/ASARD scripts (`detect_agent_sharing_violations.py`, `remediate_agent_sharing.py`, `asard_zone_rules.py`, `bap_admin_client.py`, `caa_client.py`)
+- scripts/README.md: No documentation of test scripts (`test_asard_zone_rules.py`, `test_bap_admin_client.py`, `test_detect_agent_sharing_violations.py`, `test_remediate_agent_sharing.py`)
+- scripts/README.md: No documentation of `conditional-access-automation.psd1` (PowerShell module manifest), `generate_excel_templates.py`, `verify_language_rules.py`, `Start-CAAValidationRunbook.ps1`, or `Test-PolicyCompliance.ps1`
+- scripts/README.md: No documentation of `hooks/` subdirectory beyond the directory tree (scripts `boundary-check.py` and `researcher-package-reminder.py` appear in tree but not in inventory tables)
+FIXES:
+1. scripts/README.md: Update directory structure tree to include `config/` (with `README.md` and `monitoring-config.yaml`), `private/` (with 6 PowerShell files), and expand `governance/` to show all 16+ scripts and `mime-templates/` subdirectory
+2. scripts/README.md: Add inventory sections for: Monitoring Scripts (3), Solution Deployment Scripts (12), UASD/ASARD Utility Scripts (5), CAA/Policy Baseline Scripts in `private/` (6), PowerShell Scripts at root (2 .ps1 + 1 .psd1), Test Scripts (4), and add `generate_excel_templates.py` and `verify_language_rules.py` to existing validation/maintenance tables
+3. scripts/README.md: Replace "Governance Automation (Planned)" section with accurate description reflecting 16+ implemented governance scripts with link to `governance/README.md`; move truly planned items (if any remain) to a clearly labeled "Planned" subsection
+4. scripts/README.md: Update footer version from "v1.1" to "v1.2" and date to "February 2026"
+5. scripts/config/README.md: Update example keyword mapping to use actual control names (1.3 = "SharePoint Content Governance and Permissions", 2.6 = "Model Risk Management (Alignment with OCC 2011-12/SR 11-7)") or add a note that names are illustrative only
+6. scripts/governance/README.md: Verify control mapping for `Test-AgentAuthConfiguration.ps1` — confirm whether Control 1.1, 1.11, or 1.23 is the correct mapping given the script validates per-agent authentication configuration (NEEDS_HUMAN_REVIEW)
+7. scripts/governance/README.md: Add `mime-templates/` to documented files with description of zone1/2/3.json template files
+8. scripts/governance/README.md: Clarify that `src/adaptive-card-*.json` paths reference the FSI-AgentGov-Solutions companion repository
+9. scripts/governance/README.md: Add version/date footer consistent with other README files
+10. scripts/reporting/README.md: Add version/date footer
+11. mkdocs.yml: Create the missing `docs/playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md` file or remove its orphaned nav entry
+12. scripts/README.md: Add `hooks/` scripts (boundary-check.py, researcher-package-reminder.py) to the Script Inventory tables, not just the directory tree
+STATUS: ISSUES_FOUND

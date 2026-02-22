@@ -1,0 +1,19 @@
+Let me verify the mkdocs nav paths against actual files.
+Now I have enough information to compile the review. Let me verify one more detail about the inventory file's reference.
+ISSUE_COUNT: 4
+CRITICAL:
+- NONE
+WARNINGS:
+- reports/audit/02-inventory.md: Line 144 lists "agent-identity.md" as a framework Key File but the actual filename is "agent-identity-architecture.md"
+- reports/audit/02-inventory.md: Pillar 2/3/4 inventory tables lack the "Technologies" column present in the Pillar 1 table (inconsistent table structure)
+- reports/audit/07-post-remediation-review.md: Version Drift section (lines 174-178) reports mkdocs.yml version as "v1.2" but the current mkdocs.yml copyright line reads "v1.2.51 - February 2026" — the report snapshot is stale
+- reports/audit/06-remediation-backlog.md: Items 71-87 are grouped as "Various" without individual descriptions or acceptance criteria, unlike items 1-70
+GAPS:
+- NONE
+FIXES:
+1. reports/audit/02-inventory.md: Change "agent-identity.md" to "agent-identity-architecture.md" on line 144
+2. reports/audit/02-inventory.md: Add "Technologies" column to Pillar 2, 3, and 4 tables (or remove it from Pillar 1) for consistency
+3. reports/audit/07-post-remediation-review.md: Update Version Drift section to reflect current versions (mkdocs.yml is v1.2.51, not v1.2) or add a note that this reflects the point-in-time audit snapshot
+4. reports/audit/06-remediation-backlog.md: Expand items 71-87 with individual descriptions and acceptance criteria matching the format of items 1-70
+**NOTE ON SECTION A NAV ORPHANS:** The ~300 mkdocs.yml nav orphans flagged by the automated pre-pass are **FALSE POSITIVES**. I manually verified that ALL referenced files exist under `docs/` — mkdocs resolves nav paths relative to `docs_dir` (defaults to `docs/`), not the repo root. For example, `controls/index.md` resolves to `docs/controls/index.md` which exists. The automated tool used incorrect path resolution. The report file 05-documentation-findings.md line 20-21 ("✅ PASS — all entries resolve") is correct.
+STATUS: ISSUES_FOUND

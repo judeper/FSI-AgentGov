@@ -1,0 +1,10 @@
+Now let me check for any issues the reviewer might have missed in the other playbook files in this chunk.
+Audit complete. Here are the findings:
+---
+**FALSE_POSITIVES:**
+- NONE
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/1.27/powershell-setup.md` line 399: Commented-out code `# $accessToken = (Get-AzAccessToken -ResourceUrl $orgUrl).Token` presents the same SecureString-unsafe pattern as "Option 1" guidance. Users uncommenting this line on Az.Accounts 5.0+ would hit the same `System.Security.SecureString` string-interpolation bug. Low severity since it's commented out, but it's instructional code intended to be followed.
+**FIX_CONCERNS:**
+- NONE. The suggested `Marshal` approach is the correct choice over the `ConvertFrom-SecureString -AsPlainText` alternative (used in 2.22), because the Marshal pattern works on both Windows PowerShell 5.1 and PowerShell 7+, while `-AsPlainText` requires PS 7+. The 1.24 playbook has no PS 7 prerequisite, so the broader-compatibility fix is appropriate.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough. The CRITICAL finding on 1.24 line 131 is a genuine runtime bug confirmed by inspecting the code, the three warnings are correctly classified as false positives, and the proposed fix matches the proven pattern already deployed in 1.25. One minor missed item: 1.27 line 399 shows the same unsafe pattern in commented-out instructional code.

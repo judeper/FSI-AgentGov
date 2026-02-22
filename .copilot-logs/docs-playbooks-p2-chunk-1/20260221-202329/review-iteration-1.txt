@@ -1,0 +1,26 @@
+Now I have all 25 files reviewed. Let me compile the findings.
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Duplicate step numbering — Steps 7–10 appear twice: first in the main walkthrough (Step 7: AI Features at line 117, Step 8: Review Data Policies, Step 9: Save, Step 10: Env Routing) and again at line 257 (Step 7: Restrict Environment Creation, Step 8: Environment Routing, Step 9: Tenant Isolation, Step 10: Security Groups). Administrators following sequentially will be confused by conflicting step numbers.
+- docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Date inconsistency — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026 | Version: v1.3" (line 298).
+- docs/playbooks/control-implementations/2.4/portal-walkthrough.md: Uses deprecated "Azure Active Directory" terminology (line 116) — Microsoft rebranded to "Microsoft Entra ID" in July 2023. Should use "Microsoft Entra ID" per current naming.
+WARNINGS:
+- docs/playbooks/control-implementations/2.3/portal-walkthrough.md: Line 53 uses "ensures" language ("This ensures every environment used in pipelines meets Microsoft Enterprise compliance standards") — should use hedged language per FSI rules (e.g., "This helps ensure" or "This is designed to meet").
+- docs/playbooks/control-implementations/2.3/powershell-setup.md: Uses legacy `Microsoft.Xrm.Tooling.CrmConnector.PowerShell` module with `Connect-CrmOnline` cmdlets throughout. NEEDS_HUMAN_REVIEW — verify these are not deprecated in favor of `pac` CLI or `Microsoft.PowerPlatform.Dataverse.Client`.
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Lines 65–68 list speculative model versions and dates (GPT-5 "GA Nov 2025", GPT-5.2 "Preview", GPT-4o "Previous generation"). NEEDS_HUMAN_REVIEW — verify these match actual Microsoft model offerings in Copilot Studio.
+- docs/playbooks/control-implementations/2.6/powershell-setup.md: Line 29 uses `Search-UnifiedAuditLog -RecordType "CopilotInteraction"` — the RecordType value "CopilotInteraction" may not be the exact enum value. NEEDS_HUMAN_REVIEW.
+- Multiple portal-walkthrough files have double horizontal rule separators (`---` followed by empty line and another `---`) creating empty visual sections: 2.3 (line 182–183), 2.4 (line 238–239), 2.5 (line 242–243), 2.6 (line 239–240), 2.7 (line 177–178).
+- docs/playbooks/control-implementations/2.5/powershell-setup.md: Lines 132–133 contain PowerShell array indexing syntax `[$responseTimes.Count * 0.5]` flagged by automated tools as broken internal links — these are false positives (valid PowerShell code inside code fences). No fix needed.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Renumber the second set of steps (lines 257–290) to Steps 11–14 (or 11–14) to eliminate duplicate numbering, and integrate them into the main walkthrough flow.
+2. docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Align header date — change line 3 from "January 2026" to "February 2026" to match footer, or update footer to match header.
+3. docs/playbooks/control-implementations/2.4/portal-walkthrough.md: Replace "Azure Active Directory" with "Microsoft Entra ID" on line 116.
+4. docs/playbooks/control-implementations/2.3/portal-walkthrough.md: Change line 53 from "This ensures every environment" to "This helps ensure every environment" or "This is intended to ensure every environment".
+5. docs/playbooks/control-implementations/2.3/portal-walkthrough.md, 2.4/portal-walkthrough.md, 2.5/portal-walkthrough.md, 2.6/portal-walkthrough.md, 2.7/portal-walkthrough.md: Remove the duplicate `---` separator (keep only one) before the footer navigation links.
+NOTE on Section A pre-verified findings:
+- **Broken external URLs (8):** All are false positives — legitimate admin portal URLs requiring authentication (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com) or intentional placeholder/example URLs in code samples (yourorg.crm.dynamics.com, dev-fsi.crm.dynamics.com, api.bap.microsoft.com template). No fixes needed.
+- **Broken internal links (2):** False positives — `[$responseTimes.Count * 0.5]` and `[$responseTimes.Count * 0.95]` are PowerShell array index expressions inside code blocks, not markdown links.
+- **MkDocs nav orphans (300+):** Worktree artifact — this worktree contains only the batch files under review, not the full docs/ directory. The full repository contains all referenced files. Not genuine issues.
+STATUS: ISSUES_FOUND

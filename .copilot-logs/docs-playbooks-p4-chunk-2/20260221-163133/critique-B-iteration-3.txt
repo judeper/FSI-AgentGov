@@ -1,0 +1,11 @@
+Both files confirmed. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Both fixes are inside fenced code blocks (```` ``` ````), so they cannot break cross-references, mkdocs nav, or internal links. The change is a 3-line-to-1-line simplification of PowerShell cleanup logic — no markdown structure is affected.
+**SEVERITY_CORRECTIONS:**
+- NONE. The two fixes are correctly classified as WARNINGS. They describe a fragile pattern (a guard query that can itself fail, silently skipping disconnect) but not a critical defect — the `finally` block still runs, and `SilentlyContinue` prevents user-visible errors. WARNING is appropriate.
+**FIX_ORDERING:**
+- NONE. The two fixes are independent (different files, no shared state). They can be applied in any order or simultaneously.
+**OVER_ENGINEERED:**
+- NONE. Removing a redundant guard check is the minimal fix. The review correctly avoids proposing retry logic, logging, or session-state introspection.
+**CRITIQUE_SUMMARY:** The review is clean and well-calibrated — all 16 broken-URL findings are correctly dismissed as false positives (standard Microsoft placeholder domains in code blocks), and the two real fixes are low-risk, independent, single-line simplifications inside fenced code that cannot affect build or navigation.

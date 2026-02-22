@@ -1,0 +1,18 @@
+Now let me check for anchor links to the H2 headings before demoting, and look at the 1.1/verification-testing.md issue:
+No anchor references found — safe to demote. Now applying all fixes:
+Verify the changes:
+There are internal "Last Updated: January 2026" references in the powershell-setup files — let me check if they're in code blocks:
+Those are inside PowerShell script comment blocks (`.NOTES`) — these are code artifacts, not document metadata. The review only flagged header vs footer mismatches, so these are fine as-is.
+CHANGES:
+- docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Demoted Steps 6-9 headings from `##` to `###` to restore heading hierarchy under "Step-by-Step Configuration"
+- docs/playbooks/control-implementations/1.2/portal-walkthrough.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.2/powershell-setup.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.2/troubleshooting.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.2/verification-testing.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.3/portal-walkthrough.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.3/powershell-setup.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.3/troubleshooting.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- docs/playbooks/control-implementations/1.3/verification-testing.md: Harmonized header date from "January 2026" to "February 2026" to match footer
+- SKIPPED: Issue 10 (SSPM-1.1-05 portal path conflict) — already has HTML comment noting discrepancy; requires live portal verification (NEEDS_HUMAN_REVIEW)
+- SKIPPED: GAP (H1 title format inconsistency) — affects 71 files repo-wide; flagged as separate normalization task
+FIX_STATUS: COMPLETE

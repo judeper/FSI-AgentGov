@@ -1,0 +1,16 @@
+Now I have the data to complete the risk analysis.
+---
+**HIGH_RISK_FIXES:**
+- **Fix 1 (ChatbotId → ChatbotName standardization) is PARTIALLY DANGEROUS.** The review conflates two distinct issues: (a) `ChatBotName` vs `ChatbotName` casing — a safe cosmetic fix, and (b) `ChatbotId` vs `ChatbotName` — these are **different API properties** (ID vs display name). Control 1.26's powershell-setup.md uses `ChatbotId` in a context where it passes the value to `-ChatbotId` parameter (lines 79, 152, 436, 449), which is the correct parameter for that cmdlet. Blindly renaming `ChatbotId` to `ChatbotName` across 1.26 would break the PowerShell scripts. Only the `ChatBotName` → `ChatbotName` casing fix in 1.28 is safe to apply without human review.
+**SEVERITY_CORRECTIONS:**
+- **Fix 1 should be split into two separate items:** (a) SAFE: Fix `ChatBotName` casing in 1.28 to `ChatbotName` (3 occurrences — powershell-setup.md lines 295, 308; troubleshooting.md line 97). (b) NEEDS_HUMAN_REVIEW: Whether 1.26's `ChatbotId` should actually be `ChatbotName` — this requires verifying the `Get-AdminPowerAppChatbot` cmdlet's actual return object schema. The review's original NEEDS_HUMAN_REVIEW tag was correct, but Fix 1 then contradicts it by proposing a concrete change.
+- **Warning on `Add-AdminPowerAppEnvironmentToPolicy` (Fix 3) severity is accurate** — the cmdlet name follows Power Platform naming conventions and may exist in newer module versions. An availability note is proportionate.
+- **Warning on wildcard connector path (Fix 2) severity is accurate** — DLP connector classification uses explicit connector IDs, not glob patterns. The `apis/*` entry at line 158 would likely be silently ignored or error at runtime.
+**FIX_ORDERING:**
+- Fix 2 and Fix 3 are independent and can be applied in any order or in parallel — both are additive admonition blocks in `1.28/powershell-setup.md`.
+- Fix 1(a) (casing fix in 1.28) is independent of Fix 1(b) and can ship immediately.
+- Fix 1(b) (`ChatbotId` in 1.26) must NOT ship until human-verified against the API — block this behind a NEEDS_HUMAN_REVIEW gate.
+**OVER_ENGINEERED:**
+- **Fix 1 as proposed is over-engineered and under-analyzed.** The review recommends a cross-playbook standardization pass across 3 controls (1.26, 1.27, 1.28) when only 1.28's casing is demonstrably wrong. The 1.26 `ChatbotId` usage is contextually correct (it's passed to a `-ChatbotId` parameter). A targeted casing fix in 1.28 alone achieves the necessary consistency without risking breakage.
+- Fixes 2 and 3 are appropriately scoped — single-line admonition additions.
+**CRITIQUE_SUMMARY:** The review correctly identifies real inconsistencies but Fix 1 dangerously proposes renaming a potentially correct API property (`ChatbotId`) to a different property (`ChatbotName`) without verifying the cmdlet schema — this must be split into a safe casing fix (1.28 only) and a deferred human-review item (1.26). Fixes 2 and 3 are low-risk additive warnings that can ship immediately.

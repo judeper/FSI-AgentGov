@@ -1,0 +1,16 @@
+All findings verified against the actual files. Here's my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 5 (evidence-and-audit.md PowerShell module): Changing `Microsoft.PowerApps.Administration.PowerShell` to `Microsoft.Xrm.Data.PowerShell` in a code comment is factually correct for `Connect-CrmOnline`/`Get-CrmRecords`, but the surrounding script context may intentionally load both modules — the PowerApps module could be needed for other cmdlets in the same block. Incorrect module attribution in a runnable code sample carries higher risk than a prose typo. **NEEDS_HUMAN_REVIEW classification is correct; do not auto-fix.**
+**SEVERITY_CORRECTIONS:**
+- Fix 4 (Control 1.18 name mismatch): Classified as WARNING but should be **CRITICAL** — it is the exact same error class as Fix 3 (control display text doesn't match canonical name while the link href is correct). Both are factual misidentification of controls shown to the reader. Demoting Fix 4 to WARNING while Fix 3 is CRITICAL is inconsistent.
+**FIX_ORDERING:**
+1. Fixes 3 + 4 together — same file (`unrestricted-agent-sharing-detector/index.md`), no dependencies, avoids two passes
+2. Fix 1 — independent (`deployment-guide.md`), no downstream references
+3. Fix 2 — independent (`index.md` tab names), but verify direction: customization-guide.md is authoritative (it has per-tab implementation detail), so index.md should align to it. **Correct direction confirmed.**
+4. Fix 6 — independent (`customization-guide.md` footer v1.2.48 → v1.2.51)
+5. Fix 5 — last, pending human review
+6. Fix 7 — see over-engineering below
+**OVER_ENGINEERED:**
+- Fix 7 (add framework version to index.md and telemetry-schema.md footers): **Drop this fix.** The `v1.3` in these footers is the *workbook version*, not the framework version. These advanced-implementation playbooks intentionally use a different footer convention (`Version: v1.3 | Framework: FSI Agent Governance`) from control files (`Version: v1.1 | UI Verification Status: Current`). Injecting "v1.2.51" would conflate two independent version tracks and create a maintenance burden — every framework version bump would require updating playbook footers that haven't otherwise changed. The current format is not ambiguous; it's a deliberate scoping choice.
+**CRITIQUE_SUMMARY:** The review correctly identified 3 genuine critical control-name mismatches and 1 real version inconsistency; Fix 4 should be promoted to CRITICAL for consistency, Fix 5 rightly needs human review, and Fix 7 should be dropped as it misreads an intentional versioning convention as an omission.

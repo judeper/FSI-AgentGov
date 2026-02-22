@@ -1,0 +1,18 @@
+All claims verified against the actual files. Here is the final synthesized review:
+ISSUE_COUNT: 5
+CRITICAL:
+- docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Step 1 "Define Protected Classes" table lists only 6 of the 9 ECOA protected classes (missing Color, Religion, Good Faith Exercise of Consumer Credit Protection Act Rights). The sibling verification-testing.md correctly lists all 9 with ECOA citations (15 U.S.C. § 1691). This is a regulatory content gap — incomplete protected class coverage in the setup guide directly undermines bias testing adequacy.
+WARNINGS:
+- docs/playbooks/control-implementations/2.7/powershell-setup.md: Two naming/behavior mismatches: (1) Section heading "Get Connectors in Use" (line 28) fronts a script that enumerates apps and flows via `Get-AdminPowerApp`/`Get-AdminFlow`, not connectors. (2) Function `Export-ConnectorInventory` (lines 61–89) only exports environment-level data (EnvironmentName, EnvironmentId, EnvironmentType, DLPPoliciesApplied) — no actual connectors are enumerated despite the name.
+- docs/playbooks/control-implementations/2.8–2.13 (24 files): All playbooks in controls 2.8 through 2.13 lack footer metadata (`*Updated: Month Year | Version: vX.X*`), while controls 2.3–2.7 consistently include it. This is the converse of the heading format inconsistency — each block is missing what the other has.
+GAPS:
+- Heading format split across batch: Controls 2.3–2.7 (15 files) use `# Control X.X: [Name] - [Type]` while controls 2.8–2.13 (24 files) use `# [Type]: Control X.X - [Name]`. Both patterns are functionally equivalent — this is a cosmetic inconsistency, not a correctness issue. Normalizing only 2.7 (as the original review proposed) would break consistency with its neighbors 2.3–2.6, creating a worse state. Defer to a dedicated formatting sweep across 2.3–2.7 or accept both conventions.
+- ~450 mkdocs nav orphans are worktree-scoping artifacts — files exist on main branch but were not copied into this isolated worktree. No documentation fix needed.
+FIXES:
+1. docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Add 3 missing ECOA protected classes to Step 1 table — insert rows for **Color** (Demographics / Customer profile), **Religion** (Demographics / Customer profile), and **Good Faith Exercise of Consumer Credit Protection Act (CCPA) Rights** (Activity records / Application data) to match the complete 9-class list in verification-testing.md. Ship independently and first — self-contained content correction with highest regulatory impact.
+2. docs/playbooks/control-implementations/2.7/powershell-setup.md: Rename section heading "Get Connectors in Use" → "Get Apps and Flows by Environment" AND rename function `Export-ConnectorInventory` → `Export-EnvironmentInventory` (update the export filename from `VendorConnectorInventory.csv` → `VendorEnvironmentInventory.csv` accordingly). Alternatively, update both scripts to actually enumerate connectors via `Get-AdminPowerAppConnector`.
+3. docs/playbooks/control-implementations/2.8–2.13 (24 files): Add footer metadata line `*Updated: January 2026 | Version: v1.2*` to match the convention used in 2.3–2.7 playbooks.
+4. Heading format normalization (2.3–2.7): Defer to a dedicated formatting sweep that targets all 15 files in 2.3–2.7 together. Do NOT normalize only 2.7 in isolation.
+5. Broken external URLs: No changes needed — admin portal HTTP 405s and placeholder tenant URLs are expected patterns.
+6. Nav orphans: No changes needed within playbook scope.
+STATUS: ISSUES_FOUND

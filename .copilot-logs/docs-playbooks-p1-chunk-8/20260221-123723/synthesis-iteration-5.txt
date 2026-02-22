@@ -1,0 +1,21 @@
+All claims verified against the files. Here is the final synthesized review:
+ISSUE_COUNT: 8
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Inconsistent DLP cmdlet naming — Script 2 (lines 212-214) and Script 3 (line 290) use `Get-DlpPolicy`, while Validation Commands (lines 409, 415) use `Get-AdminDlpPolicy`. Same inconsistency in 1.28/troubleshooting.md at lines 31, 96, and 175. Should use `Get-AdminDlpPolicy` consistently as it is the current `Microsoft.PowerApps.Administration.PowerShell` module cmdlet. Users copy-pasting Script 2/3 would get errors if only the Admin module is loaded.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Script 4 (line 385) calls `Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName` as a no-op — executes without setting any approval-related parameters. The surrounding NOTE block (lines 379-384) documents this thoroughly, but the bare cmdlet call is misleading.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Automation Schedule section (line 432) references `C:\Scripts\Audit-AgentPublishingCompliance.ps1` — a script only defined inline as Script 3 above. No instruction to save Script 3 to that path first.
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: `Get-AdminPowerAppEnvironmentGroup` cmdlet (line 371) — NEEDS_HUMAN_REVIEW; this cmdlet may not exist in the current Microsoft.PowerApps.Administration.PowerShell module.
+- docs/playbooks/control-implementations/1.26/portal-walkthrough.md, powershell-setup.md, troubleshooting.md, verification-testing.md: Footer nav links use `[Verification Testing]` while 1.27 and 1.28 playbooks consistently use `[Verification & Testing]`. Minor display text inconsistency.
+- docs/playbooks/control-implementations/1.28/verification-testing.md: Test Case 10 (line 335) references `.\Audit-AgentPublishingCompliance.ps1` as a standalone script file, but this script is only defined inline as Script 3 in powershell-setup.md — same underlying issue as the Automation Schedule path reference.
+GAPS:
+- docs/playbooks/control-implementations/1.26/verification-testing.md: Test cases TC-1.26-07 ("Zone 3 default deny enforced") and TC-1.26-08 ("File count limit enforced") appear in the test case table (lines 66-67) but have no corresponding manual verification steps — only Tests 1-6 are documented.
+- docs/playbooks/control-implementations/1.28/portal-walkthrough.md: Missing "What's Next" section guiding users to remaining playbooks (PowerShell Setup → Verification & Testing → Troubleshooting), present in 1.27/portal-walkthrough.md (line 155) for consistency.
+FIXES:
+1. docs/playbooks/control-implementations/1.28/powershell-setup.md + 1.28/troubleshooting.md: Replace `Get-DlpPolicy` with `Get-AdminDlpPolicy` in all 5 code instances — powershell-setup.md lines 212, 213, 214, 290; troubleshooting.md lines 31, 96, 175 (and update the inline comment at line 174 referencing the cmdlet name).
+2. docs/playbooks/control-implementations/1.28/powershell-setup.md: In Script 4 (line 385), comment out the bare `Set-AdminPowerAppEnvironment` call or replace with a comment-only placeholder, since the surrounding NOTE block already directs users to the Admin Center.
+3. docs/playbooks/control-implementations/1.28/powershell-setup.md: In the Automation Schedule section (line 432), add a note: "Save Script 3 above to `C:\Scripts\Audit-AgentPublishingCompliance.ps1` before creating the scheduled task." Apply the same note to 1.28/verification-testing.md Test Case 10 (line 335).
+4. docs/playbooks/control-implementations/1.26/verification-testing.md: Annotate TC-1.26-07 and TC-1.26-08 table entries with cross-references to the covering tests (e.g., "Verified via Test 1 zone alignment" and "Verified via Test 3 file upload limit") rather than writing full standalone test procedures.
+5. docs/playbooks/control-implementations/1.28/portal-walkthrough.md: Add a "What's Next" section before the footer matching the pattern in 1.27/portal-walkthrough.md, directing users to PowerShell Setup → Verification & Testing → Troubleshooting.
+STATUS: ISSUES_FOUND

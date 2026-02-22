@@ -32,7 +32,7 @@
 - Search results showing detected adversarial input
 - Export option visible
 
-### Screenshot 5: Zone 3 Blocking Configuration (Optional)
+### Screenshot 5: Zone 3 Blocking Configuration
 **Portal Path:** Defender for Cloud Apps → Policies → Session policy
 **What to capture:**
 - Session policy configured for blocking

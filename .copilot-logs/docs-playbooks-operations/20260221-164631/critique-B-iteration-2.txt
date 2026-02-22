@@ -1,0 +1,16 @@
+Analysis complete. Here's the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix 4 (Control 1.9 rename): Severity should be elevated from WARNING to WARNING-HIGH. The canonical name in CONTROL-INDEX.md and the control file itself is "Data Retention and Deletion Policies." Using "10-Year Retention" is misleading — 10-year retention is only one Zone 3 requirement, not the control's scope. Cross-reference confusion risk is real.
+**FIX_ORDERING:**
+- Fixes 1–3 (version footer updates) are independent and can be applied in any order or in parallel.
+- Fix 4 (Control 1.9 rename) is independent.
+- Fix 5 (backward navigation links) is independent.
+- No ordering dependencies exist between any of the five fixes.
+**OVER_ENGINEERED:**
+- Fix 5 (backward navigation links): Adding "Previous Phase" links is a valid UX improvement but is **out of scope** for a review that should focus on correctness. The existing "Next Phase" pattern is consistent across all three files and matches the `getting-started/` sequential onboarding design. This is a feature request, not a fix. Defer to a separate enhancement.
+- The GAP about missing "Prerequisites" sections is similarly over-engineered — the phase documents already describe what must exist before starting (e.g., Phase 1 references governance committee from Phase 0). Adding formal prerequisite sections adds boilerplate without value.
+- The WARNING about Control 2.11 appearing in both phases is correctly identified but needs no fix — Phase 1 says "Bias Testing" (establish process) while Phase 2 says "Comprehensive Bias Testing" (full program). The headings already distinguish maturity progression. Adding explanatory language would over-explain.
+**CRITIQUE_SUMMARY:** Fixes 1–4 are low-risk, surgically scoped, and should be applied. Fix 5 and the two GAPs are scope creep — valid observations but should be tracked as enhancements rather than mixed into a correctness-focused review pass.

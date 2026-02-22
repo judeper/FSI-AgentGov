@@ -1,0 +1,17 @@
+Now I have all the data to produce the final synthesized review. Let me verify one remaining detail.
+I now have all the data confirmed. Here is the final synthesized review:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- 02-inventory.md: Pillar 1 control titles systematically incorrect — 23 of 28 titles don't match actual control H1 headings (e.g., 1.1 listed as "Copilot Studio DLP Governance" but actual is "Restrict Agent Publishing by Authorization"; 1.6 listed as "Encryption at Rest and in Transit" but actual is "Microsoft Purview DSPM for AI"). Pillars 2–4 collapsed descriptions also contain inaccuracies (P2 "Connector Management" vs actual 2.4 "Business Continuity and Disaster Recovery"; P4.1 "SharePoint Advanced Management" vs actual "SharePoint IAG/Restricted Content Discovery"). Inventory uses an obsolete naming scheme across all pillars. Severity is WARNING (not CRITICAL) because these are unpublished internal audit artifacts with no downstream impact on the framework or published site.
+- 03-learn-validation-matrix.md: Summary table counts are wrong — states Contradicted:15, Not Found:4, Partially Verified:3, Total:22, but detailed sections contain 22 contradicted (3 CRITICAL + 19 HIGH) + 5 Not Found + 4 Partially Verified = 31 items. Summary underreports by 9 items. Detail-level data is correct and authoritative; only the summary table is wrong.
+- 04-technical-findings.md: Medium/Low findings count math error — header says "136 Medium/Low" but table rows sum to 144 (100 Medium + 44 Low); summary states "156 total" but actual is 20 tracked + 144 Medium/Low = 164. Discrepancy is consistently 8 across both figures. Detail-level table rows are authoritative.
+GAPS:
+- NONE
+FIXES:
+1. 02-inventory.md: Replace all 28 Pillar 1 control titles with actual H1 headings from control files (e.g., 1.1→"Restrict Agent Publishing by Authorization", 1.3→"SharePoint Content Governance and Permissions", 1.6→"Microsoft Purview DSPM for AI", 1.9→"Data Retention and Deletion Policies", etc. — all 28 rows need correction, not just examples). For Pillars 2–4, fix the comma-separated descriptions in collapsed rows to match actual control titles — retain the collapsed format, do not expand to per-control tables. Apply as a single commit since all changes are in one file for the same root cause.
+2. 03-learn-validation-matrix.md: Update summary table to Contradicted:22, Not Found:5, Partially Verified:4, Total flagged:31.
+3. 04-technical-findings.md: Reconcile both the section header and summary table — either correct the header from "136 Medium/Low" to "144" and total from "156" to "164", or audit the detail table rows to verify counts. The header and table may have been derived independently, so confirm which is authoritative before changing.
+STATUS: ISSUES_FOUND

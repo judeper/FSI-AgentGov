@@ -1,0 +1,14 @@
+Verified the source files. Here is the final synthesized review:
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- 4.3 (line 109): Related Controls table lists 4.1 with relationship "Sensitivity labels can auto-apply retention" — this describes a sensitivity-label-to-retention mechanism (relevant to Control 1.5), not the IAG/RCD/RSS scope of Control 4.1. Misleading cross-reference description. 
+- 4.6 (line 36): "CopilotReady Tagging" is listed as a capability alongside Microsoft-native features (RCD, RSS) in the capabilities table without indicating it is a recommended governance practice, not a built-in Microsoft feature. NEEDS_HUMAN_REVIEW to confirm whether Microsoft has introduced a formal "CopilotReady" metadata property since last check.
+GAPS:
+- NONE
+FIXES:
+1. 4.3 (line 109): Change relationship text for 4.1 from "Sensitivity labels can auto-apply retention" to "Retention policies should cover sites governed by RCD/RSS exclusions" — this names the actual IAG mechanisms and the dependency direction between access governance (4.1) and retention lifecycle (4.3).
+2. 4.6 (line 36): Clarify that "CopilotReady Tagging" is a custom governance practice, not a built-in Microsoft feature — e.g., change to "CopilotReady Tagging (custom metadata)" or add a footnote.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,20 @@
+Now I have all the evidence. Let me apply the verified fixes.
+Files are restricted by content exclusion policy. I'll produce the reconciled output without applying edits.
+**Reconciliation Analysis:**
+- **Fix 1 (New-PnPField):** Both critiques agree it's real. Critique B correctly notes severity is UNDER-classified — `New-PnPField` doesn't exist, causing runtime errors. Upgraded to CRITICAL.
+- **Fix 2 (WORM Storage):** Both critiques agree. Portal-walkthrough line 58 confirms both options. Critique B correctly notes line 168 should also be updated. INCLUDE.
+- **Fix 3 (blockquote → admonition):** Critique A found `> **` pattern in ~100+ files repo-wide. Critique B calls it over-classified. Both agree: DROP — changing one file creates inconsistency, blockquote renders fine.
+- **Issue 4 (LearningContent.Read.All):** Critique A improved the diagnosis: the scope at line 14 doesn't match what scripts actually use (lines 36, 297). INCLUDE with refined characterization.
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- docs/playbooks/control-implementations/2.13/powershell-setup.md (lines 58-60): `New-PnPField` does not exist in PnP.PowerShell — admins copy-pasting this script get immediate runtime errors on 3 lines. The correct cmdlet is `Add-PnPField` (confirmed in 2.12/powershell-setup.md with 7 usages).
+WARNINGS:
+- docs/playbooks/control-implementations/2.13/powershell-setup.md (lines 166-168): Validation Check 3 says "WORM Storage" only, but the portal-walkthrough.md (line 58) documents both WORM and audit-trail alternatives per October 2022 SEC amendments. Both the label and info text should reference both options.
+- docs/playbooks/control-implementations/2.14/powershell-setup.md (line 14): Prerequisites `Connect-MgGraph` declares scope `LearningContent.Read.All` but this scope is never used by any script in the file. Actual scripts (lines 36, 297) connect with `User.Read.All, RoleManagement.Read.All`. The prerequisite scope is misleading. NEEDS_HUMAN_REVIEW
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.13/powershell-setup.md (lines 58-60): Change `New-PnPField` to `Add-PnPField` on all 3 lines. Preserve existing parameters (no `-List` parameter — these are site-level columns, not list fields).
+2. docs/playbooks/control-implementations/2.13/powershell-setup.md (lines 166-168): Change comment to `# Check 3: WORM storage or audit-trail alternative (manual)`, label to `Write-Host "[Check 3] WORM Storage / Audit-Trail Alternative"`, and info line to `Write-Host "[INFO] Verify WORM or audit-trail storage for Zone 3 (SEC 17a-4)"`.
+STATUS: ISSUES_FOUND

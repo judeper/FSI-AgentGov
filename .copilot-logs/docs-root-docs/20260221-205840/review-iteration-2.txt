@@ -1,0 +1,14 @@
+Now let me verify the remaining items - the solutions-integration.md Mermaid fix and the stale footer status.
+Here is the verification report:
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- docs/framework/solutions-integration.md (line 21): REMAINING — Mermaid subgraph label still says "24 Deployable Automation Solutions"; should be "25 Deployable Automation Solutions" per line 655 (25 deployable + 2 framework-integrated = 27 total)
+WARNINGS:
+- 26 files across docs/: REMAINING — Systemic stale footer pattern `v1.2 - January 2026` still present in 26 files. NEEDS_HUMAN_REVIEW unchanged. (docs/index.md footer was correctly updated to `v1.2.51 - February 2026`, but the other 26 files remain stale.)
+GAPS:
+- NONE
+FIXES:
+1. docs/framework/solutions-integration.md (line 21): Change `"FSI-AgentGov-Solutions (24 Deployable Automation Solutions)"` → `"FSI-AgentGov-Solutions (25 Deployable Automation Solutions)"`
+2. Stale footers (26 files): NEEDS_HUMAN_REVIEW — batch-update decision still required
+STATUS: ISSUES_FOUND

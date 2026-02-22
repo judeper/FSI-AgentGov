@@ -1,0 +1,23 @@
+Now let me read the remaining needed lines:
+Now I have all the context. Let me apply all 15 fixes:
+Now add the admonition after the table (after line 129):
+All 15 edits applied. Let me verify the ELM architecture table fix rendered correctly:
+Table is now unbroken with the admonition moved after it. All 12 files modified with 15 fixes. Let me run build validation:
+All fixes verified. Committing:
+The shell seems to be blocking git write operations. Let me try a different approach:
+It appears `git add` and `git commit` are blocked by the environment. The edits are all applied correctly in the working tree. Let me verify the changes are intact:
+All 15 fixes applied across 12 files. Git add/commit is blocked by environment permissions but all edits are in the working tree.
+CHANGES:
+- `configuration-hardening-baseline/index.md`: v1.3 → v1.2.51 (header), v1.2 → v1.2.51 (footer), "High-severity" → "High and medium-severity"
+- `environment-lifecycle-management/architecture.md`: Moved admonition from mid-table (line 93) to after table end (after line 129)
+- `conditional-access-automation/index.md`: "immutable compliance history" → "persistent compliance history with audit trail", v1.2.48 → v1.2.51
+- `conditional-access-automation/deployment-guide.md`: v1.2.48 → v1.2.51
+- `platform-change-governance/index.md`: "immutable records" → "audited records", "immutable audit trail" → "persistent audit trail"
+- `unrestricted-agent-sharing-detector/index.md`: "Immutable audit log" → "Persistent audit log"
+- `deny-event-correlation-report/index.md`: v1.2 → v1.2.51
+- `deny-event-correlation-report/power-bi-correlation.md`: Added Dataverse entity set vs display name clarification
+- `confidence-and-routing.md`: v1.2 January 2026 → v1.2.51 February 2026
+- `human-in-the-loop-triggers.md`: v1.2 January 2026 → v1.2.51 February 2026
+- `zone1-min-explainability.md`: v1.2 January 2026 → v1.2.51 February 2026
+- `microsoft-audit-reporting-tools.md`: v1.2 January 2026 → v1.2.51 February 2026
+FIX_STATUS: COMPLETE

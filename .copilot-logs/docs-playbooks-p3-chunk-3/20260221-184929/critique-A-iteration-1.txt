@@ -1,0 +1,19 @@
+Now let me verify the remaining 3.12 files and check for header metadata in 3.11/3.12:
+Now let me verify the duplicate `---` claim and the `Get-AdminFlow` parameter:
+Now let me check the 3.12 files for missing footer metadata and verify the review's GAP claim is complete:
+The review's GAP claim missed that 3.12 has 4 files without footer metadata (not just `portal-walkthrough.md`). Let me also check for issues the reviewer may have missed:
+That's a module name in a comment, not a role name — not an issue. Let me verify the line count claim on test case 6 being a duplicate:
+Good — I can see FAC-01 is the detailed version starting at line 50, and the legacy Test Case 1 at line 220 is indeed a shorter duplicate. The reviewer's analysis is correct.
+Now let me check if the review missed any 3.12 files without footers:
+The review's GAP only listed 5 files (4 from 3.11 + 1 from 3.12), but all 8 files across 3.11 and 3.12 are missing footer metadata. Let me confirm:
+Now I have all the data. Here's the audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All claimed issues are real and verified against the actual files.
+**MISSED_ISSUES:**
+- The GAP for missing footer metadata is incomplete: the review lists 5 files (4 from 3.11 + `3.12/portal-walkthrough.md`) but **all 8 files** across 3.11 and 3.12 are missing the `*Updated: Month Year | Version: vX.X*` footer. The 3 omitted files are `3.12/powershell-setup.md`, `3.12/troubleshooting.md`, and `3.12/verification-testing.md`.
+- Fix #4 correspondingly only lists 5 files; it should list all 8.
+**FIX_CONCERNS:**
+- Fix #2 (removing legacy test cases 1–3 and 6) says lines 220–299, but Test Cases 4, 5, and 7 are interleaved at lines 261–300+. Test Cases 4 and 5 are **not** legacy duplicates — they cover agent access and AI Administrator roles, which are distinct from FAC-01/02/03. The suggested removal range would delete non-duplicate content. The correct scope is: remove only Test Case 1 (lines 220–232), Test Case 2 (lines 234–246, partial overlap with FAC-02), Test Case 3 (lines 248–259, partial overlap with FAC-03), and Test Case 6 (lines 288–298). This needs a more precise line range, not a blanket 220–299 deletion.
+- Fix #5 (`Get-AdminFlow -EnvironmentName "Default"`): The review correctly flags this as NEEDS_HUMAN_REVIEW. The `Get-AdminFlow` cmdlet does accept the string `"Default"` for the default environment in some Power Platform PowerShell module versions, but best practice is to use the environment GUID. The flag is appropriate.
+**CRITIQUE_SUMMARY:** The review is thorough and mostly accurate — all claimed issues are real, the propagation time inconsistency and duplicate test case findings are well-substantiated, and the NEEDS_HUMAN_REVIEW flags are appropriately placed. The two gaps are: (1) the footer metadata count undercounts by 3 files (8 affected, not 5), and (2) Fix #2's line range is imprecise and would inadvertently remove non-duplicate test cases 4 and 5.

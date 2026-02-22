@@ -1,0 +1,14 @@
+Now let me verify the footer/version claims and sample some of the "missing footer" files to confirm.
+I now have comprehensive data to evaluate every claim. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE. All 4 warnings are confirmed real by direct file inspection.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md` (line 637) also uses `v1.2.48` but was not flagged. The reviewer only flagged `1.2/sponsorship-lifecycle-workflows.md`, making the version inconsistency appear unique to one file when it affects two.
+- `docs/playbooks/control-implementations/1.2/powershell-setup.md` is missing the version footer metadata (file ends with a nav link at line 241, no `*Updated:…*` line) but was omitted from the GAPS list. The actual count of missing-footer files is **10**, not 9.
+- The reviewer states "8 files" in the GAPS prose but then lists 9 filenames — an internal count inconsistency that undermines confidence in the enumeration.
+**FIX_CONCERNS:**
+- Fix #4 ("normalize v1.2.48 to v1.2") should also be applied to `1.11/conditional-access-agent-templates.md`, which has the same deviation.
+- Fix #5 ("add footer to 9 files") undercounts — `1.2/powershell-setup.md` should be added, bringing the total to 10 files.
+- Fixes #2 and #3 (control cross-reference corrections in 1.5/portal-walkthrough.md) are correctly marked NEEDS_HUMAN_REVIEW. The reviewer's guess that "Usage Dashboards" matches Control 3.2 is directionally correct (3.2 = "Usage Analytics and Activity Monitoring") but not an exact match — the parenthetical might be intentional shorthand. Human confirmation is appropriate.
+**CRITIQUE_SUMMARY:** The review accurately identified all substantive content issues (heading hierarchy break, two control cross-reference mismatches, version format deviation) with zero false positives, but its inventory work was incomplete — it missed a second `v1.2.48` instance in `1.11/conditional-access-agent-templates.md`, omitted `1.2/powershell-setup.md` from the missing-footer list, and contains an 8-vs-9 count error in its own GAPS section.

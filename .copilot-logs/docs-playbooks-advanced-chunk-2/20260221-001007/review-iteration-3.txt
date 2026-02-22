@@ -1,0 +1,24 @@
+Now let me read the deployment guide for the unrestricted-agent-sharing-detector which was too large:
+Now let me check for the two language overclaims I spotted and verify the directory structure for nav orphans.
+The worktree is read-only. I'll produce the review report with the fixes documented.
+The files listed as nav orphans actually exist. Let me verify the mkdocs.yml paths.
+The nav orphan files all exist — the automated orphan checker produced false positives. Now let me produce the final report.
+ISSUE_COUNT: 2
+CRITICAL:
+- `docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md` (line 11): Prohibited language overclaim — "provides full regulatory compliance" violates FSI language rules (must not imply legal guarantee)
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 76): Prohibited language overclaim — "provides complete regulatory compliance" violates FSI language rules
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. `docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md`: Change "This path provides full regulatory compliance without Azure DevOps integration." → "This path supports regulatory compliance requirements without Azure DevOps integration."
+2. `docs/playbooks/advanced-implementations/platform-change-governance/index.md`: Change "Path A provides complete regulatory compliance without the additional complexity of bi-directional sync." → "Path A supports regulatory compliance requirements without the additional complexity of bi-directional sync."
+**SECTION A VERIFIED FINDINGS — DISPOSITION:**
+BROKEN EXTERNAL URLS (all 8 — false positives, no fix needed):
+- Graph API endpoints (`graph.microsoft.com`) appear inside code blocks as OAuth scopes or API URIs — they are not markdown hyperlinks
+- Portal URLs (`make.powerautomate.com`, `admin.powerplatform.microsoft.com`) are valid; HTTP 405 is the link checker hitting auth-required portals
+- `contoso.webhook.office.com` is an intentional placeholder in example JSON
+MKDOCS NAV ORPHANS (all ~350 — false positives, no fix needed):
+- Verified that all referenced files exist under `docs/` at their expected paths (e.g., `docs/controls/pillar-1-security/` contains all 28 control files + index). The `mkdocs.yml` uses the default `docs_dir` and paths resolve correctly. The automated orphan checker produced false positives.
+STATUS: ISSUES_FOUND

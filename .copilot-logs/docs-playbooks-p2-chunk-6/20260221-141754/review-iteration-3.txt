@@ -1,0 +1,17 @@
+Now I have all files read. Let me compile the review.
+Good — no prohibited language found. Now let me finalize the review.
+ISSUE_COUNT: 2
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/powershell-setup.md (line 506): PowerShell `Write-Host "=" * 80` — in argument mode, `*` is not evaluated as a multiplication operator; outputs literal `= * 80` instead of 80 equals signs. Should be `Write-Host ("=" * 80)`. Same issue on line 526 with `Write-Host "`n" + "=" * 80`. (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/2.22/*.md: Navigation footer uses "Parent Control" breadcrumb at top + "Next Steps" section at bottom, while 2.19/2.20/2.21/2.23 playbooks use inline `[Back to Control X.XX] | [sibling links]` footer. Style inconsistency within batch, not broken.
+GAPS:
+NONE
+SECTION A DISPOSITION:
+- **Broken external URLs (all 16):** All are false positives. 3 are legitimate Microsoft portal URLs (PPAC, Copilot Studio, Power Automate) returning HTTP 405 due to auth-gated landing pages. 7 are API endpoints (`api.bap.microsoft.com`, `graph.microsoft.com`) returning HTTP 502 — these are documented for script/API usage, not meant to be browsed. 6 are intentional placeholder/example URLs (`contoso.sharepoint.com`, `org12345.crm.dynamics.com`, `intranet.contoso.com`, `tenant.sharepoint.com`) returning HTTP -1 as expected. URLs with trailing backticks (e.g., `...File.docx\``) are scanner artifacts — the backticks are markdown inline code delimiters or PowerShell line continuation characters, not part of the URLs. No fixes needed.
+- **MkDocs nav orphans (~315 entries):** Systemic worktree issue — this worktree (`playbooks-p2-chunk-6-*`) contains only the playbook files under review, not the full `docs/` tree. All nav entries are valid in the main branch. No fixes needed in this batch.
+FIXES:
+1. docs/playbooks/control-implementations/2.23/powershell-setup.md (line 506): Change `Write-Host "=" * 80 -ForegroundColor Cyan` → `Write-Host ("=" * 80) -ForegroundColor Cyan`
+2. docs/playbooks/control-implementations/2.23/powershell-setup.md (line 526): Change `Write-Host "`n" + "=" * 80 -ForegroundColor Cyan` → `Write-Host ("`n" + ("=" * 80)) -ForegroundColor Cyan`
+STATUS: ISSUES_FOUND

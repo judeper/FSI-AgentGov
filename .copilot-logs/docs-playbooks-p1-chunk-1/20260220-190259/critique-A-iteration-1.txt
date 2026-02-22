@@ -1,0 +1,14 @@
+Now let me verify the two specific issues the reviewer mentioned investigating but didn't include in findings.
+Let me verify the exact footer format in a file that has both nav and metadata.
+Now I have all the data to compile the audit. Here is my assessment:
+---
+**FALSE_POSITIVES:**
+- NONE — All 14 claimed issues are verified as real against actual file content.
+**MISSED_ISSUES:**
+- **Footer element ordering inconsistency within 1.1**: `1.1/portal-walkthrough.md` has nav THEN metadata (`[Back to Control...] → *Updated:...*`), while `1.1/verification-testing.md` has metadata THEN nav (`*Updated:...* → [Back to Control...]`). The reviewer flagged the version number issue in both but missed this ordering inconsistency, which would compound if used as a copy-paste model.
+- **Footer metadata format divergence**: 1.1 metadata uses a three-field format (`Updated | Version | Classification`) while 1.4-1.6 use a two-field format (`Updated | Version`). The reviewer correctly noted 1.2-1.3 files lack metadata entirely but didn't flag the structural mismatch between the two groups that DO have metadata.
+**FIX_CONCERNS:**
+- **Fixes 4-11 are ambiguous**: Fix 3 gives a concrete link set for `powershell-setup.md` (correctly excludes itself, links to the other three playbooks). Fixes 4-11 say "Add same-pattern footer nav line" — if taken literally (same links), `troubleshooting.md` would link to itself and omit `powershell-setup.md`. Each file needs a unique link set excluding itself. The fix descriptions should specify exact links per target file.
+- **Missing formatting context in fix instructions**: The existing portal-walkthrough pattern wraps the footer nav between two `---` horizontal rule separators (i.e., `---\n\n[Back to...]\n\n---\n\n*Updated:...*`). The fix descriptions say "Add footer nav line before `*Updated:` line" without mentioning these separators, risking inconsistent rendering.
+- **Fix 12 (SEC 17a-4) recommendation needs nuance**: The review found context elsewhere in the repo (control 2.13) using "6-year requirement + 1-year buffer" language, which explains the 7-year figure. The fix could recommend preserving 7-year where it appears in zone-tier tables (as a conservative policy recommendation) and 6-year in PowerShell scripts (as the technical minimum), with explanatory text in both places. This should still be NEEDS_HUMAN_REVIEW but the recommendation should mention this existing rationale.
+**CRITIQUE_SUMMARY:** The review is substantively accurate — all 14 findings and both Section A false-positive dispositions are confirmed correct against the actual files. The main weaknesses are in fix precision: the "same-pattern" shorthand for Fixes 4-11 creates ambiguity that could produce self-linking footers if executed literally, and the missing `---` separator formatting could produce visually inconsistent results.

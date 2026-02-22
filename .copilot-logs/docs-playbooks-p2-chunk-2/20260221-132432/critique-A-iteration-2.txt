@@ -1,0 +1,16 @@
+Let me check the remaining files in this batch to verify completeness.
+Let me check the files not mentioned in the review for potential missed issues.
+Now let me spot-check the remaining files for potential missed issues.
+Let me check the remaining troubleshooting and verification files.
+I've now reviewed all 16 files in this batch. Here is my audit critique:
+---
+**FALSE_POSITIVES:**
+- NONE — all reviewer claims are verified accurate against the actual file contents.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/2.8/verification-testing.md` and `docs/playbooks/control-implementations/2.8/troubleshooting.md`: Both files are missing the standard footer metadata (`*Updated: January 2026 | Version: v1.2*`) that all other 14 files in this batch consistently include. Per `fsi-control-template.instructions.md`, footer metadata is required. These two files end with only nav links.
+- `docs/playbooks/control-implementations/2.5/powershell-setup.md` (lines 132-134): The reviewer correctly dismissed the markdown-link false positive but did not flag the analogous code-quality edge case — if all requests fail, `$responseTimes` is empty and the array indexing on lines 132-133 silently produces `$null` values passed to `[math]::Round()`. Line 134 also divides by `$allResults.Count` which could be 0. These are the same class of issue the reviewer flagged in 2.6. (PowerShell returns `NaN` rather than throwing, so severity is lower, but the silent bad output is still a concern.)
+- `docs/playbooks/control-implementations/2.7/troubleshooting.md` (line 129): URL `https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/` references the 2025 wave 2 release plan — NEEDS_HUMAN_REVIEW for whether a 2026 wave link would be more current.
+- Reviewer states "15 files" but the batch contains 16 files (4 controls × 4 playbooks). Minor discrepancy.
+**FIX_CONCERNS:**
+- Fix #3 (2.6/powershell-setup.md divide-by-zero): The zero-guard suggestion is correct but only partially addresses the issue. `$metrics.SuccessfulResolutions` and `$metrics.Escalations` are initialized to 0 but never populated from audit data (lines 22-23 vs 39-40), so even when `TotalConversations > 0`, the resolution and escalation rates will always compute as 0%. The fix should also note that the script needs logic to populate these counters from audit results or Dataverse queries, or the zero-guard should wrap the entire metrics-calculation block with a comment indicating it requires completion.
+**CRITIQUE_SUMMARY:** The review is thorough and accurate on all issues it identified — false-positive dismissals are correct, real bugs are genuine, and NEEDS_HUMAN_REVIEW items are appropriate. It missed two files lacking footer metadata (2.8/verification-testing.md, 2.8/troubleshooting.md) and a parallel divide-by-zero class of issue in 2.5/powershell-setup.md, and the divide-by-zero fix for 2.6 understates the broader logic gap where key metrics are never populated.

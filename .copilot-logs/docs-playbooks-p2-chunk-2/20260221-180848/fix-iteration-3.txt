@@ -1,0 +1,6 @@
+CHANGES:
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Added footer `*Updated: January 2026 | Version: v1.2*` after navigation links
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Added footer `*Updated: January 2026 | Version: v1.2*` after navigation links
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: SKIPPED (NEEDS_HUMAN_REVIEW — GPT model version accuracy requires domain judgment)
+- docs/playbooks/control-implementations/2.6/powershell-setup.md: SKIPPED (NEEDS_HUMAN_REVIEW — audit log RecordType accuracy requires domain judgment)
+FIX_STATUS: COMPLETE

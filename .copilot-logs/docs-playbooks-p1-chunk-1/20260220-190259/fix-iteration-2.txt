@@ -1,0 +1,7 @@
+All three issues confirmed. Applying fixes:
+All three fixes applied correctly.
+CHANGES:
+- docs/playbooks/control-implementations/1.2/portal-walkthrough.md (line 63): "This ensures all agents must go through" → "This requires all agents to go through"
+- docs/playbooks/control-implementations/1.8/portal-walkthrough.md (line 316): "This ensures a fail-closed security posture" → "This supports a fail-closed security posture"
+- docs/playbooks/control-implementations/1.6/portal-walkthrough.md (line 37): "Prevent sensitive data from leaking" → "Helps prevent sensitive data from leaking"
+FIX_STATUS: COMPLETE

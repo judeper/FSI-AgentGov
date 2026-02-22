@@ -1,0 +1,15 @@
+Now let me verify the cross-reference claims by checking file existence.
+Now let me verify the remaining files referenced in the review for any missed issues.
+I've now verified all files and cross-references. Here is my complete audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All 12 claimed issues are verified as real against the actual file contents.
+**MISSED_ISSUES:**
+- **agent-inventory-entry.md**: Has 4 unresolved research citation markers — `[web:119]` (line 5), `[web:118]` (lines 6, 76), `<sup>[3]</sup>` (line 7) — the exact same class of issue the review flagged in evidence-pack-assembly.md, but overlooked here.
+- **purview-audit-query-pack.md**: Has **28 instances** of unresolved `<sup>[13]</sup>` and `<sup>[14]</sup>` research citation markers scattered throughout the entire document (lines 5–7, 23, 26–28, 33, 36–44, 47, 61–62, 67, 77–78, 85–86, 93–94, 107, 122, 124). These are the same category as the `<sup>[19]</sup>` markers flagged in evidence-pack-assembly.md but completely missed for this file. This is arguably a larger issue given the volume.
+- **confidence-and-routing.md / zone1-min-explainability.md**: Version footers say "January 2026" while `dspm-for-ai-policy-pack.md` says "February 2026". The review flagged the version number mismatch (v1.2 vs v1.2.51) but missed the date inconsistency.
+**FIX_CONCERNS:**
+- **Fix 3 severity misclassification**: The agent-inventory-entry.md "broken cross-references" on lines 56, 67, 87 are backtick-enclosed template path placeholders (e.g., `` `../templates/per-agent-data-policy.md` ``), **not** active markdown hyperlinks. They will not break `mkdocs build --strict` or site navigation. These should be classified as WARNINGS (incorrect documentation guidance), not CRITICAL. The suggested replacement paths are verified correct.
+- **Fix 5 is incomplete**: Should also update the date from "January 2026" to "February 2026" (or current month) alongside the version bump, to match the convention in dspm-for-ai-policy-pack.md.
+- **Missing fix for newly identified issues**: The review's fix list needs entries for cleaning citation markers from agent-inventory-entry.md (4 markers) and purview-audit-query-pack.md (28 markers).
+**CRITIQUE_SUMMARY:** The review correctly identified all 12 claimed issues with accurate fix paths, but inconsistently applied its own citation-marker detection — flagging `[web:*]` and `<sup>[N]</sup>` markers in evidence-pack-assembly.md while missing the same pattern in agent-inventory-entry.md (4 instances) and purview-audit-query-pack.md (28 instances). The true issue count should be ~15, and 3 of the 6 items classified as CRITICAL are severity-overstated (backtick path placeholders, not active links).

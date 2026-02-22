@@ -1,0 +1,10 @@
+Now let me check what other files in the batch use for footer format to match:
+Now I have the footer format. Let me apply all three fixes:
+Verify the changes:
+All fixes applied and verified.
+CHANGES:
+- docs/playbooks/control-implementations/1.13/portal-walkthrough.md: Changed "Medium (65)" to "Low (65)" for Custom SIT 3 (MNPI Indicators) confidence level to align with Microsoft's standard SIT confidence tiers
+- docs/playbooks/control-implementations/1.15/troubleshooting.md: Added missing standard footer metadata line (`*Updated: February 2026 | Version: v1.2*`)
+- docs/playbooks/control-implementations/1.15/verification-testing.md: Added missing standard footer metadata line (`*Updated: February 2026 | Version: v1.2*`)
+Note: Three NEEDS_HUMAN_REVIEW warnings (1.12 cmdlet verification, 1.15 mTLS claim, header metadata inconsistency) were not auto-fixed as they require human judgment.
+FIX_STATUS: COMPLETE

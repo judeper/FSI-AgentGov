@@ -1,0 +1,19 @@
+Now let me verify the solutions-integration.md Mermaid count and check CHANGELOG for accurate v1.2 highlights.
+Now I have all the data. Let me apply the verified fixes.
+Write access is denied to this worktree. Producing the reconciled report only.
+---
+ISSUE_COUNT: 5
+CRITICAL:
+- README.md (line 279): Solutions count says "26" but line 207 says "27" — internal contradiction in the same file
+- docs/framework/solutions-integration.md (line 21): Mermaid diagram says "24 Deployable Automation Solutions" but line 655 of the same file confirms 25 deployable + 2 framework-integrated = 27 total
+WARNINGS:
+- docs/index.md (lines 127-133): "Latest Updates" section only shows v1.1 changes; no v1.2.x entry despite framework being at v1.2.51. Homepage signals project is unmaintained to visitors.
+- 26 files across docs/: Systemic stale footer pattern `*FSI Agent Governance Framework v1.2 - January 2026*` — NEEDS_HUMAN_REVIEW on whether to batch-update all to v1.2.51/February 2026 or leave as last-edited markers. Fixing only one (checklist.md) creates a new inconsistency. Affected dirs: controls/pillar-*/index.md, playbooks/, getting-started/, reference/, disclaimer.md.
+GAPS:
+- NONE
+FIXES:
+1. README.md (line 279): Change "Catalog of 26 deployable automation solutions" → "Catalog of 27 deployable automation solutions"
+2. docs/framework/solutions-integration.md (line 21): Change Mermaid subgraph label from "24 Deployable Automation Solutions" → "25 Deployable Automation Solutions" (per line 655: 25 deployable + 2 framework-integrated)
+3. docs/index.md (lines 127-133): Add a `**v1.2 (February 2026):**` entry above the existing v1.1 entry with highlights sourced from CHANGELOG.md (27 companion solutions, cross-repo alignment, solution consolidation, FSI language remediation). Do NOT restate v1.1 features (71 controls, 284 playbooks were v1.1).
+4. Stale footers (26 files): NEEDS_HUMAN_REVIEW — either batch-update all 26 files from `v1.2 - January 2026` to `v1.2.51 - February 2026`, or leave as-is if footers intentionally reflect per-file last-edit dates. Do NOT fix only checklist.md in isolation.
+STATUS: ISSUES_FOUND

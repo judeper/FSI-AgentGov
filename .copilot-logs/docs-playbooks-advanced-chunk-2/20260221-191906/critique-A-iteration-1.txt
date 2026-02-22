@@ -1,0 +1,12 @@
+Now I have all the data. Here is the audit:
+---
+**FALSE_POSITIVES:**
+- NONE — all 6 claimed issues are real and confirmed in the actual files.
+**MISSED_ISSUES:**
+- **architecture.md version mismatch**: Header says "v1.2.12" (line 3), footer says "v1.2.10" (line 637). Same pattern as evidence-and-audit.md, copilot-intake.md, and provisioning.md — the review caught those three but missed this fourth instance.
+- **index.md line 71**: Second "ensures" usage — `"Zone rule inheritance ensures consistent governance from creation"` — the review only flagged the line 10 occurrence. Line 71 makes a governance-level claim ("ensures consistent governance") which is arguably a stronger candidate for the FSI language rule than the line 10 occurrence.
+**FIX_CONCERNS:**
+- **Fix 1 (orphaned ``` in provisioning.md):** Wrong line number. The orphaned code fence is on **line 860**, not 859. Line 859 is the indented admonition content. The fix action itself (remove the bare ```) is correct.
+- **Fix 5 (approval.md version):** The review hedges "update header to v1.2.51 to match footer, or vice versa" — the correct direction is unambiguously header→v1.2.51 (the project is at v1.2.51; the footer already reflects this; v1.2.48 is stale).
+- **Fix 6 (index.md language):** Wrong line number. The "ensures consistent security controls" text is on **line 10**, not line 31. Line 31 contains the start of a mermaid diagram. The fix action (change to "supports consistent") is correct.
+**CRITIQUE_SUMMARY:** The review correctly identified all six issues as real with appropriate fix actions, but contains three line-number inaccuracies (fixes 1, 6, and the critical for the orphaned fence) and missed two additional issues: a version mismatch in architecture.md and a second prohibited-language instance on index.md line 71.

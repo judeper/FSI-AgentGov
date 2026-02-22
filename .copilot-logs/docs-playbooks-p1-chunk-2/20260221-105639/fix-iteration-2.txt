@@ -1,0 +1,12 @@
+Now let me check the footer inconsistency files.
+Now I have all the context. Let me apply all fixes.
+Verify the changes:
+All fixes applied correctly. The diff also shows changes from previous iterations (1.5/powershell-setup.md, 1.6/powershell-setup.md) which were already in the worktree.
+CHANGES:
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Changed "Control 2.1" to "Control 2.3" on lines 160, 240, 270 (change control system references)
+- docs/playbooks/control-implementations/1.5/verification-testing.md: Changed "VC-01 through VC-06" to "VC-01 through VC-09" on line 133 to match all Zone 3 test cases
+- docs/playbooks/control-implementations/1.7/verification-testing.md: Removed `| Classification: Verification Testing` from footer for consistency with siblings
+- docs/playbooks/control-implementations/1.8/portal-walkthrough.md: Removed `| Classification: Portal Walkthrough` from footer for consistency with siblings
+- docs/playbooks/control-implementations/1.8/verification-testing.md: Removed `| Classification: Verification Testing` from footer for consistency with siblings
+- SKIPPED: 1.5/powershell-setup.md cmdlet name (NEEDS_HUMAN_REVIEW — requires SDK version verification)
+FIX_STATUS: COMPLETE

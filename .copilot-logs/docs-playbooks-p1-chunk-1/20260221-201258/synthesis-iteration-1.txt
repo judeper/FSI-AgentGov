@@ -1,0 +1,18 @@
+Now let me verify the remaining missing-footer files by checking their endings.
+All file verifications complete. Here is the reconciled output:
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Line 148 `## Step 6:` breaks heading hierarchy — Steps 1–5 are H3 under `## Step-by-Step Configuration`, and Steps 7–9 are H3, but Step 6 is H2. Two intervening H2 sections (`## Configuration by Governance Level` at line 122, `## Microsoft 365 Integrated Surfaces` at line 135) mean demoting Step 6 to H3 orphans Steps 6–9 under the wrong H2 parent in MkDocs ToC. The fix is still a net improvement (makes Steps 6–9 peers) but a deeper restructure may be warranted later.
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Line 138 references "Control 3.1 (Usage Dashboards)" but Control 3.1 is "Agent Inventory and Metadata Management". The parenthetical may match Control 3.2 ("Usage Analytics and Activity Monitoring"). NEEDS_HUMAN_REVIEW — unclear whether the ID or the description (or both) are wrong.
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Line 145 references "Control 3.3 (Conversation Transcripts)" but Control 3.3 is "Compliance and Regulatory Reporting". NEEDS_HUMAN_REVIEW — unclear whether the ID or the description (or both) are wrong.
+- docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md AND docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Both use version format `v1.2.48` in footer (lines 621 and 637 respectively) while all other playbooks use `v1.2` or `v1.3` — inconsistent with batch convention. Original review missed the 1.11 file.
+GAPS:
+- 10 files lack the standard version footer metadata line (`*Updated: Month Year | Version: vX.X | Classification: ...*`): 1.1/powershell-setup.md, 1.1/troubleshooting.md, 1.2/portal-walkthrough.md, 1.2/powershell-setup.md, 1.2/troubleshooting.md, 1.2/verification-testing.md, 1.3/portal-walkthrough.md, 1.3/powershell-setup.md, 1.3/troubleshooting.md, 1.3/verification-testing.md. Original review listed 9 (with prose saying "8") — 1.2/powershell-setup.md was missed.
+FIXES:
+1. docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Verify and correct "Control 3.1 (Usage Dashboards)" at line 138 and "Control 3.3 (Conversation Transcripts)" at line 145 — parenthetical descriptions do not match actual control names. Human must decide whether the IDs or descriptions (or both) need correction. Do NOT auto-fix.
+2. docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Change `## Step 6:` (line 148) to `### Step 6:` to make Steps 6–9 peers. Note: deeper structural refactoring of intervening H2 sections may be warranted later.
+3. docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Normalize footer version from `v1.2.48` to `v1.2` (line 621). Apply same fix to docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md (line 637).
+4. Add version footer metadata to 10 files listed in GAPS — follow the pattern used by peers: `*Updated: February 2026 | Version: v1.2 | Classification: [Playbook Type]*`
+STATUS: ISSUES_FOUND

@@ -1,0 +1,14 @@
+Now let me verify the remaining claims by checking 3.11, 3.12, and the version footers.
+Let me verify the SEC URL and check for any missed issues across all controls.
+Let me do a final check on section completeness and any other issues.
+All data collected. Here is my critique:
+---
+**FALSE_POSITIVES:**
+- NONE. All five issues are real and verified against the actual files.
+**MISSED_ISSUES:**
+- `docs/controls/pillar-3-reporting/index.md` line 7: Beyond the count error, the phrase "controls ensure that governance teams…have visibility" uses overclaiming language ("ensure"). Per FSI language rules, this should be hedged (e.g., "help provide visibility" or "support visibility for"). The reviewer caught the count but not the language issue on the same line.
+- `docs/controls/pillar-3-reporting/index.md` line 7: The overview text references "incident response, and hallucination feedback" but omits coverage areas introduced by 3.11 (inventory enforcement) and 3.12 (exception/override management). The sentence content is stale, not just the count.
+**FIX_CONCERNS:**
+- Fix 5 (add `**Last Verified:** 2026-02-03` to 3.11/3.12): The suggested date `2026-02-03` is copied from controls 3.1–3.10 that were verified on that date. Controls 3.11 and 3.12 show `**Last UI Verified:** February 2026` and footers say `Updated: February 2026`, suggesting they were created or updated later. The `Last Verified` date should reflect when 3.11/3.12 were actually verified, not blindly reuse the batch date from the earlier controls. Mark this NEEDS_HUMAN_REVIEW for the correct date.
+- Fix 3 (categorize 3.11/3.12 in table): The suggestion to place 3.11 under "Inventory & Tracking" alongside 3.1, 3.5–3.6 is sound. However, 3.12 (exception/override management) doesn't naturally fit "Compliance Reporting" — a new category row like "Governance Operations" with controls 3.11–3.12 would be cleaner than splitting them across existing rows. The reviewer offered this as an option but should have made a firmer recommendation.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all five findings are confirmed real with correct line references and categorization. The main gaps are a missed language overclaim ("ensure") on the same index.md line already flagged for the count error, and the stale overview text that doesn't reflect 3.11/3.12 coverage areas. Fix suggestions are sound but the `Last Verified` date for Fix 5 should not be assumed.

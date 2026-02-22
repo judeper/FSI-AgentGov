@@ -1,0 +1,40 @@
+Now let me verify the CAA footer and the unrestricted-agent-sharing-detector context:
+All original issues verified and missed issues confirmed. Here's the reconciled output:
+---
+ISSUE_COUNT: 15
+CRITICAL:
+- `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 3): Version mismatch — header says "FSI-AgentGov v1.3" but framework is v1.2.51 and footer (line 308) says "v1.2".
+- `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` (lines 93–95): Admonition block inserted mid-table splits the Choice Field Value Definitions table, breaking rendering of lines 96–129.
+- `docs/playbooks/advanced-implementations/conditional-access-automation/index.md` (line 105): "creates immutable compliance history" in SEC 17a-4 regulatory table — overclaim directly contradicted by architecture.md line 192–193 caveat that System Administrators retain full Dataverse access; violates FSI language rules.
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 106): "DecisionLog table with immutable records" in FINRA 4511 regulatory table — same overclaim pattern, same contradiction with architecture.md line 192–193.
+- `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (line 106): "Immutable audit log of sharing configuration changes" in SEC 17a-4 regulatory table — same overclaim; general caveat at lines 110–111 does not address the specific "immutable" claim.
+WARNINGS:
+- `docs/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md` (line 9): Dataverse table names use lowercase plural (`fsi_denyevents`) while `index.md` and `deployment-guide.md` use PascalCase singular (`fsi_DenyEvent`). Different Dataverse name forms but confusing for readers.
+- `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` (line 362): Footer says "v1.2" while other DEC files use "v1.2.51".
+- `docs/playbooks/advanced-implementations/confidence-and-routing.md` (line 138): Footer says "v1.2 - January 2026" — version and date lag.
+- `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 464): Footer says "v1.2 - January 2026" — version and date lag.
+- `docs/playbooks/advanced-implementations/zone1-min-explainability.md` (line 123): Footer says "v1.2 - January 2026" — version and date lag.
+- `docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md` (line 201): Footer says "v1.2" with "January 2026" — version and date lag.
+- `docs/playbooks/advanced-implementations/conditional-access-automation/index.md` (line 3) and `deployment-guide.md` (line 3): Headers say "v1.2.48" but footers say "v1.2.51" — version mismatch within the same files.
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 86): "Dataverse change tracking provides immutable audit trail" in design principles section — overclaim (non-regulatory context, so WARNING rather than CRITICAL).
+- `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 94): "Reg BI suitability" — Reg BI replaced the FINRA suitability standard; conflating the two may confuse readers. NEEDS_HUMAN_REVIEW.
+- `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 134): Monthly review scope says "High-severity items (items 1–9, 14, 16–17, 28–32)" but items 9, 28–32 are Medium severity in the checklist tables above.
+GAPS:
+- NONE
+FIXES:
+1. `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` (lines 93–95): Move the `!!! note "Zone Classification Algorithm"` admonition to after line 129 (after the table ends) so the Choice Field table renders unbroken. Verify with `mkdocs build --strict` after the move.
+2. `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 3): Change `FSI-AgentGov v1.3` to `FSI-AgentGov v1.2.51`.
+3. `docs/playbooks/advanced-implementations/conditional-access-automation/index.md` (line 105): Change "creates immutable compliance history" to "creates persistent compliance history with audit trail".
+4. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 106): Change "DecisionLog table with immutable records" to "DecisionLog table with audited records".
+5. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 86): Change "provides immutable audit trail" to "provides persistent audit trail".
+6. `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (line 106): Change "Immutable audit log" to "Persistent audit log".
+7. `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` (line 362): Change `v1.2` to `v1.2.51`.
+8. `docs/playbooks/advanced-implementations/confidence-and-routing.md` (line 138): Update footer to `v1.2.51 - February 2026`.
+9. `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 464): Update footer to `v1.2.51 - February 2026`.
+10. `docs/playbooks/advanced-implementations/zone1-min-explainability.md` (line 123): Update footer to `v1.2.51 - February 2026`.
+11. `docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md` (line 201): Update footer to `v1.2.51` and date to `February 2026`.
+12. `docs/playbooks/advanced-implementations/conditional-access-automation/index.md` (line 3) and `deployment-guide.md` (line 3): Change `v1.2.48` to `v1.2.51` in both headers.
+13. `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 308): Change footer `v1.2` to `v1.2.51`.
+14. `docs/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md` (line 9): Add a clarifying note that `fsi_denyevents` is the Dataverse entity set name (OData/Power Query) corresponding to the `fsi_DenyEvent` table display name.
+15. `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 134): Change "High-severity items (items 1–9, 14, 16–17, 28–32)" to "High and medium-severity items (items 1–9, 14, 16–17, 28–32)" to match actual severity classifications. Do NOT change checklist severity labels.
+STATUS: ISSUES_FOUND

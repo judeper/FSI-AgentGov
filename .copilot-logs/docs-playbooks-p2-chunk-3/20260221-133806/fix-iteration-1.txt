@@ -1,0 +1,9 @@
+Now I'll apply all four fixes simultaneously.
+Verify the changes:
+It seems `git` write commands are restricted. The file edits are applied successfully. Let me verify the final state of all three files:
+All four fixes applied correctly.
+CHANGES:
+- docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Added 3 missing ECOA protected classes (Color, Religion, Good Faith Exercise of Consumer Credit Protection Act Rights) to Step 1 table; qualified Step 2 test dataset minimum with zone-specific counts (500/1,000/2,000) to match governance-level table
+- docs/playbooks/control-implementations/2.11/verification-testing.md: Replaced ambiguous "CCPA Rights" with "Consumer Credit Protection Act Rights" on line 19
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Changed "Access review max 14 days" to "Access review recommended 14-day duration" with updated impact/workaround text clarifying it's a configuration choice, not a platform limit
+FIX_STATUS: COMPLETE

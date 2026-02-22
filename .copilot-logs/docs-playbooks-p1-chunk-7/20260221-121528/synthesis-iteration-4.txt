@@ -1,0 +1,14 @@
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.24/powershell-setup.md: NEEDS_HUMAN_REVIEW — Attack Paths API version `api-version=2024-01-01` may be outdated. Verify current API version at Microsoft Learn.
+- docs/playbooks/control-implementations/1.26/powershell-setup.md: NEEDS_HUMAN_REVIEW — `Get-AdminPowerAppChatbot` cmdlet and `$_.Properties.FileUploadEnabled` property are used across 6 script blocks without any availability caveat, while the `Set-AdminPowerAppChatbot` variant already carries a `!!! warning` admonition. A lighter prerequisites-level note (not a full warning admonition) would add consistency.
+- docs/playbooks/control-implementations/1.26/verification-testing.md: NEEDS_HUMAN_REVIEW — KQL queries (lines 133–180) use `PowerPlatformAdminActivity` operation names like `"FileUpload"`, `"ChatbotFileUpload"`, `"UpdateChatbot"`, and `"ChatbotSettings"` without the illustrative-example disclaimer that `1.25/verification-testing.md` (line 127) includes for the same table and same pattern of speculative operation names. Inconsistency — the 1.26 file should carry the same disclaimer.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.24/powershell-setup.md: Verify `api-version=2024-01-01` for `Microsoft.Security/attackPaths` is current; update the REST URI string if a newer version is available.
+2. docs/playbooks/control-implementations/1.26/powershell-setup.md: Add a prerequisites-level note (e.g., in the Prerequisites or Before You Begin section) stating that `Get-AdminPowerAppChatbot` and the `.Properties.FileUploadEnabled` property should be verified against the current module version. A full `!!! warning` admonition is not needed — the scripts already use `-ErrorAction SilentlyContinue` and handle missing properties gracefully.
+3. docs/playbooks/control-implementations/1.26/verification-testing.md: Add an illustrative-example disclaimer above the KQL query section, matching the existing disclaimer in `1.25/verification-testing.md` (line 127): *"The operation names and `AdditionalProperties` field names used in the queries below are illustrative examples."*
+STATUS: ISSUES_FOUND

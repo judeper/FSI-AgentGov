@@ -1,0 +1,14 @@
+Now let me scan all EXPECTED.md files for other "Zone 4" references or similar issues that may have been missed.
+Found a missed issue. Let me verify it and check the fix suggestion context for 1.11.
+Now let me spot-check the format inconsistency claim by checking one of the detailed-format files.
+I've verified all claims. Here's my audit:
+---
+**FALSE_POSITIVES:**
+- NONE
+**MISSED_ISSUES:**
+- `docs/images/1.15/EXPECTED.md` (line 19): References "Customer-managed keys configured for Zone 3-4" — same "Zone 4 does not exist" issue. The actual control doc (1.15) only references Zones 1, 2, and 3 for CMK requirements. Should be "Zone 2-3" (the control specifies CMK for Zone 2 with Azure Key Vault Standard and Zone 3 with HSM backing).
+**FIX_CONCERNS:**
+- Fix 1 (1.11 "Zone 3-4" → "Zone 2-3"): **Acceptable but worth noting the ambiguity.** The original may have intended "Zone 3" alone (highest risk), since the control doc states phishing-resistant MFA is "*enforced*" only for Zone 3 while Zone 2 uses "strong auth." However, the control's zone table shows risk-based CA policies apply at both Zone 2 and 3, so "Zone 2-3" is defensible. NEEDS_HUMAN_REVIEW — a subject matter expert should confirm whether the screenshot verification intent is Zone 3 only or Zone 2-3.
+- Fix 2 (2.2 "Zone 1-4" → "Zone 1-3"): **Correct.** Environment groups cover all three governance zones; the full range is 1-3.
+- Missing fix needed: `docs/images/1.15/EXPECTED.md` line 19: "Zone 3-4" → "Zone 2-3" (CMK applies to both Zone 2 and Zone 3 per the control doc).
+**CRITIQUE_SUMMARY:** The review correctly identified two real Zone 4 references but missed a third identical issue in `docs/images/1.15/EXPECTED.md`. The format inconsistency warning is valid and confirmed by inspection. Fix #2 is unambiguously correct; Fix #1 has minor ambiguity that warrants human confirmation on intended zone scope.

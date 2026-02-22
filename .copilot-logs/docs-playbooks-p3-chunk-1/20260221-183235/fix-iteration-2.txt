@@ -1,0 +1,7 @@
+I need to fix 2 GAPs and 1 cosmetic WARNING in `3.4/verification-testing.md`. The NEEDS_HUMAN_REVIEW items are skipped as not auto-fixable.
+All fixes applied correctly.
+CHANGES:
+- 3.4/verification-testing.md: Added "Automated Validation Script" section (lines 117-166) with PowerShell validation adapted for incident reporting context
+- 3.4/verification-testing.md: Added "Governance Tier-Specific Testing" section (lines 170-193) with tier-specific checklists adapted for incident reporting
+- 3.4/verification-testing.md: Fixed cross-link `./` prefix in Next Steps (lines 199-201) to use bare filenames matching 3.3 convention
+FIX_STATUS: COMPLETE

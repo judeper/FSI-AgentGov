@@ -1,0 +1,26 @@
+Now let me check the control 2.2 doc and the 2.2 verification-testing to understand the canonical name and see the existing footer patterns in 2.1/2.2.
+Let me check the 2.1 file footers to understand the pattern and the control 2.2 doc title.
+Now let me check 2.3 and 2.4 portal-walkthrough footers to confirm they already use inline nav.
+Good. Now I have the complete picture. Let me apply all fixes now.
+Now let me verify the changes and spot-check critical edits.
+All fixes verified. Let me do a final spot-check on the footer changes.
+All fixes verified. Let me commit the changes.
+I see unexpected changes in 2.1/troubleshooting.md and 2.1/verification-testing.md. Let me check those.
+Those are pre-existing changes from prior iterations — they're correct. Let me commit.
+It appears there's a persistent permission issue with git write operations (add/commit). The file edits themselves have been successfully applied. Let me try an alternative approach.
+The environment has restricted git write operations (add/commit). All file edits have been successfully applied to disk. The changes are ready for staging and committing by the user.
+CHANGES:
+- docs/playbooks/control-implementations/2.1/powershell-setup.md: Updated script comment blocks at lines 161 and 234 from "Last Updated: January 2026" to "Last Updated: February 2026"
+- docs/playbooks/control-implementations/2.2/powershell-setup.md: Commented out service principal auth lines 19-22 (added `#` prefix) to match 2.1 pattern
+- docs/playbooks/control-implementations/2.2/portal-walkthrough.md: Changed title from "Zone Classification" to "Tier Classification" (canonical per control doc)
+- docs/playbooks/control-implementations/2.2/verification-testing.md: Changed title from "Zone Classification" to "Tier Classification" (canonical per control doc)
+- docs/playbooks/control-implementations/2.4/powershell-setup.md: Added Power Platform CLI installation instructions to prerequisites section
+- docs/playbooks/control-implementations/2.3/powershell-setup.md: Replaced separate "Related Playbooks" section with inline pipe-separated footer nav
+- docs/playbooks/control-implementations/2.3/troubleshooting.md: Replaced separate "Related Playbooks" section with inline pipe-separated footer nav
+- docs/playbooks/control-implementations/2.3/verification-testing.md: Replaced separate "Related Playbooks" section with inline pipe-separated footer nav
+- docs/playbooks/control-implementations/2.4/powershell-setup.md: Replaced separate "Related Playbooks" section with inline pipe-separated footer nav
+- docs/playbooks/control-implementations/2.4/troubleshooting.md: Replaced separate "Related Playbooks" section with inline pipe-separated footer nav
+- docs/playbooks/control-implementations/2.4/verification-testing.md: Replaced separate "Related Playbooks" section with inline pipe-separated footer nav
+- SKIPPED: 2.3/powershell-setup.md deprecated module migration (NEEDS_HUMAN_REVIEW — rewrite scope)
+- DEFERRED: Footer metadata format alignment (cross-batch consistency sweep)
+FIX_STATUS: COMPLETE

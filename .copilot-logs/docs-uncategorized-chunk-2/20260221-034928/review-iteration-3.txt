@@ -1,0 +1,24 @@
+Now let me check the remaining files I need to review and verify the version inconsistency found in CONTROL-INDEX.md.
+Now I have all the data I need to compile my review.
+ISSUE_COUNT: 12
+CRITICAL:
+- docs/controls/CONTROL-INDEX.md (line 235): Version footer says "v1.3 - February 2026" but project version is v1.2.51 (per mkdocs.yml copyright). The companion file docs/controls/index.md correctly says "v1.2". This creates a version inconsistency that could confuse auditors.
+- docs/templates/control-setup-template.md (line 108): Footer says "Version: v1.3" which is ahead of the project version v1.2.51. While templates may pre-stamp for the next version, this creates a factual inconsistency with the current release.
+WARNINGS:
+- docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md (lines 29, 87, 241): URL `https://tenant-admin.sharepoint.com` is used as a default parameter value in PowerShell scripts. This is an intentional placeholder but lacks an explicit comment noting admins must replace "tenant" with their actual tenant name. (Confirmed from pre-pass as broken external URL.)
+- docs/templates/control-setup-template.md (lines 70-73, 80-83): Contains placeholder links `[../path/to/control.md]` and `[../../playbooks/control-implementations/[X.X]/*.md]` that cannot resolve. These are template placeholders by design but are flagged by link checkers. (Confirmed from pre-pass — 7 broken internal links.)
+- docs/playbooks/validation-testing/script-validation-guide.md (lines 24, 42): `ExchangeOnlineManagement` module is listed twice in the install block — once under "Microsoft 365 Administration" and again under "Security and Compliance" with comment "Includes compliance cmdlets". The duplicate install is redundant.
+- docs/controls/index.md (line 184): Footer says "v1.2 - January 2026" while mkdocs.yml copyright says "v1.2.51 - February 2026". Minor version/date inconsistency.
+- docs/playbooks/monitoring-and-validation/scope-creep-detection.md (line 5): References "FINRA's 2026 oversight report" — NEEDS_HUMAN_REVIEW to confirm exact report title and that quoted language ("scope and authority") accurately reflects the source.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md (line 6): References "SEC 2026 priorities" expanding AI scrutiny — NEEDS_HUMAN_REVIEW to confirm this aligns with the actual SEC examination priorities publication.
+- MKDOCS NAV ORPHANS (Section A): All ~320 entries are FALSE POSITIVES. Every referenced file exists under `docs/`. The pre-pass tool failed to prepend the `docs/` directory prefix when checking nav paths against the filesystem. No fix needed.
+- Scoped file `templates/README.md` (root level): Does not exist. No root `templates/` directory exists — this appears to be a scope specification error referring to the existing `docs/templates/README.md`.
+GAPS:
+- NONE
+FIXES:
+1. docs/controls/CONTROL-INDEX.md (line 235): Change `*FSI Agent Governance Framework v1.3 - February 2026*` to `*FSI Agent Governance Framework v1.2.51 - February 2026*` to match project version.
+2. docs/controls/index.md (line 184): Change `*FSI Agent Governance Framework v1.2 - January 2026*` to `*FSI Agent Governance Framework v1.2.51 - February 2026*` for consistency with mkdocs.yml.
+3. docs/templates/control-setup-template.md (line 108): Change `Version: v1.3` to `Version: v1.2` (or keep as template instruction with a comment noting this is the version placeholder).
+4. docs/playbooks/validation-testing/script-validation-guide.md (line 42): Remove duplicate `Install-Module -Name ExchangeOnlineManagement` entry from the "Security and Compliance" section since it's already listed under "Microsoft 365 Administration" (line 24).
+5. docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Add a comment in the PowerShell `$AdminUrl` parameter default noting `# Replace 'tenant' with your actual tenant name`.
+STATUS: ISSUES_FOUND

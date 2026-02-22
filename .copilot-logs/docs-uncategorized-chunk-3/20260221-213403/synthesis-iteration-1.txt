@@ -1,0 +1,25 @@
+All claims verified against actual files. Here is the reconciled output:
+---
+ISSUE_COUNT: 9
+CRITICAL:
+- 03-learn-validation-matrix.md: Summary table counts (Contradicted=15, Not Found=4, Partially Verified=3, Total=22) don't match body content (actual: Contradicted=22, Not Found=5, Partially Verified=4, Total=31). Material misstatement undercounting flagged items by 9. Verified: body has items #1–22 Contradicted, #1–5 Not Found, #1–4 Partially Verified.
+- 03-learn-validation-matrix.md: Six control file references cite non-existent filenames — "2.12-agent-identity-and-lifecycle.md" (actual: 2.12-supervision-and-oversight-finra-rule-3110.md), "2.23-copilot-actions-and-connectors.md" (actual: 2.23-user-consent-and-ai-disclosure-enforcement.md), "4.6-knowledge-source-security.md" (actual: 4.6-grounding-scope-governance.md), "1.15-customer-key.md" (actual: 1.15-encryption-data-in-transit-and-at-rest.md), "1.17-global-secure-access.md" (actual: 1.17-endpoint-data-loss-prevention-endpoint-dlp.md), "2.20-ai-risk-assessment.md" (actual: 2.20-adversarial-testing-and-red-team-framework.md). All six verified via glob against filesystem.
+- 00-executive-summary.md: Line 17 cascades the same wrong Learn validation counts ("15 Contradicted, 4 Not Found, 3 Partially Verified, 9 Verified") — should be 22/5/4. Missed by original review; caught by Critique A and verified in file.
+WARNINGS:
+- 02-inventory.md: ~24 of 28 Pillar 1 control title-to-ID mappings are wrong (e.g., 1.1 listed as "Copilot Studio DLP Governance" but actual file is 1.1-restrict-agent-publishing-by-authorization.md; 1.3 listed as "Authentication and Identity for Agents" but actual is 1.3-sharepoint-content-governance-and-permissions.md). Downgraded from CRITICAL per Critique B: internal audit file not published to GitHub Pages; actual control docs have correct titles and filenames.
+- 06-remediation-backlog.md: Items 11, 16, 18, 25, 26 reference wrong control filenames (same errors as 03-learn-validation-matrix.md). Downgraded from CRITICAL per Critique B: backlog is marked "ALL 87 ITEMS RESOLVED" with commit hashes — historical metadata errors only. Item 18 (`4.6-knowledge-source-security.md`) was missed by original review; caught by Critique A and verified at line 55.
+- 04-technical-findings.md: "136 Medium/Low" header (line 106) but itemized table sums to 144 (Medium=100, Low=44). Arithmetic discrepancy of 8.
+- appendix-learn-urls.md: Search-UnifiedAuditLog listed under two module paths (`exchange/search-unifiedauditlog` at line 38 and `exchangepowershell/search-unifiedauditlog` at line 39) — likely duplicate/redirect.
+GAPS:
+- 02-inventory.md: Pillars 2-4 listed as collapsed ranges (e.g., "2.1–2.24") with generic comma-separated titles instead of individual rows, making accuracy unverifiable without cross-referencing each control file.
+- Section A nav orphans: Pre-pass tool flagged 400+ files as "not found" — confirmed FALSE POSITIVE. All files exist under `docs/` (verified via glob and corroborated by 05-documentation-findings.md line 20: "474 entries | ✅ PASS — all entries resolve"). Tooling path resolution bug, not a documentation issue. No mkdocs.yml or filesystem changes needed.
+FIXES:
+1. 03-learn-validation-matrix.md: Update summary table to Contradicted=22, Not Found=5, Partially Verified=4, Total=31.
+2. 03-learn-validation-matrix.md: Correct 6 file references to actual names (2.12-supervision-and-oversight-finra-rule-3110.md, 2.23-user-consent-and-ai-disclosure-enforcement.md, 4.6-grounding-scope-governance.md, 1.15-encryption-data-in-transit-and-at-rest.md, 1.17-endpoint-data-loss-prevention-endpoint-dlp.md, 2.20-adversarial-testing-and-red-team-framework.md).
+3. 00-executive-summary.md: Update line 17 Learn validation counts to 22 Contradicted, 5 Not Found, 4 Partially Verified (remove "9 Verified" or update accordingly).
+4. 02-inventory.md: Rebuild Pillar 1 table with correct titles from actual control files. Expand Pillars 2-4 into individual rows with verified titles.
+5. 06-remediation-backlog.md: Correct file references in items 11, 16, 18, 25, 26 to actual control filenames.
+6. 04-technical-findings.md: Reconcile Medium/Low count — either update header to 144 or adjust category breakdown to sum to 136.
+7. appendix-learn-urls.md: Consolidate duplicate Search-UnifiedAuditLog entry; keep canonical `exchange/` module path.
+8. Section A nav orphans: No doc fix needed. Document as pre-pass tooling path resolution bug for future audit runs.
+STATUS: ISSUES_FOUND

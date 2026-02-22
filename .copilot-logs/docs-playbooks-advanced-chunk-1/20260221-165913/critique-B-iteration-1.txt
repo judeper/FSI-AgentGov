@@ -1,0 +1,18 @@
+All files verified against the source. Here's my analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All five fixes are content-level text edits within existing markdown files. None alter file paths, cross-references, nav entries, or mkdocs configuration. Fix 2 (architecture.md table repair) is the most complex edit but actually *restores* correct rendering — the current state is already broken. No fix introduces new build risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (version v1.3 → v1.2.51): CRITICAL is **accurate**. Line 3 references a version that does not exist (`v1.3`); this is a factual error that undermines document credibility, not just a cosmetic issue.
+- Fix 2 (broken table): CRITICAL is **accurate**. Verified: blank line 93 + admonition at lines 94-95 splits the table — rows 96-129 lose their column headers and render as raw pipe characters. The reference data is unusable as-is.
+- Warning about "Reg BI suitability" conflation: Severity is **accurate**. SEC Reg BI (best interest standard for broker-dealers) and FINRA suitability (Rule 2111) are distinct regulatory obligations with different legal tests. Conflating them in an FSI governance document is a substantive accuracy issue.
+- Warning about FINRA 2026 report (line 31): Severity is **accurate** as NEEDS_HUMAN_REVIEW. The document cites "FINRA 2026 Annual Regulatory Oversight Report" — this is a forward-looking publication that may or may not exist at time of publication. Cannot be machine-verified.
+- Version footer inconsistency (batch-wide): Could reasonably be downgraded to **INFO** — it's a cosmetic consistency issue across multiple files, not a per-file functional problem. However, WARNING is defensible given FSI audience expectations for precision.
+**FIX_ORDERING:**
+- All five fixes are **independent** — no dependencies between them. They touch five different files with no shared state.
+- Recommended execution order by impact: Fix 2 (table repair) → Fix 1 (version) → Fix 4 (immutable overclaim) → Fix 3 (pwsh.exe) → Fix 5 (Reg BI). This prioritizes the two CRITICALs, then the FSI language rule violation, then the functional/accuracy warnings.
+- Fix 5 should be deferred until after the FINRA 2026 report (Warning 7) is human-verified, since both are in the same file (`human-in-the-loop-triggers.md`) and a single editing pass is cleaner.
+**OVER_ENGINEERED:**
+- Fix 5 proposes two alternatives ("Reg BI (best interest obligation)" OR "FINRA suitability / SEC Reg BI") without choosing one. The second option ("FINRA suitability / SEC Reg BI") is better — it names both obligations distinctly, which is the actual problem being solved. Just pick it.
+- The review's description of Fix 2 is appropriately detailed given the table surgery required — not over-engineered, just precise.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — both CRITICALs are genuine rendering/factual errors confirmed in source, the FSI language overclaim (Fix 4) correctly applies the repo's prohibited-phrases rules, and all fixes are surgically scoped with zero cross-reference or build risk. The only actionable improvement is committing to a single alternative for Fix 5 and optionally downgrading the version footer inconsistency to INFO.

@@ -1,0 +1,16 @@
+All three issues verified against source. Here is the final synthesized review:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-0-governance-setup.md (line 104): "Microsoft Purview compliance portal" uses outdated naming — Microsoft rebranded to "Microsoft Purview portal" (dropped "compliance"). NEEDS_HUMAN_REVIEW — verify current portal branding. Note: same outdated name also appears in `docs/playbooks/control-implementations/1.13/troubleshooting.md` (line 111) — out of scope for this batch but flag for a future pass.
+- phase-1-minimal-viable-controls.md (line 201): "per FINRA 3110" should use formal citation "per FINRA Rule 3110" for regulatory precision. The codebase uses "FINRA Rule 3110" in 60+ other locations and `fsi-language-rules.instructions.md` mandates the "FINRA Rule XXXX" format.
+- phase-1-minimal-viable-controls.md & phase-2-hardening.md: Control 2.11 (Bias Testing) appears in both Phase 1 and Phase 2 without cross-reference. Phase 2's progressive language ("Comprehensive", "Full") partially signals escalation, but a brief parenthetical would eliminate ambiguity.
+GAPS:
+- NONE
+FIXES:
+1. phase-0-governance-setup.md (line 104): Change "Microsoft Purview compliance portal" → "Microsoft Purview portal" (pending human verification of current branding)
+2. phase-1-minimal-viable-controls.md (line 201): Change "per FINRA 3110" → "per FINRA Rule 3110"
+3. phase-2-hardening.md (line 158): Change `**Purpose:** Full fairness assessment program` → `**Purpose:** Full fairness assessment program (building on Phase 1 foundations)` — keep minimal; a short parenthetical suffices.
+STATUS: ISSUES_FOUND

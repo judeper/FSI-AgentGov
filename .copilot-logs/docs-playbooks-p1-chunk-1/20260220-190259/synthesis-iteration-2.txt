@@ -1,0 +1,14 @@
+All three issues confirmed in source. Now producing the final synthesized review.
+ISSUE_COUNT: 3
+CRITICAL:
+- docs/playbooks/control-implementations/1.2/portal-walkthrough.md (line 63): Uses prohibited phrase "ensures" — "This ensures all agents must go through IT/Governance approval". Must use hedged language per FSI language rules.
+- docs/playbooks/control-implementations/1.8/portal-walkthrough.md (line 316): Uses prohibited phrase "ensures" — "This ensures a fail-closed security posture when the threat detection provider is unavailable." Same class of violation as the 1.2 finding.
+WARNINGS:
+- docs/playbooks/control-implementations/1.6/portal-walkthrough.md (line 37): Borderline overclaim "Prevent sensitive data from leaking to other AI apps" in step overview table. While "prevent" alone is not on the prohibited list (only "will prevent"), this is an absolute claim. NEEDS_HUMAN_REVIEW: This text mirrors the Microsoft Purview DSPM "Get Started" portal UI verbatim — hedging it would create a mismatch between the guide and the actual screen. Consider keeping verbatim UI text with a disclaimer footnote, or accept the phrasing as Microsoft's wording.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.2/portal-walkthrough.md (line 63): Change "This ensures all agents must go through IT/Governance approval" to "This requires all agents to go through IT/Governance approval"
+2. docs/playbooks/control-implementations/1.8/portal-walkthrough.md (line 316): Change "This ensures a fail-closed security posture" to "This supports a fail-closed security posture"
+3. docs/playbooks/control-implementations/1.6/portal-walkthrough.md (line 37): NEEDS_HUMAN_REVIEW — Either change "Prevent sensitive data from leaking to other AI apps" to "Helps prevent sensitive data from leaking to other AI apps", or keep the verbatim Microsoft UI text and add a footnote clarifying it quotes the portal. Changing risks portal-text mismatch; keeping risks borderline overclaim.
+STATUS: ISSUES_FOUND

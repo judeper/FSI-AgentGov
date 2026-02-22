@@ -1,0 +1,17 @@
+All findings confirmed. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 2 (RSS property/cmdlet alignment in 4.1/troubleshooting.md):** Both names in the troubleshooting file (`RestrictedSearchEnabled`, `Get-SPOSearchSiteConfiguration`) differ from the powershell-setup.md equivalents (`EnableRestrictedSearchAllList`, `Get-SPOTenantRestrictedSearchAllowedList`). Blindly aligning to either side without verifying against current SPO module documentation risks giving admins broken PowerShell commands. The NEEDS_HUMAN_REVIEW flag is correct — do not auto-fix.
+- **Fix 4 (Title format standardization):** Changing H1 titles in 8 files affects rendered page titles, browser tabs, and search indexing. While mkdocs.yml nav uses file paths (not titles) so navigation won't break, any external links or bookmarks referencing page titles could be affected. Low-moderate risk but touches many files.
+**SEVERITY_CORRECTIONS:**
+- NONE. Severities are accurate. SOX 404 (internal controls assessment) vs SOX 802 (record retention/destruction penalties) is a genuine regulatory misattribution — CRITICAL is correct. The RSS cmdlet mismatch is correctly CRITICAL with NEEDS_HUMAN_REVIEW since wrong PowerShell commands would fail silently or error for admins.
+**FIX_ORDERING:**
+1. **Fix 1 (SOX 404→802)** — independent, zero dependencies, apply first as safest high-value fix
+2. **Fix 5 (portal transition note)** — independent, single-line addition to same file as Fix 1, batch together
+3. **Fix 4 (title/header standardization)** — do before Fix 3 since both touch the same files; avoids merge conflicts
+4. **Fix 3 (footer navigation links)** — apply after Fix 4 to the same files
+5. **Fix 2 (RSS property names)** — blocked on human verification; sequence last
+**OVER_ENGINEERED:**
+- **Fix 4 (title format + header metadata standardization):** Standardizing title format across 8 files and adding metadata fields is cosmetic consistency work. It's valid but disproportionate to the batch scope ("chunk-1 review"). Recommend deferring to a dedicated formatting sweep rather than mixing structural fixes with factual corrections. The title reversal (`PlaybookType: Control ID` vs `Control ID: Name - PlaybookType`) has zero functional impact.
+- **Fix 3 (footer navigation links):** Adding footer nav to 5 files is legitimate but low-value. The review correctly found the gap, but this is formatting debt, not a correctness issue. Could be batched with Fix 4 in a separate formatting PR.
+**CRITIQUE_SUMMARY:** The review correctly identifies the two real issues (SOX misattribution, RSS cmdlet mismatch) and appropriately flags the cmdlet fix for human review. Fixes 3 and 4 are valid consistency improvements but should be split into a separate formatting commit to keep the factual-correction diff clean and reviewable.

@@ -1,0 +1,14 @@
+Now let me check the remaining files in this chunk for missed issues.
+Let me check the remaining files in this chunk.
+Let me check for language compliance issues the reviewer might have missed.
+Here is my audit of the review:
+**FALSE_POSITIVES:**
+- NONE — all three findings are valid. The `Get-AzAccessToken` SecureString issue at line 132 is confirmed by comparing with 1.25's correct pattern. The extension filter at lines 46-47 does reference wrong Defender CSPM extensions. "Microsoft Foundry" at line 11 is indeed not the official product name.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/1.24/portal-walkthrough.md` (line 40): "Microsoft Foundry projects" — the reviewer caught line 11 but missed this second occurrence of the same incorrect product name in Step 3's resource list. Fix 3 must also be applied here.
+- `docs/playbooks/control-implementations/1.24/powershell-setup.md` (lines 46-47): The `$aiSpm` variable is assigned but **never used** anywhere after line 46 — it is dead code. Line 47 outputs `$extensions.Name` (all extensions), not `$aiSpm`. The reviewer flagged the wrong filter values but missed that the variable has zero downstream impact, which changes the severity from "potential runtime error" to "misleading dead code." A simpler fix would be to remove the unused `$aiSpm` line entirely or replace it with a proper AI-SPM check that is actually evaluated.
+- Reviewer stated "all 15 files read" but the chunk contains 16 files (4 controls × 4 playbooks). Minor counting error with no impact on findings quality.
+**FIX_CONCERNS:**
+- Fix 3 (rename "Microsoft Foundry" → "Azure AI Foundry") is incomplete — it addresses only line 11 but must also be applied to line 40 of the same file.
+- Fix 2 (update extension filter) could be simplified: since `$aiSpm` is dead code, the cleanest fix is removing the unused assignment or rewriting it to actually check for the AI-SPM extension and use the result (e.g., in the output message). The NEEDS_HUMAN_REVIEW designation for the correct extension name is appropriate.
+**CRITIQUE_SUMMARY:** The review correctly identified three real issues with no false positives and appropriately dismissed pre-pass URL and orphan artifacts. However, it missed a second "Microsoft Foundry" occurrence on line 40 and didn't recognize that the `$aiSpm` variable is dead code, which affects both the severity assessment and the optimal fix strategy.

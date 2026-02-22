@@ -1,0 +1,17 @@
+All issues verified. Here's the report:
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN
+**Verification details:**
+1. **Fix 1 (1.1/portal-walkthrough.md line 148 heading):** FIXED — Line 148 now reads `### Step 6:` (H3), consistent with all other steps.
+2. **Fix 2 (1.1/verification-testing.md date conflict):** FIXED — Line 3 now says "February 2026", matching footer line 220.
+3. **Fix 3 (1.1/troubleshooting.md module dependency):** FIXED — Line 77 now notes "(requires ExchangeOnlineManagement module)" before the `Get-AdminAuditLogConfig` cmdlet.
+4. **Fix 4 (SEC 17a-4 retention values):** Correctly left as NEEDS_HUMAN_REVIEW — values unchanged at "7 years" (1.2) and "2190 days / 6 years" (1.4).
+5. **Fix 5 (footer metadata):** FIXED — All 16 standard playbook files in 1.1–1.4 now have `*Updated:` footer lines (grep confirms 17 matches across 16 standard + 1 supplemental file).

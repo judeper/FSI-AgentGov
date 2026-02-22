@@ -1,0 +1,8 @@
+Now I'll apply all 4 fixes simultaneously.
+All fixes verified. The `index.md` stale counts issue is outside the batch scope (cross-pillar), so it's skipped per the security constraint.
+CHANGES:
+- 4.7/portal-walkthrough.md: Changed RCD UI from "set to **Restricted**" dropdown to "locate **Restrict content from Microsoft 365 Copilot** and toggle to **On**" matching 4.6's toggle behavior
+- 4.7/portal-walkthrough.md: Added `!!! warning "Reindexing After Scope Changes"` admonition with 24-48 hour propagation delay after Step 2, matching 4.6's pattern
+- 4.7/verification-testing.md: Replaced generic `Get-MgUser -Filter "assignedLicenses/any()"` with Copilot-specific SKU filter using `Get-MgSubscribedSku` + SKU ID filtering, consistent with 4.7/powershell-setup.md
+- 4.5/powershell-setup.md: Added `Install-Module -Name Microsoft.Graph -Scope CurrentUser` to prerequisites, fixing missing dependency for `Get-MgUserMemberOf` usage
+FIX_STATUS: COMPLETE

@@ -1,0 +1,26 @@
+All findings verified against actual files. Here is the final synthesized review:
+---
+ISSUE_COUNT: 10
+CRITICAL:
+- 2.6/powershell-setup.md: `Search-UnifiedAuditLog` (line 29) requires `ExchangeOnlineManagement` module and `Connect-ExchangeOnline`, but no prerequisites section exists. Line 16 comment says "Connect to Dataverse (assumes connection established)" which is a different service — an admin following this script would connect to Dataverse and still fail at the Exchange Online audit log query.
+WARNINGS:
+- 2.5/portal-walkthrough.md (line 87): Prohibited language — "Ensures regulatory accuracy" in the Groundedness row of the evaluation metrics table. "Ensures" is explicitly prohibited per FSI language rules. Stronger violation than the 2.3 instance below.
+- 2.1/portal-walkthrough.md: Steps 11–14 (lines 257–291) appear AFTER the Validation section (lines 239–253). Validation references outcomes from Steps 11–14 that a reader hasn't performed yet. Steps 11–14 are tenant-level settings (distinct from per-environment Steps 1–10) and should be restructured as a separate section before Validation.
+- 2.3/portal-walkthrough.md (line 53): Near-prohibited language — "This ensures every environment used in pipelines meets Microsoft Enterprise compliance standards." While referencing platform standards rather than regulatory compliance, "ensures...compliance standards" is close to the prohibited pattern.
+- 2.6/portal-walkthrough.md (lines 65–66): GPT-5 listed as "GA (Nov 2025)" and GPT-5.2 as "Preview" — model names and availability dates are unverifiable against current Microsoft documentation. NEEDS_HUMAN_REVIEW.
+- 2.1/powershell-setup.md, 2.1/troubleshooting.md: Missing footer metadata; other 2.1 playbooks have v1.3 footers. Cosmetic inconsistency only.
+- 2.2/powershell-setup.md, 2.2/troubleshooting.md, 2.2/verification-testing.md: Missing footer metadata; only 2.2/portal-walkthrough.md has a footer. Same cosmetic class as the 2.1 issue above.
+GAPS:
+- NONE
+FIXES:
+1. 2.6/powershell-setup.md: Add a `## Prerequisites` section before the first script block listing `ExchangeOnlineManagement` module installation (`Install-Module -Name ExchangeOnlineManagement`) and `Connect-ExchangeOnline` connection step. Also correct or clarify the line 16 comment which references Dataverse but the script uses Exchange Online cmdlets.
+2. 2.5/portal-walkthrough.md (line 87): Change "Ensures regulatory accuracy" to "Supports regulatory accuracy" in the Groundedness row of the evaluation metrics table.
+3. 2.1/portal-walkthrough.md: Create a `## Tenant-Level Settings` heading above Step 11 to separate tenant-level configuration (Steps 11–14) from per-environment settings (Steps 1–10), then move the entire block (lines 257–291) above the Validation section. Preserve the `---` separator before Validation and maintain heading hierarchy. Run `mkdocs build --strict` immediately after.
+4. 2.3/portal-walkthrough.md (line 53): Change "This ensures every environment" to "This helps ensure every environment".
+5. 2.6/portal-walkthrough.md: Verify GPT-5/GPT-5.2 model names and GA dates against current Microsoft documentation (NEEDS_HUMAN_REVIEW — not auto-fixable).
+6. 2.1/powershell-setup.md: Add footer metadata matching file content date/version.
+7. 2.1/troubleshooting.md: Add footer metadata matching file content date/version.
+8. 2.2/powershell-setup.md: Add footer metadata consistent with 2.2/portal-walkthrough.md format.
+9. 2.2/troubleshooting.md: Add footer metadata consistent with 2.2/portal-walkthrough.md format.
+10. 2.2/verification-testing.md: Add footer metadata consistent with 2.2/portal-walkthrough.md format.
+STATUS: ISSUES_FOUND

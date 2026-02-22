@@ -1,0 +1,16 @@
+Let me read the large troubleshooting file for 2.24.
+Now I have all the content. Let me compile the review.
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 3 (`Get-ConsentRecords.ps1`) defines helper function `Get-AccessToken` (line 376) AFTER it is called (line 335 via `$authHeader`). PowerShell does not hoist functions; this script would fail at runtime. Acknowledged as conceptual/placeholder code but could mislead implementers.
+- docs/playbooks/control-implementations/2.22/portal-walkthrough.md: Line 232 references "coordinated with the Control 1.27 review cadence" for quarterly agent-level timeout reviews. Control 1.27 is AI Agent Content Moderation Enforcement — the relationship between content moderation cadence and inactivity timeout reviews is unclear. NEEDS_HUMAN_REVIEW to confirm this is the intended cross-reference.
+- docs/playbooks/control-implementations/2.24/powershell-setup.md: Lines 96-104 use PowerShell `@()` array literals for picklist option sets that were flagged by the automated scanner as broken internal links — these are false positives (code inside fenced code blocks, not markdown links). No content change needed; noting for Section A reconciliation.
+GAPS:
+- docs/playbooks/control-implementations/2.19/verification-testing.md: Missing automated PowerShell verification script section — other verification playbooks in this batch (2.22, 2.23, 2.24) include PowerShell-based automated test procedures, but 2.19 only has manual test steps and an evidence checklist. Consider adding automated verification for consistency.
+- docs/playbooks/control-implementations/2.20/verification-testing.md: Same gap — only manual verification steps with no automated script section, unlike the more mature 2.22-2.24 playbooks in this batch.
+FIXES:
+1. docs/playbooks/control-implementations/2.23/powershell-setup.md: Move the `Get-AccessToken` function definition (lines 376-383) to before the `try` block (before line 330) so the function is defined before invocation, or add a prominent comment at the call site noting the function must be implemented before running the script.
+2. docs/playbooks/control-implementations/2.22/portal-walkthrough.md: Verify that the cross-reference to "Control 1.27 review cadence" on line 232 is correct — if the intent is to coordinate with a general quarterly review cadence, consider referencing the governance cadence document instead, or confirm 1.27 is the right pairing.
+STATUS: ISSUES_FOUND

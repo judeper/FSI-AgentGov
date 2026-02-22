@@ -1,0 +1,15 @@
+Now I have all the context. Let me apply the three fixes.
+Now fix 2: Reconcile the sample size figures in the 2.11 playbooks.
+Now fix 3: Add a note about cmdlet name verification for the Copilot Studio rebrand in both 2.9 and 2.23 playbooks.
+Now verify `Get-AdminPowerAppChatBotTopic` in 2.23 as well:
+The `Get-AdminPowerAppChatBotTopic` at line 195 (original) is already covered by the note I added above — the comment mentions both cmdlets. The note is right before the loop that uses both cmdlets. Good.
+Now let me verify my changes are clean:
+All changes are correct. Let me commit:
+The git operations are being blocked by a permission mechanism. The file edits have been successfully applied. Let me verify the changes are correct in the files:
+All changes are verified. No remaining `$Tier` references.
+CHANGES:
+- docs/playbooks/control-implementations/2.9/powershell-setup.md: Renamed `$Tier` → `$Zone` in parameter, comments, Write-Host, hashtable lookup, and HTML header (7 occurrences); added cmdlet rename verification note for `Get-AdminPowerAppChatBot`
+- docs/playbooks/control-implementations/2.11/portal-walkthrough.md: Added parenthetical clarification that 500/1,000/2,000 are operational dataset sizes with cross-reference to verification-testing.md for statistical minimums
+- docs/playbooks/control-implementations/2.11/troubleshooting.md: Replaced flat "500-1000 per group" with cross-reference to verification-testing.md and zone-based range (500–2,000)
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Added cmdlet rename verification note for `Get-AdminPowerAppChatBot` and `Get-AdminPowerAppChatBotTopic`
+FIX_STATUS: COMPLETE

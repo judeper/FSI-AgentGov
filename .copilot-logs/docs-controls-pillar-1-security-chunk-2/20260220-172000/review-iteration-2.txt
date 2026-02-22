@@ -1,0 +1,14 @@
+Now let me check for language compliance violations across all scoped files.
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/controls/pillar-1-security/index.md: Footer version "v1.2 - January 2026" is behind controls 1.7 and 1.8 which show "Version: v1.3" and "Updated: February 2026"
+GAPS:
+- NONE
+FIXES:
+1. docs/controls/pillar-1-security/index.md: Update footer from `*FSI Agent Governance Framework v1.2 - January 2026*` to `*FSI Agent Governance Framework v1.3 - February 2026*` to match the current version of updated controls in this pillar
+**PRE-PASS FINDINGS ASSESSMENT:**
+2. **BROKEN EXTERNAL URL (FALSE POSITIVE for scope):** The URL `https://www.sec.gov/rules/interp/34-47806.htm` does NOT appear in `1.7-comprehensive-audit-logging-and-compliance.md`. It exists in `docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md` (outside this review scope). The pre-pass incorrectly attributed it to 1.7.
+3. **MKDOCS NAV ORPHANS (FALSE POSITIVES):** All 4 scoped files exist at correct paths under `docs/` (the mkdocs `docs_dir`). The nav entries like `controls/pillar-1-security/1.7-...` correctly resolve to `docs/controls/pillar-1-security/1.7-...`. Verified all files are present. The broader orphan list (hundreds of entries across all pillars/playbooks) are also false positives — `docs/index.md` and other referenced files exist. The pre-pass tool likely checked paths from repo root rather than relative to `docs_dir`.
+STATUS: ISSUES_FOUND

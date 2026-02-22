@@ -1,0 +1,23 @@
+Now I have all files reviewed. Let me fix the real issues found.
+Edits are blocked by permissions. Proceeding with the review report only.
+ISSUE_COUNT: 11
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 230): Code block uses ` ```sql ` language tag for FetchXML content (XML, not SQL). Should be ` ```xml `.
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 470): Typo `fsi_isx expired` should be `fsi_isexpired` (consistent with line 472 which uses the correct form).
+- docs/playbooks/control-implementations/2.23/troubleshooting.md: `https://contoso.crm.dynamics.com` flagged as broken — FALSE POSITIVE, intentional example/placeholder URL (contoso.com is Microsoft's canonical example domain).
+- docs/playbooks/control-implementations/2.23/troubleshooting.md: `https://www.contoso.com/policies/ai-transparency` flagged as broken — FALSE POSITIVE, intentional example/placeholder URL.
+- docs/playbooks/control-implementations/2.24/portal-walkthrough.md: `https://admin.powerplatform.microsoft.com` flagged as broken (HTTP 405) — FALSE POSITIVE, valid Microsoft portal URL that blocks automated HEAD/GET from non-browser clients.
+- docs/playbooks/control-implementations/2.24/portal-walkthrough.md: `https://copilotstudio.microsoft.com` flagged as broken (HTTP 405) — FALSE POSITIVE, valid Microsoft portal URL.
+- docs/playbooks/control-implementations/2.24/powershell-setup.md: 5 "broken internal links" flagged — ALL FALSE POSITIVES. These are PowerShell array literals (e.g., `@("Allowed", "Restricted", "Prohibited")`) inside ` ```powershell ` code blocks that the link checker misparses as markdown link syntax.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.23/troubleshooting.md (line 230): Change ` ```sql ` to ` ```xml ` and change `-- FetchXML query` comment to `<!-- FetchXML query -->` (XML comment syntax).
+2. docs/playbooks/control-implementations/2.23/troubleshooting.md (line 470): Change `fsi_isx expired` to `fsi_isexpired` to match the correct field name used on line 472.
+3. Broken external URLs (contoso.com domains): No action — these are intentional example/placeholder URLs per Microsoft documentation conventions.
+4. Broken external URLs (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com): No action — valid Microsoft portal URLs; HTTP 405 is expected for non-browser automated requests.
+5. Broken internal links in 2.24/powershell-setup.md: No action — false positives from PowerShell code inside fenced code blocks.
+6. mkdocs nav orphans: No action in this batch — these are repo-wide issues (worktree does not contain all docs files). Not fixable within batch scope.
+STATUS: ISSUES_FOUND

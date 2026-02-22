@@ -1,0 +1,18 @@
+Now I'll apply all fixes.
+Files are restricted from editing. Reporting review findings only.
+ISSUE_COUNT: 5
+CRITICAL:
+- docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md: Broken external URL `https://www.sec.gov/rules/interp/34-47806.htm` returns HTTP 403 (confirmed by pre-pass). Current valid URL is `https://www.sec.gov/rule-release/34-47806`
+- docs/controls/pillar-1-security/index.md: States "These 25 controls" but lists only 24 (1.1–1.24); controls 1.25–1.28 exist in the repo and in mkdocs.yml nav but are missing from the index page listing and categories table
+WARNINGS:
+- docs/controls/pillar-1-security/index.md: Footer shows "v1.2 - January 2026" while control files 1.7 and 1.8 show "v1.3 | February 2026" — version/date is stale
+- docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md: Duplicate URL in Additional Resources — "Additional Threat Detection Configuration" (line 389) and "Power Platform Security Best Practices" (line 391) both link to identical URL `https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview`; consolidate to one entry
+- MKDOCS NAV ORPHANS (pre-pass): All 300+ orphans reported are **FALSE POSITIVES** — every referenced file exists under `docs/` (the default `docs_dir`). The pre-pass checked paths relative to repo root instead of relative to `docs/`.
+GAPS:
+- docs/controls/pillar-1-security/index.md: Categories table has no row for controls 1.25–1.28 (MIME type restrictions, file upload controls, content moderation, publishing restrictions)
+FIXES:
+1. docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md: Replace `https://www.sec.gov/rules/interp/34-47806.htm` with `https://www.sec.gov/rule-release/34-47806`
+2. docs/controls/pillar-1-security/index.md: Change "25 controls" → "28 controls"; add 1.25–1.28 to Controls listing; add category row `| Agent Content & Publishing | 1.25-1.28 | MIME type restrictions, file upload controls, content moderation, publishing restrictions |`; update footer to "v1.2.51 - February 2026"
+3. docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md: Remove duplicate URL entry — delete line 389 ("Additional Threat Detection Configuration") since it duplicates the same URL as "Power Platform Security Best Practices" on line 391
+4. Pre-pass orphan checker: Fix path resolution to prepend `docs_dir` (default: `docs/`) when checking mkdocs.yml nav entries — all reported orphans are false positives
+STATUS: ISSUES_FOUND

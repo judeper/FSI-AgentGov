@@ -1,0 +1,19 @@
+All findings verified. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 5 fixes target `reports/audit/` files which are **not in mkdocs.yml navigation** — they're standalone audit artifacts. No cross-references to other docs exist. Zero build-break risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (03-learn-validation-matrix.md summary counts): Correctly classified CRITICAL. Misstated totals undercount findings by 9 (22 vs 15 Contradicted, 4 vs 3 Partially Verified, 31 vs 22 total). This materially misrepresents audit scope.
+- Fix 2 (02-inventory.md control titles): Correctly classified CRITICAL. At least 4 of the 8+ misaligned titles confirmed (1.1, 1.3, 1.6, 1.7). An inventory that misnames what was reviewed undermines the entire audit's credibility.
+- Fix 3 (07-post-remediation-review.md wave count): WARNING is appropriate. "5 waves" vs 4 documented waves is a cross-reference error, not a factual misrepresentation of remediation outcomes.
+- Fix 4 (02-inventory.md Getting Started files): WARNING is appropriate. Minor factual error — `overview.md` doesn't exist; actual files are `quick-start.md` and `checklist.md`.
+- Fix 5 (appendix-learn-urls.md duplicate): WARNING is appropriate. Cosmetic duplication, no functional impact.
+**FIX_ORDERING:**
+- Fix 2 first (inventory titles) — foundational accuracy; other report sections may reference these titles
+- Fix 1 second (summary counts) — cascading: the summary drives executive-level reading of the matrix
+- Fix 3 third (wave count) — simple string replacement, no dependencies
+- Fix 4 fourth (Getting Started files) — same file as Fix 2, batch together
+- Fix 5 last (duplicate URL) — isolated, lowest impact
+**OVER_ENGINEERED:**
+- Fix 2 scope: The review says "1.10 through 1.28 should be verified." This is overkill — only titles that are **factually wrong** need correction. Titles that are abbreviated or slightly rephrased (but still identifiable) should be left alone. Verify only the 8 specifically called out, not all 28.
+**CRITIQUE_SUMMARY:** All five findings are legitimate and independently verified. The fixes are purely internal to `reports/audit/` files outside the mkdocs build — zero risk to the published site or cross-references.

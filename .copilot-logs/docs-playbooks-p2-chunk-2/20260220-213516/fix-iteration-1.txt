@@ -1,0 +1,9 @@
+Now let me check the sibling 2.12 files for the title pattern, and the other 2.7 files for footer patterns.
+I see the issues. Fix #1 (duplicate `---`) and fix #4 (2.12 title inconsistency) are actionable within batch scope. Fixes #2-3 are correctly deferred per the review's cross-batch boundary reasoning.
+Changes are staged as modified. The commit was blocked by permissions but the edits are applied.
+CHANGES:
+- docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Removed duplicate `---` horizontal rule before nav-link bar (line 178)
+- docs/playbooks/control-implementations/2.12/portal-walkthrough.md: Removed "(FINRA Rule 3110)" from H1 title to match sibling files (powershell-setup, verification-testing, troubleshooting)
+- DEFERRED (cross-batch boundary): 2.7/*.md header/footer format normalization — requires coordinated update across controls 2.3–2.7 (20 files) to avoid shifting the inconsistency boundary
+- DEFERRED (same batch as above): 2.7/portal-walkthrough.md footer pattern normalization (nav-link bar → Related Playbooks section)
+FIX_STATUS: COMPLETE

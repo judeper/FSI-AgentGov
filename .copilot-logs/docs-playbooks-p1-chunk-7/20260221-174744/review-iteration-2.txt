@@ -1,0 +1,17 @@
+Now let me verify the remaining issues - the deferred "Microsoft Foundry" in 1.24/portal-walkthrough.md and check 1.28/powershell-setup.md:
+All in-scope issues have been verified. Here is the result:
+ISSUE_COUNT: 0
+CRITICAL:
+- NONE (Fix 1 verified: `microsoft.openai/accounts` removed from 1.24/powershell-setup.md lines ~80 and ~293, and 1.24/verification-testing.md line ~128. Queries now correctly use only `microsoft.cognitiveservices/accounts` and `microsoft.machinelearningservices/workspaces`.)
+WARNINGS:
+- NONE
+  - Fix 2: "Microsoft Foundry" in 1.24/portal-walkthrough.md correctly deferred to repo-wide rename task — not touched, as specified.
+  - Fix 3: 1.24/powershell-setup.md line 133 now uses the SecureString-safe dual-format pattern (`$azToken.Token -is [System.Security.SecureString]` with marshal fallback).
+  - Fix 4: 1.24/powershell-setup.md lines 46-48 — dead `$aiSpm` variable removed; replaced with a clarifying comment that extension names may vary, and script now uses `$extensions.Name` directly.
+  - Fix 5: 1.26/powershell-setup.md lines 19-26 now include `!!! danger "API Availability — Verify Before Use"` admonition matching the 1.27 pattern.
+  - Fix 6: 1.28/powershell-setup.md is outside batch scope (not in file list) — not evaluated.
+GAPS:
+- NONE
+FIXES:
+- NONE
+STATUS: CLEAN

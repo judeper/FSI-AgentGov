@@ -1,0 +1,12 @@
+Audit complete. Here is the critique:
+---
+**FALSE_POSITIVES:**
+NONE — all 7 claimed issues are verified real against the actual files on disk.
+**MISSED_ISSUES:**
+- **1.4/troubleshooting.md and 1.4/verification-testing.md also use the reversed title format** (`# Control 1.4: ... - Troubleshooting` / `# Control 1.4: ... - Verification & Testing`). The reviewer only flagged portal-walkthrough.md and powershell-setup.md — but all 4 files in 1.4/ are inconsistent with the 1.1–1.3 pattern. Fix suggestions 3 & 4 are incomplete.
+- **1.2/portal-walkthrough.md is also missing footer metadata** — not listed in the reviewer's 9-file list. Actual count is **10 of 16** standard playbook files missing footers, not "9 of 15." (The "15" count appears to erroneously exclude 1.2/portal-walkthrough.md from the denominator as well; the true denominator is 16 standard playbooks, or 17 including `sponsorship-lifecycle-workflows.md`.)
+**FIX_CONCERNS:**
+- **Fix 6 (Get-AdminAuditLogConfig prerequisite):** The suggestion to add "`Microsoft.Graph` or `ExchangeOnlineManagement`" is misleading. `Get-AdminAuditLogConfig` is exclusively an ExchangeOnlineManagement cmdlet — `Microsoft.Graph` does **not** provide this cmdlet and should not be listed as an alternative.
+- **Fixes 3 & 4 (title normalization):** Only cover 2 of the 4 reversed-title files in 1.4/. Need additional fixes for `1.4/troubleshooting.md` and `1.4/verification-testing.md` to be consistent.
+- **Fix 7 (footer metadata):** Should target 10 files, not 9 — add `1.2/portal-walkthrough.md` to the list.
+**CRITIQUE_SUMMARY:** The review is substantively accurate — every flagged issue is real and no false positives were introduced. However, it undercounts in two areas: the title inconsistency affects all 4 files in 1.4/ (not just 2), and 10 files lack footer metadata (not 9, with 1.2/portal-walkthrough.md omitted from the list). The `Microsoft.Graph` module suggestion in Fix 6 is factually incorrect and should be removed.

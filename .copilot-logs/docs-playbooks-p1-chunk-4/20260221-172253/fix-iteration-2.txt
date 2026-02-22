@@ -1,0 +1,12 @@
+Now let me see the end of each file to find insertion points:
+Now I have all the context. Let me apply all 6 fixes:
+Verify the changes:
+All 6 fixes verified.
+CHANGES:
+- docs/playbooks/control-implementations/1.11/powershell-setup.md: Added bottom navigation links to sibling playbooks before footer
+- docs/playbooks/control-implementations/1.11/troubleshooting.md: Added bottom navigation links to sibling playbooks before footer
+- docs/playbooks/control-implementations/1.15/troubleshooting.md: Fixed H1 heading to standard `# Control 1.15: ... - Troubleshooting` format
+- docs/playbooks/control-implementations/1.15/troubleshooting.md: Appended standard footer metadata after nav links
+- docs/playbooks/control-implementations/1.15/verification-testing.md: Fixed H1 heading to standard `# Control 1.15: ... - Verification & Testing` format
+- docs/playbooks/control-implementations/1.15/verification-testing.md: Appended standard footer metadata after nav links
+FIX_STATUS: COMPLETE

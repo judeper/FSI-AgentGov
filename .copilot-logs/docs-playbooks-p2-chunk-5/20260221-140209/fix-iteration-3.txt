@@ -1,0 +1,14 @@
+Let me check the 2.22 headers and compare with the standard format.
+Now I have all the context needed. Let me apply all 5 fixes.
+Now let me verify the changes are correct by spot-checking the modified files.
+All fixes verified. Let me commit the changes.
+All 7 files modified as expected.
+CHANGES:
+- docs/playbooks/control-implementations/2.16/powershell-setup.md: Removed unused `Microsoft.PowerApps.Administration.PowerShell` from header, install, connect, and service-principal block; retained only `PnP.PowerShell`
+- docs/playbooks/control-implementations/2.17/powershell-setup.md: Added `ExchangeOnlineManagement` to Modules Required header and added install/connect commands to Prerequisites block
+- docs/playbooks/control-implementations/2.18/verification-testing.md: Changed "February 2026" to "January 2026" to match sibling files
+- docs/playbooks/control-implementations/2.22/portal-walkthrough.md: Removed `> **Parent Control:**` blockquote; replaced `*Updated: February 2026 | Version: v1.3*` footer with standard `[Back to Control 2.22]` navigation footer
+- docs/playbooks/control-implementations/2.22/powershell-setup.md: Removed `> **Parent Control:**` blockquote; replaced `*Updated: February 2026 | Version: v1.3*` footer with standard navigation footer
+- docs/playbooks/control-implementations/2.22/troubleshooting.md: Removed `> **Parent Control:**` blockquote; replaced `*Updated: February 2026 | Version: v1.3*` footer with standard navigation footer
+- docs/playbooks/control-implementations/2.22/verification-testing.md: Removed `> **Parent Control:**` blockquote; replaced `*Updated: February 2026 | Version: v1.3*` footer with standard navigation footer
+FIX_STATUS: COMPLETE

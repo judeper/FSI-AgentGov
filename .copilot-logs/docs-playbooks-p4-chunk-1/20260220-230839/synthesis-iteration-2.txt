@@ -1,0 +1,23 @@
+Now I have all the data needed. Here is the final synthesized review:
+ISSUE_COUNT: 7
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 95): Uses `-DisableSharingForNonOwnersStatus $true` as a Set-SPOSite parameter; the correct setter is `-DisableSharingForNonOwners` (a switch parameter — the "Status" suffix and `$true` value are both incorrect). NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/4.1/troubleshooting.md (line 53): Uses `Get-SPOTenant | Select-Object EnableAIPIntegration, AIBuilderEnabled` to verify SharePoint Advanced Management license; these properties relate to AI Builder / Power Platform integration, not SAM licensing. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/4.2/powershell-setup.md (line 94): References `$_.ReviewersCompleted` and `$_.ReviewersTotal` properties on AccessReviewInstance objects; these property names may not exist in the current Microsoft Graph API for access review instances. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/4.7/verification-testing.md, 4.7/troubleshooting.md, 4.7/powershell-setup.md: Missing navigation footer links entirely (no `[Back to Control 4.7](...) | [Portal Walkthrough](...) | ...` line). All other 4.x playbook files (4.1–4.6, all four file types) and 4.7/portal-walkthrough.md include these links
+- docs/playbooks/control-implementations/4.7/portal-walkthrough.md (line 41): Describes Restricted Content Discovery setting as "set to **Restricted**" while 4.1/portal-walkthrough.md and 4.6/portal-walkthrough.md describe the same SharePoint Admin Center setting as an On/Off toggle — minor inconsistency likely reflecting UI evolution
+- docs/playbooks/control-implementations/4.3/powershell-setup.md, 4.4/powershell-setup.md, 4.5/powershell-setup.md, 4.6/powershell-setup.md: Missing `---` horizontal rule before navigation footer links, inconsistent with 4.1 and 4.2 powershell-setup files which include the separator
+- Governance level naming inconsistency: 4.3–4.7 playbooks use "(Level N)" suffixes (e.g., "Baseline (Level 1)") while 4.1 and 4.2 playbooks use plain labels ("Baseline", "Recommended", "Regulated") without level numbers
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.4/powershell-setup.md (line 95): Change `-DisableSharingForNonOwnersStatus $true` to `-DisableSharingForNonOwners` (remove both "Status" suffix and `$true` value — this is a switch parameter). Verify correct parameter name against current Set-SPOSite documentation before applying. NEEDS_HUMAN_REVIEW
+2. docs/playbooks/control-implementations/4.1/troubleshooting.md (line 53): Replace `EnableAIPIntegration, AIBuilderEnabled` with properties that actually verify SharePoint Advanced Management licensing status. NEEDS_HUMAN_REVIEW
+3. docs/playbooks/control-implementations/4.2/powershell-setup.md (line 94): Verify `ReviewersCompleted`/`ReviewersTotal` exist on `AccessReviewInstance` in Microsoft Graph v1.0; replace with correct property names if needed. NEEDS_HUMAN_REVIEW
+4. docs/playbooks/control-implementations/4.7/verification-testing.md, 4.7/troubleshooting.md, 4.7/powershell-setup.md: Add navigation footer links matching the pattern used in 4.7/portal-walkthrough.md and all other 4.x playbooks (e.g., `[Back to Control 4.7](...) | [PowerShell Setup](...) | [Verification Testing](...) | [Troubleshooting](...)`)
+5. docs/playbooks/control-implementations/4.7/portal-walkthrough.md (line 41): Change `set to **Restricted**` to match the toggle description used in 4.1/4.6 (e.g., `Toggle **Restrict content from Microsoft 365 Copilot** to **On**`) — low priority, verify current SharePoint Admin Center UI before applying
+6. docs/playbooks/control-implementations/4.3/powershell-setup.md, 4.4/powershell-setup.md, 4.5/powershell-setup.md, 4.6/powershell-setup.md: Add `---` horizontal rule before navigation footer links for consistency with 4.1/4.2
+7. Normalize governance level labels across all playbooks: either use "(Level N)" suffixes consistently or remove them consistently
+STATUS: ISSUES_FOUND

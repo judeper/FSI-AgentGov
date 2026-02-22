@@ -1,0 +1,13 @@
+ISSUE_COUNT: 3
+CRITICAL:
+- mkdocs.yml: ~290 nav entries reference files not found (pre-pass confirmed). This is a worktree artifact — content files exist in the main repo but not in this isolated worktree. Not fixable within this batch scope.
+WARNINGS:
+- docs/images/3.12/EXPECTED.md: Example URL `https://contoso.crm.dynamics.com` flagged as broken external URL (pre-pass confirmed). This is an intentional Microsoft example/placeholder domain used in PowerShell command-line specifications (lines 308, 368, 417, 464, 514, 648) — not a real broken link. No fix needed.
+- docs/images/2.23/EXPECTED.md: Line 105 references legacy Power Automate trigger name "When a Power Virtual Agent calls a flow" — Microsoft renamed Power Virtual Agents to Copilot Studio. NEEDS_HUMAN_REVIEW whether this trigger name has been updated in the Power Automate UI.
+GAPS:
+- NONE
+FIXES:
+1. mkdocs.yml: Verify all nav entries have corresponding doc files in the main repo (outside batch scope — worktree artifact, not an EXPECTED.md issue)
+2. docs/images/3.12/EXPECTED.md: No code fix needed — `https://contoso.crm.dynamics.com` is an intentional example Dataverse URL in screenshot specifications
+3. docs/images/2.23/EXPECTED.md (line 105): Verify if Power Automate trigger "When a Power Virtual Agent calls a flow" should be updated to reflect "Copilot Studio" rebranding (e.g., "When Copilot Studio calls a flow")
+STATUS: ISSUES_FOUND

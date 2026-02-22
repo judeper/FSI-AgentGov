@@ -1,0 +1,16 @@
+All three findings confirmed against source. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE
+All three fixes are isolated to single files with no cross-references pointing at the specific lines being changed. No nav entries, anchors, or link targets are affected. `mkdocs build --strict` will not be impacted since fixes modify only inline content and add an admonition block — no file renames, path changes, or heading alterations.
+**SEVERITY_CORRECTIONS:**
+NONE
+Severity classifications are accurate:
+- **Fix 1** (toggle wording): Correct as WARNING. The 4.7 portal-walkthrough says "set to **Restricted**" (line 41) which implies a dropdown, while 4.6 correctly documents it as an On/Off toggle (lines 41-46). An admin following 4.7's instructions would look for a dropdown that doesn't exist. Functionally misleading but not data-loss-level.
+- **Fix 2** (license count filter): Correct as WARNING. The script at lines 82-83 counts *all* licensed users, not Copilot-licensed users. This produces an inflated count in a verification report — misleading but not destructive. The correct pattern exists 50 lines away in the sibling `powershell-setup.md` (lines 37-55), confirming the inconsistency.
+- **Fix 3** (propagation delay admonition): Correct as GAP, not WARNING. It's missing advisory content, not incorrect content. The severity is appropriately lower.
+**FIX_ORDERING:**
+NONE — all three fixes are independent. They touch different files (Fix 1 and Fix 3 both touch `4.7/portal-walkthrough.md` but at different locations — line 41 vs. after the Step 2 block). No ordering constraints; can be applied in any sequence or in parallel.
+**OVER_ENGINEERED:**
+- **Fix 2** proposes replacing two lines with the full multi-step SKU lookup pattern from `powershell-setup.md` (lines 37-55, ~20 lines). This is appropriate — simply relabeling the count would hide the real problem (wrong user population). The reviewer correctly identified that the verification script must match the setup script's filter logic. Not over-engineered.
+**CRITIQUE_SUMMARY:** All three fixes are low-risk, accurately classified, surgically scoped, and independently applicable. The review correctly triaged the 16 broken-URL false positives and nav orphan worktree artifacts as non-actionable — approve all three fixes for execution.

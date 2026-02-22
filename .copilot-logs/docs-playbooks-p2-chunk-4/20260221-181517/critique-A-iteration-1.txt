@@ -1,0 +1,15 @@
+Now let me check the 2.12 powershell-setup.md and the 2.13 portal-walkthrough.md for cross-reference validation.
+Now let me check the broader pattern across the worktree for admonition vs blockquote usage:
+I now have all the evidence needed. Here's my critique:
+---
+FALSE_POSITIVES:
+- NONE — all four flagged issues correspond to real observations in the files.
+MISSED_ISSUES:
+- **2.14/powershell-setup.md (line 14):** The reviewer flagged `LearningContent.Read.All` as possibly non-existent, but missed the more substantive issue: this scope is declared in the Prerequisites `Connect-MgGraph` (line 14) yet **never used by any script in the file**. The actual scripts connect with `"User.Read.All", "RoleManagement.Read.All"` (lines 36-37, 297). The prerequisite scope is misleading and should either be removed or the scripts should be updated to match. The reviewer's NEEDS_HUMAN_REVIEW was directionally correct but for the wrong reason.
+- **2.13/powershell-setup.md (line 58-60):** The reviewer's cross-reference to 2.12 is imprecise. The 2.13 script uses `New-PnPField` **without a `-List` parameter** (creating site-level columns), while 2.12 uses `Add-PnPField -List $ListName` (adding fields to a specific list). These are different operations. The cmdlet name fix is still correct (`Add-PnPField` handles both), but the reviewer should have noted the distinction rather than calling them "the same operation."
+- **2.15/portal-walkthrough.md blockquote pattern:** The reviewer treated this as an isolated inconsistency, but blockquote-bold callouts (`> **`) appear in **~27 files** across the playbooks directory. This is a repo-wide pattern, not a single-file deviation. Fixing only this one instance would not materially improve consistency.
+FIX_CONCERNS:
+- **Fix 1** (`New-PnPField` → `Add-PnPField`): Correct fix. `Add-PnPField` is the canonical PnP.PowerShell cmdlet and works with or without `-List`. The fix should preserve the absence of `-List` (these are site columns, not list fields).
+- **Fix 2** (WORM Storage label): Low-risk cosmetic fix. Correct in substance — the portal-walkthrough (lines 56-74, 102) documents both WORM and audit-trail alternatives per Oct 2022 SEC amendments, and the validation check should reflect that. However, the suggested fix text `"WORM Storage / Audit-Trail Alternative"` should also update line 168's `[INFO]` message to mention both options, not just line 167.
+- **Fix 3** (blockquote → admonition): The fix is technically correct syntax, but applying it to only this one file while ~27 other files use the same blockquote pattern creates an inconsistency-of-fixes problem. Should be deferred to a repo-wide cleanup or accepted as-is.
+CRITIQUE_SUMMARY: The review correctly identified real issues with good specificity, but the `LearningContent.Read.All` finding (Issue 4) missed the more important problem (unused scope in prerequisites vs. scripts), and the blockquote fix (Issue 3) understates the scope of the pattern across the repo. Fix 1 (cmdlet name) is the most actionable and clearly correct; Fixes 2 and 3 are valid but lower priority.

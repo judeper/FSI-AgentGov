@@ -1,0 +1,12 @@
+Issue #6 (architecture.md footer) is still unfixed. Let me fix it.
+Cannot edit — write access restricted. Reporting verification results:
+ISSUE_COUNT: 1
+CRITICAL:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md: Version mismatch — header says "v1.2.12" (line 3), footer still says "v1.2.10" (line 637) — REMAINING
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. architecture.md (line 637): Change `*FSI Agent Governance Framework v1.2.10 - January 2026*` to `*FSI Agent Governance Framework v1.2.12 - January 2026*`
+STATUS: ISSUES_FOUND

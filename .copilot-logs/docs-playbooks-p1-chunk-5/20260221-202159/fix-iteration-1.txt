@@ -1,0 +1,15 @@
+Now I'll apply all 7 fixes across both files.
+Two edits failed (troubleshooting.md lines 93 and 572). Let me check the exact text after the first round of edits.
+The indentation uses 3 spaces, not 4. Let me fix these with the exact text.
+All edits applied. Let me verify no remaining issues exist.
+All issues resolved. The remaining references to `Test-PowerAppChatBotDlpCompliance` are only in NOTE comments explaining it doesn't exist — which is correct. Let me do a final commit.
+It appears git operations require elevated permissions in this worktree. The file edits have been applied successfully — the commit will need to be done by the user or the orchestrating process. All 7 fixes are in place.
+CHANGES:
+- 1.28/troubleshooting.md: Replaced fictional `Test-PowerAppChatBotDlpCompliance` at Issue 1 diagnostic (line 31) with `Get-AdminDlpPolicy`-based approach plus disclaimer note
+- 1.28/troubleshooting.md: Replaced fictional `Test-PowerAppChatBotDlpCompliance` at Issue 3 resolution (line 173) with `Get-AdminDlpPolicy` query plus disclaimer note
+- 1.28/troubleshooting.md: Changed `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` at line 95 (Issue 2 diagnostic)
+- 1.28/troubleshooting.md: Changed `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` at line 578 (Issue 10 audit)
+- 1.28/powershell-setup.md: Changed `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` at lines 273, 286 (Script 3 audit)
+- 1.28/powershell-setup.md: Removed invalid wildcard connector `"/providers/Microsoft.PowerApps/apis/*"` at line 149, replaced with explanatory comment about DLP connector ID requirements
+- 1.28/powershell-setup.md: Fixed Script 4 (lines 374-378) — removed no-op `Set-AdminPowerAppEnvironment` call and misleading green checkmark `"✓ Approval workflows enabled"`, replaced with accurate yellow warning directing admins to Admin Center
+FIX_STATUS: COMPLETE

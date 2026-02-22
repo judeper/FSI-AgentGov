@@ -1,0 +1,25 @@
+Let me verify the worktree structure and a few specific issues.
+The files exist in the worktree. Let me verify the mkdocs.yml nav paths match.
+All mkdocs nav orphan files actually exist — verified. These are false positives from the automated checker. Now let me fix the real issue I found.
+Cannot write to this worktree. Providing review report only.
+ISSUE_COUNT: 6
+CRITICAL:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: `Import-AdminExclusionGroupFromCSV` default parameter `$GroupName = "CopilotForM365AdminExclusionGroup"` (line 127) is inconsistent with all other functions and the portal walkthrough, which use `"CopilotForM365AdminExclude"`. This would cause the bulk-import function to target a nonexistent group.
+WARNINGS:
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: Prerequisites install `Az.CostManagement` but `Set-AICostBudgetAlert` calls `New-AzConsumptionBudget` (line 282) which requires the `Az.Consumption` module. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.6/portal-walkthrough.md: Double horizontal rule at lines 127-129 creates an empty visual section between Step 7 and the footer nav links
+- docs/playbooks/control-implementations/3.6/powershell-setup.md: `Set-AdminPowerAppAsSysAdmin` with `-Disable` switch (line 143) may not be a valid parameter — NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: `New-MgGroupMember` with `@odata.id` body (line 107) may need to be `New-MgGroupMemberByRef` in Microsoft Graph PowerShell SDK v2 — NEEDS_HUMAN_REVIEW
+GAPS:
+- docs/playbooks/control-implementations/3.6/portal-walkthrough.md: Missing "Validation" section with verification checklist (present in 3.5 and 3.8 portal walkthroughs)
+NOTE ON AUTOMATED PRE-PASS FINDINGS:
+- **Broken external URLs (3):** All false positives. `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` are valid Microsoft portals returning HTTP 405 to unauthenticated requests. The Graph API URL is valid PowerShell string interpolation inside a code block.
+- **MkDocs nav orphans (~470):** All false positives. Every referenced file exists under `docs/` in this worktree. Verified by glob against `docs/controls/`, `docs/framework/`, and `docs/playbooks/control-implementations/`. The automated orphan checker appears to have used incorrect path resolution.
+FIXES:
+1. docs/playbooks/control-implementations/3.8/powershell-setup.md line 127: Change `$GroupName = "CopilotForM365AdminExclusionGroup"` to `$GroupName = "CopilotForM365AdminExclude"` to match all other functions and the portal walkthrough specification
+2. docs/playbooks/control-implementations/3.5/powershell-setup.md: Add `Install-Module -Name Az.Consumption -Force -AllowClobber` to the prerequisites section, or change `New-AzConsumptionBudget` to the `Az.CostManagement` equivalent
+3. docs/playbooks/control-implementations/3.6/portal-walkthrough.md line 128: Remove one of the duplicate `---` separators
+4. docs/playbooks/control-implementations/3.6/portal-walkthrough.md: Add a "Validation" section with checklist before the footer nav links (consistent with other portal walkthroughs in this batch)
+5. docs/playbooks/control-implementations/3.6/powershell-setup.md line 143: Verify `Set-AdminPowerAppAsSysAdmin -Disable` is valid; if not, replace with appropriate quarantine cmdlet
+6. docs/playbooks/control-implementations/3.8/powershell-setup.md line 107: Verify `New-MgGroupMember` accepts `@odata.id` body parameter in current Graph SDK; if not, change to `New-MgGroupMemberByRef`
+STATUS: ISSUES_FOUND

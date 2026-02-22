@@ -1,0 +1,15 @@
+All three issues confirmed in the source files. Here is the final synthesized review:
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 107): `New-MgGroupMember` called with `-BodyParameter` containing `@odata.id` — this cmdlet accepts `-DirectoryObjectId` (a GUID), not a `@odata.id` body. The `@odata.id` pattern belongs to `New-MgGroupMemberByRef`. Current code will fail at runtime. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.6/powershell-setup.md (line 143): `Set-AdminPowerAppAsSysAdmin` called with `-Disable` parameter — this parameter does not exist on this cmdlet. The cmdlet transfers app ownership to a system admin; it does not disable apps. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 290-291): `Get-MgOrganization` returns a collection, but `$orgSettings.DisplayName` accesses it as a single object without `Select-Object -First 1`. The same file handles this correctly at line 214. In single-tenant environments this works accidentally but is technically incorrect. Low severity. NEEDS_HUMAN_REVIEW.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/3.8/powershell-setup.md (line 104-107): Replace the `@odata.id` body construction and `New-MgGroupMember -GroupId $group.Id -BodyParameter $memberParams` with the simpler `New-MgGroupMember -GroupId $group.Id -DirectoryObjectId $user.Id`, eliminating the hardcoded Graph API URL. Alternatively, change to `New-MgGroupMemberByRef` if the `ByRef` pattern is intentional. Verify against current Microsoft Graph PowerShell SDK v2.x documentation before applying.
+2. docs/playbooks/control-implementations/3.6/powershell-setup.md (line 143): Remove the `-Disable` parameter. Research the correct approach for disabling/quarantining a Power App — candidates include `Set-AdminPowerAppApisToBypassConsent`, admin center quarantine, or `Remove-AdminPowerApp`. Requires human research into the intended behavior before choosing the replacement.
+3. docs/playbooks/control-implementations/3.8/powershell-setup.md (line 290): Change `$orgSettings = Get-MgOrganization` to `$orgSettings = Get-MgOrganization | Select-Object -First 1` to match the pattern used at line 214 in the same file.
+STATUS: ISSUES_FOUND

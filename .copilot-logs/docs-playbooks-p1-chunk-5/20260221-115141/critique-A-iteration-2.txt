@@ -1,0 +1,14 @@
+Now let me check for other files in this batch that might have been reviewed, and verify there are no missed issues.
+Let me check the other PowerShell setup files in this batch for similar issues.
+Now let me apply the fix for the confirmed issue.
+Let me also spot-check the other playbook types for missed issues.
+Confirmed. Line 73 has the trailing comma. Now let me check the other file types for missed issues.
+All 4 playbooks exist for each control. The review is verified. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE
+**MISSED_ISSUES:**
+- NONE
+**FIX_CONCERNS:**
+- NONE — The fix (removing the trailing comma on line 73, changing `[string]$LibraryName,` to `[string]$LibraryName`) is correct and sufficient.
+**CRITIQUE_SUMMARY:** The review is accurate. The trailing comma in the `param()` block at line 73 of `docs/playbooks/control-implementations/1.16/powershell-setup.md` is a genuine PowerShell parse error — confirmed by direct file inspection. The reviewer's dismissal of URL and nav-orphan warnings as false positives is also correct: all batch files (1.15–1.19, 4 playbooks each) exist on disk, no prohibited language was found, and no other `param()` blocks in the batch have trailing commas.

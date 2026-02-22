@@ -1,0 +1,8 @@
+Now I'll apply all fixes:
+The commit requires permissions not available in this session. The file edits are applied and staged.
+CHANGES:
+- docs/playbooks/control-implementations/1.24/powershell-setup.md (line 132): Replaced single-line `Get-AzAccessToken` with SecureString-safe pattern (type-check + Marshal conversion) matching 1.25 approach
+- docs/playbooks/control-implementations/1.24/powershell-setup.md (lines 44-47): Removed dead `$aiSpm` variable with incorrect extension filters; kept extension listing output
+- docs/playbooks/control-implementations/1.24/portal-walkthrough.md (line 11): Changed "Microsoft Foundry" to "Azure AI Foundry"
+- docs/playbooks/control-implementations/1.24/portal-walkthrough.md (line 41): Changed "Microsoft Foundry projects" to "Azure AI Foundry projects"
+FIX_STATUS: COMPLETE

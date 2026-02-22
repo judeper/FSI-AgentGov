@@ -1,0 +1,19 @@
+Now let me verify the 1.17 troubleshooting code blocks claim and check the 1.18 portal-walkthrough footer.
+All findings verified. Here is the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 1 (1.16 cmdlet):** LOW build risk (isolated code block change, no cross-references affected), but HIGH accuracy risk. The proposed replacement `Add-AipServiceSuperUserGroup -GroupEmailAddress` must be verified against current AIPService module documentation — an incorrect cmdlet swap trades one wrong command for another. The `@contoso.com` suffix is a reasonable placeholder but the cmdlet name itself needs human verification. NEEDS_HUMAN_REVIEW classification is correct.
+- **Fix 2 (1.18 structural reorder):** MODERATE risk. Moving 30 lines (Steps 7–9) above the Validation section while simultaneously fixing the `## Step 7:` → `### Step 7:` heading level is a multi-edit operation. The Validation checklist at lines 105–107 already references Steps 7–9 content (agent action consent, connected agents, admin count), so the reorder will improve logical flow but the checklist items must remain consistent with the moved steps. No cross-file references are affected.
+**SEVERITY_CORRECTIONS:**
+- **Fix 5 (version footer "v1.3" → "v1.2"):** Correctly classified as WARNING but the scope is incomplete. The review identifies portal-walkthrough.md (line 147) and verification-testing.md (line 143) but should also check whether powershell-setup.md and troubleshooting.md for 1.18 have the same issue. Additionally, verification-testing.md has a header/footer date mismatch ("Last Updated: January 2026" at line 3 vs "Updated: February 2026" in footer at line 143) that was not flagged.
+- **Code block language tags (Fix 4):** Correctly classified as WARNING but 1.16 line 71 contains a portal navigation path (`Library Settings > Information Rights Management`), not code — `text` is the right tag. The review's line references are accurate for all three files (confirmed: 1.15 L26, 1.16 L71, 1.17 L26/54/78).
+- All other severity classifications are accurate.
+**FIX_ORDERING:**
+- **Fix 2 + heading fix (Warning 3):** Must be done atomically — move Steps 7–9 AND change `## Step 7:` to `### Step 7:` in the same edit to avoid an intermediate inconsistent state.
+- **Fix 1 (cmdlet):** Independent. Block on human verification of correct AIPService cmdlet before applying.
+- **Fixes 3, 4, 5, 6:** All independent of each other and of Fixes 1–2. Can be applied in any order.
+- **Fix 6 (add "How to Confirm" section):** Should be applied last — it's net-new content that benefits from all other 1.18 fixes being stable first.
+**OVER_ENGINEERED:**
+- **Fix 6 (add "How to Confirm Configuration is Active" to 1.18 troubleshooting):** Borderline. The consistency gap is real (1.15, 1.16, 1.17 all have this section), but the proposed content (security group existence, PIM status, column-level security, access review schedule) overlaps significantly with what the 1.18 verification-testing.md file already covers in Tests 1–5 and the SSPM section. Adding it improves troubleshooting self-containment but risks content duplication. Recommend a shorter version that cross-links to verification-testing.md rather than restating the same checks.
+- **Fix 4 (code block language tags):** Not over-engineered, but lowest-value fix in the batch. These are portal navigation breadcrumbs inside indented list items — the bare ``` renders identically in MkDocs Material. Correct to fix for linting hygiene, but should not block the batch.
+**CRITIQUE_SUMMARY:** The review is accurate and well-evidenced — all 9 issues verified against source files with correct line numbers. The two critical items (wrong cmdlet, structural reorder) are correctly prioritized; the main risk is Fix 1 requiring external cmdlet verification before blind application, and Fix 6 should be scoped down to avoid duplicating verification-testing.md content.

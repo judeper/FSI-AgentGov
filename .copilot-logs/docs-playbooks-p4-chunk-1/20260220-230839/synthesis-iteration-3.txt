@@ -1,0 +1,17 @@
+ISSUE_COUNT: 5
+CRITICAL:
+- 4.3/portal-walkthrough.md: Step 2 directs admins to "Microsoft Purview > Data lifecycle management" for inactive site policies — this feature is in SharePoint Admin Center, not Purview. Step 5 correctly uses Purview for retention labels, but Step 2 references the wrong portal. (NEEDS_HUMAN_REVIEW — do not apply fix without live tenant verification; Microsoft has reorganized these features multiple times)
+- 4.7/portal-walkthrough.md: Step 2 describes Restricted Content Discoverability as "set to **Restricted**" but per 4.6/portal-walkthrough.md (lines 45-46) the UI is explicitly an **On/Off toggle**, not a dropdown. An admin following this instruction would not find a "Restricted" option in the current UI. (NEEDS_HUMAN_REVIEW — verify both 4.1 and 4.7 descriptions against current portal before aligning)
+WARNINGS:
+- 4.6/verification-testing.md: Lines 109 and 114 use "Level 2+" and "Level 4" without clarifying these map to governance tiers; other playbooks explicitly label them as "Baseline (Level 1)" / "Regulated (Level 4)" for clarity
+- 4.4/powershell-setup.md: Line 95 uses `-DisableSharingForNonOwners` as a switch on `Set-SPOSite`. The read-side property `DisableSharingForNonOwnersStatus` (line 73) confirms the API surface uses this naming and the parameter serves the correct purpose (restricting non-owner sharing). However, the write parameter name may differ in current SPO module versions. (NEEDS_HUMAN_REVIEW — verify against current cmdlet, but do not replace with `-DisableCompanyWideSharingLinks` which serves a different purpose)
+- Placeholder tenant URLs use inconsistent naming across P4 playbooks: `yourtenant.sharepoint.com` (4.1, 4.4), `contoso.sharepoint.com` (4.3, 4.6), `tenant.sharepoint.com` (4.2, 4.4, 4.6) — should standardize on `contoso` per Microsoft docs convention
+GAPS:
+- NONE
+FIXES:
+1. 4.3/portal-walkthrough.md Step 2: Flag for human review — change navigation from Purview to correct SharePoint Admin Center path, but only after confirming current portal location against a live tenant
+2. 4.7/portal-walkthrough.md Step 2: Flag for human review — "set to **Restricted**" likely needs to become "toggle **Restrict content from Microsoft 365 Copilot** to **On**" to match the On/Off toggle UI, but verify both 4.1 and 4.7 against current portal before applying
+3. 4.6/verification-testing.md lines 109/114: Add parenthetical governance tier mapping, e.g., "CopilotReady tagging implemented (Recommended+)" and "Change control for scope modifications (Regulated)"
+4. 4.4/powershell-setup.md line 95: Verify `-DisableSharingForNonOwners` is the current write parameter for `Set-SPOSite`; do not replace without live cmdlet testing
+5. Standardize placeholder tenant URLs across all P4 playbooks to `contoso.sharepoint.com` / `contoso-admin.sharepoint.com`
+STATUS: ISSUES_FOUND

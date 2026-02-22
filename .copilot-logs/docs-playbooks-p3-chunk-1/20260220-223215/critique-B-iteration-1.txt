@@ -1,0 +1,23 @@
+Now let me check the footer patterns for 3.1 and 3.2 files to verify the inconsistency claims.
+All findings confirmed against disk. Here is my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 1 (3.2/powershell-setup.md — bogus cmdlet):** MEDIUM-HIGH risk. Replacing `Get-AdminPowerAppEnvironmentAnalytics` requires knowing what valid cmdlet to use. An incorrect replacement is worse than the current placeholder — admins will copy-paste and get confusing errors. NEEDS_HUMAN_REVIEW is correct; do NOT auto-fix.
+- **Fix 2 (3.3/troubleshooting.md — bogus cmdlet):** Same risk profile as Fix 1. `Get-MgComplianceManagement` doesn't exist in the Graph module. Replacement requires verified Microsoft Graph endpoint knowledge.
+- **Fix 3 (3.6/powershell-setup.md — `-Disable` param):** HIGHEST risk fix. `Set-AdminPowerAppAsSysAdmin` is a real cmdlet used for admin takeover, not disabling. The proposed fix ("removing role assignments or quarantine APIs") changes the operational semantics of the archival workflow — this could cascade through the entire remediation procedure described in the playbook. Must be reviewed holistically.
+- **Fix 7 (H1/footer standardization across 3.1-3.2):** LOW-MEDIUM risk. Changing H1 format may break mkdocs.yml nav anchors if any `#` fragments target the heading text. No nav entries use heading fragments, so risk is low — but confirm mkdocs build passes after.
+**SEVERITY_CORRECTIONS:**
+- **3.4/verification-testing.md "SEC Regulation S-P" 30-day claim** — correctly classified as WARNING/NEEDS_HUMAN_REVIEW. However, Reg S-P (Privacy of Consumer Financial Information) doesn't impose a blanket 30-day notification deadline; the FTC's Safeguards Rule amendments and state breach laws have variable timelines. This should be **upgraded to CRITICAL** — incorrect regulatory timelines in a compliance playbook for FSI audiences create direct liability risk.
+- **`contoso.sharepoint.com` in .EXAMPLE block** — correctly classified as acceptable. Standard PowerShell help convention; no action needed.
+- **`admin.powerplatform.microsoft.com` HTTP 405** — correctly classified as acceptable. Auth-gated portal returns 405 to unauthenticated requests.
+- **Double `---` separators** — correctly classified as WARNINGS. These are cosmetic rendering issues only; no functional impact.
+- **3.1-3.2 missing intro blockquote** — correctly classified as GAP, not WARNING. Template inconsistency but no functional impact.
+**FIX_ORDERING:**
+1. **Fixes 4-6 first** (double `---` removal) — zero risk, no dependencies, pure cosmetic cleanup. Safe to batch in one commit.
+2. **Fix 7 second** (H1/footer standardization for 3.1-3.2) — low risk, isolated to those files, but must verify mkdocs build after.
+3. **Fixes 1-3 LAST and individually** (cmdlet corrections) — each requires human verification of the correct replacement cmdlet. These are independent of each other but each carries risk of introducing new inaccuracies. One commit per fix for easy revert.
+4. **Fix 8 (mkdocs nav orphans)** — no action in this worktree; confirmed as systemic worktree issue.
+**OVER_ENGINEERED:**
+- **Fix 7 (H1/footer standardization)** is borderline over-engineering for this batch. The 3.1-3.2 files are internally consistent with each other and were likely authored in a different generation pass. Standardizing them is "nice to have" but touches 8 files (all 4 playbook types × 2 controls) for cosmetic alignment. If this batch is meant to be surgical, defer to a dedicated consistency sweep.
+- **Fix 3 proposal** ("removing all role assignments or using quarantine APIs") is over-engineered as stated. The review suggests redesigning the archival workflow — that's a feature change, not a fix. A safer minimal fix: add a `# TODO: Verify -Disable parameter exists` comment or wrap in a note admonition stating the cmdlet usage is illustrative.
+**CRITIQUE_SUMMARY:** Severity classifications are mostly accurate but the SEC Reg S-P 30-day claim should be escalated to CRITICAL given the FSI audience. The three bogus-cmdlet fixes (1-3) are correctly flagged as NEEDS_HUMAN_REVIEW — auto-fixing them risks replacing one wrong cmdlet with another. Ship the cosmetic fixes (4-6) immediately; gate cmdlet fixes on SME validation.

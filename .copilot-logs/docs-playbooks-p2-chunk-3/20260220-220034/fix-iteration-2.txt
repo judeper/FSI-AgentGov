@@ -1,0 +1,4 @@
+Line 14 uses `yourtenant.sharepoint.com` while lines 50, 116, 175, 233, 289 use `company.sharepoint.com`. I'll normalize line 14 to match the dominant convention.
+CHANGES:
+- docs/playbooks/control-implementations/2.16/powershell-setup.md: Normalized placeholder domain on line 14 from `yourtenant.sharepoint.com` to `company.sharepoint.com` to match the convention used in all other examples (lines 50, 116, 175, 233, 289)
+FIX_STATUS: COMPLETE

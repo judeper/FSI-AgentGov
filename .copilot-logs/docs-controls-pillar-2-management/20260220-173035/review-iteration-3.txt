@@ -1,0 +1,29 @@
+Let me verify the language violations and check the nav orphan root cause.
+Let me verify footer metadata and heading consistency across a few files.
+Now I have all the data to compile my report. Let me also quickly verify the SEC/FTC URL situation and the overall nav orphan status.
+ISSUE_COUNT: 12
+CRITICAL:
+- 2.11-bias-testing-and-fairness-assessment.md (line 14): Prohibited phrase "ensuring compliance" in Objective section — violates FSI language rules
+- 2.18-automated-conflict-of-interest-testing.md (line 14): Prohibited phrase "ensuring compliance" in Objective section — violates FSI language rules
+- 2.19-customer-ai-disclosure-and-transparency.md (line 14): Prohibited phrase "ensuring compliance" in Objective section — violates FSI language rules
+WARNINGS:
+- index.md (line 2): Prescriptive language "Ensure operational excellence" — should use hedged phrasing
+- 2.13-documentation-and-record-keeping.md (line 126): SEC URL `sec.gov/rules/interp/34-47806.htm` returns HTTP 403 — NEEDS_HUMAN_REVIEW (SEC blocks bots; verify in browser)
+- 2.18-automated-conflict-of-interest-testing.md (lines 153, 156): Two SEC URLs return HTTP 403 — NEEDS_HUMAN_REVIEW
+- 2.19-customer-ai-disclosure-and-transparency.md (line 114): SEC URL returns HTTP 403 — NEEDS_HUMAN_REVIEW
+- 2.21-ai-marketing-claims-and-substantiation.md (lines 177, 178, 180): Two SEC URLs and one FTC URL return HTTP 403 — NEEDS_HUMAN_REVIEW
+- 2.23-user-consent-and-ai-disclosure-enforcement.md (line 181): SEC URL returns HTTP 403 — NEEDS_HUMAN_REVIEW
+GAPS:
+- NONE
+FIXES:
+1. 2.11-bias-testing-and-fairness-assessment.md (line 14): Change "ensuring compliance with fair lending laws" → "supporting compliance with fair lending laws"
+2. 2.18-automated-conflict-of-interest-testing.md (line 14): Change "ensuring compliance with Regulation Best Interest" → "supporting compliance with Regulation Best Interest"
+3. 2.19-customer-ai-disclosure-and-transparency.md (line 14): Change "ensuring compliance with transparency requirements" → "helping meet transparency requirements"
+4. index.md (line 2): Change "Ensure operational excellence" → "Support operational excellence"
+5. 2.13, 2.18, 2.19, 2.21, 2.23: NEEDS_HUMAN_REVIEW — 8 SEC/FTC external URLs return HTTP 403 to automated checkers; verify in a browser and update if content has moved
+NOTE ON SECTION A PRE-PASS FINDINGS:
+- **Mkdocs nav orphans (ALL entries): FALSE POSITIVES** — Verified all referenced files exist at correct paths under `docs/`. The checker likely resolved paths from repo root instead of MkDocs `docs_dir`.
+- **2.17 sardine.ai URL: ALREADY REMEDIATED** — Link removed; text reference retained with "(original blog post no longer available)" note.
+- **2.22 API URLs (HTTP 502): FALSE POSITIVES** — These are API endpoint examples inside code blocks and inline config text, not documentation links.
+- **2.24 admin.powerplatform.microsoft.com (HTTP 405): FALSE POSITIVE** — Portal application URL, not a documentation page.
+STATUS: ISSUES_FOUND

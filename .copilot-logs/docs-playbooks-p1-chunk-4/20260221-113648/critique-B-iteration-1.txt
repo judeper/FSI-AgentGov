@@ -1,0 +1,16 @@
+Now I have the complete picture. Here's the risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix #7 (473 nav orphans — "create missing files or sync worktree") is **HIGH RISK**. Creating 473 stub files would pollute the repo with empty content and break mkdocs build with blank pages. Syncing the worktree is a git operation, not a doc fix, and risks merge conflicts or overwriting in-progress work. This fix should be **REJECTED** from this batch — it's a worktree management concern, not a documentation defect.
+**SEVERITY_CORRECTIONS:**
+- **ISSUE_COUNT inflated**: The reported count of 489 is misleading. 473 of those are systemic nav orphans from the worktree's partial checkout — not per-file bugs. The **actionable issue count is 16** (6 missing footers + 6 heading warnings + 1 blockquote style + 3 pre-verified URLs). Recommend reporting as: `ACTIONABLE: 16 | SYSTEMIC: 473`.
+- **Missing footer coverage incomplete**: The review flagged 6 files missing footers but **missed 2 files** — `1.15/verification-testing.md` and `1.15/troubleshooting.md` also lack the `*Updated: January 2026 | Version: v1.2*` footer (confirmed: both end with nav links, no footer). Fixes should cover **8 files, not 6**.
+- **Heading format warnings correctly classified**: These are warnings, not fixes — changing headings in 1.14/1.15 to match 1.11-1.13 pattern is a separate normalization task and rightly excluded from the fix list. Severity is accurate.
+- **Pre-verified broken URLs correctly classified**: HTTP 405 for auth-protected admin portals and -1 for intentional `.EXAMPLE` placeholders are known-good. Severity is accurate (informational, no fix needed).
+**FIX_ORDERING:**
+- Fixes 1–6 (now 1–8 with the 2 missed files) are **independent and parallelizable** — each appends a footer to a different file. No ordering dependencies exist between them.
+- Fix #7 (nav orphans) has **no dependency** on the footer fixes but should be **deferred entirely** to a worktree sync operation outside this batch.
+**OVER_ENGINEERED:**
+- Fix #7 is over-engineered for this batch scope. The review correctly identified it as a "systemic worktree/branch issue, not a per-file bug" in the warning text, but then proposed a fix anyway. The fix proposal ("create missing files or sync worktree") conflates repository infrastructure with documentation quality — it should be dropped from the fix list entirely.
+- The heading format warnings (1.14/1.15 vs 1.11-1.13 pattern) are correctly scoped as warnings only. A batch-wide heading normalization would be over-engineering for this chunk; it should be tracked as a separate consistency task across all playbook batches.
+**CRITIQUE_SUMMARY:** The review is thorough and well-structured with accurate severity classifications for content issues, but its actionable value is diluted by the 473 nav orphan count inflating ISSUE_COUNT to 489 — the real number is 16 actionable issues (8 after correcting the missed 1.15 footers). Fix #7 should be removed from the fix list, and fixes 1–6 should be expanded to 1–8 to cover the two missed 1.15 files.

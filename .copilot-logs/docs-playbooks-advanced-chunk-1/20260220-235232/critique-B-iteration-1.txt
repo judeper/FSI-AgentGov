@@ -1,0 +1,18 @@
+Now let me verify the critical issues and key details in the affected files.
+I now have all the data needed. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **WARNING 2 (Dataverse table naming normalization) — RISK OF INTRODUCING ERRORS.** The `power-bi-correlation.md` uses `fsi_denyevents` (lowercase plural) inside Power Query / Mermaid `erDiagram` code blocks that reference Dataverse *logical names* (which ARE lowercase in Dataverse). The `index.md` uses `fsi_DenyEvent` (PascalCase singular) in prose/architecture diagrams, which are *display names*. These are different naming contexts used correctly for their respective purposes. Normalizing to one convention could break technical accuracy — changing code-block logical names to PascalCase would produce invalid Dataverse API references, and changing prose display names to lowercase would deviate from Dataverse design conventions.
+**SEVERITY_CORRECTIONS:**
+- **CRITICAL 1 is UNDER-SCOPED.** The review identified v1.3 only in `configuration-hardening-baseline/index.md` line 3, but grep reveals v1.3 also appears in `agent-usage-workbook/telemetry-schema.md` (lines 6 and 210) and `agent-usage-workbook/index.md` (line 50) — 3 additional instances in the same batch that were missed. The fix must cover all 4 occurrences.
+- **WARNING 2 should be DOWNGRADED to INFORMATIONAL.** As analyzed above, the Dataverse naming difference is context-appropriate (logical names in code, display names in prose). At most, add a clarifying note in `index.md`'s data architecture section explaining the naming convention — do not normalize.
+- **WARNING 3 & 4 (regulatory citations) are correctly classified** as NEEDS_HUMAN_REVIEW — no automated fix is possible or appropriate.
+**FIX_ORDERING:**
+1. **CRITICAL 2 first** (admonition splitting table in `architecture.md`) — this is a rendering break that affects readability; fix and validate with `mkdocs build --strict` before other changes.
+2. **CRITICAL 1 second** (v1.3 → v1.2 across all 4 files) — simple text substitution, zero cross-reference risk.
+3. **WARNING 1 third** (version footer normalization) — batch text replacement, no structural impact.
+4. **WARNING 2 last** (if acted on at all) — add a clarifying note only; do NOT normalize naming.
+**OVER_ENGINEERED:**
+- **WARNING 1 (normalize all 9 footers to v1.2.51):** Updating 9+ files to a specific patch version (v1.2.51) creates a maintenance burden — the next patch release (v1.2.52) would make them stale again. Consider using "v1.2" as the footer convention (major.minor only) unless the project explicitly tracks patch versions in footers. The `deny-event-correlation-report/index.md` header "v2.0.0" vs footer "v1.2" is correctly identified as needing clarification (solution version vs framework version), but the proposed fix to add labels is fine.
+- **WARNING 2 (normalize Dataverse naming to one convention):** Over-engineered and risky. The two naming conventions serve different technical contexts. A clarifying note is the right-sized fix.
+**CRITIQUE_SUMMARY:** The review correctly identifies the two critical rendering/accuracy bugs and the regulatory citation risks, but under-scopes the v1.3 version mismatch (missing 3 of 4 instances) and over-engineers the Dataverse naming fix, which would risk breaking technically correct code-block references if applied as proposed.

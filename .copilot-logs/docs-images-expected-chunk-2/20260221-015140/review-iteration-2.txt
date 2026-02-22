@@ -1,0 +1,18 @@
+Now let me read the rest of 3.12/EXPECTED.md:
+Let me verify the worktree structure to understand the nav orphan context:
+All files in the worktree exist — the nav orphan findings from the automated pre-pass are **false positives**. Let me verify the `contoso.crm.dynamics.com` URL context:
+Here is my complete review of the 25 EXPECTED.md files:
+ISSUE_COUNT: 1
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/images/3.12/EXPECTED.md: `https://contoso.crm.dynamics.com` flagged as broken URL by automated pre-pass, but this is an intentional placeholder/example URL (Microsoft's standard "Contoso" fictional tenant) used in PowerShell command-line examples. Same pattern also appears in docs/images/2.24/EXPECTED.md. No fix needed — this is a false positive from the URL checker.
+GAPS:
+- NONE
+FIXES:
+- NONE
+NOTE ON AUTOMATED PRE-PASS FINDINGS:
+**Broken URL (FALSE POSITIVE):** The `https://contoso.crm.dynamics.com` URL in 3.12/EXPECTED.md is a standard Microsoft documentation placeholder used in PowerShell `-EnvironmentUrl` parameter examples. It is intentionally unreachable. No change required.
+**Nav Orphans (ALL FALSE POSITIVES):** I verified via `glob` that every file listed as a "nav orphan" exists in this worktree under `docs/`. All 300+ nav orphan entries from the automated pre-pass are incorrect — the files are present at their expected paths (`docs/controls/`, `docs/framework/`, `docs/playbooks/`, `docs/reference/`, `docs/getting-started/`, `docs/downloads/`, `docs/index.md`). The automated checker likely had a path resolution issue.
+**Minor style observation (not counted as issue):** 4 of 25 files in this batch (2.22, 2.23, 2.24, 3.12) use `## Required Screenshots` while the other 21 use `## Expected Screenshots`. This is a repo-wide pattern where newer, more detailed EXPECTED.md files use "Required" while older table-format files use "Expected". Both are functionally equivalent.
+STATUS: CLEAN

@@ -1,0 +1,17 @@
+Now I'll apply all fixes. Let me make all the edits:
+The 2.4 "Azure Active Directory" edit failed — let me check the exact line content:
+Now let me verify all changes are correct:
+All changes are correct. Let me commit:
+It seems `git add` and `git commit` are being blocked by a permission policy in this environment. The file edits have been applied successfully — all 7 files are modified. Let me verify the changes are correct in the working tree:
+All edits verified. The git commit is blocked by environment permissions, but all file changes are applied correctly.
+CHANGES:
+- 2.1/portal-walkthrough.md: Changed header date from "January 2026" to "February 2026" (line 3) to match footer
+- 2.1/portal-walkthrough.md: Changed `## Step 7` → `### Step 11`, `### Step 8` → `### Step 12`, `### Step 9` → `### Step 13`, `### Step 10` → `### Step 14` — fixes duplicate numbering and H2→H3 heading hierarchy
+- 2.2/portal-walkthrough.md: Added missing footer (`---` + `*Updated: January 2026 | Version: v1.2 | Classification: Portal Walkthrough*`)
+- 2.3/portal-walkthrough.md: Removed duplicate `---` before nav links
+- 2.4/portal-walkthrough.md: Changed "Azure Active Directory" → "Microsoft Entra ID" (line 116)
+- 2.4/portal-walkthrough.md: Removed duplicate `---` before nav links
+- 2.5/portal-walkthrough.md: Removed duplicate `---` before nav links
+- 2.6/portal-walkthrough.md: Removed duplicate `---` before nav links
+- 2.7/portal-walkthrough.md: Removed duplicate `---` before nav links
+FIX_STATUS: COMPLETE

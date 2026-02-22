@@ -1,0 +1,11 @@
+Now let me check for missed issues by looking at the remaining files in the batch and verifying occurrence counts.
+All claimed issues verified against source files. Here is the audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All 7 flagged issues are confirmed real against the actual file contents.
+**MISSED_ISSUES:**
+- **docs/playbooks/control-implementations/2.14/powershell-setup.md line 174:** `[string]$SenderEmail = "aigovernance@company.com"` also uses the `company.com` placeholder domain. The reviewer caught the URL on line 175 (`learning.company.com`) but missed the email address on the immediately preceding line. Should be `aigovernance@contoso.com`.
+**FIX_CONCERNS:**
+- **Fix #4 occurrence count is wrong:** The review states 5 occurrences of `company.sharepoint.com` in 2.16/powershell-setup.md, but there are **6** (lines 14, 50, 116, 175, 233, 289). Line 14 (`Connect-PnPOnline -Url "https://company.sharepoint.com" -Interactive`) was missed in the count — it's the root tenant URL without a `/sites/` path, which may explain why it was overlooked.
+- **False positive description is inaccurate:** The reviewer claims `[(Get-Date]` appears "x2 in 2.16/powershell-setup.md" and was "misidentified as markdown links." The literal pattern `[(Get-Date]` does **not** exist in the file. The `Get-Date` occurrences (lines 73, 100, 155, 198, 204, 216, 348, 355) are all `(Get-Date)` or `$(Get-Date ...)` forms — none are preceded by `[` in a way that mimics markdown link syntax. The reviewer may have been describing a phantom false positive from their tooling. The conclusion (not an issue) is correct, but the cited evidence is fabricated.
+**CRITIQUE_SUMMARY:** The review is substantively accurate — all 7 flagged issues are real and the fix directions are correct. However, it missed a `company.com` email placeholder on the line directly above a caught URL, undercounted `company.sharepoint.com` occurrences by one (6 not 5), and cited a non-existent `[(Get-Date]` pattern as a false positive, suggesting some findings were reconstructed from memory rather than verified against the file.

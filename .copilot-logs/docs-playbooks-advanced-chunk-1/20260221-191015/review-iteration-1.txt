@@ -1,0 +1,34 @@
+Now let me verify the broken table structure in the architecture file more carefully.
+Now I have all the information needed to produce the review report.
+ISSUE_COUNT: 11
+CRITICAL:
+- `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 3): Version mismatch — header says "FSI-AgentGov v1.3" but the framework is at v1.2.51 and the footer (line 308) says "Version: v1.2". The "v1.3" reference is incorrect.
+- `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` (lines 93–96): Markdown table broken by admonition insertion — a `!!! note "Zone Classification Algorithm"` block is inserted between `er_zone` (line 92) and `er_environmenttype` (line 96) rows, splitting the Choice Field Value Definitions table. Lines 96–129 render as a headerless table or raw text in MkDocs.
+WARNINGS:
+- `docs/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md` (line 9): Dataverse table names use lowercase plural (`fsi_denyevents`, `fsi_denycorrelations`, `fsi_denyalerts`) while `index.md` (line 199) and `deployment-guide.md` (line 114) use PascalCase singular (`fsi_DenyEvent`, `fsi_DenyCorrelation`). Technically these are different Dataverse name forms (entity set vs. display) but the inconsistency is confusing for readers.
+- `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` (line 362): Footer says "v1.2" while other DEC files in this batch use "v1.2.51".
+- `docs/playbooks/advanced-implementations/confidence-and-routing.md` (line 138): Footer says "v1.2 - January 2026" — minor version lag vs. current v1.2.51 February 2026.
+- `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 464): Same footer version lag as above ("v1.2 - January 2026").
+- `docs/playbooks/advanced-implementations/zone1-min-explainability.md` (line 123): Same footer version lag ("v1.2 - January 2026").
+- `docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md` (line 201): Footer says "v1.2" vs. current v1.2.51.
+- `docs/playbooks/advanced-implementations/conditional-access-automation/index.md` (line 105): States "Dataverse persistence creates immutable compliance history" — the term "immutable" is an overclaim since the ELM architecture doc (this batch, architecture.md line 193) explicitly states System Administrators retain full Dataverse access and records are not truly immutable.
+- `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 94): References "Reg BI suitability" — Reg BI (Regulation Best Interest) replaced the FINRA suitability standard; conflating the two may confuse readers. NEEDS_HUMAN_REVIEW.
+- `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 134): Monthly review scope for Zone 1 says "High-severity items (items 1–9, 14, 16–17, 28–32)" but items 9, 28–32 are marked Medium severity in the checklist tables above. Inconsistent severity classification.
+GAPS:
+- NONE
+SECTION A NOTES:
+- **Broken external URLs (6):** All are false positives — `api.applicationinsights.io` is a REST API endpoint (not a web page), `your-org.crm.dynamics.com` and `contoso.sharepoint.com/sites/hr` are intentional placeholders in code samples, `powershellgallery.com/api/v2/package/$module` uses a script variable, and `make.powerautomate.com` is a valid Microsoft URL that blocks HEAD requests. No fixes needed.
+- **MkDocs nav orphans (~300+):** All files in this batch exist at their correct `docs/` paths. The orphan detection is a systemic artifact of the worktree containing only a subset of the repository files — not a documentation content issue.
+FIXES:
+1. `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 3): Change `FSI-AgentGov v1.3` to `FSI-AgentGov v1.2.51` to match the framework version.
+2. `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md` (lines 93–95): Move the `!!! note "Zone Classification Algorithm"` admonition to after the table ends (after line 129), so the Choice Field table renders as a single unbroken table.
+3. `docs/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md`: Add a note clarifying that `fsi_denyevents` is the Dataverse entity set name (used by Power Query/OData) corresponding to the `fsi_DenyEvent` table display name used elsewhere.
+4. `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md` (line 362): Change `v1.2` to `v1.2.51` to match other DEC files.
+5. `docs/playbooks/advanced-implementations/confidence-and-routing.md` (line 138): Update footer to `v1.2.51 - February 2026`.
+6. `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 464): Update footer to `v1.2.51 - February 2026`.
+7. `docs/playbooks/advanced-implementations/zone1-min-explainability.md` (line 123): Update footer to `v1.2.51 - February 2026`.
+8. `docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md` (line 201): Update footer to `v1.2.51`.
+9. `docs/playbooks/advanced-implementations/conditional-access-automation/index.md` (line 105): Change "creates immutable compliance history" to "creates persistent compliance history with audit trail" to avoid overclaiming immutability.
+10. `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 94): NEEDS_HUMAN_REVIEW — verify whether "Reg BI suitability" should read "Reg BI best interest" or be rephrased.
+11. `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md` (line 134): Reconcile the monthly review scope description — either relabel as "High and Medium severity items" or adjust the scope to only include items marked High severity.
+STATUS: ISSUES_FOUND

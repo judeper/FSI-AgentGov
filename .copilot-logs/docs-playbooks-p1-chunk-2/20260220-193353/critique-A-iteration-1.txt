@@ -1,0 +1,16 @@
+Let me check for potential missed issues across other playbook directories in this batch.
+Audit complete. Here are my findings:
+---
+**FALSE_POSITIVES:**
+- NONE
+All 4 claimed issues are verified as real:
+- ✅ Issue 1: 1.8/powershell-setup.md footer is v1.2; siblings portal-walkthrough.md and verification-testing.md are v1.3
+- ✅ Issue 2: 1.8/troubleshooting.md footer is v1.2; same sibling mismatch
+- ✅ Issue 3: 1.8/powershell-setup.md second `.NOTES` block (line 447) says "January 2026" while footer says "February 2026" — confirmed internal date mismatch
+- ✅ Issue 4: GUID `12a0c4dd-9e59-4f3a-9e3d-9e8e8e8e8e8e` has an obviously fabricated repeating `8e` suffix; NEEDS_HUMAN_REVIEW is the correct disposition
+**MISSED_ISSUES:**
+- All four 1.14 playbook files (portal-walkthrough.md, powershell-setup.md, verification-testing.md, troubleshooting.md) are missing the standard `*Updated: ... | Version: ...*` footer entirely. They use a `**Last Updated:** January 2026` header instead but have no version footer line — a template adherence gap vs every other control directory in this chunk (1.8–1.13 all have standard footers).
+- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md uses footer version format `v1.2.48` (project version numbering) while all four sibling playbook files use `v1.2` (document version numbering). This versioning convention inconsistency was not flagged.
+**FIX_CONCERNS:**
+- Fixes 1 & 3 (bump 1.8/powershell-setup.md and troubleshooting.md from v1.2 → v1.3): Reasonable for sibling consistency, but the reviewer should note that version bumps without content changes can be misleading — verify whether these files actually received content updates when siblings were bumped to v1.3, or add a note that this is a consistency-only alignment.
+**CRITIQUE_SUMMARY:** The review is accurate with zero false positives and sound fix suggestions. However, it missed two issues: all four 1.14 playbook files completely lack the standard version footer (a template gap more significant than the version mismatches it did catch), and 1.11's supplementary playbook uses an inconsistent version format (`v1.2.48` vs `v1.2`).

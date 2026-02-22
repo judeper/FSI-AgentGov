@@ -1,0 +1,22 @@
+Based on my verification of the actual files on disk, here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 2 (mkdocs.yml "300+ missing files"):** FALSE POSITIVE — verified that controls/, framework/, getting-started/, reference/, playbooks/, and downloads/ directories all contain the expected files in this worktree. Pillar 1 has 29 files, Pillar 2 has 25, framework has 12, reference has 22. Acting on this "fix" risks catastrophic nav corruption. Do NOT modify mkdocs.yml for this reason.
+- **Fix 1 (CHANGELOG URLs):** The CHANGELOG already labels these as "(Preview)" URLs. Editing historical changelog entries is an anti-pattern — it misrepresents what was actually shipped. LOW value, MODERATE risk of precedent-setting retroactive edits.
+**SEVERITY_CORRECTIONS:**
+- **Fixes 4, 5, 6 are OVERCLASSIFIED as CRITICAL** — all three are backtick-wrapped inline code text (`` `../templates/per-agent-data-policy.md` ``), NOT clickable markdown links. They will never break mkdocs build or produce 404s in the rendered site. Correct severity: **WARNING** (documentation accuracy issue, not a broken-link issue).
+- **Fix 2 severity is INVALID** — the "300+ missing files" finding is a false positive in this worktree. All nav-referenced files exist on disk. Should be reclassified as **FALSE POSITIVE** and removed.
+- **Fix 11 has an incorrect path** — `health-check-procedures.md` is in `docs/playbooks/monitoring-and-validation/`, NOT `docs/playbooks/governance-operations/` as the review implies. An executor following the review literally would edit the wrong path or fail to find the file.
+- **Fix 7 (CODE_OF_CONDUCT.md v1.1→v1.2.51)** — jumping two major versions may indicate intentional separate versioning for the CoC. Should be **NEEDS_HUMAN_REVIEW**, not a routine version bump.
+**FIX_ORDERING:**
+- **Fix 3 first** (decision-log-schema.md code fence) — only fix causing active rendering corruption; Section 6 is invisible to readers. Zero risk, highest impact.
+- **Fix 12 second** (AGENTS.md quotes) — trivial typo, zero dependency, zero risk.
+- **Fixes 4, 5, 6 as a batch third** (cross-reference path corrections) — independent of each other, all low-risk text edits. Verify target files exist before each edit (confirmed they do).
+- **Fixes 8, 9, 10 as a batch fourth** (DISCLAIMER, SECURITY, releases/README version footers) — independent cosmetic updates, low risk.
+- **Fix 7 last or skip** (CODE_OF_CONDUCT version) — needs human decision on whether CoC is versioned independently.
+- **Fix 11 with corrected paths** — the 6 playbook files span two directories (`governance-operations/` and `monitoring-and-validation/` and `agent-lifecycle/`), not one. Fix paths before executing.
+- **Skip Fixes 1 and 2 entirely.**
+**OVER_ENGINEERED:**
+- **Fix 1 (CHANGELOG URL annotation)** — adding retroactive notes to historical changelog entries is over-engineered. The entries already say "(Preview)". If URLs expire, that's expected for preview documentation. No fix needed.
+- **Fix 2 (mkdocs.yml "ensure 300+ files exist")** — the problem doesn't exist. This was a false positive from the review tooling, likely caused by running file-existence checks from the wrong working directory or against a sparse checkout.
+**CRITIQUE_SUMMARY:** The review correctly identified Fix 3 (code fence corruption) as the only genuinely critical rendering bug, but overclassified three cross-reference text-path issues (Fixes 4/5/6) as CRITICAL when they're backtick-wrapped display text that won't break builds. Fix 2 is a false positive that would be destructive if acted upon — the 300+ nav-referenced files all exist on disk in this worktree.

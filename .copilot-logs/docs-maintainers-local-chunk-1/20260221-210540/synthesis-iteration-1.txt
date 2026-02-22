@@ -1,0 +1,29 @@
+I've verified the key disputed claims. Now I can produce the reconciled report.
+**Verified findings:**
+- **NIST crosswalk**: Current doc says **93%/97%** (line 282), not 92%. Critique A confirmed.
+- **Colorado AI Act**: Both published docs consistently use **June 30, 2026**. Impact assessment explicitly explains the extension from Feb 1. No inconsistency. Critique A confirmed.
+- **Feedback1.md**: Not accessible to verify directly; Critique A provides specific evidence (date 2025-12-19, structured headers). Siding with Critique A.
+- **All fixes 1–7**: Target `maintainers-local/` (gitignored, local-only). Critique B correctly classifies as LOW severity.
+---
+ISSUE_COUNT: 7
+CRITICAL:
+- NONE — No issues affect published/shipped content. The Colorado AI Act date inconsistency (Fix #9) is a FALSE POSITIVE: both `colorado-ai-act-readiness.md` and `colorado-ai-impact-assessment.md` consistently use June 30, 2026, with Feb 1 referenced only as historical context with explicit explanation via SB 25B-004.
+WARNINGS:
+- `docs/reference/nist-ai-rmf-crosswalk.md`: Published doc claims 93% subcategory coverage / 97% effective coverage. Phase 3-2 review challenged this as ~78% by strict NIST counting methodology. Underlying methodological concern is valid. NEEDS_HUMAN_REVIEW — verify whether the 93%/97% figure or the ~78% strict-counting figure is the defensible claim for FSI audiences.
+- `control-metadata-audit-2026-01-18.md` (maintainers-local): Covers 60 controls; framework now has 71. Stale but local-only — LOW severity.
+- `documentation-audit-2025-12-29.md` (maintainers-local): Covers 48 controls under v1.0 Beta; framework now at v1.2.51 with 71 controls. Stale but local-only — LOW severity.
+- `verification-report.md` (maintainers-local): Covers 48 controls under v1.0 Beta. Same staleness. Local-only — LOW severity.
+- `FSI-AgentGov-Comprehensive-Review-Report.md` (maintainers-local): Covers 61 controls under v1.1. Stale but local-only — LOW severity.
+- `01-Repository-Analysis.md` (maintainers-local): Uses old path convention `docs/reference/pillar-*` instead of current `docs/controls/pillar-*` and references 43/48 controls. Superseded — LOW severity.
+GAPS:
+- All audit/review reports in `maintainers-local/` predate the current v1.2.51 / 71-control state. No local audit reflects the current framework. The repo-level `reports/audit/` (Feb 2026) correctly references 71 controls and is current.
+- `analysis/03-Update-Plan.md` (maintainers-local): Proposed adding controls (1.19, 2.15, 3.7-3.9) that have since been implemented. Plan is fully superseded but not marked as completed/archived.
+FIXES:
+1. `docs/reference/nist-ai-rmf-crosswalk.md`: NEEDS_HUMAN_REVIEW — have a subject matter expert verify whether the 93%/97% coverage claim is defensible under strict NIST AI RMF subcategory counting, or whether it should be adjusted toward the ~78% strict methodology figure. This is the only fix affecting published content.
+2. `control-metadata-audit-2026-01-18.md` (maintainers-local): Optionally add staleness header noting 60→71 control gap. LOW priority — file is local-only and dated.
+3. `documentation-audit-2025-12-29.md` (maintainers-local): Optionally add staleness header. LOW priority — filename date already signals age.
+4. `verification-report.md` (maintainers-local): Optionally add staleness header. LOW priority.
+5. `FSI-AgentGov-Comprehensive-Review-Report.md` (maintainers-local): Optionally add staleness header. LOW priority.
+6. `01-Repository-Analysis.md` (maintainers-local): Mark as superseded — V3 alignment work is complete. LOW priority.
+7. `03-Update-Plan.md` (maintainers-local): Mark as completed/archived — proposed phases have been implemented. LOW priority.
+STATUS: ISSUES_FOUND

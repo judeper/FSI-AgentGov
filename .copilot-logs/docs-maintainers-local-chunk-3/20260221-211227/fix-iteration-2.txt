@@ -1,0 +1,34 @@
+No `maintainers-local/` files here — they're in the docs tree. Let me read all the files that need fixes.
+Now let me find all 14 files in this batch and read the remaining ones.
+Now I have a clear picture of all 14 files and issues. Let me fix everything.
+Now add version footers to all 14 files. Let me get the last lines of each file to make precise appends.
+Now I need to find the exact last lines to use as anchors for each edit. Let me get the unique last lines for each file and append the footer.
+Now let me append version footers to all 14 files using a single bash command:
+Let me use the edit tool for all footers instead.
+Now I need to check files that might have more content after what I checked. Let me view a few more:
+Now I have the exact last lines for all 11 remaining files. Let me add footers to all of them.
+One failed — scope-creep-detection.md. Let me check the exact content:
+The file uses Unicode smart quotes. Let me use the exact content:
+Now let me verify all fixes were applied correctly:
+All critical and warning fixes verified. Now let me verify the version footers on all 14 files:
+All 14 files have the version footer. Now let me verify the evidence-pack-assembly.md footer too:
+Now let me commit all changes:
+All 14 files modified. Let me commit:
+All 14 files modified correctly. Now let me try committing:
+Git write operations appear restricted in this environment. All file edits have been made and verified — 14 files modified per `git status`. The changes are in the working tree ready to be committed.
+CHANGES:
+- evidence-pack-assembly.md: Removed stray `text` on line 1; wrapped folder structure (lines 44-82) in ```text / ``` fences; removed stray `text` on line 84; added version footer
+- decision-log-schema.md: Added closing ``` fence after JSON block (line 156); changed `6) Approval and lifecycle` to `## 6) Approval and lifecycle`; added version footer
+- agent-inventory-entry.md: Changed `../templates/per-agent-data-policy.md` to `per-agent-data-policy.md` (line 56); changed `../templates/action-authorization-matrix.md` to `action-authorization-matrix.md` (line 67); changed `../templates/escalation-matrix.md` to `escalation-matrix.md` (line 87); added version footer
+- purview-audit-query-pack.md: Updated 4 backtick paths from `templates/` to correct relative locations (`../agent-lifecycle/` and `../governance-operations/`); added version footer
+- per-agent-data-policy.md: Added version footer
+- action-authorization-matrix.md: Added version footer
+- escalation-matrix.md: Added version footer
+- real-time-compliance-dashboard.md: Added version footer
+- scope-creep-detection.md: Added version footer
+- confidence-and-routing.md: Added version footer
+- zone1-min-explainability.md: Added version footer
+- human-in-the-loop-triggers.md: Added version footer
+- colorado-ai-impact-assessment.md: Added version footer
+- supply-chain-risk-register-entry.md: Added version footer
+FIX_STATUS: COMPLETE

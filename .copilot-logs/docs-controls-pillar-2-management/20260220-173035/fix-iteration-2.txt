@@ -1,0 +1,8 @@
+Now I have the pattern. Let me apply both fixes to 2.22:
+Verify the changes and confirm no other files need modification:
+Both fixes applied correctly. Now commit:
+CHANGES:
+- 2.22-inactivity-timeout-enforcement.md: Added `**Last Verified:** 2026-02-12` after `**Governance Levels:**` line to match all other Pillar 2 controls (date matches sibling v1.3 controls 2.23/2.24)
+- 2.22-inactivity-timeout-enforcement.md: Changed bare ` ``` ` to ` ```http ` on the API endpoint code block for language tag consistency
+- 2.13, 2.18, 2.19, 2.21, 2.23: External SEC/FTC URLs returning HTTP 403 are government bot-blocking (not broken links) — NO CHANGES MADE, these remain NEEDS_HUMAN_REVIEW for browser verification
+FIX_STATUS: COMPLETE

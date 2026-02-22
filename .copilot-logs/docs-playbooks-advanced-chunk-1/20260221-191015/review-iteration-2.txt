@@ -1,0 +1,17 @@
+Now let me check the remaining out-of-scope files that were listed in critical findings:
+All in-scope files verified. Let me check the one informational item:
+Here is my verification report:
+ISSUE_COUNT: 3
+CRITICAL:
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 106): "DecisionLog table with immutable records" overclaim — REMAINING (file is outside this batch's scope; fix was not applied)
+- `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (line 106): "Immutable audit log" overclaim — REMAINING (file is outside this batch's scope; fix was not applied)
+WARNINGS:
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 86): "provides immutable audit trail" overclaim — REMAINING (file is outside this batch's scope; fix was not applied)
+GAPS:
+- NONE
+FIXES:
+1. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 106): Change "DecisionLog table with immutable records" to "DecisionLog table with audited records"
+2. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 86): Change "provides immutable audit trail" to "provides persistent audit trail"
+3. `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (line 106): Change "Immutable audit log" to "Persistent audit log"
+STATUS: ISSUES_FOUND
+**Note:** All 12 fixes for in-scope files are confirmed applied and correct. The 3 remaining issues are all in files outside this batch's scope (`platform-change-governance/index.md`, `unrestricted-agent-sharing-detector/index.md`) — they should be addressed in the batch covering those files.

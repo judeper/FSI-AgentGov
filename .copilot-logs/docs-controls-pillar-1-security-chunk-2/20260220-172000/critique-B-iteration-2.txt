@@ -1,0 +1,13 @@
+Now let me check other pillar index pages for version convention comparison.
+Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 1 (index.md version bump to v1.3):** MEDIUM-HIGH RISK. The footer `v1.2` on index.md tracks the **framework version** (project is v1.2.51), not individual control doc versions. All 5 pillar/controls index pages consistently show `v1.2 - January 2026`. Bumping only pillar-1's index to `v1.3` would: (a) break consistency with the 4 other index pages, (b) conflate the framework version (v1.2.x) with individual control document versions (some at v1.3), and (c) 17 of 28 pillar-1 controls still show `Version: v1.2`, so v1.3 doesn't even represent the pillar majority. The fix won't break mkdocs build, but it introduces a **semantic versioning inconsistency**.
+**SEVERITY_CORRECTIONS:**
+- The WARNING for the index.md footer version mismatch should be **downgraded to INFORMATIONAL / NO-FIX**. The "mismatch" is actually by design — index footers track the framework release version, while individual control footers track their own document revision. These are independent version tracks. The proposed fix incorrectly treats them as the same.
+- Pre-pass findings #2 (broken URL) and #3 (nav orphans) were correctly identified as FALSE POSITIVES — confirmed by grep: the SEC URL does not exist in any pillar-1-security file.
+**FIX_ORDERING:**
+- NONE — with Fix 1 reclassified as no-fix, there are zero actionable fixes remaining.
+**OVER_ENGINEERED:**
+- Fix 1 is over-engineered: it proposes changing a framework-level version stamp to chase individual control doc versions, which would require cascading updates to 4 other index pages and alignment with the actual framework version number (v1.2.51).
+**CRITIQUE_SUMMARY:** The review correctly dismissed the two false positives but its sole actionable fix (index footer version bump) conflates two independent version tracks — framework version vs. control document version — and would break consistency across all 5 index pages. Recommend **zero fixes** for this batch; the index footer should only change when the framework version itself increments.

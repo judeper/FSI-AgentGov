@@ -1,0 +1,15 @@
+Here is my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 6 proposed fixes are scoped to content within fenced code blocks (```` ```powershell ````) or markdown checklists. None modify file paths, cross-references, navigation entries, or link targets. Zero mkdocs build risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (verification-testing.md line 82-83) is correctly classified CRITICAL. The existing script counts *all* licensed users (`assignedLicenses/any()`), which in a typical FSI tenant could be thousands of E3/E5 users — not the Copilot-licensed subset relevant to Control 4.7. An admin running this verification would get a meaningless number and could falsely conclude coverage is validated. The proposed Copilot SKU filter aligns with the approach already in powershell-setup.md.
+- Fix 4 (powershell-setup.md `finally` block, line 309) is correctly WARNING but borders on nitpick. The `Get-SPOSite -Limit 1` connection test is wasteful but functionally harmless — it adds one API call during cleanup. Severity is accurate; priority is low.
+- All other WARNING/GAP classifications are accurate.
+**FIX_ORDERING:**
+- Fixes are independent — no ordering dependencies. All touch distinct, non-overlapping line ranges across three files. Apply in any order.
+- Recommended grouping for clean commits: Fix 1 + Fix 6 together (both in verification-testing.md, both address correctness gaps); Fixes 2 + 3 + 4 together (all in powershell-setup.md, all cosmetic/cleanup); Fix 5 alone (troubleshooting.md).
+**OVER_ENGINEERED:**
+- Fix 6 (add Graph Connector verification test procedure to verification-testing.md). The existing checklist line "Graph Connector ACL mappings validated (if applicable)" plus the diagnostic command already in troubleshooting.md (line 76-79: `Get-MgExternalConnection`) provides adequate coverage. Adding a full test procedure duplicates content from powershell-setup.md's "Graph Connector ACL Validation" section (line 163+). **Recommend:** Add a cross-reference to powershell-setup.md's existing section instead of duplicating the procedure. One line — e.g., "See [PowerShell Setup § Graph Connector ACL Validation](powershell-setup.md#graph-connector-acl-validation) for test commands" — is sufficient.
+- Fixes 2, 3, and 5 (add `# Replace with your tenant URL` comments to placeholder URLs inside code blocks). These are low-value. The URLs are self-evidently placeholders (`tenant`, `contoso`) inside clearly marked example code blocks. Adding comments won't silence a link scanner that doesn't understand code fences — the scanner itself needs fixing. **Recommend:** Accept these fixes only if they take <1 minute each; don't invest review effort. They are harmless but add comment noise.
+**CRITIQUE_SUMMARY:** Fix 1 (Copilot SKU filter) is the only materially important change — it corrects a verification script that would mislead admins. The remaining fixes are low-risk cosmetic improvements; Fix 6 should be reduced to a cross-reference rather than content duplication.

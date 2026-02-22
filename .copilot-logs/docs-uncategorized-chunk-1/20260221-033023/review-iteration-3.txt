@@ -1,0 +1,29 @@
+Now let me check specific areas in CHANGELOG.md for the broken link and verify the remaining issues.
+Now let me check the v1.1 CHANGELOG for the control count inconsistency and check CODE_OF_CONDUCT version.
+Now I have enough information to compile the review. Let me check a few more things:
+Good — that's only in the instruction text, not in actual content claims. Now let me check the version inconsistency in CODE_OF_CONDUCT and releases/v1.1/CHANGELOG.md:
+The CODE_OF_CONDUCT.md says "v1.1 - January 2026" at the bottom (line 27), while the rest of the repo is at v1.2.51. The releases/v1.1/CHANGELOG.md says "All 60 controls validated" (line 39), but the framework now has 71 controls — this is historically accurate for v1.1.
+Let me also check the `per-agent-data-policy.md` for the broken `tenant.sharepoint.com` URL:
+That's a placeholder example URL in a template — it's expected to be invalid. Same for the `contoso.crm.dynamics.com` URLs and `api.bap.microsoft.com/.default` (a token scope, not a browsable URL). These are all false positives from the URL checker — they're example/placeholder values in documentation.
+Now let me compile my review:
+ISSUE_COUNT: 10
+CRITICAL:
+- CODE_OF_CONDUCT.md: Version footer says "v1.1 - January 2026" while all other repo-level files show "v1.2.51 - February 2026" — stale version.
+- CHANGELOG.md (line 3688): Broken internal link `[X.Y - Control Name](path.md)` — uses literal `path.md` as a changelog example, which gets parsed as a link to a non-existent file. Should be escaped or reformatted to avoid being treated as a real link.
+- CHANGELOG.md (lines 2586-2589): 4 broken Microsoft Learn URLs documented in the "Enhanced" section for v1.2.36 — `microsoft-agent-365/developer/identity`, `microsoft-agent-365/developer/observability`, `entra/id-governance/what-are-lifecycle-workflows`, `defender-cloud-apps/tutorial-shadow-it` all return HTTP 404. These are historical changelog entries recording URLs that existed when added but are now dead.
+WARNINGS:
+- docs/playbooks/asard-deployment-guide.md: `https://make.powerautomate.com` flagged as HTTP 405 — this is a valid portal URL that returns 405 on bare GET (requires browser session); not a real broken link. FALSE POSITIVE — no fix needed.
+- docs/playbooks/asard-exception-management.md: `https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances` flagged — this is a placeholder/example URL using `contoso` domain. FALSE POSITIVE — no fix needed.
+- docs/playbooks/asard-troubleshooting-guide.md: `https://api.bap.microsoft.com/.default` flagged as HTTP 502 — this is an OAuth token scope string, not a browsable URL. FALSE POSITIVE — no fix needed.
+- docs/playbooks/agent-lifecycle/per-agent-data-policy.md: `https://tenant.sharepoint.com/sites/...` flagged — this is a template placeholder. FALSE POSITIVE — no fix needed.
+- docs/playbooks/governance-operations/decision-log-schema.md: `https://tenant.sharepoint.com/sites/policies/` flagged — this is an example URL in a JSON sample. FALSE POSITIVE — no fix needed.
+- MKDOCS NAV ORPHANS: All ~300+ nav orphans listed are due to this being a worktree checkout that does not contain the `docs/` subdirectories for controls, framework, reference, getting-started, or downloads. The `mkdocs.yml` references them but they exist in the main repo, not in this worktree. These are NOT actionable findings for this batch — they are a worktree artifact.
+GAPS:
+- NONE
+FIXES:
+1. CODE_OF_CONDUCT.md: Update version footer from `*FSI Agent Governance Framework v1.1 - January 2026*` to `*FSI Agent Governance Framework v1.2.51 - February 2026*`
+2. CHANGELOG.md (line 3688): Escape the example link pattern to prevent it being parsed as a real link — change `[X.Y - Control Name](path.md)` to `` `| [X.Y - Control Name](path.md) | Description |` `` (it's already inside backticks/code formatting in the source, so this is actually a false positive from the link checker scanning inside inline code). No fix needed.
+3. CHANGELOG.md (lines 2586-2589): The 4 broken Learn URLs are in a historical changelog entry. These are records of what was added at the time. Adding a note like "(URL may no longer be valid)" would be appropriate, but the entry already says "URLs may have changed since initial publication" on line 2585. No fix needed — already documented.
+STATUS: ISSUES_FOUND
+---
+**Summary:** Of the ~300+ items in the pre-pass findings, only 1 requires an actual fix: the stale version footer in `CODE_OF_CONDUCT.md`. The CHANGELOG broken URLs are historical records already annotated with a caveat. The `path.md` broken link is inside inline code formatting (a code example). The 5 flagged external URLs in playbooks are all placeholder/example URLs or OAuth scopes, not real broken links. All mkdocs nav orphans are a worktree artifact (files exist in the main repo but not in this partial worktree). The documentation content across all 27 files is well-structured, uses proper FSI hedged language, has consistent formatting, and contains accurate regulatory references.

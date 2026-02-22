@@ -1,0 +1,21 @@
+All claims verified against the files. Here is the final synthesized review:
+---
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.1/verification-testing.md: Footer ordering inconsistent — "Updated" line (L220) appears BEFORE "Back to Control" nav links (L222), reversed from the dominant pattern across this batch where nav links come first then the Updated line
+- docs/playbooks/control-implementations/1.4/portal-walkthrough.md: Missing standard header metadata fields (`**Last Updated:**`, `**Portal:**`, `**Estimated Time:**`) present in all other portal-walkthrough files (1.1, 1.2, 1.3); uses blockquote intro instead
+- docs/playbooks/control-implementations/1.4/powershell-setup.md: Missing standard header metadata fields (`**Last Updated:**`, `**Modules Required:**`) present in all other powershell-setup files (1.1, 1.2, 1.3); uses blockquote intro instead
+- docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Version footer "v1.2.48" (L624) uses patch-level version while all other files in this batch use major.minor only ("v1.2" or "v1.3")
+GAPS:
+- Cross-file SEC 17a-4 retention period inconsistency — NEEDS_HUMAN_REVIEW: 1.2/portal-walkthrough.md L180 says "7 years (SEC 17a-4)"; 1.4/powershell-setup.md L212 says "2190 days # 6 years per SEC 17a-4"; 4.3/powershell-setup.md L85 also uses "2190" citing "SEC 17a-4(a)" specifically; 2.13/portal-walkthrough.md L123 documents the rationale as "6-year requirement + 1-year buffer." The framework appears to distinguish between the statutory 6-year minimum and a 7-year policy with buffer, but this is not applied consistently. A regulatory SME should confirm whether framework policy is "always 7 years" or "cite per-subsection minimums," and all files should then be aligned to that decision
+- docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md L434: 10-year retention specified for "Compliance sign-off (Z3)" without a regulatory citation justifying the longer period vs. 7 years used elsewhere — NEEDS_HUMAN_REVIEW
+FIXES:
+1. docs/playbooks/control-implementations/1.1/verification-testing.md: Swap the "Updated" line (L220) and "Back to Control" nav links (L222) so nav links come first, matching the dominant pattern across all other playbook files
+2. docs/playbooks/control-implementations/1.4/portal-walkthrough.md: Add standard header metadata block (`**Last Updated:**`, `**Portal:**`, `**Estimated Time:**`) after the H1 heading, replacing the blockquote intro, to match 1.1/1.2/1.3 portal-walkthrough format
+3. docs/playbooks/control-implementations/1.4/powershell-setup.md: Add standard header metadata block (`**Last Updated:**`, `**Modules Required:**`) after the H1 heading, replacing the blockquote intro, to match 1.1/1.2/1.3 powershell-setup format
+4. docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md: Normalize version footer from "v1.2.48" to "v1.2" for consistency with other playbook files
+5. SEC 17a-4 retention alignment: DO NOT auto-fix — requires human decision. Once a regulatory SME confirms the framework-wide retention policy, update 1.4/powershell-setup.md L212 and 4.3/powershell-setup.md L85 (and any other instances) to match the decided standard. Note: changing `retention_days` in PowerShell code samples alters operational behavior for admins who have copy-pasted existing values
+6. docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md L434: Either add an explicit regulatory citation justifying 10-year Zone 3 retention (e.g., SOX record retention, internal policy) or align to the framework-standard retention period — requires human decision
+STATUS: ISSUES_FOUND

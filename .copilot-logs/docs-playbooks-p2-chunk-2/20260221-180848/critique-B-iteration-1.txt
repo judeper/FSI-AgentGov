@@ -1,0 +1,18 @@
+All findings verified against the files. Here's the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All proposed fixes are cosmetic (whitespace, footer metadata, header formatting). None alter navigation links, cross-references, or file paths. No risk to `mkdocs build --strict`.
+**SEVERITY_CORRECTIONS:**
+- Fixes 6–7 (header normalization for 2.8 files): Should be downgraded from WARNING to INFO/STYLE. The current `# Portal Walkthrough: Control 2.8 - ...` format is internally consistent within 2.8's own files and renders identically in MkDocs — it's a style preference, not a defect.
+- Fix 8 (GPT-5/GPT-5.2 model dates): Correctly classified as NEEDS_HUMAN_REVIEW. Cannot be verified from docs alone.
+- Fix 9 (`CopilotInteraction` RecordType): Correctly classified as NEEDS_HUMAN_REVIEW. This is a Microsoft-specific API value that requires tenant verification.
+**FIX_ORDERING:**
+- Fixes 1–3 (duplicate `---` removal) are fully independent — apply in any order.
+- Fixes 4–5 (add footer to 2.8 files) are independent of each other and all others.
+- Fixes 6–7 (header renormalization) should be applied together if at all, since both 2.8 files share the same convention.
+- Fixes 8–9 are deferred (human review) — no ordering needed.
+- No dependencies between any fixes.
+**OVER_ENGINEERED:**
+- Fixes 6–7 (header renormalization): Over-engineered. The 2.8 files use `# Portal Walkthrough: Control 2.8 - ...` while others use `# Control 2.8: ... - Portal Walkthrough`. Both are valid, readable, and MkDocs-neutral. Changing headers risks introducing typos for zero functional benefit. **Recommend skipping** unless a batch-wide style sweep is planned.
+**CRITIQUE_SUMMARY:** The review is solid — all 12 findings are real, severity classifications are accurate (with minor downgrade for fixes 6–7), and the false-positive calls on external URLs and PowerShell array indexing are correct. Fixes 1–5 are safe, low-risk cosmetic improvements; fixes 6–7 are optional style normalization; fixes 8–9 correctly defer to human judgment.

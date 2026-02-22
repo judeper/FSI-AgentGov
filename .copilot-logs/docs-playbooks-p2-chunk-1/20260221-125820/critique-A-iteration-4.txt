@@ -1,0 +1,15 @@
+Let me check for missed issues and verify additional details.
+Now I have all the data needed. Let me compile the critique.
+---
+**FALSE_POSITIVES:**
+NONE — All five claimed issues are verified as real:
+1. **Property path inconsistency** — Confirmed. 2.1 playbooks consistently use `$_.Properties.protectionLevel` (e.g., powershell-setup.md lines 43, 82, 191, 255–256; verification-testing.md lines 140–141; troubleshooting.md line 217). 2.2 playbooks consistently use `$_.Properties.governanceConfiguration.protectionLevel` (e.g., powershell-setup.md lines 85, 143, 196, 293; verification-testing.md line 168; troubleshooting.md line 234). These are two distinct property paths; only one can be correct. NEEDS_HUMAN_REVIEW is the appropriate designation.
+2. **Steps 11–14 placement** — Confirmed. Steps 1–10 end at line 151. Lines 154–236 contain reference tables and YAML examples. Steps 11–14 resume at line 239. The linear step sequence is broken.
+3. **CHG-2025-001234 date** — Confirmed at line 335 of 2.3/powershell-setup.md. Document footer reads "Updated: January 2026."
+4. **Missing automated validation script in 2.3** — Confirmed. 2.1 has `## Automated Validation Script` at line 109, 2.2 has it at line 126, 2.3 has no such section.
+5. **Missing test case IDs in 2.3** — Confirmed. 2.1 has TC-2.1-01 through TC-2.1-08 (lines 58–65), 2.2 has TC-2.2-01 through TC-2.2-10 (lines 64–73), 2.3 has only 5 unnamed rows in a basic table (lines 9–15).
+**MISSED_ISSUES:**
+- **2.4/verification-testing.md has the same consistency gaps as 2.3** but was not flagged. The reviewer states they read 2.4 playbooks. 2.4/verification-testing.md has no automated PowerShell validation script and no TC-2.4-xx test case table — the same gaps flagged for 2.3. If consistency with the 2.1/2.2 pattern is the standard, 2.4 should have been flagged identically. (Mitigation: 2.3 and 2.4 are process-oriented controls vs. 2.1/2.2's configuration focus, so this may be an intentional structural difference — but the reviewer didn't acknowledge or dismiss this for 2.4.)
+**FIX_CONCERNS:**
+- **Fix 2 (move Steps 11–14)**: The suggestion to move Steps 11–14 before the "Configuration by Governance Level" table is structurally sound but oversimplified. Steps 1–9 configure the managed environment panel (per-environment scope), while Steps 11–14 configure tenant-level settings (restrict env creation, tenant isolation, security groups). A better fix would be to split into two clearly headed sub-sections — e.g., `### Environment-Level Configuration (Steps 1–10)` and `### Tenant-Level Configuration (Steps 11–14)` — rather than simply relocating the steps, which would interleave two different administrative scopes.
+**CRITIQUE_SUMMARY:** The review is accurate — all five issues are verified as real findings with correct file references and line numbers. The primary gap is that 2.4/verification-testing.md exhibits the same missing-automation and missing-test-case-IDs patterns flagged for 2.3 but was silently passed, and Fix 2 would benefit from a scope-aware restructuring rather than a simple block move.

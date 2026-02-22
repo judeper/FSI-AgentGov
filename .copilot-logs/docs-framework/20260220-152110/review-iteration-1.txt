@@ -1,0 +1,33 @@
+Now let me read the large agent-identity-architecture.md file in chunks to review it:
+Let me check the mkdocs.yml nav structure and verify some files to understand the orphan situation:
+Now I have all the information needed for a comprehensive review. Let me compile the findings.
+ISSUE_COUNT: 11
+CRITICAL:
+- docs/framework/agent-identity-architecture.md (line 1063): Broken external URL `https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906` returns HTTP 400 (confirmed by automated pre-pass)
+- docs/framework/solutions-integration.md (line 329): Control 1.9 mislabeled as "Backup and Disaster Recovery" — actual title is "Data Retention and Deletion Policies"
+- docs/framework/solutions-integration.md (line 259): Control 2.13 mislabeled as "Model Lifecycle Management" — actual title is "Documentation and Record Keeping"
+- docs/framework/solutions-integration.md (line 281): Control 2.11 mislabeled as "Model Validation and Testing" — actual title is "Bias Testing and Fairness Assessment"
+- docs/framework/solutions-integration.md (line 282): Control 2.5 mislabeled as "Risk Assessment" — actual title is "Testing Validation and Quality Assurance"
+- docs/framework/solutions-integration.md (lines 21 vs 655): Mermaid diagram header says "24 Deployable Automation Solutions" but Summary Statistics section says "27 automation solutions (25 deployable…)" — inconsistent count
+WARNINGS:
+- docs/framework/*.md (10 of 12 files): Footer version says v1.2.42 but mkdocs.yml copyright and solutions-integration.md footer show v1.2.51. Affected files: adoption-roadmap, agent-identity-architecture, agent-lifecycle, executive-summary, governance-cadence, governance-fundamentals, index, operating-model, regulatory-framework, zones-and-tiers
+- docs/framework/index.md (lines 98-100): "Version Information" section also shows v1.2.42 in body text — needs update to match v1.2.51
+- docs/framework/governance-fundamentals.md (line 14): "Version: 1.2.42" in body text — needs update to match v1.2.51
+- docs/framework/executive-summary.md (line 118): RACI table has two "A" (Accountable) entries for "Annual governance review" (Compliance **and** Board) — RACI convention requires exactly one Accountable per activity
+- docs/framework/adoption-roadmap.md (line 282): Broker-dealer section cites "SR 11-7" for Control 2.11 (Bias Testing); SR 11-7 is Federal Reserve guidance for banks, not a FINRA/SEC requirement. regulatory-framework.md (line 332) correctly uses "FINRA 3110 (supervision of AI tools)" for the same institution type. NEEDS_HUMAN_REVIEW
+GAPS:
+- NONE
+FIXES:
+1. docs/framework/agent-identity-architecture.md (line 1063): Replace broken TechCommunity URL with a working alternative or remove the link. The blog post "New Capabilities for AI Admins from Ignite 2025" may have moved — try `https://techcommunity.microsoft.com/t5/microsoft-365-copilot/new-capabilities-for-ai-admins-from-ignite-2025/ba-p/4478906`
+2. docs/framework/solutions-integration.md (line 329): Change `**1.9 Backup and Disaster Recovery**` to `**1.9 Data Retention and Deletion Policies**`
+3. docs/framework/solutions-integration.md (line 259): Change `**2.13 Model Lifecycle Management**` to `**2.13 Documentation and Record Keeping**`
+4. docs/framework/solutions-integration.md (line 281): Change `**2.11 Model Validation and Testing**` to `**2.11 Bias Testing and Fairness Assessment**`
+5. docs/framework/solutions-integration.md (line 282): Change `**2.5 Risk Assessment**` to `**2.5 Testing Validation and Quality Assurance**`
+6. docs/framework/solutions-integration.md (line 21): Update mermaid diagram header from "24 Deployable Automation Solutions" to match the Summary Statistics count (25 or 27)
+7. 10 framework files: Update footer version from `v1.2.42` to `v1.2.51` in adoption-roadmap, agent-identity-architecture, agent-lifecycle, executive-summary, governance-cadence, governance-fundamentals, index, operating-model, regulatory-framework, zones-and-tiers
+8. docs/framework/index.md (lines 98-100): Update "Version Information" section from 1.2.42 to 1.2.51
+9. docs/framework/governance-fundamentals.md (line 14): Update "Version:" from 1.2.42 to 1.2.51
+10. docs/framework/executive-summary.md (line 118): Resolve dual-Accountable on "Annual governance review" — assign single A (likely Board) and change the other to R or C
+11. docs/framework/adoption-roadmap.md (line 282): NEEDS_HUMAN_REVIEW — verify whether "SR 11-7" is the intended citation for broker-dealer bias testing; consider replacing with "FINRA's Annual Regulatory Oversight Report" to match regulatory-framework.md
+NOTE ON MKDOCS NAV ORPHANS: The automated pre-pass flagged 300+ nav orphan entries. Investigation confirms all 12 framework files exist at their expected paths under `docs/framework/`. The nav orphan findings for framework files are false positives (likely a path resolution issue in the worktree context). Non-framework nav orphans are outside this batch's review scope.
+STATUS: ISSUES_FOUND

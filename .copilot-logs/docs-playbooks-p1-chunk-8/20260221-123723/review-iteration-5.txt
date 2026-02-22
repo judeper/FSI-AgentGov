@@ -1,0 +1,27 @@
+Let me verify the nav orphan issue by checking mkdocs.yml and actual file paths.
+The files actually exist at the expected paths. Let me verify with mkdocs build to see if there are real nav issues.
+Now I have all the information needed. The nav orphans are false positives — all files exist under `docs/` which is the default `docs_dir` for mkdocs. The broken URLs are portal application URLs (requiring auth) and a placeholder.
+ISSUE_COUNT: 9
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.27/portal-walkthrough.md: External URL `https://copilotstudio.microsoft.com` returns HTTP 405 — this is expected behavior for a portal app URL requiring authentication; not a true broken link. No fix needed.
+- docs/playbooks/control-implementations/1.27/powershell-setup.md: External URL `https://yourorg.crm.dynamics.com` returns HTTP -1 — this is an intentional placeholder URL with clear instructions to replace. No fix needed.
+- docs/playbooks/control-implementations/1.28/portal-walkthrough.md: External URL `https://admin.powerplatform.microsoft.com` returns HTTP 405 — same as above, portal app URL requiring auth. No fix needed.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Inconsistent DLP cmdlet naming — Script 2 (line 212-214) and Script 3 (line 290) use `Get-DlpPolicy`, while Validation Commands (line 409, 415) use `Get-AdminDlpPolicy`. Should use `Get-AdminDlpPolicy` consistently as it is the current module cmdlet.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Script 4 (line 385) calls `Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName` as a no-op — the cmdlet executes without setting any approval-related parameters, which is misleading. The warning text explains this but the cmdlet call should be removed or commented out.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Automation Schedule section (lines 431-437) references `C:\Scripts\Audit-AgentPublishingCompliance.ps1` — a hardcoded Windows path for a script file that is only defined inline as "Script 3" above, not as a standalone `.ps1` file. Users must save Script 3 to that path first, but this is not stated.
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: `Get-AdminPowerAppEnvironmentGroup` cmdlet (line 371) — NEEDS_HUMAN_REVIEW; this cmdlet may not exist in the current Microsoft.PowerApps.Administration.PowerShell module.
+GAPS:
+- docs/playbooks/control-implementations/1.26/verification-testing.md: Test cases TC-1.26-07 ("Zone 3 default deny enforced") and TC-1.26-08 ("File count limit enforced") appear in the test case table but have no corresponding manual verification steps — only Tests 1-6 are documented above.
+- docs/playbooks/control-implementations/1.28/portal-walkthrough.md: Missing "What's Next" section guiding users to the remaining playbooks (PowerShell Setup → Verification & Testing → Troubleshooting), which is present in the 1.27/portal-walkthrough.md for consistency.
+FIXES:
+1. docs/playbooks/control-implementations/1.28/powershell-setup.md: Replace `Get-DlpPolicy` with `Get-AdminDlpPolicy` in Script 2 (lines 212-214), Script 3 (line 290), and in 1.28/troubleshooting.md (line 31) for consistency with the Validation Commands section.
+2. docs/playbooks/control-implementations/1.28/powershell-setup.md: In Script 4 (line 385), comment out the bare `Set-AdminPowerAppEnvironment` call or remove it, since it performs no configuration. The surrounding warning text already directs users to the Admin Center.
+3. docs/playbooks/control-implementations/1.28/powershell-setup.md: In the Automation Schedule section (line 432), add a note: "Save Script 3 above to the path referenced below before creating the scheduled task."
+4. docs/playbooks/control-implementations/1.26/verification-testing.md: Add manual verification steps (Test 7 and Test 8) for TC-1.26-07 and TC-1.26-08, or remove them from the test case table if they are covered implicitly by other tests.
+5. docs/playbooks/control-implementations/1.28/portal-walkthrough.md: Add a "What's Next" section before the footer (matching the pattern in 1.27/portal-walkthrough.md) directing users to PowerShell Setup → Verification & Testing → Troubleshooting.
+NOTE ON SECTION A FINDINGS:
+- **Broken External URLs (3):** All three are expected — two are Microsoft portal URLs that return HTTP 405 because they are web applications requiring interactive authentication, and one is an intentional placeholder URL (`yourorg.crm.dynamics.com`) with clear replacement instructions. No fixes needed.
+- **MkDocs Nav Orphans (300+):** All referenced files exist at the correct paths under `docs/`. The `docs_dir` defaults to `docs/` and nav paths are relative to it. This appears to be a false positive from the automated pre-pass tool running outside the mkdocs context. Verified by directory inspection.
+STATUS: ISSUES_FOUND

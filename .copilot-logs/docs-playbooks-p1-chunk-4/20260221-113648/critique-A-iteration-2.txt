@@ -1,0 +1,13 @@
+Now let me check the header metadata inconsistency claim and verify the SIT confidence levels.
+Let me check footers and remaining files to fully verify the metadata inconsistency claim.
+Let me check for potential missed issues — language compliance and cross-reference accuracy.
+I've verified all 4 claimed issues against the actual files. Here is my critique:
+---
+**FALSE_POSITIVES:**
+- NONE — All 4 issues are real and verified against the source files.
+**MISSED_ISSUES:**
+- **Missing footer metadata in 1.15:** `docs/playbooks/control-implementations/1.15/troubleshooting.md` and `docs/playbooks/control-implementations/1.15/verification-testing.md` are missing the standard footer line (`*Updated: Month Year | Version: vX.X*`). They have a header `**Last Updated:**` but no footer, making them the inverse of the 1.11/1.12 pattern. The reviewer noted header inconsistency but missed this more significant gap where files lack the footer entirely.
+- **Reviewer's inconsistency description is imprecise:** The reviewer stated "1.15 (both)" but all 4 files in 1.15/ have the `**Last Updated:**` header, not just 2. Similarly, for 1.13 only `troubleshooting.md` has the header (1 of 4, not all). The warning is directionally correct but the file-level specifics are inaccurate.
+**FIX_CONCERNS:**
+- NONE — Fix 1 (changing "Medium (65)" to "Low (65)" on line 79 of `1.13/portal-walkthrough.md`) is correct. Microsoft Purview's standard SIT confidence tiers map 65→Low, 75→Medium, 85→High. The file itself demonstrates this internally: SIT 1 uses "High (85)" and SIT 2 uses "Medium (75)", confirming 65 should be "Low" for consistency.
+**CRITIQUE_SUMMARY:** The review is solid — all 4 issues are genuine, the pre-pass false-positive assessments are correct, and the fix suggestion is accurate. However, the reviewer missed that two 1.15 files lack footer metadata entirely (a more significant templating gap than header inconsistency), and the metadata inconsistency warning has imprecise file-level detail.

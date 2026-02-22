@@ -1,0 +1,15 @@
+Confirmed: 4.6 has `try/catch` but no `finally` and no `Disconnect-SPOService`. Now producing the final review.
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.6/powershell-setup.md: `try/catch` blocks (lines 140, 217) lack `finally` cleanup — no `Disconnect-SPOService` call anywhere in the file. SPO connections may leak if the script errors or is interrupted.
+- 13 mkdocs.yml nav entries for this batch report as orphans — all 13 files exist at their expected paths in this worktree. Likely a scanner-timing or sparse-checkout artifact. Verify `docs/` directory completeness in main branch.
+GAPS:
+- Fragile `Get-SPOSite -Limit 1` cleanup pattern exists in 5 Pillar 4 powershell-setup files (4.1 line 237, 4.2 line 303, 4.4 line 266, 4.5 line 284, 4.7 line 309). Only 3 are in this batch. This is a cross-cutting robustness improvement (not a correctness bug) and should be tracked as a single pillar-wide cleanup task rather than patched in individual batches.
+- Back-navigation links appear only in portal-walkthrough playbooks (which serve as entry points). The other three playbook types (powershell-setup, verification-testing, troubleshooting) omit them. This is a pillar-wide pattern decision, not a per-file defect.
+- All placeholder/example tenant URLs (e.g., `contoso-admin.sharepoint.com`, `yourtenant-admin.sharepoint.com`, `tenant.sharepoint.com/sites/*`) across 4.4–4.7 code blocks are intentional documentation examples. No fix needed.
+FIXES:
+1. docs/playbooks/control-implementations/4.6/powershell-setup.md: Add `finally { Disconnect-SPOService -ErrorAction SilentlyContinue }` to both `try/catch` blocks (lines 140–152 and 217–222) to match the cleanup pattern used in every other Pillar 4 powershell-setup file.
+2. Deferred — file a cross-cutting task to simplify the `finally` block in all 5 Pillar 4 powershell-setup files (4.1, 4.2, 4.4, 4.5, 4.7): replace `if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) { Disconnect-SPOService }` with `Disconnect-SPOService -ErrorAction SilentlyContinue`. Do this in a single atomic commit for consistency.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,11 @@
+Both findings confirmed against the source file.
+HIGH_RISK_FIXES:
+NONE
+SEVERITY_CORRECTIONS:
+- Fix 1 (Get-AccessToken ordering) is correctly classified as WARNING. The function at line 376 is indeed defined after its call at line 335. However, the entire script block is already heavily caveated as conceptual (line 331: "conceptual approach; actual Dataverse PowerShell cmdlet may differ", line 375: "conceptual - implement based on your auth method"). A reader copying this verbatim would hit a runtime error, but the script explicitly tells them to implement their own auth. Severity is appropriate—not critical, but worth fixing.
+- Fix 2 (conceptual cmdlets) is correctly classified as WARNING with NEEDS_HUMAN_REVIEW. The existing disclaimer at line 193 ("note: actual API may differ") partially mitigates this already. Severity is appropriate.
+FIX_ORDERING:
+- Fix 1 must be applied before Fix 2 if both target the same file, but they operate on independent code blocks (Script 3 vs Script 2) with no overlap. Either order works.
+OVER_ENGINEERED:
+- Fix 2 alternative "replace with Dataverse Web API calls" is over-engineered. Script 2 scans Copilot Studio agents via Power Platform admin cmdlets—replacing those with raw Dataverse Web API calls changes the script's entire approach and is a much larger rewrite than warranted. The simpler option (add explicit "Conceptual" comments) is sufficient and matches the pattern already used in Script 3.
+CRITIQUE_SUMMARY: Both findings are valid and correctly classified. Fix 1 (function reorder) is safe, zero cross-reference risk, and should be applied. Fix 2 should use the comment-only approach; the Dataverse API rewrite alternative is unnecessary scope creep.

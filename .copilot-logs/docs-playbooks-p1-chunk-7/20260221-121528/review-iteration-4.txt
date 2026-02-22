@@ -1,0 +1,18 @@
+All 15 files read. Now producing the review report.
+ISSUE_COUNT: 7
+CRITICAL:
+- mkdocs.yml: 300+ nav entries reference files not found in this worktree (pre-confirmed). This is systemic — likely a worktree-only issue where `mkdocs.yml` references the full docs tree but the worktree contains only the batch files. Verify files exist in the main repo; if so, no action needed.
+WARNINGS:
+- docs/playbooks/control-implementations/1.24/powershell-setup.md: `https://management.azure.com` base URL and `…/attackPaths?api-version=2024-01-01` REST URI return HTTP 400 (pre-confirmed). These are **false positives** — they are API endpoints used correctly inside PowerShell scripts and require auth tokens to respond with 200. No fix needed.
+- docs/playbooks/control-implementations/1.25/portal-walkthrough.md: `https://admin.powerplatform.microsoft.com` returns HTTP 405 (pre-confirmed). **False positive** — portal URL requiring browser session. No fix needed.
+- docs/playbooks/control-implementations/1.26/portal-walkthrough.md: `https://copilotstudio.microsoft.com` returns HTTP 405 (pre-confirmed). **False positive** — portal URL requiring browser session. No fix needed.
+- docs/playbooks/control-implementations/1.24/powershell-setup.md: NEEDS_HUMAN_REVIEW — Attack Paths API version `api-version=2024-01-01` may be outdated. Verify current API version at Microsoft Learn.
+- docs/playbooks/control-implementations/1.26/powershell-setup.md: NEEDS_HUMAN_REVIEW — `Get-AdminPowerAppChatbot` cmdlet and `$_.Properties.FileUploadEnabled` property are used extensively without the same verification warning given to `Set-AdminPowerAppChatbot`. Verify this read cmdlet and property exist in current module versions.
+GAPS:
+- NONE
+FIXES:
+1. mkdocs.yml: Verify all 300+ referenced nav files exist in the main repository (not just this worktree). If they do, this is a worktree-only issue requiring no fix.
+2. docs/playbooks/control-implementations/1.24/powershell-setup.md: Verify `api-version=2024-01-01` for `Microsoft.Security/attackPaths` is current; update if a newer version is available.
+3. docs/playbooks/control-implementations/1.26/powershell-setup.md: Consider adding the same `!!! warning "Cmdlet Verification Required"` admonition for the `Get-AdminPowerAppChatbot` cmdlet (used in the "Get File Upload Status" and "Audit File Upload Compliance" scripts) that already exists for `Set-AdminPowerAppChatbot`, since both cmdlets may have availability constraints.
+4. No fixes needed for the 4 broken external URLs — they are API endpoints and auth-gated portal URLs correctly used in context.
+STATUS: ISSUES_FOUND

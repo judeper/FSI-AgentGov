@@ -1,0 +1,15 @@
+Here is my audit of the documentation review:
+---
+**FALSE_POSITIVES:**
+- NONE — all three claimed issues are verified as real:
+  - README.md line 279 says "26" but line 207 and the solutions-index.md table both confirm 27 solutions
+  - checklist.md line 441 footer is indeed stale ("v1.2 - January 2026")
+  - index.md "Latest Updates" only covers v1.1, confirmed stale
+**MISSED_ISSUES:**
+- `docs/framework/solutions-integration.md` (line 21): Mermaid diagram says **"24 Deployable Automation Solutions"** — stale count, same class of inconsistency as the README 26→27 issue. Line 655 of the same file correctly says "27 automation solutions (25 deployable + 2 framework-integrated)".
+- **Systemic stale footers**: The reviewer flagged `checklist.md` as an isolated warning, but **30+ files** across `docs/playbooks/`, `docs/controls/`, and `docs/getting-started/` have the same stale `*FSI Agent Governance Framework v1.2 - January 2026*` footer pattern. This should have been flagged as a systemic issue, not a single-file warning. (Files include: `governance-operating-calendar.md`, `raci-governance-template.md`, `ai-incident-response-playbook.md`, `script-validation-guide.md`, `playbooks/index.md`, multiple `platform-change-governance/*.md` files, `confidence-and-routing.md`, `zone1-min-explainability.md`, `human-in-the-loop-triggers.md`, and many more.)
+**FIX_CONCERNS:**
+- **Fix #1** (README.md 26→27): Correct and sufficient.
+- **Fix #2** (checklist.md footer): Correct for that one file, but fixing only 1 of 30+ stale footers is incomplete. NEEDS_HUMAN_REVIEW on whether a bulk footer update is desired or whether these footers intentionally reflect the version when each file was last substantively edited.
+- **Fix #3** (index.md "Latest Updates"): The suggested highlight content is **inaccurate**. The reviewer proposes adding "71 controls, 284 playbooks, companion solutions, four-pillar expansion" as v1.2 highlights — but those were **v1.1 features** (the v1.1 entry already says "Restructured into three layers"). The v1.2.x line (per CHANGELOG.md) focused on: solutions expansion (27 solutions), UASD remediation, cross-solution integration, configuration hardening baseline, and advanced implementations. The fix direction is right but the content needs rewriting.
+**CRITIQUE_SUMMARY:** The review correctly identified all three issues and correctly dismissed the false positives (URLs and nav orphans), but missed a same-category stale count in `solutions-integration.md` and underreported the stale footer problem as a single-file warning when it's actually systemic across 30+ files. The v1.2 highlights suggested for Fix #3 are factually wrong (those were v1.1 features) and would introduce a new inaccuracy if applied as-is.

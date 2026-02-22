@@ -1,0 +1,15 @@
+All three immediate fixes look good. Let me verify the HOLD items remain unchanged as expected.
+All three immediate fixes verified. Now checking the HOLD items (4-7) for any changes.
+Fix 4 (`Az.CostManagement` vs `Az.Consumption`) remains unchanged — still NEEDS_HUMAN_REVIEW. Fix 5 (`-Disable` parameter) was fixed by removing it and using a two-step approach. Fix 6 (`New-MgGroupMember` pattern) was changed from `@odata.id` body to `-DirectoryObjectId` parameter. Fix 7 (missing Validation section in 3.6) was added.
+ISSUE_COUNT: 2
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: REMAINING — Prerequisites install `Az.CostManagement` (line 11) but `New-AzConsumptionBudget` (line 283) requires the `Az.Consumption` module. NEEDS_HUMAN_REVIEW unchanged.
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 103): REMAINING — `New-MgGroupMember -DirectoryObjectId` replaced the `@odata.id` body pattern, but `New-MgGroupMember` vs `New-MgGroupMemberByRef` distinction still needs verification for installed SDK version. NEEDS_HUMAN_REVIEW.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/3.5/powershell-setup.md: HOLD — verify whether `Az.CostManagement` re-exports `New-AzConsumptionBudget`; if not, add `Install-Module -Name Az.Consumption` to prerequisites. NEEDS_HUMAN_REVIEW.
+2. docs/playbooks/control-implementations/3.8/powershell-setup.md (line 103): HOLD — verify `New-MgGroupMember -DirectoryObjectId` is valid in target SDK version; may need `New-MgGroupMemberByRef` instead. NEEDS_HUMAN_REVIEW.
+STATUS: ISSUES_FOUND

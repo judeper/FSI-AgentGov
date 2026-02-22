@@ -1,0 +1,37 @@
+Now let me look at the CHANGELOG more closely around the broken URLs and check version consistency issues.
+Now I have all the data needed for the review. Let me verify the decision-log-schema code fence issue and the cross-reference paths.
+Now I have all the data. Here's the complete review:
+ISSUE_COUNT: 20
+CRITICAL:
+- CHANGELOG.md: 4 Microsoft Learn URLs return HTTP 404 (lines 2586-2589: `microsoft-agent-365/developer/identity`, `microsoft-agent-365/developer/observability`, `entra/id-governance/what-are-lifecycle-workflows`, `defender-cloud-apps/tutorial-shadow-it`)
+- mkdocs.yml: 300+ nav entries reference files not found on disk (systemic — likely worktree-only issue; all controls/, framework/, reference/, downloads/, getting-started/ and most playbook files are missing)
+- docs/playbooks/governance-operations/decision-log-schema.md: Missing closing code fence (```) after JSON block at line 156; Section 6 "Approval and lifecycle" renders inside the code block and is missing its `##` heading prefix
+- docs/playbooks/asard-exception-management.md: Line 385 cross-references `docs/playbooks/asard-deployment.md` but the actual file is `asard-deployment-guide.md`
+- docs/playbooks/agent-lifecycle/agent-inventory-entry.md: Lines 56, 65, 87 cross-reference `../templates/` paths that don't exist; correct paths are `per-agent-data-policy.md` (same dir), `../governance-operations/action-authorization-matrix.md`, `../governance-operations/escalation-matrix.md`
+- docs/playbooks/monitoring-and-validation/purview-audit-query-pack.md: Lines 102-106 cross-reference `templates/` paths that don't exist; correct paths use `../agent-lifecycle/` and `../governance-operations/` prefixes
+WARNINGS:
+- CHANGELOG.md: Line 3688 `[path.md]` flagged as broken internal link but is an illustrative format pattern — false positive, no fix needed
+- docs/playbooks/asard-deployment-guide.md, asard-exception-management.md, asard-troubleshooting-guide.md, per-agent-data-policy.md, decision-log-schema.md: 5 external URLs flagged as broken are false positives (placeholder/example URLs like `contoso.crm.dynamics.com`, `tenant.sharepoint.com`, `api.bap.microsoft.com/.default` OAuth scope, and `make.powerautomate.com` portal returning 405 to HEAD requests)
+- CODE_OF_CONDUCT.md: Version footer says "v1.1 - January 2026" — stale vs current v1.2.51
+- DISCLAIMER.md + docs/disclaimer.md: Version footer says "v1.2 - January 2026" — behind current v1.2.51
+- SECURITY.md: Version footer says "v1.2.48" — behind current v1.2.51
+- releases/README.md: Version footer says "v1.2 - January 2026" — behind current v1.2.51
+- docs/playbooks/index.md, governance-operating-calendar.md, raci-governance-template.md, health-check-procedures.md, agent-decommissioning.md, agent-promotion-checklist.md: Version footers say "v1.2 - January 2026" — behind current v1.2.51
+- AGENTS.md: Lines 253 and 258 use `"` (double quote) instead of apostrophe — `don"t` and `you"re` should be `don't` and `you're`
+- releases/v1.1/CHANGELOG.md: States "All 60 controls validated" but current framework has 71 controls — NEEDS_HUMAN_REVIEW (may be historically accurate for v1.1 release)
+GAPS:
+- NONE
+FIXES:
+1. CHANGELOG.md: Add note that 4 Learn URLs (lines 2586-2589) are preview URLs that may no longer be available, or update to current URLs if replacements exist
+2. mkdocs.yml: Ensure all 300+ referenced docs files exist on disk (systemic — verify this is a worktree artifact, not a main-branch issue)
+3. docs/playbooks/governance-operations/decision-log-schema.md: Add closing ``` fence after line 156 (`}`), then add `## 6) Approval and lifecycle` as a proper markdown heading on the next line
+4. docs/playbooks/asard-exception-management.md: Line 385 change `docs/playbooks/asard-deployment.md` → `asard-deployment-guide.md`
+5. docs/playbooks/agent-lifecycle/agent-inventory-entry.md: Fix 3 cross-reference paths — `../templates/per-agent-data-policy.md` → `per-agent-data-policy.md`, `../templates/action-authorization-matrix.md` → `../governance-operations/action-authorization-matrix.md`, `../templates/escalation-matrix.md` → `../governance-operations/escalation-matrix.md`
+6. docs/playbooks/monitoring-and-validation/purview-audit-query-pack.md: Fix 4 cross-reference paths — replace `templates/` prefix with correct relative paths (`../agent-lifecycle/agent-inventory-entry.md`, `../governance-operations/action-authorization-matrix.md`, `../governance-operations/decision-log-schema.md`, `../agent-lifecycle/per-agent-data-policy.md`)
+7. CODE_OF_CONDUCT.md: Update version footer from "v1.1" to "v1.2.51"
+8. DISCLAIMER.md + docs/disclaimer.md: Update version footer from "v1.2" to "v1.2.51" and month to "February 2026"
+9. SECURITY.md: Update version from "v1.2.48" to "v1.2.51"
+10. releases/README.md: Update version footer from "v1.2" to "v1.2.51" and month to "February 2026"
+11. 6 playbook files (index.md, governance-operating-calendar.md, raci-governance-template.md, health-check-procedures.md, agent-decommissioning.md, agent-promotion-checklist.md): Update version footers to "v1.2.51 - February 2026"
+12. AGENTS.md: Lines 253 and 258 — replace `don"t` → `don't` and `you"re` → `you're`
+STATUS: ISSUES_FOUND

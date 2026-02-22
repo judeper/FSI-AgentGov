@@ -1,0 +1,11 @@
+Confirmed both issues. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- NONE — Both fixes are correctly classified as WARNINGS. Fix 1 (` ```sql ` → ` ```xml `) is a syntax highlighting cosmetic issue with no build or link impact. Fix 2 (`fsi_isx expired` → `fsi_isexpired`) is a legitimate typo in a field name that could mislead an implementer — WARNING is appropriate. All FALSE POSITIVE classifications are accurate upon inspection.
+**FIX_ORDERING:**
+- No ordering constraints. Both fixes target the same file (`2.23/troubleshooting.md`) at non-overlapping lines (230–231 and 470). They are independent and can be applied in either order or simultaneously.
+**OVER_ENGINEERED:**
+- Fix 1 proposes also changing the comment `-- FetchXML query` to `<!-- FetchXML query -->`. This is over-engineered: the comment is inside a fenced code block and will render as literal text regardless of syntax. Changing it to XML comment syntax adds no value since syntax highlighting will handle it once the language tag is ` ```xml `. Recommend: change only the language tag, leave the comment as-is or remove it entirely.
+**CRITIQUE_SUMMARY:** Both real fixes are low-risk, single-line edits confined to one file with zero cross-reference or build impact. The comment syntax change in Fix 1 is unnecessary scope creep — drop it and apply the two minimal corrections.

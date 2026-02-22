@@ -1,0 +1,13 @@
+All findings verified. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix #1 (mkdocs.yml ~253 missing files): Correctly classified as CRITICAL and correctly scoped out of this batch. However, labeling it a "fix" is misleading — it's an observation. No action is proposed, so no risk exists.
+- Fix #2 (3.8/EXPECTED.md title): Correctly classified as WARNING. The control file confirms the canonical name is "Copilot Hub and Governance Dashboard." This is a low-risk, single-line H1 correction in a local-only screenshot spec file — no build or cross-reference impact.
+- Fix #3 (contoso URL): Correctly classified as no-action-needed. `contoso.crm.dynamics.com` is Microsoft's standard placeholder domain. Severity is accurate.
+**FIX_ORDERING:**
+- NONE — Fix #2 is the only actionable fix and is independent. Fix #1 is out of scope. Fix #3 requires no action.
+**OVER_ENGINEERED:**
+- Fix #1: Listing ~253 missing nav files as a "fix" in an EXPECTED.md review is scope creep. It should remain an observation only, not an actionable fix item. The reviewer correctly noted it's outside scope but still numbered it as a fix.
+**CRITIQUE_SUMMARY:** The review is accurate and conservative. The only actionable fix (3.8 title alignment) is zero-risk — it corrects a local-only screenshot spec file that doesn't participate in mkdocs build or any cross-references.

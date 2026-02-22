@@ -1,0 +1,14 @@
+All claims verified against the actual files. Here is the final synthesized review:
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- docs/playbooks/governance-operations/decision-log-schema.md (lines 156-157): JSON code block opened at line 118 with ` ```json ` is never closed. The `}` on line 156 ends the JSON example but the closing ` ``` ` delimiter is missing, so section "6) Approval and lifecycle" (line 157) and all remaining content (lines 157-168) is swallowed into the code block and rendered as raw code. Additionally, line 157 reads `6) Approval and lifecycle` without a `## ` prefix, so even after fixing the code fence it will not render as a heading.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md (lines 1, 44-83, 84): Stray bare word `text` on line 1 before the document title, and again on line 84 after the folder structure. These are orphaned code-block language tags — the directory tree (lines 44-83) should be wrapped in ` ```text ... ``` ` fencing but the backtick delimiters are missing, causing the tree to render as unformatted markdown paragraphs.
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/governance-operations/decision-log-schema.md: Add closing ` ``` ` on a new line after line 156 (the `}` closing the JSON example). Change line 157 from `6) Approval and lifecycle` to `## 6) Approval and lifecycle`.
+2. docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Delete the stray `text` on line 1. Insert ` ```text ` on a new line before line 44 (`/evidence-packs/`). Replace the stray `text` on line 84 with ` ``` `.
+STATUS: ISSUES_FOUND

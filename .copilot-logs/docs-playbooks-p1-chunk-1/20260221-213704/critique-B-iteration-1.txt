@@ -1,0 +1,13 @@
+Now let me check the remaining details — the footer of verification-testing.md and the full heading structure of portal-walkthrough.md.
+All file contents verified. Here's the analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 5 proposed fixes are text-only changes within markdown table cells, headings, or metadata lines. None modify file paths, hyperlinks, nav entries in `mkdocs.yml`, or cross-reference link targets. Zero risk of breaking `mkdocs build --strict`.
+**SEVERITY_CORRECTIONS:**
+- Fix 2 (line 145, Control 3.3): Severity is correct (CRITICAL), but the proposed fix needs refinement. The control ID `3.3` is likely **correct** — "Compliance and Regulatory Reporting" does cover conversation record-keeping for Direct Line channels. Only the parenthetical description `(Conversation Transcripts)` is wrong. Fix should be: change `Control 3.3 (Conversation Transcripts)` → `Control 3.3 (Compliance and Regulatory Reporting)` rather than changing the control ID or removing the reference entirely.
+- Fix 5 (heading hierarchy): Correctly classified as WARNING, but the `## Step 6` break appears intentional — it separates PPAC admin configuration (Steps 0–5) from Copilot Studio agent-level configuration (Steps 6–9). Demoting to `###` fixes peer relationships but loses this logical section boundary. Consider inserting a `## Agent-Level Configuration` section header before `### Step 6` instead of a flat demotion. Low-severity either way.
+**FIX_ORDERING:**
+- All 5 fixes are independent — no ordering constraints. They touch 3 separate files with no overlapping lines. Can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- Fix 6 (WARNING about missing footer metadata on 1.1–1.3 playbooks): Correctly flagged as warning-only, not a proposed fix. However, if someone acts on it, it would touch ~12 files for a cosmetic consistency issue. **Should be deferred** to a dedicated formatting sweep — not mixed into this content-accuracy batch.
+**CRITIQUE_SUMMARY:** The review correctly identifies two genuine cross-reference errors (Fixes 1 and 2) and one portal path inconsistency (Fix 3) that would mislead administrators. Fix 2's proposed remediation should preserve the control ID 3.3 and only correct the parenthetical description; the heading hierarchy fix (Fix 5) warrants a slightly different structural approach than the flat demotion proposed.

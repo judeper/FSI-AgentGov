@@ -1,0 +1,8 @@
+Now I have the correct mappings. Fixing:
+- Line 138: Control 3.1 → 3.2 (Usage Analytics and Activity Monitoring)
+- Line 145: Control 3.3 → 3.8 (Copilot Hub, which has the Conversation Transcript governance section)
+Both fixes verified.
+CHANGES:
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Line 138 — corrected "Control 3.1 (Usage Dashboards)" to "Control 3.2 (Usage Analytics)" (3.2 is Usage Analytics and Activity Monitoring)
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Line 145 — corrected "Control 3.3 (Conversation Transcripts)" to "Control 3.8 (Conversation Transcripts)" (3.8 Copilot Hub contains the Conversation Transcript governance section)
+FIX_STATUS: COMPLETE

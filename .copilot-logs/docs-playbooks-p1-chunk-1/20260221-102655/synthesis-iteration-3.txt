@@ -1,0 +1,30 @@
+Evidence collected. Here is the final synthesized review:
+---
+ISSUE_COUNT: 10
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.2/portal-walkthrough.md: Header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026" (line 201) — date mismatch (NEEDS_HUMAN_REVIEW: confirm which date is authoritative)
+- docs/playbooks/control-implementations/1.2/powershell-setup.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.2/troubleshooting.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.2/verification-testing.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.3/portal-walkthrough.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.3/powershell-setup.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.3/troubleshooting.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.3/verification-testing.md: Same header/footer date mismatch (January vs February 2026) (NEEDS_HUMAN_REVIEW)
+- docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Steps 6-9 are at H2 level (lines 148, 167, 183, 192) while Steps 0-5 are H3 under the "Step-by-Step Configuration" H2 (line 17) — heading hierarchy break
+- docs/playbooks/control-implementations/1.1/verification-testing.md: SSPM-1.1-05 portal path ("PPAC > Environments > Settings > Features") conflicts with portal-walkthrough.md Step 8 path ("Manage > Tenant Settings") for the same "Publish bots with AI features" setting — both files have HTML comments acknowledging the discrepancy (NEEDS_HUMAN_REVIEW: determine if this is a tenant-level or environment-level setting)
+GAPS:
+- Repo-wide H1 title format inconsistency: 28 portal-walkthrough files use `# Control X.X: Name - Portal Walkthrough` while 43 use `# Portal Walkthrough: Control X.X - Name`. This is a ~40/60 split across all pillars (affects 1.4–1.13, 2.3–2.7, 3.3–3.10, 4.3–4.7 and their sibling playbook types). Should be addressed as a separate repo-wide normalization task, not per-file fixes in this batch.
+FIXES:
+1. docs/playbooks/control-implementations/1.2/portal-walkthrough.md: Harmonize header/footer dates — NEEDS_HUMAN_REVIEW to confirm whether January (header) or February (footer) is the correct last-edit date, then update the other to match
+2. docs/playbooks/control-implementations/1.2/powershell-setup.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+3. docs/playbooks/control-implementations/1.2/troubleshooting.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+4. docs/playbooks/control-implementations/1.2/verification-testing.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+5. docs/playbooks/control-implementations/1.3/portal-walkthrough.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+6. docs/playbooks/control-implementations/1.3/powershell-setup.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+7. docs/playbooks/control-implementations/1.3/troubleshooting.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+8. docs/playbooks/control-implementations/1.3/verification-testing.md: Same date harmonization (NEEDS_HUMAN_REVIEW)
+9. docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Demote Steps 6-9 headings from `##` to `###` to restore heading hierarchy under "Step-by-Step Configuration". Do NOT reposition — the current placement after the governance-level table appears intentional. Before applying, verify no other playbook or control file links to the existing H2 anchor IDs (e.g., `#step-6-configure-agent-level-authentication-copilot-studio`) as the demotion will change mkdocs-generated anchors.
+10. docs/playbooks/control-implementations/1.1/verification-testing.md: Reconcile SSPM-1.1-05 portal path with portal-walkthrough.md Step 8 on next live portal verification pass (NEEDS_HUMAN_REVIEW — determine if "Publish bots with AI features" is a tenant-level or environment-level setting, then update both files to use the correct path)
+STATUS: ISSUES_FOUND

@@ -1,0 +1,25 @@
+Now let me read the large file in chunks.
+Now let me compile my findings from the detailed review of all 16 files.
+ISSUE_COUNT: 489
+CRITICAL:
+- docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md: Control 2.8 mislabeled as "Agent Lifecycle Management" (line 269); actual control name is "Access Control and Segregation of Duties" per `2.8-access-control-and-segregation-of-duties.md`
+- docs/playbooks/advanced-implementations/agent-usage-workbook/index.md: Tab names inconsistent with customization-guide.md — Tab 1 says "Usage Overview" (should be "Usage & Business Value"), Tab 3 says "Governance & Compliance" (should be "Operational Health")
+- docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md: Control 3.1 display text says "Agent Inventory and Classification" (line 121) but actual control name is "Agent Inventory and Metadata Management" per file name `3.1-agent-inventory-and-metadata-management.md`
+WARNINGS:
+- docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md: PowerShell comment (line 289) says "requires Microsoft.PowerApps.Administration.PowerShell" but `Connect-CrmOnline` and `Get-CrmRecords` cmdlets are from `Microsoft.Xrm.Data.PowerShell` — NEEDS_HUMAN_REVIEW
+- docs/playbooks/advanced-implementations/agent-usage-workbook/customization-guide.md: Footer says "v1.2.48" while deployment-guide.md in same playbook says "v1.2.51" — inconsistent framework version
+- docs/playbooks/advanced-implementations/agent-usage-workbook/index.md and telemetry-schema.md: Footer format "Version: v1.3 | Framework: FSI Agent Governance" omits framework version number, creating ambiguity vs standard footer format used elsewhere
+- docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md: Control 1.18 display text "Role-Based Access Control for Agent Management" (line 122) doesn't match actual name "Application-Level Authorization and Role-Based Access Control (RBAC)"
+- 8 broken external URLs from automated pre-pass are false positives: all are API endpoints in code blocks, admin portals requiring authentication (405), or placeholder example URLs (contoso.webhook)
+- ~473 mkdocs nav orphans from automated pre-pass are worktree artifacts — files exist in the full repository but not in this sparse worktree; the 16 in-scope files all exist at their expected paths
+GAPS:
+- docs/playbooks/advanced-implementations/agent-usage-workbook/index.md: "KQL Query Library" listed as "Planned (Phase 1)" with no timeline or tracking link
+FIXES:
+1. docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md: Change "Control 2.8 — Agent Lifecycle Management" to "Control 2.8 — Access Control and Segregation of Duties"
+2. docs/playbooks/advanced-implementations/agent-usage-workbook/index.md: Change Tab 1 name from "Usage Overview" to "Usage & Business Value"; change Tab 3 from "Governance & Compliance" to "Operational Health" to match customization-guide.md
+3. docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md: Change "3.1 - Agent Inventory and Classification" to "3.1 - Agent Inventory and Metadata Management"
+4. docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md: Change "1.18 - Role-Based Access Control for Agent Management" to "1.18 - Application-Level Authorization and Role-Based Access Control (RBAC)"
+5. docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md: Verify PowerShell module comment — update to correct module name (`Microsoft.Xrm.Data.PowerShell` or whichever module currently provides `Connect-CrmOnline`)
+6. docs/playbooks/advanced-implementations/agent-usage-workbook/customization-guide.md: Update footer from "v1.2.48" to "v1.2.51" for consistency
+7. docs/playbooks/advanced-implementations/agent-usage-workbook/index.md and telemetry-schema.md: Add framework version to footer (e.g., "Framework: FSI Agent Governance v1.2.51")
+STATUS: ISSUES_FOUND

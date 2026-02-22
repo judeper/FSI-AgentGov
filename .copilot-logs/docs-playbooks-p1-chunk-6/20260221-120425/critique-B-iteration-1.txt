@@ -1,0 +1,11 @@
+**Verified file contents.** Here is my risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- NONE — All three classifications are accurate. "KeyQL"→"KQL" is correctly a WARNING (incorrect terminology, not a broken build). The PPAC URL is correctly flagged as a false positive. The nav orphans are correctly scoped out as a worktree artifact.
+**FIX_ORDERING:**
+- NONE — Only one actionable fix exists (KeyQL→KQL in `1.19/troubleshooting.md`). The other two items require no changes. No ordering dependencies.
+**OVER_ENGINEERED:**
+- NONE — The review correctly proposes a minimal 3-instance text replacement and correctly avoids unnecessary fixes for the URL and nav items.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — the single actionable fix (KeyQL→KQL) is a zero-risk terminology correction on lines 9, 25, and 66 with no cross-reference or build implications. The reviewer correctly dismissed the URL false positive and scoped out the worktree nav issue, avoiding unnecessary churn.

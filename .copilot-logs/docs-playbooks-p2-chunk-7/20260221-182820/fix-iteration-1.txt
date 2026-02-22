@@ -1,0 +1,4 @@
+CHANGES:
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 230-231): Changed ` ```sql ` to ` ```xml ` and `-- FetchXML query` to `<!-- FetchXML query -->`
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 470): Changed `fsi_isx expired` to `fsi_isexpired`
+FIX_STATUS: COMPLETE

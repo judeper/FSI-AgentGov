@@ -1,0 +1,13 @@
+HIGH_RISK_FIXES:
+- NONE — All four files reside in `reports/audit/`, which is outside `docs/` and not processed by mkdocs. No fix can break the site build or any cross-references.
+SEVERITY_CORRECTIONS:
+- Fix 3 (version drift in 07-post-remediation-review.md): Should be downgraded from WARNING to INFORMATIONAL. The Version Drift section (lines 174-178) is a **point-in-time audit snapshot** from 2026-02-14 — it intentionally captured drift as it existed then. "Fixing" it to current values would falsify the historical audit record. At most, append a note clarifying it reflects the audit date; do not change the version numbers themselves.
+- Fix 4 (items 71-87 in 06-remediation-backlog.md): Should be downgraded from WARNING to INFORMATIONAL. The backlog header declares "✅ ALL 87 ITEMS RESOLVED" and the full commit history is recorded. Expanding closed items in a completed backlog is retrospective bookkeeping, not a documentation defect.
+FIX_ORDERING:
+- Fix 1 (agent-identity filename) is fully independent — apply anytime.
+- Fix 2 (Technologies column) is fully independent — apply anytime.
+- Fix 3 and Fix 4 are independent of each other and of Fixes 1-2. No ordering dependencies exist between any of the four fixes.
+OVER_ENGINEERED:
+- **Fix 4** is over-engineered. The remediation backlog is a closed artifact (100% resolved, with commit hashes). Retroactively expanding 17 already-resolved low-priority items with individual descriptions and acceptance criteria adds maintenance burden to a historical record with no consumer benefit. Recommend: skip entirely, or at most add a one-line note stating individual findings are tracked in the source audit worksheets.
+- **Fix 2** leans toward over-engineering. Adding a Technologies column to three pillar tables (24 + 12 + 7 = 43 rows) requires researching and populating technology values for each control. The simpler fix — removing the column from Pillar 1 — achieves consistency with less effort, but either approach modifies a historical audit inventory. Recommend: if consistency is desired, remove the column from Pillar 1 (1-line edit vs. 43-line addition).
+CRITIQUE_SUMMARY: All four findings are legitimate but low-impact — they affect historical audit reports outside the published site, making build/cross-reference risk zero. Fixes 1 and 2 (simplified to column removal) are worthwhile quick corrections; Fixes 3 and 4 should be downgraded to informational and either skipped or addressed with minimal annotations rather than content expansion.

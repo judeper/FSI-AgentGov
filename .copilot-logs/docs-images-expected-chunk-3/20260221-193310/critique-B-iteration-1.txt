@@ -1,0 +1,11 @@
+Analysis complete. Here is the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- NONE — All three severity classifications are accurate. The mkdocs nav issue is correctly scoped as a worktree artifact (CRITICAL but out-of-scope). The `contoso.crm.dynamics.com` URL is correctly identified as an intentional Dataverse example domain (7 occurrences in the file, all in PowerShell command-line specs). The Power Virtual Agents rebranding on line 105 is correctly flagged as NEEDS_HUMAN_REVIEW since the trigger name is dictated by the Power Automate UI, not by this repo.
+**FIX_ORDERING:**
+- NONE — The three items are fully independent. Fix #1 is out-of-scope. Fix #2 requires no action. Fix #3 (if approved) is a single-line text change with zero cross-references.
+**OVER_ENGINEERED:**
+- Fix #3: If actioned, the fix is a single word change on one line (`"When a Power Virtual Agent calls a flow"` → updated trigger name). The review correctly defers to human verification of the actual Power Automate UI trigger name rather than guessing — this is appropriate, not over-engineered.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — it correctly triages a worktree artifact as out-of-scope, avoids a false-positive on an intentional example URL, and appropriately defers the one actionable finding (PVA→Copilot Studio rebranding) to human verification of the live UI. No fixes in this batch carry build-break risk.

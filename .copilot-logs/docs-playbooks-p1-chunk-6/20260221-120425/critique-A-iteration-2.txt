@@ -1,0 +1,15 @@
+Now let me check what the batch scope covers and look for any missed issues.
+The control docs exist on disk. Let me verify the mkdocs.yml critical claim and check the batch-scoped files more thoroughly.
+Now let me check the batch scope files for missed issues and verify the KQL table concern more carefully.
+Now let me check all 1.22 playbooks and what the chunk includes.
+Now let me verify the control doc title for 1.22 and check for any language compliance issues across the batch.
+Let me check internal link references and the KQL table issue across all 1.21 files.
+I now have all the evidence needed. Here is my audit critique:
+---
+**FALSE_POSITIVES:**
+- **CRITICAL: mkdocs.yml ~470 nav entries missing** — This is a FALSE POSITIVE. I verified that all referenced directories (`docs/controls/pillar-*-*/`, `docs/framework/`, `docs/reference/`, `docs/getting-started/`, `docs/playbooks/`) and their files exist on disk. The worktree contains 552 `.md` files under `docs/`. Sample nav paths (`framework/index.md`, `controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`, `getting-started/quick-start.md`, `index.md`, `disclaimer.md`) all resolve. The reviewer's automated pre-pass apparently checked incorrectly — perhaps running from the wrong directory or using a flawed path resolution. This is not a systemic repo/worktree issue.
+**MISSED_ISSUES:**
+- **1.21/powershell-setup.md lines 91 and 260**: The reviewer flagged `AuditLogs` table usage only in `portal-walkthrough.md` (lines 39–57), but the identical KQL query using `AuditLogs` appears twice more in `powershell-setup.md` (line 91 in the "Create Sentinel Analytics Rule" script, line 260 in the "Complete Configuration Script"). The same NEEDS_HUMAN_REVIEW concern applies to all four occurrences across both files, not just two.
+**FIX_CONCERNS:**
+- **Fix #2 (1.22 title normalization) is backwards.** The reviewer suggests changing the portal-walkthrough H1 from "Information Barriers for AI Agents" to "Information Barriers" to match the other three playbooks. However, the **control doc itself** (`docs/controls/pillar-1-security/1.22-information-barriers.md` line 1) uses the title `# Control 1.22: Information Barriers for AI Agents`. The portal-walkthrough is the one that correctly matches the control doc. The other three playbooks (powershell-setup, troubleshooting, verification-testing) are the inconsistent ones — they should add "for AI Agents" to match the control doc, not the reverse. The suggested fix would make the portal-walkthrough inconsistent with its parent control.
+**CRITIQUE_SUMMARY:** The review's CRITICAL finding (470 missing nav files) is a false positive — all files exist on disk — which inflates severity and obscures the actual issues. The two legitimate content findings (KQL table and title inconsistency) are real but incompletely scoped: the KQL concern was only flagged in one of two affected files, and the title fix recommendation is directionally wrong since the portal-walkthrough already matches the control doc's canonical title.

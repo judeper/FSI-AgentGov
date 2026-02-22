@@ -1,0 +1,16 @@
+Now let me read the observability and promotion-gates footers, and the evidence-and-audit and application-insights files:
+Now I have all the context. Let me apply all fixes:
+Now let me also fix the `workbookParams` hashtable to match `New-AzResource` parameters, and verify the application-insights context:
+The `New-AzResource` needs a `ResourceType` and restructured params. Let me update the param block properly:
+Now verify the diff looks correct:
+All 11 files modified. Commit was blocked by permissions but all edits are applied.
+CHANGES:
+- `deployment-guide.md` (line 269): Changed "Control 2.8 — Agent Lifecycle Management" → "Control 2.8 — Access Control and Segregation of Duties"
+- `deployment-guide.md` (line 5): Updated header version v1.2.48 → v1.2.51
+- `index.md` (line 4): Added controls 2.9 and 3.9 to Related Controls header → "2.9, 3.1, 3.2, 3.3, 3.7, 3.8, 3.9"
+- `customization-guide.md`: Updated header and footer version v1.2.48 → v1.2.51
+- `agent-365-observability/*.md` (4 files): Updated footer version v1.2.6 → v1.2.51
+- `agent-blueprint-promotion-gates/*.md` (3 files): Updated footer version v1.2.6 → v1.2.51
+- `evidence-and-audit.md` (line 289): Fixed module attribution from `Microsoft.PowerApps.Administration.PowerShell` → `Microsoft.Xrm.Data.PowerShell`
+- `application-insights-workbooks.md` (line 120): Replaced non-existent `New-AzApplicationInsightsWorkbook` with `New-AzResource` pattern using proper `ResourceType` and `Properties` hashtable
+FIX_STATUS: COMPLETE

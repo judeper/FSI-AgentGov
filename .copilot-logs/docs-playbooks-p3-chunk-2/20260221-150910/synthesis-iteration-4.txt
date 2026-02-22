@@ -1,0 +1,26 @@
+Let me verify the specific claimed issues before producing the final review.
+All issues confirmed. Now I can produce the final corrected review.
+ISSUE_COUNT: 8
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: Date inconsistency — `.NOTES` block (line 477) says "Last Updated: January 2026" but footer (line 545) says "Updated: February 2026 | Version: v1.3"
+- docs/playbooks/control-implementations/3.8/troubleshooting.md: Date/version inconsistency — footer says "Updated: January 2026 | Version: v1.2" while sibling playbooks (portal-walkthrough, verification-testing, powershell-setup footer) say "February 2026 | Version: v1.3"
+- docs/playbooks/control-implementations/3.5/troubleshooting.md (line 71): NEEDS_HUMAN_REVIEW — `Get-AzConsumptionBudget | Format-Table Name, Amount, CurrentSpend` — `CurrentSpend` is not a direct top-level property; current spend is accessed via `.CurrentSpend.Amount`. Command runs but displays blank values.
+- docs/playbooks/control-implementations/3.7/troubleshooting.md (line 65): NEEDS_HUMAN_REVIEW — `Get-AdminPowerAppEnvironment | Select-Object DisplayName, IsAdmin` — `IsAdmin` is not a standard property on the environment object. Command runs but displays blank column.
+- docs/playbooks/control-implementations/3.7/troubleshooting.md (line 71): NEEDS_HUMAN_REVIEW — uses `$_.Internal.properties.governanceConfiguration.enableManagedEnvironment` — undocumented internal property access pattern that may break without notice.
+- docs/playbooks/control-implementations/3.6/troubleshooting.md (line 71): NEEDS_HUMAN_REVIEW — uses `$_.Internal.properties.isDisabled` on `Get-AdminPowerApp` output — same undocumented internal property access pattern.
+- docs/playbooks/control-implementations/3.7/powershell-setup.md (line 53): NEEDS_HUMAN_REVIEW — `Get-DlpPolicy -EnvironmentName $env.EnvironmentName` — `Get-DlpPolicy` may not accept `-EnvironmentName`; DLP policies are typically retrieved at tenant level. This is embedded in a scoring script where incorrect results silently produce wrong `SecurityScore` values.
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 186): NEEDS_HUMAN_REVIEW — `$member.AdditionalProperties.createdDateTime` on `Get-MgGroupMember` result — `createdDateTime` is not a standard property in `AdditionalProperties` for directory objects; may return null silently.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/3.8/powershell-setup.md (line 477): Change `.NOTES` "Last Updated: January 2026" to "Last Updated: February 2026" to match footer — zero risk, immediately mergeable.
+2. docs/playbooks/control-implementations/3.8/troubleshooting.md (footer): Change "Updated: January 2026 | Version: v1.2" to "Updated: February 2026 | Version: v1.3" to match sibling playbooks — zero risk, immediately mergeable.
+3. docs/playbooks/control-implementations/3.5/troubleshooting.md (line 71): Replace `CurrentSpend` with a calculated property expression: `@{N='CurrentSpend';E={$_.CurrentSpend.Amount}}` or verify correct property path against tenant before merging.
+4. docs/playbooks/control-implementations/3.7/troubleshooting.md (line 65): Replace `IsAdmin` with a valid property (e.g., `EnvironmentType` or `IsDefault`) — verify against tenant.
+5. docs/playbooks/control-implementations/3.6/troubleshooting.md (line 71): Add a comment noting `Internal.properties` is undocumented and may break, or replace with a supported API approach — requires tenant verification.
+6. docs/playbooks/control-implementations/3.7/troubleshooting.md (line 71): Same as fix 5 — add caveat comment about undocumented `Internal.properties` access.
+7. docs/playbooks/control-implementations/3.7/powershell-setup.md (line 53): Verify `Get-DlpPolicy -EnvironmentName` works in tenant; if not, replace with `Get-DlpPolicy | Where-Object { $_.Environments.Name -contains $env.EnvironmentName }`. **High risk — embedded in scoring logic; require tenant-verified testing before merging.**
+8. docs/playbooks/control-implementations/3.8/powershell-setup.md (line 186): Verify `AdditionalProperties.createdDateTime` returns data for group members; if not, remove or replace with a reliable property — requires tenant verification.
+STATUS: ISSUES_FOUND

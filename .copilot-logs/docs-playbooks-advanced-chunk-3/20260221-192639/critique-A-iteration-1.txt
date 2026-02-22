@@ -1,0 +1,16 @@
+Now let me scan the remaining files in this batch for missed issues:
+I've now verified all claims against the actual files. Here's my audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All claimed issues are real and verified:
+  - **Control 2.8 mislabel (line 269):** Confirmed. File says "Agent Lifecycle Management"; actual control file (`2.8-access-control-and-segregation-of-duties.md`) and mkdocs.yml both confirm the correct name is "Access Control and Segregation of Duties."
+  - **Language violation (line 76):** Confirmed. "Path A provides complete regulatory compliance" is present and violates FSI language rules.
+  - **Version inconsistency (header v1.2.48 / footer v1.2.51):** Confirmed.
+  - **v1.3 versioning in index.md and telemetry-schema.md:** Confirmed. The reviewer appropriately noted this may be intentional independent versioning.
+  - **`New-AzApplicationInsightsWorkbook` cmdlet concern:** Confirmed present at lines 120 and 408. NEEDS_HUMAN_REVIEW is appropriate — this cmdlet *does* exist in Az.ApplicationInsights ≥2.0, but version availability varies across environments.
+  - **False positive URLs:** Correctly dismissed.
+**MISSED_ISSUES:**
+- NONE — The reviewer's coverage is thorough. I scanned all files in the advanced-implementations directory for additional language violations (`ensures compliance`, `guarantees`, `eliminates risk`, `will prevent`) and found no further matches. Cross-references to Controls 3.1 and 3.2 in `customization-guide.md` were verified correct against the control files.
+**FIX_CONCERNS:**
+- **Fix 3 (version alignment) needs sharper direction.** The reviewer offered "change `v1.2.51` to `v1.2.48` (or update header to `v1.2.51`)" but didn't note that `customization-guide.md` also uses `v1.2.48` in both header and footer. The correct resolution is to align `deployment-guide.md` footer to `v1.2.48` (matching its own header AND the sibling `customization-guide.md`), not to bump the header to `v1.2.51` which would create a new inconsistency with `customization-guide.md`.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all 6 findings are verified real, false positives were correctly dismissed, and no issues were missed. The only weakness is Fix 3's ambiguous direction; it should explicitly recommend aligning the footer *down* to `v1.2.48` for consistency with both the header and the companion `customization-guide.md`.

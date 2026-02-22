@@ -1,0 +1,19 @@
+All 25 files read. Now analyzing for issues across all review categories.
+ISSUE_COUNT: 8
+CRITICAL:
+- docs/images/1.15/EXPECTED.md: Line 19 references "Zone 3-4" — the framework defines only Zones 1, 2, and 3. No Zone 4 exists. Should be "Zone 3".
+- mkdocs.yml: ~470 nav entries reference docs files not found in this worktree (confirmed pre-pass; likely sparse worktree artifact — all control, playbook, framework, and reference files are absent)
+WARNINGS:
+- docs/images/3.11/EXPECTED.md: Lines 90 and 451 contain bare example URLs (`https://sharepoint.contoso.com/agents/` and `https://sharepoint.contoso.com/governance/decommissioned/`) rendered as clickable links; flagged broken by pre-pass. Should be wrapped in backticks since they are example values in screenshot specs.
+- docs/images/1.22/EXPECTED.md: Lines 6 and 13 reference "Microsoft Purview Compliance Center" — Microsoft rebranded this portal to "Microsoft Purview" in 2023.
+- 13 files (1.1, 1.6, 1.7, 1.8, 1.9, 1.12, 1.15, 2.10, 2.11, 3.2, 3.3, 3.4, 3.5) use table format and omit "- Screenshot Specifications" from H1 title; the other 12 files include it. Inconsistent template.
+- docs/images/3.11/EXPECTED.md: Only file in the batch with a back-link to its control doc (line 647); the other 24 files lack back-links.
+GAPS:
+- 13 table-format files (1.1, 1.6, 1.7, 1.8, 1.9, 1.12, 1.15, 2.10, 2.11, 3.2, 3.3, 3.4, 3.5) lack "Notes for Verification" guidance sections that all 12 detailed-format files include.
+FIXES:
+1. docs/images/1.15/EXPECTED.md line 19: Change `Zone 3-4` to `Zone 3`
+2. docs/images/3.11/EXPECTED.md line 90: Wrap `https://sharepoint.contoso.com/agents/...` in backticks
+3. docs/images/3.11/EXPECTED.md line 451: Wrap `https://sharepoint.contoso.com/governance/decommissioned/...` in backticks
+4. docs/images/1.22/EXPECTED.md lines 6, 13: Change "Microsoft Purview Compliance Center" to "Microsoft Purview"
+5. mkdocs.yml: Verify all referenced docs files exist in the main repo — nav orphans are expected in this sparse worktree and require no fix if main branch is intact
+STATUS: ISSUES_FOUND

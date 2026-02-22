@@ -1,0 +1,4 @@
+CHANGES:
+- docs/images/2.23/EXPECTED.md (line 105): Changed `"When a Power Virtual Agent calls a flow"` to `"When Microsoft Copilot Studio calls a flow"`
+- docs/images/3.8/EXPECTED.md (line 1): Changed `# Control 3.8: Copilot Hub` to `# Control 3.8: Copilot Hub and Governance Dashboard`
+FIX_STATUS: COMPLETE

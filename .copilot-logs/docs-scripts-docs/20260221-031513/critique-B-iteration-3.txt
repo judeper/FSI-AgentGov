@@ -1,0 +1,14 @@
+Here is the risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All three fixes are cosmetic text changes in `scripts/` READMEs. These files are **not** part of the MkDocs site (the `scripts/` directory is excluded from `docs/`), so no cross-references, navigation entries, or `mkdocs build --strict` validations are affected.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (script count): Severity is correct as WARNING. However, the actual count from `governance/README.md` is **16 script entries** (lines 9–24) plus 1 data file entry — so "16 scripts" is accurate. The reviewer's analysis is sound.
+- Fix 2 (repo root comment): **DOWNGRADE to INFORMATIONAL.** The `cd /path/to/FSI-AgentGov` placeholder is a standard convention that already implies the repo root. Adding `# repo root` is harmless but negligible value — anyone running `from scripts.monitoring_shared import ...` will already understand the context.
+- Fix 3 (double `---`): Severity is correct as WARNING. The double horizontal rule is a genuine formatting inconsistency vs. the other READMEs (governance and scripts root both use a single `---` before the footer).
+**FIX_ORDERING:**
+- NONE — all three fixes are independent with zero dependencies between them. They can be applied in any order or simultaneously.
+**OVER_ENGINEERED:**
+- Fix 2: Adding `# repo root` to the `cd` placeholder is over-engineered for the problem described. The `cd /path/to/FSI-AgentGov` idiom is universally understood. If anything, the real issue (Python package import path) would need a more substantive note about `PYTHONPATH` or `-m` invocation — but that's a scope expansion beyond what's warranted for a README polish pass. **Recommend: skip this fix.**
+**CRITIQUE_SUMMARY:** All three issues are low-risk cosmetic fixes to non-published README files with zero build or cross-reference impact. Fix 2 should be downgraded to informational and skipped — it adds noise without meaningful clarity; fixes 1 and 3 are clean and worth applying.

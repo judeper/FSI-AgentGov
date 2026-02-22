@@ -1,0 +1,21 @@
+All 5 issues verified against the actual files. Both critiques agree all are real. Critique B recommends escalating Fix 4 (placeholder GUIDs) to CRITICAL — I agree since fabricated GUIDs in CA policy scripts would cause direct operational failures for FSI admins.
+Now applying the three auto-fixable changes:
+Now apply all three auto-fixes:
+Files are restricted by content exclusion policy — I cannot apply edits. I'll produce the reconciled output based on my verified readings.
+ISSUE_COUNT: 5
+CRITICAL:
+- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Hardcoded app registration GUIDs (e.g., `12a0c4dd-9e59-4f3a-9e3d-9e8e8e8e8e8e` with fabricated `8e` repeating suffix, plus `51c00ca4...`, `9e0c93b0...`, `5e3ce6c0...`) are placeholder values, not verified Microsoft well-known app IDs. FSI admins copy-pasting these scripts would create broken Conditional Access policies. Note: `00000007-0000-0000-c000-000000000000` (Dataverse) and `00000000-0000-0000-0000-000000000004` (MFA strength) ARE legitimate and should not be changed. NEEDS_HUMAN_REVIEW — verify and replace with actual app IDs or add prominent admonition that these must be replaced with tenant-specific values.
+WARNINGS:
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Version inconsistency — footer says "Version: v1.2" but sibling files portal-walkthrough.md and verification-testing.md say "Version: v1.3". Also, .NOTES block at line 447 says "Last Updated: January 2026" contradicting footer "February 2026" (line 84 .NOTES is correct at "February 2026").
+- docs/playbooks/control-implementations/1.8/troubleshooting.md: Version inconsistency — footer says "Version: v1.2" while sibling portal-walkthrough.md and verification-testing.md say "Version: v1.3".
+- docs/playbooks/control-implementations/1.8/powershell-setup.md (line 412): Uses `kusto` code fence tag — the only instance in the batch. All other KQL blocks (34 instances) use `kql`. Both are valid aliases but inconsistent.
+- docs/playbooks/control-implementations/1.12/powershell-setup.md + 1.9/powershell-setup.md: NEEDS_HUMAN_REVIEW — Cmdlets `Get-InsiderRiskPolicy`, `Get-InsiderRiskAlert`, `Get-InsiderRiskPriorityUserGroup` (1.12) and `Get-DispositionItem` (1.9) have limited public documentation. Verify current availability via `Connect-IPPSSession`.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.8/powershell-setup.md: Update footer from "Version: v1.2" to "Version: v1.3". Update line 447 .NOTES from "Last Updated: January 2026" to "Last Updated: February 2026".
+2. docs/playbooks/control-implementations/1.8/troubleshooting.md: Update footer from "Version: v1.2" to "Version: v1.3".
+3. docs/playbooks/control-implementations/1.8/powershell-setup.md (line 412): Change `kusto` to `kql` for consistency with all other KQL blocks in the batch.
+4. docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: NEEDS_HUMAN_REVIEW — Verify placeholder GUIDs against actual Microsoft well-known app IDs and either replace with correct values or add a visible admonition warning that they must be replaced with tenant-specific app registration IDs before use.
+5. docs/playbooks/control-implementations/1.12/powershell-setup.md + 1.9/powershell-setup.md: NEEDS_HUMAN_REVIEW — Verify Insider Risk and Disposition cmdlet availability in current Security & Compliance PowerShell module.
+STATUS: ISSUES_FOUND

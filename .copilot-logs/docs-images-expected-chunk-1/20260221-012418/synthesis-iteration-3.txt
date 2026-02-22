@@ -1,0 +1,11 @@
+Based on my verification: docs content files are present, line numbers are off-by-one, OWASP year is correct, and contoso URLs are intentional placeholders.
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/images/1.24/EXPECTED.md: Line 15 references "Microsoft Foundry" — the correct product name is "Azure AI Foundry" (renamed from Azure AI Studio in Nov 2024). "Microsoft Foundry" is not a real product name.
+GAPS:
+- Quality inconsistency: 13 of 25 EXPECTED.md files (1.1, 1.6, 1.7, 1.8, 1.9, 1.12, 1.15, 2.10, 2.11, 3.2, 3.3, 3.4, 3.5) have minimal single-line "What to capture" descriptions that merely echo the screenshot title (e.g., "Main DSPM for AI overview"), while the other 12 files (1.22, 1.23, 1.24, 1.25, 2.16, 2.17, 2.18, 2.19, 2.20, 2.21, 3.10, 3.11) provide detailed multi-point capture specifications with specific UI elements, field names, and expected values. The sparse files provide insufficient guidance for consistent, reproducible screenshot capture.
+FIXES:
+1. docs/images/1.24/EXPECTED.md line 15: Change "Microsoft Foundry" to "Azure AI Foundry"
+STATUS: ISSUES_FOUND

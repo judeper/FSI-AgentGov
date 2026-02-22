@@ -1,0 +1,20 @@
+The files exist. Let me read all three.
+Let me verify the mkdocs nav vs file system relationship and check for language issues.
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-0-governance-setup.md (line 269), phase-1-minimal-viable-controls.md (line 357), phase-2-hardening.md (line 293): Footer references "FSI Agent Governance Framework v1.2" but current version is v1.2.51 per mkdocs.yml `copyright` field
+- phase-1-minimal-viable-controls.md (line 183): "Control 1.9: 10-Year Retention" uses a simplified name; the canonical control name is "Data Retention and Deletion Policies" (1.9). May cause cross-reference confusion when readers look up the control spec
+- phase-2-hardening.md: Control 2.11 (Bias Testing) appears as a task in both Phase 1 (Month 5, line 235 of phase-1) and Phase 2 (line 156 of phase-2) without explicit language explaining this is an intentional maturity progression from basic to comprehensive
+GAPS:
+- Missing backward navigation links: Phase 1 has no link back to Phase 0, Phase 2 has no link back to Phase 1. Only forward "Next Phase" links exist, making navigation one-directional
+- No explicit "Prerequisites" section in Phase 1 or Phase 2 stating that the previous phase must be complete before starting
+FIXES:
+1. phase-0-governance-setup.md (line 269): Change `*FSI Agent Governance Framework v1.2*` to `*FSI Agent Governance Framework v1.2.51*`
+2. phase-1-minimal-viable-controls.md (line 357): Change `*FSI Agent Governance Framework v1.2*` to `*FSI Agent Governance Framework v1.2.51*`
+3. phase-2-hardening.md (line 293): Change `*FSI Agent Governance Framework v1.2*` to `*FSI Agent Governance Framework v1.2.51*`
+4. phase-1-minimal-viable-controls.md (line 183): Change heading from `### Control 1.9: 10-Year Retention` to `### Control 1.9: Data Retention and Deletion Policies` (and update the Purpose line to mention the 10-year retention context for Zone 3)
+5. phase-1-minimal-viable-controls.md: Add a "Previous Phase" link before the "Next Phase" section, e.g., `See [Phase 0: Governance Setup](phase-0-governance-setup.md) for foundation setup.`
+SECTION A NOTE: The automated pre-pass flagged the 3 batch files as mkdocs nav orphans ("file not found"). I verified all 3 files **exist** at `docs/playbooks/getting-started/`. With mkdocs default `docs_dir: docs/`, the nav paths resolve correctly. The entire orphan list (300+ entries covering every nav item) indicates a systemic tooling misconfiguration (likely checking from repo root instead of `docs/`), not actual broken references. These are **false positives** and require no fixes.
+STATUS: ISSUES_FOUND

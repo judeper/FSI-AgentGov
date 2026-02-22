@@ -1,0 +1,45 @@
+All claims verified against the actual files. Here is the final corrected review:
+ISSUE_COUNT: 19
+CRITICAL:
+- docs/playbooks/control-implementations/4.1/troubleshooting.md: Lines 130/167 use incorrect property `RestrictedSearchEnabled` — sibling powershell-setup.md uses `EnableRestrictedSearchAllList`; admins copy-pasting will get runtime errors, NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/4.1/troubleshooting.md: Lines 135/171 use non-existent cmdlet `Get-SPOSearchSiteConfiguration` — should be `Get-SPOTenantRestrictedSearchAllowedList` per sibling playbook; admins copy-pasting will get errors, NEEDS_HUMAN_REVIEW
+WARNINGS:
+- H1 title format inconsistency: 4.1–4.2 use `# Type: Control X.X - Name` while 4.3–4.7 use `# Control X.X: Name - Type` (affects all 28 files)
+- docs/playbooks/control-implementations/4.3/powershell-setup.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.3/troubleshooting.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.4/powershell-setup.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.4/troubleshooting.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.5/powershell-setup.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.5/troubleshooting.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.5/verification-testing.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.6/powershell-setup.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.6/troubleshooting.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.6/verification-testing.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.7/troubleshooting.md: Missing navigation footer links
+- docs/playbooks/control-implementations/4.7/verification-testing.md: Missing navigation footer links
+- All 8 files in 4.1–4.2 missing `*Updated: Month Year | Version: v1.2*` footer metadata that all 4.3–4.7 files have (4.1–4.2 only have `**Last Updated:**` in header)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.1/troubleshooting.md: Replace `RestrictedSearchEnabled` with `EnableRestrictedSearchAllList` on lines 130 and 167; replace `Get-SPOSearchSiteConfiguration` with `Get-SPOTenantRestrictedSearchAllowedList` on lines 135 and 171 (verify correct property/cmdlet names against live tenant first; apply as single atomic commit)
+2. docs/playbooks/control-implementations/4.3/powershell-setup.md: Add footer `[Back to Control 4.3](../../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)` before the `*Updated:*` line
+3. docs/playbooks/control-implementations/4.3/troubleshooting.md: Add footer with same pattern (omit Troubleshooting, include PowerShell Setup)
+4. docs/playbooks/control-implementations/4.3/verification-testing.md: Add footer with same pattern (omit Verification Testing, include PowerShell Setup)
+5. docs/playbooks/control-implementations/4.4/powershell-setup.md: Add footer with same pattern for Control 4.4
+6. docs/playbooks/control-implementations/4.4/troubleshooting.md: Add footer with same pattern for Control 4.4
+7. docs/playbooks/control-implementations/4.4/verification-testing.md: Add footer with same pattern for Control 4.4
+8. docs/playbooks/control-implementations/4.5/powershell-setup.md: Add footer with same pattern for Control 4.5
+9. docs/playbooks/control-implementations/4.5/troubleshooting.md: Add footer with same pattern for Control 4.5
+10. docs/playbooks/control-implementations/4.5/verification-testing.md: Add footer with same pattern for Control 4.5
+11. docs/playbooks/control-implementations/4.6/powershell-setup.md: Add footer with same pattern for Control 4.6
+12. docs/playbooks/control-implementations/4.6/troubleshooting.md: Add footer with same pattern for Control 4.6
+13. docs/playbooks/control-implementations/4.6/verification-testing.md: Add footer with same pattern for Control 4.6
+14. docs/playbooks/control-implementations/4.7/powershell-setup.md: Add footer with same pattern for Control 4.7
+15. docs/playbooks/control-implementations/4.7/troubleshooting.md: Add footer with same pattern for Control 4.7
+16. docs/playbooks/control-implementations/4.7/verification-testing.md: Add footer with same pattern for Control 4.7
+17. Standardize H1 title format: Adopt the `# Control X.X: Name - Type` pattern from 4.3–4.7 across 4.1 and 4.2 files (8 files) — low priority, defer or do last as it touches many files with no functional impact
+18. Add `*Updated: January 2026 | Version: v1.2*` footer metadata to all 8 files in 4.1 and 4.2 to match 4.3–4.7 pattern — apply as batch commit with footer nav fixes
+STATUS: ISSUES_FOUND

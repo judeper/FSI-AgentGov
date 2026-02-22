@@ -1,0 +1,23 @@
+Now let me verify the worktree file structure to understand the nav orphan situation.
+All batch files and all referenced nav entries exist in this worktree. The 300+ nav orphans from Section A are **false positives** — the automated checker likely ran from an incorrect base directory. The 4 broken external URLs are also false positives (API endpoints and admin portals returning non-200 to unauthenticated crawlers).
+Here is my review:
+ISSUE_COUNT: 5
+CRITICAL:
+- 1.24/powershell-setup.md (lines 80, 291) and 1.24/verification-testing.md (line 129): Azure Resource Graph queries reference `microsoft.openai/accounts` which is not a valid Azure resource provider type. Azure OpenAI Service is provisioned as `Microsoft.CognitiveServices/accounts` with `kind = 'OpenAI'`. NEEDS_HUMAN_REVIEW
+WARNINGS:
+- 1.24/portal-walkthrough.md (line 12): Product name "Microsoft Foundry" appears non-standard; the current name is "Azure AI Foundry" (formerly Azure AI Studio). NEEDS_HUMAN_REVIEW
+- 1.24/powershell-setup.md (line 133): `Get-AzAccessToken` `.Token` property is accessed as a plain string, but Az.Accounts 5.0+ returns a SecureString. The 1.25 powershell-setup.md correctly handles both formats (lines 27-32); 1.24 should use the same pattern for compatibility.
+- 1.24/powershell-setup.md (line 46): AI-SPM extension check filters for `SensitiveDataDiscovery` and `AgentlessDiscoveryForKubernetes` but neither is the AI security posture management extension name. NEEDS_HUMAN_REVIEW
+- 1.26/powershell-setup.md: Cmdlets `Get-AdminPowerAppChatbot` and `Set-AdminPowerAppChatbot` (with `-FileUploadEnabled` parameter) may not exist in the current `Microsoft.PowerApps.Administration.PowerShell` module. NEEDS_HUMAN_REVIEW
+GAPS:
+- NONE
+FIXES:
+1. 1.24/powershell-setup.md (lines 80, 291): Replace `'microsoft.openai/accounts'` with a filter on `Microsoft.CognitiveServices/accounts` where `kind =~ 'OpenAI'`, or verify the resource provider exists in current Azure. Same fix needed in 1.24/verification-testing.md line 129.
+2. 1.24/portal-walkthrough.md (line 12): Change "Microsoft Foundry" to "Azure AI Foundry" (verify current branding).
+3. 1.24/powershell-setup.md (line 133): Replace `$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token` with the SecureString-safe pattern used in 1.25/powershell-setup.md lines 27-32.
+4. 1.24/powershell-setup.md (line 46): Update extension name filter to match the actual Defender CSPM AI-SPM extension identifier (verify in Azure portal or docs).
+5. 1.26/powershell-setup.md: Verify `Get-AdminPowerAppChatbot` / `Set-AdminPowerAppChatbot` cmdlets exist; if not, document the correct cmdlets or REST API approach.
+SECTION A DISPOSITION:
+- Broken external URLs (4): All false positives. `https://management.azure.com` is an Azure REST API endpoint used correctly in PowerShell scripts (HTTP 400 expected without auth). `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` are admin portals returning HTTP 405 to automated crawlers. No fixes needed.
+- mkdocs nav orphans (300+): All false positives. Every referenced file exists at its expected path under `docs/`. The automated checker likely ran from an incorrect working directory or used wrong path resolution.
+STATUS: ISSUES_FOUND

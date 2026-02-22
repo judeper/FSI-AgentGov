@@ -1,0 +1,20 @@
+Let me read the reference files (3.1/3.2) and the files to fix (3.3/3.4) to understand both formats.
+Now let me read all 8 files in 3.3/3.4:
+Now let me check 3.1/3.2 footer/cross-link patterns:
+Now I have all the patterns clear. Let me apply all fixes across the 8 files. The changes are:
+1. **Titles**: `# Control X.X: Name - Type` → `# Type: Control X.X - Name`
+2. **Headers**: Replace blockquote with structured metadata fields
+3. **Prerequisites**: Plain bullets → checkbox-style (portal-walkthrough files only)
+4. **Cross-links**: Remove `./` prefix in "Next Steps" sections
+Now let me verify the changes by spot-checking the first few lines of each file:
+All 4 warnings fixed. Let me verify no blockquotes remain:
+CHANGES:
+- docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Fixed title format, replaced blockquote with structured metadata, converted prerequisites to checkbox style
+- docs/playbooks/control-implementations/3.3/powershell-setup.md: Fixed title format, replaced blockquote with structured metadata, normalized cross-links (removed `./` prefix)
+- docs/playbooks/control-implementations/3.3/verification-testing.md: Fixed title format, replaced blockquote with structured metadata, normalized cross-links (removed `./` prefix)
+- docs/playbooks/control-implementations/3.3/troubleshooting.md: Fixed title format, replaced blockquote with structured metadata, normalized cross-links (removed `./` prefix)
+- docs/playbooks/control-implementations/3.4/portal-walkthrough.md: Fixed title format, replaced blockquote with structured metadata, converted prerequisites to checkbox style
+- docs/playbooks/control-implementations/3.4/powershell-setup.md: Fixed title format, replaced blockquote with structured metadata, normalized cross-links (removed `./` prefix)
+- docs/playbooks/control-implementations/3.4/verification-testing.md: Fixed title format, replaced blockquote with structured metadata, normalized cross-links (removed `./` prefix)
+- docs/playbooks/control-implementations/3.4/troubleshooting.md: Fixed title format, replaced blockquote with structured metadata, normalized cross-links (removed `./` prefix)
+FIX_STATUS: COMPLETE

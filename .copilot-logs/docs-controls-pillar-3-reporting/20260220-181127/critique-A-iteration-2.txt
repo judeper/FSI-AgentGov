@@ -1,0 +1,13 @@
+Good - the cross-pillar directories exist. The explore agent's finding about broken links was a false positive from its own check. Now let me verify the specific line 130 issue and check if 2.22 exists:
+Now let me verify the SEC URL and the cross-reference path issue more carefully:
+Good — only one instance of `../../controls/` across all pillar-3 files. The `../../` pattern is otherwise used for playbook links (which is correct since playbooks are at `docs/playbooks/`). Now let me verify the SEC URL via web_search since direct fetch is blocked:
+I now have all the evidence needed. Here is the audit:
+---
+**FALSE_POSITIVES:**
+- The SEC URL `https://www.sec.gov/newsroom/press-releases/2024-63` is **NOT broken/403**. Web search confirms it resolves to a valid SEC press release (about ICE/NYSE cyber intrusion enforcement, dated May 22, 2024). The reviewer mischaracterized this as a broken link.
+**MISSED_ISSUES:**
+- **3.4-incident-reporting-and-root-cause-analysis.md (line 21): INCORRECT REGULATORY CITATION.** The text references "SEC Regulation S-P (2024 amendments)" and links to press release 2024-63, but **2024-63 is about ICE/NYSE Regulation SCI enforcement**, not Regulation S-P. The correct press release for the Reg S-P amendments (effective December 3, 2025) is **2024-58** (`https://www.sec.gov/newsroom/press-releases/2024-58`). This is a substantive regulatory accuracy error, not a broken link.
+**FIX_CONCERNS:**
+- **Fix #1 is WRONG in both diagnosis and remedy.** The URL is not broken — it points to the wrong regulation. The fix should change the URL from `https://www.sec.gov/newsroom/press-releases/2024-63` to `https://www.sec.gov/newsroom/press-releases/2024-58` (the actual Reg S-P amendments announcement). Removing the link or citing it textually as "Press Release 2024-63" would preserve the incorrect citation number.
+- **Fix #2 is CORRECT.** Changing `../../controls/pillar-2-management/2.22-...` to `../pillar-2-management/2.22-...` on line 130 of 3.7 is the right fix. Confirmed: only 1 instance of `../../controls/` exists across all 12 pillar-3 files, and the target file `2.22-inactivity-timeout-enforcement.md` exists.
+**CRITIQUE_SUMMARY:** The reviewer correctly identified two real issues but critically misdiagnosed the SEC URL as a broken link (HTTP 403) when it is actually a **wrong regulatory citation** — press release 2024-63 covers ICE/NYSE enforcement, not the Regulation S-P amendments (which is 2024-58). This misdiagnosis led to an inadequate fix suggestion that would have preserved the incorrect citation.

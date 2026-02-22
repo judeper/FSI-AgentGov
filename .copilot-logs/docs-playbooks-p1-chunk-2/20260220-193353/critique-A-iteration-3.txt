@@ -1,0 +1,25 @@
+Now let me identify the full batch scope and spot-check a few more files for missed issues.
+Good - 25 files confirmed. Let me now spot-check a few more files for potential missed issues like undefined variables or date inconsistencies.
+Good — all control files exist. The explore agent's "broken link" finding was a false positive from its own path resolution. Now let me verify the 1.8 date situation — all 1.8 files say February 2026, which is internally consistent, so not an issue.
+Let me also check a couple more things the reviewer might have missed:
+Both issues verified. Here's my audit:
+---
+**FALSE_POSITIVES:**
+NONE
+Both findings are confirmed real:
+1. **$Dispositions (1.9/powershell-setup.md:169):** Verified. `$Dispositions` is used only on line 169 and is never assigned anywhere in the file. The "Check Disposition Reviews" section (line 151) explicitly states `Get-DispositionItem` is not available. Notably, the "Complete Configuration Script" later in the same file (lines 321-326) correctly omits `PendingDispositions` from its summary — confirming the standalone snippet at line 169 is a leftover bug.
+2. **1.11 date inconsistency:** Verified. `conditional-access-agent-templates.md` says "February 2026" while all four sibling files say "January 2026".
+**MISSED_ISSUES:**
+NONE
+Spot-checked all 25 files across controls 1.8–1.13:
+- No undefined variables in other powershell-setup.md summary blocks (1.8, 1.10, 1.12, 1.13 are clean)
+- No prohibited language phrases ("ensures compliance", "guarantees", etc.) found
+- Footer dates are internally consistent within each control group (1.8 = all Feb 2026; 1.9/1.10/1.12/1.13 = all Jan 2026)
+- All referenced control files (`docs/controls/pillar-1-security/1.{8-13}-*.md`) exist in the worktree
+- Section A notes about portal URLs returning HTTP 405 and placeholder example URLs are reasonable assessments
+**FIX_CONCERNS:**
+NONE
+Both fix suggestions are sound:
+- Fix 1: Removing/commenting the `PendingDispositions` line is correct — the Complete Configuration Script already shows the intended pattern (omit it entirely). Adding a comment about portal-only disposition review is appropriate.
+- Fix 2: Aligning the 1.11 footer date is straightforward. Given the templates file is a supplementary playbook unique to 1.11, "February 2026" may reflect a genuinely later revision — the reviewer correctly offers both alignment directions.
+**CRITIQUE_SUMMARY:** The review is accurate and complete. Both issues are genuine, the fix suggestions are correct, and no significant issues were overlooked across the 25-file batch.

@@ -1,0 +1,18 @@
+Now let me verify the actual scripts directory structure and check cross-references.
+Now I have all the data needed for my review. Let me verify the placeholder URL in `governance/README.md`.
+Here is my review:
+---
+**SECTION A ASSESSMENT — MKDOCS NAV ORPHANS:**
+⚠️ **All 300+ nav orphan entries are FALSE POSITIVES.** I manually verified a representative sample across all categories (`controls/`, `framework/`, `playbooks/`, `reference/`, `getting-started/`, `downloads/`). Every file exists at its correct path under `docs/`. MkDocs resolves nav paths relative to `docs_dir` (defaults to `docs/`), so `controls/index.md` correctly maps to `docs/controls/index.md`. The automated pre-pass appears to have checked paths relative to the repo root instead of `docs_dir`.
+**SECTION B — LLM REVIEW OF SCRIPTS README FILES:**
+ISSUE_COUNT: 2
+CRITICAL:
+- `scripts/governance/README.md` (line 56): Placeholder URL `https://github.com/your-org/FSI-AgentGov-Solutions` — uses `your-org` instead of actual GitHub owner `judeper` (confirmed via `site_url` in `mkdocs.yml`).
+WARNINGS:
+- `scripts/governance/README.md`: `mime-type-exceptions.csv` is listed in both the Scripts table (line 18) AND the Data Files table (line 30). It's a data file, not a script — remove the duplicate from the Scripts table.
+GAPS:
+- NONE
+FIXES:
+1. `scripts/governance/README.md` (line 56): Replace `https://github.com/your-org/FSI-AgentGov-Solutions` with `https://github.com/judeper/FSI-AgentGov-Solutions`
+2. `scripts/governance/README.md` (line 18): Remove the `mime-type-exceptions.csv` row from the Scripts table (keep only in the Data Files table at line 30)
+STATUS: ISSUES_FOUND

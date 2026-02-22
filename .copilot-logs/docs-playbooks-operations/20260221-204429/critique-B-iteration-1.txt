@@ -1,0 +1,15 @@
+Let me check what the prevailing footer convention is across control docs.
+Here is my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix #1/#2/#3 — Version `v1.2` → `v1.2.51` is INCORRECT and would cause inconsistency.** All 71 control docs use `Version: v1.2` in their footers (the *document* version), not `v1.2.51` (the *project* patch version). The review conflated two different version scopes. Applying this fix to only 3 playbook files would make them the sole outliers across the entire `docs/` tree. This version change must be **rejected**.
+**SEVERITY_CORRECTIONS:**
+- **Version mismatch (Fixes #1–#3): Downgrade from WARNING to FALSE POSITIVE.** `v1.2` is the correct document-level version convention across all 71 controls and playbooks. The `v1.2.51` in mkdocs.yml `copyright` is the project release version — a different scope. No discrepancy exists.
+- **Stale date "January 2026" (all 3 files): Downgrade from WARNING to INFORMATIONAL.** 55+ other files across `docs/` also say "January 2026". Updating only these 3 creates a selective freshness inconsistency unless the file content was actually changed in this batch. If content is unchanged, the date should remain as-is.
+- **CRO expansion (Fix #4): Severity classification is accurate** (minor clarity improvement), but see over-engineering note below.
+**FIX_ORDERING:**
+- NONE — the valid fixes (CRO expansion, date update if content changed) are independent with no ordering dependencies.
+**OVER_ENGINEERED:**
+- **Fix #4 — CRO expansion.** The proposed change `CRO / Chief Risk Officer` uses a non-standard expansion format. If expanded, convention should be `CRO (Chief Risk Officer)` — the parenthetical pattern already used in the same file (e.g., line 157's own `(if applicable)` pattern). However, the target audience (FSI compliance and governance professionals) universally knows "CRO." This is low-value cosmetic polish.
+- **Fixes #1–#3 — Version bump portion.** Changing the document version string to match the project patch version is scope creep — it redefines the versioning convention for 3 files while leaving 71+ others unchanged. If a version convention change is desired, it belongs in a separate repo-wide batch.
+**CRITIQUE_SUMMARY:** The review correctly identifies the false-positive orphan findings and the CRO clarity nit, but its primary proposed fixes (version `v1.2` → `v1.2.51`) are **wrong** — they misidentify the document-version convention as a bug. Applying them would introduce inconsistency rather than fix it. Only the CRO expansion (Fix #4) is safe to ship, and even that is marginal value.

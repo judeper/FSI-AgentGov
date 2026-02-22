@@ -1,0 +1,15 @@
+All claims verified. Here is the final synthesized review:
+---
+ISSUE_COUNT: 4
+CRITICAL:
+- NONE
+WARNINGS:
+- Format inconsistency (title): Controls 3.1/3.2 playbooks use `# [Type]: Control X.X - [Name]` format while 3.3/3.4 use `# Control X.X: [Name] - [Type]` format. Affects all 8 playbook files in 3.3/3.4.
+- Format inconsistency (header metadata): Controls 3.1/3.2 playbooks use structured header metadata (`**Last Updated:**`, `**Portal:**`, `**Estimated Time:**`) while 3.3/3.4 playbooks use a blockquote intro (`> This playbook provides...`) with no structured metadata fields.
+- Format inconsistency (prerequisites): Controls 3.1/3.2 use checkbox-style prerequisite lists (`- [ ] Power Platform Admin role`) while 3.3/3.4 use plain bullet lists (`- Purview Compliance Admin role`).
+- Format inconsistency (cross-links): Within 3.3/3.4 files, "Related Playbooks" body sections use `./` prefix (e.g., `[PowerShell Setup](./powershell-setup.md)`) while footer nav bars in the same files use bare filenames (e.g., `[PowerShell Setup](powershell-setup.md)`). Both resolve correctly; inconsistency is intra-file, not inter-control.
+GAPS:
+- NONE
+FIXES:
+- NONE — All four warnings are optional style normalization across two authoring batches. No functional defects, broken links, prohibited language, or missing content detected. A future style-harmonization pass across all Pillar 3 playbooks (not scoped to this batch) should decide on one canonical format for titles, header metadata, prerequisites, and cross-link style before normalizing. Applying piecemeal fixes to 3.3/3.4 alone risks creating a hybrid format (metadata lines above the existing blockquote) that matches neither pattern.
+STATUS: ISSUES_FOUND

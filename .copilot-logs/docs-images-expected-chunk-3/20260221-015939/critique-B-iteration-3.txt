@@ -1,0 +1,14 @@
+I found an additional "Zone 3-4" reference the review missed. Here's my assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Both Zone reference fixes are in `docs/images/*/EXPECTED.md` files (local-only screenshot checklists, gitignored binaries). These files are not referenced by `mkdocs.yml`, are not part of the built site, and have zero cross-references from controls or playbooks. No build impact possible.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (`1.11/EXPECTED.md` "Zone 3-4"): Correctly classified CRITICAL. Zone 4 is a fabricated concept — if used as a verification checklist, it would mislead reviewers into looking for a non-existent governance zone.
+- Fix 2 (`2.2/EXPECTED.md` "Zone 1-4"): Correctly classified CRITICAL. Same rationale.
+- **MISSED FINDING:** `docs/images/1.15/EXPECTED.md` line 19 also contains "Zone 3-4" — identical error pattern. Should be classified CRITICAL and added as Fix 3: change `Zone 3-4` → `Zone 3` (customer-managed keys are a Zone 3 requirement).
+- Fix 3 (mkdocs.yml 473 orphans): Correctly classified as false positives. The reviewer's diagnosis (path resolution relative to repo root vs `docs_dir`) is sound. No action needed beyond re-running with correct base path. Severity should be downgraded from CRITICAL to **INFO** — no content is broken, this is a tooling artifact.
+**FIX_ORDERING:**
+- NONE. All three Zone reference fixes are independent — they touch separate files with no shared state. Apply in any order.
+**OVER_ENGINEERED:**
+- NONE. The two proposed fixes are single-line text substitutions — appropriately minimal. The mkdocs orphan recommendation (re-run checker with correct path) is diagnostic guidance, not a code change.
+**CRITIQUE_SUMMARY:** The review correctly identified the two Zone-4 fabrication bugs and properly diagnosed the 473 false-positive orphans, but missed an identical "Zone 3-4" error in `docs/images/1.15/EXPECTED.md` (line 19) — bringing the true critical fix count to 3. The mkdocs orphan finding should be reclassified from CRITICAL to INFO since it reflects tooling misconfiguration, not a content defect.

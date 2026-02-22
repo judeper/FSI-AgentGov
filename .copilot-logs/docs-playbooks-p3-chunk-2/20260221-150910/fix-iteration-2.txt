@@ -1,0 +1,6 @@
+Now I'll apply all three fixes:
+CHANGES:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 102-107): Replaced `@odata.id` body construction + `New-MgGroupMember -BodyParameter` with correct `New-MgGroupMember -GroupId $group.Id -DirectoryObjectId $user.Id`
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 290): Added `| Select-Object -First 1` to `Get-MgOrganization` to match the pattern at line 214
+- docs/playbooks/control-implementations/3.6/powershell-setup.md (line 142-143): Removed non-existent `-Disable` parameter from `Set-AdminPowerAppAsSysAdmin` and updated comment to reflect actual cmdlet behavior (ownership transfer for quarantine review)
+FIX_STATUS: COMPLETE

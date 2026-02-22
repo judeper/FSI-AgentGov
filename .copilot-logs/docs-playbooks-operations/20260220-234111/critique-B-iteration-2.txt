@@ -1,0 +1,13 @@
+All three issues verified. Here's my risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix #1 (Purview portal rename): Correctly classified as WARNING with NEEDS_HUMAN_REVIEW. The phrase also appears in `docs/playbooks/control-implementations/1.13/troubleshooting.md` (line 111) — if the rename is confirmed correct, that file should be fixed too for consistency, but it is **out of scope** for this batch. Note for future pass.
+- Fix #2 (FINRA citation): Correctly classified as WARNING. This is a low-risk terminology precision fix with zero functional impact. Could reasonably be downgraded to a STYLE note, but WARNING is acceptable given FSI language rules in `.github/instructions/fsi-language-rules.instructions.md` requiring specific regulation citations.
+- Fix #3 (Bias testing cross-reference): Correctly classified as WARNING. Severity is accurate — it's a clarity gap, not an error.
+**FIX_ORDERING:**
+- All three fixes are independent — no ordering constraints. They touch different lines in different files (or different sections of the same file). Apply in any order.
+**OVER_ENGINEERED:**
+- Fix #3 risks over-engineering. The review suggests adding a cross-reference note to phase-2's Control 2.11 section, but phase-2 already uses the title "**Comprehensive** Bias Testing" (vs. Phase 1's "Bias Testing") and says "**Full** fairness assessment program" (vs. Phase 1's "**Establish** fairness assessment process"). The progressive language already signals escalation. A single parenthetical like `(building on Phase 1 foundations)` in the Purpose line would suffice — anything more (e.g., a multi-sentence explanatory note) would be over-engineered for a getting-started playbook.
+**CRITIQUE_SUMMARY:** All three fixes are low-risk, isolated text changes with no cross-reference or build impact. The review is sound; the only refinement needed is keeping Fix #3 minimal (a short parenthetical, not a paragraph) and flagging the out-of-scope Purview portal instance in `1.13/troubleshooting.md` for a future batch.

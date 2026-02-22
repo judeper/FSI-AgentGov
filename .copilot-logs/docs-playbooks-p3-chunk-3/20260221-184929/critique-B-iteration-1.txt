@@ -1,0 +1,17 @@
+All findings verified against the actual files. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 2 (remove legacy test cases 1-3 and 6 from 3.8/verification-testing.md): Deleting ~80 lines of content risks removing test cases referenced externally by name (e.g., "Test Case 1" in runbooks or audit checklists). Additionally, Test Cases 4, 5, and 7 would need renumbering or the gap in numbering (1-3 removed, 4-5 retained, 6 removed, 7+ retained) creates a confusing sequence. This is a structural change that exceeds the scope of a "fix" batch.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (8h → 24h propagation): Underclassified as WARNING. This is a **factual accuracy error** — an admin following the legacy test case would declare a test failure after 8 hours when propagation hasn't completed, generating false-negative audit evidence. Should be elevated to the highest-priority fix in this batch. Confirmed: FAC-01 (line 73-75), troubleshooting.md (line 18-19), and legacy Test Cases 2-3 (lines 243, 255) all need the same correction — the review only called out Test Case 1 but Test Cases 2 and 3 also say "up to 8 hours".
+- Fix 4 (footer metadata on 3.11/3.12): Correctly classified as GAP but **lower severity than stated**. The 3.11/3.12 files consistently use a header metadata pattern (`**Last Updated:** February 2026` at line 3), which is a valid convention used across all 8 files in those control folders. The footer pattern is used by the older 3.8/3.9/3.10 batch. This is a style divergence, not a defect.
+**FIX_ORDERING:**
+1. **Fix 1** first — factual error, single-line change per occurrence, zero cross-reference risk. Also apply to Test Cases 2 and 3 (lines 243, 255) which the review missed.
+2. **Fix 3** second — trivial cosmetic (remove one `---` line), zero risk.
+3. **Fix 5** third — flag only, no code change, just mark for human review.
+4. **Fix 4** fourth — if proceeding, mechanical append to 5 files. But see over-engineering note.
+5. **Fix 2** last or defer — structural deletion should not be mixed into a correctness-fix batch.
+**OVER_ENGINEERED:**
+- **Fix 2** (legacy test case removal): Deletion is over-engineered for this batch. The safer fix is to correct the propagation times in legacy Test Cases 1-3 (which Fix 1 partially covers) and add a one-line note: `> **Note:** See detailed FAC-01/02/03 test cases above for full procedures.` This eliminates the conflicting-information risk without removing content.
+- **Fix 4** (add footers to 3.11/3.12): Over-engineered. The 3.11/3.12 files were authored in a later batch with an intentionally different metadata convention (header-based, line 3). Adding footers creates **dual metadata** (header AND footer) that doubles the maintenance burden. Either normalize all playbooks to one convention in a dedicated pass, or leave as-is. Don't mix convention changes into a correctness-fix batch.
+**CRITIQUE_SUMMARY:** The review correctly identified all substantive issues but underclassified the propagation-time error (the most impactful fix) and missed that Test Cases 2-3 have the same 8-hour error. Fix 2 (deletion) and Fix 4 (footer addition) should be deferred to avoid scope creep in a correctness-focused batch — apply Fixes 1 and 3 now, flag Fix 5 for human review.

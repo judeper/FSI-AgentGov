@@ -1,0 +1,17 @@
+Now let me look at 2.1 and 2.2 verification-testing.md for the patterns I need to replicate.
+Now I have all the context needed. Let me create a plan and execute all fixes.
+Now I'll apply all fixes. Let me start with the CRITICAL issue (protectionLevel path in 2.1 files), then the WARNING, then the GAPS.
+Now fix the GAP issues for 2.3/verification-testing.md and 2.4/verification-testing.md — add structured test case tables and automated validation scripts.
+Now add test case table and automated validation script to 2.4/verification-testing.md:
+Now verify all changes are correct:
+All 6 issues fixed. Let me verify no old `Properties.protectionLevel` (without `governanceConfiguration`) remains in the 2.1 files:
+No old paths remain. All fixes applied cleanly.
+CHANGES:
+- 2.1/powershell-setup.md: Updated 5 instances of `Properties.protectionLevel` to `Properties.governanceConfiguration.protectionLevel` to match 2.2 pattern
+- 2.1/verification-testing.md: Updated 1 instance of `Properties.protectionLevel` to `Properties.governanceConfiguration.protectionLevel`
+- 2.1/troubleshooting.md: Updated 1 instance of `Properties.protectionLevel` to `Properties.governanceConfiguration.protectionLevel`
+- 2.3/powershell-setup.md: Changed `"CHG-2025-001234"` to `"CHG-2026-001234"` to match document footer date
+- 2.1/portal-walkthrough.md: Added `## Tenant-Level Configuration` section heading with explanatory text before Step 11 to clarify scope break
+- 2.3/verification-testing.md: Added `## Test Cases` table with TC-2.3-01 through TC-2.3-08 and `## Automated Validation Script` section with runnable PowerShell
+- 2.4/verification-testing.md: Added `## Test Cases` table with TC-2.4-01 through TC-2.4-08 and `## Automated Validation Script` section with runnable PowerShell
+FIX_STATUS: COMPLETE

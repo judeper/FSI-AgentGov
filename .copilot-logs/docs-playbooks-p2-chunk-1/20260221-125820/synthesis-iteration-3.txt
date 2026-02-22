@@ -1,0 +1,24 @@
+All claims verified against the file system. Here is the synthesized final review:
+ISSUE_COUNT: 9
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.1/powershell-setup.md: Script comment blocks at lines 161 and 234 say "Last Updated: January 2026" while document header (line 3) says "February 2026" — internal date inconsistency
+- docs/playbooks/control-implementations/2.2/powershell-setup.md: Service principal auth code (lines 19-22) is active uncommented code with placeholders (`<Application-Client-ID>`, `<Client-Secret>`, `<Tenant-ID>`), unlike 2.1 which comments out the same pattern — could cause copy-paste errors
+- docs/playbooks/control-implementations/2.2: Intra-control naming inconsistency — portal-walkthrough.md title says "Environment Groups and Zone Classification" while powershell-setup.md and troubleshooting.md say "Environment Groups and Tier Classification"
+- docs/playbooks/control-implementations/2.3/powershell-setup.md: Uses deprecated module `Microsoft.Xrm.Tooling.CrmConnector.PowerShell` and cmdlet `Connect-CrmOnline` (9 call sites across the file); Microsoft recommends `Microsoft.PowerPlatform.Dataverse.Client` / `Connect-CrmServiceClient` — NEEDS_HUMAN_REVIEW, migration is a rewrite affecting connection objects and downstream cmdlets
+- docs/playbooks/control-implementations/2.4/powershell-setup.md: `pac solution export` command used at line 45 but prerequisites section only installs PowerShell modules, not the Power Platform CLI (`pac`)
+- docs/playbooks/control-implementations/2.3/2.4 non-portal files: Footer nav uses separate "Related Playbooks" section with `[Back to Control X.X]` only, while 2.1/2.2 files and 2.3/2.4 portal-walkthrough files use inline pipe-separated sibling nav — structural inconsistency
+- docs/playbooks/control-implementations/2.1 vs 2.2/2.3/2.4: Footer metadata format differs — 2.1 uses `Version: v1.3 | Classification: Portal Walkthrough`, while 2.2/2.3/2.4 use `Version: v1.2` with no Classification field
+GAPS:
+- docs/playbooks/control-implementations/2.4/powershell-setup.md: Missing prerequisite step for installing Power Platform CLI. Add `dotnet tool install --global Microsoft.PowerApps.CLI.Tool` or `winget install Microsoft.PowerPlatformCLI` to prerequisites since `pac solution export` is used in the Automated Solution Backup script
+- docs/playbooks/control-implementations/2.3/2.4 (powershell-setup, troubleshooting, verification-testing): Missing inline sibling nav links in footer — should match the pipe-separated pattern used in 2.1/2.2 files and 2.3/2.4 portal-walkthrough files
+FIXES:
+1. docs/playbooks/control-implementations/2.1/powershell-setup.md: Update script comment blocks at lines 161 and 234 from "Last Updated: January 2026" to "Last Updated: February 2026" to match document header
+2. docs/playbooks/control-implementations/2.2/powershell-setup.md: Comment out service principal auth lines 19-22 (prefix with `#`) to match the pattern used in 2.1/powershell-setup.md
+3. docs/playbooks/control-implementations/2.2: Resolve "Zone Classification" vs "Tier Classification" naming — check control 2.2 doc for canonical name, then align all four playbook titles
+4. docs/playbooks/control-implementations/2.4/powershell-setup.md: Add Power Platform CLI installation to prerequisites section (`dotnet tool install --global Microsoft.PowerApps.CLI.Tool`)
+5. docs/playbooks/control-implementations/2.3/powershell-setup.md: NEEDS_HUMAN_REVIEW — evaluate migrating from deprecated `Microsoft.Xrm.Tooling.CrmConnector.PowerShell`/`Connect-CrmOnline` to `Microsoft.PowerPlatform.Dataverse.Client`/`Connect-CrmServiceClient` (9 call sites, affects connection objects and parameters — do not apply in this batch)
+6. docs/playbooks/control-implementations/2.3, 2.4 (powershell-setup.md, troubleshooting.md, verification-testing.md): Replace `[Back to Control X.X]` + separate "Related Playbooks" section with inline pipe-separated footer nav matching 2.1/2.2 pattern
+7. docs/playbooks/control-implementations/2.2/2.3/2.4: Align footer metadata format with 2.1 pattern (add Classification field, reconcile version numbers) — defer to cross-batch consistency sweep
+STATUS: ISSUES_FOUND

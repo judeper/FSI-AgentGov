@@ -1,0 +1,15 @@
+Now let me verify the H1 title format inconsistency and check a sample of the other files.
+Now let me verify the line numbers cited in the review for 1.22 and 1.24.
+I've completed my verification. Here is the critique:
+---
+**FALSE_POSITIVES:**
+- NONE. All six claimed issues are verified as real findings.
+**MISSED_ISSUES:**
+- docs/images/1.11/EXPECTED.md line 21: "Risk-based policies for Zone 3-4 environments" — same non-existent Zone 4 reference as the 1.15 finding. If this file was in the 25-file batch, the review missed it.
+- docs/images/2.2/EXPECTED.md line 17: "Groups align with governance zones (Zone 1-4)" — another Zone 4 reference. Same caveat about batch membership.
+- Review cites **wrong line numbers** for two findings: 1.22/EXPECTED.md says "lines 8, 14" but occurrences are at **lines 6 and 13**; 1.24/EXPECTED.md says "line 16" but the occurrence is at **line 15**. The 3.11 line numbers (90, 451) are verified correct.
+**FIX_CONCERNS:**
+- Fix 1 (Zone 3-4 → Zone 3) is correct and should be applied.
+- Fixes 2–3 (portal/product name updates) are correctly marked NEEDS_HUMAN_REVIEW. "Microsoft Purview Compliance Center" was indeed rebranded to "Microsoft Purview compliance portal," and "Microsoft Foundry" should likely be "Azure AI Foundry." However, since these are in EXPECTED.md files describing screenshot portal paths, the names should match what the portal *currently* shows at capture time — human verification is the right call.
+- Fix 4 (H1 title standardization) is correctly assessed as low priority/cosmetic.
+**CRITIQUE_SUMMARY:** The review is substantively accurate — all flagged issues are real and the contoso.com/nav-orphan false-positive assessments are correct. However, it has line number errors for two findings (off by 1–2 lines) and potentially missed the same "Zone 4" defect in 1.11 and 2.2 if those files were in the batch scope.

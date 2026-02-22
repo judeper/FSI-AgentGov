@@ -1,0 +1,23 @@
+All claims verified. Here is the final corrected review:
+ISSUE_COUNT: 8
+CRITICAL:
+- 1.5/portal-walkthrough.md: Control 3.1 mislabeled as "(Usage Dashboards)" — actual name is "Agent Inventory and Metadata Management"; should reference Control 3.2 (Usage Analytics and Activity Monitoring)
+- 1.5/portal-walkthrough.md: Control 3.3 mislabeled as "(Conversation Transcripts)" — actual name is "Compliance and Regulatory Reporting"; parenthetical must be corrected
+- 1.5/powershell-setup.md line 255: Control 3.9 mislabeled as "(Compliance Reporting)" — actual name is "Microsoft Sentinel Integration"
+- 1.5/portal-walkthrough.md lines 160, 240, 270 and 1.5/verification-testing.md line 99: Four references cite "change control system (Control 2.1)" but Control 2.1 is "Managed Environments"; change management is Control 2.3 (Change Management and Release Planning)
+WARNINGS:
+- 1.4/portal-walkthrough.md line 38: Example description uses "SOX and FINRA compliant" — violates FSI language rules; should use hedged language even in examples
+- 1.2/sponsorship-lifecycle-workflows.md footer says "Version: v1.2.48" while other footers use "Version: v1.2"
+- 10 of 26 files missing footer metadata (1.1/powershell-setup, 1.1/troubleshooting, 1.2/portal-walkthrough, 1.2/powershell-setup, 1.2/troubleshooting, 1.2/verification-testing, 1.3/all four) — cosmetic inconsistency; defer to a dedicated footer-normalization pass
+GAPS:
+- 1.5/powershell-setup.md line 140: `Get-MgBetaInformationProtectionSensitivityPolicyLabel` uses Beta Graph module — NEEDS_HUMAN_REVIEW for whether GA equivalent is available
+FIXES:
+1. 1.5/portal-walkthrough.md: Change `Monitor via Control 3.1 (Usage Dashboards)` → `Monitor via Control 3.2 (Usage Analytics and Activity Monitoring)`
+2. 1.5/portal-walkthrough.md: Change `Monitor via Control 3.3 (Conversation Transcripts)` → `Monitor via Control 3.3 (Compliance and Regulatory Reporting)`
+3. 1.5/powershell-setup.md line 255: Change `Control 3.9 (Compliance Reporting)` → `Control 3.9 (Microsoft Sentinel Integration)`
+4. 1.5/portal-walkthrough.md lines 160, 240, 270: Change `(Control 2.1)` → `(Control 2.3)` in all three change-control references
+5. 1.5/verification-testing.md line 99: Change `per Control 2.1` → `per Control 2.3`
+6. 1.4/portal-walkthrough.md line 38: Change `SOX and FINRA compliant` → `supports SOX and FINRA compliance requirements`
+7. 1.2/sponsorship-lifecycle-workflows.md: Normalize footer version from `v1.2.48` → `v1.2`
+8. NEEDS_HUMAN_REVIEW: Verify `Get-MgBetaInformationProtectionSensitivityPolicyLabel` has GA equivalent
+STATUS: ISSUES_FOUND

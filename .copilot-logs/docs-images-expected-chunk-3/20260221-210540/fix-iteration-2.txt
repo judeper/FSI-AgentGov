@@ -1,0 +1,3 @@
+CHANGES:
+- docs/images/1.15/EXPECTED.md: Changed "Customer-managed keys configured for Zone 3-4" → "Customer-managed keys configured for Zone 2-3" (line 19)
+FIX_STATUS: COMPLETE

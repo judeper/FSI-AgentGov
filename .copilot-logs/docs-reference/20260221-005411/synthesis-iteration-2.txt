@@ -1,0 +1,16 @@
+Critique B is correct — there are 3 RACI instances (not 2) and 4 Regulatory Mappings instances (not 2). Now I have the verified data.
+ISSUE_COUNT: 4
+CRITICAL:
+- docs/reference/solutions-index.md + docs/reference/solutions-coverage-gaps.md: Status inconsistency for 4 solutions — solutions-index.md lists RAG Source Validator, COI Testing Framework, Hallucination Tracker, and DR Testing Framework as "Work In Progress" while solutions-coverage-gaps.md shows all four as "RELEASED v1.0.0" with links to live GitHub repos
+WARNINGS:
+- docs/reference/nist-ai-rmf-crosswalk.md: Citation mismatch — line 3 references "December 2024 AI in Financial Services report" but the References section (line 320) cites "Treasury AI in Financial Services Report (March 2024)". These may be two distinct Treasury publications. NEEDS_HUMAN_REVIEW (already tagged in-file via HTML comment)
+- docs/reference/faq.md (lines 264, 277, 391): Link text "RACI Matrix" points to `../framework/operating-model.md` when a dedicated `raci-matrix.md` exists in the same reference directory and would be a more precise target
+- docs/reference/faq.md (lines 16, 299, 308, 556): Link text "Regulatory Mappings" points to `../framework/regulatory-framework.md` when a dedicated `regulatory-mappings.md` exists in the same reference directory and would be a more precise target
+GAPS:
+- NONE
+FIXES:
+1. docs/reference/solutions-index.md: Update status for RAG Source Validator (line 36), COI Testing Framework (line 37), Hallucination Tracker (line 38), and DR Testing Framework (line 39) from "Work In Progress" to "Completed" to match the "RELEASED v1.0.0" annotations in solutions-coverage-gaps.md
+2. docs/reference/nist-ai-rmf-crosswalk.md: DEFER — requires human verification of whether Treasury published distinct March 2024 and December 2024 reports. Already flagged in-file with HTML comment; do not auto-fix
+3. docs/reference/faq.md lines 264, 277, 391: Change all 3 instances of `[RACI Matrix](../framework/operating-model.md)` to `[RACI Matrix](raci-matrix.md)` — all instances must be updated together to avoid inconsistency
+4. docs/reference/faq.md lines 16, 299, 308, 556: Change all 4 instances of `[Regulatory Mappings](../framework/regulatory-framework.md)` to `[Regulatory Mappings](regulatory-mappings.md)` — all instances must be updated together to avoid inconsistency
+STATUS: ISSUES_FOUND

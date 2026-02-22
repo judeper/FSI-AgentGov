@@ -1,0 +1,18 @@
+Now let me read the remaining 7 files.
+ISSUE_COUNT: 3
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.1/powershell-setup.md vs 4.1/troubleshooting.md: Inconsistent RSS property name — powershell-setup.md (line 84) checks `IsDataAccessInSharePointOnlineDisabled` while troubleshooting.md (line 134) checks `EnableRestrictedSearchAllList`. Administrators following both docs will get confused. NEEDS_HUMAN_REVIEW — verify which property is current for the installed SPO module version.
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 98): Uses `-DisableSharingForNonOwnersStatus $true` as a `Set-SPOSite` parameter. `DisableSharingForNonOwnersStatus` is typically a read-only property returned by `Get-SPOSite`; the writable parameter may be `-DisableSharingForNonOwners`. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (lines 163–166): The "Audit Guest Access" section uses `Get-MgUser` and `Remove-MgUser` (Microsoft.Graph module), but the Prerequisites section (line 14) only lists `Microsoft.Online.SharePoint.PowerShell`. Missing prerequisite for guest removal operations.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.1/troubleshooting.md (line 134): Verify and align RSS property name with powershell-setup.md — use the same property consistently (likely `IsDataAccessInSharePointOnlineDisabled` or the current equivalent).
+2. docs/playbooks/control-implementations/4.4/powershell-setup.md (line 98): Verify the correct writable parameter for disabling non-owner sharing; if it is `-DisableSharingForNonOwners`, update the script accordingly.
+3. docs/playbooks/control-implementations/4.4/powershell-setup.md (line 14): Add `Microsoft.Graph` to the Modules Required header and add `Install-Module Microsoft.Graph -Scope CurrentUser` to the Prerequisites code block, since guest removal commands require it.
+**Section A automated findings — disposition:**
+- **Broken External URLs (22):** All are placeholder/example URLs in code samples using `yourtenant`, `contoso`, `tenant`, or `admin.sharepoint.com` patterns. This is standard Microsoft documentation practice — readers substitute their own tenant name. No fixes needed.
+- **MkDocs Nav Orphans (~300+):** This worktree contains only the playbook files under review. The referenced files exist in the full repository. Not a real issue — artifact of partial worktree checkout.
+STATUS: ISSUES_FOUND

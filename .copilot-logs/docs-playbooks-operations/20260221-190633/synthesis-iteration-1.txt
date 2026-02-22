@@ -1,0 +1,15 @@
+All three issues verified against the file. Here's the reconciliation:
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-1-minimal-viable-controls.md (line 201): `per FINRA 3110` should be `per FINRA Rule 3110` — regulatory references require name and section
+- phase-1-minimal-viable-controls.md (line 185): Control 1.9 purpose lacks specific regulation citations; should reference SEC 17a-4 and FINRA Rule 4511
+- phase-1-minimal-viable-controls.md (line 253): `SR 11-7` should be `Fed SR 11-7` — canonical regulatory name per project conventions
+GAPS:
+- NONE
+FIXES:
+1. phase-1-minimal-viable-controls.md line 201: Change `Document supervisory procedures per FINRA 3110` to `Document supervisory procedures per FINRA Rule 3110`
+2. phase-1-minimal-viable-controls.md line 185: Change `Configure retention for Zone 3 regulatory requirements` to `Configure retention for Zone 3 per SEC 17a-4 and FINRA Rule 4511 requirements`
+3. phase-1-minimal-viable-controls.md line 253: Change `Align with OCC 2011-12 / SR 11-7 guidance` to `Align with OCC 2011-12 / Fed SR 11-7 guidance`
+STATUS: ISSUES_FOUND

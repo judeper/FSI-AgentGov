@@ -1,0 +1,4 @@
+CHANGES:
+- docs/playbooks/getting-started/phase-1-minimal-viable-controls.md: Changed "per FINRA 3110" to "per FINRA Rule 3110" (line 201)
+- docs/playbooks/incident-and-risk/ai-risk-assessment-template.md: Changed "FINRA 3110 supervision applies" to "FINRA Rule 3110 supervision applies" (line 193)
+FIX_STATUS: COMPLETE

@@ -1,0 +1,21 @@
+All findings confirmed. Here is my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 1 (portal path reconciliation for 1.1): **MEDIUM-HIGH RISK.** This requires live portal verification to determine the correct path — the setting may legitimately exist at both tenant and environment levels. Picking the wrong path makes documentation actively wrong. **NEEDS_HUMAN_REVIEW** — do not fix without a live tenant check. Risk of breaking admin workflows if the wrong path is chosen.
+- Fix 4 (normalize 1.4 title format): **LOW-MEDIUM RISK.** If any external links or bookmarks reference the current `# Control 1.4:` heading as an anchor, renaming it will break those anchors. Check for inbound cross-references before changing.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (CRITICAL → **CRITICAL + DEFERRED**): Severity is accurate — contradictory portal paths are genuinely dangerous for admins. However, the fix cannot be applied safely without live portal verification. Should be flagged `NEEDS_HUMAN_REVIEW` and excluded from this batch's automated fixes.
+- Fix 5 (Classification footer inconsistency): **DOWNGRADE from WARNING to COSMETIC.** The Classification field is not referenced by any tooling or cross-references — it's purely informational metadata. Not worth the diff noise across 12+ files in this batch.
+- Fix 7 & 8 (false positive confirmations): Severity is accurate — correctly identified as no-ops. Good analysis.
+- All other severities are accurate as classified.
+**FIX_ORDERING:**
+1. **Fix 2 + Fix 3 together** (date mismatches in `.NOTES` blocks) — independent, zero cross-reference risk, trivially safe single-line edits.
+2. **Fix 6** (add ExchangeOnlineManagement note to 1.2/troubleshooting.md) — single-line addition inside a code block, no cross-reference impact.
+3. **Fix 4** (title normalization for 1.4) — requires checking for inbound heading anchors first; do after simpler fixes.
+4. **Fix 5** (Classification footer) — defer or skip; cosmetic.
+5. **Fix 1** (portal path reconciliation) — **defer entirely** until live portal verification is complete.
+6. Fix 7, Fix 8 — no action needed (confirmed false positives).
+**OVER_ENGINEERED:**
+- Fix 5 (adding Classification to all 1.2/1.3/1.4 footers OR removing from 1.1): This is cosmetic metadata normalization across ~12 files for a field that has zero functional impact. The diff churn outweighs the consistency benefit. Skip or defer to a dedicated formatting pass.
+- Fix 4 (title normalization): While valid, touching heading text across files for format consistency is a low-value change relative to its anchor-breakage risk. If done, scope to 1.4 only (2 files) and verify no inbound anchor references.
+**CRITIQUE_SUMMARY:** The review is thorough and findings are well-evidenced; the critical portal-path conflict is the only genuinely dangerous issue but **must not be fixed without live verification** — applying either path blindly risks making the documentation worse. Fixes 2, 3, and 6 are safe, low-risk, and should be applied immediately; everything else should be deferred or deprioritized.

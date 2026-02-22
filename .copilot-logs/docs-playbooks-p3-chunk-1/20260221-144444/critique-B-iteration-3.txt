@@ -1,0 +1,19 @@
+All data gathered. Here's my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Fix 1 (SLA values in 3.4/troubleshooting.md) is a data-only change inside a fenced code block — no cross-reference or build impact. Fixes 2–3 (cmdlet/scope verification) are also within code blocks. Fix 4 (adding footer metadata to 3.1/3.2 files) is additive-only — appending lines to 8 files cannot break existing links or build.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (SLA mismatch) severity is **correctly CRITICAL**. Confirmed: `troubleshooting.md:165` uses `Critical=4h, High=8h, Medium=24h, Low=72h` while `powershell-setup.md:223-228` correctly uses `Critical=0.25h, High=1h, Medium=4h, Low=24h` and `portal-walkthrough.md:33-36` defines `Critical=15min, High=1h, Medium=4h, Low=24h`. An admin copy-pasting the troubleshooting script would miss real SLA breaches by 16×–3× margins.
+- The `contoso.sharepoint.com` warning is **correctly dismissed** — confirmed the file uses `[tenant]` placeholder throughout.
+- The `admin.powerplatform.microsoft.com` 405 warning is **correctly classified** as noise — auth-gated portal.
+- Title format and missing intro blockquote warnings are **correctly low severity** — cosmetic inconsistency, not functional.
+- mkdocs.yml orphans warning is **correctly attributed** to worktree scope — not actionable here.
+**FIX_ORDERING:**
+1. **Fix 1 first** (SLA values) — standalone, zero dependencies, highest impact, single line change.
+2. **Fixes 2 & 3 together** (cmdlet + scope verification) — both require human validation of Microsoft API surface; block on the same research task. Do not auto-fix — leave as `NEEDS_HUMAN_REVIEW`.
+3. **Fix 4 last** (footer metadata on 8 files) — purely additive, no dependency on other fixes, lowest risk.
+4. **Fixes 5 & 6 defer** (title standardization, mkdocs orphans) — cross-cutting style changes that should be a separate PR to avoid bloating this batch.
+**OVER_ENGINEERED:**
+- Fix 5 (standardize title format + intro blockquote across all files) is **over-engineered for this batch**. It touches 8 files for cosmetic alignment with no functional impact. If done, it should be a separate batch-wide normalization PR, not mixed with the SLA data correctness fix.
+- Fix 6 (mkdocs.yml orphan check) is **not actionable in this worktree** and was correctly noted as systemic. Including it here would be wasted effort.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — the SLA mismatch is a genuine data integrity bug that could cause missed incident escalations in production, and the severity classifications are accurate. The only refinement: Fixes 2–3 should explicitly remain `NEEDS_HUMAN_REVIEW` rather than be auto-corrected, since fabricating a replacement cmdlet/scope without Microsoft API verification would introduce a different class of error.

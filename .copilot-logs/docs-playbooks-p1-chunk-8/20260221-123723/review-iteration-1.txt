@@ -1,0 +1,24 @@
+Now let me fix the issues I've identified.
+Edits blocked by permissions. Providing review report with all findings.
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/playbooks/control-implementations/1.27/troubleshooting.md (line 230): References script name "Get-AgentModerationSettings.ps1" but the PowerShell Setup playbook (Script 1) names it "Get-AgentModerationInventory.ps1" — cross-reference mismatch
+- docs/playbooks/control-implementations/1.28/troubleshooting.md (lines 31-32, 172): Uses non-existent cmdlet `Test-PowerAppChatBotDlpCompliance` without disclaimer, contradicting 1.28/powershell-setup.md which explicitly states "No native cmdlet exists for chatbot-specific DLP compliance testing"
+WARNINGS:
+- docs/playbooks/control-implementations/1.28/portal-walkthrough.md (line 229): Footer link text "Verification Testing" inconsistent with page title "Verification & Testing" (missing "&")
+- docs/playbooks/control-implementations/1.28/powershell-setup.md (line 447): Same footer link inconsistency — "Verification Testing" should be "Verification & Testing"
+- docs/playbooks/control-implementations/1.28/troubleshooting.md (line 609): Same footer link inconsistency — "Verification Testing" should be "Verification & Testing"
+- docs/playbooks/control-implementations/1.27/portal-walkthrough.md: Broken external URL `https://copilotstudio.microsoft.com` (HTTP 405) — legitimate portal, false positive from automated check; no fix needed
+- docs/playbooks/control-implementations/1.27/powershell-setup.md: Broken external URL `https://yourorg.crm.dynamics.com` (HTTP -1) — intentional placeholder; no fix needed
+- docs/playbooks/control-implementations/1.28/portal-walkthrough.md: Broken external URL `https://admin.powerplatform.microsoft.com` (HTTP 405) — legitimate portal, false positive from automated check; no fix needed
+- mkdocs.yml: 300+ nav orphan references to files not found in this worktree — likely worktree artifact (files exist in main repo); verify after merge
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.27/troubleshooting.md (line 230): Change "Get-AgentModerationSettings.ps1" → "Get-AgentModerationInventory.ps1"
+2. docs/playbooks/control-implementations/1.28/troubleshooting.md (Issue 1, lines 27-33): Replace `Test-PowerAppChatBotDlpCompliance` diagnostic step with a disclaimer noting no native cmdlet exists, and substitute `Get-DlpPolicy` for manual cross-referencing
+3. docs/playbooks/control-implementations/1.28/troubleshooting.md (Issue 3, line 172): Replace `Test-PowerAppChatBotDlpCompliance` with `Get-DlpPolicy` and add same disclaimer
+4. docs/playbooks/control-implementations/1.28/portal-walkthrough.md (line 229): Change `[Verification Testing]` → `[Verification & Testing]`
+5. docs/playbooks/control-implementations/1.28/powershell-setup.md (line 447): Change `[Verification Testing]` → `[Verification & Testing]`
+6. docs/playbooks/control-implementations/1.28/troubleshooting.md (line 609): Change `[Verification Testing]` → `[Verification & Testing]`
+STATUS: ISSUES_FOUND

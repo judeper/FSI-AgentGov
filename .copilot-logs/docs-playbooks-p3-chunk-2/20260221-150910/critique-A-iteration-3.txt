@@ -1,0 +1,19 @@
+Now let me verify the `New-AzConsumptionBudget` splatting and check for other issues in the batch files.
+Let me check footer patterns across the batch and look for other potential issues.
+No grep matches for `Classification:` or `*Updated:` in the batch. Let me recheck the footer of the 3.7 file and check how other files in the batch end.
+I found that 3.8/verification-testing.md also has the same `Classification` footer issue. Let me check for additional missed issues.
+Here is the audit result:
+---
+**FALSE_POSITIVES:**
+- NONE. All five findings are verified as real:
+  - **3.7 footer `Classification:`** — confirmed at line 190.
+  - **3.5 `New-AzConsumptionBudget` splatting** — confirmed; the nested `Notifications` hashtable format is suspect. NEEDS_HUMAN_REVIEW is the correct disposition.
+  - **3.5 `Get-Random` simulated data** — confirmed at lines 99-100. Low severity but real.
+  - **3.8 function ordering** — confirmed; `Get-CopilotAuditEvents` is called at line 266 but defined at line 344.
+  - **3.4 SEC Reg S-P 30-day deadline** — confirmed at line 92. NEEDS_HUMAN_REVIEW is appropriate.
+  - **Section A dispositions (broken URLs, nav orphans)** — correctly identified as scanner false positives. Grep confirms the `graph.microsoft.com` URL does not appear in 3.8/powershell-setup.md.
+**MISSED_ISSUES:**
+- **docs/playbooks/control-implementations/3.8/verification-testing.md** has the identical `| Classification: Verification Testing` footer anomaly — its last line is `*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*`. The reviewer only flagged 3.7 but missed the same issue in 3.8.
+**FIX_CONCERNS:**
+- **Fix #1 is incomplete.** The reviewer proposed normalizing the 3.7 footer but did not propose the same fix for 3.8/verification-testing.md, which has the identical `Classification:` suffix. Both files need the same normalization.
+**CRITIQUE_SUMMARY:** The review is accurate with no false positives, but incomplete — it missed an identical footer inconsistency in 3.8/verification-testing.md that it correctly caught in 3.7, and consequently the fix list is also incomplete. Otherwise the findings, severity judgments, NEEDS_HUMAN_REVIEW tags, and Section A false-positive analysis are all sound.

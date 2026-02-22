@@ -1,0 +1,15 @@
+Now let me check the 2.12 portal-walkthrough to complete the batch review.
+I've reviewed all 15 files. Here's my analysis:
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.12/powershell-setup.md: Potential divide-by-zero in "Generate Supervision Report" script (line 93: `$approved / $total * 100`) if the imported CSV is empty. The Complete Configuration Script handles this with an `if ($total -gt 0)` guard (line 247), but the standalone script does not.
+- Section A broken external URLs are all false positives: 4 are intentional placeholder URLs inside code/YAML example blocks (`tenant.sharepoint.com`, `tenant-admin.sharepoint.com`, `learning.company.com`); 2 are legitimate Microsoft admin portal URLs (`admin.powerplatform.microsoft.com`, `copilotstudio.microsoft.com`) returning HTTP 405 because they require authentication. No fixes needed.
+- Section A mkdocs nav orphans: All 15 batch files listed as orphans DO exist at correct `docs/` paths — this is a scanner path-resolution issue or sparse worktree artifact. Remaining ~300 orphans reference files outside this batch scope; validate against the main branch, not this worktree.
+GAPS:
+- docs/playbooks/control-implementations/2.13/verification-testing.md: Test 3 ("Verify WORM Compliance") only covers WORM storage deletion blocking but does not include an alternative test path for the SEC 17a-4 audit-trail option, which the portal-walkthrough.md (Step 4, Option B) documents as a valid compliance approach.
+FIXES:
+1. docs/playbooks/control-implementations/2.12/powershell-setup.md (line 93): Change `ApprovalRate = [math]::Round($approved / $total * 100, 1)` to `ApprovalRate = if ($total -gt 0) { [math]::Round($approved / $total * 100, 1) } else { 0 }` to prevent divide-by-zero when CSV is empty.
+2. docs/playbooks/control-implementations/2.13/verification-testing.md: Rename Test 3 heading to "Verify SEC 17a-4 Compliant Storage (Zone 3)" and add an alternative test step: "If using audit-trail alternative: verify modification detection is functioning and integrity verification produces expected results."
+STATUS: ISSUES_FOUND

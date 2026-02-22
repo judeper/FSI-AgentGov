@@ -1,0 +1,17 @@
+Now let me verify the remaining details - the 1.7 footer version and the missed issue about the Advanced Security category.
+All findings verified against files. Now I'll apply the fixes.
+Files are restricted from editing. Reporting reconciled findings only.
+ISSUE_COUNT: 5
+CRITICAL:
+- docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md: Line 227 contains broken external URL `https://www.sec.gov/rules/interp/34-47806.htm` — SEC site restructured. Replacement URL `https://www.sec.gov/rule-release/34-47806` needs human verification before applying.
+- docs/controls/pillar-1-security/index.md: Line 7 states "These 25 controls" but Pillar 1 has 28 controls; listing shows only 1.1–1.24 (24 entries); controls 1.25–1.28 exist as files and in mkdocs.yml nav but are absent from the index page listing and categories table.
+WARNINGS:
+- docs/controls/pillar-1-security/index.md: Line 49 footer shows "v1.2 - January 2026" while control files 1.7 (line 294) and 1.8 (line 397) show "v1.3 | February 2026" — footer is stale. Version convention (project-level v1.2.51 vs control-level v1.3) needs human decision before aligning.
+- docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md: Lines 389 and 391 both link to identical URL `https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview`; remove line 389 ("Additional Threat Detection Configuration") as duplicate.
+GAPS:
+- docs/controls/pillar-1-security/index.md: Categories table (line 18) "Advanced Security | 1.15-1.23" Focus column lists 8 topics but omits "encryption" for Control 1.15; and no category row exists for controls 1.25–1.28.
+FIXES:
+1. docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md: Replace `https://www.sec.gov/rules/interp/34-47806.htm` with `https://www.sec.gov/rule-release/34-47806` (verify replacement URL resolves before merging)
+2. docs/controls/pillar-1-security/index.md: (a) Change "25 controls" → "28 controls" on line 7; (b) add "encryption" to Advanced Security Focus column on line 18; (c) add category row `| Agent Content & Publishing | 1.25-1.28 | MIME type restrictions, file upload controls, content moderation, publishing restrictions |` after line 19; (d) add 1.25–1.28 control links after line 45; (e) update footer version/date to align with chosen convention — apply as single atomic edit
+3. docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md: Delete line 389 ("Additional Threat Detection Configuration") — duplicate URL of line 391
+STATUS: ISSUES_FOUND

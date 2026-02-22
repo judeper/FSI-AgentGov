@@ -1,0 +1,17 @@
+Now I'll apply all fixes. Let me make the changes in parallel where possible.
+Now fix the critical structural issue in `1.18/portal-walkthrough.md` — move Steps 7-9 before Validation and fix heading level:
+Now fix the GAPs in `1.18/troubleshooting.md` — add missing "How to Confirm Configuration is Active" section and detailed issue sections for "Column Security Not Working" and "Access Review Stuck":
+Now let me verify all changes are correct:
+I see the "Escalation Path" heading was lost in `1.18/troubleshooting.md`. Let me fix that:
+Now let me do a final verification of all changed files:
+All changes look correct. Let me commit:
+It seems git write operations are blocked in this environment. The file edits have been applied successfully — all 6 files are modified. Let me verify the changes are correct by spot-checking the final state:
+All fixes verified. Git commit is blocked by environment permissions but all file edits are applied.
+CHANGES:
+- `docs/playbooks/control-implementations/1.16/troubleshooting.md`: Fixed incorrect cmdlet `Add-AipServiceSuperUser -Group` → `Set-AipServiceSuperUserGroup -GroupEmailAddress`; added `text` language tag to bare code block (line 71)
+- `docs/playbooks/control-implementations/1.18/portal-walkthrough.md`: Moved Steps 7–9 before Validation section; changed `## Step 7:` to `### Step 7:` for consistent heading; updated header date from January to February 2026; fixed footer version from v1.3 to v1.2
+- `docs/playbooks/control-implementations/1.17/troubleshooting.md`: Updated header date from January to February 2026; added `text` language tags to 3 bare code blocks (lines 26, 54, 78)
+- `docs/playbooks/control-implementations/1.15/troubleshooting.md`: Added `text` language tag to bare code block (line 26)
+- `docs/playbooks/control-implementations/1.18/verification-testing.md`: Updated header date from January to February 2026; fixed footer version from v1.3 to v1.2
+- `docs/playbooks/control-implementations/1.18/troubleshooting.md`: Added detailed `### Issue: Column Security Not Working` and `### Issue: Access Review Stuck` sections with symptoms, diagnostics, and resolution; added `## How to Confirm Configuration is Active` section with 4 subsections; restored lost `## Escalation Path` heading
+FIX_STATUS: COMPLETE

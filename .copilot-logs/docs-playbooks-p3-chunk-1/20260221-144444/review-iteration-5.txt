@@ -1,0 +1,26 @@
+Now let me read the remaining 7 files.
+Let me verify the directory structure and mkdocs configuration to understand the nav orphan situation.
+Now I have all the information needed. Let me compile the review findings.
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Footer/nav link ordering inconsistent with 3.1 and 3.2 pattern — footer metadata appears after navigation links instead of before
+- docs/playbooks/control-implementations/3.4/portal-walkthrough.md: Same footer/nav ordering inconsistency as 3.3
+- docs/playbooks/control-implementations/3.3/troubleshooting.md: Common issues section (lines 9-58) uses individual `### Issue:` subsections instead of the summary table format used consistently in 3.1 and 3.2, causing duplicate heading names with the "Detailed Troubleshooting" section below
+- docs/playbooks/control-implementations/3.4/troubleshooting.md: Same duplicated subsection format as 3.3 (lines 9-58 repeat headings from lines 60-133)
+GAPS:
+- docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Missing "Validation" checklist section at end of document — 3.1 and 3.2 portal walkthroughs both include a `## Validation` section with checkbox items before the footer; 3.3 jumps from Step 7 directly to navigation links
+- docs/playbooks/control-implementations/3.4/portal-walkthrough.md: Missing "Validation" checklist section at end of document — same gap as 3.3; jumps from Step 7 directly to navigation links
+FIXES:
+1. docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Add `## Validation` section with checkboxes (e.g., Compliance Manager assessments created, SharePoint archive configured, Power Automate flows created, Power BI dashboard built, distribution matrix established, regulatory calendar integrated) before the navigation links
+2. docs/playbooks/control-implementations/3.4/portal-walkthrough.md: Add `## Validation` section with checkboxes (e.g., incident taxonomy defined, SharePoint tracking list created, reporting form configured, automated workflows active, RCA template in place, Sentinel integration configured, weekly review process established) before the navigation links
+3. docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Move footer metadata (`*Updated: ...*`) before navigation links to match 3.1/3.2 pattern
+4. docs/playbooks/control-implementations/3.4/portal-walkthrough.md: Move footer metadata before navigation links to match 3.1/3.2 pattern
+5. docs/playbooks/control-implementations/3.3/troubleshooting.md: Convert lines 9-58 (individual `### Issue:` subsections) to a summary table format matching 3.1/3.2 pattern (`| Issue | Cause | Resolution |`)
+6. docs/playbooks/control-implementations/3.4/troubleshooting.md: Convert lines 9-58 (individual `### Issue:` subsections) to a summary table format matching 3.1/3.2 pattern
+SECTION A DISPOSITION:
+- Broken URL `https://admin.powerplatform.microsoft.com` (HTTP 405): FALSE POSITIVE — valid URL for Power Platform Admin Center; HTTP 405 is expected from unauthenticated automated checks against this web app. No fix needed.
+- Broken URL `https://contoso.sharepoint.com/sites/AI-Governance` in 3.4/powershell-setup.md (HTTP -1): FALSE POSITIVE — this URL does not appear in the file. The file uses `https://[tenant].sharepoint.com/sites/AI-Governance` placeholder syntax, which is correct for documentation. No fix needed.
+- MKDOCS NAV ORPHANS (~473 entries): ALL FALSE POSITIVES — verified that referenced files exist in this worktree (e.g., `docs/controls/index.md`, `docs/index.md`, `docs/playbooks/control-implementations/3.1/portal-walkthrough.md` all confirmed present). The automated orphan checker appears to have a defect. No fixes needed.
+STATUS: ISSUES_FOUND

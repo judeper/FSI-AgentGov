@@ -1,0 +1,12 @@
+All findings verified. Here is my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Fixes 1–3 are footer-only string replacements with zero cross-reference or build impact. Fix 4 is a heading rename within a single file — no other file links to this specific heading anchor.
+**SEVERITY_CORRECTIONS:**
+- NONE. All four WARNINGS are correctly classified. The version string mismatches (Fixes 1–3) are cosmetic but worth fixing for consistency. The Control 1.9 mislabel (Fix 4) is a legitimate accuracy issue — the canonical name is confirmed as "Data Retention and Deletion Policies". The two GAPS (hyperlinks, disclaimer) are correctly classified as optional enhancements, not defects.
+**FIX_ORDERING:**
+- NONE. All four fixes are independent — no ordering constraints. They can be applied in any sequence or in parallel.
+**OVER_ENGINEERED:**
+- **GAP: Adding hyperlinks to all control ID references.** While useful, this is a scope-expanding enhancement across 3 files touching dozens of references. It should be a separate task, not bundled with these surgical fixes.
+- **GAP: Adding regulatory disclaimer language.** These are operational checklists, not controls. The FSI language rules target control docs (`docs/controls/**/*.md`). Pushing disclaimer language into every playbook is over-extension of the convention.
+**CRITIQUE_SUMMARY:** The four proposed fixes are low-risk, correctly classified, and independently applicable — ship them as-is. The two GAPs are valid observations but should be deferred to a separate task to avoid scope creep in what is otherwise a clean, surgical patch.

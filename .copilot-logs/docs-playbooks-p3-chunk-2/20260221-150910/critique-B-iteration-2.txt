@@ -1,0 +1,12 @@
+Both findings are confirmed by official documentation. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. Both fixes are isolated to PowerShell code blocks within single playbook files. No cross-references, mkdocs nav entries, or internal links depend on the specific cmdlet names inside code fences. Neither fix alters file paths, headings, or anchors.
+**SEVERITY_CORRECTIONS:**
+- **Fix 1 (3.8 `New-MgGroupMember`):** Severity is accurate as WARNING/NEEDS_HUMAN_REVIEW. Confirmed: `New-MgGroupMember` accepts `-DirectoryObjectId` (a GUID), **not** `-BodyParameter` with `@odata.id`. The `@odata.id` pattern belongs to `New-MgGroupMemberByRef`. The current code will fail at runtime. However, the fix is straightforward — a single cmdlet name change on line 107.
+- **Fix 2 (3.6 `Set-AdminPowerAppAsSysAdmin -Disable`):** Severity is accurate as WARNING/NEEDS_HUMAN_REVIEW. Confirmed: `-Disable` is **not a documented parameter** on this cmdlet. The cmdlet is for transferring app ownership to a system admin. The correct approach to quarantine/disable a Power App is `Set-AdminPowerAppApisToBypassConsent` or using `Remove-AdminPowerApp` / admin center quarantine. This fix requires more research into the intended behavior before choosing the replacement.
+**FIX_ORDERING:**
+- No dependencies between the two fixes. They are in separate files (3.8 and 3.6) and can be applied in any order or in parallel. Fix 1 is safe to apply immediately; Fix 2 requires human research into the correct disable/quarantine cmdlet before applying.
+**OVER_ENGINEERED:**
+- NONE. Both proposed fixes are minimal single-line changes. The review correctly flagged them as NEEDS_HUMAN_REVIEW rather than proposing speculative replacements.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — both warnings are real runtime-breaking cmdlet errors confirmed by Microsoft documentation, severity classifications are accurate, and the NEEDS_HUMAN_REVIEW disposition is appropriate since Fix 2 requires domain expertise to select the correct replacement cmdlet.

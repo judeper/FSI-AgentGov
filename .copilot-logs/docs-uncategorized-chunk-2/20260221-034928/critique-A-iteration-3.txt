@@ -1,0 +1,14 @@
+Now let me verify the remaining claims - the templates/README.md existence, and check for any missed issues.
+Let me check the line number discrepancies and look for any additional issues the reviewer may have missed.
+I now have all the data to compile the audit. Here is my assessment:
+---
+**FALSE_POSITIVES:**
+- NONE. All 12 claimed issues are confirmed real by inspecting the actual file contents and line numbers.
+**MISSED_ISSUES:**
+- **semantic-index-governance-queries.md: Line numbers are wrong.** The reviewer cites lines 29, 87, 241 but the `https://tenant-admin.sharepoint.com` URLs are actually at lines 29, **84**, and **237**. Lines 87 and 241 are `Connect-SPOService -Url $AdminUrl` (the variable usage, not the URL definition). The finding is valid but the cited locations are inaccurate, which undermines auditability.
+- **evidence-pack-assembly.md (line 5):** The FINRA reference conflates "books and records" language (FINRA Rule 4511 territory) with the cited "FINRA Rule 3110" (supervision). This regulatory cross-wiring should have been flagged as NEEDS_HUMAN_REVIEW alongside the SEC reference on line 6.
+- **CHANGELOG.md context omitted:** Lines 452 and 488 show the project was intentionally bumped to v1.3 at one point (with 7 controls updated), then rolled back to v1.2.x numbering. The v1.3 footers in CONTROL-INDEX.md and the template are remnants of that rollback — useful context for understanding why the inconsistency exists and confirming it is indeed a bug, not an intentional forward-stamp.
+**FIX_CONCERNS:**
+- **Fix 3 (template footer):** Suggesting `Version: v1.2` for a template is inconsistent with Fix 1 and Fix 2 which use `v1.2.51`. Since the template footer is meant to show the *format* authors should follow (not the literal current version), a better fix would be to change it to `Version: v[X.X]` as a placeholder, matching the `[X.X]` convention already used elsewhere in the template (e.g., `[X.X - Control Name]` on lines 70-71 and playbook paths on lines 80-83).
+- **Fix 4 (duplicate ExchangeOnlineManagement):** The suggestion to simply delete line 42 loses the useful note that the module "Includes compliance cmdlets." A better fix would be to append that comment to the line 24 entry: `Install-Module -Name ExchangeOnlineManagement -Force -AllowClobber  # Also provides compliance cmdlets` — then remove line 42.
+**CRITIQUE_SUMMARY:** The review is substantively accurate — all findings are real and correctly categorized by severity. Two concerns lower confidence slightly: (1) the line numbers for semantic-index-governance-queries.md are off by 3-4 lines each, suggesting the reviewer worked from a stale or shifted copy, and (2) two fix suggestions could be improved to better match existing conventions (template placeholder style) and preserve useful information (compliance cmdlet note).

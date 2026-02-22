@@ -1,0 +1,14 @@
+Now let me check the remaining files in this batch to look for missed issues.
+Let me check the remaining files likely in this batch to see if any issues were missed.
+I've now examined all 16 files (4 controls × 4 playbooks for 1.19–1.22). Here's my critique:
+---
+FALSE_POSITIVES:
+- NONE. All three warnings are substantiated by the actual file content.
+MISSED_ISSUES:
+- **1.21/powershell-setup.md internal inconsistency (strengthens existing finding):** The reviewer didn't explicitly note that within the same file, the PowerShell `Search-UnifiedAuditLog` calls correctly use `-RecordType "CopilotInteraction"` (lines 54-55, 219-220), while the KQL blocks use the wrong `AuditLogs` table (lines 90-95, 259-263). This internal inconsistency within the same playbook provides strong additional evidence the KQL is wrong — the PowerShell author knew the correct data source but the KQL was written against the wrong table.
+- **1.21/portal-walkthrough.md line 56 regex target field:** The Base64 detection regex `| where TargetResources matches regex @"^[A-Za-z0-9+/]{50,}={0,2}$"` has a secondary issue beyond the wrong table: `TargetResources` in `AuditLogs` is a JSON-structured field containing resource objects, not raw user input. Even after correcting the table, the regex would need to target the specific field within the record containing user prompt text, not a top-level structured column.
+- **File count discrepancy:** The reviewer states "All 15 files have been read" but the batch (1.19–1.22, 4 playbooks each) contains 16 files. This is cosmetic but raises a minor question about whether one file was missed during review.
+FIX_CONCERNS:
+- Fix 1 & 2 (correct KQL table) are correctly scoped but could be more specific: the fix should also address the `TargetResources` field reference, not just the table name. The replacement table/field depends on which Sentinel data connector is configured for M365 Copilot (e.g., `CloudAppEvents` with `RawEventData`, or a Copilot-specific connector). NEEDS_HUMAN_REVIEW is the right disposition since the correct table depends on tenant configuration.
+- Fix 3 (PPAC URL) is correctly assessed as optional. `https://admin.powerplatform.microsoft.com` is the canonical URL and returns HTTP 405 only to automated scanners, not browsers. No fix needed.
+CRITIQUE_SUMMARY: The review is accurate and correctly identifies the most significant technical issue — KQL queries targeting the wrong Sentinel table (`AuditLogs` instead of a Copilot-interaction-capable table). The reviewer missed a supporting detail (internal inconsistency between PowerShell and KQL within the same file) and a secondary issue (regex targeting a structured JSON field), but these reinforce rather than contradict the existing findings. Overall, a sound and well-calibrated review.

@@ -1,0 +1,21 @@
+Now let me read the last file in scope.
+Let me do a final check for language violations across the scoped files.
+All 25 files reviewed. Here is my assessment:
+ISSUE_COUNT: 9
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.14/powershell-setup.md: Placeholder URL `https://learning.company.com/ai-governance` in `$TrainingUrl` parameter default (line 175). Intentional example — consider using `contoso.com` convention for consistency with Microsoft documentation patterns.
+- docs/playbooks/control-implementations/2.15/portal-walkthrough.md: `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` return HTTP 405 — FALSE POSITIVE. These are legitimate Microsoft portal URLs; HTTP 405 is expected for authenticated SPAs during link-checking.
+- docs/playbooks/control-implementations/2.16/portal-walkthrough.md: Placeholder URLs `https://company.sharepoint.com/sites/research/library` and `https://company.sharepoint.com/sites/products/docs` in FSI example YAML config (lines 106, 113). Intentional examples — no change needed.
+- docs/playbooks/control-implementations/2.16/powershell-setup.md: Placeholder URL `https://company.sharepoint.com/sites/research` in script examples. Intentional — no change needed.
+- docs/playbooks/control-implementations/2.16/powershell-setup.md: `[(Get-Date]` flagged as broken internal link ×2 — FALSE POSITIVE. These are PowerShell expressions inside code blocks (e.g., `$(Get-Date -Format 'yyyyMMdd')`) misinterpreted by the link checker as markdown links.
+- docs/playbooks/control-implementations/2.19/powershell-setup.md: Placeholder URL `https://yourorg.crm.dynamics.com` in `Connect-CrmOnline` example (line 46). Intentional example — no change needed.
+- MKDOCS NAV ORPHANS: ~300 nav entries reference files not found — this is a WORKTREE ARTIFACT. This worktree contains only playbook files; the referenced framework, controls, and reference docs exist in the main branch. Not actionable within this review scope.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.14/powershell-setup.md: OPTIONAL — Replace `https://learning.company.com/ai-governance` with `https://learning.contoso.com/ai-governance` to follow Microsoft documentation placeholder conventions. Low priority; current placeholder is functionally clear.
+2. All other flagged items are false positives or intentional placeholders requiring no changes.
+STATUS: ISSUES_FOUND
+**Reviewer notes:** All 25 files are well-structured with proper heading hierarchy, correct cross-references between sibling playbooks, appropriate regulatory language (no prohibited phrases found), complete footer navigation links, correctly tagged code blocks, and sound PowerShell cmdlet usage. The 9 counted issues are entirely from the automated pre-pass and are all either false positives (link checker misinterpreting PowerShell code or failing on authenticated portals) or intentional placeholder URLs in example configurations. The LLM content review found zero additional issues.

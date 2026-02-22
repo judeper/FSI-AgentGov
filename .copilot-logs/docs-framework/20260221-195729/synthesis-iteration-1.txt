@@ -1,0 +1,25 @@
+Now let me verify FINRA Supervision Workflow status and check version footers on other framework files.
+Let me verify a few more body statuses for completeness.
+Now I have all the data needed. Here is the reconciled output.
+---
+ISSUE_COUNT: 8
+CRITICAL:
+- docs/framework/agent-identity-architecture.md (line 1063): Broken external URL `https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906` returns HTTP 400. Both critiques agree. Confirmed by automated pre-pass.
+- docs/framework/solutions-integration.md: Solution count inconsistency — mermaid diagram says "24" (line 21), body details ~18 h3-level solutions, and summary says "27 (25 + 2)" (line 655). Three conflicting numbers in the same document. Both critiques agree; Critique B corrects body count to ~18 (not 19).
+- docs/framework/solutions-integration.md: 7 status contradictions between body text and summary stats (lines 658-661). Original review caught 2; Critique A identified 5 more, all verified in file: (1) DECR body="Completed" vs summary="Validated"; (2) Segregation Detector body="Work In Progress" vs summary="Validated"; (3) FUS body="Work In Progress" vs summary="Completed"; (4) AAM body="Work In Progress" vs summary="Completed"; (5) COI Testing body="Planned" vs summary="Work In Progress"; (6) Hallucination Tracker body="Planned" vs summary="Work In Progress"; (7) DR Testing body="Planned" vs summary="Work In Progress". Additionally, summary says "Planned: 0" (line 661) but body has 3 Planned solutions.
+WARNINGS:
+- docs/framework/index.md (line 44): "Agent 365 Architecture" row links to `agent-identity-architecture.md` instead of `agent-365-architecture.md`. Link resolves but target filename doesn't match the row title.
+- docs/framework/executive-summary.md (line 118): RACI table row "Annual governance review" has two Accountable entries (Compliance **A** and Board **A**). Strict RACI requires exactly one Accountable per activity.
+- docs/framework/solutions-integration.md (line 671): Version footer shows v1.2.51 while all other 10 framework files show v1.2.42. Verified by grep — only this file diverges.
+- docs/framework/executive-summary.md (lines 62-68): Regulatory Heatmap uses "Full compliance" as a zone label in 4 rows. While contextually describing regulatory applicability scope (not a guarantee), the phrasing risks misinterpretation. Critique B suggested downgrade to OBSERVATION; Critique A and original review agree WARNING is appropriate. Retaining as WARNING given FSI language rules, but lower priority than other fixes.
+GAPS:
+- docs/framework/index.md (lines 44-45): Framework Components table has two separate rows ("Agent 365 Architecture" and "Agent Identity Architecture") both linking to the same file (`agent-identity-architecture.md`). Should be merged into one row or the first row updated to link to `agent-365-architecture.md`.
+FIXES:
+1. docs/framework/agent-identity-architecture.md (line 1063): Replace broken blog URL with a valid replacement or remove the link. Current URL returns HTTP 400.
+2. docs/framework/solutions-integration.md (line 21): Update mermaid diagram subtitle from "24 Deployable Automation Solutions" to the correct count. Must be resolved together with Fix 3 to establish a single source of truth.
+3. docs/framework/solutions-integration.md (lines 655-661): Reconcile all 7 status contradictions between body and summary. Fix "Planned: 0" to reflect the 3 Planned solutions (COI Testing, Hallucination Tracker, DR Testing). Determine whether body text or summary is authoritative, then update the other to match. Must be resolved as a unit with Fix 2.
+4. docs/framework/index.md (lines 44-45): Merge the two duplicate rows into one, or update the "Agent 365 Architecture" row to link to `agent-365-architecture.md` so each row points to a distinct target.
+5. docs/framework/executive-summary.md (line 118): Change RACI for "Annual governance review" to single Accountable — recommend Compliance as **A** and Board as **I** or **C**.
+6. docs/framework/executive-summary.md (lines 62-68): Replace "Full compliance" with "Full requirements" in the Regulatory Heatmap zone column (4 occurrences).
+7. docs/framework/solutions-integration.md (line 671): Align version footer to v1.2.42 to match all other framework files, or update all framework files to v1.2.51 if the version bump is intentional.
+STATUS: ISSUES_FOUND

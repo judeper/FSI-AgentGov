@@ -1,0 +1,8 @@
+All 7 fixes applied. Let me verify the changes:
+CHANGES:
+- docs/playbooks/control-implementations/2.5/portal-walkthrough.md: Removed duplicate `---` after navigation links
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Removed duplicate `---` after navigation links
+- docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Removed duplicate `---` after navigation links
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Normalized header to `# Control 2.8: ... - Verification & Testing`, added footer `---` + `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Normalized header to `# Control 2.8: ... - Troubleshooting`, added footer `---` + `*Updated: January 2026 | Version: v1.2*`
+FIX_STATUS: COMPLETE

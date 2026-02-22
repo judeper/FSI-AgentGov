@@ -1,0 +1,17 @@
+Now let me check additional areas for missed issues.
+All 6 claimed issues verified against the actual files. Here is my assessment:
+---
+**FALSE_POSITIVES:**
+- NONE
+All 6 findings confirmed against source files:
+1. ✅ README.md L279 says "26" while L111/L207 say "27" — solutions-index.md lists exactly 27 table entries (20 completed + 3 validated + 4 WIP)
+2. ✅ docs/index.md L127-132 only lists v1.1 changes; no v1.2 entry despite L3 header "Version: 1.2.51"
+3. ✅ README.md L147 "introduces" is present tense for a superseded version
+4. ✅ README.md L232-241 shows 8 sections (Overview, Prerequisites, Governance Levels, Setup & Configuration, Financial Sector Considerations, Verification & Testing, Troubleshooting, Additional Resources) — completely different names and count vs the canonical 10-section template
+5. ✅ checklist.md L441 says "v1.2 - January 2026" vs current "v1.2.51 - February 2026"
+6. ✅ Portal URLs at L297/L301 are auth-protected; correctly classified as CI config issue
+**MISSED_ISSUES:**
+- NONE within batch scope. The "January 2026" date pattern does appear in many control file footers and pillar index pages (e.g., `pillar-3-reporting/index.md:35`), but these are legitimately scoped to a different review batch (controls) since they reflect when those individual controls were last updated, not the framework version date.
+**FIX_CONCERNS:**
+- Fix 4 understates the gap: The README's 8-section table doesn't just differ in *count* — it uses entirely different section *names* (e.g., "Overview" vs "Objective", "Prerequisites" vs no equivalent, "Financial Sector Considerations" vs "Why This Matters for FSI"). The "simplified summary" note option could mislead readers into thinking the README sections are subsets of the canonical ones, when they're actually a legacy naming scheme. Recommend the stronger option: update the table to match the canonical 10-section format.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all 6 findings verified as real issues with correct line references, severity classifications, and fix directions. The only refinement needed is that Fix 4 should more strongly recommend updating to the canonical 10-section names rather than just adding a "simplified summary" disclaimer, since the section names are a legacy mismatch, not a simplification.

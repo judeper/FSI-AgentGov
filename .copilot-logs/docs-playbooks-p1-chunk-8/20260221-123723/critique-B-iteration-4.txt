@@ -1,0 +1,15 @@
+All findings verified against the actual files. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE. All three proposed fixes are localized to single files, touch only markdown content (no nav/config changes), and cannot break cross-references or `mkdocs build`.
+**SEVERITY_CORRECTIONS:**
+- Fix 2 (DLP cmdlet harmonization): Correctly classified as WARNING/NEEDS_HUMAN_REVIEW. Confirmed — lines 60, 212, 290 use `New-DlpPolicy`/`Get-DlpPolicy` while line 409 uses `Get-AdminDlpPolicy`. These are different cmdlets from different modules (`Microsoft.PowerApps.PowerShell` vs `Microsoft.PowerApps.Administration.PowerShell`). The scripts section may intentionally use the non-admin variants. **Do not auto-fix; human must decide which module is targeted.**
+- Fix 1 (`.Properties.` prefix): CRITICAL is accurate. Confirmed by comparing line 80 of 1.27/powershell-setup.md (`$agent.Properties.DisplayName`) vs lines 309-316 of 1.28 (`$agent.DisplayName`). Same cmdlet (`Get-AdminPowerAppChatbot`), same object model — the `.Properties.` prefix is required.
+- Fix 3 (attestation template): GAP is accurate. Lines 84-117 (1.26) and 133-171 (1.27) both have attestation sections; 1.28 has `Evidence Package` at line 383 and `Ongoing Monitoring` at line 415 but no attestation template between them.
+**FIX_ORDERING:**
+- Fix 1 (`.Properties.` prefix) first — it's the only CRITICAL, is unambiguous, and has zero dependency on other fixes.
+- Fix 3 (attestation template) second — independent additive content, no risk.
+- Fix 2 (DLP cmdlet harmonization) last or deferred — requires human verification, should not be auto-applied.
+**OVER_ENGINEERED:**
+NONE. All three fixes are minimal and appropriately scoped. The review correctly deferred Fix 2 to human review rather than prescribing a specific cmdlet choice.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — the CRITICAL property-access bug is real and will cause null outputs at runtime, the WARNING correctly defers an ambiguous cmdlet question to human review, and the attestation GAP is a legitimate consistency issue with clear prior-art templates to follow.

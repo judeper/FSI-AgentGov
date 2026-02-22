@@ -1,0 +1,22 @@
+Now let me check the title patterns in 1.1–1.3 for comparison, verify the SEC 17a-4 references, and check footer metadata.
+Now let me check the footer metadata situation and verify Critique A's claim about 1.2/portal-walkthrough.md.
+Let me verify the 1.2/portal-walkthrough.md footer and confirm the step headings in 1.1/portal-walkthrough.md.
+Confirmed — 1.2/portal-walkthrough.md has no `*Updated:` footer line. Now I have all the evidence. Here's the reconciled report:
+---
+ISSUE_COUNT: 6
+CRITICAL:
+- docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Line 148 heading `## Step 6` is H2 while all other steps (0–5, 7–9) are H3 (`###`), breaking heading hierarchy and mkdocs TOC nesting
+- docs/playbooks/control-implementations/1.1/verification-testing.md: Date conflict — header (line 3) says "Last Updated: January 2026" but footer (line 220) says "Updated: February 2026"
+WARNINGS:
+- docs/playbooks/control-implementations/1.2/portal-walkthrough.md vs 1.4/powershell-setup.md: SEC 17a-4 retention cited as "7 years" (1.2 line 180) but "6 years / 2190 days" (1.4 lines 75, 212). Both values can be correct for different SEC 17a-4 subsections — NEEDS_HUMAN_REVIEW before aligning
+- docs/playbooks/control-implementations/1.1/troubleshooting.md: Line 79 uses `Get-AdminAuditLogConfig` (ExchangeOnlineManagement module cmdlet) but prerequisites section does not list this module dependency
+GAPS:
+- Footer metadata consistency: 10 of 16 standard playbook files in 1.1–1.4 lack the `*Updated: ... | Version: ... | Classification: ...*` footer line: 1.1/powershell-setup.md, 1.1/troubleshooting.md, 1.2/portal-walkthrough.md, 1.2/powershell-setup.md, 1.2/troubleshooting.md, 1.2/verification-testing.md, 1.3/portal-walkthrough.md, 1.3/powershell-setup.md, 1.3/troubleshooting.md, 1.3/verification-testing.md
+- Title format inconsistency in 1.4/ (all 4 files use `# Control 1.4: Name - Type` vs `# Type: Control X.X - Name` in 1.1–1.3) — however Critique B correctly notes ~40% of playbooks repo-wide use this alternate pattern, so fixing only 1.4 would not achieve consistency. DEFERRED until a repo-wide title normalization pass
+FIXES:
+1. docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Line 148 — change `## Step 6: Configure Agent-Level Authentication (Copilot Studio)` to `### Step 6: Configure Agent-Level Authentication (Copilot Studio)`
+2. docs/playbooks/control-implementations/1.1/verification-testing.md: Line 3 — change `**Last Updated:** January 2026` to `**Last Updated:** February 2026` to match footer
+3. docs/playbooks/control-implementations/1.1/troubleshooting.md: Near line 79 where `Get-AdminAuditLogConfig` is used — add a note that the ExchangeOnlineManagement module is required (do NOT suggest Microsoft.Graph as an alternative; this cmdlet is exclusively ExchangeOnlineManagement)
+4. docs/playbooks/control-implementations/1.2/portal-walkthrough.md and 1.4/powershell-setup.md: NEEDS_HUMAN_REVIEW — align SEC 17a-4 retention period values only after domain expert confirms which subsection applies to each control context
+5. 10 files (listed in GAPS): Add standardized footer metadata line — low priority, consistency improvement
+STATUS: ISSUES_FOUND

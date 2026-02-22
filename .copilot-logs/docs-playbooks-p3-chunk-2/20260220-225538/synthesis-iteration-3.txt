@@ -1,0 +1,22 @@
+All findings verified. Here is the synthesized final review:
+ISSUE_COUNT: 12
+CRITICAL:
+- 3.8/powershell-setup.md:127: `Import-AdminExclusionGroupFromCSV` defaults to `"CopilotForM365AdminExclusionGroup"` while the other 3 functions in the file default to `"CopilotForM365AdminExclude"`. An admin using bulk import without `-GroupName` will target a non-existent group.
+- 3.8/verification-testing.md:228: Legacy Test Case 1 says "up to 8 hours" for Admin Exclusion Group propagation. The correct value is 24 hours (as stated at line 73-75 of the same file). The 8-hour figure applies to settings changes (line 339), not group membership. Admins following this would check too early and falsely conclude the control failed.
+WARNINGS:
+- 3.7 + 3.8 (version footer split): Both controls have a 2:2 version split — portal-walkthrough and verification-testing at v1.3/Feb 2026, powershell-setup and troubleshooting at v1.2/Jan 2026. This is likely intentional (only changed files were bumped), but the split should be tracked. If CRITICAL #1 fix is applied to 3.8/powershell-setup.md, its footer should be bumped to v1.3.
+- 3.8/verification-testing.md:220-325: Legacy Test Cases 1-8 substantially duplicate the detailed FAC-01/02/03 test cases (lines 58-218) and the SSPM test cases (lines 361-452). Beyond the propagation time error, maintaining three parallel test case sets creates ongoing contradiction risk.
+- 3.9/portal-walkthrough.md:214-216: Double horizontal rule (`---`) on consecutive lines creates a rendering artifact.
+- 3.11 (all 4 files): Missing standardized `*Updated: Month Year | Version: vX.X*` footer metadata present in 3.7-3.10 files.
+- 3.12 (all 4 files): Same — missing standardized footer metadata.
+GAPS:
+- NONE
+FIXES:
+1. 3.8/powershell-setup.md:127: Change `"CopilotForM365AdminExclusionGroup"` to `"CopilotForM365AdminExclude"` in the `Import-AdminExclusionGroupFromCSV` default parameter.
+2. 3.8/verification-testing.md:228: Change `"up to 8 hours"` to `"up to 24 hours"` in legacy Test Case 1 step 3.
+3. 3.8/verification-testing.md:220: Add a deprecation header to the legacy test cases section: `> **Note:** These legacy test cases are superseded by FAC-01/02/03 above. Retained for backward compatibility.` Do NOT delete the section — external runbooks may reference test case names.
+4. 3.9/portal-walkthrough.md:214-216: Remove one of the two consecutive `---` horizontal rules.
+5. 3.11 (4 files): Add `*Updated: February 2026 | Version: v1.3*` footer after the nav link line in portal-walkthrough.md, powershell-setup.md, verification-testing.md, troubleshooting.md.
+6. 3.12 (4 files): Add `*Updated: February 2026 | Version: v1.3*` footer after the nav link line in portal-walkthrough.md, powershell-setup.md, verification-testing.md, troubleshooting.md.
+7. 3.8/powershell-setup.md (footer): After applying Fix #1, bump footer from `v1.2/January 2026` to `v1.3/February 2026`.
+STATUS: ISSUES_FOUND

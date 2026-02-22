@@ -1,0 +1,22 @@
+Fixes 1–5 verified. Now checking the URL count fix (207→209) and the index.md additions.
+All 7 fixes verified. Now let me confirm the index.md covers all 22 reference documents mentioned in the gap.
+All 21 reference documents (all 22 in-scope files minus `index.md` itself) are now linked from `index.md`.
+**Verification Results:**
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN
+All 7 previously identified issues have been correctly fixed:
+1. ✅ `raci-matrix.md` line 269: Now reads `(OCC 2011-12 / Fed SR 11-7)`
+2. ✅ `learn-monitor-guide.md` line 281: Now reads `reports/monitoring/`
+3. ✅ `agent-365-capabilities-summary.md` line 4: Header version now `v1.2.51`, matching footer
+4. ✅ `learn-monitor-guide.md` and `monitoring-architecture.md`: All 7 occurrences updated from `207` → `209`
+5. ✅ `faq.md` line 554: Now reads `OCC 2011-12 / Fed SR 11-7`
+6. ✅ `index.md`: All 21 reference documents now linked (was 11)
+7. ✅ `agent-365-capabilities-summary.md` and `index.md` footer versions are `v1.2.51`

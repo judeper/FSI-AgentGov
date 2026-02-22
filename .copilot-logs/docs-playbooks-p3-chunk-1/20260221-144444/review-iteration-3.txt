@@ -1,0 +1,24 @@
+Now let me check for the reported `contoso.sharepoint.com` URL and verify cross-links:
+Here is my review report:
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/playbooks/control-implementations/3.4/troubleshooting.md (line 166): SLA threshold values in validation script (`Critical=4h, High=8h, Medium=24h, Low=72h`) contradict the SLA definitions in 3.4/portal-walkthrough.md (`Critical=15min, High=1h, Medium=4h, Low=24h`) and 3.4/powershell-setup.md `Test-IncidentSlaCompliance` function which correctly uses `Critical=0.25h, High=1h, Medium=4h, Low=24h`
+WARNINGS:
+- docs/playbooks/control-implementations/3.1/portal-walkthrough.md: Broken external URL `https://admin.powerplatform.microsoft.com` (HTTP 405) — likely expected for auth-required portals but flagged by automated scan
+- docs/playbooks/control-implementations/3.4/powershell-setup.md: Pre-pass flagged `https://contoso.sharepoint.com/sites/AI-Governance` (HTTP -1) but this URL does not appear in the current file content; all instances use the correct `https://[tenant].sharepoint.com/...` placeholder — likely a stale pre-pass result
+- docs/playbooks/control-implementations/3.3/troubleshooting.md (line 192): `Get-MgComplianceAssessment` cmdlet — NEEDS_HUMAN_REVIEW: this cmdlet may not exist in the Microsoft.Graph PowerShell module; Compliance Manager data is typically accessed via the Compliance Manager API or portal
+- docs/playbooks/control-implementations/3.3/powershell-setup.md (line 16): `ComplianceManager.Read.All` Microsoft Graph scope — NEEDS_HUMAN_REVIEW: this may not be a valid Microsoft Graph permission scope
+- Title format inconsistency: 3.1/3.2 files use `# Type: Control X.X - Name` while 3.3/3.4 files use `# Control X.X: Name - Type`
+- Missing intro blockquote (`> This playbook provides...`) in all 3.1 and 3.2 files; present in all 3.3 and 3.4 files
+- Missing footer metadata (`*Updated: January 2026 | Version: v1.2*`) in all eight 3.1 and 3.2 files; present in all 3.3 and 3.4 files
+- mkdocs.yml nav orphans: ~350 entries reference files not found in this worktree (systemic — likely worktree-scoped issue; files probably exist on main branch)
+GAPS:
+- NONE (beyond the formatting gaps already captured as warnings)
+FIXES:
+1. docs/playbooks/control-implementations/3.4/troubleshooting.md (line 166): Change SLA switch values to match defined policy: `"Critical" {0.25} "High" {1} "Medium" {4} "Low" {24} default {24}`
+2. docs/playbooks/control-implementations/3.3/troubleshooting.md (line 192): Verify `Get-MgComplianceAssessment` exists; if not, replace with a valid approach (e.g., REST call to Compliance Manager API or remove the check)
+3. docs/playbooks/control-implementations/3.3/powershell-setup.md (line 16): Verify `ComplianceManager.Read.All` is a valid Graph scope; if not, replace with correct scope
+4. All 3.1 and 3.2 files (8 files): Add footer metadata `*Updated: January 2026 | Version: v1.2*` for consistency with 3.3/3.4 files
+5. Consider standardizing title format and intro blockquote style across all playbook files (low priority)
+6. mkdocs.yml: Ensure all referenced files exist in the docs directory before publishing (verify on main branch)
+STATUS: ISSUES_FOUND

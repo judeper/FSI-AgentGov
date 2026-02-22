@@ -1,0 +1,22 @@
+All claims verified against actual files. Here is the final corrected review:
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/controls/CONTROL-INDEX.md (line 235): Version footer says "v1.3 - February 2026" but project version is v1.2.51 (per mkdocs.yml copyright). This is a remnant of a version rollback visible in CHANGELOG.md lines 452/488 where the project was bumped to v1.3 then reverted. Creates a version inconsistency that could confuse auditors.
+WARNINGS:
+- docs/controls/index.md (line 184): Footer says "v1.2 - January 2026" while mkdocs.yml copyright says "v1.2.51 - February 2026". Minor version/date inconsistency between the two controls-section index pages.
+- docs/templates/control-setup-template.md (line 108): Footer says "Version: v1.3" — same rollback remnant as CONTROL-INDEX.md. However, as an authoring scaffold (not published output), admins overwrite this value when copying, so impact is lower than CONTROL-INDEX.md.
+- docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md (lines 29, 84, 237): URL `https://tenant-admin.sharepoint.com` is used as a default parameter value in three separate PowerShell functions. This is an intentional placeholder pattern but lacks an explicit note that admins must replace "tenant" with their actual tenant name.
+- docs/templates/control-setup-template.md (lines 70-73, 80-83): Contains placeholder links `[../path/to/control.md]` and `[../../playbooks/control-implementations/[X.X]/*.md]` that cannot resolve. These are template placeholders by design but are flagged by link checkers.
+- docs/playbooks/validation-testing/script-validation-guide.md (lines 24, 42): `ExchangeOnlineManagement` module is listed twice in the install block — once under "Microsoft 365 Administration" (line 24) and again under "Security and Compliance" (line 42) with comment "Includes compliance cmdlets". The duplicate install is redundant.
+- docs/playbooks/monitoring-and-validation/scope-creep-detection.md (line 5): References "FINRA's 2026 oversight report" and quotes "scope and authority" — NEEDS_HUMAN_REVIEW to confirm exact report title and that quoted language accurately reflects the source publication.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md (line 6): References "SEC 2026 priorities" expanding AI scrutiny — NEEDS_HUMAN_REVIEW to confirm this aligns with the actual SEC examination priorities publication.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md (line 5): Conflates "books and records" language (FINRA Rule 4511 territory) with FINRA Rule 3110 (supervision) in the same sentence. The sentence says "maintain books and records" but cites Rule 3110, which governs supervision/oversight, not recordkeeping. NEEDS_HUMAN_REVIEW to confirm regulatory mapping accuracy.
+GAPS:
+- NONE
+FIXES:
+1. docs/controls/CONTROL-INDEX.md (line 235): Change `*FSI Agent Governance Framework v1.3 - February 2026*` to `*FSI Agent Governance Framework v1.2.51 - February 2026*` to match project version. Apply together with Fix 2 in a single commit.
+2. docs/controls/index.md (line 184): Change `*FSI Agent Governance Framework v1.2 - January 2026*` to `*FSI Agent Governance Framework v1.2.51 - February 2026*` for consistency with mkdocs.yml. Apply together with Fix 1 in a single commit.
+3. docs/templates/control-setup-template.md (line 108): Change `Version: v1.3` to `Version: v[X.X]` to match the placeholder convention already used throughout the template (e.g., `[X.X - Control Name]` on line 70, playbook paths on lines 80-83).
+4. docs/playbooks/validation-testing/script-validation-guide.md (line 42): Remove duplicate `Install-Module -Name ExchangeOnlineManagement -Force -AllowClobber  # Includes compliance cmdlets` from the "Security and Compliance" section since the module is already installed under "Microsoft 365 Administration" (line 24). Add the compliance cmdlets comment to line 24 instead.
+5. docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Add a single note in the script's prerequisites or usage section (before the first function) stating that `$AdminUrl` defaults require replacing `tenant` with the actual tenant name, rather than adding inline comments to all three occurrences.
+STATUS: ISSUES_FOUND

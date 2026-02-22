@@ -1,0 +1,16 @@
+The two cross-reference issues have been updated from the previous iteration. Line 138 now says "Control 3.2 (Usage Analytics)" and line 145 now says "Control 3.8 (Conversation Transcripts)". Let me verify these are correct by checking the actual control names.
+Now I see an issue: the references have been updated but the parenthetical descriptions don't match the actual control names:
+- Line 138: "Control 3.2 (Usage Analytics)" — actual name is "Usage Analytics and Activity Monitoring" → acceptable shortening ✓
+- Line 145: "Control 3.8 (Conversation Transcripts)" — actual name is "Copilot Hub and Governance Dashboard" → **mismatch** ✗
+Let me also check if there's a control specifically about conversation transcripts.
+No control has "Conversation Transcripts" in its title. The fix changed the ID from 3.3 to 3.8 but kept the wrong parenthetical "Conversation Transcripts." Control 3.8 is "Copilot Hub and Governance Dashboard" — this is still a mismatch.
+ISSUE_COUNT: 1
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Line 145 references "Control 3.8 (Conversation Transcripts)" but Control 3.8 is "Copilot Hub and Governance Dashboard". The ID was changed from 3.3→3.8 but the parenthetical description remains incorrect. REMAINING — NEEDS_HUMAN_REVIEW (do not auto-fix; human must determine whether the intent is to reference 3.8 with corrected description, or a different control entirely).
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Human must verify line 145 — "Control 3.8 (Conversation Transcripts)" parenthetical does not match Control 3.8's actual name ("Copilot Hub and Governance Dashboard"). Determine correct control ID or correct the description.
+STATUS: ISSUES_FOUND

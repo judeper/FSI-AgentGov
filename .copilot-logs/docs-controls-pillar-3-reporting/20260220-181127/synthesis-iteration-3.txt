@@ -1,0 +1,13 @@
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- index.md (line 30): Link text "3.8 Copilot Hub" does not match the control's full title "Copilot Hub and Governance Dashboard"; all other index entries use full control names
+- 3.11 and 3.12: Header metadata field ordering is swapped ("Last Verified" before "Governance Levels") compared to all other Pillar 3 controls (3.1–3.10) which consistently place "Governance Levels" before "Last Verified"
+GAPS:
+- NONE
+FIXES:
+1. index.md (line 30): Change `[3.8 Copilot Hub]` to `[3.8 Copilot Hub and Governance Dashboard]` for consistency with the control title
+2. 3.11 (lines 7-8): Swap "Last Verified" and "Governance Levels" lines to match ordering in all other Pillar 3 controls
+3. 3.12 (lines 7-8): Same swap as fix #2
+STATUS: ISSUES_FOUND

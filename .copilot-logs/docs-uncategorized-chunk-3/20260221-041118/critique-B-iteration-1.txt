@@ -1,0 +1,18 @@
+Good — the report files are not in `mkdocs.yml` navigation; they are internal audit artifacts only. Now let me verify the math claims independently.
+I've verified all claims independently. Here is my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All five fixes target `reports/audit/` files which are **not published** via mkdocs.yml — they are internal audit artifacts with zero cross-references in the docs site. No fix touches published docs, navigation, or control files. No fix can break `mkdocs build --strict`.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (CRITICAL → WARNING): The inventory title mismatches are real and confirmed (22+ of 28 Pillar 1 titles are wrong), but the file is an internal audit report, not a published control doc. The data quality issue is significant for audit accuracy but has zero downstream impact on the framework itself. Downgrade to WARNING.
+- Fix 2 (WARNING): Severity is appropriate — same category as Fix 1 but smaller scope (Pillars 2–4 abbreviated).
+- Fixes 3 & 4 (WARNING → INFORMATIONAL): These are arithmetic corrections to summary tables in unpublished reports. They don't affect any actionable audit findings — the detailed item-level data is correct in both cases. The summaries undercount but the detail rows are authoritative.
+**FIX_ORDERING:**
+- Fixes 1 and 2 should be applied together (single commit) — both fix the same file (`02-inventory.md`) for the same root cause (obsolete naming scheme).
+- Fixes 3 and 4 are independent and can be applied in any order, separately or batched.
+- Fix 5 requires no repo change — it's a tooling recommendation for the automated pre-pass, outside the scope of documentation fixes.
+**OVER_ENGINEERED:**
+- Fix 1 scope: The review proposes replacing "all 28 Pillar 1 control titles." This is correct but the inventory's Pillar 2–4 rows (lines 55–68) use a collapsed `2.1–2.24` format with comma-separated descriptions, not individual rows. Expanding those into full per-control tables (as implied by Fix 2) would be over-engineering — just fix the inaccurate abbreviated titles in-place within the existing collapsed format.
+- Fix 5 ("fix the automated pre-pass tool"): This is advice for an external tool, not a repo fix. Including it in the fix list inflates the apparent workload. It should be tracked separately as a tooling improvement, not a documentation fix.
+**CRITIQUE_SUMMARY:** All five findings are factually verified and real, but severity is overstated — every affected file is an unpublished internal audit report with no build, cross-reference, or site impact. The fixes are safe, low-risk text corrections that should take ~15 minutes total.

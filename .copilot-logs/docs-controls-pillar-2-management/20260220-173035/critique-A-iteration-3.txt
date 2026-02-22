@@ -1,0 +1,15 @@
+All three critical issues and the index.md warning are confirmed. Now let me check the SEC/FTC URLs and scan for any missed issues.
+The grep found additional "Ensure" usage in 2.4, 2.5, and 2.6 that the review missed. Let me check those and also scan for footer/role naming issues.
+Now I have all the data. Here's my audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All 3 critical "ensuring compliance" findings are confirmed real at the stated lines. All SEC/FTC URL warnings are confirmed at correct lines. The review's own false-positive callouts (nav orphans, sardine.ai, API URLs, portal URL) are correctly assessed.
+**MISSED_ISSUES:**
+- **index.md line number off-by-one:** The "Ensure operational excellence" text is on **line 3**, not line 2 as reported. Minor inaccuracy in the review.
+- **2.4-business-continuity-and-disaster-recovery.md (line 17):** Prescriptive "Ensure critical Copilot Studio agents remain available…" — same class of directive language as the index.md finding the reviewer flagged, but was not reported.
+- **2.5-testing-validation-and-quality-assurance.md (line 17):** Prescriptive "Ensure Copilot Studio agents function correctly…" — same class, not reported.
+- **2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md (line 14):** Prescriptive "Ensure AI agents used in customer-facing or decision-support roles…" — same class, not reported.
+- NOTE: These three are WARNINGs (prescriptive language), not CRITICALs — "Ensure X" is directive phrasing but does not match the explicitly prohibited phrase "ensures compliance." The reviewer applied this standard to index.md but inconsistently skipped it in 2.4, 2.5, and 2.6.
+**FIX_CONCERNS:**
+- NONE — All four proposed fixes (2.11, 2.18, 2.19, index.md) use appropriate hedged alternatives consistent with the FSI language rules. The NEEDS_HUMAN_REVIEW designation for SEC/FTC URLs is the correct call since HTTP 403 from gov sites is expected bot-blocking behavior, not evidence of broken links.
+**CRITIQUE_SUMMARY:** The review is accurate on all reported issues — every critical finding and URL warning was confirmed real with correct line references (except a trivial off-by-one on index.md). However, it inconsistently applied its own prescriptive-language standard: it flagged "Ensure" in index.md but missed three identical patterns in controls 2.4, 2.5, and 2.6, bringing the true warning count to 12 (not 9).

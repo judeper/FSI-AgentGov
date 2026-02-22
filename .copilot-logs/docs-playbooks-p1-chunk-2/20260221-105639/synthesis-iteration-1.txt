@@ -1,0 +1,25 @@
+All key claims verified against files. Here is the synthesized final review:
+---
+ISSUE_COUNT: 8
+CRITICAL:
+- 1.5/portal-walkthrough.md (line 138): "Monitor via Control 3.1 (Usage Dashboards)" — Control 3.1 is "Agent Inventory and Metadata Management" per mkdocs.yml. Usage monitoring is Control 3.2 "Usage Analytics". Wrong control number and wrong parenthetical description.
+- 1.5/portal-walkthrough.md (line 145): "Monitor via Control 3.3 (Conversation Transcripts)" — Control 3.3 is "Compliance and Regulatory Reporting" per mkdocs.yml. Parenthetical description "Conversation Transcripts" is incorrect.
+- 1.5/powershell-setup.md (line 255): "Control 3.9 (Compliance Reporting)" — Control 3.9 is "Microsoft Sentinel Integration" per mkdocs.yml. Compliance Reporting is Control 3.3. Same class of bug as the two above.
+WARNINGS:
+- 1.5/portal-walkthrough.md (line 141): "Require flow approval per Control 2.2" — Control 2.2 is "Environment Groups and Tier Classification". Control 2.2 does contain approval language in its zone table (lines 56, 72, 88), so this reference may be intentional (classification-gated approval vs. change management approval under 2.3). Ambiguous intent, not a provably wrong description. NEEDS_HUMAN_REVIEW.
+- 1.5/powershell-setup.md (line 140): Uses beta Graph cmdlet `Get-MgBetaInformationProtectionSensitivityPolicyLabel`. NEEDS_HUMAN_REVIEW — verify whether a GA cmdlet exists to replace the Beta endpoint.
+- 1.6/powershell-setup.md (line 172): `-RecordType "AIPDiscover,AIPFileDeleted,AIPHeartBeat,AIPProtectionAction,AIPSensitivityLabelAction"` passed as a single comma-separated string. `Search-UnifiedAuditLog -RecordType` may require one record type per invocation or an array. NEEDS_HUMAN_REVIEW.
+- 1.7/verification-testing.md, 1.8/portal-walkthrough.md (line 417), 1.8/verification-testing.md (line 294): Non-standard `Classification:` field in footer. No other batch files (1.5, 1.6) use this field. This is a systematic pattern in the 1.7–1.8 generation, not a one-off. Defer to a batch-wide footer normalization pass rather than fixing in isolation.
+- 1.8 version inconsistency: portal-walkthrough.md and verification-testing.md are v1.3; powershell-setup.md and troubleshooting.md are v1.2. All four playbooks for the same control should share a version.
+GAPS:
+- NONE
+FIXES:
+1. 1.5/portal-walkthrough.md (line 138): Change `Monitor via Control 3.1 (Usage Dashboards)` → `Monitor via Control 3.2 (Usage Analytics)`.
+2. 1.5/portal-walkthrough.md (line 145): Change `Monitor via Control 3.3 (Conversation Transcripts)` → `Monitor via Control 3.3 (Compliance Reporting)`.
+3. 1.5/powershell-setup.md (line 255): Change `Control 3.9 (Compliance Reporting)` → `Control 3.3 (Compliance Reporting)` — or if Sentinel integration was intended, change to `Control 3.9 (Sentinel Integration)`.
+4. 1.5/portal-walkthrough.md (line 141): NEEDS_HUMAN_REVIEW — verify whether "Control 2.2" (Environment Groups) is intentional (classification-gated approval) or should be "Control 2.3" (Change Management). If 2.2 is intentional, add a parenthetical for clarity.
+5. 1.5/powershell-setup.md (line 140): NEEDS_HUMAN_REVIEW — verify if GA cmdlet exists for `Get-MgBetaInformationProtectionSensitivityPolicyLabel`; replace if available.
+6. 1.6/powershell-setup.md (line 172): NEEDS_HUMAN_REVIEW — verify `-RecordType` accepts comma-separated string; if not, split into multiple calls or use array syntax.
+7. 1.7/verification-testing.md, 1.8/portal-walkthrough.md, 1.8/verification-testing.md: Defer `Classification:` footer removal to a repo-wide normalization pass (4+ files outside this batch also use it).
+8. 1.8/powershell-setup.md, 1.8/troubleshooting.md: Update version from v1.2 to v1.3 to match portal-walkthrough.md and verification-testing.md, or align all four to the correct version.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,24 @@
+Now I have all the data needed. Let me verify the footer ordering claim for 1.4/powershell-setup.md against another file.
+Now I have all the evidence. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 3 (Move Steps 6–9 in 1.1/portal-walkthrough.md):** HIGH RISK. Relocating ~50 lines of content (lines 148–199) to above line 122 is a structural surgery that could break mkdocs anchor links, the `<!-- UI-VERIFY -->` comment cross-reference, and the line 150 note "(Continued from Step-by-Step Configuration above)" which would become nonsensical if steps are contiguous. The HTML comment at line 188 references `verification-testing.md` by step number — a reorder changes the positional context. This fix requires careful testing and should be done in isolation.
+**SEVERITY_CORRECTIONS:**
+- **Fix 1 (1.2/portal-walkthrough.md "ensures"):** Correctly classified as CRITICAL. Confirmed at line 63: `This ensures all agents must go through IT/Governance approval` — a clear violation of FSI language rules per `.github/instructions/fsi-language-rules.instructions.md`. Single-word fix, zero cross-reference risk.
+- **Fix 2 (1.4/portal-walkthrough.md "SOX and FINRA compliant"):** Correctly classified as WARNING. Line 41 uses `compliant` in an example description users will copy-paste into their environments. Additionally, line 142 (`not compliant with record retention`) in a rationale table is a similar overclaim pattern the review missed — consider fixing both in the same pass.
+- **Fix 6 (Classification field in footers):** DOWNGRADE from WARNING to INFO. Confirmed: 1.1 files include `| Classification: X` but 1.2/1.3/1.4 do not. This is cosmetic consistency — no regulatory, build, or navigation impact. Not urgent.
+- **Fix 7 (Add sponsorship-lifecycle link to 1.2 nav footers):** Correctly classified as WARNING. Confirmed: the 4 standard playbooks' footers omit the 5th playbook, while `sponsorship-lifecycle-workflows.md` itself correctly links back to all 4. Discoverability issue, not a broken link.
+- **Fix 8 (1.4/powershell-setup.md footer ordering):** CONFIRMED but the review's claim is **inverted**. The actual 1.2 files (portal-walkthrough.md, troubleshooting.md) place nav links BEFORE metadata. The 1.4/powershell-setup.md places metadata BEFORE nav links (line 353 metadata, line 355 nav). The 1.1 files place metadata BEFORE nav. So the "batch convention" is inconsistent across controls; 1.4/powershell-setup.md actually matches the 1.1 pattern. Severity should be INFO, not WARNING.
+**FIX_ORDERING:**
+1. **Fix 1** (language: "ensures") — Independent, zero risk, apply first
+2. **Fix 2** (language: "compliant") — Independent, zero risk, apply second
+3. **Fix 8** (footer ordering) — Independent, cosmetic, apply third
+4. **Fix 7** (add sponsorship link) — Independent, 4 files, apply fourth
+5. **Fix 6** (Classification field) — Independent, multi-file cosmetic, apply fifth
+6. **Fix 3** (reorder Steps 6–9) — HIGH RISK, apply last and test with `mkdocs build --strict`
+7. **Fixes 4, 5, 9, 10** — All tagged NEEDS_HUMAN_REVIEW; do NOT apply without portal/API verification
+**OVER_ENGINEERED:**
+- **Fix 3 (Steps 6–9 reorder):** Over-engineered for this batch. The existing `(Continued from Step-by-Step Configuration above)` note at line 150 already addresses the flow break. Moving 50+ lines risks introducing new issues and the current structure is functional. Recommend deferring to a dedicated structural pass.
+- **Fix 6 (Classification field):** Over-engineered. Adding a `Classification` metadata field to ~20 files across 1.2/1.3/1.4 for cosmetic consistency with 1.1 is low-value churn. If standardizing, do it across ALL controls in a single formatting pass, not per-batch.
+- **Fix 10 (10-year retention citation):** The review flags the missing citation but the proposed fix ("reduce to 7 years") could be wrong — some FSI retention schedules do require 10 years (e.g., OCC 2011-12 model governance). This needs subject matter expert review, not an automated fix.
+**CRITIQUE_SUMMARY:** The review correctly identifies the two real compliance violations (Fixes 1, 2) and appropriately flags human-review items. However, it over-scopes cosmetic fixes (6, 8) and underestimates the risk of Fix 3 (content reorder), which should be deferred or done with extra caution. Apply Fixes 1 and 2 immediately; defer Fix 3 and all NEEDS_HUMAN_REVIEW items.

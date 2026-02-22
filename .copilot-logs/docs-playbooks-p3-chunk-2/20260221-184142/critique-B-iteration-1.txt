@@ -1,0 +1,18 @@
+Evidence gathered. Here's the analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 2 (3.5 `Az.Consumption` module): Two valid resolution paths exist (`Add-Module` vs `change-cmdlet`) and the reviewer didn't determine which is correct. Picking the wrong one introduces a silent functional error. The `Az.CostManagement` module may contain `New-AzConsumptionBudget` as a re-export — this needs human verification before any change.
+- Fix 4 (3.6 add Validation section): Net-new content generation. Writing verification steps for orphaned agent detection requires domain expertise about what correct state looks like. An incorrect checklist is worse than a missing one — it gives false confidence. Should be routed to a doc-writer, not applied as a "fix."
+**SEVERITY_CORRECTIONS:**
+- Fix 1 CRITICAL: **Confirmed accurate.** Cross-file grep shows 12 references to `CopilotForM365AdminExclude` across all four 3.8 playbooks. Only line 127 has the wrong name. The portal walkthrough explicitly states "exact name required" and troubleshooting says "case-sensitive." This would cause bulk-import to create/target a nonexistent group. CRITICAL is correct.
+- Fix 5 WARNING: **Accurate.** `Set-AdminPowerAppAsSysAdmin` is a real cmdlet but `-Disable` is not a documented parameter. Correct to flag NEEDS_HUMAN_REVIEW — the alternative may be `Remove-AdminPowerAppAsSysAdmin` or a different approach.
+- Fix 6 WARNING: **Accurate.** `New-MgGroupMember` vs `New-MgGroupMemberByRef` depends on SDK version. The `@odata.id` body pattern is the v1.x convention. NEEDS_HUMAN_REVIEW is the right call — both may work depending on installed SDK version.
+**FIX_ORDERING:**
+1. Fix 1 (3.8 group name) — CRITICAL, zero ambiguity, single-token change, no dependencies. Apply immediately.
+2. Fix 3 (3.6 double `---`) — Trivial cosmetic, zero risk, independent. Apply immediately.
+3. Fixes 5 & 6 — Hold for human review. Do not auto-fix.
+4. Fix 2 (3.5 module) — Hold for human review. Requires verifying `Az.CostManagement` module contents.
+5. Fix 4 (3.6 Validation section) — Defer to doc-writer. Net-new content, not a bug fix.
+**OVER_ENGINEERED:**
+- Fix 4 (adding Validation section to 3.6 portal-walkthrough): This is a consistency improvement, not a defect. The review correctly identified it as a GAP, but proposing it as a "fix" alongside bug fixes conflates content authoring with error correction. Should be tracked as a separate enhancement task.
+**CRITIQUE_SUMMARY:** The review is high-quality — the CRITICAL finding (Fix 1) is confirmed correct with strong cross-file evidence, the NEEDS_HUMAN_REVIEW flags are appropriately cautious, and the false-positive dismissals of automated findings are accurate. Only 2 of 6 fixes (Fix 1 and Fix 3) should be applied without human review; the rest correctly require verification or are content-generation tasks disguised as fixes.

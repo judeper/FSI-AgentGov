@@ -1,0 +1,18 @@
+All 4 playbook files exist in the 4.7 directory, confirming the nav orphan entries for these files are false positives (worktree path resolution issue). Now I'll produce the review report.
+---
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/playbooks/control-implementations/4.7/verification-testing.md (line 82-83): PowerShell validation section "Count licensed users" uses `Get-MgUser -Filter "assignedLicenses/any()" -All`, which counts ALL users with ANY license — not Copilot-licensed users. In the context of Control 4.7 (Copilot Data Governance), this produces misleading verification results. The correct approach (filtering by Copilot SKU IDs) is already shown in the companion powershell-setup.md (lines 37-55).
+WARNINGS:
+- docs/playbooks/control-implementations/4.7/powershell-setup.md (line 309-311): The `finally` block uses `Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue` as a connectivity check before calling `Disconnect-SPOService`. This makes an unnecessary API call that can itself error. Should call `Disconnect-SPOService -ErrorAction SilentlyContinue` directly without the guard.
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: 6 placeholder/example URLs flagged by automated URL checker (`https://tenant-admin.sharepoint.com`, `https://tenant.sharepoint.com/sites/ExecutiveCompensation`, `/MergerTarget`, `/LegalHold`, `/ComplianceInvestigations`, `https://contoso-admin.sharepoint.com`). These are standard documentation placeholder URLs inside PowerShell code blocks — not clickable hyperlinks. No functional issue, but adding `# Replace 'tenant' with your tenant name` comments would silence future automated scans.
+- docs/playbooks/control-implementations/4.7/troubleshooting.md: 1 placeholder URL flagged (`https://tenant.sharepoint.com/sites/SiteName`). Same category — example URL in a code block.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.7/verification-testing.md (lines 81-83): Replace the generic license count with Copilot-specific filtering. Change from `Get-MgUser -Filter "assignedLicenses/any()" -All` to the Copilot SKU ID lookup pattern used in powershell-setup.md (find Copilot SKUs via `Get-MgSubscribedSku`, then filter users by those SKU IDs). Update the `Write-Host` message from "Users with licenses" to "Users with Copilot licenses".
+2. docs/playbooks/control-implementations/4.7/powershell-setup.md (lines 308-311): Replace the `if (Get-SPOSite -Limit 1 ...)` guard with a direct `Disconnect-SPOService -ErrorAction SilentlyContinue` call.
+3. docs/playbooks/control-implementations/4.7/powershell-setup.md: Add inline comment `# Replace 'tenant' with your tenant name` to the `Connect-SPOService` line (line 24) and the `$sensitiveSites` array (line 96). Add `# Replace 'contoso' with your tenant name` to the `.EXAMPLE` block (line 215).
+4. docs/playbooks/control-implementations/4.7/troubleshooting.md: Add inline comment `# Replace with your site URL` to the diagnostic `Get-SPOSite -Identity` examples (lines 17, 73).
+NOTE ON NAV ORPHANS: The ~300 mkdocs nav orphan entries from Section A are a **worktree-level artifact** — this worktree contains only the 4.7 playbook files, not the full `docs/` tree. All 4 control 4.7 playbook files (including portal-walkthrough.md) exist and are correctly placed. These orphans require no changes to the 3 in-scope files.
+STATUS: ISSUES_FOUND

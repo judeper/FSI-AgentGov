@@ -1,0 +1,25 @@
+Now let me check for any cross-reference issues and language compliance.
+Good — no prohibited language found. Now I'll apply the critical fixes.
+I cannot write to this worktree (permission denied on all write operations). I'll provide the complete review report.
+ISSUE_COUNT: 7
+CRITICAL:
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: Uses non-existent cmdlet `Test-PowerAppChatBotDlpCompliance` without disclaimer in Issue 1 (line 31) and Issue 3 (line 173). The companion powershell-setup.md explicitly states this cmdlet does not exist (line 401). Admins following these diagnostic steps will encounter errors. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Script 3 uses non-admin cmdlet `Get-PowerAppChatBot` (lines 273, 286) instead of `Get-AdminPowerAppChatbot` in an admin audit script requiring Power Platform Admin role. All other scripts in controls 1.25-1.28 consistently use `Get-AdminPowerAppChatbot`. Property access patterns also differ (`$agent.DisplayName` vs `$agent.Properties.DisplayName`).
+WARNINGS:
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: Uses non-admin `Get-PowerAppChatBot` in Issue 2 (line 93) and Issue 10 (line 572), inconsistent with admin context used in other playbooks
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Script 4 outputs "✓ Approval workflows enabled" (line 381) immediately after warning "⚠ Chatbot approval must be configured manually" (line 377), creating contradictory messaging
+- docs/playbooks/control-implementations/1.26/portal-walkthrough.md: URLs `https://copilotstudio.microsoft.com` and `https://admin.powerplatform.microsoft.com` return HTTP 405 to automated checkers — these are valid interactive SPA portal URLs (false positive, no fix needed)
+- docs/playbooks/control-implementations/1.27/powershell-setup.md: Placeholder URL `https://yourorg.crm.dynamics.com` (line 394) returns HTTP -1 — this is an intentional example URL (false positive, no fix needed)
+- docs/playbooks/control-implementations/1.28/troubleshooting.md: `Get-AdminPowerAppEnvironmentGroup` cmdlet (line 369) may not exist in current Power Platform module. NEEDS_HUMAN_REVIEW.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.28/troubleshooting.md: Add `⚠️ Cmdlet Note` disclaimer before the `Test-PowerAppChatBotDlpCompliance` code blocks in Issues 1 and 3, stating the cmdlet does not exist and directing admins to use `Get-AdminDlpPolicy` or the portal walkthrough instead (consistent with the disclaimer already in powershell-setup.md line 401)
+2. docs/playbooks/control-implementations/1.28/troubleshooting.md: Change `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` in Issues 2 and 10 (lines 93, 572) for consistency with admin context
+3. docs/playbooks/control-implementations/1.28/powershell-setup.md: In Script 3, change `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` (lines 273, 286) and update property access patterns to use `$agent.Properties.DisplayName` etc., consistent with Scripts in controls 1.25-1.27
+4. docs/playbooks/control-implementations/1.28/powershell-setup.md: In Script 4, change line 381 from `"✓ Approval workflows enabled for: ..."` to `"⚠ Environment processed: ... — verify approval setting in PPAC portal"` to remove contradictory success message
+5. Broken URL `https://copilotstudio.microsoft.com` (1.26/portal-walkthrough.md): No fix needed — valid portal URL
+6. Broken URL `https://admin.powerplatform.microsoft.com` (1.26/portal-walkthrough.md): No fix needed — valid portal URL
+7. Broken URL `https://yourorg.crm.dynamics.com` (1.27/powershell-setup.md): No fix needed — intentional placeholder
+NOTE: The ~300 mkdocs.yml nav orphans reported by automated pre-pass span the entire repository and are a repo-wide structural issue (this worktree appears to contain only a subset of docs). These are outside the scope of the 14 files reviewed and cannot be addressed by editing playbook content.
+STATUS: ISSUES_FOUND

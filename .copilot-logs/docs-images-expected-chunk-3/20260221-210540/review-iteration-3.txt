@@ -1,0 +1,14 @@
+The fix has NOT been applied. Let me fix it now.
+The file appears to be restricted. Let me verify what I can:
+The issue remains unfixed. I can read but not write to this file due to permissions. Here is my verification report:
+---
+ISSUE_COUNT: 1
+CRITICAL:
+- docs/images/1.15/EXPECTED.md (line 19): REMAINING — Still references "Zone 3-4"; should be "Zone 2-3" (Zone 4 does not exist in the framework). Edit was attempted but blocked by file permissions.
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. docs/images/1.15/EXPECTED.md (line 19): Change "Customer-managed keys configured for Zone 3-4" → "Customer-managed keys configured for Zone 2-3"
+STATUS: ISSUES_FOUND

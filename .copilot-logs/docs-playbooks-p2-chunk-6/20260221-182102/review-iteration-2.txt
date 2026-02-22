@@ -1,0 +1,16 @@
+All 4 issues verified against the current file:
+1. **Script 3 `Get-AccessToken` ordering** — FIXED. Function now defined at lines 333–340, before its call at line 347.
+2. **Script 2 conceptual cmdlet disclaimers** — FIXED. `# Conceptual — verify cmdlet availability in your environment` comments added at lines 188 and 196.
+3. **Script 5 `Write-Host` syntax** — FIXED. Line 504 uses `("=" * 80)` and line 524 uses `("`n" + ("=" * 80))`.
+4. **Script 3 `.NOTES` misleading prerequisite** — FIXED. Lines 285–286 now reference Dataverse and Azure auth instead of PowerApps module.
+No new problems introduced by the fixes.
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN

@@ -1,0 +1,18 @@
+I've now verified all the files. Here is my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE
+All five proposed fixes are documentation-only changes (markdown content within code blocks or headings). None alter `mkdocs.yml` nav entries, file paths, or cross-reference links. No fix can break the mkdocs build.
+**SEVERITY_CORRECTIONS:**
+- Fix 5 (title format standardization across 2.3/2.4): OVER-CLASSIFIED as a fix. The heading format difference (`# Control [X.X]: [Name] - [Type]` vs `# [Type]: Control [X.X] - [Name]`) is cosmetic and does not affect navigation, search, or cross-references. Should be classified as STYLE_NIT, not a warning. Both formats are valid; neither is canonicalized in the control template instructions (which apply to control docs, not playbooks).
+- Fix 3 (deprecated `Microsoft.Xrm.Tooling` module): Correctly classified as NEEDS_HUMAN_REVIEW. This is deeply embedded — 10 call sites across 2.3/powershell-setup.md using `Connect-CrmOnline`. Migrating to `Connect-CrmServiceClient` changes connection object types, parameter names, and downstream cmdlet compatibility. This is a rewrite, not a fix.
+- The review stated `pac auth create` at "lines 100-101" in 2.4/powershell-setup.md — this is **incorrect**. The file has no `pac auth` usage. Only one `pac` command exists (line 45: `pac solution export`). The severity is still valid (missing prerequisite) but the evidence cited is inaccurate.
+**FIX_ORDERING:**
+- Fixes 1 and 2 are independent, zero-risk, and can be applied in any order or in parallel.
+- Fix 4 (add `pac` prerequisite to 2.4) is independent and low-risk.
+- Fix 3 (deprecated module migration) must NOT be applied in this batch — it requires human review, testing against a real Dataverse tenant, and changes to 10+ call sites.
+- Fix 5 (title standardization) should be deferred to a cross-repo consistency sweep, not done per-batch. Changing headings in 2.3/2.4 without also checking 2.5–2.24 creates a different inconsistency boundary.
+**OVER_ENGINEERED:**
+- Fix 5 (title format standardization): Over-engineered for a 4-control batch. This is a repo-wide style decision affecting all 284 playbook files. Applying it to only 8 files (2.3 + 2.4) shifts the inconsistency boundary rather than resolving it. Should be tracked as a future repo-wide task, not a per-batch fix.
+- Fix 2 (commenting out service principal lines in 2.2): Borderline. The uncommented placeholder code is inside a fenced code block in a markdown file — it cannot execute. The risk of "copy-paste errors" is real but low. The fix is still justified for consistency with 2.1, but the severity should be STYLE_NIT not WARNING.
+**CRITIQUE_SUMMARY:** The review is solid — false-positive URL classifications are correct, the deprecated module flag is the highest-value finding, and the `pac` prerequisite gap is real (though the cited line numbers for `pac auth create` are fabricated). Recommend applying Fixes 1, 2, and 4 now; defer Fix 5 to a repo-wide sweep; and escalate Fix 3 to a human for scoped rewrite planning.

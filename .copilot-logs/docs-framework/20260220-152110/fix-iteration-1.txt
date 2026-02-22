@@ -1,0 +1,25 @@
+Let me create a plan and verify the broken URL before proceeding.
+URL can't be verified. Converting to plain text per review instructions. Now applying all fixes in batches.
+Now applying diagram fix (add 6 missing nodes, update title) and status reconciliation fixes.
+Now applying the 7 status reconciliation fixes (individual sections + repo structure + deployment phase heading).
+I accidentally removed the section separator. Let me fix that.
+Good. Now let me apply the remaining 6 status fixes.
+Now update the repository structure section statuses and the deployment phase heading.
+Now let me verify the changes look correct by spot-checking critical sections.
+All fixes look correct. Let me also verify the remaining status fixes and the summary section.
+All changes are consistent. Now let me verify no remaining v1.2.42 references and run build validation.
+No v1.2.42 references remain. Build validation not available in this environment. Let me do a final git diff to confirm all changes.
+CHANGES:
+- docs/framework/adoption-roadmap.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/agent-identity-architecture.md: Footer version v1.2.42 → v1.2.51; broken TechCommunity URL converted to plain text
+- docs/framework/agent-lifecycle.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/executive-summary.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/governance-cadence.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/governance-fundamentals.md: Footer version v1.2.42 → v1.2.51; body text version 1.2.42 → 1.2.51
+- docs/framework/index.md: Footer version v1.2.42 → v1.2.51; body text version 1.2.42 → 1.2.51
+- docs/framework/operating-model.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/regulatory-framework.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/zones-and-tiers.md: Footer version v1.2.42 → v1.2.51
+- docs/framework/solutions-integration.md: Diagram title "24" → "25"; added 6 missing solution nodes (AOF, AUPW, ASCG, MIME, ITE, ASARD) with pillar connections; fixed 4 control titles (1.9, 2.5, 2.11, 2.13); reconciled 7 status mismatches to match solutions-index.md (DEC→Validated, SDD→Validated, COI→WIP, HT→WIP, DR→WIP, FUS→Completed, AAM→Completed); updated repo structure statuses; updated Phase 4 heading to "(Work In Progress)"
+- SKIPPED (NEEDS_HUMAN_REVIEW): executive-summary.md RACI dual-Accountable row; adoption-roadmap.md SR 11-7 citation for broker-dealers
+FIX_STATUS: COMPLETE

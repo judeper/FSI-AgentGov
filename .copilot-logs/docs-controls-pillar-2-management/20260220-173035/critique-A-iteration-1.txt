@@ -1,0 +1,16 @@
+Now let me verify the remaining claimed issues and check for missed problems.
+Let me verify the mkdocs.yml nav entries and check for the Sardine.ai URL, the admin.powerplatform URL, and look for any missed issues.
+Let me check for a few more potential missed issues.
+Now let me check a few more things — the review's fix suggestion for the categories table and any version inconsistencies.
+I now have enough data to render my critique. Here is my assessment:
+---
+**FALSE_POSITIVES:**
+- NONE — All issues claimed by the review are confirmed by inspection of the actual files.
+**MISSED_ISSUES:**
+- **Version inconsistency across control files**: The review flags the index footer (v1.2) but does not note that 6 controls (2.1, 2.12, 2.18, 2.22, 2.23, 2.24) have already been updated to `Version: v1.3` while the remaining 18 controls are still at `Version: v1.2`. This split is not called out as a warning or gap, yet it represents a consistency concern across the pillar — readers may wonder whether v1.2 controls are outdated.
+- **CONTROL-INDEX.md is clean**: The review does not explicitly confirm that `CONTROL-INDEX.md` already includes 2.23 and 2.24 (it does — lines 68–69). While the review doesn't claim it's broken, explicitly confirming this as healthy would strengthen the report.
+**FIX_CONCERNS:**
+- **Fix #4 (index footer version)**: Suggesting `v1.2.51` is correct for the *framework* version, but may cause confusion because individual control footers use a *document* version scheme (v1.2, v1.3) that is distinct from the framework semver. The fix is technically correct for this file's format (`FSI Agent Governance Framework v1.2`) but the review should note the two versioning schemes are different.
+- **Fix #2 (category table)**: The proposed category "AI Assurance & Transparency" lumping 2.20–2.24 together is reasonable but debatable. Control 2.22 (Inactivity Timeout Enforcement) is operational/environmental in nature and could arguably fit "Environment Governance" or "Oversight & Compliance" more naturally than a transparency category. The fix is a valid starting point but should be flagged as NEEDS_HUMAN_REVIEW for category assignment rather than presented as a definitive fix.
+- **Fix #5 (Sardine.ai link)**: The review says "Remove or replace" but doesn't suggest a replacement. Since the link supports the control's guidance, the preference should be to find a replacement (e.g., archive.org snapshot or an alternative source) rather than simply deleting the reference. Flagging as NEEDS_HUMAN_REVIEW would be more appropriate.
+**CRITIQUE_SUMMARY:** The review is thorough, accurate on all 16 issues, and correctly distinguishes true issues from false positives (api.bap URLs, admin.powerplatform). Minor gaps: it missed the v1.2/v1.3 split across control files, and two fix suggestions (#2 category grouping, #5 link removal) would benefit from NEEDS_HUMAN_REVIEW tagging rather than prescriptive fixes.

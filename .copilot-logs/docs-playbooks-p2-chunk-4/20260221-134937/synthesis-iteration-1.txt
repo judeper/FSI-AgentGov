@@ -1,0 +1,22 @@
+All three divide-by-zero instances confirmed. Complete Configuration Scripts have guards at lines 247 (2.12) and 374 (2.14), but standalone snippets at 2.12:93, 2.12:101, and 2.14:135 do not. Now applying fixes:
+The edits are blocked by permissions — this is a review-only worktree. Here is the synthesized final review:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.12/powershell-setup.md (lines 93, 101): Divide-by-zero in standalone "Generate Supervision Report" script. Line 93 (`$approved / $total * 100`) and line 101 (`$_.Count / $total * 100`) both lack guards when CSV is empty. The Complete Configuration Script at line 247 correctly uses `if ($total -gt 0)`, but these standalone snippets do not.
+- docs/playbooks/control-implementations/2.14/powershell-setup.md (line 135): Same divide-by-zero pattern in standalone "Track Training Completion Status" script: `$complianceRate = [math]::Round(($compliant / $total) * 100, 1)` has no guard. The Complete Configuration Script at line 374 correctly uses `if ($total -gt 0) { ... } else { 0 }`.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.12/powershell-setup.md (line 93): Change `ApprovalRate = [math]::Round($approved / $total * 100, 1)` to `ApprovalRate = if ($total -gt 0) { [math]::Round($approved / $total * 100, 1) } else { 0 }`
+2. docs/playbooks/control-implementations/2.12/powershell-setup.md (line 101): Change `Percentage = [math]::Round($_.Count / $total * 100, 1)` to `Percentage = if ($total -gt 0) { [math]::Round($_.Count / $total * 100, 1) } else { 0 }`
+3. docs/playbooks/control-implementations/2.14/powershell-setup.md (line 135): Change `$complianceRate = [math]::Round(($compliant / $total) * 100, 1)` to `$complianceRate = if ($total -gt 0) { [math]::Round(($compliant / $total) * 100, 1) } else { 0 }`
+STATUS: ISSUES_FOUND
+---
+**Synthesis notes:**
+- **Removed** the original review's URL and nav-orphan warnings (confirmed false positives by all parties).
+- **Added** two missed divide-by-zero instances (2.12 line 101, 2.14 line 135) found by Critique A and confirmed against source.
+- **Downgraded and removed** the 2.13 verification-testing.md gap per Critique B: Test 3 is correct for its WORM scope; the audit-trail alternative is a Zone 3 edge case better addressed in a dedicated coverage pass, not a batch fix.
+- All three fixes follow the same guard pattern already used in the Complete Configuration Scripts within the same files, making them low-risk and internally consistent.

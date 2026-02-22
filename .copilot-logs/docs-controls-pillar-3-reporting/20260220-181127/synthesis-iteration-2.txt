@@ -1,0 +1,12 @@
+Both findings confirmed. Line 130 has `../../controls/pillar-2-management/` while all other cross-pillar links use `../pillar-2-management/`. And line 21 of 3.4 links `2024-63` in context of Regulation S-P — Critique A correctly identified this as the wrong press release number.
+ISSUE_COUNT: 2
+CRITICAL:
+- 3.4-incident-reporting-and-root-cause-analysis.md (line 21): Incorrect regulatory citation — text describes "SEC Regulation S-P (2024 amendments)" but links to press release 2024-63, which is the ICE/NYSE Regulation SCI enforcement action, not the Reg S-P amendments. The correct press release for the Reg S-P amendments (effective December 3, 2025) is 2024-58.
+WARNINGS:
+- 3.7-ppac-security-posture-assessment.md (line 130): Inconsistent relative path — Control 2.22 cross-reference uses `../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` while all other cross-pillar links in the same file use the `../pillar-2-management/` pattern. Both resolve correctly but the style is inconsistent.
+GAPS:
+- NONE
+FIXES:
+1. 3.4-incident-reporting-and-root-cause-analysis.md (line 21): Change URL from `https://www.sec.gov/newsroom/press-releases/2024-63` to `https://www.sec.gov/newsroom/press-releases/2024-58` to correctly cite the SEC Regulation S-P amendments announcement.
+2. 3.7-ppac-security-posture-assessment.md (line 130): Change `../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` to `../pillar-2-management/2.22-inactivity-timeout-enforcement.md` to match the consistent cross-pillar reference pattern used in all other links in the same file.
+STATUS: ISSUES_FOUND

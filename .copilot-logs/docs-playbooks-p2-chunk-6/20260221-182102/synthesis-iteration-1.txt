@@ -1,0 +1,17 @@
+All issues verified against the source file. Here is the reconciled result:
+ISSUE_COUNT: 4
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 3 (`Get-ConsentRecords.ps1`) defines `Get-AccessToken` at line 376 AFTER it is called at line 335 inside the `try` block. PowerShell `.ps1` scripts execute top-to-bottom; this causes a runtime error if copied verbatim.
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 2 (`Get-AgentDisclosureInventory.ps1`) uses `Get-AdminPowerAppChatBot` (line 188) and `Get-AdminPowerAppChatBotTopic` (line 195) — not standard cmdlets in `Microsoft.PowerApps.Administration.PowerShell`. The parenthetical disclaimer at line 193 is easily missed. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 5 (`New-DisclosureComplianceReport.ps1`) lines 502 and 522 have PowerShell syntax errors. `Write-Host "=" * 80` passes three separate arguments to `Write-Host`, producing literal output `= * 80` instead of 80 equals signs. Same issue on line 522 with string concatenation.
+- docs/playbooks/control-implementations/2.23/powershell-setup.md: Script 3 (`Get-ConsentRecords.ps1`) `.NOTES` at line 284 states "Requires: Microsoft.PowerApps.Administration.PowerShell module" but the script uses `Invoke-RestMethod` with Dataverse Web API directly and never calls any Power Platform admin cmdlets. Misleading prerequisite.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.23/powershell-setup.md: In Script 3, move the `Get-AccessToken` function definition (lines 376–383) to BEFORE the `try` block (above line 330) so the function is defined before its call site at line 335.
+2. docs/playbooks/control-implementations/2.23/powershell-setup.md: In Script 2, add explicit `# Conceptual — verify cmdlet availability in your environment` comments on the `Get-AdminPowerAppChatBot` and `Get-AdminPowerAppChatBotTopic` lines to make the disclaimer more prominent. Do NOT rewrite as Dataverse Web API calls. NEEDS_HUMAN_REVIEW.
+3. docs/playbooks/control-implementations/2.23/powershell-setup.md: In Script 5, fix both `Write-Host` calls to use subexpressions: line 502 → `Write-Host ("=" * 80)` and line 522 → `Write-Host ("`n" + ("=" * 80))`.
+4. docs/playbooks/control-implementations/2.23/powershell-setup.md: In Script 3 `.NOTES`, remove or replace line 284 (`Requires: Microsoft.PowerApps.Administration.PowerShell module`) — the script uses `Invoke-RestMethod` with Dataverse Web API, not Power Platform admin cmdlets.
+STATUS: ISSUES_FOUND

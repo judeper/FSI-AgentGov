@@ -1,0 +1,64 @@
+Now I have the ground truth. Let me verify the remaining disputed files:
+Now I have complete ground truth. Here's the reconciliation:
+**Verified findings:**
+1. **1.11/powershell-setup.md** — Ends with `---` + footer, NO nav links. Critique A correct: **MISSED by original review**.
+2. **1.11/troubleshooting.md** — Ends with `---` + footer, NO nav links. Critique A correct: **MISSED**.
+3. **1.11/verification-testing.md** — Ends with `---` + footer, NO nav links. Original review correct.
+4. **1.15/troubleshooting.md** — Has nav links but NO footer metadata. Critique A correct: **MISSED**.
+5. **1.15/verification-testing.md** — Has nav links but NO footer metadata. Critique A correct: **MISSED**.
+6. **1.15/troubleshooting.md** H1 = `# Troubleshooting: Control 1.15` (reversed). Critique A correct: **MISSED**.
+7. **1.15/verification-testing.md** H1 = `# Verification & Testing: Control 1.15` (reversed). Critique A correct: **MISSED**.
+8. **Heading fix (Fix 14)** — Critique B recommends SKIP. Both critiques agree it's cosmetic. I'll keep as optional/low-priority.
+The baseline pattern (from 1.11/portal-walkthrough, 1.12/portal-walkthrough, 1.13/portal-walkthrough): nav links → `---` → footer metadata.
+ISSUE_COUNT: 26
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.11/powershell-setup.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.11/troubleshooting.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.11/verification-testing.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.12/powershell-setup.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.12/troubleshooting.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.12/verification-testing.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.13/powershell-setup.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.13/troubleshooting.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.13/verification-testing.md: Missing bottom navigation links to sibling playbooks
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Missing standard footer metadata (`*Updated: January 2026 | Version: v1.2*`)
+- docs/playbooks/control-implementations/1.14/powershell-setup.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.14/troubleshooting.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.14/verification-testing.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.15/portal-walkthrough.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.15/powershell-setup.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.15/troubleshooting.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.15/verification-testing.md: Missing standard footer metadata
+- docs/playbooks/control-implementations/1.13/troubleshooting.md: H1 heading uses reversed format `# Troubleshooting: Control 1.13` instead of `# Control 1.13: ... - Troubleshooting`
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.14/powershell-setup.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.14/troubleshooting.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.14/verification-testing.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.15/portal-walkthrough.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.15/powershell-setup.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.15/troubleshooting.md: H1 heading uses reversed format
+- docs/playbooks/control-implementations/1.15/verification-testing.md: H1 heading uses reversed format
+GAPS:
+- NONE
+FIXES:
+1. 1.11/powershell-setup.md: Insert nav links before existing `---` footer separator: `[Back to Control 1.11](...) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)`
+2. 1.11/troubleshooting.md: Insert nav links before existing `---` footer separator: `[Back to Control 1.11](...) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)`
+3. 1.11/verification-testing.md: Insert nav links before existing `---` footer separator: `[Back to Control 1.11](...) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)`
+4. 1.12/powershell-setup.md: Insert nav links before existing `---` footer separator (same pattern, linking to portal-walkthrough, verification-testing, troubleshooting)
+5. 1.12/troubleshooting.md: Insert nav links before existing `---` footer separator (linking to portal-walkthrough, powershell-setup, verification-testing)
+6. 1.12/verification-testing.md: Insert nav links before existing `---` footer separator (linking to portal-walkthrough, powershell-setup, troubleshooting)
+7. 1.13/powershell-setup.md: Insert nav links before existing `---` footer separator (same pattern as 1.12)
+8. 1.13/troubleshooting.md: Insert nav links before existing `---` footer separator
+9. 1.13/verification-testing.md: Insert nav links before existing `---` footer separator
+10. 1.14/portal-walkthrough.md: Append `\n---\n\n*Updated: January 2026 | Version: v1.2*` after existing nav links
+11. 1.14/powershell-setup.md: Append footer metadata after existing nav links
+12. 1.14/troubleshooting.md: Append footer metadata after existing nav links
+13. 1.14/verification-testing.md: Append footer metadata after existing nav links
+14. 1.15/portal-walkthrough.md: Append footer metadata after existing nav links
+15. 1.15/powershell-setup.md: Append footer metadata after existing nav links
+16. 1.15/troubleshooting.md: Append footer metadata after existing nav links
+17. 1.15/verification-testing.md: Append footer metadata after existing nav links
+18. (Optional — low priority) Standardize H1 headings in 1.13/troubleshooting, all 1.14/*, and all 1.15/* files to use `# Control X.X: [Name] - [Type]` format. Recommend deferring to a repo-wide heading sweep to avoid bookmark/search index churn.
+STATUS: ISSUES_FOUND

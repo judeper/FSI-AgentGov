@@ -1,0 +1,10 @@
+I'll use the `edit` tool to make changes in blocks. Let me start with the major sections.
+Now let me fix the remaining `fsi_` references in the validation and troubleshooting sections:
+The JSON test block had different whitespace. Let me find and fix it:
+Now verify no `fsi_` references remain:
+All `fsi_` references eliminated. Let me verify the file is well-formed:
+All changes look correct. Let me verify the complete file has no remaining issues:
+These remaining "NonCompliant"/"Exception" references are in narrative context (script output, action names, UI descriptions) — not Dataverse column names. They are correct as-is.
+CHANGES:
+- docs/playbooks/asard-exception-management.md: Reconciled Dataverse table/column naming from `fsi_*` prefix to `gov_asard*`/`gov_*` prefix to match sibling files (`asard-deployment-guide.md`, `asard-troubleshooting-guide.md`). Table `fsi_agentsharingcompliances` → `gov_asardexception`, all `fsi_exception_*`/`fsi_*` columns → `gov_*` equivalents (e.g., `gov_expirationdate`, `gov_justification`, `gov_approvedby`, `gov_status`). Updated Web API URLs to use `gov_asardexceptions` collection. Updated status labels from compliance-centric ("Exception"/"NonCompliant") to exception-centric ("Active"/"Expired") in Dataverse field contexts.
+FIX_STATUS: COMPLETE

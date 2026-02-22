@@ -1,0 +1,99 @@
+Reason: STATUS field missing or unrecognized value
+
+Now I have all findings confirmed. Here is the complete review report:
+---
+## BATCH: playbooks-advanced-chunk-1
+**ISSUE_COUNT:** 17
+---
+### CRITICAL
+**C1 — Broken table in architecture.md (environment-lifecycle-management)**
+- **File:** `docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md`
+- **Lines:** 93–96
+- **Issue:** An admonition (`!!! note`) at line 94 breaks the choice field table. The rows for `er_environmenttype`, `er_region`, `er_datasensitivity` (lines 96–105) appear *after* the admonition, orphaned from the table header. MkDocs will render these as raw pipe-delimited text, not a table.
+- **Fix:** Move the admonition *after* all table rows for `er_zone`, `er_environmenttype`, `er_region`, and `er_datasensitivity` are complete, OR close the table before the admonition and start a new table after it.
+**C2 — Version mismatch in configuration-hardening-baseline/index.md**
+- **File:** `docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md`
+- **Lines:** 3, 308
+- **Issue:** Status header says **"FSI-AgentGov v1.3"** (line 3) but footer says **"Version: v1.2"** (line 308). The current framework version is v1.2.51. "v1.3" has not been released.
+- **Fix:** Align both to `v1.2.51` (or `v1.2` if that's the convention for this doc's vintage). Do not reference unreleased version numbers.
+**C3 — Version mismatch in deny-event-correlation-report/index.md footer**
+- **File:** `docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md`
+- **Footer line (last line)**
+- **Issue:** Footer says `v1.2` while all five sub-pages (`deployment-guide.md`, `app-insights-rai-telemetry.md`, `dlp-event-extraction.md`, `purview-audit-extraction.md`, `power-bi-correlation.md`) consistently say `v1.2.51`. The index page is the outlier.
+- **Fix:** Update footer to `*FSI Agent Governance Framework v1.2.51 - February 2026*`
+---
+### WARNINGS
+**W1 — Dataverse table name casing inconsistency (deny-event-correlation-report)**
+- **Files:** `index.md` + `deployment-guide.md` use CamelCase display names (`fsi_DenyEvent`, `fsi_DenyCorrelation`, `fsi_DenyAlert`, `fsi_DenyValidationHistory`). `power-bi-correlation.md` uses lowercase plural logical names (`fsi_denyevents`, `fsi_denycorrelations`, `fsi_denyalerts`).
+- **Assessment:** This is technically correct — Dataverse display names are CamelCase while Power BI/DAX uses logical (lowercase) names. However, no note explains this convention, which may confuse implementers.
+- **Suggested fix:** Add a brief note in power-bi-correlation.md (e.g., near line 9): *"Power BI uses Dataverse logical table names (lowercase plural), which differ from the display names shown in index.md."*
+**W2 — Broken external URLs from Section A that are legitimate API endpoints**
+- `https://api.applicationinsights.io` and `https://api.applicationinsights.io/v1/apps/$AppInsightsAppId/query` in `app-insights-rai-telemetry.md` — These are valid Microsoft API endpoints that return 404 on unauthenticated bare GET. **Not broken.** No fix needed.
+- `https://make.powerautomate.com` in `deployment-guide.md` — Valid portal URL; returns 405 to automated crawlers. **Not broken.** No fix needed.
+**W3 — Broken external URLs from Section A that are intentional placeholders**
+These are example/placeholder domains used correctly in documentation:
+- `https://your-org.crm.dynamics.com` — Placeholder for customer's Dynamics instance
+- `https://contoso.sharepoint.com/sites/hr` — Standard Microsoft example domain
+- `https://contoso.sharepoint.com/sites/hr-personnel` — Standard Microsoft example domain
+- `https://contoso.sharepoint.com/sites/AgentGovernance` — Standard Microsoft example domain
+- `https://contoso.crm.dynamics.com` — Standard Microsoft example domain
+- `https://yourorg.crm.dynamics.com` — Placeholder for customer's Dynamics instance
+- **No fix needed.** These are correctly used as example values.
+**W4 — Broken external URLs from Section A: BAP API and Graph URLs with embedded expressions**
+- `https://api.bap.microsoft.com/...` URLs in `implementation-provisioning.md` — These contain `{environmentId}` placeholders or Power Automate expressions (`@{variables(...)}`, `@{triggerBody(...)}`). They are correctly wrapped in backtick code spans. The automated URL checker incorrectly extracted trailing backticks. **Not broken.** No fix needed.
+- `https://graph.microsoft.com/v1.0/groups/@{triggerBody(...)}` — Same: Power Automate expression syntax. **Not broken.**
+**W5 — `https://www.powershellgallery.com/api/v2/package/$module` in deployment-guide.md**
+- **File:** `docs/playbooks/advanced-implementations/deny-event-correlation-report/deployment-guide.md`
+- **Issue:** URL contains `$module` PowerShell variable. This is inside a PowerShell code block as part of a module installation script. **Not broken** — it's code, not a hyperlink. No fix needed.
+**W6 — Version footer inconsistency across standalone playbooks**
+- **Files:** `confidence-and-routing.md`, `human-in-the-loop-triggers.md`, `zone1-min-explainability.md` all show `v1.2 - January 2026` in footer
+- **Files:** `dspm-for-ai-policy-pack.md`, `microsoft-audit-reporting-tools.md` show `v1.2.51 - February 2026`
+- **Assessment:** Three files lag behind. Consider updating to `v1.2.51` for consistency.
+**W7 — Unverifiable regulatory citation in human-in-the-loop-triggers.md**
+- **File:** `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md`
+- **Issue:** References "FINRA 2026 Annual Regulatory Oversight Report" — this is a forward-looking citation that cannot be verified at time of writing. **NEEDS_HUMAN_REVIEW** to confirm this report exists and the citation is accurate.
+**W8 — x-api-key deprecation date in app-insights-rai-telemetry.md**
+- **File:** `docs/playbooks/advanced-implementations/deny-event-correlation-report/app-insights-rai-telemetry.md`
+- **Issue:** States x-api-key authentication is deprecated with deadline of **March 31, 2026**. **NEEDS_HUMAN_REVIEW** to confirm this date is still accurate per Microsoft's timeline.
+---
+### GAPS
+**G1 — No cross-reference from configuration-hardening-baseline back to individual control playbooks**
+- The hardening baseline index references 9 controls (1.1, 1.7, 1.8, 1.18, 1.27, 2.1, 2.22, 3.7, 3.8) but does not link back to the corresponding control implementation playbook directories. Adding "See also: [1.1 Portal Walkthrough](../../control-implementations/1.1/portal-walkthrough.md)" style links would improve navigation.
+**G2 — Missing "Related Controls" header links in sharepoint-copilot-preflight/index.md**
+- The file lists related controls (4.1, 4.2, 4.4, 4.6, 1.3) in the header metadata but does not include a formal cross-reference table or links to those control pages within the body.
+**G3 — agent-blueprint-promotion-gates has no footer metadata**
+- **Files:** `index.md`, `gate-definitions.md`, `implementation-guide.md` in `agent-blueprint-promotion-gates/`
+- These files have footers (`*FSI Agent Governance Framework v1.2.51 - February 2026*`) but no "Updated: Month Year | Version: vX.X" structured footer like the control template specifies. This is acceptable for playbooks (which don't follow the 10-section control template) but noted for consistency awareness.
+---
+### FIXES
+| # | File | Line(s) | Severity | Fix |
+|---|------|---------|----------|-----|
+| F1 | `environment-lifecycle-management/architecture.md` | 93–96 | CRITICAL | Move admonition after the complete choice field table, or split into two tables |
+| F2 | `configuration-hardening-baseline/index.md` | 3 | CRITICAL | Change `v1.3` to `v1.2.51` (or `v1.2`) |
+| F3 | `configuration-hardening-baseline/index.md` | 308 | CRITICAL | Change `v1.2` to `v1.2.51` to match header |
+| F4 | `deny-event-correlation-report/index.md` | last line | CRITICAL | Change `v1.2` to `v1.2.51` to match sub-pages |
+| F5 | `confidence-and-routing.md` | footer | LOW | Update `v1.2` to `v1.2.51` |
+| F6 | `human-in-the-loop-triggers.md` | footer | LOW | Update `v1.2` to `v1.2.51` |
+| F7 | `zone1-min-explainability.md` | footer | LOW | Update `v1.2` to `v1.2.51` |
+| F8 | `deny-event-correlation-report/power-bi-correlation.md` | ~line 9 | LOW | Add note explaining Dataverse logical vs display name convention |
+---
+### Section A Disposition
+**Broken External URLs (15 reported):**
+- **0 truly broken** — All are either placeholder/example domains (7), API endpoints that don't respond to bare GET (3), PowerShell variable interpolation in code blocks (1), or Power Automate expression syntax in code spans (4).
+- **Action:** No fixes needed. Consider adding `<!-- markdownlint-disable-link -->` comments or URL checker exclusion rules for `contoso.*`, `your-org.*`, `yourorg.*`, and API endpoint patterns.
+**MkDocs Nav Orphans (100+ reported):**
+- **0 actionable** — This is a partial git worktree containing only advanced playbook files. All "orphaned" nav entries reference files that exist in the main worktree (`docs/controls/`, `docs/framework/`, `docs/getting-started/`, etc.). These are artifacts of the worktree scope, not documentation issues.
+---
+### STATUS
+```
+BATCH: playbooks-advanced-chunk-1
+FILES_REVIEWED: 25
+ISSUE_COUNT: 17 (3 CRITICAL, 8 WARNINGS, 3 GAPS, 3 NEEDS_HUMAN_REVIEW)
+SECTION_A_BROKEN_URLS: 15 reported → 0 actionable (all placeholder/API/expression URLs)
+SECTION_A_NAV_ORPHANS: 100+ reported → 0 actionable (worktree artifact)
+LANGUAGE_COMPLIANCE: PASS (no prohibited phrases found)
+REGULATORY_REFERENCES: PASS (FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, SR 11-7 correctly cited)
+CROSS_REFERENCES: PASS (internal links between batch files are consistent)
+POWERSHELL_COMMANDS: PASS (cmdlet names, module references, and parameter syntax are correct)
+STATUS: REVIEW_COMPLETE — 3 critical fixes required before merge (F1-F4)
+```

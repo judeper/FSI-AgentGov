@@ -1,0 +1,14 @@
+Now let me see the full 3.8 verification-testing.md footer and the 3.8 powershell-setup.md function ordering:
+Now let me check the 3.5 powershell-setup.md for the budget splatting issue and the 3.4 verification-testing.md for the SEC Reg S-P reference:
+Let me see more context for the splatting issue:
+Now let me also check how the `Export-CopilotConfigurationForCompliance` function starts in 3.8/powershell-setup.md:
+Now I have all the context. Let me apply all fixes:
+Now update the expected result line to also hedge the specific deadline:
+Verify the changes:
+CHANGES:
+- docs/playbooks/control-implementations/3.7/verification-testing.md: Removed `| Classification: Verification Testing` from footer to match standard format
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Removed `| Classification: Verification Testing` from footer to match standard format
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: Replaced nested hashtable splatting with flat `New-AzConsumptionBudget` parameter calls matching cmdlet's actual signature
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: Added note that `Get-CopilotAuditEvents` is defined later in the file and all functions must be dot-sourced before calling `Export-CopilotConfigurationForCompliance`
+- docs/playbooks/control-implementations/3.4/verification-testing.md: Hedged SEC Regulation S-P 30-day notification deadline with caveat to verify against final rule text
+FIX_STATUS: COMPLETE

@@ -1,0 +1,21 @@
+Analysis complete. Here is the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 7 (Standardize H1 titles across 3.1–3.4):** Changing H1 headings alters MkDocs-generated anchor IDs, which breaks any existing bookmarks, TOC deep-links, or external references pointing at `#portal-walkthrough-control-31-...` vs `#control-31-...-portal-walkthrough`. This is a 16-file diff for a cosmetic issue. Should be deferred to a repo-wide consistency pass, not patched per-chunk.
+- **Fixes 10–12 (Add missing sections to 3.3/3.4 verification and troubleshooting):** These are content authoring tasks, not bug fixes — each requires writing new PowerShell scripts and governance-tier tables. Doing this inside a "fix review findings" pass risks producing thin/stub content that creates a worse impression than omission. Should be separate authoring work items.
+**SEVERITY_CORRECTIONS:**
+- **mkdocs.yml CRITICAL → INFO:** Review already pre-qualified this as a worktree artifact. Labeling it CRITICAL inflates the signal. No fix is needed in this batch — reclassify as informational note.
+- **HTTP 405 CRITICAL → INFO:** Same — pre-qualified as automated checker artifact. Not a real broken link for end users. Reclassify.
+- **Fix 2 (contoso in `.EXAMPLE` block) WARNING → NEEDS_HUMAN_REVIEW:** PowerShell `.EXAMPLE` blocks conventionally use concrete domain names (`contoso.sharepoint.com`) to demonstrate real invocation syntax, while parameter defaults use `[tenant]` placeholders. This is arguably correct PowerShell documentation convention, not an inconsistency. Changing it may reduce readability of the example. Needs human judgment on whether to align or preserve the convention.
+**FIX_ORDERING:**
+1. **Fixes 3, 4 (remove double `---` separators)** — Zero-dependency, zero-risk, confirmed at 3.3 line 140–142 and 3.4 line 208–210. Do first.
+2. **Fixes 8, 9 (add/align metadata)** — Additive-only changes. Add header metadata to 3.3/3.4 portal-walkthroughs AND add footer metadata to 3.1/3.2 files (don't remove from 3.3/3.4 — converge upward). Do second.
+3. **Fixes 5, 6 (verify cmdlets)** — Blocked on human review. `Get-AdminPowerAppEnvironmentAnalytics` and `Get-MgComplianceManagement` cannot be validated without tenant access or authoritative cmdlet reference. Park until confirmed.
+4. **Fix 2 (placeholder)** — Blocked on convention decision (see severity correction above).
+5. **Fix 1 (mkdocs.yml nav)** — No action needed in this batch; verify on main branch only.
+6. **Fixes 7, 10–12** — Defer (see HIGH_RISK and OVER_ENGINEERED).
+**OVER_ENGINEERED:**
+- **Fix 11 (cross-link `./` prefix standardization):** Listed as a WARNING but `./file.md` and `file.md` resolve identically in MkDocs. Zero functional impact, 18+ line changes across 12 files, pure churn. Drop entirely.
+- **Fix 7 (H1 title standardization):** Cosmetic consistency across two different authoring generations. Correct approach is a single repo-wide pass (all pillars, not just P3 chunk 1), not a per-chunk patch that creates a third inconsistency boundary.
+- **Fixes 10–12 (missing sections):** These are feature gaps, not defects. Proper fix requires authoring effort equivalent to writing new playbook content, not a documentation review fix pass.
+**CRITIQUE_SUMMARY:** The review correctly identifies real issues but over-counts severity — 3 of the 15 items need no fix in this batch, and 4 more should be deferred to separate work streams. The safe, high-value fixes are items 3, 4, 8, and 9 (separator cleanup + metadata alignment) — ship those now, park the rest.

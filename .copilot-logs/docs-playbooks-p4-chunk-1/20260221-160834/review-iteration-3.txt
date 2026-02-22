@@ -1,0 +1,24 @@
+Now I have all 15 files. Let me compile the review.
+ISSUE_COUNT: 8
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.3/powershell-setup.md (lines 61-63): Wildcard URLs (`https://contoso.sharepoint.com/sites/Zone1-*`) used in `-SharePointLocation` parameter of `New-RetentionCompliancePolicy` — this parameter likely does not support wildcard patterns; only exact site URLs or `All` are accepted. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.1/powershell-setup.md (line 75): `Set-SPOTenant -EnableRestrictedSearchAllList $true` — parameter name for enabling Restricted SharePoint Search should be verified against current SPO cmdlet documentation. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 164): Claim that `Remove-SPOExternalUser` was deprecated July 2024 needs verification for exact date accuracy. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md (lines 46-56): Step 2 navigates to Microsoft Purview > Data lifecycle management for "Inactive site policies" — inactive site policies are typically managed in SharePoint Admin Center > Site lifecycle management, not Purview. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md and 4.4/portal-walkthrough.md: Prerequisites listed as plain bullets instead of `- [ ]` checkboxes, inconsistent with 4.1 and 4.2 portal walkthroughs which use checkbox format.
+GAPS:
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Missing formal test case table with TC-IDs (TC-4.3-XX format) — present in 4.1 and 4.2 verification files but absent here.
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Test steps lack explicit **EXPECTED:** outcomes per step, unlike 4.1 and 4.2 which include them for each manual verification step.
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Missing "Manual Verification Steps" header with individually numbered tests (Tests 1-N) matching the pattern in 4.1/4.2 verification files.
+FIXES:
+1. docs/playbooks/control-implementations/4.3/powershell-setup.md: Verify that `-SharePointLocation` accepts wildcard URLs (lines 61-63); if not, replace with exact site URLs or document that wildcards require a different approach (e.g., looping through matching sites).
+2. docs/playbooks/control-implementations/4.1/powershell-setup.md: Verify `EnableRestrictedSearchAllList` is the correct parameter name for `Set-SPOTenant` RSS configuration (line 75).
+3. docs/playbooks/control-implementations/4.4/powershell-setup.md: Verify `Remove-SPOExternalUser` deprecation date (line 164); update if incorrect.
+4. docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Verify Step 2 portal navigation path — confirm whether inactive site policies are in Purview or SharePoint Admin Center (line 46-56).
+5. docs/playbooks/control-implementations/4.3/verification-testing.md: Add formal test case table with TC-4.3-XX IDs and explicit EXPECTED outcomes to match 4.1/4.2 verification file patterns.
+6. docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Change prerequisites from plain bullets to `- [ ]` checkbox format for consistency with 4.1/4.2.
+7. docs/playbooks/control-implementations/4.4/portal-walkthrough.md: Change prerequisites from plain bullets to `- [ ]` checkbox format for consistency with 4.1/4.2.
+**NOTE on Section A verified findings:** All 22 "broken external URLs" are intentional placeholder/example URLs in PowerShell code blocks (`yourtenant`, `contoso`, `tenant` prefixes) or authentication-gated portals (`admin.sharepoint.com`). These are standard documentation practice and require no fixes. All mkdocs nav orphans reference files outside this batch's scope (control docs, framework docs, etc.) that exist in the main repository but not in this worktree — no action required on the 15 reviewed files.
+STATUS: ISSUES_FOUND

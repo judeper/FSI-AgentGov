@@ -1,0 +1,22 @@
+None of the fixes were applied — all files retain their original headers. Here is the verification result:
+ISSUE_COUNT: 7
+CRITICAL:
+- NONE
+WARNINGS:
+- `docs/reference/nist-ai-rmf-crosswalk.md`: REMAINING — 93%/97% coverage claim still present (lines 224, 230, 282). NEEDS_HUMAN_REVIEW flag was not actioned. This is the only item affecting published content.
+- `control-metadata-audit-2026-01-18.md` (maintainers-local): REMAINING — No staleness header added. Still references 60 controls vs current 71. LOW severity — local-only.
+- `documentation-audit-2025-12-29.md` (maintainers-local): REMAINING — No staleness header added. Still references v1.0 Beta / 48 controls. LOW severity — local-only.
+- `verification-report.md` (maintainers-local): REMAINING — No staleness header added. Still references v1.0 Beta / 48 controls. LOW severity — local-only.
+- `FSI-AgentGov-Comprehensive-Review-Report.md` (maintainers-local): REMAINING — No staleness header added. Still references v1.1 / 61 controls. LOW severity — local-only.
+- `01-Repository-Analysis.md` (maintainers-local): REMAINING — No superseded marker added. Still references old paths and 43 controls. LOW severity — local-only.
+GAPS:
+- `03-Update-Plan.md` (maintainers-local): REMAINING — No completed/archived marker added. Proposed phases have been implemented but plan is not marked as such. LOW severity — local-only.
+FIXES:
+1. `docs/reference/nist-ai-rmf-crosswalk.md`: NEEDS_HUMAN_REVIEW — have SME verify 93%/97% claim vs ~78% strict-counting methodology. Only fix affecting published content.
+2. `control-metadata-audit-2026-01-18.md`: Add staleness header noting 60→71 control gap. Optional/LOW.
+3. `documentation-audit-2025-12-29.md`: Add staleness header noting v1.0 Beta→v1.2.51 gap. Optional/LOW.
+4. `verification-report.md`: Add staleness header noting v1.0 Beta→v1.2.51 gap. Optional/LOW.
+5. `FSI-AgentGov-Comprehensive-Review-Report.md`: Add staleness header noting v1.1→v1.2.51 gap. Optional/LOW.
+6. `01-Repository-Analysis.md`: Mark as superseded. Optional/LOW.
+7. `03-Update-Plan.md`: Mark as completed/archived. Optional/LOW.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,15 @@
+Both issues have been addressed:
+1. **3.5/powershell-setup.md**: `Az.Consumption` is now installed in prerequisites (line 12), alongside `Az.CostManagement`. This resolves the module mismatch.
+2. **3.8/powershell-setup.md**: Line 103 uses `New-MgGroupMember -DirectoryObjectId` with a comment noting it requires `Microsoft.Graph.Groups module v2.x+` (line 102). The previous HOLD concern about SDK version is addressed by this inline version note.
+Let me verify the `New-AzConsumptionBudget` usage is consistent with the now-installed `Az.Consumption` module.
+Both modules are installed and `New-AzConsumptionBudget` (from `Az.Consumption`) is properly covered by the prerequisites.
+ISSUE_COUNT: 0
+CRITICAL:
+NONE
+WARNINGS:
+NONE
+GAPS:
+NONE
+FIXES:
+NONE
+STATUS: CLEAN

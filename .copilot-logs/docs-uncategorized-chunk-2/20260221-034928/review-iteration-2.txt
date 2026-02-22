@@ -1,0 +1,30 @@
+Now let me read the remaining files in the scope.
+Now let me check the remaining files and verify the version inconsistency I noticed.
+I've now reviewed all 25 files in scope. Here is my report:
+ISSUE_COUNT: 488
+CRITICAL:
+- docs/controls/CONTROL-INDEX.md: Footer says "v1.3 - February 2026" but framework version is v1.2.51 — misleading version number
+- docs/templates/control-setup-template.md: Footer says "Version: v1.3" but framework is v1.2.51 — version mismatch
+- docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Line 10 uses prohibited language "ensure governance compliance" (violates FSI language rules — should be "support governance compliance" or similar)
+- docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Broken external URL `https://tenant-admin.sharepoint.com` (confirmed — placeholder in PowerShell code, not a functional link)
+- docs/templates/control-setup-template.md: 7 broken internal links — template placeholder paths `[../path/to/control.md]` and `[../../playbooks/control-implementations/[X.X]/*]` do not resolve (confirmed; expected as template, but breaks link validation)
+- mkdocs.yml: 473 nav entries reference files not found in this worktree (confirmed — controls, playbooks, framework, reference, downloads, getting-started pages all referenced but absent)
+WARNINGS:
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Contains uncleaned research citation markers (`[web:21]`, `[web:92]`, `<sup>[19]</sup>`, `<sup>[3]</sup>`) — these are not standard documentation annotations and should be removed or converted to proper references
+- docs/playbooks/monitoring-and-validation/scope-creep-detection.md: Contains research citation markers (`<sup>[16]</sup>`) throughout — 12 instances with no reference list; should be cleaned or footnoted properly
+- docs/templates/README.md: Only lists `control-setup-template.md` but directory also contains `exception-template.md` — README is incomplete
+- docs/controls/CONTROL-INDEX.md: Regulatory Alignment section lists FINRA 4512 and 2111 but omits FINRA 25-07, which is in the project's target regulations list
+- reports/documentation-review-2026-01-26.md: References "61 controls, 244 playbooks" — stale counts (now 71 controls, 284 playbooks); acceptable as historical report but could confuse readers
+GAPS:
+- templates/README.md (root level): File listed in review scope but does not exist in repository/worktree
+- docs/playbooks/monitoring-and-validation/scope-creep-detection.md and evidence-pack-assembly.md: Missing reference/bibliography section to support citation markers used throughout
+FIXES:
+1. docs/controls/CONTROL-INDEX.md: Change footer from "v1.3 - February 2026" to "v1.2.51 - February 2026" (or current framework version)
+2. docs/templates/control-setup-template.md: Change footer "Version: v1.3" to "Version: v1.2" to match framework
+3. docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Line 10 — change "ensure governance compliance" to "support governance compliance" or "help verify governance compliance"
+4. docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Remove or convert research citations (`[web:21]`, `[web:92]`, `<sup>[19]</sup>`, `<sup>[3]</sup>`) to proper footnotes or inline references
+5. docs/playbooks/monitoring-and-validation/scope-creep-detection.md: Remove or convert 12 `<sup>[16]</sup>` citation markers to proper references with a bibliography section
+6. docs/templates/README.md: Add `exception-template.md` to the Available Templates table
+7. docs/controls/CONTROL-INDEX.md: Add FINRA 25-07 to Regulatory Alignment section (or verify intentional omission)
+8. mkdocs.yml / worktree structure: 473 nav orphans — these files are referenced in mkdocs.yml but not present in this worktree; ensure all referenced docs exist when building from this worktree, or use the full repository for builds
+STATUS: ISSUES_FOUND

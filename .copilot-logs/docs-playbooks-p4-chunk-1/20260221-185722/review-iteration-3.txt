@@ -1,0 +1,11 @@
+The navigation footer is still missing. The fix was not applied.
+ISSUE_COUNT: 1
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Missing sibling navigation footer links. File still ends with only `*Updated*` line and no navigation links. REMAINING (Fix 1).
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.4/verification-testing.md: Add sibling navigation footer before the `*Updated*` line: `[Back to Control 4.4](../../../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)`
+STATUS: ISSUES_FOUND

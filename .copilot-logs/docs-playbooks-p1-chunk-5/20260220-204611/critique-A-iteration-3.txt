@@ -1,0 +1,14 @@
+Now let me check the remaining playbook files in this chunk for missed issues.
+Now let me verify a couple of the internal cross-reference links and the `New-DlpPolicy`/`Get-DlpPolicy` cmdlet usage, and check for any language compliance issues.
+Now I have enough evidence to deliver the audit.
+---
+FALSE_POSITIVES:
+- NONE. All review findings check out as legitimate.
+MISSED_ISSUES:
+- The `Add-AdminPowerAppEnvironmentToPolicy` cmdlet appears at lines 218, 230, AND 242 in 1.28/powershell-setup.md (three occurrences across Zone 1/2/3 assignment blocks), not just line 218 as the review states. The scope of the fix is understated.
+- 1.28/troubleshooting.md line 97 also uses `ChatBotName` (capital B) casing: `Get-AdminPowerAppChatbot -EnvironmentName $env -ChatBotName $agent`. This extends the cross-playbook casing inconsistency into the troubleshooting playbook for 1.28, which the review did not mention.
+- 1.28/powershell-setup.md line 79 comment states "NOTE: Add-ConnectorToBusinessDataGroup does not exist" but then prescribes `Set-AdminDlpPolicy -ConnectorGroups @(...)` with a hashtable-array parameter format that may not match the actual cmdlet signature. The `Set-AdminDlpPolicy` cmdlet exists but its `ConnectorGroups` parameter may not accept inline hashtable arrays as shown. NEEDS_HUMAN_REVIEW.
+FIX_CONCERNS:
+- Fix #1 (standardize to `ChatbotName`): Mostly correct, but oversimplified for 1.26. In 1.26, `ChatbotId` is used both as a **property access** (`$agent.ChatbotId`, lines 79/449) and as a **cmdlet parameter** (`-ChatbotId`, lines 152/436) for the aspirational `Set-AdminPowerAppChatbot`. The property access should change to `ChatbotName`, but the parameter name for the non-existent `Set` cmdlet is unknown — the fix should note this distinction rather than blanket-renaming both.
+- Fix #3 (add cmdlet availability note for `Add-AdminPowerAppEnvironmentToPolicy`): Correct recommendation, but should cover all three occurrences (lines 218, 230, 242) and ideally suggest the correct alternative approach (use `Set-AdminDlpPolicy` with environment scope, or manage environments through the PPAC portal).
+CRITIQUE_SUMMARY: The review is solid — all flagged issues are real, the false-positive assessments on broken URLs are correct, and no prohibited language was found. The main gaps are underscoping the `Add-AdminPowerAppEnvironmentToPolicy` fix (3 occurrences, not 1), missing the `ChatBotName` casing inconsistency extending into 1.28/troubleshooting.md, and oversimplifying the `ChatbotId` → `ChatbotName` fix in 1.26 where the property is also used as a parameter to an aspirational cmdlet.

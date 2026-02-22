@@ -1,0 +1,24 @@
+Now let me verify the portal name concern and check 2.23 URL context:
+Now I have all data to produce the final synthesized review.
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/images/1.15/EXPECTED.md: Line 19 references "Zone 3-4" — the framework defines only Zones 1, 2, and 3. No Zone 4 exists. Should be "Zone 3".
+- docs/images/1.11/EXPECTED.md: Line 21 contains the identical "Zone 3-4" error ("Risk-based policies for Zone 3-4 environments"). Should be "Zone 3".
+- mkdocs.yml: ~470 nav entries reference docs files not found in this worktree. This is a sparse worktree artifact — no fix required if main branch is intact.
+WARNINGS:
+- docs/images/3.11/EXPECTED.md: Lines 90 and 451 contain bare example URLs (`https://sharepoint.contoso.com/agents/` and `https://sharepoint.contoso.com/governance/decommissioned/`) that render as clickable links. Should be wrapped in backticks since they are example values in screenshot specs.
+- docs/images/2.23/EXPECTED.md: Lines 10 and 165 contain bare example URLs (`https://contoso.com/policies/ai-transparency`) — same class of issue as 3.11. Should be wrapped in backticks.
+- docs/images/1.22/EXPECTED.md: Lines 6 and 13 reference "Microsoft Purview Compliance Center" — Microsoft rebranded this portal to "Microsoft Purview compliance portal" (at compliance.microsoft.com) in 2023.
+- 13 files (1.1, 1.6, 1.7, 1.8, 1.9, 1.12, 1.15, 2.10, 2.11, 3.2, 3.3, 3.4, 3.5) use table format and omit "- Screenshot Specifications" from H1 title; the other 12 files include it. Inconsistent template — defer to a dedicated normalization pass.
+- docs/images/3.11/EXPECTED.md and docs/images/3.12/EXPECTED.md are the only two files in the batch with back-links to their control docs; the remaining files lack back-links. Defer to a normalization pass.
+GAPS:
+- 13 table-format files use a `## Verification Focus` section (short bullet points about what to verify), while 12 detailed-format files use `## Notes for Verification` (fuller guidance on how to capture screenshots). This is a naming and depth inconsistency between the two template styles, not a complete absence of verification guidance.
+FIXES:
+1. docs/images/1.15/EXPECTED.md line 19: Change `Zone 3-4` to `Zone 3`
+2. docs/images/1.11/EXPECTED.md line 21: Change `Zone 3-4` to `Zone 3`
+3. docs/images/3.11/EXPECTED.md line 90: Wrap `https://sharepoint.contoso.com/agents/...` in backticks
+4. docs/images/3.11/EXPECTED.md line 451: Wrap `https://sharepoint.contoso.com/governance/decommissioned/...` in backticks
+5. docs/images/2.23/EXPECTED.md lines 10, 165: Wrap `https://contoso.com/policies/ai-transparency` in backticks
+6. docs/images/1.22/EXPECTED.md lines 6, 13: Change "Microsoft Purview Compliance Center" to "Microsoft Purview compliance portal"
+7. mkdocs.yml: No fix needed — nav orphans are expected in this sparse worktree
+STATUS: ISSUES_FOUND

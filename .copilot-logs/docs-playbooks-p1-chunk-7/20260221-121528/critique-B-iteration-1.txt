@@ -1,0 +1,11 @@
+**HIGH_RISK_FIXES:**
+- **Fix 1 (Microsoft Foundry → Azure AI Foundry):** HIGH RISK. "Microsoft Foundry" appears in **30+ locations** across framework docs, controls, and playbooks (1.2, 1.5, 1.6, 1.11, 1.12, 1.24, 2.1, 2.9, 2.17, 3.3, 3.8, 3.11, agent-identity-architecture.md, etc.). Changing only the 2 instances in `1.24/portal-walkthrough.md` would create a **branding inconsistency** across the entire repo. This is a repo-wide terminology decision, not a localized fix. Must be all-or-nothing.
+**SEVERITY_CORRECTIONS:**
+- All three items are correctly classified as **WARNING / NEEDS_HUMAN_REVIEW**. None are actionable without external verification. Upgrading any to CRITICAL would be unjustified — all three are factual accuracy concerns, not broken builds or broken links.
+- Fix 3 (API version) severity is arguably LOW rather than WARNING — the `2024-01-01` version still functions; an outdated-but-working API version in a documentation example is cosmetic, not a correctness issue.
+**FIX_ORDERING:**
+- Fix 2 and Fix 3 are independent and can be applied in any order.
+- Fix 1 **must not** be applied in this chunk alone. If the branding is wrong, it requires a separate repo-wide pass (30+ files). Defer to a dedicated branding sweep.
+**OVER_ENGINEERED:**
+- NONE. The review correctly scoped all three as NEEDS_HUMAN_REVIEW rather than proposing speculative changes. No fixes were over-engineered.
+**CRITIQUE_SUMMARY:** The review is accurate and well-calibrated — all three findings are genuine verification items, correctly deferred to human review rather than auto-fixed. The only risk is Fix 1: applying a branding rename to 2 files when 30+ files use the same term would create worse inconsistency than leaving it unchanged; this should be explicitly flagged as "defer to repo-wide pass" rather than presented as a per-file fix.

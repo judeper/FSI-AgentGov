@@ -1,0 +1,17 @@
+Now let me read the solutions-integration.md more fully to understand the status contradictions and count issues.
+Let me verify the external URL and check the agent-365-architecture redirect stub:
+Now update all version footers from v1.2.42 to v1.2.51:
+Now verify no v1.2.42 references remain and spot-check key fixes:
+All edits applied. Let me verify the full Summary Statistics and the ELM/MCM/PGC Status additions:
+All fixes verified. Let me confirm the `&amp;` in the index.md renders correctly by checking the existing table format:
+The `&amp;` should be a plain `&` in markdown:
+Now verify the build:
+All changes are correct. The `mkdocs build --strict` command can't run due to environment permissions, but all edits are pure markdown text changes within existing structure.
+CHANGES:
+- docs/framework/executive-summary.md: Fixed RACI violation — changed Board role for "Annual governance review" from A to I (single Accountable: Compliance)
+- docs/framework/index.md: Merged duplicate "Agent 365 Architecture" / "Agent Identity Architecture" rows into single "Unified Agent Governance" entry
+- docs/framework/governance-fundamentals.md: Changed "5-point maturity scale" to "maturity scale" (matches 4-item grouped presentation)
+- docs/framework/agent-identity-architecture.md: URL retained — cannot verify externally; downgraded warning per review
+- docs/framework/solutions-integration.md: Removed hardcoded "24" from mermaid diagram label; added missing Status fields to ELM, MCM, PGC (all Completed); fixed Summary Statistics to match body statuses (DECR→Completed, Segregation→WIP, FUS→WIP, AAM→WIP, COI/Hallucination/DR→Planned)
+- docs/framework/index.md, executive-summary.md, governance-fundamentals.md, zones-and-tiers.md, agent-lifecycle.md, regulatory-framework.md, operating-model.md, governance-cadence.md, adoption-roadmap.md, agent-identity-architecture.md: Updated version footers from v1.2.42 to v1.2.51
+FIX_STATUS: COMPLETE

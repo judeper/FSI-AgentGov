@@ -1,0 +1,11 @@
+Now I have all the context. Let me apply all fixes.
+Now add `**Last Verified:**` to 3.11 and 3.12:
+Now verify the final state of index.md:
+All fixes applied. The SEC URL warning (3.4 line 21) is left as-is per the review's NEEDS_HUMAN_REVIEW designation — the 403 is likely bot-filtering, not a dead link.
+CHANGES:
+- docs/controls/pillar-3-reporting/index.md (line 7): Changed "These 10 controls ensure" → "These 12 controls help provide"; added "inventory enforcement, and exception management" coverage areas
+- docs/controls/pillar-3-reporting/index.md (lines 13-20): Added 3.11 to Inventory & Tracking row; added new Governance Enforcement row for 3.12
+- docs/controls/pillar-3-reporting/index.md (lines 33-34): Added 3.11 and 3.12 entries to Controls list
+- docs/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md (line 8): Added `**Last Verified:** 2026-02-22`
+- docs/controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md (line 8): Added `**Last Verified:** 2026-02-22`
+FIX_STATUS: COMPLETE

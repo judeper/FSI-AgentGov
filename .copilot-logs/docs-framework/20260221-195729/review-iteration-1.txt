@@ -1,0 +1,23 @@
+Now I have all the content. Let me compile my findings.
+ISSUE_COUNT: 8
+CRITICAL:
+- docs/framework/agent-identity-architecture.md (line 1063): Broken external URL `https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906` returns HTTP 400 (confirmed by automated pre-pass)
+- docs/framework/solutions-integration.md: Solution count inconsistency — mermaid diagram says "24 Deployable Automation Solutions" (line 21), body details 19 solutions, and summary stats say "27 automation solutions (25 deployable + 2 framework-integrated)" (line 655). Three conflicting numbers in the same document
+- docs/framework/solutions-integration.md: Status contradictions within the same file — body text lists Segregation Detector as "Work In Progress" (line 218) and Deny Event Correlation as "Completed" (line 130), but summary stats (lines 658-659) list Segregation Detector under "Validated" and DECR under "Validated"
+WARNINGS:
+- docs/framework/index.md (line 44): "Agent 365 Architecture" row links to `agent-identity-architecture.md` instead of `agent-365-architecture.md`. While both resolve to the same consolidated content, the link target should match the file named in the title for clarity
+- docs/framework/executive-summary.md (line 118): RACI table row "Annual governance review" has two Accountable entries (Compliance **A** and Board **A**). Strict RACI requires exactly one Accountable per activity
+- docs/framework/solutions-integration.md (line 671): Version footer shows v1.2.51 while all other 10 framework files show v1.2.42. Creates inconsistency within the framework documentation layer
+- docs/framework/executive-summary.md (lines 62-68): Regulatory Heatmap uses "Full compliance" as a zone label. While contextually describing regulatory scope, this phrasing risks misinterpretation as an overclaim per FSI language rules. Consider "Full requirements apply"
+GAPS:
+- docs/framework/index.md: Framework Components table has two separate rows ("Agent 365 Architecture" and "Agent Identity Architecture") both linking to the same file (`agent-identity-architecture.md`). Since agent-365-architecture.md is now a consolidation redirect, the table should either merge these into one row or update the first row to link to `agent-365-architecture.md`
+NOTE ON SECTION A NAV ORPHANS: I verified that ALL 300+ mkdocs nav orphan findings from the automated pre-pass are **false positives**. The referenced files exist at correct paths under `docs/` (e.g., `docs/controls/index.md`, `docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`, etc.). The `mkdocs.yml` uses default `docs_dir` and nav paths are correctly relative to it. The automated tooling likely resolved paths from the wrong base directory.
+FIXES:
+1. docs/framework/agent-identity-architecture.md (line 1063): Replace broken blog URL with an archived or updated URL, or remove the link if no valid replacement exists. Current: `https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906`
+2. docs/framework/solutions-integration.md (line 21): Update mermaid diagram subtitle from "24 Deployable Automation Solutions" to match the actual count documented on the page (19 detailed solutions, or the correct total from the companion repo)
+3. docs/framework/solutions-integration.md (lines 655-661): Reconcile summary statistics with body text — update Segregation Detector to "Work In Progress" and Deny Event Correlation to "Completed" in the status distribution to match the per-solution detail sections
+4. docs/framework/index.md (line 44): Either merge the two rows into one ("Unified Agent Governance" linking to `agent-identity-architecture.md`) or update the "Agent 365 Architecture" row to link to `agent-365-architecture.md`
+5. docs/framework/executive-summary.md (line 118): Change RACI for "Annual governance review" to have single Accountable — recommend Compliance as **A** and Board as **I** or **C**
+6. docs/framework/executive-summary.md (lines 62-68): Replace "Full compliance" with "Full requirements" in the Regulatory Heatmap zone column
+7. docs/framework/solutions-integration.md (line 671) OR other framework files: Align version numbers across the framework layer — either update other files to v1.2.51 or note that solutions-integration.md was updated independently
+STATUS: ISSUES_FOUND

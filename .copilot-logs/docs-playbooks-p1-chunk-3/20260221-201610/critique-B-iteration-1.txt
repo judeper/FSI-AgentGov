@@ -1,0 +1,15 @@
+Now let me spot-check the footer claims across a few more files.
+I've verified all findings against the actual files. Here is my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 1 (1.18 portal-walkthrough restructure):** Moving Steps 7–9 before Validation requires careful renumbering. The current Steps 7–9 use inconsistent heading levels (`## Step 7` then `### Step 8`, `### Step 9`). During the move, the heading levels must be normalized to `###` to match Steps 1–6, or the mkdocs TOC will render incorrectly. Additionally, the `---` horizontal rule at line 109 between Validation and Step 7 must be removed/repositioned to avoid a dangling separator. Low cross-reference risk since no other files in this batch link to specific step anchors within this page.
+**SEVERITY_CORRECTIONS:**
+- **Fix 4 (1.16 dead code) is correctly WARNING but review overstates impact.** The `$irmSettings` hashtable (lines 96–100) is in an *example script*, not a production automation. Administrators copy-pasting this script will still get IRM enabled via the `Set-PnPList` call on line 93. The dead code is cosmetically messy but will not cause a misconfiguration. Severity could arguably be downgraded to INFO/STYLE.
+- **Fix 3 (1.17 troubleshooting date) is correctly WARNING.** Confirmed: `troubleshooting.md` says "January 2026" while `portal-walkthrough.md`, `powershell-setup.md`, and `verification-testing.md` all say "February 2026". Accurate finding.
+- **All other severities are accurately classified.**
+**FIX_ORDERING:**
+- No dependencies exist between fixes — all 5 active fixes target different files and can be applied in any order. However, recommended sequence for reviewability: Fix 1 (structural, highest-risk) → Fix 4 (code change) → Fix 2 (nav addition) → Fix 3 (date) → Fix 5 (batch footer stamps). This front-loads the changes requiring the most review attention.
+**OVER_ENGINEERED:**
+- **Fix 4 second option ("apply via splatting")** is over-engineered. The review suggests either removing the dead hashtable OR wiring it up with splatting. Wiring it up changes the script's documented behavior and introduces new `Set-PnPList` parameters (`IrmExpire`, `IrmReject`) that weren't part of the original playbook scope. Simply deleting lines 96–101 is the correct minimal fix.
+- **Fix 5 (14-file footer addition)** is proportionate, not over-engineered. The repo's control template standard (`fsi-control-template.instructions.md`) mandates the `*Updated: ... | Version: ...*` footer, so adding it to playbooks is consistent with project conventions.
+**CRITIQUE_SUMMARY:** The review is thorough and all findings are verified accurate against the actual files. The only refinement needed is that Fix 1 must also normalize the heading levels (`## Step 7` → `### Step 7`) during the move, and Fix 4 should only remove the dead code rather than offering the splatting alternative.

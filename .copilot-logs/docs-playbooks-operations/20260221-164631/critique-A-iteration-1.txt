@@ -1,0 +1,11 @@
+Now let me check the batch scope and look for missed issues in the playbooks-operations files.
+Let me check the other in-scope file with "FINRA 3110" and scan the batch-scope files for additional issues.
+Here is my audit of the review:
+**FALSE_POSITIVES:**
+NONE
+**MISSED_ISSUES:**
+- `docs/playbooks/incident-and-risk/ai-risk-assessment-template.md` (line 193): Same "FINRA 3110" inconsistency — says "FINRA 3110 supervision applies" but should be "FINRA Rule 3110" to match the canonical citation format used throughout the controls (e.g., Control 2.12 title, regulatory references). This is an in-scope file for the playbooks-operations batch that the reviewer overlooked.
+- Line number error: The reviewer cited line 202 for `phase-1-minimal-viable-controls.md`, but the text "per FINRA 3110" is actually on **line 201**. Minor but worth correcting.
+**FIX_CONCERNS:**
+- The suggested fix ("per FINRA 3110" → "per FINRA Rule 3110") is correct in substance but references line 202 instead of line 201. Additionally, `ai-risk-assessment-template.md:193` needs the same treatment: "FINRA 3110 supervision applies" → "FINRA Rule 3110 supervision applies".
+**CRITIQUE_SUMMARY:** The reviewer correctly identified a real consistency issue and properly dismissed the nav-orphan false positives, but missed an identical "FINRA 3110" instance in `ai-risk-assessment-template.md` and cited the wrong line number (202 vs 201) for the one they did find.

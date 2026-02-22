@@ -1,0 +1,12 @@
+Now let me check the mkdocs.yml nav issue and look for missed issues in the chunk-2 EXPECTED.md files.
+Let me verify a few more title matches to check for missed issues.
+I now have enough evidence to produce the audit.
+**FALSE_POSITIVES:**
+- **mkdocs.yml ~253 missing nav entries is FALSE.** Independent verification confirms all nav entries in mkdocs.yml reference files that exist in the repository. The reviewer's claim of "confirmed by automated pre-pass" is incorrect — there are zero missing files. This CRITICAL finding and its corresponding Fix #1 are entirely spurious.
+**MISSED_ISSUES:**
+- **H1 title inconsistency across 22 EXPECTED.md files**: Controls 1.21–1.28, 2.16–2.24, 3.10–3.12, 4.6–4.7 append "- Screenshot Specifications" to the H1 (e.g., `# Control 2.16: RAG Source Integrity Validation - Screenshot Specifications`) while the remaining ~49 files use only the control name (e.g., `# Control 2.1: Managed Environments`). This is a stylistic inconsistency across the repo — low severity but worth noting if standardization is desired.
+**FIX_CONCERNS:**
+- **Fix #1 is invalid** — it recommends fixing ~253 missing files that don't actually exist as a problem. Applying this would waste effort investigating a non-issue.
+- **Fix #2 (3.8 title) is correct** — the EXPECTED.md H1 `# Control 3.8: Copilot Hub` should indeed be `# Control 3.8: Copilot Hub and Governance Dashboard` to match the control file's actual H1. The "permission denied" failure to apply is a legitimate blocker in this worktree context.
+- **Fix #3 (3.12 contoso URL) is correct** — `contoso.crm.dynamics.com` is Microsoft's standard placeholder domain; no action needed. NEEDS_HUMAN_REVIEW: not needed.
+**CRITIQUE_SUMMARY:** The review has one significant false positive — the claimed ~253 missing mkdocs.yml nav references do not exist, inflating the severity of the report. The two real findings (3.8 title mismatch, 3.12 contoso URL as informational) are correctly identified and assessed, though the reviewer missed a broader pattern of H1 title format inconsistency affecting 22 EXPECTED.md files.

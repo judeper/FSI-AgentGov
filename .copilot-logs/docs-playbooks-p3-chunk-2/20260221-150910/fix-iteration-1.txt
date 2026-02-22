@@ -1,0 +1,26 @@
+Now let me read the footer areas and the files needing version updates:
+Let me see the full context of the Az.Consumption cmdlet usages and remaining files:
+Let me check the Validation sections in the other portal-walkthroughs and the full context:
+Now I have all context. Let me apply all fixes:
+Now fix the version footers and the verification-testing.md reorder:
+Now fix the 3.7/verification-testing.md — move "Next Steps" to end of document (after SSPM content, before footer):
+Now add the "Next Steps" section back at the end, before the footer:
+Now verify the 3.5/troubleshooting.md — it uses `Get-AzConsumptionBudget` which is correct (from `Az.Consumption`), but users following the troubleshooting would need the module installed. Let me add a comment noting the module requirement:
+Now let me verify all changes look correct:
+Now let me clean up the double `---` in 3.7/verification-testing.md that was left after removing the Next Steps section:
+Now commit all changes:
+The git write operations appear to be restricted in this environment. All file edits have been applied correctly to the working directory. Let me verify the final state:
+All fixes verified — `v1.2` no longer appears in the four updated footers (exit code 1 = no matches). Let me also confirm the verification-testing.md reorder:
+"Next Steps" (line 182) is now after "SSPM Configuration Verification" (line 95). All fixes applied correctly.
+CHANGES:
+- 3.8/powershell-setup.md: Changed `$GroupName = "CopilotForM365AdminExclusionGroup"` → `"CopilotForM365AdminExclude"` (CRITICAL fix)
+- 3.5/powershell-setup.md: Added `Install-Module -Name Az.Consumption` to prerequisites (budget cmdlets require this module)
+- 3.5/troubleshooting.md: Added `(requires Az.Consumption module)` comment to `Get-AzConsumptionBudget` diagnostic command
+- 3.6/portal-walkthrough.md: Removed duplicate `---`, added `## Validation` section with 7-item checklist
+- 3.7/portal-walkthrough.md: Added `## Validation` section with 7-item checklist for consistency
+- 3.7/verification-testing.md: Moved "Next Steps" section to end of document (after SSPM content), removed leftover duplicate `---`
+- 3.7/powershell-setup.md: Updated footer from "January 2026 | v1.2" → "February 2026 | v1.3"
+- 3.7/troubleshooting.md: Updated footer from "January 2026 | v1.2" → "February 2026 | v1.3"
+- 3.8/powershell-setup.md: Updated footer from "January 2026 | v1.2" → "February 2026 | v1.3"
+- 3.8/troubleshooting.md: Updated footer from "January 2026 | v1.2" → "February 2026 | v1.3"
+FIX_STATUS: COMPLETE

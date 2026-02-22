@@ -1,0 +1,14 @@
+Now let me check the other playbooks in the batch to verify the "standard" format claims.
+Now let me verify the exact line numbers claimed for the double `---` issues.
+Now I have all the evidence needed to provide the audit.
+**FALSE_POSITIVES:**
+- NONE — All 8 claimed issues are real and verified against the actual file contents.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/2.8/verification-testing.md`: Same inverted H1 format (`# Verification & Testing: Control 2.8 - ...`), missing blockquote intro line, and missing standard footer — identical defect pattern to the flagged portal-walkthrough and powershell-setup, but not reported.
+- `docs/playbooks/control-implementations/2.8/troubleshooting.md`: Same inverted H1 format (`# Troubleshooting: Control 2.8 - ...`), missing blockquote intro line, and missing standard footer — identical defect pattern, not reported.
+- `docs/playbooks/control-implementations/2.7/portal-walkthrough.md`: Double `---` separator at lines 176 and 178 (empty line between two horizontal rules) — same defect class flagged in 2.5 and 2.6, but missed here.
+**FIX_CONCERNS:**
+- Fixes #7 and #8: Line number references are slightly inaccurate. For 2.5/portal-walkthrough.md, the double `---` lines are at **241 and 243** (not "line 242"). For 2.6/portal-walkthrough.md, they are at **238 and 240** (not "line 239"). The fix intent ("keep only one horizontal rule before back-link") is correct, but the specified line to remove doesn't correspond to an actual `---` line.
+- Fixes #1–#6 are correctly specified and actionable.
+- No fixes were proposed for the 2.7 or 2.8 verification-testing/troubleshooting missed issues (6 additional fixes needed, bringing true issue count from 8 to 14+).
+**CRITIQUE_SUMMARY:** The review correctly identified all issues it found and its false-positive analysis is accurate, but it missed 7 additional issues: all four 2.8 playbooks share the same inverted-heading/missing-blockquote/missing-footer defect pattern yet only two were flagged, and the double `---` separator in 2.7/portal-walkthrough.md was overlooked despite being identical to the 2.5/2.6 findings. The true issue count is approximately 14, not 8.

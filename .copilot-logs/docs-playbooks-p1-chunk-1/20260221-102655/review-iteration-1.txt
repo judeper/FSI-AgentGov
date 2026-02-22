@@ -1,0 +1,20 @@
+Now I have all 15 files read. Let me analyze them systematically.
+Now I have all the data needed. Here is my complete review:
+ISSUE_COUNT: 8
+CRITICAL:
+- 1.1/portal-walkthrough.md + 1.1/verification-testing.md: Internal inconsistency — portal-walkthrough.md (line 183) locates "Publish bots with AI features" at **Manage > Tenant Settings** (tenant-level), but verification-testing.md (lines 169, 204) locates it at **PPAC > Environments > Settings > Features** (environment-level). These are contradictory paths for the same setting, and the verification doc calls it "environment level" (line 207) while the portal walkthrough treats it as tenant-level.
+- 1.1/verification-testing.md: Date inconsistency — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026 | Version: v1.3" (line 220).
+WARNINGS:
+- 1.1/portal-walkthrough.md: Heading hierarchy break — Steps 0-5 are H3 under "Step-by-Step Configuration" H2, but Steps 6-9 are placed after two intervening H2 sections ("Configuration by Governance Level", "Microsoft 365 Integrated Surfaces"). Step 6 becomes its own H2 (line 148) and Steps 7-9 are H3 under it, making them appear as sub-steps rather than independent steps.
+- 1.4/powershell-setup.md: Missing standard navigation footer — all other 14 playbooks in this batch end with `[Back to Control X.X](...) | [Portal Walkthrough](...) | ...` navigation links; this file ends only with a version line (line 351).
+- 1.1/troubleshooting.md: `Get-AdminAuditLogConfig` cmdlet (line 79) requires Exchange Online PowerShell module, but only Power Platform module is referenced elsewhere in the 1.1 playbook set. NEEDS_HUMAN_REVIEW.
+- Inconsistent footer metadata across batch: 5 of 15 files have footer version/date lines (1.1/portal-walkthrough, 1.1/verification-testing, 1.2/sponsorship-lifecycle-workflows, 1.4/portal-walkthrough, 1.4/powershell-setup); the other 10 lack them.
+GAPS:
+- Section A broken external URLs (10 entries) are all false positives: portal URLs (admin.powerplatform.microsoft.com, copilotstudio.microsoft.com, make.powerautomate.com) correctly return HTTP 405 to automated crawlers; contoso.sharepoint.com and internal.bank.com URLs are intentional example/placeholder URLs in documentation. No fixes needed.
+- Section A mkdocs nav orphans (~455 entries) are a worktree infrastructure issue — this isolated worktree contains only the playbook files, not the full repo tree. These files exist in the main repository. No content fixes needed.
+FIXES:
+1. 1.1/verification-testing.md: Reconcile portal path for SSPM-1.1-05 — either change to "PPAC > Manage > Tenant Settings" to match portal-walkthrough.md, or update portal-walkthrough.md Step 8 to use environment-level path. Verify which is correct in the actual portal and update both files consistently.
+2. 1.1/verification-testing.md line 3: Change "Last Updated: January 2026" to "Last Updated: February 2026" to match footer date on line 220.
+3. 1.1/portal-walkthrough.md: Move Steps 6-9 under the "Step-by-Step Configuration" H2 (before "Configuration by Governance Level"), or promote Steps 7-9 from H3 to H2 to match Steps 0-5 pattern.
+4. 1.4/powershell-setup.md: Add standard navigation footer: `[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)`
+STATUS: ISSUES_FOUND

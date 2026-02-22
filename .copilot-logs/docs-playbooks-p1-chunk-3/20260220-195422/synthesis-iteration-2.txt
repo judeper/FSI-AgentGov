@@ -1,0 +1,13 @@
+Critique A is confirmed — 1.19 has 4 files, not 1. Let me check the footer situation on those 3 excluded files.
+All 3 excluded 1.19 files lack footer metadata. Critique A confirmed: 22 files missing footers, not 19. Here is the final synthesized review:
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- docs/playbooks/control-implementations/1.16/troubleshooting.md: PowerShell cmdlet `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` (line 124) uses incorrect cmdlet and parameter. `Add-AipServiceSuperUser` accepts only `-EmailAddress` (individual users) or `-ServicePrincipalId`, not `-Group`. For groups, use `Set-AipServiceSuperUserGroup -GroupEmailAddress`. NEEDS_HUMAN_REVIEW
+WARNINGS:
+- 22 of 28 in-scope files missing standardized footer metadata (`*Updated: Month Year | Version: vX.X*`). Files with footers: all 4 in 1.13/, 1.18/portal-walkthrough.md, and 1.18/verification-testing.md. Files without: all of 1.14/, 1.15/, 1.16/, 1.17/, 1.18/powershell-setup.md, 1.18/troubleshooting.md, all 4 in 1.19/
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.16/troubleshooting.md: Change `Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"` to `Set-AipServiceSuperUserGroup -GroupEmailAddress "SG-Compliance-SuperUsers@contoso.com"` (NEEDS_HUMAN_REVIEW — verify exact group email domain against example conventions used elsewhere in the playbook)
+STATUS: ISSUES_FOUND

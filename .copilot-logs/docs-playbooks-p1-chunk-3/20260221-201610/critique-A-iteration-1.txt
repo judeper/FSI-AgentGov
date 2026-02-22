@@ -1,0 +1,17 @@
+Now let me check the sibling files for 1.17 and the remaining batch files for footer consistency.
+Let me verify the file counts and check remaining details.
+Let me check for additional issues the reviewer might have missed.
+Now I have all the evidence needed. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- **Footer count "14 of 25 files"**: The batch contains 28 files (7 controls × 4 files), not 25. Actual count of files missing the `*Updated: ... | Version: ...*` footer is **22 of 28**, not 14 of 25. The underlying issue (footer inconsistency) is real, but both the total and the missing count are wrong. Fix 5's enumerated file list also only accounts for ~19 files while claiming 14.
+**MISSED_ISSUES:**
+- **1.18/portal-walkthrough.md header vs footer date conflict**: Header (line 3) says `**Last Updated:** January 2026` but footer (line 147) says `*Updated: February 2026 | Version: v1.3*`. Internal inconsistency within the same file was not flagged.
+- **1.18/portal-walkthrough.md heading level inconsistency**: Step 7 uses `## Step 7:` (h2) while all other steps (1–6, 8–9) use `### Step N:` (h3). When fixing the step ordering (Fix 1), the heading level should also be corrected.
+- **1.13/verification-testing.md and 1.13/troubleshooting.md also missing nav footer links**: The reviewer only flagged 1.13/powershell-setup.md as missing nav links, but 1.13/verification-testing.md and 1.13/troubleshooting.md are also missing them — they end with only the `*Updated:*` line and no `[Back to Control 1.13]...` navigation. 3 of 4 files for 1.13 lack nav links, not just 1.
+- **Fix 5 omits 3 of 4 missing 1.19 files**: The fix says "portal-walkthrough for 1.19" needs a footer, but all 4 files for 1.19 (powershell-setup, troubleshooting, verification-testing too) are missing the `*Updated: ... | Version: ...*` footer.
+**FIX_CONCERNS:**
+- **Fix 1 is correct but incomplete**: Moving Steps 7–9 before the Validation section is right, but should also normalize Step 7's heading from `##` to `###` to match all other steps. The header date ("January 2026") vs footer date ("February 2026") conflict should also be resolved.
+- **Fix 2 scope is too narrow**: Should cover all 3 missing nav-link files in 1.13 (powershell-setup, verification-testing, troubleshooting), not just powershell-setup.
+- **Fix 5 file list is incomplete and count is wrong**: Lists 19 files in the description but claims 14; actual missing count is 22. All 4 files for 1.19 need the footer, not just portal-walkthrough.
+**CRITIQUE_SUMMARY:** The CRITICAL issue (1.18 steps after validation) and the code-quality warning (1.16 dead `$irmSettings` variable) are both accurately identified and real. However, the review undercounts the nav-link gap in 1.13 (3 files missing, not 1), misses internal date conflicts in 1.18/portal-walkthrough.md (header Jan vs footer Feb), misses a heading-level inconsistency, and has incorrect arithmetic on the footer-missing count (22 of 28, not 14 of 25).

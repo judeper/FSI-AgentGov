@@ -1,0 +1,16 @@
+Let me read the key files referenced in the review to verify each claimed issue.
+Now let me check the remaining 1.4 files and verify the heading structure claims.
+Let me also quickly scan 1.3 files and check for other potential issues.
+I've now verified all claimed issues against the actual files. Here is my audit:
+---
+**FALSE_POSITIVES:**
+NONE — All 8 issues identified by the reviewer are real and verified against the source files.
+**MISSED_ISSUES:**
+- **1.4/verification-testing.md and 1.4/troubleshooting.md also missing nav footer**: The review only flagged `1.4/powershell-setup.md`, but ALL THREE non-portal 1.4 files lack the standard `[Back to Control 1.4](...) | ...` navigation footer. Only `1.4/portal-walkthrough.md` (line 209) has it.
+- **1.2/sponsorship-lifecycle-workflows.md missing nav footer**: This file also has no `[Back to Control 1.2]` navigation footer, only a version line at the end (line 621). The reviewer listed it among files with footers but didn't flag the missing nav links.
+- **Footer metadata count is wrong**: Review claims "5 of 15 files have footer version/date lines." Actual count is **7 of 17** files: the reviewer missed that `1.4/verification-testing.md` (line 107), `1.4/troubleshooting.md` (line 70), and `1.4/portal-walkthrough.md` (line 213) all have `*Updated:` footer lines. The total file count for this batch (1.1+1.2+1.3+1.4) is 17, not 15.
+- **Header metadata format inconsistency across controls**: Controls 1.1, 1.2, and 1.3 use `**Last Updated:** Month Year` / `**Portal:**` / `**Estimated Time:**` header fields. Control 1.4 files and `1.2/sponsorship-lifecycle-workflows.md` use a different blockquote format (`> This playbook provides...`) with no `**Last Updated:**` header at all. This structural inconsistency was not noted by the reviewer.
+**FIX_CONCERNS:**
+- **Fix 1 (portal path reconciliation)**: The fix correctly identifies the contradiction but hedges on which path is correct. The portal-walkthrough.md path (**Manage > Tenant Settings**) is the correct tenant-level location for "Publish bots with AI features" in PPAC. The verification-testing.md path (**Environments > Settings > Features**) is the environment-level Features page, which is a different setting surface. The fix should direct updating `verification-testing.md` lines 169 and 204–207 to match the tenant-level path, not the reverse. Still, NEEDS_HUMAN_REVIEW is prudent since Microsoft may have moved this setting.
+- **Fix 4 (nav footer)**: Incomplete — the fix only addresses `1.4/powershell-setup.md` but should also add navigation footers to `1.4/verification-testing.md` and `1.4/troubleshooting.md` (and optionally `1.2/sponsorship-lifecycle-workflows.md`).
+**CRITIQUE_SUMMARY:** The review is fundamentally accurate — both CRITICAL issues and all WARNINGs are real and correctly characterized. However, the reviewer under-reported the nav footer gap (flagging 1 file when 3–4 are affected), miscounted footer metadata (5/15 vs actual 7/17), and missed a header format inconsistency between control sets. Fix #1 should more firmly direct the correction toward the verification-testing file, and Fix #4 should cover all three missing 1.4 nav footers.

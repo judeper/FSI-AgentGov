@@ -1,0 +1,3 @@
+CHANGES:
+- docs/playbooks/control-implementations/1.5/portal-walkthrough.md: Changed "DLP administrator access verified" to "Purview Compliance Admin access verified" (line 14)
+FIX_STATUS: COMPLETE

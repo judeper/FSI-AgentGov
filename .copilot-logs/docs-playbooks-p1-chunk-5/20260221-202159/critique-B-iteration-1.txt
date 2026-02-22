@@ -1,0 +1,14 @@
+All findings confirmed against source files. Here's my assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 5 fixes are scoped to PowerShell code blocks within markdown files. No file paths, internal links, nav entries, or cross-references are affected. Zero mkdocs build risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 3 & 4 (`Get-PowerAppChatBot` → `Get-AdminPowerAppChatbot`): Review claims "all other files in this batch consistently use `Get-AdminPowerAppChatbot`" but grep shows **zero** instances of `Get-AdminPowerAppChatbot` across all 1.28 files. The consistency argument is unfounded. The admin variant is still the *correct* cmdlet for tenant-wide audit scripts, but this is a **correctness** fix, not a consistency fix — severity remains WARNING but the rationale should be corrected.
+- Fix 5 (wildcard connector): Correctly flagged as WARNING with NEEDS_HUMAN_REVIEW. The wildcard `"/providers/Microsoft.PowerApps/apis/*"` is invalid for the DLP API, but it sits alongside 5 valid individual connector IDs that already block the most common risky connectors. Impact of the wildcard being silently ignored at runtime is low — the script would still block the 5 named connectors. Severity is accurate.
+**FIX_ORDERING:**
+- Fixes 1 & 2 first (CRITICAL — fictional cmdlet `Test-PowerAppChatBotDlpCompliance`): these are the highest-impact issues since an admin running this code would get a hard error. They are independent of each other but should ship together for coherent troubleshooting.md.
+- Fixes 3 & 4 next (same cmdlet rename across two files): apply together so `Get-PowerAppChatBot` → `Get-AdminPowerAppChatbot` is consistent across the entire 1.28 playbook set.
+- Fix 5 last (wildcard connector removal): lowest urgency, flagged for human review, and independent of the other fixes.
+**OVER_ENGINEERED:**
+- Fix 5: The proposal to "add comment noting that DLP policies require individual connector IDs; admins should enumerate specific connectors to block" is mildly over-engineered. The script already enumerates 5 specific connectors on lines 143–148. Simply deleting line 149 (the wildcard) and changing the inline comment on the array to note "add additional connector IDs as needed" is sufficient. No need for a multi-sentence disclaimer.
+**CRITIQUE_SUMMARY:** The CRITICAL finding is legitimate and high-value — a fictional cmdlet in diagnostic code blocks will cause immediate admin confusion. The four WARNING fixes are valid but low-urgency correctness improvements; the consistency rationale for fixes 3/4 is overstated since no admin-variant baseline exists in these files to be "consistent with."

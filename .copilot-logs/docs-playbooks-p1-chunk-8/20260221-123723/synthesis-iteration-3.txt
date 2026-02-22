@@ -1,0 +1,19 @@
+Evidence verified. Here is the synthesized final review:
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- 1.28/powershell-setup.md: Script 3 uses `Get-PowerAppChatBot` (lines 275, 288) instead of `Get-AdminPowerAppChatbot` — inconsistent with 1.26/1.27 scripts and likely a non-existent cmdlet. NEEDS_HUMAN_REVIEW
+- 1.28/troubleshooting.md: Uses `Get-PowerAppChatBot` in diagnostic commands (lines 93, 574) — same cmdlet name inconsistency. NEEDS_HUMAN_REVIEW
+- 1.28/powershell-setup.md: Script 3 accesses properties directly (`$agent.DisplayName`, `$agent.ChatBotName`, `$agent.PublishStatus` at lines 288, 300–302) rather than via `.Properties` prefix as in 1.27 scripts. NEEDS_HUMAN_REVIEW — object schema may legitimately differ; verify before applying.
+- 1.28/powershell-setup.md: Script 3 `Get-PowerAppChatBot` calls (lines 275, 288) omit `-ErrorAction SilentlyContinue`, which 1.26/1.27 consistently use on all `Get-AdminPowerAppChatbot` calls. Would cause terminating errors in environments without chatbot support.
+- 1.28/powershell-setup.md: `Add-AdminPowerAppEnvironmentToPolicy` (lines 211, 223, 235) is used for environment-to-policy assignment — a plausible cmdlet following Power Platform naming conventions and distinct from connector classification (`Set-AdminDlpPolicy` in Script 1). Add inline verification comment rather than replacing. INFO-level.
+GAPS:
+- 1.28/powershell-setup.md: Missing API availability disclaimer. Control 1.27 includes `!!! danger "API Availability — Verify Before Use"` warning that cmdlets are based on anticipated API schema. Control 1.28 uses equally speculative cmdlets but has no such disclaimer.
+FIXES:
+1. 1.28/powershell-setup.md: Replace `Get-PowerAppChatBot` with `Get-AdminPowerAppChatbot` at lines 275 and 288. Add `-ErrorAction SilentlyContinue` to both calls for consistency with 1.26/1.27.
+2. 1.28/troubleshooting.md: Replace `Get-PowerAppChatBot` with `Get-AdminPowerAppChatbot` at lines 93 and 574.
+3. 1.28/powershell-setup.md: Add API availability disclaimer admonition before Script 1, matching 1.27's `!!! danger "API Availability — Verify Before Use"` pattern.
+4. 1.28/powershell-setup.md: Property access pattern (`$agent.DisplayName` vs `$agent.Properties.DisplayName`) — defer until cmdlet object schema is verified. NEEDS_HUMAN_REVIEW.
+5. 1.28/powershell-setup.md: Add inline comment on `Add-AdminPowerAppEnvironmentToPolicy` calls noting cmdlet availability should be verified (e.g., `# Verify cmdlet availability in your module version`). Do NOT replace with `Set-AdminDlpPolicy` — they serve different operations.
+STATUS: ISSUES_FOUND

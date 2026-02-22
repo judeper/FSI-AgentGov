@@ -1,0 +1,20 @@
+Now I have all 25 files read. Let me compile my findings.
+ISSUE_COUNT: 10
+CRITICAL:
+- docs/playbooks/control-implementations/1.18/portal-walkthrough.md: Steps 7–9 (Agent Action Consent, Connected Agent Governance, Review Environment Admin Roles) are placed AFTER the Validation checklist (line 96–108), but the Validation checklist already references outcomes from those steps (lines 105–107). This breaks the logical step-then-verify flow and will confuse administrators following the playbook sequentially.
+WARNINGS:
+- docs/playbooks/control-implementations/1.13/powershell-setup.md: Missing navigation footer links (`[Back to Control 1.13]... | [Portal Walkthrough]... | [Verification Testing]... | [Troubleshooting]...`) that all other powershell-setup files in this batch include. Only has the `*Updated:*` footer.
+- docs/playbooks/control-implementations/1.17/troubleshooting.md: Header says "Last Updated: January 2026" while its sibling files (portal-walkthrough.md, powershell-setup.md, verification-testing.md) all say "February 2026". Inconsistent within the same control.
+- docs/playbooks/control-implementations/1.16/powershell-setup.md: In the `Enable-LibraryIRM.ps1` script, the `$irmSettings` hashtable (lines 97–101) is created but never used — dead code. The `Set-PnPList` call on line 93 sets IRM, but the additional settings (`IrmExpire`, `IrmReject`) in the hashtable are never applied.
+- 14 of 25 files missing `*Updated: ... | Version: ...*` footer timestamp. Controls 1.13 has it on all 4 files; 1.18 has it on 2 of 4; all other controls (1.14, 1.15, 1.16, 1.17, 1.19) are entirely missing it. Inconsistent formatting across the batch.
+- Pre-verified broken URLs (4 total) are all false positives: `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` return HTTP 405 because they require authentication (correct URLs); `tenant.sharepoint.com/sites/HR` and `tenant-admin.sharepoint.com` are intentional placeholder URLs in PowerShell script examples.
+GAPS:
+- Nav orphans (~290 entries): All entries referenced in mkdocs.yml but reported as "not found" are a systemic issue with this worktree, which contains only the batch files rather than the full `docs/` directory. These files exist in the main repository branch. No action needed within this batch.
+FIXES:
+1. docs/playbooks/control-implementations/1.18/portal-walkthrough.md: Move Steps 7–9 (lines 112–140) to before the "Validation" section (currently at line 96). Renumber as Steps 7, 8, 9 and shift the Validation section and nav footer after them.
+2. docs/playbooks/control-implementations/1.13/powershell-setup.md: Add navigation footer links before the `*Updated:*` line, matching the format used by other files (e.g., `[Back to Control 1.13](...) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)`).
+3. docs/playbooks/control-implementations/1.17/troubleshooting.md: Update "Last Updated: January 2026" to "Last Updated: February 2026" to match sibling files.
+4. docs/playbooks/control-implementations/1.16/powershell-setup.md: Either remove the unused `$irmSettings` hashtable (lines 97–101) or apply it via splatting to configure the IRM settings.
+5. Add `*Updated: January 2026 | Version: v1.2*` footer to the 14 files missing it (all 4 files for controls 1.14, 1.15, 1.16, 1.17; portal-walkthrough for 1.19; powershell-setup and troubleshooting for 1.18).
+6. No fix needed for the 4 pre-verified broken URLs — they are false positives (auth-required portals and intentional placeholder URLs in script examples).
+STATUS: ISSUES_FOUND

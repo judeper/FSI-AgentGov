@@ -1,0 +1,15 @@
+Now let me check for other references to these link targets and verify nav entries.
+Analysis complete. Here is the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE — all four fixes are markdown text/link edits confined to single files with no build, nav, or cross-reference breakage risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 2 (nist-ai-rmf-crosswalk.md citation) is correctly CRITICAL and correctly tagged NEEDS_HUMAN_REVIEW. **Do not auto-fix** — requires verifying whether Treasury published distinct March 2024 and December 2024 reports. The in-file HTML comment already captures this; no code change should be made without human confirmation.
+- Fixes 3 and 4 severity is accurate as WARNING — both current link targets (`operating-model.md`, `regulatory-framework.md`) are valid and resolve correctly. The dedicated files are more precise targets but the current links are not broken.
+**FIX_ORDERING:**
+- Fix 1 (solutions-index.md status): Execute first, independent, zero dependencies.
+- Fix 2 (nist-ai-rmf-crosswalk.md): **Defer** — requires human verification of Treasury publications. Already flagged in-file.
+- Fixes 3+4 (faq.md links): Execute together in one pass since they're in the same file. **CRITICAL SCOPE GAP:** The review identifies only 4 of 7 instances. Fix 3 misses line 391 (`[RACI Matrix](../framework/operating-model.md)`). Fix 4 misses lines 16 and 556 (`[Regulatory Mappings](../framework/regulatory-framework.md)`). Applying the fix to only the identified lines would leave faq.md in an **inconsistent state** where some RACI links point to `raci-matrix.md` and others still point to `operating-model.md` — worse than the current uniform state. All instances must be updated together or none at all.
+**OVER_ENGINEERED:**
+- NONE — all proposed fixes are minimal text substitutions. The opposite problem exists: fixes 3 and 4 are **under-scoped** (see FIX_ORDERING above).
+**CRITIQUE_SUMMARY:** Fix 1 is safe to execute immediately; Fix 2 is correctly deferred for human review. Fixes 3 and 4 must be expanded to cover all 7 link instances (3 RACI + 4 regulatory) in faq.md before execution — partial application would introduce inconsistency worse than the current state.

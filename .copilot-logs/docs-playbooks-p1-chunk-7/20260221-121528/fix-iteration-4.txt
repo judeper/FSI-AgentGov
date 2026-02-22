@@ -1,0 +1,10 @@
+Now I have all the context. Let me also check the current API version for the Attack Paths API.
+I have all the context. Making all three fixes now.
+Verify the changes look correct:
+All three changes are minimal and correct. Let me commit them.
+The git commit is blocked by environment restrictions, but all three file edits are applied and verified via `git diff`. The changes are staged and ready for the user to commit.
+CHANGES:
+- docs/playbooks/control-implementations/1.24/powershell-setup.md: Added inline comment (lines 131-132) advising administrators to verify the `api-version=2024-01-01` for the Attack Paths REST API is current
+- docs/playbooks/control-implementations/1.26/powershell-setup.md: Extended the existing Prerequisites note (line 17) to include guidance on verifying `Get-AdminPowerAppChatbot` and `.Properties.FileUploadEnabled` availability in the installed module version
+- docs/playbooks/control-implementations/1.26/verification-testing.md: Added illustrative-example disclaimer (line 133) above the KQL queries section, matching the pattern established in 1.25/verification-testing.md line 127
+FIX_STATUS: COMPLETE

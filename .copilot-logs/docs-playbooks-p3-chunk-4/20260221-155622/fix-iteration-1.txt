@@ -1,0 +1,10 @@
+Now I have both issues located. Let me fix them both.
+Let me verify both fixes applied correctly.
+Both fixes applied correctly. Let me verify the metadata section too.
+All fixes verified. Both issues resolved:
+1. **CRITICAL 1** (line 346): Replaced `operator="last-x-days" value="0"` with `operator="lt" value="$today"` to correctly find already-expired exceptions.
+2. **CRITICAL 2 + GAP** (lines 663–740): Replaced the non-functional stub with a complete implementation — full FetchXML query, `Get-CrmRecords` call, `Select-Object` transformation, uncommented `Export-Csv`, and dynamic `$exportData.Count`/`$firstDate`/`$lastDate` metadata values.
+CHANGES:
+- `docs/playbooks/control-implementations/3.12/powershell-setup.md` (line 346): Fixed expired-exception FetchXML operator from `last-x-days`/`0` to `lt`/`$today`
+- `docs/playbooks/control-implementations/3.12/powershell-setup.md` (lines 663–740): Replaced Script 4 stub with complete implementation — FetchXML query for all approved exceptions, Get-CrmRecords execution, data export via Export-Csv, and dynamic metadata population
+FIX_STATUS: COMPLETE

@@ -1,0 +1,18 @@
+I've verified all findings against the actual files. Here's the risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+**SEVERITY_CORRECTIONS:**
+- Fix 5 (1.25, 1.27 missing `Last Verified`): **Downgrade from WARNING to INFO.** Both files DO have `**Last UI Verified:** February 2026` (line 6). They only lack the separate `**Last Verified:**` field that 26 of 28 controls carry. This is a minor metadata inconsistency, not a content error. The review correctly identified the gap but severity should be lower than the cross-reference errors.
+- Fix 4 (1.5 line 117, Control 3.1 → 3.2): **Severity is correct as WARNING/NEEDS_HUMAN_REVIEW.** However, the fix itself is likely correct — "monitor via Control 3.1 (Usage Dashboards)" is wrong on two counts: 3.1 is inventory, not usage, and dashboards live in 3.2. The `NEEDS_HUMAN_REVIEW` tag is justified because monitoring could arguably map to either 3.1 (inventory tracking) or 3.2 (usage analytics), but 3.2 is the stronger match.
+- Fix 6 (1.10 extra section): **Correct as WARNING.** The "Regulatory Requirements" section at line 129 adds an 11th section between Verification Criteria and Additional Resources. Content is substantive (FINRA 2210/24-09 guidance). Moving it is medium-risk refactoring — defer to a dedicated template-compliance pass rather than bundling with the cross-reference fixes.
+**FIX_ORDERING:**
+- Fixes 1, 2, 3 (1.5 cross-references) are independent of each other and can be applied in any order. All three touch different lines in the same file with no overlap. Apply as a single atomic commit.
+- Fix 4 (1.5 line 117) is in the same file but requires human judgment — apply separately after human review.
+- Fix 5 (1.25, 1.27 metadata) is independent of all other fixes. Apply as a separate commit if desired.
+- Fix 6 (1.10 section restructuring) should NOT be bundled with the cross-reference fixes. Different file, different risk profile, requires content judgment.
+**OVER_ENGINEERED:**
+- Fix 6 (1.10 section merge): Proposing to restructure a section that contains timely FINRA 2210/24-09 regulatory guidance is over-engineered for a cross-reference fix batch. The extra section doesn't break the build or mislead readers — it's a template conformance issue better handled in a dedicated cleanup pass.
+- Fix 5 (adding `Last Verified` to 1.25/1.27): The proposed date `2026-02-12` is fabricated — neither file has been independently verified on that date. Adding an unverified verification date is worse than leaving the field absent. If added, use the current date and actually verify the UI, or omit until the next verification cycle.
+- The review's investigation of `SEC Reg SHO` in 1.11/1.12 is appropriately scoped as `NEEDS_HUMAN_REVIEW` — no fix was proposed, which is correct. Reg SHO relevance to conditional access (1.11) is genuinely tenuous but this is a subject-matter-expert call, not an automated fix.
+**CRITIQUE_SUMMARY:** The 3 cross-reference fixes in Control 1.5 (fixes 1-3) are **verified correct, low-risk, and should ship** — each references a provably wrong control ID with an obvious correct replacement. The remaining items (fixes 4-6) are appropriately flagged for human review or deferral, though fix 5's proposed date is unverifiable and fix 6 is scope creep for this batch.

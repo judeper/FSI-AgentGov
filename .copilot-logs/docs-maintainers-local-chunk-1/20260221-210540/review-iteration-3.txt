@@ -1,0 +1,18 @@
+Now let me check the NIST crosswalk file (published content):
+Let me check if the NIST admonition warning was newly added as a fix:
+I now have complete verification data. The fix commit `61cefb6` addressed the NIST crosswalk file. The 6 maintainers-local files remain unchanged (they're gitignored and local-only).
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- `docs/reference/nist-ai-rmf-crosswalk.md`: **FIXED** — Commit `61cefb6` added HTML `NEEDS_HUMAN_REVIEW` comment, visible `!!! warning` admonition about methodology, and softened the auditor-facing claim at line 286 to "see Coverage Calculation section for methodology and figures under review." Properly handled.
+- `control-metadata-audit-2026-01-18.md` (maintainers-local): REMAINING — No staleness header added. Still references 60 controls vs current 71. LOW severity — local-only, gitignored, not addressable via worktree.
+- `documentation-audit-2025-12-29.md` (maintainers-local): REMAINING — No staleness header added. Still references v1.0 Beta / 48 controls. LOW severity — local-only.
+- `verification-report.md` (maintainers-local): REMAINING — No staleness header added. Still references v1.0 Beta / 48 controls. LOW severity — local-only.
+- `FSI-AgentGov-Comprehensive-Review-Report.md` (maintainers-local): REMAINING — No staleness header added. Still references v1.1 / 61 controls. LOW severity — local-only.
+- `01-Repository-Analysis.md` (maintainers-local): REMAINING — No superseded marker added. Still references old paths and 43 controls. LOW severity — local-only.
+GAPS:
+- `03-Update-Plan.md` (maintainers-local): REMAINING — No completed/archived marker. LOW severity — local-only.
+FIXES:
+1. Issues 2–7 are all in `maintainers-local/` which is gitignored and absent from worktrees. These can only be fixed by editing the main working copy directly (not via branch/worktree). All are Optional/LOW severity and do not affect published content. No action required for shipping.
+STATUS: ISSUES_FOUND

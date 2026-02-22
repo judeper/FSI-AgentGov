@@ -1,0 +1,21 @@
+Let me verify a few structural details to complete the review.
+All "orphaned" files spot-checked actually exist on disk — the nav orphan checker appears to have a path resolution issue producing false positives. Now I have enough data to complete the review.
+ISSUE_COUNT: 6
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.26/portal-walkthrough.md: Broken external URLs `https://copilotstudio.microsoft.com` and `https://admin.powerplatform.microsoft.com` (HTTP 405) — these are SSO portal URLs that return 405 to automated GET requests; likely false positives but flagged by pre-pass
+- docs/playbooks/control-implementations/1.27/powershell-setup.md: Broken external URL `https://yourorg.crm.dynamics.com` (HTTP -1) — this is an intentional placeholder/example URL in a code block, not a real broken link
+- Cross-playbook inconsistency: Agent identifier property name varies — 1.26 uses `$agent.ChatbotId`, 1.27 uses `$agent.ChatbotName`, 1.28 uses `$agent.ChatBotName`. NEEDS_HUMAN_REVIEW: the actual API property should use a consistent name across all playbooks
+- docs/playbooks/control-implementations/1.28/powershell-setup.md (line 159): Wildcard connector path `"/providers/Microsoft.PowerApps/apis/*"` in Zone 3 blocked connectors — DLP policy connector classification may not support wildcard patterns. NEEDS_HUMAN_REVIEW
+- docs/playbooks/control-implementations/1.28/powershell-setup.md (line 218): `Add-AdminPowerAppEnvironmentToPolicy` cmdlet may not exist in current module versions. NEEDS_HUMAN_REVIEW
+GAPS:
+- NONE
+FIXES:
+1. Cross-playbook (1.26, 1.27, 1.28): Standardize agent identifier property name to one consistent value (`ChatbotName` is the most likely correct API property per Microsoft docs). Update 1.26/powershell-setup.md `ChatbotId` references and 1.28/powershell-setup.md `ChatBotName` casing to match
+2. docs/playbooks/control-implementations/1.28/powershell-setup.md: Add an API availability warning to the wildcard connector pattern `"/providers/Microsoft.PowerApps/apis/*"` noting that DLP policies may require individual connector enumeration rather than wildcards
+3. docs/playbooks/control-implementations/1.28/powershell-setup.md: Add a cmdlet availability note for `Add-AdminPowerAppEnvironmentToPolicy` similar to the existing `!!! danger` warnings on other scripts
+NOTE ON SECTION A PRE-PASS FINDINGS:
+- **Broken external URLs (3):** All are false positives — two are SSO portal URLs (HTTP 405 is expected for automated checkers), one is an intentional placeholder URL in a code example
+- **MkDocs nav orphans (284+):** All spot-checked files exist on disk. The automated orphan checker appears to have a path resolution bug — these are FALSE POSITIVES, not real missing files
+STATUS: ISSUES_FOUND

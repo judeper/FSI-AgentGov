@@ -1,0 +1,25 @@
+All key facts verified. Both critiques agree all issues are real. Let me check the one disputed item — whether 2.22 has a `Last Verified` field (distinct from `Last UI Verified`).
+Verified: 2.22 has `Last UI Verified` but no standalone `Last Verified` field (23 other controls have both). All index.md issues confirmed. Sardine.ai link at line 229 of 2.17 confirmed. Duplicate URL on lines 239-240 of 2.24 confirmed.
+ISSUE_COUNT: 9
+CRITICAL:
+- index.md (line 7): States "These 22 controls" but Pillar 2 has 24 controls. Files 2.23 and 2.24 exist and are in mkdocs.yml nav but missing from this index page.
+- index.md (lines 27-48): Controls list ends at 2.22; missing entries for 2.23 (User Consent and AI Disclosure Enforcement) and 2.24 (Agent Feature Enablement and Restriction Governance).
+- index.md (lines 13-19): Control Categories table does not categorize controls 2.20-2.24 (Adversarial Testing, Marketing Claims, Inactivity Timeout, User Consent, Feature Enablement).
+WARNINGS:
+- 2.22-inactivity-timeout-enforcement.md: Missing `**Last Verified:**` date field in header metadata. All other 23 controls have this field. Note: `**Last UI Verified:** February 2026` IS present (line 6), so this is a missing supplementary field, not a missing verification date entirely. Actual date value is NEEDS_HUMAN_REVIEW.
+- 2.24-agent-feature-enablement-and-restriction-governance.md (lines 239-240): Duplicate URL — "Copilot Studio Feature Management" and "AI Builder in Copilot Studio" both link to `https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/ai-capabilities`.
+- index.md (line 52): Footer says "v1.2 - January 2026" but multiple controls have been updated to February 2026. Date should reflect latest updates.
+- 2.17-multi-agent-orchestration-limits.md (line 229): External URL `https://www.sardine.ai/blog/agentic-ai-oversight` returns HTTP 404 (content removed).
+- SEC/FTC URLs (across 2.13, 2.18, 2.19, 2.21, 2.23): Eight government URLs return HTTP 403 — NEEDS_HUMAN_REVIEW. These sites commonly block automated crawlers; URLs may still be valid for human browsers. Do NOT auto-fix.
+GAPS:
+- index.md Control Categories table lacks rows for controls 2.20-2.24. Suggested groupings are editorial; maintainer should decide category names.
+FIXES:
+1. index.md (line 7): Change "These 22 controls" to "These 24 controls".
+2. index.md (after line 48): Add `- [2.23 User Consent and AI Disclosure Enforcement](2.23-user-consent-and-ai-disclosure-enforcement.md)` and `- [2.24 Agent Feature Enablement and Restriction Governance](2.24-agent-feature-enablement-and-restriction-governance.md)` to the Controls list.
+3. index.md (lines 13-19): Add rows to Control Categories table for controls 2.20-2.24. Category names are an editorial decision — suggested groupings: "Adversarial & Security Testing" (2.20), expand "Customer Transparency" to include 2.19, 2.21, 2.23, and add "Feature & Session Governance" (2.22, 2.24).
+4. index.md (line 52): Update footer from "v1.2 - January 2026" to "v1.2 - February 2026".
+5. 2.22-inactivity-timeout-enforcement.md: Add `**Last Verified:**` field after line 7 (`Governance Levels`). Actual date value is NEEDS_HUMAN_REVIEW — do not assume a date.
+6. 2.24-agent-feature-enablement-and-restriction-governance.md (line 240): Change duplicate URL for "AI Builder in Copilot Studio" to `https://learn.microsoft.com/en-us/ai-builder/overview`.
+7. 2.17-multi-agent-orchestration-limits.md (line 229): Remove or replace broken sardine.ai link (confirmed HTTP 404).
+8. NEEDS_HUMAN_REVIEW: Manually verify 8 SEC/FTC URLs returning HTTP 403 across controls 2.13, 2.18, 2.19, 2.21, 2.23. If URLs have been restructured, update to current locations.
+STATUS: ISSUES_FOUND

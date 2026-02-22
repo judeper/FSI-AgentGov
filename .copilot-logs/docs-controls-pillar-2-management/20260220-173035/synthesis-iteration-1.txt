@@ -1,0 +1,30 @@
+All key claims verified. Now I'll produce the final synthesized review.
+ISSUE_COUNT: 13
+CRITICAL:
+- docs/controls/pillar-2-management/index.md: Missing controls 2.23 and 2.24 from the control list (line 48 ends at 2.22; both files exist and are in mkdocs.yml nav and CONTROL-INDEX.md)
+- docs/controls/pillar-2-management/index.md: Overview text (line 7) states "These 22 controls" but there are 24 controls (2.1-2.24)
+- docs/controls/pillar-2-management/index.md: Categories table (lines 13-19) omits controls 2.20-2.24 — no category assignment for Adversarial Testing, AI Marketing Claims, Inactivity Timeout, User Consent, or Feature Governance
+- docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md: Broken external link at line 229 — `https://www.sardine.ai/blog/agentic-ai-oversight` returns HTTP 404. Replace with Wayback Machine archive URL or inline description of the 5-component oversight model rather than simply deleting the reference
+WARNINGS:
+- docs/controls/pillar-2-management/index.md: Footer version "v1.2 - January 2026" (line 52) is behind framework version v1.2.51 and inconsistent with the 6 controls already updated to v1.3
+- docs/controls/pillar-2-management: Version inconsistency across control files — 6 controls (2.1, 2.12, 2.18, 2.22, 2.23, 2.24) use `Version: v1.3` while the remaining 18 controls use `Version: v1.2`. Not a build issue but creates reader confusion about which controls are current
+- docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md (line 126): SEC URL `https://www.sec.gov/rules/interp/34-47806.htm` returns HTTP 403 — NEEDS_HUMAN_REVIEW (SEC anti-bot blocking; likely valid)
+- docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md (lines 153, 156): Two SEC URLs return HTTP 403 — NEEDS_HUMAN_REVIEW
+- docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md (line 114): SEC Reg BI FAQ URL returns HTTP 403 — NEEDS_HUMAN_REVIEW
+- docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md (lines 177-180): Three URLs (SEC Marketing Rule PDF, SEC AI Washing press release, FTC AI Claims guidance) return HTTP 403 — NEEDS_HUMAN_REVIEW
+- docs/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md (line 181): SEC AI/Predictive Analytics PDF URL returns HTTP 403 — NEEDS_HUMAN_REVIEW
+GAPS:
+- docs/controls/pillar-2-management/index.md: Controls 2.20-2.24 need category assignments in the categories table. The review's proposed single "AI Assurance & Transparency" bucket is reasonable for 2.20, 2.21, 2.23, 2.24, but 2.22 (Inactivity Timeout) is operational in nature and better fits "Environment Governance" or a dedicated "Session Governance" category — defer exact grouping to maintainer judgment
+- CONTROL-INDEX.md already correctly includes 2.23 and 2.24 (lines 68-69) — no action needed there
+FIXES:
+1. docs/controls/pillar-2-management/index.md (line 7): Change "These 22 controls" to "These 24 controls" — **ship atomically with fixes 2 and 3**
+2. docs/controls/pillar-2-management/index.md (lines 13-19): Add rows to the categories table for controls 2.20-2.24. Suggested grouping (maintainer should confirm): add 2.22 to "Environment Governance" row and create "AI Assurance & Transparency | 2.20-2.21, 2.23-2.24 | Adversarial testing, marketing claims, consent, feature governance"
+3. docs/controls/pillar-2-management/index.md (after line 48): Add `- [2.23 User Consent and AI Disclosure Enforcement](2.23-user-consent-and-ai-disclosure-enforcement.md)` and `- [2.24 Agent Feature Enablement and Restriction Governance](2.24-agent-feature-enablement-and-restriction-governance.md)`
+4. docs/controls/pillar-2-management/index.md (line 52): Update footer from "v1.2 - January 2026" to "v1.2.51 - February 2026"
+5. docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md (line 229): Replace broken Sardine.ai link with Wayback Machine archive URL (e.g., `https://web.archive.org/web/2024/https://www.sardine.ai/blog/agentic-ai-oversight`) or, if no archive exists, replace with an inline note: "Sardine 5-component agentic oversight model (original blog post no longer available)"
+6. docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md (line 126): NEEDS_HUMAN_REVIEW — verify SEC URL manually in a browser and update path if migrated
+7. docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md (lines 153, 156): NEEDS_HUMAN_REVIEW — verify two SEC URLs manually
+8. docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md (line 114): NEEDS_HUMAN_REVIEW — verify SEC Reg BI FAQ URL manually
+9. docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md (lines 177-180): NEEDS_HUMAN_REVIEW — verify three URLs manually (SEC, FTC)
+10. docs/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md (line 181): NEEDS_HUMAN_REVIEW — verify SEC PDF URL manually
+STATUS: ISSUES_FOUND

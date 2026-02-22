@@ -1,0 +1,22 @@
+Now let me verify canonical control names for the flagged controls.
+All data verified. Here is the synthesized final review:
+ISSUE_COUNT: 7
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-1-minimal-viable-controls.md (line 183): Control 1.9 labeled "10-Year Retention" — canonical name is "Data Retention and Deletion Policies"; heading misrepresents the control's full scope
+- phase-1-minimal-viable-controls.md (line 54): Control 1.11 labeled "Conditional Access" — canonical name is "Conditional Access and Phishing-Resistant MFA"; drops the security-critical MFA component
+- phase-1-minimal-viable-controls.md (line 251): Control 2.6 labeled "Model Risk Assessment" — canonical name is "Model Risk Management Alignment with OCC 2011-12 / SR 11-7"; drops FSI-critical regulatory references
+- phase-1-minimal-viable-controls.md (line 18): Control 2.8 labeled "Segregation of Duties" — canonical name is "Access Control and Segregation of Duties"; drops "Access Control"
+- phase-1-minimal-viable-controls.md (line 199): Control 2.12 labeled "Supervision Controls" — canonical name is "Supervision and Oversight (FINRA Rule 3110)"; drops FINRA rule reference
+- phase-0-governance-setup.md (line 98): Control 1.7 labeled "Audit Logging (Baseline)" — canonical name is "Comprehensive Audit Logging and Compliance"; adds non-canonical "(Baseline)" qualifier
+GAPS:
+- All 3 files reference controls by ID (e.g., "Control 2.1", "Control 1.5") but never hyperlink to the actual control docs under `docs/controls/pillar-*/`. Adding relative links would improve navigation and cross-reference integrity. (Defer to separate task — scope-expanding enhancement across dozens of references.)
+FIXES:
+1. phase-1-minimal-viable-controls.md (line 183): Change `### Control 1.9: 10-Year Retention` → `### Control 1.9: Data Retention and Deletion Policies` (update Purpose line to clarify the 10-year Zone 3 focus)
+2. phase-1-minimal-viable-controls.md (line 54): Change `### Control 1.11: Conditional Access` → `### Control 1.11: Conditional Access and Phishing-Resistant MFA`
+3. phase-1-minimal-viable-controls.md (line 251): Change `### Control 2.6: Model Risk Assessment` → `### Control 2.6: Model Risk Management Alignment with OCC 2011-12 / SR 11-7`
+4. phase-1-minimal-viable-controls.md (line 18): Change `### Control 2.8: Segregation of Duties` → `### Control 2.8: Access Control and Segregation of Duties`
+5. phase-1-minimal-viable-controls.md (line 199): Change `### Control 2.12: Supervision Controls` → `### Control 2.12: Supervision and Oversight (FINRA Rule 3110)`
+6. phase-0-governance-setup.md (line 98): Change `### Control 1.7: Audit Logging (Baseline)` → `### Control 1.7: Comprehensive Audit Logging and Compliance`
+STATUS: ISSUES_FOUND

@@ -1,0 +1,12 @@
+All findings confirmed. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All three proposed fixes are isolated, single-line edits within self-contained markdown files. None touch cross-references, navigation paths, or `mkdocs.yml`. No build breakage risk.
+**SEVERITY_CORRECTIONS:**
+- NONE. The CRITICAL classification for Fix 1 (8-hours → 24-hours) is accurate — the legacy test case contradicts two authoritative sources in the same file (line 75) and the troubleshooting playbook (line 18). An admin following the legacy test case would wait only one-third of the required propagation window and could falsely escalate a non-issue.
+**FIX_ORDERING:**
+- Fixes 1, 2, and 3 are fully independent — no ordering constraints. They touch different files (3.8/verification-testing.md twice, 3.9/portal-walkthrough.md once) with no overlapping line ranges (lines 228, 161, and 216 respectively). Can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- Fix 2 (remove duplicate `---` in 3.9/portal-walkthrough.md) is cosmetic-only. The double horizontal rule renders as extra whitespace — functionally harmless. Severity as WARNING is appropriate but this could reasonably be deferred. Not over-engineered, just low-priority.
+- The WARNING about consolidating legacy test cases 1–3/6 is correctly scoped as a recommendation, not a proposed fix. No over-engineering concern.
+**CRITIQUE_SUMMARY:** The review is well-calibrated — one genuine CRITICAL with clear evidence, two safe low-risk fixes, and appropriate use of NEEDS_HUMAN_REVIEW flags for the three items requiring domain expertise (SEC citation, unverified cmdlets). No fixes carry build or cross-reference risk.

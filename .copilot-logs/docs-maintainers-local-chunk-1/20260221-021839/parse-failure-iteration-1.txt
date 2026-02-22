@@ -1,0 +1,74 @@
+Reason: STATUS field missing or unrecognized value
+
+Good, found the files in the main repo. Let me read all the files I need to review.
+Now let me read all the review report files and analysis files in parallel.
+Now let me read the remaining files.
+All files verified as existing (552 .md files in docs/). Now producing the final report.
+---
+## BATCH REVIEW: `maintainers-local-chunk-1`
+**ISSUE_COUNT: 18**
+*(Section A mkdocs nav orphans excluded — all ~350+ entries are **FALSE POSITIVES**; every referenced file exists in `docs/`. See explanation below.)*
+---
+### SECTION A DISPOSITION: FALSE POSITIVES
+All mkdocs.yml nav entries reference files relative to the default `docs/` directory. Every file checked exists:
+- `docs/controls/index.md` ✅
+- `docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md` ✅
+- `docs/playbooks/control-implementations/1.1/portal-walkthrough.md` ✅
+- `docs/framework/executive-summary.md` ✅
+- `docs/downloads/index.md` ✅
+- `docs/index.md` ✅
+- 552 total `.md` files present in `docs/`
+**Root cause:** The automated pre-pass tool likely resolved paths from the repo root (looking for `controls/index.md`) instead of from `docs/` (the mkdocs default `docs_dir`). No `docs_dir` override exists in `mkdocs.yml`, so all nav paths are correctly relative to `docs/`. **Zero actual orphans.**
+---
+### CRITICAL (7)
+| # | File | Issue | Lines |
+|---|------|-------|-------|
+| C1 | `control-metadata-audit-2026-01-18.md` | States "60 controls" across 4 pillars (23+20+10+7). Current framework has **71 controls** (28+24+12+7). Missing controls 1.24–1.28, 2.21–2.24, 3.11–3.12. Version stated as "v1.1" but current is **v1.2.51**. | Lines 5, 13, 19, 57–58, 71–72, 86–87, 107–108 |
+| C2 | `cross-reference-validation-detailed-report.md` | References "60 controls" baseline. All cross-reference validation findings are based on stale control inventory — 11 controls added since this report. | Lines 1–10 |
+| C3 | `SUBAGENT-4-CROSS-REFERENCE-VALIDATION-SUMMARY.md` | References "60 controls" baseline. Same staleness as C2. | Throughout |
+| C4 | `documentation-audit-2025-12-29.md` | References "48 controls" and "v1.0 Beta". The framework has grown by 23 controls since this audit. References `/CLAUDE.md` at repo root — this file is now gitignored and may not exist for new clones. | Lines 1–20, reference to CLAUDE.md |
+| C5 | `verification-report.md` | References "48 controls" and "v1.0 Beta". Same extreme staleness as C4. Also references "SharePoint Advanced Management (PRO)" — now renamed to "SharePoint Advanced Management Plan 1". | Throughout |
+| C6 | `phase4-2-new-controls-proposal.md` | Proposes controls 1.24, 1.25, 2.22, 2.23, 3.11, 3.12 as **new additions**. These control IDs are now **assigned to different controls** with different names/purposes. E.g., proposed "1.24: Agent-to-Agent DLP Enforcement" vs actual "1.24: Defender AI Security Posture Management". This proposal is **partially obsolete and misleading**. | Lines 26–33 |
+| C7 | `01-Repository-Analysis.md` | References old path structure `docs/reference/pillar-1-security/`, `docs/reference/pillar-2-management/`, etc. Current path is `docs/controls/pillar-*`. States "43 controls" — the oldest count in this batch. | Throughout |
+---
+### WARNINGS (7)
+| # | File | Issue |
+|---|------|-------|
+| W1 | `FSI-AgentGov-Comprehensive-Review-Report.md` | States "61 controls" — closer to current (71) but still 10 controls short. Was the most recent comprehensive review at time of writing but is now outdated. |
+| W2 | `phase1-all-agents.md`, `phase1-summary.md` | Both state "61 controls" and Pillar 2 as "21 controls" (now 24), Pillar 3 as "10 controls" (now 12). |
+| W3 | `phase3-4-regulatory-trends.md` | Colorado AI Act effective date stated inconsistently within the same report (February 1, 2026 vs June 30, 2026). The actual effective date should be verified. |
+| W4 | `phase3-2-nist-validation.md` | Claims NIST AI RMF crosswalk coverage at "92%" — this percentage appears overclaimed given the mapping gaps identified in the same document. |
+| W5 | `Feedback1.md` | References "48 controls" baseline and script `scripts/validate_docs_anchors.py` — verify this script still exists under that name. |
+| W6 | `control-metadata-audit-2026-01-18.md` (line 209), `cross-reference-validation-detailed-report.md` (lines 502–506) | Windows-specific absolute paths (`C:\dev\FSI-AgentGov\...`) embedded in reports. Non-portable and exposes local directory structure. |
+| W7 | `02-V3-Documentation-Mapping.md`, `03-Update-Plan.md` | These analysis documents map to a "V3 whitepaper" update plan. The plan references old paths (`docs/reference/pillar-*`) and outdated control counts. If still being used as a reference, the paths and counts need updating. |
+---
+### GAPS (4)
+| # | File | Gap |
+|---|------|-----|
+| G1 | `maintainers-local/README.md` | Does not list `review-reports/` or `analysis/` subdirectories. These exist and contain substantial content but are invisible to someone reading the README index. |
+| G2 | All files | No document in this batch reflects the current v1.2.51 / 71-control state. Every audit and review report is stale relative to the current framework version. There is no "most recent" report that captures the current state. |
+| G3 | All audit reports | No staleness indicator or supersession notice on any report. A reader cannot tell which reports are current vs. historical without cross-referencing the framework version. |
+| G4 | `phase4-3-remediation-plan.md` | Remediation plan references controls and timelines from the Jan 2026 comprehensive review (61 controls). It does not account for the 10 controls added since then, some of which may address items in the remediation plan. |
+---
+### FIXES (4)
+| # | Priority | Fix |
+|---|----------|-----|
+| F1 | HIGH | Add a staleness banner to each audit report header: `> ⚠️ HISTORICAL: This report was generated against v{X.X} with {N} controls. Current framework is v1.2.51 with 71 controls. See [current audit] for latest.` |
+| F2 | HIGH | Update `maintainers-local/README.md` to list `review-reports/` and `analysis/` subdirectories with descriptions. |
+| F3 | MEDIUM | Add a supersession table to README.md mapping report date → version → control count → status (current/superseded). This prevents confusion about which reports are authoritative. |
+| F4 | LOW | Replace Windows-specific paths in `control-metadata-audit-2026-01-18.md` and `cross-reference-validation-detailed-report.md` with relative paths or platform-neutral notation. |
+---
+### STATUS
+```
+BATCH:    maintainers-local-chunk-1
+FILES:    26 reviewed
+ISSUES:   18 (7 CRITICAL, 7 WARNINGS, 4 GAPS)
+FIXES:    4 recommended
+SECTION A: 0 confirmed orphans (all ~350+ entries are FALSE POSITIVES — files exist)
+BLOCKERS: None (maintainers-local/ is gitignored; no published content affected)
+VERDICT:  PASS WITH WARNINGS — Internal maintainer docs only. No published
+          content is broken. All issues are staleness in point-in-time audit
+          snapshots. Recommend adding staleness banners (F1) and updating
+          the README index (F2) to prevent confusion.
+```
+**Key takeaway:** The maintainers-local files represent historical audit snapshots from three eras: v1.0 Beta (48 controls, Dec 2025), v1.1 (60–61 controls, Jan 2026), and a V3 whitepaper analysis (43 controls, pre-release). The framework has since grown to v1.2.51 with 71 controls. No published documentation is affected, but maintainers referencing these reports could be misled about current control coverage without staleness indicators.

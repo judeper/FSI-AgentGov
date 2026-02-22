@@ -1,0 +1,30 @@
+Now I have all the evidence. Let me compile the reconciled report.
+**Verification summary:**
+- **FINRA 4512/2111**: Critique A correct — it's in CONTROL-INDEX.md (line 204), NOT index.md. index.md has no "Regulatory Alignment" section.
+- **Version v1.3**: Critique B correct — CHANGELOG.md confirms intentional v1.3 bump for 7 controls. Fix #6 would introduce an error. **Dropped.**
+- **Pillar 1 heading**: Critique A correct — heading says "(24)" but table has only 23 rows (1.1–1.23). Both 24 and 23 are wrong vs. reality (28).
+- **Missing playbook count**: Critique A correct — 7 controls missing (3+2+2), not 8.
+- **evidence-pack-assembly.md**: Both critiques confirm stray `text` on lines 1 and 84, unformatted folder structure lines 44–83.
+- **reports/ stale counts**: Both critiques agree this is a historical report — no fix.
+- **Pre-pass false positives**: Both critiques agree — all nav orphans are false positives. Dropped.
+---
+ISSUE_COUNT: 9
+CRITICAL:
+- docs/controls/index.md: Pillar 1 heading says "(24)" but table has only 23 rows (1.1–1.23); should be "(28)" with 5 additional rows for 1.24–1.28. Pillar 2 says "(22)" but should be "(24)"; missing 2.23–2.24. Pillar 3 says "(10)" but should be "(12)"; missing 3.11–3.12.
+- docs/playbooks/control-implementations/index.md: Pillar 1 says "25 controls" but should be "28 controls"; missing 1.26–1.28. Pillar 2 says "22 controls" but should be "24 controls"; missing 2.23–2.24. Pillar 3 says "10 controls" but should be "12 controls"; missing 3.11–3.12. (7 controls missing total, not 8 as original review stated.)
+- docs/templates/README.md: Says "all 61 governance controls" — should be "all 71 governance controls".
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Stray `text` on line 1 (before document heading) and line 84 — orphaned code fence language identifiers that render as visible text on the published site.
+WARNINGS:
+- docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Line 10 uses "ensure governance compliance" — prohibited language per FSI rules; should be "support governance compliance".
+- docs/controls/CONTROL-INDEX.md: Regulatory Alignment section (line 204) lists FINRA 4512 and 2111 (Suitability) but no controls in any pillar map to these rules — NEEDS_HUMAN_REVIEW. (Original review incorrectly attributed this to docs/controls/index.md which has no such section.)
+GAPS:
+- docs/controls/index.md: Summary tables need 10 new rows (1.24–1.28, 2.23–2.24, 3.11–3.12) to match CONTROL-INDEX.md which lists all 71.
+- docs/playbooks/control-implementations/index.md: Playbook tables need 7 new rows (1.26–1.28, 2.23–2.24, 3.11–3.12) to match the 71-control catalog.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Folder structure listing (lines 44–83) is unformatted plain text that should be in a fenced code block.
+FIXES:
+1. docs/controls/index.md: Update "Security Controls (24)" → "(28)" and add rows for 1.24–1.28; "Management Controls (22)" → "(24)" and add rows for 2.23–2.24; "Reporting Controls (10)" → "(12)" and add rows for 3.11–3.12.
+2. docs/playbooks/control-implementations/index.md: Update "Security (25 controls)" → "(28 controls)" and add rows for 1.26–1.28; "Management (22 controls)" → "(24 controls)" and add rows for 2.23–2.24; "Reporting (10 controls)" → "(12 controls)" and add rows for 3.11–3.12.
+3. docs/templates/README.md: Change "all 61 governance controls" to "all 71 governance controls".
+4. docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Remove stray `text` on line 1; remove stray `text` on line 84; wrap folder structure (lines 44–83) in a ` ```text ``` ` code block.
+5. docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Change "ensure governance compliance" to "support governance compliance" on line 10.
+STATUS: ISSUES_FOUND

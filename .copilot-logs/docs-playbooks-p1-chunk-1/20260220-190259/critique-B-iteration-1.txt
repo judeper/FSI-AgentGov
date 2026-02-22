@@ -1,0 +1,14 @@
+Now I have all the data. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 12 proposed fixes are text-only changes to markdown footers. None alter headings, anchors, nav entries, or file paths that `mkdocs build --strict` resolves. Zero build-break risk.
+**SEVERITY_CORRECTIONS:**
+- Fixes 1-2 (v1.3 → v1.2): CRITICAL is **overstated — downgrade to WARNING**. Footer version metadata is informational text, not a functional reference. It doesn't break links, navigation, or builds. It's misleading (references a version that doesn't exist yet) but has no downstream impact. A WARNING with a note about version discipline is sufficient.
+- Fixes 3-11 (missing footer nav): WARNING classification is **accurate**. These are consistency gaps, not functional defects. The portal-walkthrough.md files for 1.4-1.6 already have footer nav; only the sibling playbooks lack them.
+- Fix 12 (SEC 17a-4 retention): NEEDS_HUMAN_REVIEW is **accurate and appropriate**. Both "6 years" (statutory minimum) and "7 years" (conservative buffer common in FSI) are defensible readings. This is a content-accuracy decision, not a formatting fix — an SME must pick the standard.
+**FIX_ORDERING:**
+- All 12 fixes are **fully independent** — no ordering constraints. They touch different files with no cross-references between them. Can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- **Fixes 3-11 (9 footer nav additions) are low-priority cosmetic consistency fixes** that could be deferred. The portal-walkthrough.md for each control already provides footer navigation; the sibling files (powershell-setup, troubleshooting, verification-testing) function correctly without it. Batching 9 identical-pattern edits risks copy-paste errors in control file paths — notably, the review specifies the exact `[Back to Control 1.4]` path for fix 3 but uses "same-pattern" shorthand for fixes 4-11, requiring the implementer to look up each control's kebab-case filename (e.g., `1.5-data-loss-prevention-dlp-and-sensitivity-labels.md`, `1.6-microsoft-purview-dspm-for-ai.md`) and correctly self-exclude each file from its own nav bar. This is tedious but achievable by copying from the corresponding portal-walkthrough.md footer in each control folder.
+- **GAPS section (missing footer metadata in 1.1-1.3)**: Correctly flagged as observations only, NOT proposed as fixes. Good scope discipline — mixing these in would expand the batch beyond the 1.4-1.6 focus.
+**CRITIQUE_SUMMARY:** The review is thorough and findings are validated, but the two CRITICAL items should be downgraded to WARNING (informational footer text, not functional breakage), and the 9 footer-nav additions are cosmetic consistency work that could be deferred or batched separately to reduce implementation risk.

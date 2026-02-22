@@ -1,0 +1,22 @@
+Let me verify the directory structure and check some cross-references.
+Now I have all findings. Let me produce the review report.
+ISSUE_COUNT: 6
+CRITICAL:
+- `docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md` (line 269): Control 2.8 is mislabeled as "Agent Lifecycle Management" — the correct name per mkdocs.yml and the control file is "Access Control and Segregation of Duties" (or "Segregation of Duties" in the nav label). Factual error in a regulatory-facing document.
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 76): FSI language rule violation — "Path A provides complete regulatory compliance" is an overclaim. Per language rules, must use hedged language such as "supports regulatory compliance requirements" or "helps meet regulatory compliance needs."
+WARNINGS:
+- `docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md`: Version inconsistency — header (line 5) says `v1.2.48`, footer (line 300) says `v1.2.51`. Should be consistent.
+- `docs/playbooks/advanced-implementations/agent-usage-workbook/index.md` and `telemetry-schema.md`: Both footers say "Version: v1.3" which is ahead of the framework version (v1.2.x). Either these documents are versioned independently (in which case this is fine) or they should align with the framework version.
+- `docs/playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks.md` (line 119): PowerShell cmdlet `New-AzApplicationInsightsWorkbook` — NEEDS_HUMAN_REVIEW. This cmdlet does not appear to be a standard Az.ApplicationInsights module cmdlet. The standard approach uses `New-AzResource` or ARM template deployments. Also used in the deployment script at line 408.
+- Section A broken external URLs: All 4 are **false positives** — `make.powerautomate.com` is a valid portal SPA (405 from automated GET is expected); the two `graph.microsoft.com` entries are OAuth scope values and API endpoints inside code blocks, not navigable links; `contoso.webhook.office.com` is an intentional placeholder example using Microsoft's standard fictitious domain. No fixes needed.
+GAPS:
+- NONE
+FIXES:
+1. `docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md` (line 269): Change `Control 2.8 — Agent Lifecycle Management` to `Control 2.8 — Access Control and Segregation of Duties`
+2. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 76): Change "Path A provides complete regulatory compliance without the additional complexity" to "Path A helps support regulatory compliance requirements without the additional complexity"
+3. `docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md` (line 300 footer): Align version to match header — change `v1.2.51` to `v1.2.48` (or update header to `v1.2.51`)
+NOTE on Section A nav orphans: The ~300 mkdocs nav orphan entries are a **worktree-level issue** — this partial worktree does not contain the full `docs/` tree (controls, framework, getting-started, reference, etc. are sparse or empty). All 11 files in this review batch exist at their correct paths and are properly referenced in mkdocs.yml. No fixes are applicable within this batch scope.
+STATUS: ISSUES_FOUND
+Now applying the two critical fixes and the version inconsistency fix:
+Edits were denied (read-only worktree). The review is complete — fixes are documented above for manual application.
+**Summary:** 2 critical issues (control name error, language overclaim), 4 warnings (version inconsistencies, suspect PowerShell cmdlet, false-positive URLs). Section A nav orphans are a worktree-level issue outside batch scope. 3 surgical fixes specified.

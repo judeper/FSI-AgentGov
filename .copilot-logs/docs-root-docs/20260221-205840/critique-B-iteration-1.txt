@@ -1,0 +1,14 @@
+All three issues confirmed in the source files. Let me check for any cross-references to the solutions count.
+Important finding on the solutions count. Let me check the CHANGELOG ordering and solutions index.
+Confirmed: solutions-index.md lists exactly 27 solutions. CHANGELOG shows v1.2.47 merged ACV+ALCA→ACM (27→26), then v1.2.48 added Agent Observability Foundation (back to 27). Line 279's "26" is stale. The stale footer pattern appears in **28 files**, not just `checklist.md`.
+---
+**HIGH_RISK_FIXES:**
+- Fix 2 (checklist.md footer only): Grep reveals 28 files with identical stale `v1.2 - January 2026` footer. Fixing only `checklist.md` creates a new inconsistency — one file at v1.2.51 while 27 siblings remain at v1.2. Either batch-fix all 28 or defer entirely. Fixing one in isolation is worse than fixing none.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (README 26→27): CRITICAL is defensible — in an FSI governance framework, contradicting yourself within the same file on a factual count undermines credibility. No change needed.
+- Fix 3 (index.md Latest Updates): WARNING understates impact. The homepage is the first page every visitor sees; showing only v1.1 changes when the framework is at v1.2.51 signals the project is unmaintained. Consider elevating to CRITICAL.
+**FIX_ORDERING:**
+- All three fixes are independent — no cross-references, no build dependencies. Can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- Fix 3 proposed content ("71 controls, 284 playbooks, companion solutions, four-pillar expansion") is reasonable scope but risks introducing inaccurate numbers if not verified against current state. The section already links to CHANGELOG. A minimal approach: add a one-line `**v1.2 (February 2026):**` entry with 2–3 bullet points matching CHANGELOG highlights, rather than composing new prose. Avoid restating counts that may drift again.
+**CRITIQUE_SUMMARY:** The three issues are real and correctly identified; the false-positive dismissals (URLs, nav orphans) are sound. The main risk is Fix 2's single-file footer patch creating a new inconsistency across 28 files — it should be scoped as a batch operation or dropped from this review's scope.

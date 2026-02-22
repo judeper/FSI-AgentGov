@@ -1,0 +1,21 @@
+16 files found. Let me read the key files referenced in the review to verify each claim.
+Now let me check the remaining claims and look for missed issues.
+Let me check a few more things - the 2.2 service principal code comparison, the `pac auth` references, and look for any missed issues.
+Now let me check for things the reviewer may have missed - language compliance, broken cross-references, etc.
+Let me also check the footer nav links for the 2.3 and 2.4 files to see if there are inconsistencies the review missed.
+Now I have enough data. Let me also check one more potential issue - the 2.4 verification-testing.md footer nav.
+Now I have all the data needed to write the critique.
+**FALSE_POSITIVES:**
+- NONE — All review claims verified as accurate against the actual file contents.
+**MISSED_ISSUES:**
+- **2.2 title inconsistency between portal-walkthrough and powershell-setup:** `2.2/portal-walkthrough.md` uses "Environment Groups and Zone Classification" while `2.2/powershell-setup.md` and `2.2/troubleshooting.md` use "Environment Groups and Tier Classification". Same control, two different names. The reviewer did not flag this intra-control naming inconsistency.
+- **2.3/2.4 footer nav links missing sibling links:** `2.3/powershell-setup.md`, `2.3/troubleshooting.md`, `2.3/verification-testing.md`, `2.4/powershell-setup.md`, `2.4/troubleshooting.md`, and `2.4/verification-testing.md` only have "[Back to Control X.X]" with no sibling nav links (Portal Walkthrough, PowerShell Setup, etc.), while `2.3/portal-walkthrough.md` and `2.4/portal-walkthrough.md` and all 2.1/2.2 files include the full four-link footer nav. This is a structural inconsistency the reviewer missed.
+- **2.1/2.2 footer metadata format differs from 2.3/2.4:** 2.1 files use `*Updated: February 2026 | Version: v1.3 | Classification: Portal Walkthrough*` while 2.2/2.3/2.4 files use `*Updated: January 2026 | Version: v1.2*`. The additional `Classification:` field and version difference was not flagged.
+- **2.4/troubleshooting.md also uses `pac` commands** (lines 31, 34–35, 100–101) without any prerequisites section documenting Power Platform CLI installation. The reviewer noted the `pac` prerequisite gap only for `2.4/powershell-setup.md` but missed the same issue in `2.4/troubleshooting.md`.
+**FIX_CONCERNS:**
+- **Fix #1 (2.1/powershell-setup.md date update):** Correct and verified. Lines 161 and 234 do say "January 2026" while the header says "February 2026".
+- **Fix #2 (2.2/powershell-setup.md comment out service principal lines):** Correct approach. Lines 19–22 are active uncommented code with placeholders, and commenting them out matches the pattern in 2.1, 2.3, and 2.4 which all comment out those same lines.
+- **Fix #3 (2.3/powershell-setup.md deprecated module):** Appropriately flagged as NEEDS_HUMAN_REVIEW. The deprecated `Microsoft.Xrm.Tooling.CrmConnector.PowerShell` module is used extensively (10 references to `Connect-CrmOnline`), so migration would be substantial and needs human judgment.
+- **Fix #4 (2.4/powershell-setup.md pac CLI prerequisite):** Correct, but incomplete — should also cover `2.4/troubleshooting.md` which has 5 `pac` command references.
+- **Fix #5 (heading format standardization):** Reasonable suggestion, but the review should note this is a cosmetic consistency issue and lower priority than the functional gaps.
+**CRITIQUE_SUMMARY:** The review is largely accurate — all claimed issues verified as real, and the false-positive URL classifications are correct. However, it missed 4 issues: an intra-control naming inconsistency in 2.2 ("Zone Classification" vs "Tier Classification"), missing sibling footer nav links in 6 of the 2.3/2.4 files, inconsistent footer metadata format between 2.1 and 2.2–2.4, and the `pac` prerequisite gap also affecting `2.4/troubleshooting.md`. The fix for #4 should be expanded to cover both files.

@@ -1,0 +1,22 @@
+All findings verified against the actual files. Here is the final synthesized review:
+ISSUE_COUNT: 8
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.8/: Version inconsistency across 1.8 playbooks is a 2-vs-2 split — portal-walkthrough.md (line 417) and verification-testing.md (line 294) use `Version: v1.3` while powershell-setup.md (line 576) and troubleshooting.md (line 359) use `Version: v1.2`. NEEDS_HUMAN_REVIEW to determine which version is correct
+- docs/playbooks/control-implementations/1.8/: Footer structural inconsistency — the two v1.3 files include a `Classification:` field (e.g., `Classification: Verification Testing`) while the two v1.2 files omit it entirely, indicating a partial format migration
+- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Footer uses `Version: v1.2.48` (full semver, line 637) while all other playbooks in this batch use short `Version: v1.2` — format inconsistency
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Second `.NOTES` block says `Last Updated: January 2026` (line 447) while the first `.NOTES` block (line 84) and file footer (line 576) both say February 2026 — date inconsistency within the file
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Sentinel Detection Rule code fence uses `` ```kusto `` (line 412) while all other KQL blocks across this batch use `` ```kql `` — inconsistent code fence language tag
+- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: PowerShell examples use fabricated GUIDs for Power Apps (`9e0c93b0-...`, lines 74/146/424), Copilot Studio (`51c00ca4-...`, lines 75/147), and Power Apps Maker (`12a0c4dd-...-9e8e8e8e8e8e`, line 76). The Dataverse GUID (`00000007-0000-0000-c000-000000000000`, line 425) is the real well-known app ID and is correct. Admins copy-pasting the fabricated IDs will create non-functional CA policies. NEEDS_HUMAN_REVIEW — replace fabricated GUIDs with actual well-known app IDs or add prominent comments that these must be replaced
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Line 314 references `Set-AdminPowerAppEnvironmentThreatDetection` cmdlet in a comment — NEEDS_HUMAN_REVIEW, this may not be a real cmdlet
+- docs/playbooks/control-implementations/1.9/powershell-setup.md: Line 151 pipes `Get-ComplianceTagStorage` to `Get-DispositionItem` — NEEDS_HUMAN_REVIEW, `Get-DispositionItem` may not exist as a standalone cmdlet
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.8/: NEEDS_HUMAN_REVIEW — normalize all four 1.8 playbooks to the same version. Either upgrade powershell-setup.md and troubleshooting.md to v1.3 (and add `Classification:` footer field), or downgrade portal-walkthrough.md and verification-testing.md to v1.2 (and remove `Classification:` field). Do NOT change only one file — the split is 2-vs-2
+2. docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Change footer version from `v1.2.48` to `v1.2` for consistency with other playbooks in this batch
+3. docs/playbooks/control-implementations/1.8/powershell-setup.md: Update `.NOTES` block at line 447 from `Last Updated: January 2026` to `Last Updated: February 2026` to match line 84 and the file footer
+4. docs/playbooks/control-implementations/1.8/powershell-setup.md: Change code fence at line 412 from `` ```kusto `` to `` ```kql `` for consistency with all other KQL blocks in the batch
+5. docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Add comments above the three fabricated GUIDs only — `9e0c93b0-...` (Power Apps), `51c00ca4-...` (Copilot Studio), `12a0c4dd-...` (Power Apps Maker) — stating `# TODO: Replace with your tenant's actual app ID — find via Entra ID > Enterprise applications`. Do NOT annotate the Dataverse GUID `00000007-0000-0000-c000-000000000000` — it is the real well-known app ID
+STATUS: ISSUES_FOUND

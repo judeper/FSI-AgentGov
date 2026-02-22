@@ -1,0 +1,17 @@
+552 .md files on disk vs 476 nav references in mkdocs.yml — the files exist. Let me verify the critical claim more carefully.
+Now I have all evidence needed.
+---
+**HIGH_RISK_FIXES:**
+- **Fix 2 (1.22 title normalization) — MEDIUM-HIGH RISK.** The reviewer proposes removing "for AI Agents" from the portal-walkthrough title. However, the parent control doc (`docs/controls/pillar-1-security/1.22-information-barriers.md`) uses the title **"Information Barriers for AI Agents"** — meaning the portal-walkthrough is actually *correct* and *consistent with the control*. The other three playbooks (powershell-setup, verification-testing, troubleshooting) are the ones that are inconsistent. Applying this fix would make the portal-walkthrough *disagree* with its own control doc. If the title should be shortened, all five files (control + 4 playbooks) must be updated together, not just one playbook.
+**SEVERITY_CORRECTIONS:**
+- **CRITICAL (mkdocs.yml ~470 missing files) → DOWNGRADE to NOT AN ISSUE.** The worktree contains 552 .md files against 476 nav references. Spot checks across all pillars, framework, reference, playbooks, and downloads confirm files are present. The reviewer's automated pre-pass likely ran from an incorrect working directory or used a stale file listing. This is a false positive — no fix needed.
+- **WARNING (1.22 title inconsistency) → UPGRADE direction inverted.** The inconsistency is real, but the portal-walkthrough matches the control title; it's the other three playbooks that diverge. The proposed fix points the wrong direction.
+- **WARNING (1.21 KQL `AuditLogs` table) — SEVERITY ACCURATE.** Correctly flagged as NEEDS_HUMAN_REVIEW. `AuditLogs` is the Entra ID audit table; Copilot interaction data typically lands in `OfficeActivity` or `CopilotInteractions` depending on connector config. This is environment-specific and can't be resolved without tenant verification.
+- **WARNING (PPAC 405) — SEVERITY ACCURATE.** Correctly identified as no-fix-needed; `https://admin.powerplatform.microsoft.com` returns 405 to unauthenticated scanners by design.
+**FIX_ORDERING:**
+- Fix 2 must NOT be applied as proposed. If title normalization is desired, it requires a coordinated change across 5 files (control doc + 4 playbooks) and should be a separate PR.
+- Fix 3 (KQL table review) is independent and can proceed to human review at any time.
+- Fix 1 should be removed from the fix list entirely (false positive).
+**OVER_ENGINEERED:**
+- Fix 1 (mkdocs.yml systemic issue) is over-diagnosed. The reviewer escalated a tooling artifact (likely a worktree scan error) to a CRITICAL finding with a sweeping "ensure ~470 files exist" remediation. No action is needed.
+**CRITIQUE_SUMMARY:** The review contains one false-positive CRITICAL (files are present, not missing) and one incorrectly-directed fix (the portal-walkthrough title matches the control; the other three playbooks are the outliers). The KQL table warning and PPAC 405 assessment are both accurate and correctly classified.

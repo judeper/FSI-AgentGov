@@ -1,0 +1,16 @@
+Now I have all the context. Let me apply the fixes:
+Now fix Warning #3 — add deprecation notices to legacy test cases. I'll add a note at the start of the legacy section pointing to the detailed FAC-prefixed tests:
+Now fix Warning #4 — align 3.7/verification-testing.md footer with sibling files:
+Now verify the changes and also fix the deployment group propagation time in legacy Test Case 2 (changed from 8 hours to 24 hours to match FAC-02 context):
+All changes are correct. Let me commit:
+The git operations are being blocked by a permission policy. The file edits have been applied successfully — the changes are in the working tree. Let me verify the fixes are in place:
+Line 190 is the correct 8-hour reference for Copilot settings (FAC-03, Warning #6 confirms this is correct). Line 258 is in Test Case 3 (web search), which also correctly uses 8 hours for Copilot settings propagation. The Admin Exclusion Group references now correctly say 24 hours.
+All fixes verified. Git commit was blocked by permission policy, but all file edits are applied.
+CHANGES:
+- 3.8/powershell-setup.md: Fixed `Import-AdminExclusionGroupFromCSV` default group name from `"CopilotForM365AdminExclusionGroup"` to `"CopilotForM365AdminExclude"` (Critical #1)
+- 3.8/verification-testing.md: Fixed legacy Test Case 1 propagation time from "up to 8 hours" to "up to 24 hours" (Critical #2)
+- 3.8/verification-testing.md: Fixed legacy Test Case 2 propagation time from "up to 8 hours" to "up to 24 hours" (consistency fix)
+- 3.8/verification-testing.md: Added mkdocs-material deprecation admonition before legacy test cases with cross-references to FAC-prefixed tests; marked all legacy test case headings with "(Legacy)" suffix and FAC cross-references where applicable (Warning #3, #6)
+- 3.7/verification-testing.md: Aligned footer from "February 2026 | Version: v1.3" to "January 2026 | Version: v1.2" matching sibling files (Warning #4)
+- Warning #5 (3.11 preview API): No fix needed per review — appropriate caveats already present
+FIX_STATUS: COMPLETE

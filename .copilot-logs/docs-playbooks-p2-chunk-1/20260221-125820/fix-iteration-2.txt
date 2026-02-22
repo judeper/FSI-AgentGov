@@ -1,0 +1,18 @@
+Now let me check the sibling portal-walkthrough files for 2.3/2.4 to see the nav link pattern, and check the 6 files that need the Back to Control link:
+Now I have the full picture. Let me apply all fixes:
+Now fix the 6 files in 2.3 and 2.4 — add the `[Back to Control X.X]` parent nav link:
+Verify the fixes:
+All fixes applied correctly.
+CHANGES:
+- `docs/playbooks/control-implementations/2.1/powershell-setup.md`: Header date "January 2026" → "February 2026" to match footer
+- `docs/playbooks/control-implementations/2.1/troubleshooting.md`: Header date "January 2026" → "February 2026" to match footer
+- `docs/playbooks/control-implementations/2.1/verification-testing.md`: Reordered footer — nav links now before metadata with `---` separators (canonical pattern)
+- `docs/playbooks/control-implementations/2.3/powershell-setup.md`: Added `[Back to Control 2.3]` parent nav link
+- `docs/playbooks/control-implementations/2.3/troubleshooting.md`: Added `[Back to Control 2.3]` parent nav link
+- `docs/playbooks/control-implementations/2.3/verification-testing.md`: Added `[Back to Control 2.3]` parent nav link
+- `docs/playbooks/control-implementations/2.4/powershell-setup.md`: Added `[Back to Control 2.4]` parent nav link
+- `docs/playbooks/control-implementations/2.4/troubleshooting.md`: Added `[Back to Control 2.4]` parent nav link
+- `docs/playbooks/control-implementations/2.4/verification-testing.md`: Added `[Back to Control 2.4]` parent nav link
+- SKIPPED: 2.2 PowerShell API path issue (NEEDS_HUMAN_REVIEW — requires live tenant verification, outside batch scope for safe fix)
+- SKIPPED: Header format divergence (GAP tracked for future normalization pass, not actionable fix)
+FIX_STATUS: COMPLETE

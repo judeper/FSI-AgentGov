@@ -1,0 +1,12 @@
+Both claimed issues are confirmed. Let me now check for missed issues across the batch.
+Now let me verify the remaining files in scope for additional language issues:
+Both additional hits confirmed. Here is the audit result:
+---
+**FALSE_POSITIVES:**
+- NONE — Both reported issues are confirmed real. Line 11 of `implementation-path-a.md` contains "provides full regulatory compliance" and line 76 of `index.md` contains "provides complete regulatory compliance." Both are prohibited overclaims under FSI language rules.
+**MISSED_ISSUES:**
+- `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 10): "HITL triggers ensure appropriate supervision for high-impact decisions and **maintain regulatory compliance** for financial services organizations." — "maintain regulatory compliance" is functionally equivalent to "ensures compliance" (implies the triggers alone sustain compliance). Should use "support regulatory compliance requirements."
+- `docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md` (line 70): "Execute quarterly to **ensure long-term retention compliance**" — Direct "ensure…compliance" formulation. Should use "support long-term retention compliance requirements" or "help meet long-term retention requirements." NEEDS_HUMAN_REVIEW — this is in an imperative/instructional context ("do X to ensure Y") which is slightly less egregious than a declarative overclaim, but still matches the prohibited pattern.
+**FIX_CONCERNS:**
+- NONE — Both proposed fixes correctly replace the overclaim with "supports regulatory compliance requirements," which aligns with the FSI language rules' recommended alternative ("supports compliance with").
+**CRITIQUE_SUMMARY:** The two reported issues are genuine and the fixes are correct, but the reviewer missed two additional FSI language violations in `human-in-the-loop-triggers.md` and `evidence-and-audit.md` that use equivalent prohibited formulations ("maintain regulatory compliance" and "ensure…compliance"). The actual issue count should be 3–4, not 2.

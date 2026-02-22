@@ -1,0 +1,30 @@
+ISSUE_COUNT: 10
+CRITICAL:
+- docs/playbooks/control-implementations/4.7/verification-testing.md (line 82-83): PowerShell validation script counts ALL licensed users (`Get-MgUser -Filter "assignedLicenses/any()" -All`) instead of filtering by Copilot SKUs. In a Control 4.7 (Copilot Data Governance) verification context, this produces a misleading count. The powershell-setup.md file correctly filters by Copilot SKU — the verification script should match.
+WARNINGS:
+- docs/playbooks/control-implementations/4.7/powershell-setup.md: 6 placeholder URLs flagged as broken by automated scanner (lines 24, 97-100, 215: `https://tenant-admin.sharepoint.com`, `https://tenant.sharepoint.com/sites/ExecutiveCompensation`, `https://tenant.sharepoint.com/sites/MergerTarget`, `https://tenant.sharepoint.com/sites/LegalHold`, `https://tenant.sharepoint.com/sites/ComplianceInvestigations`, `https://contoso-admin.sharepoint.com`). These are intentional example URLs inside PowerShell code blocks — not clickable hyperlinks. Adding explicit `# Replace with your tenant URL` comments would silence future scanners.
+- docs/playbooks/control-implementations/4.7/troubleshooting.md: 1 placeholder URL flagged (lines 17, 73: `https://tenant.sharepoint.com/sites/SiteName`). Same code-block example pattern as above.
+- docs/playbooks/control-implementations/4.7/powershell-setup.md (line 309): `finally` block uses `Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue` as a connection test before calling `Disconnect-SPOService`. This issues an unnecessary API call; wrapping `Disconnect-SPOService` in its own `try/catch` or using `-ErrorAction SilentlyContinue` directly is cleaner.
+GAPS:
+- docs/playbooks/control-implementations/4.7/verification-testing.md: No Graph Connector ACL verification steps. The powershell-setup.md includes a "Graph Connector ACL Validation" section, but the verification-testing.md checklist only notes "Graph Connector ACL mappings validated (if applicable)" without a corresponding test procedure or PowerShell validation command.
+- Systemic: mkdocs.yml nav references ~300+ files not found in this worktree. This is a build/deployment concern outside the scope of these 3 files.
+FIXES:
+1. docs/playbooks/control-implementations/4.7/verification-testing.md (line 82-83): Replace generic licensed-user count with Copilot-specific filter matching powershell-setup.md approach:
+   ```powershell
+   # Count Copilot-licensed users
+   $copilotSkus = Get-MgSubscribedSku -All | Where-Object {
+       $_.SkuPartNumber -match 'Copilot'
+   } | Select-Object -ExpandProperty SkuId
+   $copilotUsers = Get-MgUser -Filter "assignedLicenses/any()" -All |
+       Where-Object { $_.AssignedLicenses | Where-Object { $_.SkuId -in $copilotSkus } }
+   Write-Host "Copilot-licensed users: $($copilotUsers.Count)"
+   ```
+2. docs/playbooks/control-implementations/4.7/powershell-setup.md (line 24): Add inline comment `# Replace 'tenant' with your actual tenant name` after the placeholder URL.
+3. docs/playbooks/control-implementations/4.7/powershell-setup.md (lines 96-101): Add inline comment `# Replace these URLs with your actual sensitive site URLs` above the array.
+4. docs/playbooks/control-implementations/4.7/powershell-setup.md (lines 308-312): Replace connection-test cleanup with simpler pattern:
+   ```powershell
+   Disconnect-SPOService -ErrorAction SilentlyContinue
+   ```
+5. docs/playbooks/control-implementations/4.7/troubleshooting.md (line 17): Add inline comment `# Replace with your site URL` to the example.
+6. docs/playbooks/control-implementations/4.7/verification-testing.md: Add a Graph Connector verification test step in the "PowerShell Validation" section referencing the approach from powershell-setup.md.
+STATUS: ISSUES_FOUND

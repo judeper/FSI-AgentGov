@@ -1,0 +1,13 @@
+All three source locations confirmed. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE — All three fixes are content-only changes within markdown code blocks. No file renames, no link changes, no nav edits. Zero mkdocs build risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 2 (4.4 `-DisableSharingForNonOwnersStatus`): **Under-classified.** Confirmed at line 98 — this is passed as a `Set-SPOSite` parameter. If `DisableSharingForNonOwnersStatus` is indeed read-only, the command will throw a PowerShell error at runtime. An admin following this playbook verbatim would hit a hard failure. This should be elevated from WARNING to **ERROR-class** (broken script), though the NEEDS_HUMAN_REVIEW tag is still correct since the actual writable parameter must be verified against current SPO module docs.
+- Fixes 1 and 3: Severity classifications are accurate as WARNING.
+**FIX_ORDERING:**
+- Fixes 2 and 3 target the **same file** (`4.4/powershell-setup.md`) and should be applied together in a single commit. Fix 3 (add `Microsoft.Graph` prerequisite) should be applied first (top of file, line ~14), then Fix 2 (line 98) — natural top-down order avoids line-number drift.
+- Fix 1 (`4.1/troubleshooting.md`) is fully independent and can be applied in any order relative to the 4.4 fixes.
+**OVER_ENGINEERED:**
+NONE — All three fixes are minimal, surgical corrections. The Section A dispositions (placeholder URLs, worktree nav orphans) are correctly dismissed without generating unnecessary work.
+**CRITIQUE_SUMMARY:** The review is accurate and well-scoped; all three findings are real issues confirmed in the source files. The only adjustment needed is elevating Fix 2 to error-level severity — a `Set-SPOSite` call with a likely read-only property will fail at runtime, not merely confuse administrators.

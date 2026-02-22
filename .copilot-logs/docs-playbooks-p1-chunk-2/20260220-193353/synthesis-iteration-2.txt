@@ -1,0 +1,16 @@
+ISSUE_COUNT: 4
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: KQL code block at line 412 uses ` ```kusto ` while all other 32+ KQL blocks in this batch use ` ```kql `. Minor formatting inconsistency.
+- docs/playbooks/control-implementations/1.12/powershell-setup.md: `Get-InsiderRiskPolicy`, `Get-InsiderRiskAlert`, and `Get-InsiderRiskPriorityUserGroup` (8 occurrences across lines 18, 27, 35, 107, 108, 212, 218) are not documented in Microsoft's Security & Compliance PowerShell reference. Insider Risk Management operations are primarily available through the Microsoft Graph API. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/1.9/powershell-setup.md: `Get-DispositionItem` at line 151 is not documented in Microsoft's Security & Compliance PowerShell reference. Disposition review is a portal-only workflow in Microsoft Purview. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: `Set-AdminPowerAppEnvironmentThreatDetection` (line 314) appears to be a fabricated cmdlet. The preceding text says "For actual API call, use:" implying it is real, but no such cmdlet exists in the Power Platform Admin PowerShell module. Low severity since it is in a comment block, but could mislead administrators. NEEDS_HUMAN_REVIEW.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.8/powershell-setup.md: Change ` ```kusto ` to ` ```kql ` at line 412 to match batch-wide convention. Safe to auto-apply.
+2. docs/playbooks/control-implementations/1.12/powershell-setup.md: Add a `!!! warning` admonition near the first use of the Insider Risk cmdlets noting that PowerShell support for Insider Risk Management is limited and these cmdlets may require the Microsoft Graph API instead. This preserves the illustrative value of the 8 references while flagging the risk, avoiding a multi-section rewrite.
+3. docs/playbooks/control-implementations/1.9/powershell-setup.md: Replace `Get-ComplianceTagStorage | Get-DispositionItem -Status Pending` with a portal-based instruction or add a note that disposition review is currently portal-only in Microsoft Purview.
+4. docs/playbooks/control-implementations/1.8/powershell-setup.md: Add a caveat note near `Set-AdminPowerAppEnvironmentThreatDetection` (line 314) clarifying this is an illustrative placeholder and not a documented Power Platform cmdlet, or replace with the correct API approach.
+STATUS: ISSUES_FOUND

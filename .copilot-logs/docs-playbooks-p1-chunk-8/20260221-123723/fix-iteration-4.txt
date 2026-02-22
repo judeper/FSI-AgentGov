@@ -1,0 +1,12 @@
+Now let me also check the 1.27 verification-testing.md for the attestation template pattern:
+Now I'll apply both fixes:
+The verification-testing.md edit succeeded. The powershell-setup.md edit failed — let me check the exact whitespace:
+Now let me verify both fixes were applied correctly:
+Both fixes applied correctly. Let me commit:
+CHANGES:
+- docs/playbooks/control-implementations/1.28/powershell-setup.md: Fixed Script 3 property access — changed `$agent.DisplayName`, `$agent.PublishStatus`, `$agent.LastModifiedTime`, `$agent.CreatedBy` to use `$agent.Properties.` prefix (matching 1.27 pattern); left `$agent.ChatBotName` unchanged as top-level property
+- docs/playbooks/control-implementations/1.28/verification-testing.md: Added Attestation Statement Template section between Evidence Package and Ongoing Monitoring, covering DLP policy compliance, approval workflows, security scans, environment promotion pipeline, and audit logging — modeled on 1.27 attestation template
+- SKIPPED: DLP cmdlet mismatch (`Get-DlpPolicy` vs `Get-AdminDlpPolicy`) — DEFERRED per review instructions, requires human verification
+- SKIPPED: `Get-AdminPowerAppEnvironmentGroup` cmdlet existence — NEEDS_HUMAN_REVIEW per review instructions
+- SKIPPED: False positive URL warnings (auth-gated Microsoft portals, placeholder URLs)
+FIX_STATUS: COMPLETE

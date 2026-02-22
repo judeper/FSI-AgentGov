@@ -1,0 +1,10 @@
+Multiple `sql` code blocks. Let me find the right one.
+Line 230 has the FetchXML (XML content), line 452 is actual SQL. Only line 230 needs changing.
+Wait — the review said "Leave the comment text as-is (it renders as literal text inside the fenced block regardless of syntax)." Let me check what I changed — I also converted the comment syntax. Let me verify and keep it minimal by only changing the language tag, leaving the comment as `--` since it's inside a code block.
+The review explicitly said "Leave the comment text as-is" but I changed it from `-- FetchXML query` to `<!-- FetchXML query -->`. Let me revert the comment change.
+Now verify both fixes:
+Both fixes confirmed. Committing:
+CHANGES:
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 230): Changed ` ```sql ` to ` ```xml ` for FetchXML content block
+- docs/playbooks/control-implementations/2.23/troubleshooting.md (line 470): Fixed typo `fsi_isx expired` → `fsi_isexpired`
+FIX_STATUS: COMPLETE

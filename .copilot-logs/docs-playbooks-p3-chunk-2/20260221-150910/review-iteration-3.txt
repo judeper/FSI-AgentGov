@@ -1,0 +1,18 @@
+Let me check if the nav orphan files actually exist in this worktree and verify the broken URL claim.
+Now I have all the information needed to compile the review.
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.7/verification-testing.md: Footer metadata includes extra `Classification: Verification Testing` field (line 190) inconsistent with the standard footer format (`*Updated: Month Year | Version: vX.X*`) used by all other files in this batch.
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: `New-AzConsumptionBudget` splatting at line 283 uses nested hashtable (`Notifications` with sub-hashtables) which likely does not match the cmdlet's flat parameter signature — NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: `Get-AgentCostByBusinessUnit` uses `Get-Random` (lines 99-100) to simulate cost data. Although a comment on line 98 notes it's simplified, a more visible warning (e.g., `Write-Warning`) would prevent admins from mistaking simulated output for actual costs.
+GAPS:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: `Export-CopilotConfigurationForCompliance` (line 267) calls `Get-CopilotAuditEvents` which is defined later in the same file (line 344). If the file is executed top-to-bottom as a script rather than dot-sourced, this call would fail. Consider reordering function definitions or adding a note that all functions must be loaded first.
+- docs/playbooks/control-implementations/3.4/verification-testing.md: Test Case 4 references "SEC Regulation S-P" 30-day customer notification (line 99). While this aligns with the May 2024 Reg S-P amendments, the specific deadline should be verified against final rule text — NEEDS_HUMAN_REVIEW.
+FIXES:
+1. docs/playbooks/control-implementations/3.7/verification-testing.md: Normalize footer to `*Updated: February 2026 | Version: v1.3*` (remove `| Classification: Verification Testing`).
+SECTION A DISPOSITION:
+- **BROKEN EXTERNAL URLS (3):** All three are scanner false positives. `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` are valid admin portals that return HTTP 405 to automated crawlers (authentication required). The `https://graph.microsoft.com/v1.0/directoryObjects/$($user.Id` URL does not appear anywhere in 3.8/powershell-setup.md (confirmed via grep). No fixes needed.
+- **MKDOCS NAV ORPHANS (300+):** All are scanner false positives. Every listed file exists under `docs/` in this worktree (verified via glob). The scanner appears to have checked paths from the repository root instead of from the MkDocs `docs_dir`. No fixes needed.
+STATUS: ISSUES_FOUND

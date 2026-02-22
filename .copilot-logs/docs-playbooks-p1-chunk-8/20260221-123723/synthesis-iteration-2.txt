@@ -1,0 +1,15 @@
+All findings verified against the source file. Here is the final corrected review:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.28/powershell-setup.md (line 378): Script 4 prints green `✓` message "Approval workflows enabled for" immediately after a yellow `⚠` warning (line 376) that chatbot approval must be configured manually. The preceding `Set-AdminPowerAppEnvironment` call (line 374) passes only `-EnvironmentName` with no configuration parameters — it is a no-op. The green success message contradicts the warning and misleads admins into believing approval workflows were automated. The preceding yellow warning partially mitigates but the contradiction remains problematic.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md (line 149): Script 1 Zone 3 blocked connectors list includes wildcard `"/providers/Microsoft.PowerApps/apis/*"`. The Power Platform DLP API uses explicit connector IDs, not glob patterns — this literal string would likely be silently ignored or error at runtime. NEEDS_HUMAN_REVIEW against a live tenant.
+- docs/playbooks/control-implementations/1.28/powershell-setup.md (lines 398, 404): Validation Commands section uses `Get-DlpPolicy` but the creation script (line 153) uses `Set-AdminDlpPolicy` (admin-scoped). The correct retrieval cmdlet for admin-scoped policies is `Get-AdminDlpPolicy` — the comment on line 402 even names it correctly while the actual command on line 404 contradicts it. Admins would see incomplete or mismatched validation results.
+GAPS:
+NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.28/powershell-setup.md line 378: Change `Write-Host "  ✓ Approval workflows enabled for: $($env.DisplayName)" -ForegroundColor Green` → `Write-Host "  ⚠ Manual configuration required for: $($env.DisplayName)" -ForegroundColor Yellow`
+2. docs/playbooks/control-implementations/1.28/powershell-setup.md lines 398, 404: Change `Get-DlpPolicy` → `Get-AdminDlpPolicy` in both validation commands to match the admin-scoped cmdlets used in the creation scripts.
+STATUS: ISSUES_FOUND

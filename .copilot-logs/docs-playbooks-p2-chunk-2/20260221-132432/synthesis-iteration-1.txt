@@ -1,0 +1,39 @@
+All critique claims verified against the actual files. Here's the synthesized final review:
+ISSUE_COUNT: 15
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.8/portal-walkthrough.md: H1 heading uses inverted format `# Portal Walkthrough: Control 2.8 - ...` instead of the standard `# Control 2.8: ... - Portal Walkthrough`
+- docs/playbooks/control-implementations/2.8/powershell-setup.md: H1 heading uses inverted format `# PowerShell Setup: Control 2.8 - ...` instead of the standard `# Control 2.8: ... - PowerShell Setup`
+- docs/playbooks/control-implementations/2.8/verification-testing.md: H1 heading uses inverted format `# Verification & Testing: Control 2.8 - ...` instead of the standard `# Control 2.8: ... - Verification & Testing`
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: H1 heading uses inverted format `# Troubleshooting: Control 2.8 - ...` instead of the standard `# Control 2.8: ... - Troubleshooting`
+- docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Missing blockquote intro line (`> This playbook provides...`) present in all other playbooks
+- docs/playbooks/control-implementations/2.8/powershell-setup.md: Missing blockquote intro line (`> This playbook provides...`) present in all other playbooks
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Missing blockquote intro line (`> This playbook provides...`) present in all other playbooks
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Missing blockquote intro line (`> This playbook provides...`) present in all other playbooks
+- docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Missing standard footer `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.8/powershell-setup.md: Missing standard footer `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Missing standard footer `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Missing standard footer `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.5/portal-walkthrough.md: Double `---` separator at lines 241 and 243 (empty line between two horizontal rules)
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Double `---` separator at lines 238 and 240 (empty line between two horizontal rules)
+- docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Double `---` separator at lines 176 and 178 (empty line between two horizontal rules)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Change H1 from `# Portal Walkthrough: Control 2.8 - Access Control and Segregation of Duties` to `# Control 2.8: Access Control and Segregation of Duties - Portal Walkthrough`
+2. docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Add blockquote after H1: `> This playbook provides portal-based configuration guidance for [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md).`
+3. docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Add footer after back-link line: `---` then `*Updated: January 2026 | Version: v1.2*`
+4. docs/playbooks/control-implementations/2.8/powershell-setup.md: Change H1 from `# PowerShell Setup: Control 2.8 - Access Control and Segregation of Duties` to `# Control 2.8: Access Control and Segregation of Duties - PowerShell Setup`
+5. docs/playbooks/control-implementations/2.8/powershell-setup.md: Add blockquote after H1: `> This playbook provides PowerShell automation scripts for [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md).`
+6. docs/playbooks/control-implementations/2.8/powershell-setup.md: Add footer after back-link line: `---` then `*Updated: January 2026 | Version: v1.2*`
+7. docs/playbooks/control-implementations/2.8/verification-testing.md: Change H1 from `# Verification & Testing: Control 2.8 - Access Control and Segregation of Duties` to `# Control 2.8: Access Control and Segregation of Duties - Verification & Testing`
+8. docs/playbooks/control-implementations/2.8/verification-testing.md: Add blockquote after H1: `> This playbook provides verification and testing procedures for [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md).`
+9. docs/playbooks/control-implementations/2.8/verification-testing.md: Add footer after back-link line (line 103): `---` then `*Updated: January 2026 | Version: v1.2*`
+10. docs/playbooks/control-implementations/2.8/troubleshooting.md: Change H1 from `# Troubleshooting: Control 2.8 - Access Control and Segregation of Duties` to `# Control 2.8: Access Control and Segregation of Duties - Troubleshooting`
+11. docs/playbooks/control-implementations/2.8/troubleshooting.md: Add blockquote after H1: `> This playbook provides troubleshooting guidance for [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md).`
+12. docs/playbooks/control-implementations/2.8/troubleshooting.md: Add footer after back-link line (line 77): `---` then `*Updated: January 2026 | Version: v1.2*`
+13. docs/playbooks/control-implementations/2.5/portal-walkthrough.md: Remove the `---` at line 243 (keep only the one at line 241 before back-link)
+14. docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Remove the `---` at line 240 (keep only the one at line 238 before back-link)
+15. docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Remove the `---` at line 178 (keep only the one at line 176 before back-link)
+STATUS: ISSUES_FOUND

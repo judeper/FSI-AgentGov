@@ -1,0 +1,22 @@
+I've read all 15 files. Let me verify the pre-pass findings before producing the report.
+Here is my complete review:
+ISSUE_COUNT: 8
+CRITICAL:
+- NONE — all 4 pre-pass file-level findings are false positives (see FIXES for details)
+WARNINGS:
+- docs/playbooks/control-implementations/2.8/portal-walkthrough.md: External URLs `https://admin.powerplatform.microsoft.com` (line 36) and `https://make.powerautomate.com` (line 74) return HTTP 405 — FALSE POSITIVE: these are admin portals requiring authentication; URLs are correct and should not be changed
+- docs/playbooks/control-implementations/2.5/powershell-setup.md: `[$responseTimes.Count * 0.5]` and `[$responseTimes.Count * 0.95]` flagged as broken internal links — FALSE POSITIVE: these are PowerShell array indexing expressions inside a ` ```powershell ` code fence (lines 132–133), not markdown links
+- docs/playbooks/control-implementations/2.6/powershell-setup.md: Potential divide-by-zero on lines 39–40 (`$metrics.SuccessfulResolutions / $metrics.TotalConversations`) when `Search-UnifiedAuditLog` returns no results, since `$metrics.TotalConversations` remains 0
+- docs/playbooks/control-implementations/2.6/powershell-setup.md: `Search-UnifiedAuditLog` (line 29) requires `ExchangeOnlineManagement` module and `Connect-ExchangeOnline`, but the script only mentions "assumes connection established" for Dataverse — prerequisite is incomplete
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Model availability table (lines 64–68) lists "GPT-5 GA (Nov 2025)" and "GPT-5.2 Preview" — NEEDS_HUMAN_REVIEW for current model name and date accuracy
+- mkdocs.yml: 300+ nav orphans (files referenced in nav but not on disk) — this is a worktree artifact; this partial checkout only contains batch files, not the full repo. No fix applicable in this context.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.8/portal-walkthrough.md: NO FIX NEEDED — `https://admin.powerplatform.microsoft.com` and `https://make.powerautomate.com` are correct admin portal URLs; HTTP 405 is expected for unauthenticated requests
+2. docs/playbooks/control-implementations/2.5/powershell-setup.md: NO FIX NEEDED — `[$responseTimes.Count * 0.5]` and `[$responseTimes.Count * 0.95]` are valid PowerShell inside a code fence; the automated scanner misidentified them as markdown links
+3. docs/playbooks/control-implementations/2.6/powershell-setup.md: Add a zero-guard before the division on lines 39–40, e.g., `if ($metrics.TotalConversations -gt 0) { ... }` to prevent divide-by-zero when no audit results exist
+4. docs/playbooks/control-implementations/2.6/powershell-setup.md: Add `ExchangeOnlineManagement` module import and `Connect-ExchangeOnline` call as a documented prerequisite before `Search-UnifiedAuditLog` on line 29, or update the "assumes connection established" comment to specify Exchange Online
+5. docs/playbooks/control-implementations/2.6/portal-walkthrough.md: NEEDS_HUMAN_REVIEW — verify model names and GA dates in the model options table (lines 64–68) reflect current Copilot Studio model availability
+6. mkdocs.yml nav orphans: NO FIX IN SCOPE — 300+ entries are a worktree artifact (partial checkout); full repo has these files
+STATUS: ISSUES_FOUND

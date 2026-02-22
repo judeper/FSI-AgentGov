@@ -1,0 +1,19 @@
+The control files DO exist. The review's claim about 473 missing files is likely false. Let me verify further and check the specific EXPECTED.md claims.
+Now let me verify the key claims more thoroughly:
+Let me verify the mkdocs claim more directly and check remaining details:
+Now I have all the data needed. Here's my audit:
+---
+FALSE_POSITIVES:
+- **CRITICAL: "473 nav entries reference docs/ files not present in this worktree"** — This is entirely false. All referenced docs/ content files ARE present. I confirmed `docs/controls/pillar-1-security/` has all 28 controls, `docs/framework/` has 12 files, `docs/getting-started/` has 2 files, `docs/downloads/` has 7 files, `docs/playbooks/` has full content. The worktree has a complete `docs/` tree with 476 markdown files. `mkdocs build --strict` would NOT fail for this reason. The reviewer appears to have fabricated or hallucinated this systemic issue.
+- **ISSUE_COUNT: 488** — The inflated count is driven almost entirely by the phantom 473 missing-file issues. The real issue count is ~15 (format inconsistency + missing notes/back-links across the 25 files reviewed).
+MISSED_ISSUES:
+- **46 EXPECTED.md files were never reviewed.** There are 71 EXPECTED.md files (one per control), not 25. The review missed controls 1.2–1.5, 1.10–1.11, 1.13–1.14, 1.16–1.21, 1.26–1.28, 2.1–2.9, 2.12–2.15, 2.22–2.24, 3.1, 3.6–3.9, 3.12, 4.1–4.7.
+- **Format counts are wrong.** Actual split: 49 TABLE-format vs 22 DETAILED-format files, not "13 vs 12."
+- **contoso.com URLs also appear in 2.23 (6 instances) and 3.12 (4+ instances)**, not only 3.11.
+- **3.12 also has a back-link** (`[Back to Control 3.12](...)`). The review claims only 3.11 has one.
+- **3 DETAILED-format files (2.22, 3.11, 3.12) also lack "Notes for Verification"** — the review only flagged TABLE-format files as missing this section. 3.11 has equivalent guidance under different headings; 2.22 and 3.12 lack it entirely.
+FIX_CONCERNS:
+- **Fix #1 (worktree/mkdocs):** Based on a false premise — no fix needed. The files exist.
+- **Fix #3 (standardize 13 files):** Should target 49 TABLE-format files, not 13. The review's scope was too narrow.
+- **Fix #4 (add back-links to 24 files):** Should target 69 files (71 minus the 2 that have them: 3.11 and 3.12), not 24.
+CRITIQUE_SUMMARY: The review's critical finding (473 missing nav files) is a false positive — the docs/ content tree is fully present in this worktree. The review also only examined 25 of 71 EXPECTED.md files, producing severely undercounted format-inconsistency and gap findings, and missed contoso.com URLs and back-links in files outside its limited scope. NEEDS_HUMAN_REVIEW: whether the batch label "chunk-1" intentionally scoped the review to only 25 files (in which case the 473 claim is still false but the partial coverage is by design).

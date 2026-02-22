@@ -1,0 +1,15 @@
+Now let me verify the FetchXML operator concern and check if Script 4 is truly incomplete:
+ISSUE_COUNT: 5 (plus ~473 systemic mkdocs nav orphans from worktree — see note)
+CRITICAL:
+- powershell-setup.md (line 346): Script 2 FetchXML uses `operator="last-x-days" value="0"` to find already-expired exceptions. This operator with value `0` is invalid/nonsensical for detecting expired records. Should use `operator="on-or-before"` with yesterday's date or `operator="lt"` with `$today` to correctly identify exceptions where the expiration date has passed.
+- powershell-setup.md (lines 666-706): Script 4 (Export-ExceptionAuditEvidence.ps1) is non-functional. The FetchXML query is a placeholder comment (`# [FetchXML query from Script 1 - omitted for brevity]`), the CSV export is commented out (`# $exportData | Export-Csv ...`), and metadata placeholders `[COUNT]`, `[FIRST]`, `[LAST]` are never populated. The script will fail at line 679 when `[System.IO.File]::OpenRead($exportFile)` attempts to open a file that was never written.
+WARNINGS:
+- powershell-setup.md: `https://contoso.crm.dynamics.com` flagged as broken URL by automated scan. This is a standard Microsoft example/placeholder domain (like `contoso.com`) used intentionally in code examples — no fix needed, false positive.
+- mkdocs.yml: ~473 nav entries reference files not found in this worktree. This is a systemic worktree issue (partial checkout), not specific to the 3 files under review.
+GAPS:
+- powershell-setup.md Script 4: Missing complete implementation — needs actual FetchXML query, `Get-CrmRecords` call, data transformation, `Export-Csv` execution (uncommented), and dynamic population of `[COUNT]`/`[FIRST]`/`[LAST]` metadata placeholders to be a usable audit evidence script.
+FIXES:
+1. powershell-setup.md (line 346): Replace `<condition attribute="fsi_expirationdate" operator="last-x-days" value="0" />` with `<condition attribute="fsi_expirationdate" operator="lt" value="$today" />` to correctly match exceptions whose expiration date is before today.
+2. powershell-setup.md (lines 666-671): Complete Script 4 by inserting the actual FetchXML query (reuse from Script 1), uncommenting the `Export-Csv` call, and replacing `[COUNT]`/`[FIRST]`/`[LAST]` with dynamic values (e.g., `$($exportData.Count)`, min/max of RequestDate).
+3. mkdocs.yml: Ensure all ~473 referenced nav files exist under `docs/` or are present when building from the full repository (systemic worktree issue).
+STATUS: ISSUES_FOUND

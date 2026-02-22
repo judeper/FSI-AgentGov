@@ -1,0 +1,32 @@
+Now I have all evidence. Here is the synthesized final review:
+---
+ISSUE_COUNT: 13
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.3/powershell-setup.md (lines 61-63): Wildcard URLs (`https://contoso.sharepoint.com/sites/Zone1-*`) in `-SharePointLocation` parameter of `New-RetentionCompliancePolicy` — this parameter does not support wildcard patterns; only exact site URLs or `All` are accepted. Severity: WARNING-HIGH. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md (lines 46-56): Step 2 navigates to Microsoft Purview > Data lifecycle management for inactive site policies, but the same control's verification-testing.md (line 13) says "Navigate to SharePoint Admin Center > Policies > Site lifecycle management." Internal contradiction within the 4.3 playbook set — one file is wrong. Severity: WARNING-HIGH. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.1/powershell-setup.md (line 75): `Set-SPOTenant -EnableRestrictedSearchAllList $true` — parameter name needs verification against current SPO cmdlet documentation. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.4/powershell-setup.md (line 164): Claim that `Remove-SPOExternalUser` was deprecated July 2024 needs verification for exact date accuracy. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/4.3/powershell-setup.md (lines 212-220 vs 244-295): Complete Configuration Script `.DESCRIPTION` claims it "Creates zone-specific retention policies" and "Creates and publishes retention labels," but the script body only retrieves and exports existing policies/labels — it never calls `New-RetentionCompliancePolicy` or `New-ComplianceTag`. Synopsis/description is misleading.
+GAPS:
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Missing formal test case table with TC-IDs (TC-4.3-XX format), missing per-step `**EXPECTED:**` outcomes, and uses "## Test Procedure" / "### Step N" instead of "## Manual Verification Steps" / "### Test N" pattern used in 4.1 and 4.2.
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Same structural gaps as 4.3 — uses "## Test Procedure" / "### Step N" instead of "## Manual Verification Steps" / "### Test N", lacks TC-ID table (TC-4.4-XX), and lacks per-step `**EXPECTED:**` outcomes.
+- docs/playbooks/control-implementations/4.4/verification-testing.md (line 1): Title uses `# Control 4.4: Guest and External User Access Controls - Verification & Testing` while 4.1/4.2/4.3 all use `# Verification & Testing: Control X.X - Name` format.
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Missing `**Last Updated:** January 2026` header line present in 4.1, 4.2, and 4.3 verification files.
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Missing navigation footer (`[Back to Control 4.4]... | [Portal Walkthrough]... | ...`) present in all other playbook files across 4.1–4.4.
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md and 4.4/portal-walkthrough.md: Prerequisites listed as plain bullets instead of `- [ ]` checkboxes, inconsistent with 4.1 and 4.2 portal walkthroughs which use checkbox format.
+FIXES:
+1. docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Change prerequisites from plain `- ` bullets to `- [ ]` checkbox format (lines 15-18) for consistency with 4.1/4.2. [Wave 1 — safe]
+2. docs/playbooks/control-implementations/4.4/portal-walkthrough.md: Change prerequisites from plain `- ` bullets to `- [ ]` checkbox format (lines 15-18) for consistency with 4.1/4.2. [Wave 1 — safe]
+3. docs/playbooks/control-implementations/4.3/powershell-setup.md (lines 217-220): Update Complete Configuration Script `.DESCRIPTION` to accurately reflect what the script does — retrieves and exports existing retention policies, labels, and rules. Remove claims about creating policies or labels. [Wave 1 — safe]
+4. docs/playbooks/control-implementations/4.4/verification-testing.md (line 1): Change title from `# Control 4.4: Guest and External User Access Controls - Verification & Testing` to `# Verification & Testing: Control 4.4 - Guest and External User Access Controls` to match 4.1/4.2/4.3. [Wave 1 — safe]
+5. docs/playbooks/control-implementations/4.4/verification-testing.md: Add `**Last Updated:** January 2026` line after title, matching 4.1/4.2/4.3. [Wave 1 — safe]
+6. docs/playbooks/control-implementations/4.4/verification-testing.md: Add navigation footer matching pattern from other 4.4 playbook files. [Wave 1 — safe]
+7. docs/playbooks/control-implementations/4.3/portal-walkthrough.md (lines 46-56): Verify Step 2 portal navigation path — resolve internal contradiction with verification-testing.md (line 13) which points to SharePoint Admin Center > Policies > Site lifecycle management. Investigate which path is correct before applying fix. [Wave 2 — requires verification]
+8. docs/playbooks/control-implementations/4.3/powershell-setup.md (lines 61-63): Verify that `-SharePointLocation` accepts wildcard URLs; if not (likely), replace with exact site URLs or a `Get-SPOSite -Filter` loop pattern to enumerate matching sites. [Wave 2 — requires verification]
+9. docs/playbooks/control-implementations/4.1/powershell-setup.md (line 75): Verify `EnableRestrictedSearchAllList` is the correct parameter name for `Set-SPOTenant` RSS configuration. [Wave 2 — requires verification]
+10. docs/playbooks/control-implementations/4.4/powershell-setup.md (line 164): Verify `Remove-SPOExternalUser` deprecation date; update if incorrect. [Wave 2 — requires verification]
+11. docs/playbooks/control-implementations/4.3/verification-testing.md: Restructure to use "## Manual Verification Steps" / "### Test N" headings, add formal TC-4.3-XX test case table, and add explicit `**EXPECTED:**` outcomes per step, matching 4.1/4.2 pattern. [Wave 3 — structural rework]
+12. docs/playbooks/control-implementations/4.4/verification-testing.md: Restructure to use "## Manual Verification Steps" / "### Test N" headings, add formal TC-4.4-XX test case table, and add explicit `**EXPECTED:**` outcomes per step, matching 4.1/4.2 pattern. [Wave 3 — structural rework]
+STATUS: ISSUES_FOUND

@@ -1,0 +1,16 @@
+Now I have all the context. Let me verify the 10 missing reference documents exist before adding them to index.md.
+All 10 missing files exist. Let me get brief descriptions for the ones I need to add by reading their first lines.
+Now I'll apply all fixes in parallel.
+All edits applied. Let me verify no stale "207" references remain and spot-check the changes.
+Let me check that monitoring-architecture.md line 574 for context.
+That's in a historical "rejected alternative" section — it's describing what the old approach would have looked like. This is accurate in context and not the same class of issue as the learn-monitor-guide.md fix. The stale v1.2.48 footers in license-requirements.md and sharepoint-advanced-management-licensing.md are correctly left alone per FIX 7 instructions.
+Now let me verify the index.md looks correct.
+All fixes applied and verified. Let me do a final git diff summary.
+CHANGES:
+- `docs/reference/raci-matrix.md`: Fixed regulatory misattribution `(OCC SR 11-7)` → `(OCC 2011-12 / Fed SR 11-7)`
+- `docs/reference/learn-monitor-guide.md`: Fixed stale path `reports/learn-changes/` → `reports/monitoring/`; updated 4 occurrences of `207` → `209`
+- `docs/reference/agent-365-capabilities-summary.md`: Fixed version contradiction `v1.2.48` → `v1.2.51` in header
+- `docs/reference/monitoring-architecture.md`: Updated 3 occurrences of `207` → `209`
+- `docs/reference/faq.md`: Fixed misattribution `OCC/SR 11-7` → `OCC 2011-12 / Fed SR 11-7`
+- `docs/reference/index.md`: Added 10 missing reference documents in 5 new sections (Regulatory & Compliance, Solutions, Monitoring & Architecture, Licensing, Agent Capabilities); bumped footer to `v1.2.51`
+FIX_STATUS: COMPLETE

@@ -1,0 +1,10 @@
+I've verified all three files against the actual content and language rules. Here's my audit:
+**FALSE_POSITIVES:**
+- NONE. Both warnings are real issues confirmed against the source files and the FSI language rules (line 49: "Reference specific regulations by name and section").
+**MISSED_ISSUES:**
+- **Line number error on Warning 2:** The review cites "line 188" but the text `Configure retention for Zone 3 regulatory requirements` is on **line 185**. Line 188 is blank. The fix also references "line 188" — this is wrong and would cause a find-and-replace to miss.
+- **phase-1-minimal-viable-controls.md (line 253):** `Align with OCC 2011-12 / SR 11-7 guidance` uses "SR 11-7" without the "Fed" prefix. The project's canonical form is "Fed SR 11-7" (per AGENTS.md target regulations list). Same class of issue as the FINRA finding — incomplete regulatory name.
+**FIX_CONCERNS:**
+- Fix 2 targets "line 188" which is blank; the edit must target **line 185** to hit the actual text. As written, the fix would fail to apply.
+- Fix 2 suggests `Configure retention for Zone 3 per SEC 17a-4 and FINRA Rule 4511 requirements` — the regulatory references are correct, but note it uses "FINRA Rule 4511" (without subsection) while the language rules example shows "FINRA Rule 4511(a)". Adding the subsection "(a)" would be ideal for consistency but is not strictly wrong.
+**CRITIQUE_SUMMARY:** The review correctly identified two real language-rule violations, but Warning 2 has an incorrect line number (185, not 188) that would cause the fix to fail, and the review missed a same-category issue on line 253 where "SR 11-7" lacks the canonical "Fed" prefix.

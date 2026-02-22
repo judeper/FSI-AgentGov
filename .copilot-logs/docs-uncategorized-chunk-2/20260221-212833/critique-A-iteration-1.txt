@@ -1,0 +1,13 @@
+Now let me check the remaining files and verify the count claims.
+Here is my audit of the review:
+---
+**FALSE_POSITIVES:**
+- **FINRA 4512/2111 warning attributed to wrong file.** The review claims `docs/controls/index.md` has a "Regulatory Alignment section" listing FINRA 4512 and 2111. That section does not exist in `index.md` (which ends at line 175 with no such section). It is actually in `docs/controls/CONTROL-INDEX.md` (line 204). The underlying observation (4512/2111 not mapped to any controls) is valid but cited against the wrong file.
+**MISSED_ISSUES:**
+- **Arithmetic error in GAPS section.** The review states `docs/playbooks/control-implementations/index.md` is missing "8 newer controls" but the actual count is **7**: 1.26, 1.27, 1.28 (3) + 2.23, 2.24 (2) + 3.11, 3.12 (2) = 7. This carries into Fix #2 as well.
+- **docs/controls/index.md Pillar 1 internal inconsistency under-reported.** The heading says "(24)" but the table has only **23** rows (1.1–1.23). The review notes both numbers but doesn't flag that the heading doesn't even match its own table — it's simultaneously wrong vs. the table (24 ≠ 23) and wrong vs. reality (24 ≠ 28). The fix should address both.
+**FIX_CONCERNS:**
+- **Fix #6 (version alignment) needs NEEDS_HUMAN_REVIEW.** CONTROL-INDEX.md (v1.3) and `control-setup-template.md` (v1.3) may have been intentionally bumped ahead of the framework version (v1.2.51). The review suggests aligning all to v1.2 or bumping all to v1.3, but this is a release management decision — the reviewer shouldn't assume which direction is correct.
+- **Fix #4 (evidence-pack-assembly.md) is correct but should note root cause.** Lines 1 and 84 are orphaned `text` language identifiers from broken code fences (i.e., the backtick fences ` ``` ` were removed but the `text` language tags were left behind). The fix correctly removes them and wraps lines 44–83, but should ensure no other fence fragments were lost.
+- **Fix #2 count should say 7, not 8** (per arithmetic error above).
+**CRITIQUE_SUMMARY:** The review is thorough and all 13 identified issues are real — every claim verified against the actual files. Two minor accuracy flaws: the FINRA 4512/2111 warning cites the wrong file (`index.md` instead of `CONTROL-INDEX.md`), and the playbook gap count is 7, not 8.

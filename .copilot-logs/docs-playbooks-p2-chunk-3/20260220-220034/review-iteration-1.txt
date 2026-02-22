@@ -1,0 +1,19 @@
+Now let me compile my findings across all 25 files.
+ISSUE_COUNT: 11
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.18/powershell-setup.md: `Evaluate-Criterion` function defined at line 131 but first called at line 77 — PowerShell executes top-to-bottom, so this would throw "not recognized" error at runtime
+- docs/playbooks/control-implementations/2.18/verification-testing.md: Last Updated says "February 2026" while all other 24 files in this batch say "January 2026" — minor inconsistency
+- docs/playbooks/control-implementations/2.14/powershell-setup.md: Placeholder URL `https://learning.company.com/ai-governance` in script parameter default (line 175) — flagged by pre-pass but is an intentional example value
+- docs/playbooks/control-implementations/2.15/portal-walkthrough.md: `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` return HTTP 405 to automated crawlers — legitimate Microsoft portal URLs, false positive from pre-pass
+- docs/playbooks/control-implementations/2.16/portal-walkthrough.md: Placeholder URLs `https://company.sharepoint.com/sites/research/library` and `.../products/docs` in example YAML config — intentional example values
+- docs/playbooks/control-implementations/2.16/powershell-setup.md: `[(Get-Date]` flagged as broken internal link (×2) — false positive; these are PowerShell string interpolation `$(Get-Date ...)` inside fenced code blocks, not markdown links
+- docs/playbooks/control-implementations/2.16/powershell-setup.md: Placeholder URL `https://company.sharepoint.com/sites/research` in `.EXAMPLE` block — intentional example
+- docs/playbooks/control-implementations/2.19/powershell-setup.md: Placeholder URL `https://yourorg.crm.dynamics.com` in script (line 46) — intentional example
+- mkdocs.yml: ~300 nav entries reference files not found in this worktree — systemic worktree-level issue, outside batch scope
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.18/powershell-setup.md: Move the `Evaluate-Criterion` function definition (lines 131-149) to BEFORE the `foreach` loop that calls it (before line 58), so the function is defined before first use
+STATUS: ISSUES_FOUND

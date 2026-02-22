@@ -1,0 +1,3 @@
+CHANGES:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md: Updated footer version from "v1.2.10" to "v1.2.12" (line 637) to match header version
+FIX_STATUS: COMPLETE

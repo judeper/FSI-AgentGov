@@ -1,0 +1,17 @@
+Let me read the files with claimed issues to verify each one.
+Now let me check version footers and verify remaining claims.
+Let me check for additional issues the review may have missed.
+I've verified all claimed issues against the actual files. Here's my critique:
+---
+**FALSE_POSITIVES:**
+- **zone1-min-explainability.md in citation markers warning:** The review lists this file as having unresolvable `<sup>[N]</sup>` or `[web:N]` markers, but the file contains neither — grep confirms zero matches. This is a false positive; remove it from the citation marker warning list.
+- **agent-inventory-entry.md line 88 (escalation matrix):** The issue is real but the line number is wrong — the reference `../templates/escalation-matrix.md` is on **line 87**, not 88. Minor inaccuracy.
+**MISSED_ISSUES:**
+- **confidence-and-routing.md and zone1-min-explainability.md: Content after version footer.** Both files have a `## Related Specifications` section (with a table) appended *after* the version footer line (lines 142–146 and 127–131 respectively). The version footer should be the final element; having substantive content after it is a structural anomaly that could cause the footer to be missed by automated checks or readers.
+- **`docs/playbooks/templates/` directory does not exist.** The review correctly identifies the broken `../templates/` paths in agent-inventory-entry.md but doesn't note the root cause: the `templates/` directory was apparently restructured into `agent-lifecycle/` and `governance-operations/`. Documenting this in the fix rationale would prevent future recurrence.
+**FIX_CONCERNS:**
+- **Fix #5** references "line 88" but the escalation matrix path is on **line 87**. The fix itself (change to `../governance-operations/escalation-matrix.md`) is correct.
+- **Fix #7 (normalize version footers):** For confidence-and-routing.md and zone1-min-explainability.md, the fix should also address moving the footer to the *actual* end of the file (after the Related Specifications section), not just updating the version string in its current mid-file position.
+- **Fix #2 (decision-log-schema.md):** The fix correctly identifies both the missing closing fence and the missing `## ` prefix. Verified accurate.
+- **Fixes #3, #4, #6:** All path corrections verified against actual directory structure — all correct.
+**CRITIQUE_SUMMARY:** The review is thorough and substantively accurate — all 7 CRITICAL issues and the WARNING/GAP findings are real, with one false positive (zone1-min-explainability.md cited for non-existent citation markers), one line number error (87 not 88), and two missed structural observations (post-footer content, nonexistent templates directory). Fix suggestions are actionable and correct.

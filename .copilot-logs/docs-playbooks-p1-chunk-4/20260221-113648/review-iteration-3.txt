@@ -1,0 +1,20 @@
+Now let me verify one more thing about the EdmUploadAgent command parameter I noticed.
+Good — no prohibited language found. Here is my review:
+---
+ISSUE_COUNT: 480
+CRITICAL:
+- docs/playbooks/control-implementations/1.13/powershell-setup.md (line 155): EdmUploadAgent command uses `/HashFile` parameter for schema upload; correct parameter is `/SchemaFile`. Command should be: `.\EdmUploadAgent.exe /UploadSchema /DataStoreName FSICustomerData /SchemaFile FSICustomerDataSchema.xml`
+WARNINGS:
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Broken URL `https://admin.powerplatform.microsoft.com` (HTTP 405) — false positive; auth-required portal URL is valid
+- docs/playbooks/control-implementations/1.14/portal-walkthrough.md: Broken URL `https://copilotstudio.microsoft.com` (HTTP 405) — false positive; auth-required portal URL is valid
+- docs/playbooks/control-implementations/1.14/powershell-setup.md: Broken URL `https://tenant.sharepoint.com/sites/HR` (HTTP -1) — placeholder URL in `.EXAMPLE` block; should use `https://contoso.sharepoint.com/sites/HR` per Microsoft documentation conventions
+- docs/playbooks/control-implementations/1.12/powershell-setup.md (line 35): NEEDS_HUMAN_REVIEW — `Get-InsiderRiskAlert -Filter "Status -eq 'NeedsReview'"` may not support the `-Filter` parameter with this syntax; verify or use `| Where-Object` pipeline instead
+- Style inconsistency across batch: 1.14/* and 1.15/* files include header metadata block (Last Updated, Portal, Estimated Time, Modules Required) while 1.11/*, 1.12/*, and 1.13/* files do not — recommend standardizing
+- mkdocs.yml nav orphans: ~473 entries reference files not found in this worktree (systemic worktree structural issue, not individual content defects)
+GAPS:
+- Missing navigation footer links: 1.11/verification-testing.md, 1.12/powershell-setup.md, 1.12/troubleshooting.md, 1.12/verification-testing.md, 1.13/powershell-setup.md, 1.13/troubleshooting.md, 1.13/verification-testing.md lack sibling navigation links (`[Back to Control] | [Portal Walkthrough] | ...`) that are present in 1.14/* and 1.15/* files
+FIXES:
+1. docs/playbooks/control-implementations/1.13/powershell-setup.md (line 155): Change `/HashFile` to `/SchemaFile` — `# .\EdmUploadAgent.exe /UploadSchema /DataStoreName FSICustomerData /SchemaFile FSICustomerDataSchema.xml`
+2. docs/playbooks/control-implementations/1.14/powershell-setup.md (line 153): Change `https://tenant.sharepoint.com/sites/HR` to `https://contoso.sharepoint.com/sites/HR` in the `.EXAMPLE` block
+3. mkdocs.yml: ~473 nav entries reference files not present in this worktree — verify files exist in main branch; no fix needed if this is a partial worktree checkout
+STATUS: ISSUES_FOUND

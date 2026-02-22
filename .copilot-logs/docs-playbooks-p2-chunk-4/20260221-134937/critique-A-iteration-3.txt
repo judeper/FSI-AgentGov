@@ -1,0 +1,14 @@
+Now let me check the 2.13/powershell-setup.md file fully for the claimed tenant-admin URL, and also look for any missed issues.
+Let me check the remaining batch files (verification-testing and troubleshooting) for missed issues.
+I've now reviewed all 16 files in the batch. Here's my audit of the review:
+---
+**FALSE_POSITIVES:**
+- NONE. All claimed issues are verified against the actual file contents. The WORM/audit-trail inconsistency (Fix 1) and the `LearningContent.Read.All` scope mismatch (Fix 2) are both real. The URL false-positive dismissals are all correct — each is in a `.EXAMPLE` block, YAML example, or is a legitimate auth-gated Microsoft portal URL.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/2.13/verification-testing.md`: The same WORM-only terminology inconsistency found in the powershell-setup extends here — Test 3 title (line 19: "Verify WORM Compliance"), TC-2.13-04 (line 40: "WORM prevents deletion"), evidence checklist (line 50: "WORM storage settings"), and attestation template (line 74: "WORM storage is configured for Zone 3") all omit the audit-trail alternative that the portal-walkthrough documents. Same class of issue as the reviewer's Fix 1 but in a sibling file.
+- `docs/playbooks/control-implementations/2.13/powershell-setup.md` line 41: `Connect-PnPOnline -Url "$AdminUrl$SiteUrl"` concatenates the admin URL (e.g., `https://tenant-admin.sharepoint.com`) with `/sites/AI-Governance`, producing an invalid URL that retains `-admin`. The Complete Configuration Script at line 226 correctly handles this with `$AdminUrl -replace "-admin", ""`, but the standalone `New-AIGovernanceSite.ps1` script does not. NEEDS_HUMAN_REVIEW — this may be an intentional simplification (the `.EXAMPLE` already shows a placeholder admin URL) but is a functional script bug.
+**FIX_CONCERNS:**
+- Fix 1 should also update the comment on line 166 (`# Check 3: WORM storage (manual)`) for full consistency — omitting the comment leaves a residual WORM-only reference.
+- Fix 1 doesn't address the identical WORM-only terminology in `2.13/verification-testing.md` (Test 3, TC-2.13-04, evidence checklist, attestation). For true cross-playbook consistency with the portal-walkthrough, those should also reference the audit-trail alternative.
+- Fix 2 is correct and complete as stated.
+**CRITIQUE_SUMMARY:** The review is accurate on the issues it found — both actionable fixes are legitimate, and URL false-positive dismissals are correct. However, it missed the same WORM/audit-trail inconsistency propagated into the verification-testing playbook for 2.13, and a potential script bug in the standalone site-creation script's URL construction.

@@ -1,0 +1,15 @@
+All 3 issues remain unfixed. These files are outside this batch's scope, so this is expected — they should be addressed in their respective batches.
+ISSUE_COUNT: 3
+CRITICAL:
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 106): "DecisionLog table with immutable records" overclaim — REMAINING (out of batch scope)
+- `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (line 106): "Immutable audit log" overclaim — REMAINING (out of batch scope)
+WARNINGS:
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 86): "provides immutable audit trail" overclaim — REMAINING (out of batch scope)
+GAPS:
+- NONE
+FIXES:
+1. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 106): Change "DecisionLog table with immutable records" to "DecisionLog table with audited records"
+2. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 86): Change "provides immutable audit trail" to "provides persistent audit trail"
+3. `docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md` (line 106): Change "Immutable audit log" to "Persistent audit log"
+STATUS: ISSUES_FOUND
+**Note:** All 3 remaining issues are in files outside this batch's scope. All in-scope files from the previous iteration remain correctly fixed. These issues should be addressed in the batches covering `platform-change-governance/` and `unrestricted-agent-sharing-detector/`.

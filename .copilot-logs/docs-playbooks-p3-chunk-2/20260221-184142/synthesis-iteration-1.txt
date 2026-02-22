@@ -1,0 +1,22 @@
+Now let me check Critique A's missed issue about the 3.8 portal-walkthrough Validation section placement.
+All evidence gathered. Here is the reconciled report:
+ISSUE_COUNT: 7
+CRITICAL:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 127): `$GroupName = "CopilotForM365AdminExclusionGroup"` is inconsistent with all 12 other references across the 3.8 playbook set which use `"CopilotForM365AdminExclude"`. The bulk-import function would target a nonexistent group. Both critiques confirmed.
+WARNINGS:
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: Prerequisites install `Az.CostManagement` (line 11) but `New-AzConsumptionBudget` (line 282) requires the `Az.Consumption` module. Troubleshooting file (line 71) also calls `Get-AzConsumptionBudget`. NEEDS_HUMAN_REVIEW — verify whether `Az.CostManagement` re-exports these cmdlets before changing.
+- docs/playbooks/control-implementations/3.6/portal-walkthrough.md: Double horizontal rule at lines 127 and 129 creates an empty visual section.
+- docs/playbooks/control-implementations/3.6/powershell-setup.md (line 143): `Set-AdminPowerAppAsSysAdmin -Disable` — `-Disable` is not a documented parameter for this cmdlet. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.8/powershell-setup.md (line 107): `New-MgGroupMember` with `@odata.id` body is the v1.x Graph SDK pattern; v2 uses `New-MgGroupMemberByRef`. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.8/portal-walkthrough.md: Validation section (line 344) is misplaced between Part 3 and Part 4. It should appear after Part 4 (after line 431), before the footer nav links. Confirmed by section heading order: Part 3 → Validation → Part 4 is incorrect.
+GAPS:
+- docs/playbooks/control-implementations/3.6/portal-walkthrough.md: Missing `## Validation` section with verification checklist. Both 3.5 (line 171) and 3.8 (line 344) portal walkthroughs have one; 3.6 does not. NEEDS_HUMAN_REVIEW — net-new content requiring domain expertise; route to doc-writer.
+FIXES:
+1. docs/playbooks/control-implementations/3.8/powershell-setup.md line 127: Change `$GroupName = "CopilotForM365AdminExclusionGroup"` to `$GroupName = "CopilotForM365AdminExclude"` — zero ambiguity, apply immediately.
+2. docs/playbooks/control-implementations/3.6/portal-walkthrough.md line 127 or 129: Remove one of the duplicate `---` separators — trivial cosmetic, apply immediately.
+3. docs/playbooks/control-implementations/3.8/portal-walkthrough.md: Move `## Validation` section (lines 344–365) to after Part 4 (after line 431), before the footer nav links — structural fix, apply immediately.
+4. docs/playbooks/control-implementations/3.5/powershell-setup.md: HOLD — verify whether `Az.CostManagement` re-exports `New-AzConsumptionBudget`; if not, add `Install-Module -Name Az.Consumption` to prerequisites. NEEDS_HUMAN_REVIEW.
+5. docs/playbooks/control-implementations/3.6/powershell-setup.md line 143: HOLD — verify `-Disable` parameter validity; may need `Remove-AdminPowerAppAsSysAdmin` instead. NEEDS_HUMAN_REVIEW.
+6. docs/playbooks/control-implementations/3.8/powershell-setup.md line 107: HOLD — verify `New-MgGroupMember` vs `New-MgGroupMemberByRef` for installed SDK version. NEEDS_HUMAN_REVIEW.
+7. docs/playbooks/control-implementations/3.6/portal-walkthrough.md: HOLD — add `## Validation` section; route to doc-writer for domain-accurate checklist content. NEEDS_HUMAN_REVIEW.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,12 @@
+Now I'll apply all three fixes simultaneously.
+Now let me also fix the param block variable name from `$Tier` to `$Zone`:
+All edits applied correctly. Let me verify with a quick diff:
+I notice an unrelated change in `2.12/portal-walkthrough.md` — that's from a prior edit, not mine. Let me verify my three files are correct and commit only my changes.
+That file change was already present. My edits only touched the 3 target files. Let me commit just my changes:
+It seems git write operations are blocked in this environment. The file edits are applied correctly though. Let me verify the changes are in place:
+All three fixes verified. Git commit is blocked by environment permissions, but all file edits are applied.
+CHANGES:
+- docs/playbooks/control-implementations/2.9/powershell-setup.md: Renamed `$Tier` → `$Zone` in param block, ValidateSet variable, display strings, comment, and hash key reference; changed `<th>Tier</th>` → `<th>Zone</th>` in HTML report template
+- docs/playbooks/control-implementations/2.7/powershell-setup.md: Removed unused `$connectorUsage = @()` initialization (line 34)
+- docs/playbooks/control-implementations/2.11/verification-testing.md: Expanded "CCPA Rights" to "Consumer Credit Protection Act (CCPA) Rights" to disambiguate from California Consumer Privacy Act
+FIX_STATUS: COMPLETE

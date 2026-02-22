@@ -1,0 +1,45 @@
+All 25 files have been read. Now compiling findings.
+All 25 scope files confirmed present in the worktree. The mkdocs nav orphan entries listing these files as "not found" are false positives — all files exist at the expected paths. The entire nav orphan list (300+ entries) is a systemic worktree artifact, not real missing files.
+ISSUE_COUNT: 16
+CRITICAL:
+NONE
+WARNINGS:
+- 1.14/powershell-setup.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.14/troubleshooting.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.14/verification-testing.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.15/powershell-setup.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.15/troubleshooting.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.15/verification-testing.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.16/portal-walkthrough.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.16/powershell-setup.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.16/troubleshooting.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.16/verification-testing.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.18/powershell-setup.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.18/troubleshooting.md: Header "Last Updated: January 2026" contradicts footer "Updated: February 2026"
+- 1.18/verification-testing.md: Footer metadata line appears before navigation links, reversing the standard order used in all other 24 files
+- 1.18/portal-walkthrough.md: Non-standard footer adds `| Classification: Portal Walkthrough` and uses v1.3 (all other files use v1.2 without Classification field)
+- 1.18/verification-testing.md: Non-standard footer adds `| Classification: Verification Testing` and uses v1.3 (inconsistent with other files)
+- Section A broken URLs: All 4 are false positives — `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` return HTTP 405 because they are auth-gated portals (not broken); `tenant.sharepoint.com/sites/HR` and `tenant-admin.sharepoint.com` are intentional placeholder URLs in PowerShell code examples
+- Section A nav orphans: ALL 300+ mkdocs.yml nav entries flagged as "not found" — this is a systemic worktree artifact (files in review scope confirmed to exist at expected paths). No action needed within this batch scope.
+GAPS:
+- 1.13/verification-testing.md: Missing attestation statement template (controls 1.14–1.18 all include one in their verification-testing playbooks)
+FIXES:
+1. 1.14/powershell-setup.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+2. 1.14/troubleshooting.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+3. 1.14/verification-testing.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+4. 1.15/powershell-setup.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+5. 1.15/troubleshooting.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+6. 1.15/verification-testing.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+7. 1.16/portal-walkthrough.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+8. 1.16/powershell-setup.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+9. 1.16/troubleshooting.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+10. 1.16/verification-testing.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+11. 1.18/powershell-setup.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+12. 1.18/troubleshooting.md: Change header `**Last Updated:** January 2026` to `**Last Updated:** February 2026`
+13. 1.18/verification-testing.md: Move the nav link line (`[Back to Control 1.18]...`) before the `*Updated:...` footer line, adding `---` separator between them (matching standard pattern)
+14. 1.18/portal-walkthrough.md: Normalize footer to `*Updated: February 2026 | Version: v1.2*` (remove Classification field, downgrade version to v1.2 for consistency, or apply Classification field across all files)
+15. 1.18/verification-testing.md: Normalize footer to `*Updated: February 2026 | Version: v1.2*` (same as fix 14)
+16. 1.13/verification-testing.md: Consider adding attestation statement template section for parity with other control verification playbooks
+- Section A broken URLs: No fix needed (false positives from automated scan)
+- Section A nav orphans: No fix needed within this batch (systemic worktree path resolution issue)
+STATUS: ISSUES_FOUND

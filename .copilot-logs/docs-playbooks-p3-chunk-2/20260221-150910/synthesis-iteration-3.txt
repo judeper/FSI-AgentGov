@@ -1,0 +1,14 @@
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.7/verification-testing.md: Footer metadata includes extra `Classification: Verification Testing` field (line 190) inconsistent with the standard footer format (`*Updated: Month Year | Version: vX.X*`).
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Same `| Classification: Verification Testing` footer anomaly as 3.7 — last line is `*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*`.
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: `New-AzConsumptionBudget` splatting at line 283 uses nested hashtable (`Notifications` with sub-hashtables) which likely does not match the cmdlet's flat parameter signature — NEEDS_HUMAN_REVIEW.
+GAPS:
+- docs/playbooks/control-implementations/3.8/powershell-setup.md: `Export-CopilotConfigurationForCompliance` (line 267) calls `Get-CopilotAuditEvents` which is defined later in the same file (line 344). If the file is executed top-to-bottom as a script rather than dot-sourced, this call would fail. Consider reordering function definitions or adding a note that all functions must be loaded first.
+- docs/playbooks/control-implementations/3.4/verification-testing.md: Test Case 4 references "SEC Regulation S-P" 30-day customer notification (line 99). While this aligns with the May 2024 Reg S-P amendments, the specific deadline should be verified against final rule text — NEEDS_HUMAN_REVIEW.
+FIXES:
+1. docs/playbooks/control-implementations/3.7/verification-testing.md: Normalize footer to `*Updated: February 2026 | Version: v1.3*` (remove `| Classification: Verification Testing`).
+2. docs/playbooks/control-implementations/3.8/verification-testing.md: Normalize footer to `*Updated: February 2026 | Version: v1.3*` (remove `| Classification: Verification Testing`).
+STATUS: ISSUES_FOUND

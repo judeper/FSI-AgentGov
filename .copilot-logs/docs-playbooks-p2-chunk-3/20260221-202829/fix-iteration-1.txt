@@ -1,0 +1,17 @@
+Now let me view the 2.16/powershell-setup.md example blocks and the 2.18 function definition area:
+Now I have all the context. Let me also see the lines around the function call area to understand the move for 2.18:
+Now I'll apply all fixes. The 2.18 function move: I'll move the `Evaluate-Criterion` function (lines 131-149) to before line 58 (after `$results = @()`).
+Two edits failed for 2.16/portal-walkthrough.md. Let me check the exact content:
+Now let me verify all changes are correct:
+All fixes applied. Let me do a final spot-check on the 2.18 function move:
+All changes verified. Committing:
+The commit is being blocked by permission restrictions, but all file changes are staged and ready. The edits themselves are complete and verified.
+CHANGES:
+- 2.14/powershell-setup.md: `aigovernance@company.com` → `aigovernance@contoso.com`, `https://learning.company.com/ai-governance` → `https://learning.contoso.com/ai-governance`, added division-by-zero guard on compliance rate calculation, updated comment to reference `Send-MgUserMail (Graph API)`
+- 2.16/portal-walkthrough.md: `company.sharepoint.com` → `contoso.sharepoint.com` (2 URLs)
+- 2.16/powershell-setup.md: `yourtenant.sharepoint.com` → `contoso.sharepoint.com` (line 14), `company.sharepoint.com` → `contoso.sharepoint.com` (5 .EXAMPLE blocks)
+- 2.19/powershell-setup.md: `yourorg.crm.dynamics.com` → `contoso.crm.dynamics.com` (2 occurrences)
+- 2.18/powershell-setup.md: Moved `Evaluate-Criterion` function definition before `foreach` loop for readability
+- 2.17/powershell-setup.md: SKIPPED — `CopilotInteraction` RecordType marked NEEDS_HUMAN_REVIEW, not changed
+- mkdocs.yml: SKIPPED — worktree artifact, no fix needed
+FIX_STATUS: COMPLETE

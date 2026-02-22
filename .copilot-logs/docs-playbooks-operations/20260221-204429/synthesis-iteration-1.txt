@@ -1,0 +1,18 @@
+Verified all disputes by reading the files. Here's the reconciliation:
+- **Version v1.2 → v1.2.51**: Critique B is correct. 50+ control docs use `Version: v1.2` as the *document-level* version. Changing only these 3 to v1.2.51 would make them outliers. **REJECTED as false positive.**
+- **Date January → February 2026**: Critique B is correct. Many docs across the tree use "January 2026". Selectively updating 3 creates inconsistency when no content changed. **REJECTED as false positive.**
+- **CRO unexpanded**: Confirmed at line 157. Real but minor.
+- **PPAC unexpanded**: Confirmed at lines 30, 44, 109, 115 — 4 uses, never expanded. Real, verified in file.
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- phase-1-minimal-viable-controls.md (line 30): "PPAC" acronym used 4 times (lines 30, 44, 109, 115) without expansion to "Power Platform Admin Center (PPAC)" on first use
+- phase-1-minimal-viable-controls.md (line 157): "CRO" acronym used without expansion; should clarify as "CRO (Chief Risk Officer)" on first use
+GAPS:
+- NONE
+FIXES:
+1. phase-1-minimal-viable-controls.md (line 30): Change `Configure role-based access in PPAC` → `Configure role-based access in Power Platform Admin Center (PPAC)` (first-use expansion; subsequent uses at lines 44, 109, 115 may remain as "PPAC")
+2. phase-1-minimal-viable-controls.md (line 157): Change `- CRO (if applicable)` → `- CRO (Chief Risk Officer) (if applicable)`
+STATUS: ISSUES_FOUND

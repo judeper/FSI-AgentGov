@@ -1,0 +1,22 @@
+Now let me check Critique B's claim about "Microsoft Foundry" appearing in 24+ files across the repo.
+I've verified all files. Here's the reconciled output:
+---
+ISSUE_COUNT: 6
+CRITICAL:
+- 1.24/powershell-setup.md (lines 80, 290) and 1.24/verification-testing.md (line 129): Azure Resource Graph queries reference `microsoft.openai/accounts` which is not a valid Azure resource provider type. Azure OpenAI is provisioned as `Microsoft.CognitiveServices/accounts` with `kind = 'OpenAI'`. Scripts silently return zero results, giving false assurance that no AI resources exist.
+WARNINGS:
+- 1.24/portal-walkthrough.md (lines 11, 41): "Microsoft Foundry" appears non-standard (should be "Azure AI Foundry"). However, the term appears consistently in 18 files repo-wide (controls, framework docs, playbooks). Fixing only this file creates inconsistency. DEFER to repo-wide rename task.
+- 1.24/powershell-setup.md (line 133): `Get-AzAccessToken` `.Token` property accessed as plain string, but Az.Accounts 5.0+ returns SecureString. The 1.25/powershell-setup.md (lines 27-32) already has the correct dual-format pattern.
+- 1.24/powershell-setup.md (line 46): `$aiSpm` variable filters for `SensitiveDataDiscovery` and `AgentlessDiscoveryForKubernetes` — neither is the AI-SPM extension name. Additionally, `$aiSpm` is dead code: it is assigned but never referenced (line 47 uses `$extensions.Name` instead). NEEDS_HUMAN_REVIEW for correct extension identifier.
+- 1.26/powershell-setup.md: Uses `Get-AdminPowerAppChatbot` and `Set-AdminPowerAppChatbot -FileUploadEnabled` throughout without an API availability disclaimer. Control 1.27/powershell-setup.md (lines 40-47) includes a `!!! danger` admonition warning these are "anticipated API schema." The same caveat should be added to 1.26 for consistency.
+- 1.28/powershell-setup.md (line 273): Script 3 uses `Get-PowerAppChatBot` (different casing, no `Admin` prefix) and accesses `.Channels`, `.PublishStatus`, `.DisplayName`, `.CreatedBy` properties — same cmdlet verification concern as 1.26/1.27 but unflagged in original review.
+GAPS:
+- NONE
+FIXES:
+1. 1.24/powershell-setup.md (lines 80, 290) and 1.24/verification-testing.md (line 129): Remove `'microsoft.openai/accounts'` from the `type in~` filter. Azure OpenAI resources are already captured by `'microsoft.cognitiveservices/accounts'` (with `kind =~ 'OpenAI'`). Adding a `kind` projection (already present at line 89 of powershell-setup.md) lets administrators distinguish OpenAI from other Cognitive Services.
+2. 1.24/portal-walkthrough.md: DO NOT fix in isolation. Create a separate repo-wide task to rename "Microsoft Foundry" → "Azure AI Foundry" across all 18 files. Fixing one instance makes it the outlier.
+3. 1.24/powershell-setup.md (line 133): Replace `$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token` with the SecureString-safe pattern from 1.25/powershell-setup.md lines 27-32 (check `$azToken.Token -is [System.Security.SecureString]` and marshal accordingly).
+4. 1.24/powershell-setup.md (line 46): Update the extension name filter to the correct Defender CSPM AI-SPM extension identifier (NEEDS_HUMAN_REVIEW to confirm current name). Remove or use the dead `$aiSpm` variable — currently line 47 references `$extensions.Name` instead.
+5. 1.26/powershell-setup.md: Add a `!!! danger "API Availability — Verify Before Use"` admonition matching the pattern in 1.27/powershell-setup.md (lines 40-47), warning that `Get-AdminPowerAppChatbot`, `Set-AdminPowerAppChatbot`, and `-FileUploadEnabled` are anticipated API schema.
+6. 1.28/powershell-setup.md: Add the same API availability disclaimer for `Get-PowerAppChatBot` and its property paths (`.Channels`, `.PublishStatus`, `.DisplayName`, `.CreatedBy`). Align cmdlet casing with 1.26/1.27 (`Get-AdminPowerAppChatbot`) or document why the non-Admin variant is used.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,13 @@
+All findings verified against source files. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All 4 fixes are scoped to inline code-block content (PowerShell snippets and comments). None alter file paths, cross-references, nav entries, or markdown structure. Zero risk of breaking mkdocs build or cross-references.
+**SEVERITY_CORRECTIONS:**
+- NONE. The CRITICAL on Fix 1 is correctly classified — the verification script counts *all* licensed users instead of Copilot-licensed users, which directly undermines the purpose of Control 4.7 verification. The correct pattern is already proven at powershell-setup.md lines 37-55, confirming it's not speculative. Warnings for Fixes 2-4 are also accurate — minor improvement items, not correctness bugs.
+**FIX_ORDERING:**
+- Fixes are independent. No ordering constraints. Fix 1 (verification-testing.md) and Fix 2 (powershell-setup.md finally block) are functional corrections and should be prioritized. Fixes 3-4 (placeholder URL comments) are cosmetic and can be batched together or deferred.
+**OVER_ENGINEERED:**
+- Fix 3 (adding `# Replace 'tenant'` comments to 3 locations in powershell-setup.md) is borderline over-engineered. The `tenant` placeholder is self-evident to the M365 admin audience, and these are inside code blocks that already show obvious placeholder URLs. A single comment on the first `Connect-SPOService` line (line 24) is sufficient; annotating the `$sensitiveSites` array and `.EXAMPLE` block adds clutter without clarity. Recommend: apply comment only to line 24, skip lines 96 and 215.
+- Fix 4 (adding `# Replace with your site URL` to troubleshooting.md) is similarly low-value — the URL literally contains `SiteName` as a placeholder token. Recommend: skip entirely.
+**CRITIQUE_SUMMARY:** Fix 1 (CRITICAL) and Fix 2 (WARNING) are well-scoped, correctly classified, and safe to execute — they correct functional bugs in PowerShell code blocks with no structural impact. Fixes 3-4 are noise-reduction comments that risk over-annotating obvious placeholders for a technical admin audience; recommend trimming Fix 3 to one comment and dropping Fix 4.

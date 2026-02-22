@@ -1,0 +1,21 @@
+ISSUE_COUNT: 8
+CRITICAL:
+- `colorado-ai-impact-assessment.md`: Footnote markers `<sup>[11]</sup>` and `<sup>[12]</sup>` used 21 times (lines 4–162) but no references/footnotes section exists — unresolved research citations in published content.
+- `supply-chain-risk-register-entry.md`: Citation markers `[web:21]`, `[web:92]`, and `<sup>[3]</sup>` on lines 5, 6, 7, 69, and 114 but no references section defines them — unresolved research citations in published content.
+WARNINGS:
+- `colorado-ai-act-readiness.md` (line 73): "Colorado AI Act Implementation Timeline" links to generic `https://www.colorado.gov` — unlikely to resolve to useful content; should link to a specific page or be removed. NEEDS_HUMAN_REVIEW for replacement URL.
+- `supply-chain-risk-register-entry.md` (line 7): Related controls (2.7, 2.4, 2.3, 1.7, 3.3) listed as plain text without hyperlinks, inconsistent with `colorado-ai-act-readiness.md` (lines 64–66) which provides full relative hyperlinks. All 5 referenced control files exist at expected paths.
+- `colorado-ai-impact-assessment.md` (line 5): References "SB 25B-004" as the bill extending the effective date from Feb 1 to June 30, 2026 — NEEDS_HUMAN_REVIEW to confirm bill number accuracy.
+- `supply-chain-risk-register-entry.md` (lines 5–6): References "FINRA's 2026 oversight messaging" and "SEC 2026 priorities" as specific regulatory positions with `[web:XX]` markers — NEEDS_HUMAN_REVIEW to confirm accuracy of these forward-looking regulatory claims.
+- `colorado-ai-impact-assessment.md` and `supply-chain-risk-register-entry.md`: Missing footer metadata (Updated / Version / UI Verification Status line), while `colorado-ai-act-readiness.md` includes it (lines 78–80). Inconsistent across the module.
+- `colorado-ai-act-readiness.md` and `supply-chain-risk-register-entry.md`: Missing legal disclaimer (e.g., "not legal advice"), while `colorado-ai-impact-assessment.md` (line 8) includes one. Regulatory compliance documents should carry consistent caveats.
+GAPS:
+NONE
+FIXES:
+1. `colorado-ai-impact-assessment.md`: Add a `## References` section at the end defining what `[11]` and `[12]` cite (e.g., specific SB24-205 section numbers), or replace superscript markers with inline statutory citations (e.g., "§ 6-1-1702(1)" instead of `<sup>[12]</sup>`).
+2. `supply-chain-risk-register-entry.md`: Add a `## References` section defining `[web:21]`, `[web:92]`, and `[3]`, or replace with inline citations (e.g., "FINRA Regulatory Notice 24-XX" instead of `[web:21]`).
+3. `supply-chain-risk-register-entry.md` (line 7): Convert plain-text control references to hyperlinks matching the style in `colorado-ai-act-readiness.md`, e.g., `[2.7 Vendor and Third-Party Risk Management](../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md)`.
+4. `colorado-ai-act-readiness.md` (line 73): Replace generic `https://www.colorado.gov` with a specific URL for the Colorado AG's AI Act guidance page, or remove the link if no specific page exists. Execute after human confirmation of replacement URL.
+5. `colorado-ai-impact-assessment.md` and `supply-chain-risk-register-entry.md`: Add footer metadata line matching the format in `colorado-ai-act-readiness.md`: `*Updated: February 2026 | Version: v1.2 | UI Verification Status: N/A*`.
+6. `colorado-ai-act-readiness.md` and `supply-chain-risk-register-entry.md`: Add a legal disclaimer consistent with the one in `colorado-ai-impact-assessment.md` (line 8).
+STATUS: ISSUES_FOUND

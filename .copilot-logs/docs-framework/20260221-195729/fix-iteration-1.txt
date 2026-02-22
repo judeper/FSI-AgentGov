@@ -1,0 +1,19 @@
+Now let me check the body statuses of the contradicted solutions in solutions-integration.md.
+Let me check the full mermaid diagram and also count the solutions listed in the summary line 658.
+Let me check if `agent-365-architecture.md` exists and check other framework version footers.
+Good — `agent-365-architecture.md` exists. Now I have all the data needed. Let me apply all fixes.
+Now let me verify the changes are correct:
+All 8 fixes verified. Let me also verify 19+1+4+3=27 matches the total:
+All changes are minimal and confined to the 4 batch files. Summary:
+CHANGES:
+- docs/framework/agent-identity-architecture.md: Fixed broken blog URL by adding `/en-us/` path segment to techcommunity.microsoft.com link (CRITICAL)
+- docs/framework/solutions-integration.md: Updated mermaid diagram subtitle from "24All changes applied across exactly the 4 batch files. Status count: 19 + 1 + 4 + 3 = 27 ✓
+CHANGES:
+- docs/framework/agent-identity-architecture.md: Fixed broken blog URL by adding `/en-us/` path segment (techcommunity.microsoft.com routing fix)
+- docs/framework/solutions-integration.md: Updated mermaid diagram subtitle from "24" to "25" deployable solutions (matching summary's "25 deployable" count)
+- docs/framework/solutions-integration.md: Reconciled all 7 status contradictions — summary now matches body: DECR→Completed, Segregation Detector→WIP, FUS→WIP, AAM→WIP, COI Testing→Planned, Hallucination Tracker→Planned, DR Testing→Planned; Planned count corrected from 0 to 3
+- docs/framework/solutions-integration.md: Fixed version footer from v1.2.51 to v1.2.42 (matching all other framework files)
+- docs/framework/index.md: Fixed "Agent 365 Architecture" row link from `agent-identity-architecture.md` to `agent-365-architecture.md` (correct target file exists)
+- docs/framework/executive-summary.md: Fixed RACI table "Annual governance review" row — changed Board from A (Accountable) to I (Informed), ensuring single Accountable per row
+- docs/framework/executive-summary.md: Replaced "Full compliance" with "Full applicability" in Regulatory Heatmap (4 rows) to avoid overclaim language per FSI rules
+FIX_STATUS: COMPLETE

@@ -1,0 +1,27 @@
+All original issues confirmed. Now let me verify the disputed/missed items.
+Now I have all the evidence needed. Let me summarize my findings:
+**Verified facts:**
+1. `Test-PowerAppChatBotDlpCompliance` at troubleshooting.md:31 and :173 — **CONFIRMED** fictional cmdlet, contradicts powershell-setup.md:401 disclaimer. Both critiques agree.
+2. `Get-PowerAppChatBot` at powershell-setup.md:273,286 and troubleshooting.md:93,572 — **CONFIRMED**. Critique B correctly notes zero instances of `Get-AdminPowerAppChatbot` anywhere in 1.28 files, so the "consistency" rationale is wrong. But the admin variant is still the *correct* cmdlet for admin audit scripts. This is a **correctness** fix.
+3. Wildcard connector at powershell-setup.md:149 — **CONFIRMED**. Both critiques agree it's invalid for DLP API.
+4. **Missed issue (Critique A only):** Script 4 lines 374-378 — **CONFIRMED**. `Set-AdminPowerAppEnvironment` on line 374 is called with no approval parameters (a no-op), the yellow warning correctly says "must be configured manually," but then line 378 prints a green checkmark "✓ Approval workflows enabled" — directly contradicting the warning. Misleading output.
+5. Critique B's severity correction on rationale for Fixes 3&4 — **CONFIRMED**. Zero `Get-AdminPowerAppChatbot` instances across 1.28 files.
+Now let me produce the reconciled output, applying the fixes needed.
+ISSUE_COUNT: 7
+CRITICAL:
+- 1.28/troubleshooting.md: Lines 31 and 173 use fictional cmdlet `Test-PowerAppChatBotDlpCompliance`, but 1.28/powershell-setup.md line 401 explicitly states "No native Test-PowerAppChatBotDlpCompliance cmdlet exists." Admins running this code will get a hard error.
+WARNINGS:
+- 1.28/powershell-setup.md: Script 3 (lines 273, 286) uses `Get-PowerAppChatBot` (non-admin variant). The correct cmdlet for tenant-wide admin audit scripts is `Get-AdminPowerAppChatbot`. Note: this is a correctness fix, not a consistency fix — zero instances of `Get-AdminPowerAppChatbot` exist anywhere in the 1.28 files.
+- 1.28/troubleshooting.md: Lines 93 and 572 use `Get-PowerAppChatBot` instead of `Get-AdminPowerAppChatbot`, same correctness issue as powershell-setup.md Script 3.
+- 1.28/powershell-setup.md: Script 1 Zone 3 blocked connectors (line 149) uses wildcard pattern `"/providers/Microsoft.PowerApps/apis/*"` which is not a valid DLP connector ID. The five named connectors above it are valid and would still apply, but the wildcard is silently ignored at runtime. NEEDS_HUMAN_REVIEW.
+- 1.28/powershell-setup.md: Script 4 (lines 374-378) has contradictory output — `Set-AdminPowerAppEnvironment` is called with no approval parameters (no-op), followed by a yellow warning "⚠ Chatbot approval must be configured manually" and then immediately a green checkmark "✓ Approval workflows enabled for:" which falsely implies the script configured approval. Misleading to admins.
+GAPS:
+- NONE
+FIXES:
+1. 1.28/troubleshooting.md (lines 27-33): Replace `Test-PowerAppChatBotDlpCompliance` diagnostic block in Issue 1 with a `Get-AdminDlpPolicy`-based approach and add a note that no native DLP compliance cmdlet exists, consistent with the disclaimer in powershell-setup.md line 401.
+2. 1.28/troubleshooting.md (line 173): Replace `Test-PowerAppChatBotDlpCompliance` in Issue 3 resolution with `Get-AdminDlpPolicy` approach and add the same disclaimer.
+3. 1.28/powershell-setup.md (lines 273, 286): Change `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` — the admin variant is the correct cmdlet for tenant-wide audit scripts.
+4. 1.28/troubleshooting.md (lines 93, 572): Change `Get-PowerAppChatBot` to `Get-AdminPowerAppChatbot` for the same correctness reason.
+5. 1.28/powershell-setup.md (line 149): Remove wildcard connector `"/providers/Microsoft.PowerApps/apis/*"` and replace with a comment recommending the DLP default connector group classification approach (setting the default group to "Blocked") to achieve whitelist-only behavior for Zone 3, rather than listing individual connector IDs. NEEDS_HUMAN_REVIEW.
+6. 1.28/powershell-setup.md (lines 376-378): Remove the misleading green checkmark line `"✓ Approval workflows enabled for:"` — the yellow warning on line 376 correctly states manual configuration is required, and the green success message directly contradicts it.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,13 @@
+Now let me check if the nav orphan issue is a worktree artifact or real, and verify the PowerShell syntax error I spotted.
+The files referenced in nav orphans actually exist on disk, so those are false positives from the automated checker. Now I have a complete picture.
+ISSUE_COUNT: 1
+CRITICAL:
+- docs/playbooks/control-implementations/1.16/powershell-setup.md (line 73): Trailing comma after `$LibraryName,` in PowerShell `param()` block causes a parse error — the script will fail to load
+WARNINGS:
+- NONE (Section A URL findings are all false positives: `tenant.sharepoint.com` and `tenant-admin.sharepoint.com` are intentional placeholder URLs in `.EXAMPLE` blocks; `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` are legitimate Microsoft portals that return HTTP 405 to unauthenticated automated crawlers)
+- NONE (Section A nav orphans are false positives: all referenced files exist on disk under `docs/` — the automated checker appears to have used incorrect path resolution)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.16/powershell-setup.md: Remove trailing comma on line 73 — change `[string]$LibraryName,` to `[string]$LibraryName`
+STATUS: ISSUES_FOUND

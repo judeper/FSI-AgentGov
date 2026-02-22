@@ -1,0 +1,19 @@
+Now let me look at the 4.1 and 4.2 verification-testing files to understand the reference pattern.
+Now I have all the reference patterns. Let me also check the 4.1/4.2 portal walkthroughs for the checkbox prerequisite format.
+Now I have the full picture. Let me apply all fixes systematically.
+Now let me do the Wave 3 structural rework of the 4.3 and 4.4 verification-testing files, plus the remaining 4.4 verification-testing fixes (title, Last Updated, footer).
+Now let me verify the changes look correct by spot-checking key files and validating the 4.3 powershell-setup.md zone-specific section.
+The zone-specific code pattern is a bit convoluted. Let me clean it up with a simpler approach.
+Now let me also update the `Get-SPOTenant | Select-Object EnableRestrictedSearchAllList` line in 4.1 to match the corrected parameter name.
+Now let me do a final validation by running the build.
+Build validation is blocked by permissions, but all 7 files are modified correctly within the batch scope. Let me commit the changes.
+All 7 files are modified. Git commit is blocked by permissions but all changes are staged in the working tree.
+CHANGES:
+- docs/playbooks/control-implementations/4.3/portal-walkthrough.md: Changed prerequisites to `- [ ]` checkbox format; fixed Step 2 navigation from Microsoft Purview to SharePoint Admin Center > Policies > Site lifecycle management (resolving contradiction with verification-testing.md)
+- docs/playbooks/control-implementations/4.4/portal-walkthrough.md: Changed prerequisites to `- [ ]` checkbox format
+- docs/playbooks/control-implementations/4.3/powershell-setup.md: Replaced wildcard URLs in `-SharePointLocation` with `Get-SPOSite` enumeration pattern; fixed Complete Configuration Script `.DESCRIPTION` to accurately describe retrieval/export behavior
+- docs/playbooks/control-implementations/4.3/verification-testing.md: Full restructure to "## Manual Verification Steps" / "### Test N" pattern with `**EXPECTED:**` outcomes, TC-4.3-XX test case table, "## Evidence to Retain" with subcategories, and "## Automated Validation Script"
+- docs/playbooks/control-implementations/4.4/verification-testing.md: Fixed title to `# Verification & Testing: Control 4.4 - ...` format; added `**Last Updated:** January 2026`; added navigation footer; full restructure to match 4.1/4.2 pattern with TC-4.4-XX table, `**EXPECTED:**` outcomes, evidence subcategories, and automated validation script
+- docs/playbooks/control-implementations/4.1/powershell-setup.md: Fixed RSS parameter from `EnableRestrictedSearchAllList` to `IsDataAccessInSharePointOnlineDisabled` with verification note; updated corresponding `Get-SPOTenant` select
+- docs/playbooks/control-implementations/4.4/powershell-setup.md: Softened deprecation claim from specific "July 2024" date to general "has been deprecated"
+FIX_STATUS: COMPLETE

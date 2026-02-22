@@ -1,0 +1,4 @@
+CHANGES:
+- phase-1-minimal-viable-controls.md (line 30): Changed `PPAC` → `Power Platform Admin Center (PPAC)` for first-use expansion
+- phase-1-minimal-viable-controls.md (line 157): Changed `CRO (if applicable)` → `CRO (Chief Risk Officer) (if applicable)` for first-use expansion
+FIX_STATUS: COMPLETE

@@ -1,0 +1,18 @@
+Now let me check the peer playbooks for pattern comparison to validate the review's claims.
+All findings confirmed. Here's the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All 8 fixes are cosmetic formatting changes (headings, blockquotes, footers, duplicate separators). None alter link targets, file paths, or content referenced by `mkdocs.yml` nav entries. No cross-reference breakage possible.
+**SEVERITY_CORRECTIONS:**
+- NONE
+All 8 items are correctly classified as WARNINGS. They are inconsistencies against peer files in the same batch, not structural defects. The false-positive callouts (HTTP 405 on admin URLs, PowerShell array indexing, nav orphans) are all accurate and correctly dismissed.
+**FIX_ORDERING:**
+- Fixes 1–3 (2.8/portal-walkthrough.md) are co-located and should be applied together in one pass (top → bottom: H1, blockquote, footer).
+- Fixes 4–6 (2.8/powershell-setup.md) same — apply together top → bottom.
+- Fixes 7 and 8 (2.5 and 2.6 double separators) are independent of each other and of fixes 1–6. Any order is fine.
+- No dependency between any of the three file groups.
+**OVER_ENGINEERED:**
+- NONE
+All fixes are minimal single-line additions or deletions that bring 2.8 files into conformance with the established pattern visible in 2.5/2.6 peers. No unnecessary changes proposed.
+**CRITIQUE_SUMMARY:** Clean, low-risk review. All 8 fixes are validated formatting normalizations with zero chance of breaking builds, links, or cross-references — safe to apply as a batch.

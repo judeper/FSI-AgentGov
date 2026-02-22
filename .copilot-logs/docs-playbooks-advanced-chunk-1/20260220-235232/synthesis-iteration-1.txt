@@ -1,0 +1,23 @@
+Now I have all the data. Here is the final corrected review:
+---
+ISSUE_COUNT: 4
+CRITICAL:
+- `environment-lifecycle-management/architecture.md` lines 93–95: A `!!! note` admonition with surrounding blank lines interrupts the "Choice Field Value Definitions" Markdown table between the `er_zone` rows (line 92) and `er_environmenttype` rows (line 96). The blank line at 93 terminates the table parser, causing all subsequent rows (`er_environmenttype`, `er_region`, `er_datasensitivity`, `er_expectedusers`, `pl_action`) to render as broken pipe-delimited text with no header. FIX: Move the admonition block to after the complete table ends (after all choice field rows), or split into two properly-headed tables.
+WARNINGS:
+- Version footer inconsistencies across 9 batch files: The codebase has broadly adopted v1.3 (40+ files including controls, templates, CONTROL-INDEX.md), but several batch files use stale versions: `confidence-and-routing.md` (v1.2), `human-in-the-loop-triggers.md` (v1.2), `zone1-min-explainability.md` (v1.2), `microsoft-audit-reporting-tools.md` (v1.2), `deny-event-correlation-report/index.md` footer (v1.2), `gate-definitions.md` / `implementation-guide.md` / `agent-blueprint-promotion-gates/index.md` (v1.2.6), `sharepoint-copilot-preflight/index.md` (v1.2.48). FIX: Normalize stale footers to the current framework version used elsewhere in the repo. For `deny-event-correlation-report/index.md`, the header "v2.0.0" is the solution version while the footer "v1.2" is the framework version — add a label to clarify the distinction.
+- `human-in-the-loop-triggers.md` lines 31–33: References "FINRA 2026 Annual Regulatory Oversight Report" with specific autonomy level definitions (Assisted/Augmented/Automated/Autonomous). The exact attribution of these levels to FINRA may not be verifiable. NEEDS_HUMAN_REVIEW: Verify the cited autonomy levels and report title match the actual FINRA publication. If paraphrased or adapted, add a caveat (e.g., "adapted from" or "based on").
+- `zone1-min-explainability.md` line 5: References "SEC 2026 priorities" as a regulatory driver for explainability requirements. NEEDS_HUMAN_REVIEW: Verify the SEC examination priorities reference is accurate. If the specific language cannot be confirmed, use hedged phrasing per FSI language rules.
+GAPS:
+- NONE
+FIXES:
+1. `environment-lifecycle-management/architecture.md`: Move the `!!! note "Zone Classification Algorithm"` block (lines 93–95) to after the complete choice field table ends, preserving table continuity.
+2. 9 batch files with stale version footers: Update to current framework version. Add "Solution Version" / "Framework Version" labels in `deny-event-correlation-report/index.md` to disambiguate header v2.0.0 from footer version.
+3. `human-in-the-loop-triggers.md`: Human review required — verify FINRA 2026 citation accuracy for the autonomy level taxonomy.
+4. `zone1-min-explainability.md`: Human review required — verify SEC 2026 examination priorities citation.
+STATUS: ISSUES_FOUND
+---
+**Changes from original review:**
+- **REMOVED CRITICAL #1** (v1.3 version mismatch): FALSE POSITIVE. 40+ files across the repo (controls, templates, CONTROL-INDEX.md) use v1.3. The batch files are consistent with the codebase; the AGENTS.md reference to v1.2.51 appears stale.
+- **REMOVED WARNING #2** (Dataverse table naming): FALSE POSITIVE per Critique B. `power-bi-correlation.md` uses lowercase plural names (`fsi_denyevents`) in Power Query/DAX code blocks — these are Dataverse *logical names*. `index.md` uses PascalCase singular (`fsi_DenyEvent`) in prose — these are *display names*. Both are correct for their context. Normalizing would break technical accuracy.
+- **CORRECTED WARNING #3** description: The original review claimed "L0–L4" autonomy levels but the file actually uses "Assisted/Augmented/Automated/Autonomous" — no L0–L4 notation exists. The underlying FINRA citation concern remains valid.
+- **ADJUSTED WARNING #1** fix target: Changed from "normalize to v1.2.51" to "normalize to current framework version" since the codebase has broadly adopted v1.3.

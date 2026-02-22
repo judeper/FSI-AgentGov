@@ -1,0 +1,39 @@
+Now let me read the large troubleshooting file for 2.24:
+Now I have all the content. Let me fix the one real issue found and produce the report.
+The fix is blocked by the environment's permission system. I'll note it as an unresolved fix in the report.
+---
+## BATCH: playbooks-p2-chunk-4 — Review Report
+**FILES_REVIEWED:** 21
+**ISSUE_COUNT:** 2
+**STATUS:** ISSUES_FOUND
+---
+### CRITICAL
+| # | File | Line | Issue | Fix |
+|---|------|------|-------|-----|
+| 1 | `docs/playbooks/control-implementations/2.23/troubleshooting.md` | 470 | **Typo in Dataverse field name.** `fsi_isx expired` should be `fsi_isexpired` (no space, consistent with the correct spelling on line 472 of the same file). This is a field name referenced in implementation guidance — an implementer copy-pasting this would create a misnamed column. | Replace `fsi_isx expired` → `fsi_isexpired` |
+### WARNINGS
+| # | File | Lines | Issue |
+|---|------|-------|-------|
+| 1 | `docs/playbooks/control-implementations/2.23/powershell-setup.md` | 336, 376 | **PowerShell function defined after first call.** Script 3 (`Get-ConsentRecords.ps1`) calls `Get-AccessToken` inside its `try` block (line 336) but defines the function at line 376. PowerShell would throw `CommandNotFoundException` at runtime. Mitigated by the script's explicit `Write-Warning "This is a placeholder"` disclaimer, but a reader copying the script structure could hit this. Consider moving the function definition above its first call or adding a comment. |
+### SECTION A ASSESSMENT
+**Broken External URLs (17 entries) — All non-actionable:**
+- **Legitimate Microsoft portals** (`admin.powerplatform.microsoft.com`, `copilotstudio.microsoft.com`, `make.powerautomate.com`): Return HTTP 405 to automated crawlers; work correctly in browsers. No fix needed.
+- **Example/placeholder URLs** (`contoso.sharepoint.com`, `contoso.crm.dynamics.com`, `org12345.crm.dynamics.com`, `tenant.sharepoint.com`, `intranet.contoso.com`, `www.contoso.com`): Intentionally invalid demonstration URLs in documentation examples. Expected behavior.
+- **API endpoints in code blocks** (`api.bap.microsoft.com/*`, `graph.microsoft.com/v1.0/admin/copilot/settings`): Reference URIs inside PowerShell code blocks, not browseable links. Correct as-is.
+- **URLs with trailing backtick** (3 entries): Scanner captured the closing markdown inline-code backtick as part of the URL. The markdown is correctly formatted.
+**Broken Internal Links (5 entries in 2.24/powershell-setup.md) — All false positives:**
+The scanner misinterpreted PowerShell array syntax inside fenced code blocks as markdown links. Lines 96–104 contain `Options = @("Allowed", "Restricted", "Prohibited")` etc. — these are PowerShell hashtable values, not markdown link syntax.
+**MkDocs Nav Orphans (250+ entries) — Systemic project issue:**
+This is a git worktree containing only a subset of repository files. The `mkdocs.yml` references the full project structure but most `docs/` files don't exist in this worktree. Not actionable within this batch; `mkdocs build --strict` would fail but the issue is environmental, not a content defect.
+### GAPS
+None. All 21 files have appropriate structure, heading hierarchy, code block language tags, and section completeness for their document type.
+### FIXES
+| # | File | Line | Current | Proposed | Applied? |
+|---|------|------|---------|----------|----------|
+| 1 | `2.23/troubleshooting.md` | 470 | `` `fsi_isx expired` `` | `` `fsi_isexpired` `` | **NO** — environment permission denied |
+### QUALITY NOTES
+- **Language compliance:** No prohibited FSI phrases found across all 21 files. Hedged language used correctly throughout.
+- **Regulatory references:** FINRA 4511 citation in 2.21 files is accurate and appropriately contextual.
+- **Cross-references:** All footer navigation links between sibling playbooks are internally consistent.
+- **Zone governance:** Zone 1/2/3 distinctions are consistently applied across all controls.
+- **Version currency:** Controls 2.22–2.24 (February 2026, v1.3) are noticeably more detailed than 2.19–2.21 (January 2026), reflecting iterative maturation.

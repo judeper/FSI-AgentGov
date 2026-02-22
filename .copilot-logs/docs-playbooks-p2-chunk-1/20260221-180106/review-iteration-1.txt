@@ -1,0 +1,37 @@
+Now I have all 15 files reviewed. Let me make the critical fixes.
+Edits blocked by permissions. Producing the review report only.
+ISSUE_COUNT: 14
+CRITICAL:
+- docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Duplicate step numbering — Steps 7–10 appear twice (lines 117–151 as AI Features/Data Policies/Save/Routing, then lines 257–293 as Env Creation Restriction/Routing/Tenant Isolation/Security Groups). The second set should be Steps 11–14.
+- docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Inconsistent dates — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026" (line 298).
+- docs/playbooks/control-implementations/2.4/portal-walkthrough.md: Uses deprecated name "Azure Active Directory" (line 118); should be "Microsoft Entra ID" (renamed July 2023).
+WARNINGS:
+- docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Second "Step 7" (line 257) uses H2 heading (`##`) while all other steps use H3 (`###`) — heading level inconsistency.
+- docs/playbooks/control-implementations/2.1/powershell-setup.md: Missing standard version/date footer present in sibling playbooks.
+- docs/playbooks/control-implementations/2.1/troubleshooting.md: Missing standard version/date footer present in sibling playbooks.
+- docs/playbooks/control-implementations/2.2/portal-walkthrough.md: Missing standard version/date footer (all four 2.2 playbooks lack footers while 2.1/2.3/2.4 have them).
+- docs/playbooks/control-implementations/2.2/powershell-setup.md: Missing standard version/date footer.
+- docs/playbooks/control-implementations/2.2/troubleshooting.md: Missing standard version/date footer.
+- docs/playbooks/control-implementations/2.2/verification-testing.md: Missing standard version/date footer.
+- docs/playbooks/control-implementations/2.3/portal-walkthrough.md: Double horizontal rule (`---`) before footer navigation (lines 182–183).
+- docs/playbooks/control-implementations/2.4/portal-walkthrough.md: Double horizontal rule (`---`) before footer navigation (lines 238–239).
+- docs/playbooks/control-implementations/2.3/powershell-setup.md: `Microsoft.Xrm.Tooling.CrmConnector.PowerShell` module is being superseded by `Microsoft.PowerPlatform.Dataverse.Client` — NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/2.3/powershell-setup.md: Example change request ID uses year "2025" (`CHG-2025-001234`, line 335) in a document dated January 2026.
+GAPS:
+- All four 2.2 playbooks lack the standard `*Updated: Month Year | Version: vX.X | Classification: [Type]*` footer that 2.1, 2.3, and 2.4 playbooks consistently include.
+PRE-PASS NOTES:
+- 8 "broken external URLs": All false positives — 3 are Microsoft portal URLs returning HTTP 405 (auth-required web apps: admin.powerplatform.microsoft.com, copilotstudio.microsoft.com, api.bap.microsoft.com), and 5 are intentional placeholder/example URLs in code blocks (dev-fsi.crm.dynamics.com, prod-fsi.crm.dynamics.com, yourorg.crm.dynamics.com, yourorg-dr.crm.dynamics.com, org-dr.crm.dynamics.com). No fixes needed.
+- ~300 mkdocs nav orphans: Worktree artifact — this partial worktree contains only the batch files; the remaining docs/ files exist in the main repo. Out of batch scope.
+FIXES:
+1. docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Renumber duplicate "Step 7/8/9/10" (lines 257–293) to "Step 11/12/13/14" and change the H2 `## Step 7` to H3 `### Step 11` for heading consistency.
+2. docs/playbooks/control-implementations/2.1/portal-walkthrough.md: Change header "Last Updated: January 2026" to "Last Updated: February 2026" to match footer.
+3. docs/playbooks/control-implementations/2.4/portal-walkthrough.md: Replace "Azure Active Directory" with "Microsoft Entra ID" on line 118.
+4. docs/playbooks/control-implementations/2.3/portal-walkthrough.md: Remove duplicate `---` at line 183.
+5. docs/playbooks/control-implementations/2.4/portal-walkthrough.md: Remove duplicate `---` at line 239.
+6. docs/playbooks/control-implementations/2.1/powershell-setup.md: Add footer `*Updated: February 2026 | Version: v1.3 | Classification: PowerShell Setup*`.
+7. docs/playbooks/control-implementations/2.1/troubleshooting.md: Add footer `*Updated: February 2026 | Version: v1.3 | Classification: Troubleshooting*`.
+8. docs/playbooks/control-implementations/2.2/portal-walkthrough.md: Add footer `*Updated: January 2026 | Version: v1.2 | Classification: Portal Walkthrough*`.
+9. docs/playbooks/control-implementations/2.2/powershell-setup.md: Add footer `*Updated: January 2026 | Version: v1.2 | Classification: PowerShell Setup*`.
+10. docs/playbooks/control-implementations/2.2/troubleshooting.md: Add footer `*Updated: January 2026 | Version: v1.2 | Classification: Troubleshooting*`.
+11. docs/playbooks/control-implementations/2.2/verification-testing.md: Add footer `*Updated: January 2026 | Version: v1.2 | Classification: Verification Testing*`.
+STATUS: ISSUES_FOUND

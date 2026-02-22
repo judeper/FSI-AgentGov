@@ -1,0 +1,13 @@
+Both fixes verified:
+1. **Line 230-231**: `` ```xml `` and `<!-- FetchXML query -->` — ✅ Fixed correctly.
+2. **Line 470**: `fsi_isexpired` — ✅ Fixed correctly.
+ISSUE_COUNT: 0
+CRITICAL:
+- NONE
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+- NONE
+STATUS: CLEAN

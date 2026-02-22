@@ -1,0 +1,17 @@
+Now let me check the 2.6 portal-walkthrough model table and compare header patterns across the batch.
+Let me also check the 2.8 verification-testing and troubleshooting files for header and footer patterns, plus verify the other batch files' footers.
+Let me check the remaining header patterns and look for any other potential missed issues.
+Now I have all the data needed. Let me compile the audit results.
+**FALSE_POSITIVES:**
+- NONE. All 12 reported issues are real and verified against the actual files. The duplicate `---` separators exist in 2.5/2.6/2.7 portal-walkthrough files, the 2.8 files genuinely lack footer metadata, and the header format reversal is confirmed. The review also correctly identified the PowerShell array indexing and HTTP 405 URL items as scanner false positives.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/2.8/verification-testing.md`: Same reversed header format (`# Verification & Testing: Control 2.8 - ...` instead of `# Control 2.8: ... - Verification & Testing`) — review only flagged portal-walkthrough and powershell-setup but all four 2.8 files have this inconsistency.
+- `docs/playbooks/control-implementations/2.8/troubleshooting.md`: Same reversed header format (`# Troubleshooting: Control 2.8 - ...` instead of `# Control 2.8: ... - Troubleshooting`) — same miss as above.
+- `docs/playbooks/control-implementations/2.8/verification-testing.md`: Missing `*Updated: January 2026 | Version: v1.2*` footer metadata — review only flagged portal-walkthrough and powershell-setup but verification-testing and troubleshooting also lack it.
+- `docs/playbooks/control-implementations/2.8/troubleshooting.md`: Missing `*Updated: January 2026 | Version: v1.2*` footer metadata — same miss as above.
+- All four 2.8 files use `**Last Updated:** January 2026` / `**Portal:**` / `**Estimated Time:**` inline metadata format instead of the `> This playbook provides...` blockquote description used consistently by 2.5/2.6/2.7 files — a structural template divergence the review did not flag.
+**FIX_CONCERNS:**
+- Fix 1-3 (remove duplicate `---`): Line numbers are off by one in each case. The first `---` of each pair is one line earlier than reported (e.g., 2.5 is at lines 241/243, not "line 242"; 2.6 at 238/240, not "line 239"; 2.7 at 176/178, not "line 177"). The correct fix is to remove the first `---` of the pair plus the blank line between them, keeping only the `---` before the nav links.
+- Fixes 4-7 are incomplete: They should also apply to 2.8/verification-testing.md and 2.8/troubleshooting.md, which have the same two issues (missing footer + reversed header).
+- Fix 4 placement suggestion ("after the navigation links at line 145") is correct — the footer should be: blank line + `---` + blank line + `*Updated: January 2026 | Version: v1.2*`.
+**CRITIQUE_SUMMARY:** The review is largely accurate — all 12 flagged issues are real, and the NEEDS_HUMAN_REVIEW escalations are appropriate. However, it missed that all four 2.8 playbook files (not just 2 of 4) share the header format inconsistency and missing footer metadata, undercounting the true issue count by 4 (should be 16, not 12). The structural template divergence (blockquote vs inline metadata) across all 2.8 files was also overlooked.

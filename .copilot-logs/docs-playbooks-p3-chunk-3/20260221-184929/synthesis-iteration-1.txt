@@ -1,0 +1,18 @@
+Now I have all the evidence needed to reconcile. Here is the verified output:
+---
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Propagation time factual error — Legacy Test Cases 1, 2, and 3 (lines 228, 242, 255) all say "up to 8 hours" but the correct value is 24 hours per FAC-01 (lines 73-75) and troubleshooting.md (lines 18-19). An admin following these legacy steps would declare a false test failure after 8 hours.
+- docs/playbooks/control-implementations/3.8/verification-testing.md: Legacy Test Cases 1, 3, and 6 (lines 220-232, 248-259, 288-298) are abbreviated duplicates of detailed FAC-01/FAC-03 test cases with less detail and conflicting propagation times. Test Cases 4, 5, and 7 are NOT duplicates — they cover distinct scenarios (agent access, AI Admin role, approval workflow). Structural removal is high-risk and should be deferred to avoid renumbering and external reference breakage.
+- docs/playbooks/control-implementations/3.9/portal-walkthrough.md: Double `---` separator on lines 214-216 creates an empty visual break between content and footer navigation.
+- docs/playbooks/control-implementations/3.10/troubleshooting.md: `Get-AdminFlow -EnvironmentName "Default"` (line 87) — EnvironmentName parameter typically requires the environment GUID, not the string "Default" (NEEDS_HUMAN_REVIEW).
+GAPS:
+- All 8 playbook files across 3.11 and 3.12 are missing the standard `*Updated: Month Year | Version: vX.X*` footer metadata that 3.8/3.9/3.10 playbooks consistently include. The 3.11/3.12 files use a header pattern (`**Last Updated:** February 2026`) instead, which is internally consistent but diverges from the older batch and omits a version number. Lower severity — style divergence, not a defect. Files: 3.11/portal-walkthrough.md, 3.11/powershell-setup.md, 3.11/troubleshooting.md, 3.11/verification-testing.md, 3.12/portal-walkthrough.md, 3.12/powershell-setup.md, 3.12/troubleshooting.md, 3.12/verification-testing.md.
+FIXES:
+1. docs/playbooks/control-implementations/3.8/verification-testing.md: Change "up to 8 hours" to "up to 24 hours" on lines 228, 242, and 255 (Legacy Test Cases 1, 2, and 3) to match FAC-01 and troubleshooting guidance. Highest priority — factual error affecting audit evidence validity.
+2. docs/playbooks/control-implementations/3.9/portal-walkthrough.md: Remove one of the duplicate `---` separators on lines 214-216. Trivial cosmetic fix.
+3. docs/playbooks/control-implementations/3.11/portal-walkthrough.md, 3.11/powershell-setup.md, 3.11/troubleshooting.md, 3.11/verification-testing.md, 3.12/portal-walkthrough.md, 3.12/powershell-setup.md, 3.12/troubleshooting.md, 3.12/verification-testing.md: Add standard footer metadata line (e.g., `*Updated: February 2026 | Version: v1.2*`) for consistency. Low priority — optional style alignment.
+4. docs/playbooks/control-implementations/3.10/troubleshooting.md (line 87): Verify `Get-AdminFlow -EnvironmentName "Default"` uses correct parameter value — may need environment GUID instead of literal "Default" (NEEDS_HUMAN_REVIEW).
+STATUS: ISSUES_FOUND

@@ -1,0 +1,17 @@
+Now I have full context. Here's the analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 6 proposed fixes are isolated to inline text or comment changes within individual playbook files. None alter cross-references, file paths, nav entries, or mkdocs structure. Zero risk of breaking `mkdocs build --strict`.
+**SEVERITY_CORRECTIONS:**
+- Fix 3 (break-glass Policy 4) is **under-classified as WARNING; should be elevated to a content-accuracy concern worth prioritizing**. However, on closer reading, line 350 says `"Block access (inverted - other policies must explicitly exclude)"` — this is an intentional design pattern where a catch-all block policy exists and break-glass accounts are excluded from *other* blocking policies. The parenthetical "(inverted - other policies must explicitly exclude)" is the clarification. The wording is confusing but not technically wrong. Recommend rewording the parenthetical for clarity rather than restructuring the policy. Severity: WARNING is correct, but the proposed fix (rewrite the policy) is overkill — a wording clarification on line 350 suffices.
+- Fix 4 (Communication Compliance role group names): The file uses four role group names (`Admins`, `Analysts`, `Investigators`, `Viewers`) which are the actual Microsoft Purview built-in role group names. The reviewer flagged `"Communication Compliance Admins"` but this **is** the correct name. The NEEDS_HUMAN_REVIEW flag is prudent but will likely confirm no change is needed.
+**FIX_ORDERING:**
+- Fixes 1 and 2 (URL standardization) are independent and can be applied in any order or in parallel.
+- Fix 3 (break-glass wording) is independent.
+- Fix 5 (PPAC GUID comment) is independent.
+- Fix 6 (no action needed) requires no ordering.
+- No dependencies exist between any fixes.
+**OVER_ENGINEERED:**
+- Fix 3 proposes to "rewrite Policy 4 configuration" and "change the policy description." The existing text already contains the parenthetical clarification "(inverted - other policies must explicitly exclude)." A simple rewording of that parenthetical (e.g., changing to "Note: break-glass accounts must be excluded from all other blocking CA policies") is sufficient — no structural rewrite needed.
+- Fix 4 is likely unnecessary — `"Communication Compliance Admins"` matches the actual Purview built-in role group name. The NEEDS_HUMAN_REVIEW flag is appropriate but the fix itself may be a no-op.
+**CRITIQUE_SUMMARY:** The review is solid — severity classifications are accurate, the false-positive nav orphan dismissal is correct, and all proposed fixes are low-risk text-only changes. Fix 3's proposed rewrite is over-scoped (a one-line wording clarification suffices), and Fix 4 will likely confirm the existing text is already correct.

@@ -1,0 +1,22 @@
+Now let me verify key details by searching for language violations and cross-reference patterns.
+Now I have all the data needed. Here is my review:
+ISSUE_COUNT: 12
+CRITICAL:
+- 2.11/portal-walkthrough.md: Step 1 protected classes table lists only 6 of 9 ECOA-protected classes. Missing: Color, Religion, Good Faith Exercise of Consumer Credit Protection Act (CCPA) Rights. The sibling file 2.11/verification-testing.md correctly lists all 9 per 15 U.S.C. § 1691(a). This is an incomplete regulatory reference in a step-by-step guide.
+WARNINGS:
+- 2.7/*.md (3 files): H1 heading format inconsistency. Control 2.7 uses `# Control 2.7: Name - Type` while all other controls (2.8–2.13) use `# Type: Control X.X - Name`. Should standardize to the majority pattern.
+- 2.11/verification-testing.md (line 19): Abbreviation "CCPA Rights" for Consumer Credit Protection Act may be confused with California Consumer Privacy Act (CCPA) in FSI context. Recommend spelling out "Consumer Credit Protection Act (CCPA)" on first use.
+- 2.12/powershell-setup.md (line 206): `Add-PnPField` `-Choices` parameter passes values as bare comma-separated strings (`-Choices "Approved", "Rejected", "Pending", "Escalated"`). Should use explicit array syntax `@("Approved","Rejected","Pending","Escalated")` for reliability. NEEDS_HUMAN_REVIEW.
+- 2.9/powershell-setup.md (line 48): `Get-AdminPowerAppChatBot` cmdlet may have been renamed after Power Virtual Agents → Copilot Studio rebranding. NEEDS_HUMAN_REVIEW.
+- 2.7/verification-testing.md (line 106): Code block for Transitive Data Exposure Mapping template uses untagged `` ``` `` — should use `` ```text `` for consistency.
+- Section A (6 broken external URLs): All 6 are false positives — 3 are valid Microsoft portal URLs (admin.powerplatform.microsoft.com, make.powerautomate.com, copilotstudio.microsoft.com) that return HTTP 405 to automated crawlers, and 3 are intentional placeholder URLs (tenant.sharepoint.com, tenant-admin.sharepoint.com) in example scripts meant for user customization. No fix needed.
+- Section A (mkdocs nav orphans): ~330 entries are a systemic artifact of this partial worktree checkout — mkdocs.yml references files from the full repo that are not present in this worktree. No fix needed within this batch; the files exist in the main repository.
+GAPS:
+- NONE (beyond the ECOA completeness issue listed under CRITICAL)
+FIXES:
+1. 2.11/portal-walkthrough.md: Add missing protected classes to Step 1 table — add rows for Color (Demographics / Customer profile), Religion (Demographics / Customer profile), and Good Faith Exercise of Consumer Credit Protection Act Rights (Rights exercise / Application data) to match the 9-class ECOA list in 2.11/verification-testing.md.
+2. 2.11/verification-testing.md (line 19): Change "CCPA Rights" to "Consumer Credit Protection Act (CCPA) Rights" to avoid confusion with California Consumer Privacy Act.
+3. 2.7/verification-testing.md (line 106): Change `` ``` `` to `` ```text `` for the Transitive Data Exposure Mapping template block.
+4. 2.12/powershell-setup.md (line 206): Change `-Choices "Approved", "Rejected", "Pending", "Escalated"` to `-Choices @("Approved", "Rejected", "Pending", "Escalated")` (apply same fix to the two other `Add-PnPField` calls with `-Choices` on lines 207 and 208).
+5. 2.7/powershell-setup.md, 2.7/troubleshooting.md, 2.7/verification-testing.md: Standardize H1 headings from `# Control 2.7: Name - Type` to `# Type: Control 2.7 - Name` format to match 2.8–2.13 pattern.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,31 @@
+Let me examine examples of both formats and the back-link pattern.
+Now I have a clear picture. Let me write a Python script to apply all three fixes systematically.
+Let me use task agents to handle the file modifications in manageable batches.
+Let me verify the detailed-format fixes and then tackle the 49 table-format conversions.
+Good, the detailed-format fixes look correct. Now I need to convert the 49 table-format files. Let me read them all to understand the exact content, then use task agents to convert them.
+Now I need to convert all 49 table-format files. Let me launch task agents for batches.
+Now let me verify a representative sample across all groups.
+Conversions look correct. Let me now do a comprehensive verification across all 71 files to ensure consistency.
+All 71 files now have consistent format. Let me verify there are no remaining `## Verification Focus` sections (they should all be merged into Notes for Verification).
+Let me verify back-link paths are valid by checking a few.
+All back-link targets exist. Let me clean up the temporary script and check the git status.
+Need to remove the temp script. Let me use bash to delete it.
+71 EXPECTED.md files modified. The fix_expected.py is untracked and won't be committed. Let me commit the changes.
+The file modifications are complete but bash commands that modify the filesystem seem restricted. All 71 EXPECTED.md files have been successfully updated via the edit tool. Let me verify the final state one more time.
+All 71 files modified, 2620 insertions, 642 deletions. The temp `fix_expected.py` is untracked and should be deleted before committing. To commit:
+```bash
+rm fix_expected.py
+git add docs/images/*/EXPECTED.md
+git commit -m "fix(images): standardize 71 EXPECTED.md files to detailed section format
+- Convert 49 table-format files to detailed section format with ### Screenshot N: subsections
+- Add ## Notes for Verification section to 52 files missing it
+- Add back-link to parent control doc in 69 files missing it
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+```
+CHANGES:
+- docs/images/{1.1-1.20,2.1-2.15,3.1-3.9,4.1-4.5}/EXPECTED.md (49 files): Converted from table format (`## Expected Screenshots` with markdown table) to detailed section format (`## Required Screenshots` with `### Screenshot N:` subsections); added " - Screenshot Specifications" title suffix; merged `## Verification Focus` bullets into new `## Notes for Verification` section with 4 standard verification guidance bullets prepended; added back-link to parent control doc
+- docs/images/{1.21-1.28,2.16-2.21,2.23-2.24,3.10,4.6-4.7}/EXPECTED.md (19 files): Added `---` separator and `[Back to Control X.X]` back-link to parent control doc
+- docs/images/2.22/EXPECTED.md: Added `## Notes for Verification` section and back-link
+- docs/images/3.11/EXPECTED.md: Added `## Notes for Verification` section before existing back-link
+- docs/images/3.12/EXPECTED.md: Added `## Notes for Verification` section before existing back-link
+FIX_STATUS: COMPLETE

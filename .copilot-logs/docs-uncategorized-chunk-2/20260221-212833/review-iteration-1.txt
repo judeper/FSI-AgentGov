@@ -1,0 +1,32 @@
+All nav orphan files exist — those are false positives from the pre-pass. Now let me read the actual in-scope files.
+Now I have all the data. Let me analyze findings and implement fixes.
+Read-only worktree — I'll produce the review report only.
+Now let me verify the stale control counts in the index files:
+Confirmed all stale counts. Now let me verify the evidence-pack `text` artifact and the last highest control per pillar in each table:
+Confirmed: `docs/controls/index.md` stops at 1.23, 2.22, 3.10 — missing 1.24-1.28, 2.23-2.24, 3.11-3.12 (10 controls). Here's the final review report:
+---
+ISSUE_COUNT: 13
+CRITICAL:
+- docs/controls/index.md: Pillar 1 count says "24" but should be 28; table lists only 1.1–1.23 (23 rows), missing controls 1.24–1.28. Pillar 2 count says "22" but should be 24; missing 2.23–2.24. Pillar 3 count says "10" but should be 12; missing 3.11–3.12.
+- docs/playbooks/control-implementations/index.md: Pillar 1 count says "25 controls" but should be 28; table lists 1.1–1.25, missing 1.26–1.28. Pillar 2 says "22 controls" but should be 24; missing 2.23–2.24. Pillar 3 says "10 controls" but should be 12; missing 3.11–3.12.
+- docs/templates/README.md: Says "Standard structure for all 61 governance controls" — should be 71.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Stray `text` on line 1 (before document heading) and line 84 — orphaned code fence language identifiers that render as visible text on the published site.
+WARNINGS:
+- docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Line 10 uses "ensure governance compliance" — prohibited language per FSI rules; should be "support governance compliance".
+- docs/controls/CONTROL-INDEX.md: Footer says "v1.3 - February 2026" while all other framework docs say v1.2; inconsistent with framework version v1.2.51.
+- docs/templates/control-setup-template.md: Footer says "Version: v1.3" — same inconsistency as CONTROL-INDEX.md.
+- docs/controls/index.md: Regulatory Alignment section lists FINRA 4512 and 2111 (Suitability) but no controls in any table map to these rules — NEEDS_HUMAN_REVIEW.
+- reports/documentation-review-2026-01-26.md: References "61 controls" and "244 playbooks" — stale counts (now 71/284), though this is a historical report so may be intentionally preserved.
+- Section A pre-pass false positives: All 300+ MKDOCS NAV ORPHANS verified as existing files (path resolution error in automated tooling); 7 broken internal links in control-setup-template.md are intentional template placeholders (`[X.X]`, `../path/to/control.md`); external URL `https://tenant-admin.sharepoint.com` is an intentional PowerShell parameter default placeholder.
+GAPS:
+- docs/controls/index.md: Summary tables need entries for 10 newer controls (1.24–1.28, 2.23–2.24, 3.11–3.12) to match CONTROL-INDEX.md which has all 71.
+- docs/playbooks/control-implementations/index.md: Playbook tables need entries for 8 newer controls (1.26–1.28, 2.23–2.24, 3.11–3.12) to match the 71-control catalog.
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Folder structure listing (lines 44–83) is unformatted plain text that should be in a fenced code block.
+FIXES:
+1. docs/controls/index.md: Update "Security Controls (24)" → "(28)" and add 1.24–1.28 rows; "Management Controls (22)" → "(24)" and add 2.23–2.24 rows; "Reporting Controls (10)" → "(12)" and add 3.11–3.12 rows.
+2. docs/playbooks/control-implementations/index.md: Update "Security (25 controls)" → "(28 controls)" and add 1.26–1.28 rows; "Management (22 controls)" → "(24 controls)" and add 2.23–2.24 rows; "Reporting (10 controls)" → "(12 controls)" and add 3.11–3.12 rows.
+3. docs/templates/README.md: Change "all 61 governance controls" to "all 71 governance controls".
+4. docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Remove stray `text` on line 1; remove stray `text` on line 84; wrap folder structure (lines 44–83) in a ` ```text ``` ` code block.
+5. docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md: Change "ensure governance compliance" to "support governance compliance" on line 10.
+6. docs/controls/CONTROL-INDEX.md + docs/templates/control-setup-template.md: Align footer version to v1.2 (matching framework v1.2.51) or bump all other file versions to v1.3.
+STATUS: ISSUES_FOUND

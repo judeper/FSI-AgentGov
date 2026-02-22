@@ -1,0 +1,32 @@
+Now let me read the large file in chunks.
+Now let me verify whether the in-scope files actually exist at the paths referenced by the nav orphan checker.
+All 16 in-scope files exist in this worktree. The nav orphans are caused by other files (controls, framework, etc.) not present in this partial worktree. Let me now verify the version inconsistencies I found.
+Now I have all the data needed for the review. Here is my report:
+---
+ISSUE_COUNT: 16
+CRITICAL:
+- NONE — All Section A broken external URLs are false positives: Graph API endpoints in code blocks (`https://graph.microsoft.com/...`), authenticated SPA portals returning HTTP 405 (`https://make.powerautomate.com`, `https://admin.powerplatform.microsoft.com`), and an intentional placeholder example URL (`https://contoso.webhook.office.com/webhookb2/...`). No fix required.
+- NONE — All Section A nav orphans (~300+ entries) are a worktree artifact. All 16 in-scope files exist at the expected paths. The orphans are files (controls, framework, getting-started, etc.) referenced in mkdocs.yml that are not present in this partial worktree branch. No fix required within these 16 files.
+WARNINGS:
+- agent-usage-workbook/index.md (line 50): Footer says "Version: v1.3 | Framework: FSI Agent Governance" — missing framework version number; "v1.3" does not match current framework v1.2.51
+- agent-usage-workbook/telemetry-schema.md (line 210): Same footer issue — "Version: v1.3 | Framework: FSI Agent Governance" missing framework version number
+- agent-365-observability/index.md (line 272): Footer says "v1.2.6" — does not match current framework v1.2.51
+- agent-365-observability/alerting-configuration.md (line 505): Footer says "v1.2.6" — same version mismatch
+- agent-365-observability/application-insights-workbooks.md (line 435): Footer says "v1.2.6" — same version mismatch
+- agent-365-observability/opentelemetry-setup.md (line 567): Footer says "v1.2.6" — same version mismatch
+- platform-change-governance (6 files): All footers say "v1.2" — abbreviated framework version, missing patch number
+- platform-change-governance/evidence-and-audit.md (lines 289-299): PowerShell script uses `Microsoft.Xrm.Data.PowerShell` module (`Connect-CrmOnline`, `Get-CrmRecords` with `-FilterOperator "between"`). NEEDS_HUMAN_REVIEW — this is a community-maintained module; verify `between` is a supported filter operator value and that the module is still recommended for production use
+- agent-365-observability/application-insights-workbooks.md (lines 111-121, 408): Uses `New-AzApplicationInsightsWorkbook` cmdlet. NEEDS_HUMAN_REVIEW — verify this cmdlet exists in current Az.ApplicationInsights module; may require `New-AzResource` or ARM template deployment instead
+GAPS:
+- NONE
+FIXES:
+1. agent-usage-workbook/index.md (line 50): Change `*Updated: February 2026 | Version: v1.3 | Framework: FSI Agent Governance*` to `*Updated: February 2026 | Version: v1.3 | Framework: FSI Agent Governance v1.2.51*`
+2. agent-usage-workbook/telemetry-schema.md (line 210): Change `*Updated: February 2026 | Version: v1.3 | Framework: FSI Agent Governance*` to `*Updated: February 2026 | Version: v1.3 | Framework: FSI Agent Governance v1.2.51*`
+3. agent-365-observability/index.md (line 4): Change `**Version:** v1.2.6` to `**Version:** v1.2.51`; (line 272): Change `v1.2.6` to `v1.2.51`
+4. agent-365-observability/alerting-configuration.md (line 505): Change `v1.2.6` to `v1.2.51`
+5. agent-365-observability/application-insights-workbooks.md (line 435): Change `v1.2.6` to `v1.2.51`
+6. agent-365-observability/opentelemetry-setup.md (line 567): Change `v1.2.6` to `v1.2.51`
+7. platform-change-governance/* (6 files): Update footer version from `v1.2` to `v1.2.51` in headers and footers
+8. platform-change-governance/evidence-and-audit.md: NEEDS_HUMAN_REVIEW — verify `Get-CrmRecords -FilterOperator "between"` is valid; consider documenting `Microsoft.Xrm.Data.PowerShell` as a dependency with version pinning
+9. agent-365-observability/application-insights-workbooks.md: NEEDS_HUMAN_REVIEW — verify `New-AzApplicationInsightsWorkbook` cmdlet availability; if not available, replace with ARM template or `New-AzResource` approach
+STATUS: ISSUES_FOUND

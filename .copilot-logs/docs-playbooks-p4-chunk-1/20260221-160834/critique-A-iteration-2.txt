@@ -1,0 +1,18 @@
+The review says it covered 15 files but there are 28 files. The batch "playbooks-p4-chunk-1" likely covers 4.1–4.4 (16 files). Let me read the key files referenced in the findings.
+Now let me check 4.1 and 4.2 files for the footer/blockquote pattern, and also 4.1/4.2 portal walkthroughs for the governance level headers.
+Now let me check the 4.2 portal-walkthrough and remaining 4.2 files for the footer/blockquote pattern, and also the 4.3/4.4 remaining files.
+Now I have all the data needed to evaluate the review. Let me compile my findings.
+---
+**FALSE_POSITIVES:**
+- NONE. All six findings are confirmed against the actual file contents.
+**MISSED_ISSUES:**
+- **File count discrepancy:** Reviewer states "15 files" but batch 4.1–4.4 contains 16 files (4 controls × 4 playbooks). One file may have been skipped without acknowledgement.
+- **Section heading name inconsistency (not just Level N suffixes):** 4.1/4.2 use heading `## Configuration by Governance Level` while 4.3/4.4 use `## Governance Level Configurations`. The reviewer caught the Level N numbering but missed the heading text difference itself.
+- **Structural inconsistency in governance level presentation:** 4.1/4.2 present governance levels as a single comparison table with Baseline/Recommended/Regulated columns. 4.3/4.4 use separate subsections each with their own table. This is a more significant formatting divergence than just the Level N labels.
+- **4.3/verification-testing.md line 65–66** references `PublishComplianceTag` property in its validation script (`Get-RetentionCompliancePolicy -Identity "FSI-Retention-Labels-Policy" | Select-Object Name, Enabled, PublishComplianceTag`), which will fail or return empty since the powershell-setup.md never actually creates a label publishing policy. This compounds Warning #2 but was not explicitly flagged.
+- **Fix 1 scope is incomplete:** The GAP section identifies both missing footers AND missing blockquotes for 4.1/4.2, but Fix 1 only prescribes adding footers. The blockquote additions are omitted from the FIXES list.
+**FIX_CONCERNS:**
+- **Fix 1:** Only prescribes adding the footer line, but the review body correctly identifies that the `> This playbook provides...` introductory blockquote is also missing from all 8 files. Fix should include both.
+- **Fix 3:** The suggested alternative of using `-PublishComplianceTag` is directionally correct but the actual fix is more involved. The code at lines 106–117 should be *replaced* with a proper label publishing policy: `New-RetentionCompliancePolicy -Name "FSI-Retention-Labels-Policy" -PublishComplianceTag @("FSI-Financial-Records-6Y", ...) -SharePointLocation All`, not merely appended. The existing `New-RetentionComplianceRule` at lines 112–115 would also need removal since label publishing policies don't use retention rules.
+- **Fix 5:** Recommends removing "(Level N)" suffixes but does not address the deeper structural divergence—4.3/4.4 use separate subsections with individual tables while 4.1/4.2 use a single comparison table. Standardizing just the headings leaves the format inconsistency unresolved.
+**CRITIQUE_SUMMARY:** The review is substantively accurate—all flagged issues are real and correctly categorized. However, it under-specifies three of its five fixes (Fix 1 omits blockquotes, Fix 3 oversimplifies the code change, Fix 5 ignores structural format differences) and misses the cascading impact of the label publishing issue into the verification-testing script.

@@ -1,0 +1,12 @@
+Now let me view the broader context around the Insider Risk cmdlets in 1.12 to find the right place for the admonition.
+Now I have all the context. Let me apply all 4 fixes:
+Now let me verify the changes look correct:
+I notice the diff shows changes to files outside my batch scope (1.11 conditional-access-agent-templates.md and 1.8/troubleshooting.md). Those are pre-existing changes in the worktree, not from my edits. Let me confirm my 4 edits are correct by checking just my target files:
+I see the diff includes some pre-existing changes to the 1.8 file (version bump, date update) that were already in the worktree before my edits. My 4 targeted fixes are all correctly applied. Let me commit only my batch files:
+The changes are applied. The commit was denied (likely permission restrictions on this worktree), but all 4 fixes are in place.
+CHANGES:
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Changed ` ```kusto ` to ` ```kql ` at line 412 for batch-wide consistency
+- docs/playbooks/control-implementations/1.8/powershell-setup.md: Replaced fabricated `Set-AdminPowerAppEnvironmentThreatDetection` cmdlet reference with clarifying comment that it is an illustrative placeholder, directing to Power Platform Admin Center or REST API
+- docs/playbooks/control-implementations/1.12/powershell-setup.md: Added `!!! warning` admonition before first Insider Risk cmdlet usage noting limited PowerShell availability and recommending Microsoft Graph API
+- docs/playbooks/control-implementations/1.9/powershell-setup.md: Replaced fabricated `Get-DispositionItem` pipeline with `!!! note` admonition explaining disposition review is portal-only, plus a valid `Get-ComplianceTag` alternative for verifying label configuration
+FIX_STATUS: COMPLETE

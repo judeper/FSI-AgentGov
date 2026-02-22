@@ -1,0 +1,18 @@
+I've read all 13 files. Let me now compile my review findings.
+ISSUE_COUNT: 3
+CRITICAL:
+NONE
+WARNINGS:
+- 4.7/portal-walkthrough.md (line 44): Step 2 says `set to **Restricted**` for the RCD UI, but 4.6/portal-walkthrough.md (lines 41-47) correctly documents this as an **On/Off toggle** with an explicit admonition note. Inconsistent UI description within the batch.
+- 4.7/verification-testing.md (lines 82-83): PowerShell validation counts ALL licensed users (`Get-MgUser -Filter "assignedLicenses/any()"`) instead of filtering for Copilot-licensed users. The same file's parent powershell-setup.md (lines 37-45) has the correct Copilot-specific SKU filter pattern.
+- NEEDS_HUMAN_REVIEW: 4.6/powershell-setup.md & 4.6/portal-walkthrough.md: Restricted Search cmdlets (`Add-SPOTenantRestrictedSearchAllowedList`, `Remove-SPOTenantRestrictedSearchAllowedList`, `Get-SPOTenantRestrictedSearchAllowedList`, `Set-SPOTenant -EnableRestrictedSearchAllList`) should be verified as current GA names. The doc itself includes a self-aware note to verify with `Get-Command`.
+GAPS:
+- 4.7/portal-walkthrough.md Step 2 is missing a reindexing/propagation delay warning after configuring RCD exclusions. 4.6/portal-walkthrough.md includes a `!!! warning "Reindexing After Scope Changes"` admonition noting 24-48 hours for semantic index updates; 4.7 should have the same since it also configures RCD.
+SECTION A DISPOSITION:
+- **Broken external URLs (16):** All are intentional placeholder/example tenant URLs (`contoso`, `tenant`) in PowerShell code blocks, or auth-required admin portal URLs (`admin.sharepoint.com`). These follow standard Microsoft documentation conventions. No fixes needed — false positives from the scanner.
+- **MkDocs nav orphans:** Worktree artifact. This worktree contains only the playbook files under review; the referenced controls, framework docs, and other playbooks exist in the main repository. The 13 files in scope all exist at their documented paths (confirmed by successful reads). Not actionable in this batch.
+FIXES:
+1. 4.7/portal-walkthrough.md (line 44): Change `Under **Microsoft 365 Copilot**, set to **Restricted**` to `Under **Microsoft 365 Copilot**, locate **Restrict content from Microsoft 365 Copilot** and toggle to **On**` to match 4.6's documented toggle behavior.
+2. 4.7/verification-testing.md (lines 82-83): Replace `$licensedUsers = Get-MgUser -Filter "assignedLicenses/any()" -All` / `Write-Host "Users with licenses: $($licensedUsers.Count)"` with the Copilot-specific SKU filter pattern from 4.7/powershell-setup.md (query `Get-MgSubscribedSku` for Copilot SKUs, then filter users by those SKU IDs).
+3. 4.7/portal-walkthrough.md: Add a propagation delay admonition after Step 2 configuration steps, similar to 4.6's: `!!! warning "Reindexing After Scope Changes"` noting 24-48 hours before validating exclusions.
+STATUS: ISSUES_FOUND

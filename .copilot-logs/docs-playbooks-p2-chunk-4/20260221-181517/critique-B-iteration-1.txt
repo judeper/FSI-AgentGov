@@ -1,0 +1,13 @@
+All files verified. Here's my assessment:
+---
+**HIGH_RISK_FIXES:**
+NONE — All three fixes are contained within markdown code fences or single-line formatting changes. None alter cross-references, navigation, or file paths. Zero mkdocs build risk.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (`New-PnPField` → `Add-PnPField`): Severity UNDER-classified. `New-PnPField` does not exist in PnP.PowerShell — an admin copy-pasting this script gets immediate runtime errors on 3 lines. This is closer to a functional defect than a warning. The 2.12 powershell-setup.md confirms `Add-PnPField` is the correct cmdlet (7 usages verified).
+- Fix 3 (blockquote → admonition): Severity OVER-classified. The `> **CRITICAL:**` blockquote renders fine and conveys the warning. Changing to `!!! warning` is a style preference, not a consistency defect. Downgrade to style nit.
+**FIX_ORDERING:**
+NONE — All three fixes are fully independent: different files (2.13 powershell ×2, 2.15 portal), no shared state, no cross-references between them. Can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- Fix 3 (blockquote → admonition): The review's fix description is incomplete — it says replace `> **CRITICAL:**` with `!!! warning "CRITICAL"` but omits that the body text must move to a new line with 4-space indentation for valid admonition syntax. The current single-line blockquote is functional; the conversion adds implementation risk for zero functional benefit. Recommend deferring or dropping.
+- Fix 2 (WORM → WORM / Audit-Trail Alternative): The fix is valid — portal-walkthrough.md line 58 explicitly documents both SEC 17a-4 options — but the scope should include line 168 (`"Verify immutable storage"` → `"Verify WORM or audit-trail storage"`). The review mentions this but the fix spec is vague. Minor, not blocking.
+**CRITIQUE_SUMMARY:** Fix 1 is the highest-value change (corrects a non-existent cmdlet that would break admin scripts) and should be prioritized. Fix 2 is a sound consistency correction. Fix 3 should be deferred — it's a cosmetic change with incomplete implementation spec and nonzero rendering risk.

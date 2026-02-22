@@ -1,0 +1,13 @@
+Now I have all the info. Let me apply all fixes:
+Now apply all fixes:
+Verify the stray fence fix and the FetchXML replacement:
+All fixes verified. Let me do a final diff to confirm all changes:
+Commit was blocked by permissions, but all file edits are applied.
+CHANGES:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md: Updated footer version from v1.2.10 to v1.2.12 to match header
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md: Updated footer version from v1.2.10 to v1.2.12 to match header
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Updated footer version from v1.2.10 to v1.2.12 to match header; removed stray code fence after "Complete Error Handling" admonition
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md: Updated header version from v1.2.48 to v1.2.51 to match footer
+- docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md: Updated header version from v1.2.48 to v1.2.51 to match footer
+- docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md: Replaced `Get-CrmRecords` with `Get-CrmRecordsByFetch` using FetchXML for date-range queries on DecisionLog and AssessmentLog exports
+FIX_STATUS: COMPLETE

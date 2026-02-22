@@ -1,0 +1,6 @@
+Let me verify the fixes are correct:
+Both fixes verified. The `Evaluate-Criterion` function is now defined before its first use at line 77 (moved to line 58), and the code block closes properly at line 151. The date is corrected to January 2026.
+CHANGES:
+- docs/playbooks/control-implementations/2.18/powershell-setup.md: Moved `Evaluate-Criterion` function definition from line 131 to line 58 (after `$results = @()`, before `foreach` loop) so it is defined before first call
+- docs/playbooks/control-implementations/2.18/verification-testing.md: Changed "February 2026" to "January 2026" on line 3 to match batch consistency
+FIX_STATUS: COMPLETE

@@ -1,0 +1,18 @@
+Now I have enough context to deliver the risk analysis.
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All 10 proposed fixes target isolated version strings in headers/footers or add clarifying prose. None modify cross-reference links, file paths, navigation entries, or mkdocs.yml. Zero risk of breaking cross-references or the mkdocs build.
+**SEVERITY_CORRECTIONS:**
+- Fix 7 (configuration-hardening-baseline/index.md footer v1.2 → v1.3): The review proposes aligning footer to header's "v1.3", but the project is currently at **v1.2.51**. Header "v1.3" may itself be premature. Other new playbooks (human-in-the-loop-triggers.md, zone1-min-explainability.md) also use v1.3 consistently, suggesting intentional forward-versioning for this batch — but this should be called out as **NEEDS_HUMAN_REVIEW** rather than an auto-fix, since the correct target version (v1.2.51 vs v1.3) is a release-planning decision, not a typo.
+- Fix 10 (zone1-min-explainability.md "SEC 2026 priorities"): The actual text reads "SEC examination priorities emphasize attention to firms' use of AI" — this is generic language about SEC priorities, not a citation of a specific 2026 document. Severity should be downgraded from NEEDS_HUMAN_REVIEW to **INFO** — the wording is defensible as-is.
+**FIX_ORDERING:**
+- Fixes 1–4 (ELM footer versions) are fully independent — apply in any order or parallel.
+- Fixes 5–6 (Conditional Access header versions) are fully independent of each other and all other fixes.
+- Fix 7 (Config Hardening) is independent but depends on human decision about target version.
+- Fix 8 (Dataverse naming note) is independent.
+- Fixes 9–10 are human-review gates, no code dependency.
+- **No ordering constraints exist between any fixes.** All are isolated string edits in separate files.
+**OVER_ENGINEERED:**
+- **Fix 8** (adding a clarification note about Dataverse entity set vs schema naming in power-bi-correlation.md): This is over-engineered. The lowercase plural names (`fsi_denyevents`) appear exclusively in Power BI/DAX/Power Query contexts where they are the correct OData entity set names. The PascalCase names (`fsi_DenyEvent`) appear in index.md's schema definition context where they are also correct. The target audience (Power BI practitioners) understands this Dataverse convention. Adding an explanatory note creates maintenance burden and risks patronizing the reader. **Recommend: DROP this fix.** If any action is needed, a single HTML comment (`<!-- entity set names per Dataverse OData convention -->`) suffices.
+**CRITIQUE_SUMMARY:** The review is solid — severity classifications are accurate except for two minor corrections (Fix 7 needs human review on target version, Fix 10 can be downgraded to INFO), and Fix 8 should be dropped as over-engineered. The remaining 7 auto-fixes (1–6 version alignments + Fix 9's human review flag) are low-risk, zero-dependency string edits safe to apply in any order.

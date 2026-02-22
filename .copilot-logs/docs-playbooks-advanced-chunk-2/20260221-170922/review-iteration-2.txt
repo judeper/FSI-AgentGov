@@ -1,0 +1,27 @@
+Now let me read the large deployment guide file in sections:
+Now I have all the content needed for a thorough review. Let me compile the findings.
+ISSUE_COUNT: 7
+CRITICAL:
+NONE
+WARNINGS:
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md: Header metadata says "FSI-AgentGov v1.2.12" but footer says "v1.2.10" — version mismatch
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md: Header metadata says "FSI-AgentGov v1.2.12" but footer says "v1.2.10" — version mismatch
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Header metadata says "FSI-AgentGov v1.2.12" but footer says "v1.2.10" — version mismatch
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md: Header metadata says "v1.2.48" but footer says "v1.2.51" — version mismatch
+- docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md: Header metadata says "v1.2.48" but footer says "v1.2.51" — version mismatch
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Stray code fence (```) at approximately line 862, immediately after the "Complete Error Handling" admonition and before "### Rollback Procedure" — this orphaned fence will open an unintended code block in mkdocs rendering, swallowing subsequent content until the next fence
+- docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md: PowerShell quarterly export script uses `Get-CrmRecords -FilterOperator "between"` (line ~294) which may not be supported by the simple filter interface of Microsoft.Xrm.Data.PowerShell; the ELM playbooks in this same batch use `Get-CrmRecordsByFetch` with FetchXML for date-range queries, which is more reliable (NEEDS_HUMAN_REVIEW)
+GAPS:
+NONE
+SECTION A NOTES:
+- Broken external URLs (16 flagged): All are false positives — placeholder/example URLs in code blocks (`yourorg.crm.dynamics.com`, `contoso.sharepoint.com`), API endpoint references inside inline code spans (backtick parsing artifact), or legitimate Microsoft portal URLs (`make.powerautomate.com`, `admin.powerplatform.microsoft.com`) returning non-200 to unauthenticated scanners. No content fixes needed.
+- MkDocs nav orphans (300+ flagged): This is a worktree-specific issue — the batch files themselves exist at their expected `docs/` paths and resolve correctly. The remaining orphans reference files outside this batch's scope (controls, framework docs, etc.) that are not present in this worktree checkout. No content fixes needed in batch files.
+FIXES:
+1. docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md: Update footer from `*FSI Agent Governance Framework v1.2.10 - January 2026*` to `*FSI Agent Governance Framework v1.2.12 - January 2026*`
+2. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md: Update footer from `*FSI Agent Governance Framework v1.2.10 - January 2026*` to `*FSI Agent Governance Framework v1.2.12 - January 2026*`
+3. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Update footer from `*FSI Agent Governance Framework v1.2.10 - January 2026*` to `*FSI Agent Governance Framework v1.2.12 - January 2026*`
+4. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md: Align header version — update "FSI-AgentGov v1.2.48" to "FSI-AgentGov v1.2.51" to match footer
+5. docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md: Align header version — update "FSI-AgentGov v1.2.48" to "FSI-AgentGov v1.2.51" to match footer
+6. docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md: Remove the stray ``` on the line after the "Complete Error Handling" admonition (approx. line 862)
+7. docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md: NEEDS_HUMAN_REVIEW — verify `Get-CrmRecords -FilterOperator "between"` works with the Microsoft.Xrm.Data.PowerShell module, or replace with `Get-CrmRecordsByFetch` using FetchXML `<condition operator="between">` for reliable date-range filtering (consistent with the pattern used in the ELM evidence-and-audit.md playbook)
+STATUS: ISSUES_FOUND

@@ -1,0 +1,11 @@
+Critique A is correct — v1.2.0 was January 25, 2026, so "January–February 2026" is accurate. Issue 2 is a false positive.
+ISSUE_COUNT: 1
+CRITICAL:
+- README.md (lines 364-367): Phase names in "Implementation Timeline" section don't match `docs/getting-started/checklist.md`. README says "Regulatory Compliance Baseline / Security Enhancements / Finalization & Operationalization" but checklist says "Assessment & Planning / Foundation Implementation / Finalization & Operations" (3 of 4 phases differ).
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. README.md (lines 364-367): Align phase names with checklist.md — change "Regulatory Compliance Baseline" → "Assessment & Planning", "Security Enhancements" → "Foundation Implementation", "Finalization & Operationalization" → "Finalization & Operations"
+STATUS: ISSUES_FOUND

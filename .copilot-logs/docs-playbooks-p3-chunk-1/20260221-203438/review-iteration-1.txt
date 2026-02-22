@@ -1,0 +1,27 @@
+Now I have all 25 files read. Let me make the safe fixes I've identified.
+Files are read-only in this worktree. Proceeding with report only.
+ISSUE_COUNT: 10
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/3.1/powershell-setup.md: Hash filename inconsistency — Complete Configuration Script (line 333) writes to `Hashes.csv` but the individual snippet (line 125) and the validation script in verification-testing.md (line 176) reference `AgentInventory_Hashes.csv`. Running the complete script then the validation will fail to find the hash file.
+- docs/playbooks/control-implementations/3.2/powershell-setup.md: `Get-AdminPowerAppEnvironmentAnalytics` cmdlet (line 41) does not appear in standard Microsoft.PowerApps.Administration.PowerShell module documentation. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.3/troubleshooting.md: `Get-MgComplianceManagement` cmdlet (line 78) does not appear to exist in the Microsoft Graph PowerShell SDK. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.6/powershell-setup.md: `Set-AdminPowerAppAsSysAdmin` with `-Disable` parameter (line 143) — the `-Disable` switch is not documented for this cmdlet. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/3.3/portal-walkthrough.md: Double `---` horizontal rule before footer navigation (lines 141-142). Same issue in 3.4/portal-walkthrough.md (lines 209-210) and 3.6/portal-walkthrough.md (lines 128-129).
+- docs/playbooks/control-implementations/3.1/portal-walkthrough.md, 3.2/portal-walkthrough.md vs 3.3-3.7: Header/footer format inconsistency — 3.1-3.2 use `**Last Updated:**`/`**Portal:**`/`**Estimated Time:**` headers and inline `|`-separated footer links; 3.3-3.7 use blockquote intro, `## Next Steps` bulleted list, and `*Updated: ... | Version: ...*` metadata footer.
+- Pre-pass broken URLs: `https://admin.powerplatform.microsoft.com` (3.1/portal-walkthrough.md), `https://purview.microsoft.com` (3.2/troubleshooting.md), `https://contoso.sharepoint.com/sites/AI-Governance` (3.4/powershell-setup.md) — all false positives: first two are auth-gated portal URLs; third is a well-known Microsoft example domain used in a `.EXAMPLE` PowerShell help block.
+- Pre-pass mkdocs nav orphans: ~300 entries flagged. This is a systemic worktree issue — the worktree contains only the batch playbook files while mkdocs.yml references the entire site. The in-scope files (3.1-3.7 playbooks) DO exist at their correct paths under `docs/`. No content fix needed.
+GAPS:
+- docs/playbooks/control-implementations/3.3/verification-testing.md, 3.4/verification-testing.md, 3.5/verification-testing.md, 3.6/verification-testing.md: These verification files lack automated PowerShell validation scripts. Controls 3.1 and 3.2 include full `## Automated Validation Script` sections with runnable PowerShell checks; controls 3.3-3.6 have only manual checklists and test case descriptions.
+- docs/playbooks/control-implementations/3.5/portal-walkthrough.md: Validation checklist uses numbered `1. [ ]` format instead of `- [ ]` used consistently in all other playbooks' validation sections.
+- docs/playbooks/control-implementations/3.5/powershell-setup.md: `Get-AgentCostByBusinessUnit` function uses `Get-Random` for fake usage data (lines 98-99) with only a brief inline comment. While sample code is acceptable, a more prominent admonition (e.g., `!!! warning`) would prevent accidental production use.
+FIXES:
+1. docs/playbooks/control-implementations/3.1/powershell-setup.md (line 333): Change `"$ExportPath\Hashes.csv"` → `"$ExportPath\AgentInventory_Hashes.csv"` to match the individual snippet and validation script.
+2. docs/playbooks/control-implementations/3.3/portal-walkthrough.md (line 141): Remove duplicate `---` horizontal rule (keep one `---` before footer).
+3. docs/playbooks/control-implementations/3.4/portal-walkthrough.md (line 209): Remove duplicate `---` horizontal rule (keep one `---` before footer).
+4. docs/playbooks/control-implementations/3.6/portal-walkthrough.md (line 128): Remove duplicate `---` horizontal rule (keep one `---` before footer).
+5. docs/playbooks/control-implementations/3.2/powershell-setup.md (line 41): NEEDS_HUMAN_REVIEW — verify `Get-AdminPowerAppEnvironmentAnalytics` exists or replace with correct cmdlet.
+6. docs/playbooks/control-implementations/3.3/troubleshooting.md (line 78): NEEDS_HUMAN_REVIEW — verify `Get-MgComplianceManagement` exists or replace with correct diagnostic command.
+7. docs/playbooks/control-implementations/3.6/powershell-setup.md (line 143): NEEDS_HUMAN_REVIEW — verify `Set-AdminPowerAppAsSysAdmin -Disable` parameter exists or use correct quarantine approach.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,16 @@
+All findings verified against the actual files. Here's my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+NONE
+All 6 proposed fixes are cosmetic metadata additions or single-line string corrections within markdown code blocks. None alter mkdocs navigation, file paths, cross-references, or control structure. No fix can break `mkdocs build --strict`.
+**SEVERITY_CORRECTIONS:**
+- Fix 1 (3.1 hash filename): CRITICAL classification is **accurate**. Verified: line 127 writes `AgentInventory_Hashes.csv`, line 335 writes `Hashes.csv`, and verification-testing.md line 178 checks `AgentInventory_Hashes.csv`. An admin running the "Complete Configuration Script" would get a silent validation failure. Single-character-class fix (rename the string on line 335).
+- Fix 2 (3.4 undefined function): CRITICAL classification is **accurate**. `Send-CriticalIncidentNotification` appears only at line 121 with zero definitions in any 3.4 file. A critical-severity incident would hit a `CommandNotFoundException`. However, the proposed fix should **not** use `Send-MailMessage` (deprecated in PowerShell 7+) — prefer a `# TODO: Implement organization-specific notification` comment with a `Write-Warning` stub instead.
+- Fixes 3–6 (header metadata): WARNING classification is **accurate**. These are consistency gaps, not functional defects. 3.1 and 3.2 have the metadata block; 3.3–3.6 don't.
+**FIX_ORDERING:**
+- Fixes 1 and 2 (CRITICALs) are independent of each other and independent of fixes 3–6. No ordering constraints exist — all 6 fixes can be applied in any order or in parallel.
+**OVER_ENGINEERED:**
+- Fixes 3–6 (adding header metadata to 4 portal-walkthrough files): These are **in-scope and proportional** — three lines per file, matching an established pattern. NOT over-engineered.
+- The GAPS items (adding "How to Confirm Configuration is Active" sections and automated validation scripts to 3.3–3.6) were correctly categorized as gaps rather than fixes. If anyone proposes promoting these to fixes in this batch, **flag that as over-engineering** — those are net-new content authoring tasks, not bug fixes, and belong in a separate work item.
+- The WARNING about `Invoke-AzCostManagementQuery` parameter structure (3.5) was correctly marked NEEDS_HUMAN_REVIEW and not proposed as a fix. Correct — an agent should not guess at cmdlet parameter changes without testing against a live module.
+**CRITIQUE_SUMMARY:** Severity classifications are accurate, all 6 proposed fixes are low-risk surgical edits with no cross-reference or build impact, and the review correctly separated actionable fixes from gaps requiring separate work items. One refinement: Fix 2's suggested `Send-MailMessage` replacement should use `Write-Warning` with a TODO comment instead, since `Send-MailMessage` is deprecated.

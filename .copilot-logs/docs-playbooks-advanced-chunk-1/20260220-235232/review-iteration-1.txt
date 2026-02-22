@@ -1,0 +1,31 @@
+Now I have all the information needed. Let me compile the review.
+All 25 files read. Here is the final review output:
+---
+**ISSUE_COUNT: 6**
+**CRITICAL:**
+1. **`configuration-hardening-baseline/index.md` line 1 — Version mismatch.** Document title contains "FSI-AgentGov v1.3" but the framework version is v1.2.51. This implies a future version that doesn't exist yet.
+   - **FIX:** Change "v1.3" to "v1.2" in the title on line 1.
+2. **`environment-lifecycle-management/architecture.md` lines 93–96 — Admonition splits Markdown table.** A `!!! note` admonition is inserted between table rows of the "Choice Field Value Definitions" table. After the `er_zone` rows end at line 92, a blank line + admonition (lines 93–95) interrupts the table, causing `er_environmenttype`, `er_region`, `er_datasensitivity`, and subsequent choice rows (lines 96+) to render outside the table as broken markdown.
+   - **FIX:** Move the admonition block to after the complete table ends (after line ~110 where all choice columns are defined), or split into two tables with a repeated header row after the admonition.
+**WARNINGS:**
+1. **Version footer inconsistencies across 9 files.** Current framework is v1.2.51 (February 2026), but multiple files use stale versions:
+   - `confidence-and-routing.md` line 138: "v1.2 - January 2026"
+   - `human-in-the-loop-triggers.md` line 464: "v1.2 - January 2026"
+   - `zone1-min-explainability.md` line 123: "v1.2 - January 2026"
+   - `microsoft-audit-reporting-tools.md` line 201: "v1.2"
+   - `deny-event-correlation-report/index.md` line 362: footer says "v1.2" but header (line 4) says "v2.0.0" — internal inconsistency within the same file
+   - `gate-definitions.md` line 411, `implementation-guide.md` line 680, `agent-blueprint-promotion-gates/index.md` line 208: all say "v1.2.6 - January 2026"
+   - `sharepoint-copilot-preflight/index.md` line 204: "v1.2.48"
+   - **FIX:** Normalize all footers to "v1.2.51 - February 2026" (or the current version/date). For `deny-event-correlation-report/index.md`, reconcile the header "v2.0.0" vs footer "v1.2" — likely the header version refers to the solution version while the footer refers to the framework version; clarify with a label.
+2. **Dataverse table naming inconsistency across deny-event-correlation-report docs.** `power-bi-correlation.md` line 9 uses plural lowercase names (`fsi_denyevents`, `fsi_denycorrelations`, `fsi_denyalerts`) while `index.md` data architecture section uses PascalCase singular names (`fsi_DenyEvent`, `fsi_DenyCorrelation`, `fsi_DenyAlert`).
+   - **FIX:** Normalize to one convention. Dataverse logical names are lowercase; display names are typically PascalCase. Pick one and apply consistently. If the Power Query code in `power-bi-correlation.md` uses logical names, add a note explaining the naming difference, or update the index.md to show both logical and display names.
+3. **`human-in-the-loop-triggers.md` line 33 — Unverifiable regulatory citation.** References "FINRA 2026 Annual Regulatory Oversight Report" with specific autonomy level definitions (L0–L4). The exact phrasing of these levels may not match the actual FINRA publication.
+   - **NEEDS_HUMAN_REVIEW:** Verify the cited autonomy levels and report title match the actual FINRA publication. If paraphrased, add a caveat (e.g., "adapted from" or "based on").
+4. **`zone1-min-explainability.md` line 5 — Unverifiable regulatory citation.** References "SEC 2026 priorities" as a driver for explainability requirements.
+   - **NEEDS_HUMAN_REVIEW:** Verify the SEC examination priorities reference is accurate and current. If the specific language cannot be confirmed, use hedged phrasing per FSI language rules.
+**GAPS:** NONE
+**FIXES:** See inline fix guidance above for each issue.
+**PRE-PASS FINDINGS ASSESSMENT:**
+- **Broken external URLs (15 flagged):** All are false positives — placeholder/example URLs (`contoso.*`, `your-org.*`, `yourorg.*`), API endpoints requiring authentication (`api.applicationinsights.io`, `make.powerautomate.com`), PowerShell Gallery template URLs with `$module` variable, or BAP API URLs with `{environmentId}` template parameters inside code blocks. No fixes needed.
+- **MkDocs nav orphans (~300 entries):** All are worktree artifacts — the files exist in the full repository but are absent from this isolated worktree. Not attributable to the batch files under review. No fixes needed.
+**STATUS: ISSUES_FOUND**

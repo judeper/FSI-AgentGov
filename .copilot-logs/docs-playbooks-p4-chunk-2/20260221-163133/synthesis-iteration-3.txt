@@ -1,0 +1,13 @@
+Both fragile disconnect patterns confirmed. Here is the final synthesized review:
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/4.5/powershell-setup.md (line 284): Fragile disconnect pattern in `finally` block — `if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue)` guard before `Disconnect-SPOService` may silently skip disconnect if session is in partial state; should call `Disconnect-SPOService -ErrorAction SilentlyContinue` directly
+- docs/playbooks/control-implementations/4.7/powershell-setup.md (line 309): Same fragile disconnect pattern as 4.5/powershell-setup.md
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/4.5/powershell-setup.md (line 284): Replace the 3-line guard block `if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) { Disconnect-SPOService -ErrorAction SilentlyContinue }` with `Disconnect-SPOService -ErrorAction SilentlyContinue`
+2. docs/playbooks/control-implementations/4.7/powershell-setup.md (line 309): Same fix — replace the 3-line guard block with `Disconnect-SPOService -ErrorAction SilentlyContinue`
+STATUS: ISSUES_FOUND

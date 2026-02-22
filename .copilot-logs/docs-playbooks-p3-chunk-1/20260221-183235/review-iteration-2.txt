@@ -1,0 +1,21 @@
+Good — the double `---` issue is fixed in both files (only single separators remain), and header metadata was added. Now let me check the remaining issues.
+Now let me check the remaining GAP items — whether the missing sections were added to 3.3 and 3.4 verification-testing and troubleshooting files.
+3.3 gaps are fixed, 3.4 troubleshooting is fixed, but 3.4/verification-testing.md still lacks the two sections. Let me verify the NEEDS_HUMAN_REVIEW items and check the H1/cross-link deferred items.
+Now I have a complete picture. Let me verify the cross-link consistency one last time:
+Verification complete. Here is the result:
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- 3.2/powershell-setup.md (line 41): `Get-AdminPowerAppEnvironmentAnalytics` cmdlet may not exist — REMAINING (NEEDS_HUMAN_REVIEW, not auto-fixable)
+- 3.3/troubleshooting.md (line 78): `Get-MgComplianceManagement` cmdlet may not exist — REMAINING (NEEDS_HUMAN_REVIEW, not auto-fixable)
+- 3.4/powershell-setup.md (line 301 vs 310): `contoso.sharepoint.com` vs `[tenant]` inconsistency — REMAINING (NEEDS_HUMAN_REVIEW, not auto-fixable)
+- [DEFERRED] H1 title format inconsistency between 3.1/3.2 and 3.3/3.4 — REMAINING as expected (deferred to repo-wide pass)
+- 3.4/verification-testing.md: Cross-links still use `./` prefix while 3.3 now uses bare filenames — REMAINING (functional, cosmetic only)
+GAPS:
+- 3.4/verification-testing.md: Missing "Automated Validation Script" section — REMAINING (was added to 3.3 but not 3.4)
+- 3.4/verification-testing.md: Missing "Governance Tier-Specific Testing" section — REMAINING (was added to 3.3 but not 3.4)
+FIXES:
+1. 3.4/verification-testing.md: Add "Automated Validation Script" section (modeled after 3.3/verification-testing.md line 104-153, adapted for incident reporting context)
+2. 3.4/verification-testing.md: Add "Governance Tier-Specific Testing" section (modeled after 3.3/verification-testing.md line 157-181, adapted for incident reporting context)
+STATUS: ISSUES_FOUND

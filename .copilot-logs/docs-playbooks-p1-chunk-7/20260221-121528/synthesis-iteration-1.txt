@@ -1,0 +1,19 @@
+Looking at the original review and both critiques, I need to synthesize the final corrected review.
+**Key adjustments based on critiques:**
+1. **Warning 1 (Microsoft Foundry):** Both critiques confirm "Microsoft Foundry" is used consistently across 30+ repo locations — it's a deliberate repo-wide choice, likely reflecting the 2025 rebrand. The fix suggestion to change only 2 lines would create inconsistency. Retain as NEEDS_HUMAN_REVIEW but reframe: verify the repo's current usage is correct, and if wrong, defer to a repo-wide sweep.
+2. **Warning 2 (Set-AdminPowerAppChatbot):** Both critiques agree this is correctly flagged. Keep as-is.
+3. **Warning 3 (API version):** Critique B notes this is arguably LOW severity — an outdated-but-working API version in documentation is cosmetic. Downgrade to a note rather than a warning-level fix.
+4. **No missed issues, no false positives among warnings 2-3, no severity upgrades needed.**
+---
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/1.26/powershell-setup.md: Uses `Set-AdminPowerAppChatbot -FileUploadEnabled $false` (lines 142-144, 426-428). This cmdlet and parameter may not exist in the official `Microsoft.PowerApps.Administration.PowerShell` module. NEEDS_HUMAN_REVIEW — verify cmdlet availability.
+- docs/playbooks/control-implementations/1.24/portal-walkthrough.md: "Microsoft Foundry" (lines 11, 42) is used consistently across 30+ repo locations and likely reflects the 2025 rebrand. NEEDS_HUMAN_REVIEW — confirm current official product name. If incorrect, requires a repo-wide branding sweep (not a per-file fix).
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.26/powershell-setup.md: Verify `Set-AdminPowerAppChatbot` cmdlet with `-FileUploadEnabled` parameter exists in the Power Platform admin module; if not, replace with the correct cmdlet or document as a conceptual placeholder.
+2. docs/playbooks/control-implementations/1.24/portal-walkthrough.md: Verify "Microsoft Foundry" is the current official product name. If wrong, do NOT fix only these 2 instances — defer to a dedicated repo-wide branding pass covering all 30+ usages.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,12 @@
+Good — all claims verified. The CHANGELOG items are inside backtick formatting (not clickable links). The docs subdirectories DO exist in this worktree. Now I can produce the final corrected review.
+ISSUE_COUNT: 2
+CRITICAL:
+- CODE_OF_CONDUCT.md (line 27): Version footer says `v1.1 - January 2026` while repo is at v1.2.51 — stale version.
+WARNINGS:
+- CONTRIBUTING.md (line 58): Footer template example shows `Version: v1.1` but the actual template (`docs/templates/control-setup-template.md` line 108) now uses `Version: v1.3` — stale example that could mislead contributors into using the wrong version string.
+GAPS:
+- NONE
+FIXES:
+1. CODE_OF_CONDUCT.md (line 27): Change `*FSI Agent Governance Framework v1.1 - January 2026*` to `*FSI Agent Governance Framework v1.2.51 - February 2026*`
+2. CONTRIBUTING.md (line 58): Change `Version: v1.1` to `Version: v1.3` to match the current control-setup-template.md
+STATUS: ISSUES_FOUND

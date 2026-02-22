@@ -1,0 +1,7 @@
+Now I have full context. Let me apply all fixes:
+Verify the fixes:
+All fixes verified.
+CHANGES:
+- docs/playbooks/governance-operations/decision-log-schema.md: Added closing ` ``` ` after JSON code block (line 157) and changed `6) Approval and lifecycle` to `## 6) Approval and lifecycle` (line 159)
+- docs/playbooks/compliance-and-audit/evidence-pack-assembly.md: Removed stray `text` on line 1, added ` ```text ` before directory tree (line 43), replaced stray `text` after directory tree with ` ``` ` (line 84)
+FIX_STATUS: COMPLETE

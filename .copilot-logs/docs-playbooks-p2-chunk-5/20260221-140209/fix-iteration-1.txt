@@ -1,0 +1,7 @@
+I can see the issue. The `Evaluate-Criterion` function at lines 131-149 needs to move before its first call at line 77.
+Now remove the old function definition at the bottom of the same code block:
+The fix is clean. Now commit:
+Diff confirms the function was moved from after the procedural code to before it, with no content changes.
+CHANGES:
+- docs/playbooks/control-implementations/2.18/powershell-setup.md: Moved `Evaluate-Criterion` function definition from line 131 (after its invocation) to line 46 (after `param()` block, before procedural code) to fix `CommandNotFoundException` at runtime. PowerShell scripts do not hoist functions.
+FIX_STATUS: COMPLETE

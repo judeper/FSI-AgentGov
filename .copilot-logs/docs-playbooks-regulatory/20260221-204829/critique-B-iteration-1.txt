@@ -1,0 +1,17 @@
+Good — nav entries confirmed. Now let me inspect the actual files for the cited issues.
+All 3 files reviewed. Here's my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- NONE. All 4 fixes are content-only changes to markdown body text. No file renames, no path changes, no nav modifications. Zero risk to cross-references or `mkdocs build`.
+**SEVERITY_CORRECTIONS:**
+- Fix 4 (citation format normalization): Downgrade from WARNING to STYLE/INFO. Cross-file citation format consistency is cosmetic, and becomes moot entirely if Fix 2 removes the markers. The review correctly classified the other three.
+**FIX_ORDERING:**
+1. Fix 2 (supply-chain: remove markers) BEFORE Fix 4 — if Fix 2 removes all `[web:NN]` and `<sup>[3]</sup>` markers, Fix 4 is eliminated as unnecessary.
+2. Fix 1 (impact-assessment: remove markers) — independent, execute in any order.
+3. Fix 3 (readiness: add extension note) — independent, execute in any order.
+**OVER_ENGINEERED:**
+- Fix 1 option A ("add a footnotes/references section defining [11] and [12]"): Over-engineered. There are 21 markers but only 2 distinct source references (SB24-205 §6-1-1702 and §6-1-1701). The statute sections are already paraphrased inline at every marker site. Adding a formal endnotes section creates maintenance burden for zero information gain. **Prefer option B: strip all `<sup>[NN]</sup>` markers.**
+- Fix 2 option A ("add a references section"): Same reasoning — the `[web:21]`, `[web:92]`, and `<sup>[3]</sup>` markers reference regulatory context already stated inline. **Prefer option B: strip all markers.**
+- Fix 4: Entirely redundant if Fix 2 strips markers. Drop it.
+- Fix 3: Appropriately scoped. Adding the parenthetical to line 4 is sufficient; adding it *also* to line 56 is defensible for a regulatory document but not strictly required.
+**CRITIQUE_SUMMARY:** The review accurately identified real issues — the dangling citation markers are legitimate CRITICAL findings for a published regulatory framework where citation traceability matters. The recommended execution is: strip all provenance markers from both files (Fixes 1B + 2B), add the SB 25B-004 extension note to the readiness doc (Fix 3), and drop Fix 4 as redundant. Net result: 3 surgical edits, zero build risk.

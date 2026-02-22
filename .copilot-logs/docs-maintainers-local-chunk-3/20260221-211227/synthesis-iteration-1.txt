@@ -1,0 +1,26 @@
+Now let me check the remaining disputed files.
+All disputed items verified against actual files. Here is the reconciled output:
+ISSUE_COUNT: 11
+CRITICAL:
+- evidence-pack-assembly.md (line 1): Stray `text` renders as visible text — orphaned code fence language tag
+- evidence-pack-assembly.md (lines 44-84): Folder structure (lines 44-82) completely unfenced; stray `text` on line 84 — structure renders as plain paragraphs
+- decision-log-schema.md (lines 118-157): Opening ` ```json ` at line 118 has no closing fence — Section 6 (line 157 onward) is swallowed into the code block and invisible in rendered output
+- decision-log-schema.md (line 157): Section 6 heading `6) Approval and lifecycle` missing `## ` prefix (all other sections use `## N)` format)
+WARNINGS:
+- agent-inventory-entry.md (lines 56, 67, 87): Three backtick-wrapped paths reference non-existent `../templates/` directory — these are inline code strings not hyperlinks, so no build errors, but misleading for maintainers (downgraded from CRITICAL per Critique B; verified backtick-only formatting)
+- purview-audit-query-pack.md (lines 102-105): Four backtick-wrapped paths reference non-existent `templates/` directory — also inline code, not hyperlinks; misleading but no rendering defect
+- Version footer inconsistency: confidence-and-routing.md and zone1-min-explainability.md say "v1.2 - January 2026"; dspm-for-ai-policy-pack.md says "v1.2.51 - February 2026"; remaining 11 files have no version footer
+- Citation markers: 8 files use unresolvable `<sup>[N]</sup>` or `[web:N]` without defined footnotes — affects evidence-pack-assembly.md, real-time-compliance-dashboard.md, scope-creep-detection.md, agent-inventory-entry.md, per-agent-data-policy.md, purview-audit-query-pack.md, colorado-ai-impact-assessment.md, supply-chain-risk-register-entry.md (zone1-min-explainability.md removed — false positive per Critique A, confirmed via grep)
+GAPS:
+- 11 of 14 files lack a version/date footer — framework standard requires it for traceability
+- confidence-and-routing.md (lines 140-147) and zone1-min-explainability.md (lines 125-131): Related Specifications section appears after the version footer — footer should be the final element (missed issue from Critique A, verified in both files)
+- colorado-ai-impact-assessment.md: SB 25B-004 bill number and June 30, 2026 effective date — NEEDS_HUMAN_REVIEW to confirm legislative accuracy
+FIXES:
+1. evidence-pack-assembly.md: Remove stray `text` on line 1; wrap folder structure (lines 44-82) in ` ```text ` / ` ``` ` fences; remove stray `text` on line 84
+2. decision-log-schema.md: Add closing ` ``` ` fence after line 156; change line 157 from `6) Approval and lifecycle` to `## 6) Approval and lifecycle`
+3. agent-inventory-entry.md line 56: Change `../templates/per-agent-data-policy.md` to `per-agent-data-policy.md`
+4. agent-inventory-entry.md line 67: Change `../templates/action-authorization-matrix.md` to `../governance-operations/action-authorization-matrix.md`
+5. agent-inventory-entry.md line 87: Change `../templates/escalation-matrix.md` to `../governance-operations/escalation-matrix.md` (line 87, not 88 per Critique A)
+6. purview-audit-query-pack.md lines 102-105: Update backtick paths from `templates/` to actual locations: `../agent-lifecycle/agent-inventory-entry.md`, `../governance-operations/action-authorization-matrix.md`, `../governance-operations/decision-log-schema.md`, `../agent-lifecycle/per-agent-data-policy.md`
+7. All 14 files: Add or normalize version footer to `*FSI Agent Governance Framework v1.2.51 - February 2026*`; for confidence-and-routing.md and zone1-min-explainability.md, move footer to actual end of file (after Related Specifications section)
+STATUS: ISSUES_FOUND

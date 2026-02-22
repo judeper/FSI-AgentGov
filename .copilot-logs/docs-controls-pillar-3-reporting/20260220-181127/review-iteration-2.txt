@@ -1,0 +1,17 @@
+Now let me read the large file 3.8:
+Let me check the mkdocs nav prefix to understand the orphan issue:
+Now let me check for language rule violations across all files:
+Now let me compile the full review. Let me verify a few more specific items:
+ISSUE_COUNT: 2
+CRITICAL:
+- 3.4-incident-reporting-and-root-cause-analysis.md: Broken external URL `https://www.sec.gov/newsroom/press-releases/2024-63` returns HTTP 403 (Section A confirmed)
+WARNINGS:
+- 3.7-ppac-security-posture-assessment.md (line 130): Inconsistent relative path for Control 2.22 cross-reference uses `../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` while all other cross-pillar links in the same file use `../pillar-*/` pattern — both resolve correctly but the style is inconsistent
+GAPS:
+- NONE
+FIXES:
+1. 3.4-incident-reporting-and-root-cause-analysis.md: Replace broken SEC URL `https://www.sec.gov/newsroom/press-releases/2024-63` with an alternative URL or remove the hyperlink and cite the press release textually (e.g., "SEC Press Release 2024-63, May 16, 2024")
+2. 3.7-ppac-security-posture-assessment.md (line 130): Change `../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md` to `../pillar-2-management/2.22-inactivity-timeout-enforcement.md` to match the consistent cross-pillar reference pattern used in all other links in the same file
+NOTE ON MKDOCS NAV ORPHANS (Section A): All 13 pillar-3-reporting files (and all other files) referenced in mkdocs.yml nav exist at their correct paths under `docs/`. I verified `docs/controls/index.md`, `docs/controls/pillar-1-security/*.md`, `docs/framework/*.md`, and all pillar-3-reporting files are present. The mkdocs nav paths (e.g., `controls/pillar-3-reporting/3.1-...`) correctly resolve relative to the `docs/` docs_dir. These are **false positives** from the pre-pass tool.
+NOTE ON REVIEW COVERAGE: All 12 controls and index.md have complete 10-section structure, proper header/footer metadata, correct canonical role names, no prohibited language ("ensures compliance", "guarantees"), valid cross-references between controls, proper admonition syntax, correct heading hierarchy, and accurate regulatory citations. Language hedging is properly applied throughout.
+STATUS: ISSUES_FOUND

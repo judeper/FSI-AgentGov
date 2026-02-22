@@ -1,0 +1,8 @@
+All 16 batch files confirmed present. Now fixing the two warnings. The `Evaluate-Criterion` function needs renaming to `Test-Criterion`, and the `CopilotInteraction` record type needs a verification note.
+Verify edits applied correctly:
+All fixes verified. Now committing:
+CHANGES:
+- docs/playbooks/control-implementations/2.18/powershell-setup.md: Renamed `Evaluate-Criterion` to `Test-Criterion` (function definition at line 46 and call site at line 97) to use an approved PowerShell verb
+- docs/playbooks/control-implementations/2.17/powershell-setup.md: Added verification comments at both `Search-UnifiedAuditLog -RecordType "CopilotInteraction"` call sites (lines 53-56 and line 279) advising administrators to verify the record type against their tenant's available audit record types
+- GAP resolved: All 16 batch files (2.17–2.20 × 4 playbooks) confirmed present and accounted for
+FIX_STATUS: COMPLETE

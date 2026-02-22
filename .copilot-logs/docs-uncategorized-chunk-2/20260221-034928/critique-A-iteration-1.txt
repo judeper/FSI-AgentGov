@@ -1,0 +1,12 @@
+Now let me verify the remaining version claims and check for anything missed.
+All claimed issues verified against the source files. Here is the audit:
+---
+**FALSE_POSITIVES:**
+NONE
+**MISSED_ISSUES:**
+- `docs/controls/index.md` P1 heading says "(24)" but the table only contains 23 entries (1.1–1.23). The review correctly notes the heading is stale vs the 28-control reality, but fails to flag that the heading count (24) doesn't even match its own table (23 rows) — an additional internal inconsistency.
+- `docs/playbooks/control-implementations/index.md` footer (line 151) says "Updated: January 2026 | Version: v1.2" — this is a 5th version-bearing file with a stale version string. The review's version inconsistency finding only explicitly listed 4 files (CONTROL-INDEX.md, control-setup-template.md, controls/index.md, downloads/index.md), omitting this one.
+**FIX_CONCERNS:**
+- Fix 3 says "Change '61' to '71' on **line 7**" — the "61" is actually on **line 9** (inside a markdown table cell). The fix action is correct, but the line reference is wrong and could cause a scripted patch to target the wrong line.
+- Fix 5 (version alignment) should explicitly include `docs/playbooks/control-implementations/index.md` (line 151, currently "v1.2") as a file requiring update, since the review omitted it. NEEDS_HUMAN_REVIEW: the target version (v1.2.51 vs v1.3) is a project-level decision that should be made by the maintainer before applying fixes.
+**CRITIQUE_SUMMARY:** The review is accurate and thorough — all 11 claimed issues are real, the false-positive dismissals (nav orphans, template placeholders, placeholder URLs) are correct, and the fix suggestions are sound. Two minor gaps: one missed internal inconsistency (P1 heading 24 ≠ 23 table rows in controls/index.md) and one omitted file in the version inconsistency finding (playbooks/control-implementations/index.md footer), plus an incorrect line number reference in Fix 3.

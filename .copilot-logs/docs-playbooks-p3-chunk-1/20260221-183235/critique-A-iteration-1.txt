@@ -1,0 +1,21 @@
+Let me read the batch files to verify each claimed issue.
+Now let me verify the GAP claims about missing sections.
+Now let me check the exact cmdlet lines and one more detail about the `contoso` line number.
+Let me check for language compliance issues and any other missed items.
+Let me check the cross-link style in 3.1/3.2 vs 3.3/3.4.
+Let me verify the cross-references in 3.3/3.4 files actually point to existing files.
+I now have all the data needed. Here is the critique:
+---
+**FALSE_POSITIVES:**
+- **Double `---` line numbers are slightly off.** Review claims 3.3/portal-walkthrough.md at "line 141-142" and 3.4/portal-walkthrough.md at "lines 209-210". Actual double `---` are at lines 140+142 (3.3) and 208+210 (3.4) with blank lines between them. The issue is real, but the line citations are imprecise. Not a false positive per se, but the fix instructions referencing exact line numbers would be misleading.
+- **3.4/powershell-setup.md contoso line number:** Review says "line 302" but `contoso` appears at line 301. The issue is real; the line number is off by one.
+- **3.3/troubleshooting.md cmdlet line number:** Review says "line 77" but `Get-MgComplianceManagement` is at line 78. Off by one.
+**MISSED_ISSUES:**
+- **3.4/verification-testing.md also missing "Automated Validation Script" and "Governance Tier-Specific Testing" sections** — the review only flags 3.3 for these gaps (GAPS items 1 and 2), but 3.4 has the identical omission (125 lines vs 215/213 in 3.1/3.2). Fixes #10 and #11 should also target 3.4.
+- **Overall content depth gap not flagged**: 3.3/3.4 files are roughly 50% shorter than their 3.1/3.2 counterparts across the board (e.g., troubleshooting: 108/97 lines vs 246/234; verification: 112/125 vs 215/213). The individual missing sections are called out, but the systemic thinness across all 3.3/3.4 playbooks isn't noted — this suggests the 3.3/3.4 batch was generated with a different (less thorough) template or process than 3.1/3.2.
+**FIX_CONCERNS:**
+- **Fix #3 / #4 (remove duplicate `---`):** The fix should remove one of the two `---` blocks at the end (the one right before the nav links), not just "line 141" or "line 209" — the correct action is to remove the first `---` of the double (lines 140 and 208 respectively), keeping the one that separates nav links from footer metadata.
+- **Fix #7 (standardize H1 titles):** The recommendation of `# Type: Control X.X - Name` (3.1/3.2 format) is reasonable, but the review should note this is a cross-batch decision — standardizing 3.3/3.4 to match 3.1/3.2 also requires checking whether 3.5–3.12 follow one convention or the other, to avoid creating a third inconsistency.
+- **Fix #9 (add/remove footer metadata):** The recommendation to "pick one convention" is correct, but it should lean toward adding footers to 3.1/3.2 (since footer metadata is part of the control template standard per `fsi-control-template.instructions.md`), not removing them from 3.3/3.4.
+- **Fix #2 (contoso → `[tenant]`):** Correct fix, but note the `contoso` usage is inside a `.EXAMPLE` block in PowerShell comment-based help. Using `contoso` in `.EXAMPLE` blocks is a common Microsoft convention and may be intentional for readability. The `[tenant]` style in parameters is for actual config. This is a legitimate style inconsistency but NEEDS_HUMAN_REVIEW for intent — not a clear-cut fix.
+**CRITIQUE_SUMMARY:** The review is thorough and largely accurate — all 15 claimed issues are real with only minor line number inaccuracies (off-by-one on 3 citations). The main gap is that 3.4/verification-testing.md has the same missing sections as 3.3 but wasn't flagged, and the systemic content thinness of 3.3/3.4 relative to 3.1/3.2 wasn't called out as a pattern-level finding.

@@ -1,0 +1,15 @@
+Here is my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 1 & 2 (Replace `Get-SPOSite -Limit 1` guard): **MEDIUM RISK — consistency problem.** The `Get-SPOSite -Limit 1` pattern exists in **5** Pillar 4 powershell-setup files (4.1, 4.2, 4.4, 4.5, 4.7), but the review only proposes fixing 4.5 and 4.7 (the 2 files in this batch). Fixing only 2 of 5 creates an inconsistency across the pillar. Either fix all 5 in a single pass or defer entirely and track a cross-cutting cleanup.
+**SEVERITY_CORRECTIONS:**
+- The `Get-SPOSite -Limit 1` cleanup is classified as a WARNING but is actually a **cosmetic/robustness improvement**, not a correctness issue. The existing code works — `Get-SPOSite` with `-ErrorAction SilentlyContinue` won't crash the script; it just adds a redundant network call. Downgrade to **INFO/SUGGESTION** severity.
+- The "10 of 13 playbook files missing back-navigation links" warning is accurate but should be labelled as a **PATTERN OBSERVATION**, not a per-file warning. It inflates the issue count — this is one systemic design choice, not 10 separate issues.
+- Fix 4 (nav orphans): Severity is correct as WARNING. The review's conclusion ("scanner artifact") is reasonable since the files demonstrably exist at the expected paths.
+**FIX_ORDERING:**
+- NONE — Fixes 1 and 2 are independent of each other and of Fix 3/4. No ordering constraints. However, if Fix 1 and Fix 2 are applied, they should be done in a **single commit** to keep the change atomic, and ideally should include the other 3 files (4.1, 4.2, 4.4) for consistency.
+**OVER_ENGINEERED:**
+- Fix 3 (16 placeholder URLs): The review correctly concludes "no fix needed" but spends significant space cataloguing each URL individually. This is over-documented — a single note ("all placeholder/example tenant URLs in code blocks are intentional") suffices.
+- Fix 4 (13 nav orphans): The review correctly identifies this as a scanner artifact but lists all 13 individually. A single aggregate note is sufficient.
+- The back-navigation links observation is valid but out of scope for this batch — it's a framework-wide UX decision, not a per-file fix.
+**CRITIQUE_SUMMARY:** The review is thorough and correctly identifies no critical issues, but the two proposed code fixes (Get-SPOSite guard removal) would create inconsistency across Pillar 4 if applied only to the 2 batch files — either defer to a cross-pillar cleanup pass covering all 5 affected files, or expand scope. The adjusted real issue count is closer to **3 distinct findings** (1 cross-cutting code pattern, 1 scanner artifact, 1 navigation design observation) rather than 31.

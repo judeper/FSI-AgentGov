@@ -1,0 +1,15 @@
+Now let me check a few "standard" files for comparison on heading conventions:
+Now I have the complete picture. Here's my risk assessment:
+---
+**HIGH_RISK_FIXES:**
+- NONE
+All three fixes target `EXPECTED.md` files in `docs/images/`, which are local-only screenshot checklists (gitignored binaries, not published to GitHub Pages, not referenced by mkdocs nav). No cross-references, no build dependencies, no risk of breaking `mkdocs build --strict`.
+**SEVERITY_CORRECTIONS:**
+- Fix 2 (heading standardization): Reviewer scoped this to 3 files in "this batch" but the actual split is **24 files** using `## Required Screenshots` vs **47 files** using `## Expected Screenshots` repo-wide. Similarly, Fix 3 (H1 suffix) affects **22 files**, not 3. These are not batch-local inconsistencies — they're repo-wide conventions that pre-date this review. Severity should remain WARNING but the scope is materially understated; fixing only 3 files would introduce the false impression that the inconsistency is resolved.
+- Fix 1 (Zone 1-4 → Zone 1-3): CRITICAL classification is **accurate**. The framework explicitly defines 3 governance zones; "Zone 4" is factually wrong and could mislead administrators verifying screenshot coverage.
+**FIX_ORDERING:**
+- Fix 1 (Zone reference) is independent — apply anytime, no dependencies.
+- Fixes 2 and 3 (heading/title standardization) should be done together as a single repo-wide pass across all 71 EXPECTED.md files, not scoped to 3 files. No ordering dependency between them or with Fix 1.
+**OVER_ENGINEERED:**
+- Fixes 2 and 3 are over-scoped if applied only to the 3 files in this batch — it creates partial standardization that's arguably worse than the current state (inconsistent across the repo, but at least not "half-fixed"). Either do the full 24-file (heading) and 22-file (H1 suffix) normalization in a dedicated pass, or defer entirely.
+**CRITIQUE_SUMMARY:** Fix 1 is a clean, zero-risk correction of a factual error — apply immediately. Fixes 2 and 3 are valid observations but the review materially understates the scope (3 files vs 22–24 files repo-wide); applying them to only this batch would create a worse inconsistency than exists today and should be deferred to a dedicated normalization pass.

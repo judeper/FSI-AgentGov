@@ -1,0 +1,12 @@
+ISSUE_COUNT: 2
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.13/portal-walkthrough.md (line 58): States SEC 17a-4 amendments were "effective May 2023" — this conflates the effective date and compliance date. The phrasing is imprecise in regulatory content. NEEDS_HUMAN_REVIEW.
+- docs/playbooks/control-implementations/2.14/powershell-setup.md (line 208): Comment references `Send-MailMessage` which is deprecated in PowerShell 7+. Should recommend Microsoft Graph API (`Send-MgUserMail`) instead. NEEDS_HUMAN_REVIEW.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.13/portal-walkthrough.md (line 58): Change "effective May 2023" to "compliance date May 2023" — simpler and accurate without introducing the effective/compliance date distinction that is immaterial to the admin procedure. NEEDS_HUMAN_REVIEW.
+2. docs/playbooks/control-implementations/2.14/powershell-setup.md (line 208): Change `# Note: Actual sending would use Send-MailMessage or Graph API` to `# Note: Actual sending would use Microsoft Graph API (Send-MgUserMail)` — removes reference to deprecated cmdlet. NEEDS_HUMAN_REVIEW.
+STATUS: ISSUES_FOUND

@@ -1,0 +1,31 @@
+Both issues confirmed. Now applying the fix to 1.24.
+Worktree is read-only as expected. Producing the synthesized review:
+ISSUE_COUNT: 2
+CRITICAL:
+- docs/playbooks/control-implementations/1.24/powershell-setup.md: Line 131 `$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token` does not handle Az.Accounts 5.0+ where `.Token` returns a `SecureString`. The bearer header would contain `"Bearer System.Security.SecureString"` instead of the actual token, silently breaking all REST calls in the script. The 1.25 playbook correctly handles both formats (lines 25-32).
+WARNINGS:
+- docs/playbooks/control-implementations/1.27/powershell-setup.md: Line 399 commented-out instructional code `# $accessToken = (Get-AzAccessToken -ResourceUrl $orgUrl).Token` presents the same SecureString-unsafe pattern. Users uncommenting this guidance on Az.Accounts 5.0+ would hit the same `System.Security.SecureString` string-interpolation bug. Low severity since commented, but it is instructional code intended to be followed.
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/1.24/powershell-setup.md (line 131): Replace `$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token` with the SecureString-safe Marshal pattern from 1.25/powershell-setup.md:
+   ```powershell
+   $azToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com")
+   if ($azToken.Token -is [System.Security.SecureString]) {
+       $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+           [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+   } else {
+       $token = $azToken.Token
+   }
+   ```
+2. docs/playbooks/control-implementations/1.27/powershell-setup.md (line 399): Replace commented-out `# $accessToken = (Get-AzAccessToken -ResourceUrl $orgUrl).Token` with:
+   ```powershell
+   # $azToken = (Get-AzAccessToken -ResourceUrl $orgUrl)
+   # if ($azToken.Token -is [System.Security.SecureString]) {
+   #     $accessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+   #         [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+   # } else {
+   #     $accessToken = $azToken.Token
+   # }
+   ```
+STATUS: ISSUES_FOUND

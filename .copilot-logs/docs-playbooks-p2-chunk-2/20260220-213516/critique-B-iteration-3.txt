@@ -1,0 +1,16 @@
+I've verified all findings against the actual files. Here's my risk and impact analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 3 (heading normalization for 2.7): The review claims 2.7's `# Control 2.7: [Name] - [Type]` format is inconsistent with 2.8–2.13. However, 2.3 through 2.7 ALL use this same Control-first format — it's a block of 5 controls, not a one-off anomaly. Normalizing only 2.7 would make it inconsistent with its immediate neighbors (2.3–2.6), creating a worse state than the current one. This fix should either be scoped to all of 2.3–2.7 (15 files) or deferred entirely to a dedicated formatting sweep.
+**SEVERITY_CORRECTIONS:**
+- CRITICAL (Fix 1, 2.11 ECOA classes): **Confirmed CRITICAL.** Verified portal-walkthrough.md lists 6 classes (lines 22–29) while sibling verification-testing.md correctly lists all 9 with ECOA citations. Missing Color, Religion, and Good Faith Exercise of CCPA Rights. This is a regulatory content gap in an FSI governance framework — incomplete protected class coverage in the setup guide directly undermines bias testing adequacy. Severity is accurate.
+- WARNING (Fix 2, section heading): **Correct.** The "Get Connectors in Use" heading (line 28) fronts a script that calls `Get-AdminPowerApp` and `Get-AdminFlow` — neither of which enumerates connectors. Functionally misleading but not compliance-impacting.
+- WARNING (Fix 3, heading format): **Should be downgraded to INFO/STYLE.** Both heading patterns (`# [Type]: Control X.X - [Name]` and `# Control X.X: [Name] - [Type]`) are functionally equivalent. This is a formatting preference, not a usability or correctness issue. The front-matter metadata gap (Last Updated, Modules Required) is similarly cosmetic.
+**FIX_ORDERING:**
+- Fix 1 (ECOA classes) should ship independently and first — it's a self-contained content correction with zero dependencies and the highest regulatory impact.
+- Fix 2 (heading rename) can ship independently — no cross-references link to this heading anchor.
+- Fix 3 should be **deferred** to a separate batch that normalizes 2.3–2.7 together (15 files), not applied in isolation to 2.7 only.
+**OVER_ENGINEERED:**
+- Fix 3 is over-engineered for this batch. (a) Changing only 2.7 heading format creates a new inconsistency with 2.3–2.6 which share the same pattern. (b) Adding front-matter metadata blocks is a style harmonization task that should be a dedicated sweep across all playbooks, not patched into a content review. (c) The review correctly identified the pattern difference but scoped the fix too narrowly — applying it would trade one inconsistency for a worse one.
+- Fix 2 alternative ("or update the script to enumerate connectors via `Get-AdminPowerAppConnector`") is over-engineered — rewriting PowerShell scripts exceeds a documentation review scope. The heading rename alone is sufficient.
+**CRITIQUE_SUMMARY:** The review's CRITICAL finding (Fix 1) is well-validated and should ship immediately as a low-risk, high-impact content correction. Fix 3 (heading normalization) should be deferred — applying it to 2.7 alone worsens consistency since 2.3–2.6 share the same format, making the proposed fix create a new problem while solving a cosmetic one.

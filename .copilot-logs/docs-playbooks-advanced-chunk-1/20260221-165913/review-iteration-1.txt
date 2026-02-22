@@ -1,0 +1,27 @@
+Now let me verify the broken table issue in architecture.md and the version discrepancy in the hardening baseline.
+The control files exist — the nav orphan findings are false positives (automated checker resolved paths from repo root instead of `docs_dir`). Now let me compile findings and fix actionable issues.
+Edits blocked by permissions (read-only worktree). I'll provide the full review report with fix instructions.
+Now let me add the admonition note back in the right location for architecture.md. The fix needs to move the note to after the table closes (after line 129 in the original).
+Here is my complete review:
+ISSUE_COUNT: 7
+CRITICAL:
+- docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md: Header says "FSI-AgentGov v1.3" but project version is v1.2.51 and footer says "v1.2" — version mismatch
+- docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md: Admonition block `!!! note "Zone Classification Algorithm"` (lines 94-95) breaks the Choice Field Value Definitions table mid-stream — rows for er_environmenttype through pl_actortype (lines 96-129) render as orphaned pipe characters without table headers
+WARNINGS:
+- docs/playbooks/advanced-implementations/deny-event-correlation-report/purview-audit-extraction.md: Scheduled task example (line 232) uses `powershell.exe` but script requires PowerShell 7+ (`#Requires -Version 7.0`) — should be `pwsh.exe`
+- docs/playbooks/advanced-implementations/conditional-access-automation/index.md: Line 105 states "Dataverse persistence creates immutable compliance history" but the ELM architecture doc explicitly notes System Administrators retain full Dataverse access — overclaims immutability
+- Version footer inconsistency across batch: confidence-and-routing.md, human-in-the-loop-triggers.md, zone1-min-explainability.md say "v1.2 - January 2026"; deny-event-correlation-report/index.md says "v1.2 - February 2026"; other files say "v1.2.51 - February 2026"
+- docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md: Line 93 says "Reg BI suitability" which conflates SEC Regulation Best Interest with FINRA suitability standard — these are distinct regulatory obligations
+- docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md: NEEDS_HUMAN_REVIEW — Line 31 references "FINRA 2026 Annual Regulatory Oversight Report" — verify this publication exists and title is accurate
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md: Change line 2 from `**Status:** February 2026 - FSI-AgentGov v1.3` to `**Status:** February 2026 - FSI-AgentGov v1.2.51`
+2. docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md: Move the `!!! note "Zone Classification Algorithm"` admonition (lines 94-95) to after the table ends (after line 129, the last `| System | 3 |` row). Remove the blank line 93 so `er_zone` Zone 3 row connects directly to `er_environmenttype` row, keeping one contiguous table.
+3. docs/playbooks/advanced-implementations/deny-event-correlation-report/purview-audit-extraction.md: Line 232 change `-Execute "powershell.exe"` to `-Execute "pwsh.exe"`
+4. docs/playbooks/advanced-implementations/conditional-access-automation/index.md: Line 105 change "Dataverse persistence creates immutable compliance history" to "Dataverse persistence creates structured compliance history with audit trail"
+5. docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md: Line 93 change "Reg BI suitability" to "Reg BI (best interest obligation)" or split into "FINRA suitability / SEC Reg BI"
+NOTE ON SECTION A VERIFIED FINDINGS:
+- Broken external URLs (6): All are false positives — code sample variables (`$AppInsightsAppId`, `$module`), placeholder URLs (`your-org`, `contoso`), or valid URLs that block automated GET requests (`make.powerautomate.com` returned 405 Method Not Allowed). No fixes needed.
+- MkDocs nav orphans (~300): All false positives — files exist at `docs/` prefix (verified `docs/controls/index.md` etc. are present). Automated checker appears to resolve paths relative to repo root instead of mkdocs `docs_dir`. No fixes needed.
+STATUS: ISSUES_FOUND

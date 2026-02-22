@@ -1,0 +1,14 @@
+Now let me check the remaining items and look for any missed issues.
+Now let me check for additional potential missed issues.
+I've now verified all claims against the actual files. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All 8 claimed issues are confirmed real against the source files.
+**MISSED_ISSUES:**
+- **Version scheme inconsistency between 1.1 and 1.2–1.4:** The reviewer flagged the `v1.2.48` anomaly in `sponsorship-lifecycle-workflows.md` but missed a broader inconsistency: all four 1.1 playbook footers use `Version: v1.3` while all 1.2–1.4 playbook footers use `Version: v1.2`. This cross-control version divergence is more significant than the single-file anomaly and was not called out.
+- **1.4 files missing header metadata block entirely:** The reviewer noted the title format difference for 1.4, but the structural gap is deeper than titles alone. All 1.1–1.3 files include `**Last Updated:**`, `**Portal:**`/`**Modules Required:**`, and `**Estimated Time:**` header metadata fields. The 1.4 files omit all of these, using only a blockquote `> This playbook provides...` intro. This is a template adherence issue beyond just the title pattern.
+- **Minor line reference inaccuracy:** The reviewer states 1.3/powershell-setup.md `.NOTES` "Last Updated" is at line 188. It is actually at line 187 (line 188 is "Related Control:"). Trivial but impacts fix targeting.
+**FIX_CONCERNS:**
+- **Fix 4 (title normalization) is incomplete:** It correctly identifies the 1.4 title format divergence but should also address the missing header metadata block (`**Last Updated:**`, `**Portal:**`/`**Modules Required:**`, `**Estimated Time:**`) in all four 1.4 files — this is the same structural inconsistency and should be fixed together.
+- **Fix 1 (reconcile portal paths) appropriately flags NEEDS_HUMAN_REVIEW territory:** The "Publish bots with AI features" setting may legitimately exist at both tenant and environment levels in PPAC. The fix should determine whether both paths are valid (in which case both docs should explain the distinction) or only one is correct. This requires live portal verification.
+**CRITIQUE_SUMMARY:** The review is thorough and accurate — all 8 issues are verified real, the false-positive dismissals (Fixes 7–8) are sound, and the critical portal-path conflict is correctly elevated. However, the review missed two moderate-severity issues: the `v1.3` vs `v1.2` version divergence across control families, and the 1.4 files lacking the entire header metadata block (not just the title format). These gaps slightly understate the consistency debt in this chunk.

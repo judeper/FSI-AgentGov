@@ -1,0 +1,25 @@
+Now let me check the instruction files referenced and make the fixes.
+Now I'll apply all fixes in parallel.
+Files are read-only in this worktree. Proceeding with report only.
+ISSUE_COUNT: 10
+CRITICAL:
+- 1.19/portal-walkthrough.md (line 49): "KeyQL" is a typo — should be "KQL" (Keyword Query Language)
+- 1.18/portal-walkthrough.md: Steps 7-9 appear AFTER the Validation section, breaking logical step sequence; Step 7 uses `##` (H2) while Steps 1-6 use `###` (H3), creating heading hierarchy inconsistency
+- 1.16/powershell-setup.md (lines 96-100): `$irmSettings` hashtable is created but never applied to the library — dead code that gives false impression IRM expiry/reject settings are configured
+WARNINGS:
+- 1.17/troubleshooting.md: "Last Updated: January 2026" but sibling files (portal-walkthrough.md, verification-testing.md, powershell-setup.md) all say "February 2026"
+- 1.18/portal-walkthrough.md: Header says "Last Updated: January 2026" but footer says "Updated: February 2026" — date conflict within same file
+- 1.18/verification-testing.md: Header says "Last Updated: January 2026" but footer says "Updated: February 2026" — date conflict within same file
+- 1.16/powershell-setup.md: Pre-pass flagged `https://tenant.sharepoint.com/sites/HR` and `https://tenant-admin.sharepoint.com` as broken — these are intentional placeholder URLs in `.EXAMPLE` blocks; no fix needed
+- 1.18/portal-walkthrough.md: Pre-pass flagged `https://admin.powerplatform.microsoft.com` and `https://copilotstudio.microsoft.com` (HTTP 405) — these are legitimate auth-required admin portal URLs; no fix needed
+- mkdocs.yml: ~300 nav entries reference files not found — this is a worktree-level issue (partial checkout), not a documentation defect in the reviewed files
+GAPS:
+- NONE
+FIXES:
+1. 1.19/portal-walkthrough.md line 49: Change `KeyQL` to `KQL`
+2. 1.18/portal-walkthrough.md: Move Steps 7-9 (lines 111-139) before the Validation section (line 96) and change `## Step 7` to `### Step 7` to match heading hierarchy
+3. 1.16/powershell-setup.md lines 93-100: Remove unused `$irmSettings` hashtable and instead pass IRM settings directly: `Set-PnPList -Identity $LibraryName -IrmEnabled $true -IrmExpire $true -IrmReject $true`
+4. 1.17/troubleshooting.md: Update "Last Updated" from "January 2026" to "February 2026"
+5. 1.18/portal-walkthrough.md: Align header date to "February 2026" to match footer
+6. 1.18/verification-testing.md: Align header date to "February 2026" to match footer
+STATUS: ISSUES_FOUND

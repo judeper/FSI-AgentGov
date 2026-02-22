@@ -1,0 +1,21 @@
+Now let me check the endings of the 1.13 files and 1.19 files to verify footer/nav claims.
+Now I have all evidence to reconcile. Here is the verified output:
+ISSUE_COUNT: 8
+CRITICAL:
+- docs/playbooks/control-implementations/1.18/portal-walkthrough.md: Steps 7–9 (lines 111–140) appear AFTER the Validation section (lines 96–108), but Validation references outcomes from those steps (lines 105–107). This breaks the step-then-verify flow. Additionally, Step 7 uses `## Step 7:` (h2) while all other steps use `### Step N:` (h3), causing inconsistent TOC rendering.
+WARNINGS:
+- docs/playbooks/control-implementations/1.18/portal-walkthrough.md: Header (line 3) says "Last Updated: January 2026" but footer (line 147) says "Updated: February 2026". Internal date conflict within the same file.
+- docs/playbooks/control-implementations/1.13/powershell-setup.md, verification-testing.md, troubleshooting.md: Three of four 1.13 files are missing navigation footer links (`[Back to Control 1.13]... | [Portal Walkthrough]... | ...`). Only portal-walkthrough.md has them.
+- docs/playbooks/control-implementations/1.17/troubleshooting.md: Header says "Last Updated: January 2026" while sibling files (portal-walkthrough, powershell-setup, verification-testing) all say "February 2026".
+- docs/playbooks/control-implementations/1.16/powershell-setup.md: `$irmSettings` hashtable (lines 96–100) is created but never used. The `Set-PnPList` call on line 93 already enables IRM independently. Dead code in example script — cosmetically confusing but not a misconfiguration risk.
+- 22 of 28 batch files missing `*Updated: ... | Version: ...*` footer. Only 1.13 (all 4 files) and 1.18 (portal-walkthrough, verification-testing) have it. All files for 1.14, 1.15, 1.16, 1.17, 1.19, plus 1.18/powershell-setup.md and 1.18/troubleshooting.md lack it.
+GAPS:
+- Nav orphans (~290 entries reported as "not found") are a systemic worktree artifact — this worktree lacks the full `docs/` tree. No action needed within this batch.
+FIXES:
+1. docs/playbooks/control-implementations/1.18/portal-walkthrough.md: Move Steps 7–9 (lines 111–140) to before the Validation section (line 96). Normalize Step 7 heading from `## Step 7:` to `### Step 7:` to match all other steps. Remove the dangling `---` separator at line 109. Renumber and adjust Validation section position accordingly.
+2. docs/playbooks/control-implementations/1.18/portal-walkthrough.md: Resolve header/footer date conflict — update header "Last Updated" from "January 2026" to "February 2026" to match the footer.
+3. docs/playbooks/control-implementations/1.13/powershell-setup.md, verification-testing.md, troubleshooting.md: Add navigation footer links before the `*Updated:*` line, matching the format in 1.13/portal-walkthrough.md (e.g., `[Back to Control 1.13](...) | [Portal Walkthrough](portal-walkthrough.md) | ...`).
+4. docs/playbooks/control-implementations/1.17/troubleshooting.md: Update "Last Updated: January 2026" to "Last Updated: February 2026" to match sibling files.
+5. docs/playbooks/control-implementations/1.16/powershell-setup.md: Remove the unused `$irmSettings` hashtable (lines 96–100). The `Set-PnPList` call on line 93 already handles IRM enablement.
+6. Add `*Updated: February 2026 | Version: v1.2*` footer to the 22 files missing it: all 4 files each for controls 1.14, 1.15, 1.16, 1.17, 1.19 (20 files), plus 1.18/powershell-setup.md and 1.18/troubleshooting.md (2 files).
+STATUS: ISSUES_FOUND

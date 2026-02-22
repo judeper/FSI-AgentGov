@@ -1,0 +1,37 @@
+Now let me read the specific sections that need changes:
+Now let me check the footer navigation patterns in 3.1/3.2 vs 3.3-3.6:
+Now let me check what the 3.1/3.2 troubleshooting "How to Confirm Configuration is Active" section looks like and check for automated validation scripts in verification-testing:
+Let me now read the reference sections to understand patterns for the GAP fixes, plus read the footer nav from all 3.3-3.6 files:
+Now let me read the endings of all 3.3-3.6 files to understand the current footer patterns and the troubleshooting/verification content that needs gaps filled:
+Now let me read the troubleshooting files for 3.4-3.6 and verification files to see existing content before escalation paths:
+Now I have full context. Let me apply all fixes systematically. Starting with CRITICAL issues:
+Now apply WARNING fixes — portal walkthrough header metadata for 3.3-3.6:
+Now fix the 3.5/powershell-setup.md cmdlet issue:
+Now fix footer navigation for all 12 files (3.3-3.6 × powershell-setup, troubleshooting, verification-testing):
+Now fix GAP issues — add "How to Confirm Configuration is Active" sections to 3.3-3.6 troubleshooting files. I need to insert before the Escalation Path section:
+Now add automated validation scripts and governance tier sections to 3.3-3.6 verification-testing files. Let me first check what exists before the Evidence Collection sections:
+Now insert automated validation scripts and governance tier sections before Evidence Collection in each file:
+All edits applied. Let me verify the changes are correct:
+All 8 issues verified as fixed. Let me now commit:
+It seems git write operations are restricted in this environment. The file changes are complete and verified — all 8 review issues have been addressed in the working tree. The changes are ready for staging and committing when the environment permits.
+CHANGES:
+- 3.1/powershell-setup.md: Fixed hash filename from `Hashes.csv` to `AgentInventory_Hashes.csv` in complete configuration script (line 335)
+- 3.4/powershell-setup.md: Replaced undefined `Send-CriticalIncidentNotification` with `Write-Warning` stub (line 121)
+- 3.3/portal-walkthrough.md: Added header metadata (Last Updated, Portal, Estimated Time)
+- 3.4/portal-walkthrough.md: Added header metadata (Last Updated, Portal, Estimated Time)
+- 3.5/portal-walkthrough.md: Added header metadata (Last Updated, Portal, Estimated Time)
+- 3.6/portal-walkthrough.md: Added header metadata (Last Updated, Portal, Estimated Time)
+- 3.5/powershell-setup.md: Replaced invalid `$costQuery` hashtable + `-Query` parameter with individual `Invoke-AzCostManagementQuery` parameters (`-Timeframe`, `-Type`, `-Scope`, `-DatasetAggregation`, `-DatasetGrouping`)
+- 3.3/powershell-setup.md, 3.3/troubleshooting.md, 3.3/verification-testing.md: Replaced "Next Steps" bullet-list footer with pipe-delimited `[Back to Control 3.3](...) | ...` format
+- 3.4/powershell-setup.md, 3.4/troubleshooting.md, 3.4/verification-testing.md: Same footer normalization for 3.4
+- 3.5/powershell-setup.md, 3.5/troubleshooting.md, 3.5/verification-testing.md: Same footer normalization for 3.5
+- 3.6/powershell-setup.md, 3.6/troubleshooting.md, 3.6/verification-testing.md: Same footer normalization for 3.6
+- 3.3/troubleshooting.md: Added "How to Confirm Configuration is Active" section (portal + PowerShell quick-check)
+- 3.4/troubleshooting.md: Added "How to Confirm Configuration is Active" section
+- 3.5/troubleshooting.md: Added "How to Confirm Configuration is Active" section
+- 3.6/troubleshooting.md: Added "How to Confirm Configuration is Active" section
+- 3.3/verification-testing.md: Added Automated Validation Script and Governance Tier-Specific Testing sections
+- 3.4/verification-testing.md: Added Automated Validation Script and Governance Tier-Specific Testing sections
+- 3.5/verification-testing.md: Added Automated Validation Script and Governance Tier-Specific Testing sections
+- 3.6/verification-testing.md: Added Automated Validation Script and Governance Tier-Specific Testing sections
+FIX_STATUS: COMPLETE

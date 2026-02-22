@@ -1,0 +1,20 @@
+All 28 files confirmed. Now let me verify the specific claims in parallel.
+Now let me verify the navigation footer claims for 4.3-4.6 files and compare with 4.1-4.2 which presumably have them.
+Let me check if ANY files have footer nav links, and also check the 4.1/4.2 portal-walkthrough files.
+Now let me check 4.3-4.7 for footer nav links, and also check the `*Updated:` lines in the 4.3-4.6 files to see the pattern.
+Now let me check for FSI language rule violations and any other missed issues.
+No language violations. Now let me verify the fix suggestions for correctness — specifically the relative paths proposed in the fixes.
+Let me verify the 4.7 footer issue and the `*Updated:*` metadata consistency in 4.1/4.2.
+I now have all the data needed to deliver the critique.
+---
+**FALSE_POSITIVES:**
+- NONE — All 16 claimed issues verified as real against the actual files.
+**MISSED_ISSUES:**
+- **4.7 missing navigation footer links (3 files):** `4.7/powershell-setup.md`, `4.7/troubleshooting.md`, and `4.7/verification-testing.md` are missing footer navigation links, identical to the 4.3–4.6 pattern. The review explicitly noted "4.7 has all 4 playbooks" in its opening remark but then omitted 4.7 from both the warning list and the fix list. The 4.7/portal-walkthrough.md already has footer links (matching the pattern), confirming the other 3 are inconsistent.
+- **4.1 and 4.2 missing `*Updated:*` footer metadata (8 files):** All 4.3–4.7 files (20 files) end with `*Updated: January 2026 | Version: v1.2*`, but all 8 files in 4.1 and 4.2 lack this metadata entirely. This is a structural inconsistency between the two batches of playbooks that the review did not flag.
+- **Placeholder URL count understated:** The review claims "30 instances across 11 files" but actual count is ~46 instances across 15 files. The no-action verdict is still correct (all are legitimate `yourtenant.*` example URLs in PowerShell code blocks), but the count is inaccurate.
+**FIX_CONCERNS:**
+- **Fixes 6–14 are missing 4.7 counterparts.** Three additional fixes are needed for `4.7/powershell-setup.md`, `4.7/troubleshooting.md`, and `4.7/verification-testing.md` using the same footer pattern with `[Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md)`.
+- **Fix #3 path is correct.** Verified against the existing `4.3/portal-walkthrough.md` footer which uses `../../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md` — matches the proposed fix.
+- **Fixes #1 and #2 are appropriately cautious.** The NEEDS_HUMAN_REVIEW flag is warranted — `RestrictedSearchEnabled` and `Get-SPOSearchSiteConfiguration` do not appear in any other playbook file, while `EnableRestrictedSearchAllList` and `Get-SPOTenantRestrictedSearchAllowedList` are used consistently in both `4.1/powershell-setup.md` and all `4.6/*` files. The inconsistency is within the same control's own files (4.1/troubleshooting.md vs 4.1/powershell-setup.md).
+**CRITIQUE_SUMMARY:** The review is largely accurate — all flagged issues are genuine and the fix suggestions are directionally correct. However, it missed 4.7's 3 files with missing footer nav links despite explicitly scoping 4.7 in, missed the `*Updated:*` metadata inconsistency between 4.1/4.2 and 4.3–4.7, and understated the placeholder URL count. The corrected issue count should be **19** (16 original + 3 missing 4.7 footer issues), not 16.

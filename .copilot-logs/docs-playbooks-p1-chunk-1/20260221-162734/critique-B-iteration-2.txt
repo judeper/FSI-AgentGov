@@ -1,0 +1,15 @@
+I've verified all the issues against the actual files. Here is the risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- Fix 1 (1.1 portal-walkthrough: move Steps 6–9 above "Configuration by Governance Level"): **MODERATE RISK.** This is a structural reorder of ~75 lines of content. The heading inconsistency (Step 6 at `##` vs Steps 7–9 at `###`) is real and confirmed — but the placement may be **intentional**: Steps 0–5 are core DLP/environment setup, while Steps 6–9 cover adjacent agent-level settings. Moving them could break the document's logical grouping. The heading fix (`##` → `###` for Step 6) is safe; the content reorder needs author intent confirmation.
+**SEVERITY_CORRECTIONS:**
+- Fix 12 (sponsorship-lifecycle-workflows.md version "v1.2.48"): **DOWNGRADE from WARNING to INFORMATIONAL.** The `v1.2.48` is a *project* version tag (matching CHANGELOG convention `1.2.X`), while other files use a *document* version like `v1.2`. Both conventions exist in the repo. Changing it could lose traceability to the specific release. Leave as-is or confirm convention with the author.
+- Fixes 2–10 (date mismatches January→February): Severity is correct as WARNING, but these are **cosmetic metadata** with zero user-facing risk. They are valid fixes but should not block a merge.
+**FIX_ORDERING:**
+1. **Independent fixes (apply in any order):** Fixes 2–10 (date corrections), Fix 11 (add 1.4 nav footer), Fix 13 (step numbering). These are all isolated single-file edits with no cross-file dependencies.
+2. **Requires judgment call:** Fix 1 (1.1 portal-walkthrough reorder) — split into two sub-fixes: (a) change Step 6 `##` to `###` [safe, do now], (b) reorder sections [defer for author review].
+3. **Requires convention decision:** Fix 12 (version string) — defer until project-wide version convention is clarified.
+**OVER_ENGINEERED:**
+- Fix 1 proposes both a heading fix AND a content reorder. The heading level fix alone resolves the inconsistency without the risk of reordering procedural content. The reorder is over-engineered for a batch fix — it changes document semantics, not just formatting.
+- Fix 13 (1.3 powershell-setup step numbering): The proposed fix is correct in scope — either add a missing `Write-Host` or renumber comments. However, adding a `Write-Host` line (the first option) is safer than renumbering since it's additive. The review correctly offers both options; pick the additive one.
+**CRITIQUE_SUMMARY:** The review is accurate and well-classified — all 13 issues are real and verified against the files. The only risk is Fix 1's content reorder (split it into heading-fix-only vs. structural move), and Fix 12 should be downgraded since `v1.2.48` may be intentional project versioning. The remaining 11 fixes are low-risk, independent, single-line edits safe to apply in any order.

@@ -1,0 +1,13 @@
+ISSUE_COUNT: 5
+CRITICAL:
+- docs/playbooks/control-implementations/2.5/portal-walkthrough.md (line 87): "Ensures regulatory accuracy" violates FSI language rules — prohibited phrase "ensures" must be replaced with hedged language
+WARNINGS:
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md (line 63): Contains `<!-- NEEDS_HUMAN_REVIEW: Verify model names and GA dates reflect current Copilot Studio model availability before publishing. -->` — internal review marker with unverified content will appear in published page source
+- docs/playbooks/control-implementations/2.7/troubleshooting.md (line 129): Contains `<!-- NEEDS_HUMAN_REVIEW: Update URL to latest release wave -->` — internal review marker with unverified content will appear in published page source
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Missing standard footer metadata line (`*Updated: January 2026 | Version: v1.2*`) present in all other 14 files in this batch
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Missing standard footer metadata line (`*Updated: January 2026 | Version: v1.2*`) present in all other 14 files in this batch
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.5/portal-walkthrough.md (line 87): Change "Ensures regulatory accuracy" to "Supports regulatory accuracy" in the Groundedness row of the evaluation metrics table
+STATUS: ISSUES_FOUND

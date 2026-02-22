@@ -1,0 +1,24 @@
+All findings verified. Here's my risk analysis:
+---
+**HIGH_RISK_FIXES:**
+- **Fix 6 (index.md restructuring):** Adding 10 missing documents with new section headings ("Regulatory & Compliance", "Solutions") creates navigation scope risk. If section names don't match mkdocs.yml nav groupings, it introduces inconsistency. The index page currently lists 10 docs (not 12 as the review claimed — minor inaccuracy). Adding documents is low-risk individually but the suggested groupings are editorial opinion, not verified against existing site architecture.
+- **Fix 7 (mass footer standardization across 15+ files):** Touching 15+ files in a single batch creates a large diff that obscures meaningful changes and increases merge conflict risk if other worktrees are active. Low technical risk but high process risk.
+**SEVERITY_CORRECTIONS:**
+- **Issue 3 (faq.md line 536, api.applicationinsights.io):** OVERCATEGORIZED as CRITICAL. This is a PowerShell `ResourceUrl` parameter value — it's an Azure AD resource identifier, not a browsable URL. A 404 from an HTTP probe is irrelevant; this URL is correct as a token audience string. Should be **WARNING** at most, pending confirmation the resource ID hasn't been deprecated by Microsoft.
+- **Issue 4 (license-requirements.md, admin.powerplatform.microsoft.com):** OVERCATEGORIZED as CRITICAL. HTTP 405 from an unauthenticated probe against an admin portal is expected behavior. This is a false positive. Should be **INFORMATIONAL** — the review itself acknowledges this. Recommend: no fix needed.
+- **Issue 5 (URL count mismatch):** Correctly CRITICAL. Verified: actual count is 209, header says "~175", learn-monitor-guide.md says "207" (4 occurrences), monitoring-architecture.md says "207" (3 occurrences), learn-monitor-ai-enhancement.md says "209". The "~175" is clearly stale; "207" vs "209" suggests the watchlist grew by 2 URLs without updating dependent docs.
+- **Issue 10 (index.md gaps):** Review says "12 of 22" listed — actual count is 10 of 22 (12 missing, not 10). The finding is valid but the numbers in the review are wrong.
+**FIX_ORDERING:**
+1. **Fix 1 (FINRA retention)** → standalone, zero dependencies, safe to apply first
+2. **Fix 2 (OCC/Fed attribution)** → standalone, zero dependencies
+3. **Fix 3 (URL count reconciliation)** → must update microsoft-learn-urls.md header FIRST, then propagate the authoritative count (209) to learn-monitor-guide.md (4 locations) and monitoring-architecture.md (3 locations). Do NOT update learn-monitor-ai-enhancement.md — it already says 209.
+4. **Fix 6 (index.md)** → apply after fixes 1-3 so the index reflects corrected content
+5. **Fix 7 (footer standardization)** → apply LAST as a separate commit; this is a bulk mechanical change
+6. **Fixes 4, 5 (URL false positives)** → no action needed; close as informational
+7. **Fix 8 (Treasury dates)** → defer to human review, do not auto-fix
+**OVER_ENGINEERED:**
+- **Fix 4 (api.applicationinsights.io):** The suggestion to "add a comment noting it's a resource URL, not a web endpoint" is unnecessary. PowerShell developers understand `-ResourceUrl` parameters. No fix needed.
+- **Fix 5 (admin.powerplatform.microsoft.com):** Suggesting "add a note that this URL requires admin authentication" is over-engineering. Admin portal URLs in admin documentation don't need disclaimers. No fix needed.
+- **Fix 6 (index.md):** The proposed section restructuring ("Regulatory & Compliance", "Solutions") is reasonable but the review is inventing taxonomy. A simpler fix: add missing docs to existing sections or a single "Additional Reference" section.
+- **Fix 7 (footer standardization):** Standardizing all 15+ footers in one batch is valid but should be a separate PR/commit — it's mechanical churn that shouldn't be mixed with substantive fixes.
+**CRITIQUE_SUMMARY:** The review correctly identifies two genuinely critical regulatory errors (FINRA retention period, OCC/Fed misattribution) and a real URL count drift problem, but inflates severity on two false-positive URL checks (issues 3, 4) and has a counting error in issue 10 (says "12 of 22 listed" but actual is 10 of 22, meaning 12 are missing, not 10). Fixes 1-3 are safe, high-value, and should proceed; fixes 4-5 should be closed; fixes 6-8 need scoping discipline to avoid over-engineering.

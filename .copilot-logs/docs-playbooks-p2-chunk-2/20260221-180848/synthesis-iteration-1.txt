@@ -1,0 +1,37 @@
+Now I have all the data needed. Let me compile the reconciled findings.
+All issues verified. Here is the reconciled report:
+ISSUE_COUNT: 14
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.5/portal-walkthrough.md: Duplicate `---` horizontal rule (lines 241+243) — extra separator before navigation links
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Duplicate `---` horizontal rule (lines 238+240) — extra separator before navigation links
+- docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Duplicate `---` horizontal rule (lines 176+178) — extra separator before navigation links
+- docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Missing footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.8/powershell-setup.md: Missing footer metadata `*Updated: January 2026 | Version: v1.2*`
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Missing footer metadata `*Updated: January 2026 | Version: v1.2*` (missed by original review, confirmed by Critique A)
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Missing footer metadata `*Updated: January 2026 | Version: v1.2*` (missed by original review, confirmed by Critique A)
+- docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Header uses reversed format `# Portal Walkthrough: Control 2.8 - ...` instead of `# Control 2.8: ... - Portal Walkthrough` (INFO/STYLE — internally consistent within 2.8, optional fix per Critique B)
+- docs/playbooks/control-implementations/2.8/powershell-setup.md: Header uses reversed format (INFO/STYLE — optional fix)
+- docs/playbooks/control-implementations/2.8/verification-testing.md: Header uses reversed format (INFO/STYLE — missed by original review, confirmed by Critique A; optional fix)
+- docs/playbooks/control-implementations/2.8/troubleshooting.md: Header uses reversed format (INFO/STYLE — missed by original review, confirmed by Critique A; optional fix)
+- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: GPT-5 listed as "GA (Nov 2025)" and GPT-5.2 as "Preview" (line 65-66) — NEEDS_HUMAN_REVIEW for model availability accuracy
+- docs/playbooks/control-implementations/2.6/powershell-setup.md: `Search-UnifiedAuditLog -RecordType "CopilotInteraction"` (line 29) — NEEDS_HUMAN_REVIEW: verify `CopilotInteraction` is a valid RecordType value
+- mkdocs.yml: ~300 nav orphans reported — systemic worktree artifact, not fixable in this batch scope (INFO only)
+GAPS:
+- NONE
+FIXES:
+1. docs/playbooks/control-implementations/2.5/portal-walkthrough.md: Remove duplicate `---` at line 243 (keep only the one at line 241 before navigation links)
+2. docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Remove duplicate `---` at line 240 (keep only the one at line 238)
+3. docs/playbooks/control-implementations/2.7/portal-walkthrough.md: Remove duplicate `---` at line 178 (keep only the one at line 176)
+4. docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Add `*Updated: January 2026 | Version: v1.2*` footer after final navigation line
+5. docs/playbooks/control-implementations/2.8/powershell-setup.md: Add `*Updated: January 2026 | Version: v1.2*` footer after final navigation line
+6. docs/playbooks/control-implementations/2.8/verification-testing.md: Add `*Updated: January 2026 | Version: v1.2*` footer after final navigation line
+7. docs/playbooks/control-implementations/2.8/troubleshooting.md: Add `*Updated: January 2026 | Version: v1.2*` footer after final navigation line
+8. (OPTIONAL) docs/playbooks/control-implementations/2.8/portal-walkthrough.md: Normalize header to `# Control 2.8: Access Control and Segregation of Duties - Portal Walkthrough` — skip unless batch-wide style sweep planned
+9. (OPTIONAL) docs/playbooks/control-implementations/2.8/powershell-setup.md: Normalize header similarly — skip unless batch-wide style sweep planned
+10. (OPTIONAL) docs/playbooks/control-implementations/2.8/verification-testing.md: Normalize header similarly — skip unless batch-wide style sweep planned
+11. (OPTIONAL) docs/playbooks/control-implementations/2.8/troubleshooting.md: Normalize header similarly — skip unless batch-wide style sweep planned
+12. docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Verify GPT-5/GPT-5.2 model availability dates are current (NEEDS_HUMAN_REVIEW)
+13. docs/playbooks/control-implementations/2.6/powershell-setup.md: Verify `CopilotInteraction` RecordType is valid for `Search-UnifiedAuditLog` (NEEDS_HUMAN_REVIEW)
+STATUS: ISSUES_FOUND

@@ -1,0 +1,14 @@
+Now I have all the data needed to produce the risk analysis.
+---
+**HIGH_RISK_FIXES:**
+NONE
+All 12 proposed fixes are additive-only (appending footers, updating a table, adding a caveat note). None modify cross-references, navigation entries, or mkdocs-served content in a way that could break `mkdocs build --strict`. `releases/README.md` is not in the mkdocs nav, so editing it carries zero build risk. The CHANGELOG.md URLs are inside backtick code spans (not rendered links), so annotating them has no link-resolution impact.
+**SEVERITY_CORRECTIONS:**
+- `releases/README.md` version table (Fix #1): **Downgrade from CRITICAL to WARNING.** This file is outside `docs/`, not in the mkdocs nav, and only relevant to the PDF handoff workflow which isn't yet operational (PDFs are listed as "Planned"). Misleading, but not examiner-facing in practice today. A real CRITICAL would be wrong version info on the published site.
+- CHANGELOG.md broken Learn URLs (Fix #2): **Severity is accurate as CRITICAL.** These are real 404s in the project's change history. However, since they're in backtick code spans documenting *what was added* (not clickable links on the published site), the practical user impact is moderate. Still worth fixing.
+**FIX_ORDERING:**
+- Fixes are independent — no ordering dependencies exist between any of the 12 fixes. They can be applied in any order or in parallel.
+- Recommended grouping for clean commits: (A) Fix #1 releases/README.md alone, (B) Fix #2 CHANGELOG.md alone, (C) Fixes #3–#12 as a single batch commit ("add standard FSI footers to 10 playbooks").
+**OVER_ENGINEERED:**
+- Fixes #3–#12 (adding FSI footers to 10 playbooks): **Borderline over-engineering.** Only 17 of 27+ non-control-implementation playbooks currently have the footer. This is a consistency gap, not a compliance risk — the footer is cosmetic metadata already present in `mkdocs.yml` `copyright`. Applying it is harmless but low-value; batching as one commit is fine, but individually tracking 10 separate "warnings" inflates the issue count. Should be 1 warning ("10 playbooks missing standard footer") not 10.
+**CRITIQUE_SUMMARY:** The review is thorough and the false-positive filtering in Section A is well-done, but the issue count is inflated — the 10 missing-footer warnings should be a single item, and the releases/README version mismatch is a warning not a critical since that file isn't examiner-facing today. Net: 2 genuine issues (CHANGELOG URLs, version table) + 1 consistency gap (footers), not 14.

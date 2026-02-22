@@ -1,0 +1,38 @@
+The files are in the main repo (gitignored, not in worktree). Let me read them from there and check the mkdocs nav orphans.
+Good, all files exist. Let me now read them in parallel batches. I'll use the main repo path.
+Let me read the remaining files and sample the large ones.
+Now let me check the researcher package pillar files for control count consistency.
+Let me verify the nav orphan situation by checking if docs files exist.
+Now I have all the data. Let me compile the report.
+Here is my complete review report:
+---
+ISSUE_COUNT: 16
+CRITICAL:
+- researcher-package/00-FSI-AgentGov-Summary-and-Review-Guide.md: Quick Reference section has stale control counts — lists "Pillar 1: (24 Controls)", "Pillar 2: (21 Controls)", "Pillar 3: (10 Controls)" but the same document's overview table correctly states 28/24/12. Controls 1.25-1.28, 2.22-2.24, and 3.11-3.12 are missing from the Quick Reference listings entirely.
+- researcher-package/01-Pillar-1-Security-Controls.md: Controls list (lines 29-50) and Categories table only include 1.1-1.24 (24 items) but overview says "These 28 controls" and file body contains all 28 headings. Controls 1.25-1.28 missing from list, TOC, and Categories table.
+- researcher-package/02-Pillar-2-Management-Controls.md: Controls list (lines 34-55) only includes 2.1-2.21 (21 items) but overview says "These 24 controls" and file body contains all 24 headings. Controls 2.22-2.24 missing from list and Categories table. Categories table stops at 2.19.
+- researcher-package/03-Pillar-3-Reporting-Controls.md: Controls list (lines 29-39) and TOC (lines 46-57) only show 3.1-3.10 (10 items) but overview says "These 12 controls" and file body contains all 12 headings. Controls 3.11-3.12 missing from list, TOC, and Categories table.
+- notes/claude-code-gsd-guide.md (line 48): States "Control catalog (62 controls across 4 pillars)" — should be "71 controls across 4 pillars"
+WARNINGS:
+- analysis/Phase 1_ Repository Orientation Summary.md: References "48 controls" with old directory structure (docs/reference/pillar-* instead of docs/controls/pillar-*) and pillar counts 19/15/9/5 — stale from Dec 2025 v1.0 Beta era
+- analysis/VALIDATION-CHECKLIST.md: References "v1.0 Beta" and "December 2025" throughout — no caveat that it's a historical artifact
+- notes/implementation-plan.md: References "48 controls" (line 3) — stale baseline count
+- notes/structure.md: Shows 48 controls, old paths (docs/reference/pillar-* instead of docs/controls/pillar-*), old template structure, v1.0 Beta — significantly outdated vs current 71-control 3-layer architecture
+- notes/codex-cli-guide.md: Framework version listed as "v1.2.39" — behind current v1.2.51
+- notes/claude-code-gsd-guide.md: Framework version listed as "v1.2.40" — behind current v1.2.51
+- reviews/2026-01-jan-update-review/ (all 8 files): All reference "48 controls" as the framework baseline — these were accurate at writing but now outdated; no annotation indicating they are historical snapshots against the pre-v1.1 baseline
+- SECTION A NAV ORPHANS: All 300+ files listed as "nav orphans" by the automated pre-pass were verified to EXIST in the worktree's docs/ directory. This is a FALSE POSITIVE from the automated tooling — likely a base path resolution error. No mkdocs.yml nav fixes are needed.
+GAPS:
+- 01-Pillar-1: Overview Controls list, TOC, and Categories table need updating with controls 1.25-1.28 (MIME Type Restrictions, File Upload Restrictions, Content Moderation Enforcement, Policy-Based Publishing Restrictions)
+- 02-Pillar-2: Overview Controls list and Categories table need updating with controls 2.22-2.24 (Inactivity Timeout Enforcement, User Consent and AI Disclosure Enforcement, Agent Feature Enablement and Restriction Governance)
+- 03-Pillar-3: Overview Controls list, TOC, and Categories table need updating with controls 3.11-3.12 (Centralized Agent Inventory Enforcement, Agent Governance Exception and Override Management)
+FIXES:
+1. researcher-package/00-FSI-AgentGov-Summary-and-Review-Guide.md: Update Quick Reference to show "28 Controls" for Pillar 1, "24 Controls" for Pillar 2, "12 Controls" for Pillar 3. Add missing controls 1.25-1.28, 2.22-2.24, 3.11-3.12 to the respective listing tables.
+2. researcher-package/01-Pillar-1-Security-Controls.md: Add 1.25-1.28 to the Controls list, Categories table, and TOC in the overview section.
+3. researcher-package/02-Pillar-2-Management-Controls.md: Add 2.22-2.24 to the Controls list and Categories table. Update Categories to cover 2.20-2.24.
+4. researcher-package/03-Pillar-3-Reporting-Controls.md: Add 3.11-3.12 to the Controls list, Categories table, and TOC in the overview section.
+5. notes/claude-code-gsd-guide.md: Change "62 controls across 4 pillars" to "71 controls across 4 pillars" (line 48). Update version from "v1.2.40" to "v1.2.51".
+6. notes/codex-cli-guide.md: Update version from "v1.2.39" to "v1.2.51".
+7. notes/structure.md: Update control counts (19→28, 15→24, 9→12, 5→7, 48→71), change paths from docs/reference/pillar-* to docs/controls/pillar-*, update version from "v1.0 Beta" to current, and reflect 3-layer architecture.
+8. SECTION A NAV ORPHANS: No fix needed — files exist. Investigate and fix the automated pre-pass tooling's path resolution logic.
+STATUS: ISSUES_FOUND

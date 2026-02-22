@@ -1,0 +1,12 @@
+Now let me find all instances of the lowercase table names in the power-bi-correlation.md file.
+Now I have all the context. Let me apply all 7 fixes.
+All 7 edits applied. Let me commit.
+CHANGES:
+- docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md: Changed "FSI-AgentGov v1.3" to "FSI-AgentGov v1.2" in status metadata
+- docs/playbooks/advanced-implementations/conditional-access-automation/index.md: Changed "creates immutable compliance history" to "supports compliance history with access controls" in SEC 17a-3/4 row
+- docs/playbooks/advanced-implementations/confidence-and-routing.md: Updated footer version from "v1.2" to "v1.2.51"
+- docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md: Updated footer version from "v1.2" to "v1.2.51"
+- docs/playbooks/advanced-implementations/zone1-min-explainability.md: Updated footer version from "v1.2" to "v1.2.51"
+- docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md: Updated footer version from "v1.2" to "v1.2.51"
+- docs/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md: Aligned overview table names to canonical PascalCase (`fsi_DenyEvent`, `fsi_DenyCorrelation`, `fsi_DenyAlert`) and added note explaining OData plural lowercase form used in DAX/Power Query code
+FIX_STATUS: COMPLETE

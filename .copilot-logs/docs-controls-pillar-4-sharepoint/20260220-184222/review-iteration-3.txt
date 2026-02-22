@@ -1,0 +1,19 @@
+Let me verify the mkdocs.yml nav structure and check for the specific broken URL context.
+Now I have all the information needed. Here's my review:
+---
+ISSUE_COUNT: 3
+CRITICAL:
+- NONE
+WARNINGS:
+- 4.3 (line 109): Related Controls table lists 4.1 with relationship "Sensitivity labels can auto-apply retention" — this describes a sensitivity-label-to-retention connection (more relevant to Control 1.5), not the IAG/RCD scope of Control 4.1. Misleading cross-reference description.
+- 4.6 (line 37): "CopilotReady Tagging" is listed as a built-in capability alongside Microsoft features (RCD, RSS, RAC) in the capabilities table without indicating it is a recommended governance practice, not a Microsoft product feature. NEEDS_HUMAN_REVIEW to confirm whether Microsoft has introduced a formal "CopilotReady" metadata property since last check.
+- 4.1–4.7: "Technical Implementation Notes" extra section is placed between sections 3–4 (Control Description / Key Config Points) in controls 4.1–4.3 but between sections 4–5 (Key Config Points / Zone-Specific) in controls 4.4–4.7. Inconsistent placement across the pillar; not a template violation but reduces structural consistency.
+GAPS:
+- NONE
+FIXES:
+1. 4.3 (line 109): Change relationship text for 4.1 from "Sensitivity labels can auto-apply retention" to "IAG-restricted sites align with retention governance scope" (or similar text that accurately describes the IAG↔retention relationship).
+2. 4.6 (line 37): Add clarification that "CopilotReady Tagging" is a recommended governance practice (custom metadata), not a built-in Microsoft feature — e.g., change to "CopilotReady Tagging (custom)" or add a footnote.
+PRE-PASS ITEMS — VERIFIED AS FALSE POSITIVES:
+- **Broken URL in 4.6** (line 157): `https://contoso.sharepoint.com/sites/hr-*` is enclosed in backticks as an inline code example of a wildcard pattern, not a hyperlink. No fix needed.
+- **Nav orphans** (all 300+ entries across all pillars): Systematic false positive from the checker. Verified all 8 P4 control files exist at `docs/controls/pillar-4-sharepoint/`, all 28 P4 playbook files exist at `docs/playbooks/control-implementations/4.*/`, and mkdocs.yml nav entries resolve correctly via the default `docs_dir` (`docs/`). No `docs_dir` override exists — the checker appears to have resolved paths from the repo root rather than the docs directory.
+STATUS: ISSUES_FOUND

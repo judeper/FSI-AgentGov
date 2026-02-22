@@ -1,0 +1,17 @@
+All four issues verified against the source files. Here is the final synthesized review:
+ISSUE_COUNT: 4
+CRITICAL:
+- `docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md` (line 11): Prohibited language overclaim — "provides full regulatory compliance" implies legal guarantee, violating FSI language rules
+- `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 76): Prohibited language overclaim — "provides complete regulatory compliance" implies legal guarantee, violating FSI language rules
+- `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 10): Prohibited language overclaim — "maintain regulatory compliance" is functionally equivalent to "ensures compliance," implying triggers alone sustain compliance
+- `docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md` (line 70): Prohibited language overclaim — "ensure long-term retention compliance" uses prohibited "ensure…compliance" formulation
+WARNINGS:
+- NONE
+GAPS:
+- NONE
+FIXES:
+1. `docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md` (line 11): Change "This path provides full regulatory compliance without Azure DevOps integration." → "This path supports regulatory compliance requirements without Azure DevOps integration."
+2. `docs/playbooks/advanced-implementations/platform-change-governance/index.md` (line 76): Change "Path A provides complete regulatory compliance without the additional complexity of bi-directional sync." → "Path A supports regulatory compliance requirements without the additional complexity of bi-directional sync."
+3. `docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md` (line 10): Change "maintain regulatory compliance for financial services organizations" → "support regulatory compliance requirements for financial services organizations"
+4. `docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md` (line 70): Change "Execute quarterly to ensure long-term retention compliance:" → "Execute quarterly to support long-term retention compliance requirements:"
+STATUS: ISSUES_FOUND

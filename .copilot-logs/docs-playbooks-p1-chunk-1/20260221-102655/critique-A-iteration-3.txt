@@ -1,0 +1,13 @@
+Now I have all the evidence needed. Here's the audit:
+---
+**FALSE_POSITIVES:**
+- NONE — All 13 claimed issues are confirmed real by file inspection.
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/1.4/troubleshooting.md`: Same H1 format inconsistency as the two 1.4 files flagged — uses `"Control 1.4: ... - Troubleshooting"` instead of `"Troubleshooting: Control 1.4 - ..."` (pattern from 1.1–1.3). Also missing header metadata block (`Last Updated`, etc.). Review only called out portal-walkthrough and powershell-setup for 1.4, missing this file.
+- `docs/playbooks/control-implementations/1.4/verification-testing.md`: Same H1 format inconsistency — uses `"Control 1.4: ... - Verification & Testing"` instead of `"Verification & Testing: Control 1.4 - ..."`. Also missing header metadata block. Review only called out 2 of 4 inconsistent 1.4 files.
+**FIX_CONCERNS:**
+- Fixes 1–8 (date harmonization): The review assumes the footer date ("February 2026") is the source of truth and adjusts the header to match. This is a reasonable default, but the opposite could be true — the header "January 2026" may be the actual last-edit date and the footer was bumped prematurely. NEEDS_HUMAN_REVIEW to confirm which date is authoritative.
+- Fix 9 (1.4 portal-walkthrough title): Suggested new title `"Portal Walkthrough: Control 1.4 - Advanced Connector Policies (ACP)"` includes the abbreviation "(ACP)". Confirmed that the control file itself uses "(ACP)" in its name, so this is correct.
+- Fix 11 (1.1 heading hierarchy): The suggestion to "move Steps 6-9 before the 'Configuration by Governance Level' section" may not be appropriate — Steps 6–9 cover different portals (Copilot Studio, M365 Admin Center) and appear intentionally placed after the governance-level table. Demoting to H3 is correct; the repositioning suggestion should be NEEDS_HUMAN_REVIEW.
+- Missing fixes for 1.4/troubleshooting.md and 1.4/verification-testing.md (the two missed issues above).
+**CRITIQUE_SUMMARY:** The review is substantively accurate — all 13 findings are real, the false-positive dismissals (broken URLs, nav orphans) are correct, and the fix direction is generally sound. However, it missed 2 of the 4 inconsistent 1.4 playbook files (troubleshooting and verification-testing have the same H1 format + missing metadata problems), and the date-mismatch fix direction warrants human confirmation on which date is authoritative.

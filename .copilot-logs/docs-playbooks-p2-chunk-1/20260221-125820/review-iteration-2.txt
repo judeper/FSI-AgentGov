@@ -1,0 +1,22 @@
+Now I have all 15 files read. Let me compile my review findings.
+ISSUE_COUNT: 5
+CRITICAL:
+- NONE
+WARNINGS:
+- docs/playbooks/control-implementations/2.1/powershell-setup.md: Date mismatch — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026" (line 308)
+- docs/playbooks/control-implementations/2.1/troubleshooting.md: Date mismatch — header says "Last Updated: January 2026" (line 3) but footer says "Updated: February 2026" (line 269)
+- docs/playbooks/control-implementations/2.1/verification-testing.md: Footer metadata (line 269) appears BEFORE navigation links (line 271), reversed from every other playbook in this batch where navigation links come first
+- Cross-file PowerShell inconsistency (NEEDS_HUMAN_REVIEW): 2.1 files use `$_.Properties.protectionLevel` for the managed environment check while 2.2 files use `$_.Properties.governanceConfiguration.protectionLevel` for the same check — only one property path can be correct
+- docs/playbooks/control-implementations/2.3 and 2.4: Footer navigation style is inconsistent — portal-walkthrough.md uses `[Back to Control] | [sibling links]` inline format, but powershell-setup.md, troubleshooting.md, and verification-testing.md use a `## Related Playbooks` bullet-list section instead
+GAPS:
+- NONE
+SECTION A ASSESSMENT:
+- Broken external URLs (8 items): All are false positives — `admin.powerplatform.microsoft.com` and `copilotstudio.microsoft.com` are valid Microsoft portals returning HTTP 405 to automated HEAD requests; the remaining 6 (`yourorg.crm.dynamics.com`, `dev-fsi.crm.dynamics.com`, `prod-fsi.crm.dynamics.com`, `yourorg-dr.crm.dynamics.com`, `org-dr.crm.dynamics.com`, and the `api.bap.microsoft.com` API template) are intentional placeholder/example URLs inside code blocks. No fixes needed.
+- Mkdocs nav orphans (~300 entries): This is a worktree artifact — `mkdocs.yml` references the full site but this worktree only contains playbook files in scope. These orphans will resolve when merged to main. No fixes needed within this batch.
+FIXES:
+1. docs/playbooks/control-implementations/2.1/powershell-setup.md: Change line 3 from `**Last Updated:** January 2026` to `**Last Updated:** February 2026` to match footer
+2. docs/playbooks/control-implementations/2.1/troubleshooting.md: Change line 3 from `**Last Updated:** January 2026` to `**Last Updated:** February 2026` to match footer
+3. docs/playbooks/control-implementations/2.1/verification-testing.md: Swap lines 269-271 so navigation links appear before footer metadata (matching all other playbooks)
+4. NEEDS_HUMAN_REVIEW — 2.1 or 2.2 PowerShell files: Verify the correct property path for the managed environment check (`Properties.protectionLevel` vs `Properties.governanceConfiguration.protectionLevel`) and standardize across all scripts
+5. docs/playbooks/control-implementations/2.3 and 2.4 (powershell-setup.md, troubleshooting.md, verification-testing.md): Replace `## Related Playbooks` bullet-list footer with `[Back to Control X.X](...) | [sibling](...) | ...` inline format to match 2.1/2.2 convention
+STATUS: ISSUES_FOUND

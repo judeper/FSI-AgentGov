@@ -1,0 +1,12 @@
+Let me check the remaining files in this batch for missed issues.
+All control files exist and back-links are valid. Here is my audit:
+---
+**FALSE_POSITIVES:**
+- NONE
+**MISSED_ISSUES:**
+- `docs/playbooks/control-implementations/2.12/powershell-setup.md` (line 101): Same divide-by-zero pattern the reviewer caught at line 93 also exists at line 101: `Percentage = [math]::Round($_.Count / $total * 100, 1)` in the "By risk level" grouping. If the CSV is empty, `$total` is 0 and this also throws. The Complete Configuration Script does not have a corresponding "By risk level" section, so there is no guarded version to compare against. The fix should mirror the line-93 fix.
+- `docs/playbooks/control-implementations/2.14/powershell-setup.md` (line 135): Identical divide-by-zero pattern: `$complianceRate = [math]::Round(($compliant / $total) * 100, 1)` in the standalone "Track Training Completion Status" script has no guard, while the Complete Configuration Script at line 374 correctly uses `if ($total -gt 0)`. This is the exact same class of bug the reviewer found in 2.12 but missed in 2.14.
+**FIX_CONCERNS:**
+- Fix 1 (2.12 line 93) is syntactically correct but incomplete — it does not address the second divide-by-zero at line 101 in the same script block.
+- Fix 2 (2.13 verification-testing.md Test 3 rename + alternative step) is reasonable and directionally correct. The suggested wording is appropriately vague for an implementation that varies by organization.
+**CRITIQUE_SUMMARY:** The reviewer correctly identified the two real issues (2.12 divide-by-zero, 2.13 verification gap) and its meta-observations about false-positive URLs and nav orphans are sound. However, it missed two additional divide-by-zero instances of the same pattern — one at line 101 in the same 2.12 file and one at line 135 in 2.14/powershell-setup.md — reducing confidence that the batch was scanned systematically for this bug class.

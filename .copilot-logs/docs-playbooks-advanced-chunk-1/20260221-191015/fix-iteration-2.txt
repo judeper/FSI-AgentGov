@@ -1,0 +1,4 @@
+All 3 remaining issues are in files explicitly noted as **outside this batch's scope** (`platform-change-governance/index.md`, `unrestricted-agent-sharing-detector/index.md`). Per the SCOPE CONSTRAINT, I must skip all of them.
+CHANGES:
+- No changes made — all 3 remaining issues are in files outside this batch's scope and must be skipped per SECURITY REQUIREMENT
+FIX_STATUS: COMPLETE
