@@ -154,15 +154,14 @@ DSPM for AI prerequisites include Purview auditing being enabled and licensing/p
   },
   "related_audit_event_ids": ["a8e2d1f7-..."]
 }
-6) Approval and lifecycle
-Owner (Compliance):
+```
 
-Owner (Engineering):
+## 6) Approval and lifecycle
 
-Approved date:
-
-Version:
-
-Next review:
+- **Owner (Compliance):**
+- **Owner (Engineering):**
+- **Approved date:**
+- **Version:**
+- **Next review:**
 
 Changes to the schema should be treated like a governed interface (versioned, backward-compatible where possible) to preserve audit continuity.

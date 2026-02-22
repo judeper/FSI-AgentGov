@@ -1,10 +1,9 @@
-text
 # Spec: Evidence Pack Assembly (Exam-Ready Bundle)
 
 **Purpose:** Define a repeatable process to assemble an audit/exam-ready evidence pack for a given agent, date range, or regulatory request—linking together inventory, audit logs, decision logs, approvals, test results, and governance artifacts.  
 **Applies to:** Zone 3 (required for every agent), Zone 2 (recommended for medium/high impact).  
-**Regulatory driver:** FINRA emphasizes that firms must maintain books and records relating to GenAI use and highlights supervision/oversight expectations under FINRA Rule 3110, including testing, monitoring, and logging of AI agent activities. [web:21]  
-**SEC driver:** SEC 2026 priorities expand scrutiny of AI usage and emphasize that examiners will evaluate whether firms have procedures to monitor/supervise AI, including for internal operations. [web:92]
+**Regulatory driver:** FINRA emphasizes that firms must maintain books and records relating to GenAI use and highlights supervision/oversight expectations under FINRA Rule 3110, including testing, monitoring, and logging of AI agent activities.  
+**SEC driver:** SEC 2026 priorities expand scrutiny of AI usage and emphasize that examiners will evaluate whether firms have procedures to monitor/supervise AI, including for internal operations.
 
 ---
 
@@ -41,6 +40,7 @@ It is designed to answer an examiner's question: *"Show me how you govern this a
 
 ## 3) Evidence pack structure (recommended folder layout)
 
+```text
 /evidence-packs/
 /<agent-id>-<agent-name>-<YYYY-MM>/
 01-SUMMARY.md
@@ -80,8 +80,7 @@ threat-model.md
 finra-control-mapping.md
 sec-control-mapping.md
 colorado-impact-assessment.md (if applicable)
-
-text
+```
 
 ---
 
@@ -117,11 +116,11 @@ Evidence of authorization:
 ### 4.4 AUDIT LOGS (04-AUDIT-LOGS/)
 Purview Copilot audit export for the date range:
 - Export metadata: query used, date range, export date, who ran it
-- CSV/JSON of `CopilotInteraction` events filtered by `AgentId` (if available) <sup>[19]</sup>
-- Include fields: `AgentId`, `AgentName`, `AgentVersion`, `AccessedResources`, `SensitivityLabelId`, `PolicyDetails`, `JailbreakDetected`, `XPIADetected` <sup>[19]</sup>
+- CSV/JSON of `CopilotInteraction` events filtered by `AgentId` (if available)
+- Include fields: `AgentId`, `AgentName`, `AgentVersion`, `AccessedResources`, `SensitivityLabelId`, `PolicyDetails`, `JailbreakDetected`, `XPIADetected`
 - Redacted sample rows (3–5 examples) for quick review
 
-Microsoft Purview audit logs for Copilot/AI interactions include `AccessedResources` with sensitivity label IDs and policy restriction details, making them the canonical "what happened" source. <sup>[19]</sup>
+Microsoft Purview audit logs for Copilot/AI interactions include `AccessedResources` with sensitivity label IDs and policy restriction details, making them the canonical "what happened" source.
 
 ### 4.5 DECISION LOGS (05-DECISION-LOGS/)
 Structured reasoning logs (from [Decision Log Schema](../governance-operations/decision-log-schema.md)):
@@ -147,14 +146,14 @@ Continuous controls evidence:
 ### 4.8 INCIDENTS (08-INCIDENTS/)
 If any S1/S2 events occurred:
 - Incident summaries
-- Root cause analysis (from control 3.4) <sup>[3]</sup>
+- Root cause analysis (from control 3.4)
 - Remediation/CAPA tickets
 - Lessons learned
 
 ### 4.9 RISK ASSESSMENTS (09-RISK-ASSESSMENTS/)
 Supporting risk artifacts:
 - Supply chain risk register entry (from [Supply Chain Risk Register Entry](../regulatory-modules/supply-chain-risk-register-entry.md))
-- Bias/fairness assessment (from control 2.11) <sup>[3]</sup>
+- Bias/fairness assessment (from control 2.11)
 - Threat model / security review
 - BC/DR assessment
 
@@ -197,7 +196,7 @@ Even with automation, manual QA + redaction review is required.
 - **Immutability:** evidence packs should be stored in append-only or WORM storage
 - **Audit trail:** log who accessed which pack when
 
-FINRA emphasizes books and records requirements and supervision/recordkeeping obligations related to GenAI. [web:21]
+FINRA emphasizes books and records requirements and supervision/recordkeeping obligations related to GenAI.
 
 ---
 

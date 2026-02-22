@@ -2,9 +2,9 @@
 
 **Purpose:** Standardize the metadata captured for every agent so governance controls (zones, approvals, logging, data policy, escalation, vendor risk) can be applied consistently.  
 **Applies to:** All zones (Zone 1–3).  
-**Microsoft grounding:** Microsoft 365 admins can manage Copilot agents (deploy/assign/block/remove) through the Microsoft 365 admin center, treating agents as manageable assets at tenant scope. [web:119]  
-**Audit grounding:** Microsoft Purview audit logs for Copilot/AI interactions include details like accessed resources (including sensitivity label IDs) and policy restriction details, which can be correlated back to an agent inventory. [web:118]  
-**Related controls (examples):** 3.1 Agent Inventory and Registration, 2.3 Change management, 2.12 Supervision/oversight, 1.7 Audit logging. <sup>[3]</sup>
+**Microsoft grounding:** Microsoft 365 admins can manage Copilot agents (deploy/assign/block/remove) through the Microsoft 365 admin center, treating agents as manageable assets at tenant scope.  
+**Audit grounding:** Microsoft Purview audit logs for Copilot/AI interactions include details like accessed resources (including sensitivity label IDs) and policy restriction details, which can be correlated back to an agent inventory.  
+**Related controls (examples):** 3.1 Agent Inventory and Registration, 2.3 Change management, 2.12 Supervision/oversight, 1.7 Audit logging.
 
 ---
 
@@ -53,7 +53,7 @@
 
 Link to the agent’s detailed Per-Agent Data Handling Policy.
 
-- **Per-agent data policy link:** `../templates/per-agent-data-policy.md`
+- **Per-agent data policy link:** `per-agent-data-policy.md`
 - **Allowed sensitivity labels:** (bullets)
 - **Prohibited sensitivity labels:** (bullets)
 - **Primary repositories:** (SharePoint sites, Dataverse envs, etc.)
@@ -64,7 +64,7 @@ Link to the agent’s detailed Per-Agent Data Handling Policy.
 
 > “Actions” should be constrained via an Action Authorization Matrix (AAM) for any agent that can initiate workflows or modify records.
 
-- **Action Authorization Matrix link:** `../templates/action-authorization-matrix.md`
+- **Action Authorization Matrix link:** `../governance-operations/action-authorization-matrix.md`
 - **Allowed connectors/tools:** (bullets)
 - **Denied connectors/tools:** (bullets)
 - **Key permissions/RBAC groups:** (bullets)
@@ -73,7 +73,7 @@ Link to the agent’s detailed Per-Agent Data Handling Policy.
 
 ## 6) Logging + evidence
 
-> Purview audit logs for Copilot/AI interactions can include AccessedResources and sensitivity label IDs, and PolicyDetails when access is blocked/restricted, supporting evidence of data protection and policy enforcement. [web:118]
+> Purview audit logs for Copilot/AI interactions can include AccessedResources and sensitivity label IDs, and PolicyDetails when access is blocked/restricted, supporting evidence of data protection and policy enforcement.
 
 - **Audit logging enabled?** (Yes/No)
 - **Audit search query saved?** (link or description)
@@ -84,7 +84,7 @@ Link to the agent’s detailed Per-Agent Data Handling Policy.
 
 ## 7) Escalation + incident response
 
-- **Escalation matrix link:** `../templates/escalation-matrix.md`
+- **Escalation matrix link:** `../governance-operations/escalation-matrix.md`
 - **On-call route:** (Teams channel / DL)
 - **SLA:** (e.g., 15 min for S1)
 
