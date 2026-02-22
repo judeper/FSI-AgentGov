@@ -119,4 +119,8 @@ Write-Host "Excluded: $excluded | Included: $included"
 
 ---
 
+[Back to Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

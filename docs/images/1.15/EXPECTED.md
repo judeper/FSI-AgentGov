@@ -16,6 +16,6 @@
 ## Verification Focus
 
 - TLS 1.2+ enforced for all connections
-- Customer-managed keys configured for Zone 3-4
+- Customer-managed keys configured for Zone 3
 - Sensitivity labels enforce encryption
 - Key vault access policies are restrictive
