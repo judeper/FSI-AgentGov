@@ -145,8 +145,10 @@ $zone3BlockedConnectors = @(
     "/providers/Microsoft.PowerApps/apis/shared_facebook",
     "/providers/Microsoft.PowerApps/apis/shared_publicwebsites",
     "/providers/Microsoft.PowerApps/apis/shared_twitter",
-    "/providers/Microsoft.PowerApps/apis/shared_rss",
-    "/providers/Microsoft.PowerApps/apis/*"  # Block all external connectors
+    "/providers/Microsoft.PowerApps/apis/shared_rss"
+    # NOTE: Wildcard patterns are not valid DLP connector IDs. To block additional
+    # connectors, enumerate each connector ID explicitly or use the default
+    # "Non-Business" group classification in the DLP policy.
 )
 
 # Add connectors to Zone 3 policy
@@ -270,7 +272,7 @@ foreach ($env in $environments) {
     
     # Get agents (chatbots) in this environment
     try {
-        $agents = Get-PowerAppChatBot -EnvironmentName $env.EnvironmentName
+        $agents = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName
         
         foreach ($agent in $agents) {
             # Check DLP compliance
@@ -283,7 +285,7 @@ foreach ($env in $environments) {
             # Manual review recommended — see portal walkthrough for detailed steps
             
             # Get agent details including channels
-            $agentDetails = Get-PowerAppChatBot -EnvironmentName $env.EnvironmentName -ChatBotName $agent.ChatBotName
+            $agentDetails = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ChatBotName $agent.ChatBotName
             
             # Check for blocked channels
             $blockedChannels = @()
@@ -371,11 +373,11 @@ foreach ($env in $targetEnvironments) {
         # For approval workflows, configure environment-level governance in
         # Power Platform Admin Center → Environments → [Environment] → Settings → Features.
         # Alternatively, implement approval flows using Power Automate.
-        Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
-        # Note: Chatbot approval requires manual configuration in Admin Center or via Power Automate flow
-        Write-Host "  ⚠ Chatbot approval must be configured manually in Power Platform Admin Center" -ForegroundColor Yellow
-        
-        Write-Host "  ✓ Approval workflows enabled for: $($env.DisplayName)" -ForegroundColor Green
+        # NOTE: No native cmdlet parameter exists to enable chatbot approval.
+        # Chatbot approval must be configured manually in Power Platform Admin Center
+        # → Environments → [Environment] → Settings → Features, or via a Power Automate flow.
+        Write-Host "  ⚠ Chatbot approval must be configured manually for: $($env.DisplayName)" -ForegroundColor Yellow
+        Write-Host "    → Power Platform Admin Center → Environments → Settings → Features" -ForegroundColor Yellow
     }
     catch {
         Write-Host "  ✗ Failed to enable approval for: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red

@@ -25,11 +25,13 @@ This playbook provides troubleshooting guidance for common issues related to pol
 
 1. **Identify the violating connector:**
    ```powershell
-   # Get agent DLP compliance status
+   # Review DLP policies covering the agent's environment
+   # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
+   # Retrieve DLP policies and review connector classifications manually.
    $env = "YOUR_ENVIRONMENT_ID"
-   $agent = "YOUR_AGENT_ID"
-   $dlpStatus = Test-PowerAppChatBotDlpCompliance -EnvironmentName $env -ChatBotName $agent
-   $dlpStatus.Violations
+   $dlpPolicies = Get-AdminDlpPolicy
+   $dlpPolicies | Where-Object { $_.Environments.name -contains $env } |
+       Select-Object DisplayName, PolicyName
    ```
 
 2. **Review DLP policy for the environment:**
@@ -90,7 +92,7 @@ This playbook provides troubleshooting guidance for common issues related to pol
 1. **Check when agent was published vs. DLP policy last updated:**
    ```powershell
    # Get agent last modified date
-   Get-PowerAppChatBot -EnvironmentName $env -ChatBotName $agent | Select-Object LastModifiedTime
+   Get-AdminPowerAppChatbot -EnvironmentName $env -ChatBotName $agent | Select-Object LastModifiedTime
    
    # Get DLP policy last modified date
    Get-DlpPolicy | Where-Object { $_.Environments -contains $env } | Select-Object LastModifiedTime
@@ -170,7 +172,11 @@ This playbook provides troubleshooting guidance for common issues related to pol
    - Verify no blocked channels are configured
 2. Run PowerShell compliance check:
    ```powershell
-   Test-PowerAppChatBotDlpCompliance -EnvironmentName $env -ChatBotName $agent
+   # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
+   # Use Get-AdminDlpPolicy to review policies and cross-reference with
+   # agent connector usage in Power Platform Admin Center.
+   Get-AdminDlpPolicy | Where-Object { $_.Environments.name -contains $env } |
+       Select-Object DisplayName, PolicyName
    ```
 3. Contact Microsoft Support if feature is expected but not available
 
@@ -569,7 +575,7 @@ This playbook provides troubleshooting guidance for common issues related to pol
 **Disable blocked channels on existing agents:**
 1. Audit all published agents for channel configuration:
    ```powershell
-   Get-PowerAppChatBot -EnvironmentName $env | Select-Object DisplayName, Channels
+   Get-AdminPowerAppChatbot -EnvironmentName $env | Select-Object DisplayName, Channels
    ```
 2. For each agent with blocked channels:
    - Open agent in Copilot Studio
