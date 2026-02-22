@@ -124,7 +124,7 @@ function Import-AdminExclusionGroupFromCSV {
         [Parameter(Mandatory=$true)]
         [string]$CsvPath,
 
-        [string]$GroupName = "CopilotForM365AdminExclusionGroup"
+        [string]$GroupName = "CopilotForM365AdminExclude"
     )
 
     Write-Host "Importing users from CSV: $CsvPath" -ForegroundColor Cyan

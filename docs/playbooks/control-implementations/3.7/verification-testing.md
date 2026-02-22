@@ -187,4 +187,4 @@ For audits, collect:
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*
+*Updated: January 2026 | Version: v1.2 | Classification: Verification Testing*
