@@ -1,3 +1,7 @@
+<!-- TEMPLATE NOTE: EXPECTED.md files use two formats across this repository:
+     - "Required Screenshots" (detailed per-screenshot subsections with Notes for Verification) — used for controls 1.21+, 2.16+, 3.10+, 4.6+
+     - "Expected Screenshots" (table format with Verification Focus) — used for earlier controls
+     Both formats are valid. The detailed format was adopted for later controls that require more verification guidance. -->
 # Control 1.28: Policy-Based Agent Publishing Restrictions - Screenshot Specifications
 
 ## Required Screenshots
@@ -274,6 +278,8 @@
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates (last verified: February 2026)
 - DLP enforcement change (removal of "Soft-Enabled" exemption) effective February 2025
+<!-- NEEDS_HUMAN_REVIEW: MC1217615 is also referenced in 1.27/EXPECTED.md for content moderation GA.
+     Verify this single MC post covers both security scan GA and content moderation GA features. -->
 - Security scan feature became GA January 31, 2026 (MC1217615)
 - Approval workflow settings may vary by tenant rollout schedule
 - For Zone 3 documentation, capture multi-level approval if configured
@@ -282,7 +288,7 @@
 
 ## Feature Availability Note
 
-Policy-based agent publishing restrictions with DLP enforcement became mandatory in February 2025 (removal of "Soft-Enabled" exemption). Security scans with UI integration became GA on January 31, 2026 (MC1217615). If your tenant has not yet received these updates:
+Policy-based agent publishing restrictions with DLP enforcement became mandatory in February 2025 (removal of "Soft-Enabled" exemption). Security scans with UI integration became GA on January 31, 2026 (MC1217615 — see review comment above). If your tenant has not yet received these updates:
 
 - DLP violations may not block publishing (old behavior - "Soft-Enabled")
 - Security scan UI may appear in a different location or under preview flag
