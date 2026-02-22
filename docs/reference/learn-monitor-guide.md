@@ -17,7 +17,7 @@ This guide explains how the automated Microsoft Learn documentation monitoring s
 
 ## System Overview
 
-The Learn monitor tracks **207 Microsoft Learn URLs** from the [Microsoft Learn URLs](microsoft-learn-urls.md) watchlist and detects content changes that may require updates to framework documentation.
+The Learn monitor tracks **209 Microsoft Learn URLs** from the [Microsoft Learn URLs](microsoft-learn-urls.md) watchlist and detects content changes that may require updates to framework documentation.
 
 **Part of Unified Monitoring System:** The Learn Monitor is one source adapter within the broader unified monitoring architecture. See [monitoring-architecture.md](monitoring-architecture.md) for the complete system design.
 
@@ -29,7 +29,7 @@ The Learn monitor tracks **207 Microsoft Learn URLs** from the [Microsoft Learn 
 |  1. WATCHLIST                    2. FETCH & HASH                    |
 |  +---------------------+         +---------------------+            |
 |  | microsoft-learn-    |   -->   | For each URL:       |            |
-|  | urls.md (207 URLs)  |         | - Fetch HTML        |            |
+|  | urls.md (209 URLs)  |         | - Fetch HTML        |            |
 |  +---------------------+         | - Extract content   |            |
 |                                  | - Compute SHA-256   |            |
 |                                  +---------------------+            |
@@ -64,7 +64,7 @@ The Learn monitor tracks **207 Microsoft Learn URLs** from the [Microsoft Learn 
 | `scripts/monitoring_shared.py` | Unified monitoring framework (state, classification, control mapping) |
 | `scripts/regulatory_monitor.py` | Regulatory source adapter (Federal Register, FINRA) |
 | `.github/workflows/learn-monitor.yml` | GitHub Actions workflow for Learn Monitor |
-| `docs/reference/microsoft-learn-urls.md` | Watchlist of 207 URLs to monitor |
+| `docs/reference/microsoft-learn-urls.md` | Watchlist of 209 URLs to monitor |
 | `data/monitor-state.json` | Unified state file (content hashes for all sources) |
 | `reports/monitoring/learn-changes-*.md` | Learn change reports |
 | `reports/monitoring/regulatory-changes-*.md` | Regulatory change reports |
@@ -278,7 +278,7 @@ gh pr merge {PR_NUMBER} --squash
 
 ### Option 2: Manual Review
 
-1. **Review the change report** in `reports/learn-changes/`
+1. **Review the change report** in `reports/monitoring/`
 2. **Assess the classification** (CRITICAL, HIGH, MEDIUM, NOISE)
 3. **Update affected documentation:**
    - CRITICAL: Update playbooks immediately
@@ -382,7 +382,7 @@ rm reports/monitoring/learn-changes-*.md
 
 - **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Comprehensive unified monitoring system documentation
 - **AI-Assisted Review:** [learn-monitor-ai-enhancement.md](learn-monitor-ai-enhancement.md) - AI-assisted review implementation guide
-- **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - The watchlist of monitored URLs (207 URLs)
+- **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - The watchlist of monitored URLs (209 URLs)
 - **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill for reviewing changes
 - **Repository Instructions:** `.claude/CLAUDE.md` - Complete repository instructions (in project root)
 

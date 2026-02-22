@@ -1,7 +1,7 @@
 # Agent 365 Capabilities Summary
 
 **Last Updated:** February 2026
-**Version:** v1.2.48
+**Version:** v1.2.51
 
 ---
 

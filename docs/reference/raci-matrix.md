@@ -266,7 +266,7 @@ The following RACI assignments apply to additional controls:
 
 **Responsibilities:**
 
-- Model risk governance (OCC SR 11-7)
+- Model risk governance (OCC 2011-12 / Fed SR 11-7)
 - Fair lending oversight
 - Third-party risk management
 - Risk committee reporting
