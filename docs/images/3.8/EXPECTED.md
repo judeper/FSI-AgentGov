@@ -1,4 +1,4 @@
-# Control 3.8: Copilot Hub
+# Control 3.8: Copilot Hub and Governance Dashboard
 
 ## Expected Screenshots
 

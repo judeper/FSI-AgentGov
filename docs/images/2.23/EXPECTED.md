@@ -102,7 +102,7 @@
 **Portal Path:** Power Automate (make.powerautomate.com) → My flows → [Consent Logging Flow]
 **What to capture:**
 - Power Automate flow canvas showing consent logging logic
-- Trigger: "When a Power Virtual Agent calls a flow" or "When an HTTP request is received"
+- Trigger: "When Microsoft Copilot Studio calls a flow" or "When an HTTP request is received"
 - Action: "Add a new row" to Dataverse fsi_aiconsent table
 - Field mappings: UserID, AgentName, ConsentTimestamp, DisclosureVersion, AcknowledgmentStatus
 - Flow name visible in the header
