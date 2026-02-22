@@ -23,7 +23,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 
 ## Playbooks by Pillar
 
-### Pillar 1: Security (25 controls)
+### Pillar 1: Security (28 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -52,8 +52,11 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.23 Step-Up Authentication](../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | [Portal](1.23/portal-walkthrough.md) | [PS](1.23/powershell-setup.md) | [Test](1.23/verification-testing.md) | [Fix](1.23/troubleshooting.md) |
 | [1.24 Defender AI-SPM](../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | [Portal](1.24/portal-walkthrough.md) | [PS](1.24/powershell-setup.md) | [Test](1.24/verification-testing.md) | [Fix](1.24/troubleshooting.md) |
 | [1.25 MIME Type Restrictions](../../controls/pillar-1-security/1.25-mime-type-restrictions.md) | [Portal](1.25/portal-walkthrough.md) | [PS](1.25/powershell-setup.md) | [Test](1.25/verification-testing.md) | [Fix](1.25/troubleshooting.md) |
+| [1.26 File Upload Restrictions](../../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | [Portal](1.26/portal-walkthrough.md) | [PS](1.26/powershell-setup.md) | [Test](1.26/verification-testing.md) | [Fix](1.26/troubleshooting.md) |
+| [1.27 Content Moderation](../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | [Portal](1.27/portal-walkthrough.md) | [PS](1.27/powershell-setup.md) | [Test](1.27/verification-testing.md) | [Fix](1.27/troubleshooting.md) |
+| [1.28 Policy-Based Publishing](../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal](1.28/portal-walkthrough.md) | [PS](1.28/powershell-setup.md) | [Test](1.28/verification-testing.md) | [Fix](1.28/troubleshooting.md) |
 
-### Pillar 2: Management (22 controls)
+### Pillar 2: Management (24 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -79,8 +82,10 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [2.20 Adversarial Testing](../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | [Portal](2.20/portal-walkthrough.md) | [PS](2.20/powershell-setup.md) | [Test](2.20/verification-testing.md) | [Fix](2.20/troubleshooting.md) |
 | [2.21 AI Marketing Claims](../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal](2.21/portal-walkthrough.md) | [PS](2.21/powershell-setup.md) | [Test](2.21/verification-testing.md) | [Fix](2.21/troubleshooting.md) |
 | [2.22 Inactivity Timeout Enforcement](../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | [Portal](2.22/portal-walkthrough.md) | [PS](2.22/powershell-setup.md) | [Test](2.22/verification-testing.md) | [Fix](2.22/troubleshooting.md) |
+| [2.23 User Consent and AI Disclosure](../../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | [Portal](2.23/portal-walkthrough.md) | [PS](2.23/powershell-setup.md) | [Test](2.23/verification-testing.md) | [Fix](2.23/troubleshooting.md) |
+| [2.24 Feature Enablement Governance](../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | [Portal](2.24/portal-walkthrough.md) | [PS](2.24/powershell-setup.md) | [Test](2.24/verification-testing.md) | [Fix](2.24/troubleshooting.md) |
 
-### Pillar 3: Reporting (10 controls)
+### Pillar 3: Reporting (12 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -94,6 +99,8 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [3.8 Copilot Hub Dashboard](../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | [Portal](3.8/portal-walkthrough.md) | [PS](3.8/powershell-setup.md) | [Test](3.8/verification-testing.md) | [Fix](3.8/troubleshooting.md) |
 | [3.9 Sentinel Integration](../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | [Portal](3.9/portal-walkthrough.md) | [PS](3.9/powershell-setup.md) | [Test](3.9/verification-testing.md) | [Fix](3.9/troubleshooting.md) |
 | [3.10 Hallucination Feedback](../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | [Portal](3.10/portal-walkthrough.md) | [PS](3.10/powershell-setup.md) | [Test](3.10/verification-testing.md) | [Fix](3.10/troubleshooting.md) |
+| [3.11 Centralized Inventory Enforcement](../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal](3.11/portal-walkthrough.md) | [PS](3.11/powershell-setup.md) | [Test](3.11/verification-testing.md) | [Fix](3.11/troubleshooting.md) |
+| [3.12 Exception and Override Management](../../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | [Portal](3.12/portal-walkthrough.md) | [PS](3.12/powershell-setup.md) | [Test](3.12/verification-testing.md) | [Fix](3.12/troubleshooting.md) |
 
 ### Pillar 4: SharePoint (7 controls)
 

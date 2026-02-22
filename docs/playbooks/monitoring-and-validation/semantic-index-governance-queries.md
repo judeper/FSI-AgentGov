@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This template provides PowerShell and KQL queries for auditing and monitoring content indexed by Microsoft 365's Semantic Index for AI agent grounding. Use these queries to ensure governance compliance and identify potential oversharing risks.
+This template provides PowerShell and KQL queries for auditing and monitoring content indexed by Microsoft 365's Semantic Index for AI agent grounding. Use these queries to support governance compliance and identify potential oversharing risks.
 
 ---
 

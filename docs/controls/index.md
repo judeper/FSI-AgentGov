@@ -43,7 +43,7 @@ The Control Catalog provides detailed requirements for each governance control. 
 
 ## Control Summary by Pillar
 
-### Pillar 1: Security Controls (24)
+### Pillar 1: Security Controls (28)
 
 Protect data and systems from unauthorized access and misuse.
 
@@ -72,12 +72,17 @@ Protect data and systems from unauthorized access and misuse.
 | [1.21](pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | 3 | FINRA 4511 |
 | [1.22](pillar-1-security/1.22-information-barriers.md) | Information Barriers | 3 | FINRA 3110 |
 | [1.23](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Step-Up Authentication | 3 | SOX |
+| [1.24](pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender AI-SPM | All | OCC 2011-12, GLBA |
+| [1.25](pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | All | FINRA 4511, GLBA |
+| [1.26](pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | All | GLBA, FINRA 4511 |
+| [1.27](pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | All | FINRA 3110, GLBA |
+| [1.28](pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Policy-Based Publishing | All | SOX, FINRA 3110 |
 
 [View Pillar 1 Overview](pillar-1-security/index.md)
 
 ---
 
-### Pillar 2: Management Controls (22)
+### Pillar 2: Management Controls (24)
 
 Govern agent lifecycle, risk, and operational processes.
 
@@ -105,12 +110,14 @@ Govern agent lifecycle, risk, and operational processes.
 | [2.20](pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | 3 | FINRA 3110 |
 | [2.21](pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | AI Marketing Claims | 3 | - |
 | [2.22](pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Inactivity Timeout Enforcement | 2-3 | GLBA, SOX, FINRA 4511 |
+| [2.23](pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | All | FINRA 3110, GLBA |
+| [2.24](pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | All | SOX, FINRA 3110 |
 
 [View Pillar 2 Overview](pillar-2-management/index.md)
 
 ---
 
-### Pillar 3: Reporting Controls (10)
+### Pillar 3: Reporting Controls (12)
 
 Monitor, track, and report on agent activities and compliance.
 
@@ -126,6 +133,8 @@ Monitor, track, and report on agent activities and compliance.
 | [3.8](pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Copilot Hub | 2-3 | - |
 | [3.9](pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Sentinel Integration | 3 | - |
 | [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback | 2-3 | FINRA 4511 |
+| [3.11](pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | All | FINRA 4511, SOX |
+| [3.12](pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception and Override Management | All | SOX, FINRA 3110 |
 
 [View Pillar 3 Overview](pillar-3-reporting/index.md)
 
