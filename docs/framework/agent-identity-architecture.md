@@ -1060,7 +1060,7 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 ### Microsoft Official Blogs
 
 - [Microsoft Agent 365: The Control Plane for AI Agents](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-agent-365-the-control-plane-for-ai-agents/)
-- [New Capabilities for AI Admins from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906)
+- [New Capabilities for AI Admins from Ignite 2025](https://techcommunity.microsoft.com/en-us/blog/microsoft365copilotblog/new-capabilities-for-ai-admins-from-ignite-2025/4478906)
 - [Four Priorities for AI-Powered Identity and Network Access Security in 2026](https://www.microsoft.com/en-us/security/blog/2026/01/20/four-priorities-for-ai-powered-identity-and-network-access-security-in-2026/)
 - [New Era of Agents, New Era of Posture](https://www.microsoft.com/en-us/security/blog/2026/01/21/new-era-of-agents-new-era-of-posture/)
 

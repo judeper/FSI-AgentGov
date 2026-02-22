@@ -59,12 +59,12 @@ Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institu
 
 | Regulation | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise) |
 |------------|------------------|---------------|---------------------|
-| FINRA 4511 | Not applicable | Moderate | Full compliance |
+| FINRA 4511 | Not applicable | Moderate | Full applicability |
 | FINRA 3110 | Not applicable | Basic supervision | Comprehensive |
-| SEC 17a-3/4 | Not applicable | If applicable | Full compliance |
-| SOX 302/404 | Not applicable | Limited | Full compliance |
-| GLBA 501(b) | Not applicable | If PII accessed | Full compliance |
-| OCC 2011-12 | Not applicable | Not applicable | Full compliance |
+| SEC 17a-3/4 | Not applicable | If applicable | Full applicability |
+| SOX 302/404 | Not applicable | Limited | Full applicability |
+| GLBA 501(b) | Not applicable | If PII accessed | Full applicability |
+| OCC 2011-12 | Not applicable | Not applicable | Full applicability |
 
 **Note:** Zone 1 agents are intended for unregulated personal productivity scenarios and are generally not the focus of regulatory examination, provided their use remains restricted to unregulated activities. Any spillover into customer or trading data would move such agents into Zone 2 or 3.
 
@@ -115,7 +115,7 @@ Each control supports three implementation levels:
 | Security policy | C | C | **A** | I | I |
 | Regulatory alignment | C | **A** | C | C | I |
 | Incident escalation | R | R | R | C | **A** |
-| Annual governance review | R | **A** | C | C | A |
+| Annual governance review | R | **A** | C | C | I |
 
 **Legend:** R = Responsible, A = Accountable, C = Consulted, I = Informed
 
