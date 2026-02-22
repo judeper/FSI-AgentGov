@@ -227,8 +227,8 @@ $tableName = "fsi_aiconsent"
 - Publish the agent
 - Test consent acknowledgment with a new user
 - Query Dataverse to confirm the record is created:
-  ```sql
-  -- FetchXML query
+  ```xml
+  <!-- FetchXML query -->
   <fetch>
     <entity name='fsi_aiconsent'>
       <attribute name='fsi_userid' />
