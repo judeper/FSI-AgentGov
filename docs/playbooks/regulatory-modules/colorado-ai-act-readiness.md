@@ -1,7 +1,7 @@
 # Colorado AI Act Readiness Module
 
 **Applicability:** Conditional - for organizations with operations in Colorado or serving Colorado residents
-**Effective Date:** June 30, 2026
+**Effective Date:** June 30, 2026 (extended from February 1, 2026 via SB 25B-004)
 
 ## Overview
 
@@ -53,7 +53,7 @@ Use the **[Colorado AI Impact Assessment](colorado-ai-impact-assessment.md)** te
 
 ## Key Dates
 
-- **June 30, 2026:** Effective date for all requirements
+- **June 30, 2026:** Effective date for all requirements (extended from February 1, 2026 via SB 25B-004)
 - **Before June 30:** Assess all high-risk AI systems
 - **On or after June 30:** All requirements become mandatory
 
@@ -70,7 +70,7 @@ Use the **[Colorado AI Impact Assessment](colorado-ai-impact-assessment.md)** te
 ## Additional Resources
 
 - [Colorado SB24-205 Text](https://leg.colorado.gov/bills/sb24-205)
-- [Colorado AI Act Implementation Timeline](https://www.colorado.gov)
+- [Colorado Governor's Office](https://www.colorado.gov)
 - [Impact Assessment Template](colorado-ai-impact-assessment.md)
 
 ---

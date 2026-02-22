@@ -2,9 +2,9 @@
 
 **Purpose:** Document third-party AI dependencies (models, endpoints, plugins, connectors, tools, data providers) and the governance controls needed to manage operational, security, compliance, and resilience risk.  
 **Applies to:** Zone 3 agents (required); Zone 2 where third-party components process sensitive data or influence consequential decisions.  
-**Regulatory driver (FINRA):** FINRA’s 2026 oversight messaging on GenAI highlights that firms remain responsible for regulatory obligations even when GenAI is sourced via third-party vendors and emphasizes governance/testing/monitoring expectations, including for AI agents. [web:21]  
-**Regulatory driver (SEC):** SEC 2026 priorities emphasize AI as a cross-cutting risk area and highlight third-party vendor management as part of operational resiliency and cybersecurity expectations. [web:92]  
-**Related controls (examples):** 2.7 Vendor and Third-Party Risk Management, 2.4 BC/DR, 2.3 Change management, 1.7 Audit logging, 3.3 Compliance reporting. <sup>[3]</sup>
+**Regulatory driver (FINRA):** FINRA’s 2026 oversight messaging on GenAI highlights that firms remain responsible for regulatory obligations even when GenAI is sourced via third-party vendors and emphasizes governance/testing/monitoring expectations, including for AI agents.  
+**Regulatory driver (SEC):** SEC 2026 priorities emphasize AI as a cross-cutting risk area and highlight third-party vendor management as part of operational resiliency and cybersecurity expectations.  
+**Related controls (examples):** 2.7 Vendor and Third-Party Risk Management, 2.4 BC/DR, 2.3 Change management, 1.7 Audit logging, 3.3 Compliance reporting.
 
 ---
 
@@ -66,7 +66,7 @@
 
 ## 5) Operational resiliency (BC/DR)
 
-SEC priorities emphasize operational resiliency and vendor management as an examination area, including third-party oversight. [web:92]
+SEC priorities emphasize operational resiliency and vendor management as an examination area, including third-party oversight.
 
 - **Dependency type:** (critical path vs non-critical)
 - **RTO / RPO expectations:**
@@ -111,7 +111,7 @@ Re-approval required if any of the following changes occur:
 
 ## 8) Monitoring requirements
 
-FINRA highlights the need for ongoing monitoring and governance for GenAI and AI agents. [web:21]
+FINRA highlights the need for ongoing monitoring and governance for GenAI and AI agents.
 
 - **What will be monitored:** uptime, error rates, response latency, policy blocks, drift indicators.
 - **Alert thresholds:** (define)

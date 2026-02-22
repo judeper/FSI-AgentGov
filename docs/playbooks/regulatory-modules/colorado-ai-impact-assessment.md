@@ -1,9 +1,9 @@
 # Template: Colorado AI Act (SB24-205) Impact Assessment — Deployer
 
 **Purpose:** Provide a repeatable “impact assessment” document for any AI system that is or may be a **high-risk artificial intelligence system** under Colorado law.  
-**Who uses this:** The **deployer** (a person doing business in Colorado that deploys a high-risk AI system). <sup>[11]</sup>  
-**Effective trigger date:** Deployer obligations apply on and after **June 30, 2026** (extended from February 1, 2026 via SB 25B-004), including completing an impact assessment and annual review. <sup>[11]</sup>  
-**FSI relevance:** The statute defines “consequential decision” to include decisions affecting “a financial or lending service,” and defines “high-risk AI system” as one that makes or is a substantial factor in making a consequential decision. <sup>[12]</sup>
+**Who uses this:** The **deployer** (a person doing business in Colorado that deploys a high-risk AI system).  
+**Effective trigger date:** Deployer obligations apply on and after **June 30, 2026** (extended from February 1, 2026 via SB 25B-004), including completing an impact assessment and annual review.  
+**FSI relevance:** The statute defines “consequential decision” to include decisions affecting “a financial or lending service,” and defines “high-risk AI system” as one that makes or is a substantial factor in making a consequential decision.
 
 > Important: This is a governance template, not legal advice. Legal counsel should confirm applicability to your specific footprint and use case.
 
@@ -19,27 +19,27 @@
 - **Vendor/developer (if third-party):**
 - **Deployment date:**
 - **Last assessment date:**
-- **Next assessment date:** (at least annually) <sup>[11]</sup>
+- **Next assessment date:** (at least annually)
 
 ---
 
 ## 2) Applicability determination (is this “high-risk” under SB24-205?)
 
 ### 2.1 Is it an “AI system” under the statute?
-Colorado defines an “artificial intelligence system” broadly as a machine-based system that infers how to generate outputs (content/decisions/predictions/recommendations) that can influence environments. <sup>[12]</sup>
+Colorado defines an “artificial intelligence system” broadly as a machine-based system that infers how to generate outputs (content/decisions/predictions/recommendations) that can influence environments.
 
 - **Yes / No / Uncertain**
 - **Rationale:**
 
 ### 2.2 Does it make or substantially factor into a “consequential decision”?
-Colorado defines “consequential decision” as having a material legal or similarly significant effect on provision/denial/cost/terms of categories including “a financial or lending service.” <sup>[12]</sup>
+Colorado defines “consequential decision” as having a material legal or similarly significant effect on provision/denial/cost/terms of categories including “a financial or lending service.”
 
 - **Yes / No / Uncertain**
 - **Decision type(s):** (credit underwriting, pricing, fraud blocking, account closure, etc.)
 - **Rationale:**
 
 ### 2.3 High-risk conclusion
-Colorado defines a “high-risk AI system” as one that, when deployed, makes or is a substantial factor in making a consequential decision. <sup>[12]</sup>
+Colorado defines a “high-risk AI system” as one that, when deployed, makes or is a substantial factor in making a consequential decision.
 
 - **High-risk: Yes / No / Uncertain**
 - **If “uncertain,” escalation:** route to Legal/Compliance for determination.
@@ -48,7 +48,7 @@ Colorado defines a “high-risk AI system” as one that, when deployed, makes o
 
 ## 3) Purpose, intended use cases, and deployment context
 
-Colorado requires the impact assessment to include a statement disclosing purpose, intended use cases, deployment context, and benefits. <sup>[11]</sup>
+Colorado requires the impact assessment to include a statement disclosing purpose, intended use cases, deployment context, and benefits.
 
 - **Purpose (plain language):**
 - **Intended use cases:**
@@ -59,7 +59,7 @@ Colorado requires the impact assessment to include a statement disclosing purpos
 
 ## 4) Data categories and outputs
 
-Colorado requires describing categories of data processed as inputs and outputs produced. <sup>[11]</sup>
+Colorado requires describing categories of data processed as inputs and outputs produced.
 
 ### 4.1 Inputs (data categories)
 - Personal data categories:
@@ -69,16 +69,16 @@ Colorado requires describing categories of data processed as inputs and outputs 
 - Data quality caveats:
 
 ### 4.2 Outputs
-- Output types: content / score / recommendation / decision / prediction <sup>[12]</sup>
+- Output types: content / score / recommendation / decision / prediction
 - How outputs are used:
-- Is output used directly or as “substantial factor” in a human decision? <sup>[12]</sup>
+- Is output used directly or as “substantial factor” in a human decision?
 
 ---
 
 ## 5) Known/foreseeable risks of algorithmic discrimination + mitigations
 
-Colorado requires analysis of known or reasonably foreseeable risks of algorithmic discrimination and steps taken to mitigate. <sup>[11]</sup>  
-Colorado defines “algorithmic discrimination” as unlawful differential treatment or impact disadvantaging a protected class under state/federal law. <sup>[12]</sup>
+Colorado requires analysis of known or reasonably foreseeable risks of algorithmic discrimination and steps taken to mitigate.  
+Colorado defines “algorithmic discrimination” as unlawful differential treatment or impact disadvantaging a protected class under state/federal law.
 
 ### 5.1 Risk inventory
 - Potential disparate impact vectors:
@@ -104,7 +104,7 @@ Colorado defines “algorithmic discrimination” as unlawful differential treat
 
 ## 6) Performance metrics and known limitations
 
-Colorado requires listing metrics used to evaluate performance and known limitations. <sup>[11]</sup>
+Colorado requires listing metrics used to evaluate performance and known limitations.
 
 - **Primary metrics:** (accuracy, FPR/FNR, calibration, etc.)
 - **Fairness metrics:** (selection rate ratios, error rate parity, etc.)
@@ -115,19 +115,19 @@ Colorado requires listing metrics used to evaluate performance and known limitat
 
 ## 7) Transparency measures and consumer notice readiness
 
-Colorado requires describing transparency measures, including measures to disclose when the high-risk AI system is in use. <sup>[11]</sup>  
-The statute requires notice to the consumer that a high-risk AI system is used to make or be a substantial factor in making a consequential decision, and includes requirements for disclosures and adverse decision information. <sup>[11]</sup>
+Colorado requires describing transparency measures, including measures to disclose when the high-risk AI system is in use.  
+The statute requires notice to the consumer that a high-risk AI system is used to make or be a substantial factor in making a consequential decision, and includes requirements for disclosures and adverse decision information.
 
 - **Disclosure approach:** (where/how consumer is notified)
 - **Plain-language description:** (one paragraph)
 - **Contact information for deployer:** (support channel)
-- **Adverse decision explanation readiness:** principal reasons, degree/manner AI contributed, type and sources of data (prepare process). <sup>[11]</sup>
+- **Adverse decision explanation readiness:** principal reasons, degree/manner AI contributed, type and sources of data (prepare process).
 
 ---
 
 ## 8) Post-deployment monitoring and user safeguards
 
-Colorado requires describing post-deployment monitoring and safeguards, including oversight and learning process established by deployer. <sup>[11]</sup>
+Colorado requires describing post-deployment monitoring and safeguards, including oversight and learning process established by deployer.
 
 - Monitoring owners:
 - Monitoring cadence:
@@ -139,7 +139,7 @@ Colorado requires describing post-deployment monitoring and safeguards, includin
 
 ## 9) Annual review requirement
 
-The bill summary states deployers must annually review each deployed high-risk system to ensure it is not causing algorithmic discrimination. <sup>[11]</sup>
+The bill summary states deployers must annually review each deployed high-risk system to ensure it is not causing algorithmic discrimination.
 
 - **Annual review plan:** (date, sampling, metrics, sign-off)
 - **Evidence artifacts to retain:** (report, approvals, remediation tickets)
@@ -148,7 +148,7 @@ The bill summary states deployers must annually review each deployed high-risk s
 
 ## 10) Recordkeeping
 
-Colorado requires maintaining the most recent impact assessment and related records and prior assessments for at least 3 years following final deployment (per statutory text). <sup>[12]</sup>
+Colorado requires maintaining the most recent impact assessment and related records and prior assessments for at least 3 years following final deployment (per statutory text).
 
 - **Retention period:** (>= 3 years after final deployment)
 - **Storage location:** (GRC repository / SharePoint restricted site)
@@ -159,7 +159,7 @@ Colorado requires maintaining the most recent impact assessment and related reco
 
 ## 11) Exceptions / exemptions check (FSI note)
 
-The statutory text includes a “full compliance” concept for certain regulated banks/credit unions subject to prudential regulator examination under qualifying guidance/regulations. <sup>[12]</sup>  
+The statutory text includes a “full compliance” concept for certain regulated banks/credit unions subject to prudential regulator examination under qualifying guidance/regulations.  
 Even if relying on that concept, keep this impact assessment as evidence of “reasonable care” and alignment to a recognized AI RMF.
 
 - **Prudential regulator exam framework relied upon:** (if any)
