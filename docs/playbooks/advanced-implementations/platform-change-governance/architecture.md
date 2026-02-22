@@ -340,4 +340,4 @@ stateDiagram-v2
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

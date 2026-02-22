@@ -99,7 +99,7 @@ All 15 P1/P2 spot-checks also verified ✅
 | Severity | Count | Details |
 |----------|-------|---------|
 | **HIGH** | 2 | `solutions-integration.md`: Mermaid diagram shows 25/21/10/7 (sum=63) vs correct 28/24/12/7 (71); wrong control names for 3.1 and 3.2 |
-| **MEDIUM** | 7 | 5 files have stale "v1.2 - January 2026" footers; 1 says "v2.0"; 1 has stale body version |
+| **MEDIUM** | 7 | 5 files have stale "v1.2.51 - February 2026" footers; 1 says "v2.0"; 1 has stale body version |
 | **LOW** | 3 | Duplicate link target, "Full compliance" phrasing in Zone 3 descriptions |
 
 ### Reference (22 files)

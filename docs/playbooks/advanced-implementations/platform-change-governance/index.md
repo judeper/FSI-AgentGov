@@ -184,4 +184,4 @@ The FSI-AgentGov-Solutions repository provides deployable Power Platform compone
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*
