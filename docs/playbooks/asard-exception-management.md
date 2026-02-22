@@ -28,17 +28,17 @@ Exceptions are time-bound approvals that allow specific agents to maintain shari
 
 ### Exception Data Model
 
-Exceptions are tracked via additional columns on the `fsi_agentsharingcompliances` Dataverse table:
+Exceptions are tracked in the `gov_asardexception` Dataverse table:
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `fsi_exception_expires_at` | DateTime | Expiration date for the exception (UTC) |
-| `fsi_exception_justification` | Memo | Business justification for the exception (max 1MB) |
-| `fsi_exception_approved_by` | String | Name or email of the approver (max 256 chars) |
-| `fsi_exception_approved_at` | DateTime | Timestamp when exception was approved (UTC) |
-| `fsi_exception_review_date` | DateTime | Optional: Next review date for the exception (UTC) |
+| `gov_expirationdate` | DateTime | Expiration date for the exception (UTC) |
+| `gov_justification` | Memo | Business justification for the exception (max 1MB) |
+| `gov_approvedby` | String | Name or email of the approver (max 256 chars) |
+| `gov_approvedat` | DateTime | Timestamp when exception was approved (UTC) |
+| `gov_reviewdate` | DateTime | Optional: Next review date for the exception (UTC) |
 
-When `fsi_compliance_status = 2` (Exception) **AND** `fsi_exception_expires_at >= now()`, the agent is considered to have an active exception.
+When `gov_status = 2` (Active) **AND** `gov_expirationdate >= now()`, the agent is considered to have an active exception.
 
 ---
 
@@ -78,19 +78,19 @@ ASARD v1 uses manual exception entry via direct Dataverse record updates. No Can
 
 **Procedure:**
 
-1. **Identify the agent:** Obtain `fsi_agent_id` and `fsi_environment_id` from detection scan output (CSV or Dataverse query)
+1. **Identify the agent:** Obtain `gov_agentid` and `gov_environmentid` from detection scan output (CSV or Dataverse query)
 
-2. **Navigate to Dataverse:** Open the `fsi_agentsharingcompliances` table in Power Apps (make.powerapps.com → Dataverse → Tables)
+2. **Navigate to Dataverse:** Open the `gov_asardexception` table in Power Apps (make.powerapps.com → Dataverse → Tables)
 
-3. **Locate the record:** Filter by `fsi_agent_id` and `fsi_environment_id`
+3. **Locate the record:** Filter by `gov_agentid` and `gov_environmentid`
 
 4. **Update exception fields:**
-   - `fsi_compliance_status`: Set to `2` (Exception)
-   - `fsi_exception_expires_at`: Set expiration date (e.g., 90 days from now)
-   - `fsi_exception_justification`: Document business justification (required)
-   - `fsi_exception_approved_by`: Enter approver name/email (required)
-   - `fsi_exception_approved_at`: Set to current UTC timestamp
-   - `fsi_exception_review_date`: Optional, set for mid-term review (e.g., 45 days)
+   - `gov_status`: Set to `2` (Active)
+   - `gov_expirationdate`: Set expiration date (e.g., 90 days from now)
+   - `gov_justification`: Document business justification (required)
+   - `gov_approvedby`: Enter approver name/email (required)
+   - `gov_approvedat`: Set to current UTC timestamp
+   - `gov_reviewdate`: Optional, set for mid-term review (e.g., 45 days)
 
 5. **Save the record**
 
@@ -98,12 +98,12 @@ ASARD v1 uses manual exception entry via direct Dataverse record updates. No Can
 
 ```json
 {
-  "fsi_compliance_status": 2,
-  "fsi_exception_expires_at": "2026-05-15T00:00:00Z",
-  "fsi_exception_justification": "Cross-functional project team collaboration (Project Omega). Approved by PMO for Q2 2026 duration. Requires access from Sales, Marketing, and Engineering security groups.",
-  "fsi_exception_approved_by": "Jane Doe (jane.doe@contoso.com)",
-  "fsi_exception_approved_at": "2026-02-13T10:30:00Z",
-  "fsi_exception_review_date": "2026-04-01T00:00:00Z"
+  "gov_status": 2,
+  "gov_expirationdate": "2026-05-15T00:00:00Z",
+  "gov_justification": "Cross-functional project team collaboration (Project Omega). Approved by PMO for Q2 2026 duration. Requires access from Sales, Marketing, and Engineering security groups.",
+  "gov_approvedby": "Jane Doe (jane.doe@contoso.com)",
+  "gov_approvedat": "2026-02-13T10:30:00Z",
+  "gov_reviewdate": "2026-04-01T00:00:00Z"
 }
 ```
 
@@ -112,9 +112,9 @@ ASARD v1 uses manual exception entry via direct Dataverse record updates. No Can
 To renew an expiring exception:
 
 1. **Review justification:** Confirm that the business need still exists
-2. **Update `fsi_exception_expires_at`:** Extend to new expiration date
-3. **Update `fsi_exception_review_date`:** Optional, set next review milestone
-4. **Document renewal:** Update `fsi_exception_justification` with renewal note (append to existing text)
+2. **Update `gov_expirationdate`:** Extend to new expiration date
+3. **Update `gov_reviewdate`:** Optional, set next review milestone
+4. **Document renewal:** Update `gov_justification` with renewal note (append to existing text)
 
 **Example renewal justification:**
 
@@ -131,11 +131,11 @@ Expired exceptions are automatically handled by the **Exception Review Workflow*
 **Daily Process (08:00 UTC):**
 
 1. **Query for expired exceptions:**  
-   `fsi_compliance_status eq 2 AND fsi_exception_expires_at < today`
+   `gov_status eq 2 AND gov_expirationdate < today`
 
 2. **Auto-reset records:**
-   - Set `fsi_compliance_status = 1` (NonCompliant)
-   - Clear all `fsi_exception_*` fields
+   - Set `gov_status = 1` (Expired)
+   - Clear all exception-related fields
 
 3. **Send Teams notification:**  
    Post expired exception list to governance leads channel
@@ -173,18 +173,18 @@ To check for expiring exceptions manually:
 
 ```xml
 <fetch>
-  <entity name="fsi_agentsharingcompliances">
-    <attribute name="fsi_agent_name" />
-    <attribute name="fsi_environment_name" />
-    <attribute name="fsi_exception_expires_at" />
-    <attribute name="fsi_exception_approved_by" />
-    <attribute name="fsi_exception_justification" />
+  <entity name="gov_asardexception">
+    <attribute name="gov_agentname" />
+    <attribute name="gov_environmentname" />
+    <attribute name="gov_expirationdate" />
+    <attribute name="gov_approvedby" />
+    <attribute name="gov_justification" />
     <filter type="and">
-      <condition attribute="fsi_compliance_status" operator="eq" value="2" />
-      <condition attribute="fsi_exception_expires_at" operator="ge" value="@{utcNow()}" />
-      <condition attribute="fsi_exception_expires_at" operator="le" value="@{addDays(utcNow(), 14)}" />
+      <condition attribute="gov_status" operator="eq" value="2" />
+      <condition attribute="gov_expirationdate" operator="ge" value="@{utcNow()}" />
+      <condition attribute="gov_expirationdate" operator="le" value="@{addDays(utcNow(), 14)}" />
     </filter>
-    <order attribute="fsi_exception_expires_at" />
+    <order attribute="gov_expirationdate" />
   </entity>
 </fetch>
 ```
@@ -192,10 +192,10 @@ To check for expiring exceptions manually:
 **Dataverse Web API:**
 
 ```
-GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
-?$select=fsi_agent_name,fsi_environment_name,fsi_exception_expires_at,fsi_exception_approved_by
-&$filter=fsi_compliance_status eq 2 and fsi_exception_expires_at ge @now and fsi_exception_expires_at le @fourteendays
-&$orderby=fsi_exception_expires_at asc
+GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
+?$select=gov_agentname,gov_environmentname,gov_expirationdate,gov_approvedby
+&$filter=gov_status eq 2 and gov_expirationdate ge @now and gov_expirationdate le @fourteendays
+&$orderby=gov_expirationdate asc
 ```
 
 ---
@@ -242,10 +242,10 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
 1. Create test exception with expiration date in the past:
    ```json
    {
-     "fsi_compliance_status": 2,
-     "fsi_exception_expires_at": "2026-01-01T00:00:00Z",
-     "fsi_exception_justification": "Test expired exception",
-     "fsi_exception_approved_by": "Test User"
+     "gov_status": 2,
+     "gov_expirationdate": "2026-01-01T00:00:00Z",
+     "gov_justification": "Test expired exception",
+     "gov_approvedby": "Test User"
    }
    ```
 
@@ -257,8 +257,8 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
    - "Post Expired Notification" action sends Teams card
 
 4. Query Dataverse record:
-   - Verify `fsi_compliance_status = 1` (NonCompliant)
-   - Verify all `fsi_exception_*` fields are null
+   - Verify `gov_status = 1` (Expired)
+   - Verify all exception-related fields are null
 
 5. Run detection script:
    ```powershell
@@ -281,8 +281,8 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
 **Diagnosis:**
 
 1. Verify record has active exception:
-   - `fsi_compliance_status = 2`
-   - `fsi_exception_expires_at >= current UTC date`
+   - `gov_status = 2`
+   - `gov_expirationdate >= current UTC date`
 
 2. Check detection script logs:
    ```powershell
@@ -296,8 +296,8 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
 
 **Resolution:**
 
-- If `fsi_compliance_status ≠ 2`: Update to `2` (Exception)
-- If `fsi_exception_expires_at` is null or past: Set valid future date
+- If `gov_status ≠ 2`: Update to `2` (Active)
+- If `gov_expirationdate` is null or past: Set valid future date
 - If logs show no exception check: Verify detection script is Phase 4 version (includes exception logic in `upsert_compliance_record` function)
 
 ### Remediation Script Still Remediates Agent with Exception
@@ -324,7 +324,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
 **Resolution:**
 
 - If exception check code missing: Update to Phase 4 version of remediation script
-- If exception expired: Verify `fsi_exception_expires_at >= now()`
+- If exception expired: Verify `gov_expirationdate >= now()`
 - If Dataverse query fails: Check connection string and permissions
 
 ### Exception Review Workflow Not Triggering
@@ -394,7 +394,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/fsi_agentsharingcompliances
 
 ## Appendix: Exception Approval Template
 
-Use this template for documenting exception approvals in `fsi_exception_justification` field:
+Use this template for documenting exception approvals in `gov_justification` field:
 
 ```
 EXCEPTION REQUEST
