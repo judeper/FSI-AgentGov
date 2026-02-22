@@ -6,7 +6,7 @@
 
 ## Overview
 
-This guide describes the Power BI data model and dashboard for visualizing deny event correlations across three sources: Purview CopilotInteraction, Purview DLP, and Application Insights RAI telemetry. The v2.0 data model connects to **Dataverse** tables (`fsi_denyevents`, `fsi_denycorrelations`, `fsi_denyalerts`) as the primary data source.
+This guide describes the Power BI data model and dashboard for visualizing deny event correlations across three sources: Purview CopilotInteraction, Purview DLP, and Application Insights RAI telemetry. The v2.0 data model connects to **Dataverse** tables (`fsi_DenyEvent`, `fsi_DenyCorrelation`, `fsi_DenyAlert`) as the primary data source. Note: Power BI connects via OData, which exposes these as the plural lowercase entity set names (e.g., `fsi_denyevents`) in queries and DAX references below.
 
 ---
 

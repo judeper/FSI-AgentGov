@@ -135,7 +135,7 @@ FINRA underscores governance/testing/monitoring expectations for GenAI use and t
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.51 - January 2026*
 
 ---
 

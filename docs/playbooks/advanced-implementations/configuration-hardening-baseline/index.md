@@ -1,6 +1,6 @@
 # Configuration Hardening Baseline
 
-**Status:** February 2026 - FSI-AgentGov v1.3
+**Status:** February 2026 - FSI-AgentGov v1.2
 **Related Controls:** 1.1, 1.7, 1.8, 1.18, 1.27, 2.1, 2.22, 3.7, 3.8
 
 ---
