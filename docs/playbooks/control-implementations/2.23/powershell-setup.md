@@ -185,6 +185,7 @@ foreach ($env in $environments) {
     Write-Host "Scanning environment: $($env.DisplayName)..." -ForegroundColor Yellow
     
     # Get all bots/agents in the environment
+    # Conceptual — verify cmdlet availability in your environment
     $agents = Get-AdminPowerAppChatBot -EnvironmentName $env.EnvironmentName
     
     foreach ($agent in $agents) {
@@ -192,6 +193,7 @@ foreach ($env in $environments) {
         
         # Attempt to retrieve greeting topic (note: actual API may differ)
         try {
+            # Conceptual — verify cmdlet availability in your environment
             $greetingTopic = Get-AdminPowerAppChatBotTopic -EnvironmentName $env.EnvironmentName -BotName $agent.BotName -TopicName "Greeting"
             
             $hasDisclosure = if ($greetingTopic.Content -match "AI|artificial intelligence|monitoring|consent") {
@@ -281,7 +283,7 @@ Retrieve user consent acknowledgment records from the Dataverse `fsi_aiconsent` 
 
 .NOTES
     Requires: Dataverse environment with fsi_aiconsent table deployed
-    Requires: Microsoft.PowerApps.Administration.PowerShell module
+    Requires: Azure authentication method (MSAL.PS or Azure CLI) for Dataverse Web API access
     Author: FSI Agent Governance Framework
     Last Updated: February 2026
 #>
@@ -336,6 +338,16 @@ $fetchXml += @"
   </entity>
 </fetch>
 "@
+
+# Helper function to get access token (conceptual - implement based on your auth method)
+function Get-AccessToken {
+    param([string]$EnvironmentUrl)
+    # This is a placeholder - implement actual OAuth token acquisition
+    # Example: Use MSAL.PS or Azure CLI to get token
+    # az account get-access-token --resource $EnvironmentUrl --query accessToken -o tsv
+    Write-Warning "Implement Get-AccessToken function with your authentication method"
+    return ""
+}
 
 try {
     # Note: This uses a conceptual approach; actual Dataverse PowerShell cmdlet may differ
@@ -499,7 +511,7 @@ Generate a comprehensive compliance report showing disclosure configuration stat
 #>
 
 Write-Host "Generating Disclosure Compliance Report..." -ForegroundColor Cyan
-Write-Host "=" * 80 -ForegroundColor Cyan
+Write-Host ("=" * 80) -ForegroundColor Cyan
 
 # Section 1: Tenant-Wide Configuration
 Write-Host "`n[1/3] Retrieving Tenant-Wide AI Disclaimer Configuration..." -ForegroundColor Yellow
@@ -519,7 +531,7 @@ if ($dataverseUrl) {
 }
 
 # Summary
-Write-Host "`n" + "=" * 80 -ForegroundColor Cyan
+Write-Host ("`n" + ("=" * 80)) -ForegroundColor Cyan
 Write-Host "Disclosure Compliance Report Complete" -ForegroundColor Green
 Write-Host "Review the generated CSV files for detailed analysis." -ForegroundColor White
 ```
