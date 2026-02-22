@@ -84,7 +84,7 @@ Get-PnPListItem -List "Hallucination Tracking" -Query "<View><Query><Where><Geq>
 (Get-PnPListItem -List "Hallucination Tracking" | Where-Object { $_["Status"] -ne "Closed" }).Count
 
 # Verify flow status
-Get-AdminFlow -EnvironmentName "Default" | Where-Object { $_.DisplayName -like "*Hallucination*" }
+Get-AdminFlow -EnvironmentName "<your-environment-GUID>" | Where-Object { $_.DisplayName -like "*Hallucination*" }
 ```
 
 ---

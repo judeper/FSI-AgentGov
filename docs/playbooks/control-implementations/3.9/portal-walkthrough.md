@@ -213,8 +213,6 @@ After completing the configuration, verify:
 
 ---
 
----
-
 [Back to Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---

@@ -255,7 +255,7 @@
 **Steps:**
 
 1. Disable web search in Copilot Settings (Data Access tab)
-2. Wait for propagation (up to 8 hours)
+2. Wait for propagation (up to 24 hours)
 3. Test Copilot chat prompt requiring web search
 4. Verify web search not used in response
 
