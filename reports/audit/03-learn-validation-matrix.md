@@ -6,10 +6,10 @@
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| Contradicted | 15 | Claim conflicts with current Microsoft Learn documentation |
-| Not Found | 4 | Claim references cmdlets/features not documented in Learn |
-| Partially Verified | 3 | Claim partially correct but needs updating |
-| **Total flagged** | **22** | |
+| Contradicted | 22 | Claim conflicts with current Microsoft Learn documentation |
+| Not Found | 5 | Claim references cmdlets/features not documented in Learn |
+| Partially Verified | 4 | Claim partially correct but needs updating |
+| **Total flagged** | **31** | |
 
 ---
 
@@ -21,7 +21,7 @@
 |---|------|------|-------|-------------------|-----------|-------|
 | 1 | Solutions | Enable-AuditLogging.ps1 | `#Requires -Version 7.2` with `Microsoft.PowerApps.Administration.PowerShell` | PowerApps Admin module requires Windows PowerShell 5.1, NOT PS 7+ | [PowerApps PowerShell](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell) | **CRITICAL** — scripts cannot run |
 | 2 | Solutions | Enable-AuditLogging.ps1 | `PUT` for EntityDefinitions metadata update | Must use `PATCH` not `PUT` for Dataverse metadata updates | [Dataverse Web API](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/create-update-entity-definitions-using-web-api) | May wipe metadata |
-| 3 | Solutions | Enable-AuditLogging.ps1 | `RecordType` values `PowerAppsPlan`, `PowerAppsResource` | Only `PowerAppsApp` is documented; others are NOT valid | [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/search-unifiedauditlog) | False negatives |
+| 3 | Solutions | Enable-AuditLogging.ps1 | `RecordType` values `PowerAppsPlan`, `PowerAppsResource` | Only `PowerAppsApp` is documented; others are NOT valid | [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) | False negatives |
 
 ### HIGH — Feature/Behavior Inaccuracy
 

@@ -23,34 +23,34 @@
 ### Pillar 1 — Security (28 controls)
 | ID | Title | Technologies |
 |----|-------|-------------|
-| 1.1 | Copilot Studio DLP Governance | Power Platform DLP, Copilot Studio |
-| 1.2 | Agent Store and Catalog Security | M365 Admin, Copilot Studio |
-| 1.3 | Authentication and Identity for Agents | Entra ID, Conditional Access |
-| 1.4 | Data Classification and Sensitivity Labeling | Purview, Sensitivity Labels |
-| 1.5 | DLP and Sensitivity Labels | Purview DLP, Power Platform |
-| 1.6 | Encryption at Rest and in Transit | Purview CMK, TLS |
-| 1.7 | API Security and Connector Governance | Custom Connectors, API Management |
+| 1.1 | Restrict Agent Publishing by Authorization | Power Platform, Copilot Studio |
+| 1.2 | Agent Registry and Integrated Apps Management | M365 Admin, Copilot Studio |
+| 1.3 | SharePoint Content Governance and Permissions | SharePoint, Purview |
+| 1.4 | Advanced Connector Policies (ACP) | Power Platform DLP, Custom Connectors |
+| 1.5 | Data Loss Prevention (DLP) and Sensitivity Labels | Purview DLP, Power Platform |
+| 1.6 | Microsoft Purview DSPM for AI | Purview, AI Security |
+| 1.7 | Comprehensive Audit Logging and Compliance | Purview Audit, UAL |
 | 1.8 | Runtime Protection and External Threat Detection | Defender, Power Platform |
-| 1.9 | Secure Development Lifecycle for Agents | DevOps, ALM |
-| 1.10 | Privilege Access Management | Entra PIM |
+| 1.9 | Data Retention and Deletion Policies | Purview, Data Lifecycle |
+| 1.10 | Communication Compliance Monitoring | Purview CC |
 | 1.11 | Conditional Access and Phishing-Resistant MFA | Entra CA, FIDO2 |
-| 1.12 | Network Isolation and Private Endpoints | Azure Networking, Private Link |
-| 1.13 | Secrets and Credential Management | Key Vault, Managed Identity |
-| 1.14 | Audit Logging and Compliance | Purview Audit, UAL |
-| 1.15 | Customer Key and Double Key Encryption | Purview Customer Key |
-| 1.16 | Information Barriers | Purview IB |
-| 1.17 | Global Secure Access | Entra GSA, Internet Access |
-| 1.18 | Communication Compliance | Purview CC |
+| 1.12 | Insider Risk Detection and Response | Purview IRM |
+| 1.13 | Sensitive Information Types (SITs) and Pattern Recognition | Purview, DLP |
+| 1.14 | Data Minimization and Agent Scope Control | Power Platform, Copilot Studio |
+| 1.15 | Encryption: Data in Transit and at Rest | Purview CMK, TLS |
+| 1.16 | Information Rights Management (IRM) for Documents | Purview IRM |
+| 1.17 | Endpoint Data Loss Prevention (Endpoint DLP) | Purview DLP, Endpoint |
+| 1.18 | Application-Level Authorization and Role-Based Access Control (RBAC) | Entra ID, RBAC |
 | 1.19 | eDiscovery for Agent Interactions | Purview eDiscovery |
-| 1.20 | Session Security and Timeout | Power Platform Session |
-| 1.21 | Agent File Upload Security | Copilot Studio, DLP |
-| 1.22 | Content Moderation and Responsible AI | Azure AI Content Safety |
-| 1.23 | Agent Configuration Hardening | Power Platform, Copilot Studio |
-| 1.24 | Disaster Recovery and Business Continuity | Azure BC/DR |
-| 1.25 | MIME Type Security Restrictions | Copilot Studio, DLP |
-| 1.26 | Agent Sharing and Access Restriction | Copilot Studio Sharing |
-| 1.27 | RAG Source Validation and Drift Detection | Knowledge Sources |
-| 1.28 | Unrestricted Agent Sharing Detection | Copilot Studio |
+| 1.20 | Network Isolation and Private Connectivity | Azure Networking, Private Link |
+| 1.21 | Adversarial Input Logging | Copilot Studio, Audit |
+| 1.22 | Information Barriers for AI Agents | Purview IB |
+| 1.23 | Step-Up Authentication for AI Agent Operations | Entra CA, Copilot Studio |
+| 1.24 | Defender AI Security Posture Management (AI-SPM) | Defender, AI Security |
+| 1.25 | MIME Type Restrictions for File Uploads | Copilot Studio, DLP |
+| 1.26 | Agent File Upload and File Analysis Restrictions | Copilot Studio, DLP |
+| 1.27 | AI Agent Content Moderation Enforcement | Azure AI Content Safety |
+| 1.28 | Policy-Based Agent Publishing Restrictions | Copilot Studio, DLP |
 
 ### Pillar 2 — Management (24 controls)
 | ID | Title |
@@ -102,5 +102,5 @@
 |----------|-------|-----------|
 | Framework | 11 | executive-summary.md, governance-fundamentals.md, zones-and-tiers.md, regulatory-framework.md, operating-model.md, adoption-roadmap.md, agent-lifecycle.md, governance-cadence.md, agent-365-architecture.md, agent-identity.md, solutions-integration.md |
 | Reference | 21 | role-catalog.md, glossary.md, license-requirements.md, solutions-index.md, solutions-architecture-guide.md, regulatory-mappings.md, portal-paths-quick-reference.md, monitoring-architecture.md, evidence-standards.md, RACI matrix, NIST crosswalk, FAQ, config guide, SAM licensing, agent capabilities, audit events, agent essentials, Learn monitor reports |
-| Getting Started | 2 | overview.md, quick-start.md |
+| Getting Started | 2 | quick-start.md, checklist.md |
 | Downloads | 6 | Excel checklists (pillar-specific + comprehensive) |

@@ -36,7 +36,6 @@ All Microsoft Learn URLs cited in this audit, organized by topic.
 |-------|-----|
 | Customer Key Overview | https://learn.microsoft.com/en-us/purview/customer-key-overview |
 | Search-UnifiedAuditLog | https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog |
-| Exchange PowerShell — Search-UnifiedAuditLog | https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/search-unifiedauditlog |
 | App-Only Auth for Exchange PowerShell | https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2 |
 
 ## Microsoft Graph

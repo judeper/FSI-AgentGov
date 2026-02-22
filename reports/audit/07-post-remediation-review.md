@@ -2,7 +2,7 @@
 
 **Date:** Session 2 | **Reviewer:** Automated multi-agent audit
 **Scope:** FSI-AgentGov (docs) + FSI-AgentGov-Solutions (25 solutions)
-**Prior audit:** 87 findings, all remediated across 5 waves
+**Prior audit:** 87 findings, all remediated across 4 waves
 
 ---
 
