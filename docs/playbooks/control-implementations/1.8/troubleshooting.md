@@ -356,4 +356,4 @@ For Native Microsoft Defender Integration issues:
 
 ---
 
-*Updated: February 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.3*

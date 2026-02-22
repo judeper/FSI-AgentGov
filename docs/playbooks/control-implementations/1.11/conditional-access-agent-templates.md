@@ -59,6 +59,9 @@ Before implementing policies, create the following security groups:
 
 ### PowerShell Implementation
 
+!!! warning "Replace Placeholder App IDs"
+    The application GUIDs below (e.g., `9e0c93b0-...`, `51c00ca4-...`, `12a0c4dd-...`, `5e3ce6c0-...`) are **placeholder values** and must be replaced with the actual application IDs from your tenant's Entra ID app registrations before deploying these policies. To find the correct IDs, navigate to **Entra admin center → Applications → Enterprise applications** and search for the relevant service names. Well-known IDs such as `00000007-0000-0000-c000-000000000000` (Dataverse) and `00000000-0000-0000-0000-000000000004` (Phishing-resistant MFA strength) are legitimate Microsoft identifiers and should be used as-is.
+
 ```powershell
 # Zone 1: Baseline MFA for Agent Creators
 $params = @{
@@ -71,9 +74,9 @@ $params = @{
         }
         Applications = @{
             IncludeApplications = @(
-                "9e0c93b0-c0e0-4cd8-9c2e-3e396d76e3e0",  # Power Apps
-                "51c00ca4-e94c-4e91-8e0f-b9e6d4e7e9f3",  # Copilot Studio
-                "12a0c4dd-9e59-4f3a-9e3d-9e8e8e8e8e8e"   # Power Apps Maker
+                "9e0c93b0-c0e0-4cd8-9c2e-3e396d76e3e0",  # Power Apps — replace with your tenant app ID
+                "51c00ca4-e94c-4e91-8e0f-b9e6d4e7e9f3",  # Copilot Studio — replace with your tenant app ID
+                "12a0c4dd-9e59-4f3a-9e3d-9e8e8e8e8e8e"   # Power Apps Maker — replace with your tenant app ID
             )
         }
     }
@@ -143,9 +146,9 @@ $params = @{
         }
         Applications = @{
             IncludeApplications = @(
-                "9e0c93b0-c0e0-4cd8-9c2e-3e396d76e3e0",  # Power Apps
-                "51c00ca4-e94c-4e91-8e0f-b9e6d4e7e9f3",  # Copilot Studio
-                "5e3ce6c0-2b1f-4285-8d4b-75ee78787346"   # PPAC
+                "9e0c93b0-c0e0-4cd8-9c2e-3e396d76e3e0",  # Power Apps — replace with your tenant app ID
+                "51c00ca4-e94c-4e91-8e0f-b9e6d4e7e9f3",  # Copilot Studio — replace with your tenant app ID
+                "5e3ce6c0-2b1f-4285-8d4b-75ee78787346"   # PPAC — replace with your tenant app ID
             )
         }
         ClientAppTypes = @("browser", "mobileAppsAndDesktopClients")
@@ -421,7 +424,7 @@ $params = @{
         }
         Applications = @{
             IncludeApplications = @(
-                "9e0c93b0-c0e0-4cd8-9c2e-3e396d76e3e0",  # Power Apps
+                "9e0c93b0-c0e0-4cd8-9c2e-3e396d76e3e0",  # Power Apps — replace with your tenant app ID
                 "00000007-0000-0000-c000-000000000000"   # Dataverse
             )
         }

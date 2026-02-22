@@ -409,7 +409,7 @@ $SecurityAnalysis | Export-Csv "RuntimeProtection-Analysis-$(Get-Date -Format 'y
 
 ## Sentinel Detection Rule (KQL)
 
-```kusto
+```kql
 // Prompt Injection Detection
 PowerPlatformAdminActivity
 | where Operation == "PromptInjectionDetected"
@@ -444,7 +444,7 @@ PowerPlatformAdminActivity
     .\Configure-Control-1.8.ps1 -OutputPath "C:\SecurityReports"
 
 .NOTES
-    Last Updated: January 2026
+    Last Updated: February 2026
     Related Control: Control 1.8 - Runtime Protection and External Threat Detection
 #>
 
@@ -573,4 +573,4 @@ finally {
 
 ---
 
-*Updated: February 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.3*
