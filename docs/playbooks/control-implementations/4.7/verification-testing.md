@@ -78,12 +78,16 @@ Get-SPOSite -Limit All | Where-Object {
     $_.RestrictContentOrgWideSearch -eq $true
 } | Select-Object Url, Title | Format-Table
 
-# Count licensed users
-$licensedUsers = Get-MgUser -Filter "assignedLicenses/any()" -All
-Write-Host "Users with licenses: $($licensedUsers.Count)"
+# Count users with Copilot licenses
+$copilotSkus = Get-MgSubscribedSku | Where-Object { $_.SkuPartNumber -match 'Copilot' }
+$copilotSkuIds = $copilotSkus.SkuId
+$copilotUsers = Get-MgUser -Filter "assignedLicenses/any()" -All | Where-Object {
+    $_.AssignedLicenses.SkuId | Where-Object { $_ -in $copilotSkuIds }
+}
+Write-Host "Users with Copilot licenses: $($copilotUsers.Count)"
 
 # Check for sensitive sites not excluded
-$sensitivePatterns = @("executive", "legal", "hr", "confidential")
+$sensitivePatterns = @("executive", "legal", "hr", "confidential", "board", "merger", "acquisition")
 Get-SPOSite -Limit All | Where-Object {
     $url = $_.Url.ToLower()
     ($sensitivePatterns | Where-Object { $url -like "*$_*" }) -and

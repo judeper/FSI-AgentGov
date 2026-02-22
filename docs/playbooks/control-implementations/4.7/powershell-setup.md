@@ -21,7 +21,7 @@ Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
 Connect-MgGraph -Scopes "User.Read.All", "Organization.Read.All", "Application.Read.All"
 
 # Connect to SharePoint Online
-Connect-SPOService -Url "https://tenant-admin.sharepoint.com"
+Connect-SPOService -Url "https://tenant-admin.sharepoint.com"  # Replace 'tenant' with your tenant name
 ```
 
 ---
@@ -306,9 +306,7 @@ catch {
 finally {
     # Cleanup connections
     Disconnect-MgGraph -ErrorAction SilentlyContinue
-    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
-        Disconnect-SPOService -ErrorAction SilentlyContinue
-    }
+    Disconnect-SPOService -ErrorAction SilentlyContinue
 }
 ```
 
