@@ -179,6 +179,26 @@ After importing the ITE solution and deploying the schema, complete these config
 
 ---
 
+## Step 5a: Configure Session Expiration (Maximum Session Lifetime)
+
+In addition to inactivity timeout, configure session expiration to enforce an absolute maximum session duration regardless of user activity. This setting is in the same Privacy + Security page.
+
+1. In the **Session Expiration** section, set **Set custom session timeout** to **On**
+2. Set the **Maximum Session Length** value according to the environment's zone policy:
+
+| Zone | Maximum Session Lifetime | Recommended Setting |
+|------|--------------------------|---------------------|
+| Zone 1 (Personal) | Optional; ≤1440 min if enabled | 1440 minutes (24 hours) |
+| Zone 2 (Team) | ≤1440 minutes (required) | 1440 minutes (24 hours) |
+| Zone 3 (Enterprise) | ≤720 minutes (required) | 720 minutes (12 hours) |
+
+3. Click **Save** to apply the session expiration setting
+
+!!! note "Relationship to Control 3.7"
+    Control 3.7 (PPAC Security Posture Assessment) documents session expiration as part of the PPAC security hardening baseline. The recommended values above align with the Control 3.7 baseline. Refer to the [Control 3.7 hardening checklist](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) for the complete set of PPAC security settings.
+
+---
+
 ## Step 6: Verify Configuration Applied
 
 1. Return to **Settings** → **Privacy + Security**

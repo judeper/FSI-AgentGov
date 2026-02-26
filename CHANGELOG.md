@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.52] — February 2026 (SSPM Coverage Remediation)
+
+### Added
+
+- **Power Platform SSPM Control Mapping** (`docs/reference/power-platform-sspm-control-mapping.md`): New reference page mapping 46 Power Platform SSPM assessment controls to FSI-AgentGov equivalents. Includes coverage summary (74% full coverage), category-by-category mapping tables, and "Controls Not Mapped" section documenting Power Pages and Dynamics 365 email settings as out-of-scope.
+- **Control 2.22 — Session Expiration**: Expanded with session expiration (max session lifetime) configuration alongside existing inactivity timeout. Added zone-specific max values (Zone 2: ≤1440 min, Zone 3: ≤720 min), cross-reference to Control 3.7 hardening baseline, and updated all 4 playbooks.
+- **Bidirectional cross-references 1.11↔2.22**: Added mutual Related Controls entries linking Conditional Access sign-in frequency (1.11) with application-level inactivity/session timeout (2.22).
+- **Control 4.2 scope note**: Added `!!! note "Scope"` admonition clarifying SharePoint-scoped access reviews; redirects to Pillar 2 for Dataverse governance.
+- **Framework scope boundaries**: Added Power Pages portal security and Dynamics 365 server-side sync email settings as explicit out-of-scope items in `governance-fundamentals.md`.
+
+### Fixed
+
+- **Control 3.7 language compliance**: Fixed 2 prohibited phrases — "prevent XSS attacks" → "help mitigate cross-site scripting (XSS) risks"; "prevent code injection attacks" → "help mitigate code injection risks".
+
+---
+
 ## [1.2.51] — February 2026 (UASD Review Remediation)
 
 ### Overview

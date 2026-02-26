@@ -74,6 +74,8 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 - Quantitative model risk management (requires dedicated MRM programs)
 - State privacy laws (CCPA/CPRA require separate analysis)
 - Third-party AI integrations outside Microsoft 365 ecosystem
+- **Power Pages portal security** — Table permission governance, portal invitation lifecycle management, and external user access controls for Power Pages are outside the scope of this framework. Organizations deploying Power Pages portals should implement supplemental controls per Microsoft's Power Pages security guidance.
+- **Dynamics 365 server-side sync email settings** — PPAC email security configurations (approved queues, approved users, secure frames) are Dynamics 365 server-side sync features and are outside the scope of this framework's AI agent governance focus.
 
 ### Key Assumptions
 

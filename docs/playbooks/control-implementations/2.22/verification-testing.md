@@ -199,6 +199,24 @@
 
 ---
 
+### TC-2.22-11: Session Expiration Configuration Verification
+
+**Objective:** Verify session expiration (maximum session lifetime) is configured correctly for the environment's zone classification.
+
+**Steps:**
+
+1. Select a Zone 3 test environment
+2. Navigate to PPAC → Environment → Settings → Privacy + Security → Session Expiration
+3. Verify **Set custom session timeout** is set to **On**
+4. Verify the **Maximum Session Length** is set to ≤720 minutes for Zone 3 (or ≤1440 minutes for Zone 2)
+5. Repeat for a Zone 2 environment and confirm the maximum session lifetime is ≤1440 minutes
+
+**Expected Result:** Session expiration enabled with maximum lifetime within zone-specific limits (Zone 2: ≤1440 minutes, Zone 3: ≤720 minutes).
+
+**Evidence:** Screenshot of PPAC Privacy + Security settings showing session expiration configuration for each governed environment.
+
+---
+
 ## Evidence Checklist
 
 Collect the following evidence for audit documentation:
@@ -214,6 +232,7 @@ Collect the following evidence for audit documentation:
 | 7 | Evidence hash verification output for remediation records | JSON + Console | [ ] |
 | 8 | Agent-level session timeout configuration screenshots from Copilot Studio | Screenshot | [ ] |
 | 9 | Agent inventory export showing agent-level timeout settings for Zone 2/3 agents | CSV/Screenshot | [ ] |
+| 10 | Session expiration (maximum session lifetime) configuration for each governed environment | Screenshot | [ ] |
 
 ---
 

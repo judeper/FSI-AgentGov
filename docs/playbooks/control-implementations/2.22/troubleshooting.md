@@ -319,6 +319,38 @@
 
 ---
 
+### Issue 11: Session Expiration Not Applying as Expected
+
+**Symptoms:**
+
+- Session expiration (maximum session lifetime) configured in PPAC but sessions persist beyond the configured maximum duration
+- Users report being able to work continuously beyond the session expiration limit
+- Session expiration shows as enabled in PPAC but does not terminate active sessions at the expected time
+
+**Resolution Steps:**
+
+1. **Verify the setting is correctly configured:**
+   - Navigate to PPAC → Environment → Settings → Privacy + Security → Session Expiration
+   - Confirm **Set custom session timeout** is set to **On**
+   - Confirm the **Maximum Session Length** value is within zone limits (Zone 2: ≤1440 min, Zone 3: ≤720 min)
+
+2. **Understand session expiration behavior:**
+   - Like inactivity timeout, session expiration applies to new sessions — existing sessions retain their original expiration from session creation
+   - Users must sign out and sign back in for the new session expiration to apply
+
+3. **Distinguish from inactivity timeout:**
+   - Session expiration enforces an absolute maximum duration regardless of activity
+   - Inactivity timeout terminates sessions after a period of no activity
+   - Both settings operate independently; whichever threshold is reached first triggers session termination
+
+4. **Verify via BAP Admin API:**
+   - Query the environment's privacy settings using the diagnostic commands in the [Diagnostic Commands](#diagnostic-commands) section
+   - Confirm the session expiration properties are present and correctly configured in the API response
+
+**Root Cause:** Session expiration settings apply at session creation. Existing sessions are not retroactively updated when the setting changes.
+
+---
+
 ## Escalation Path
 
 | Level | Contact | When to Escalate |

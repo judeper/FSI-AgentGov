@@ -151,6 +151,9 @@ Authorization: Bearer {access_token}
 }
 ```
 
+!!! note "Session Expiration via BAP Admin API"
+    The BAP Admin API privacy settings endpoint also returns session expiration properties alongside inactivity timeout settings. When querying an environment's privacy settings using the GET endpoint above, the response may include session expiration fields. Organizations can use this endpoint to programmatically verify both inactivity timeout and session expiration configuration in a single API call. Refer to the existing patterns in the GET and PATCH examples above for authentication and request format.
+
 ### PATCH — Update Privacy Settings
 
 ```
