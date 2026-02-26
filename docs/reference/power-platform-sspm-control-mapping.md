@@ -14,14 +14,26 @@ SaaS Security Posture Management (SSPM) tools evaluate Power Platform environmen
 
 ---
 
+## How to Use This Document
+
+If you are reviewing FSI-AgentGov coverage against a Power Platform SSPM assessment (such as FalconShield, Adaptive Shield, or similar):
+
+1. Find your SSPM control ID in the mapping tables below
+2. Follow the FSI-AgentGov control link(s) for full implementation details
+3. Controls marked "Out of Scope" are intentionally excluded — see [Governance Fundamentals](../framework/governance-fundamentals.md#what-this-framework-does-not-cover) for scope rationale
+4. Controls marked "Platform-Inherited" are handled by Entra ID tenant configuration
+5. The [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) provides a consolidated checklist for SSPM-detectable settings
+
+---
+
 ## Coverage Summary
 
 | Coverage Level | Count | % of Included | Notes |
 |---|---|---|---|
-| Full Coverage | 34 | 74% | FSI-AgentGov control fully addresses SSPM requirement |
-| Partial Coverage | 8 | 17% | Core requirement met; documentation enhancements applied in v1.2.52 |
-| Not Covered | 2 | 4% | Outside FSI-AgentGov scope (Power Pages) |
-| Excluded | 4 | N/A | Excluded (Operational) |
+| Full Coverage | 32 | 84% | FSI-AgentGov control fully addresses SSPM requirement |
+| Partial Coverage | 1 | 3% | RBAC covers core requirement; Dataverse-specific review is a future candidate |
+| Out of Scope | 5 | 13% | Outside FSI-AgentGov scope (Power Pages, Dynamics 365 email) |
+| Excluded | 4 | N/A | Excluded (Operational/UX) |
 | Platform-Inherited | 8 | N/A | Handled by Microsoft 365 / Entra ID platform |
 
 ---
@@ -65,10 +77,7 @@ SaaS Security Posture Management (SSPM) tools evaluate Power Platform environmen
 | SSPM Control | FSI-AgentGov Control(s) | Coverage | Notes |
 |---|---|---|---|
 | SSPM-8: Inactivity Timeout (≤120 min)| [2.22](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Full | Zone 2 ≤120 min, Zone 3 ≤60 min (added v1.2.46) |
-| SSPM-12: Session Expiration (≤1440 min) | [2.22](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md), [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Full | Session expiration documented in 3.7 hardening baseline; cross-referenced from 2.22 (v1.2.52) |
-| SSPM-13: Email Message Content Restriction | N/A | Out of Scope | Dynamics 365 server-side sync setting; not applicable to Copilot Studio agent governance |
-| SSPM-15: Process Emails - Approved Queues | N/A | Out of Scope | Dynamics 365 server-side sync setting; Copilot Studio uses MCP servers for email channels |
-| SSPM-16: Process Emails - Approved Users | N/A | Out of Scope | Same as SSPM-15 |
+| SSPM-12: Session Expiration (≤1440 min) | [2.22](../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md), [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Full | Session expiration documented in 3.7 hardening baseline; cross-referenced from 2.22 |
 | SSPM-22: Mailbox Access in Dynamics| [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Partial | RBAC covers access control; Dataverse-specific mailbox review is a candidate for future Pillar 2 control |
 
 ### AI-Specific Features & Safety
