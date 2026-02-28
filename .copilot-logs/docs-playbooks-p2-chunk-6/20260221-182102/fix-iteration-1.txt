@@ -1,9 +1,0 @@
-Now I have all the context. Let me apply all 4 fixes:
-Verify the changes:
-All 4 fixes verified. Now commit:
-CHANGES:
-- docs/playbooks/control-implementations/2.23/powershell-setup.md: Moved `Get-AccessToken` function definition above the `try` block so it's defined before its call site (Fix 1)
-- docs/playbooks/control-implementations/2.23/powershell-setup.md: Added `# Conceptual — verify cmdlet availability in your environment` comments on `Get-AdminPowerAppChatBot` and `Get-AdminPowerAppChatBotTopic` lines (Fix 2, NEEDS_HUMAN_REVIEW)
-- docs/playbooks/control-implementations/2.23/powershell-setup.md: Fixed `Write-Host` syntax errors using subexpressions: `("=" * 80)` and `("`n" + ("=" * 80))` (Fix 3)
-- docs/playbooks/control-implementations/2.23/powershell-setup.md: Replaced misleading `.NOTES` prerequisite — changed from "Microsoft.PowerApps.Administration.PowerShell module" to "Azure authentication method (MSAL.PS or Azure CLI) for Dataverse Web API access" (Fix 4)
-FIX_STATUS: COMPLETE

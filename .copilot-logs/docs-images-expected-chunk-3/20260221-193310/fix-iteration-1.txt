@@ -1,9 +1,0 @@
-Now let me verify the current Microsoft naming for these items before making changes.
-Now I have enough context. Let me apply all three fixes.
-Verify the changes:
-All three fixes applied cleanly.
-CHANGES:
-- docs/images/2.23/EXPECTED.md (line 105): Updated deprecated "When a Power Virtual Agent calls a flow" to "When Copilot Studio calls a flow"
-- docs/images/1.22/EXPECTED.md (lines 6, 13): Updated "Microsoft Purview Compliance Center" to "Microsoft Purview compliance portal" (2 occurrences)
-- docs/images/1.28/EXPECTED.md (line 10): Updated "Office 365 Groups" to "Microsoft 365 Groups"
-FIX_STATUS: COMPLETE

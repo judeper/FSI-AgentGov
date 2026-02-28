@@ -1,9 +1,0 @@
-Now I'll apply all three fixes:
-Now handle the wildcard issue (warning 2). The review flagged it as `NEEDS_HUMAN_REVIEW` — I'll add a comment clarifying it's not a real glob and should be replaced with explicit connector IDs:
-Verify the changes:
-All three fixes applied correctly.
-CHANGES:
-- docs/playbooks/control-implementations/1.28/powershell-setup.md (line 378→380): Changed green `✓ Approval workflows enabled` message to yellow `⚠ Manual configuration required` to match the manual-only nature of the operation
-- docs/playbooks/control-implementations/1.28/powershell-setup.md (lines 148-151): Removed invalid wildcard `"/providers/Microsoft.PowerApps/apis/*"` and added comment explaining DLP API requires explicit connector IDs
-- docs/playbooks/control-implementations/1.28/powershell-setup.md (lines 400, 406): Changed `Get-DlpPolicy` → `Get-AdminDlpPolicy` in both validation commands to match admin-scoped cmdlets used in creation scripts
-FIX_STATUS: COMPLETE

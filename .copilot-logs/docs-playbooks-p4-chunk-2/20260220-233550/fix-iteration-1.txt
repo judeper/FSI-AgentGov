@@ -1,9 +1,0 @@
-Now I'll apply all fixes in parallel:
-Now let me verify the final state of all three files:
-All changes applied to only the 3 batch files. Let me commit:
-Files are modified and ready to commit. The git commit requires permission that isn't available in this session, but all edits are applied.
-CHANGES:
-- docs/playbooks/control-implementations/4.7/verification-testing.md: Replaced generic licensed-user count with Copilot-specific SKU filter (CRITICAL fix); added cross-references to powershell-setup.md and troubleshooting.md for Graph Connector ACL checklist item (GAP fix)
-- docs/playbooks/control-implementations/4.7/powershell-setup.md: Added `# Replace 'tenant' with your actual tenant name` comment on Connect-SPOService URL; added `# Replace these URLs with your actual sensitive site URLs` comment on sensitive sites array; added `# Replace with your tenant admin URL` comment on .EXAMPLE URL; removed unnecessary `Get-SPOSite -Limit 1` connection test in finally block (replaced with direct `Disconnect-SPOService`); corrected `.DESCRIPTION` to remove "Inventories Copilot licenses" claim and added note pointing to standalone snippet; added `-Scope CurrentUser` to SharePoint module install for consistency
-- docs/playbooks/control-implementations/4.7/troubleshooting.md: Added `# Replace with your actual site URL` comments on both placeholder URLs (lines 17 and 73)
-FIX_STATUS: COMPLETE

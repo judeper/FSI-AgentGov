@@ -1,8 +1,0 @@
-Now I have all the context. Let me apply all fixes:
-All 8 fixes applied. Let me verify the changes are correct:
-CHANGES:
-- docs/playbooks/control-implementations/1.8/powershell-setup.md: Replaced `defender-webhook.azurewebsites.net` and `my-security-provider.com` with RFC 2606 domains `defender.example.com` and `security.example.com`
-- docs/playbooks/control-implementations/1.8/portal-walkthrough.md: Replaced two `your-defender-endpoint.azurewebsites.net` URLs with `defender.example.com`; changed "ensures a fail-closed" to "supports a fail-closed"
-- docs/playbooks/control-implementations/1.8/verification-testing.md: Replaced `your-webhook-endpoint` with `webhook.example.com`
-- docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md: Added `— placeholder, replace with actual app ID` annotation to PPAC GUID; clarified break-glass Grant description
-FIX_STATUS: COMPLETE

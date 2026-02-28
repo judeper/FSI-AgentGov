@@ -1,4 +1,0 @@
-CHANGES:
-- docs/playbooks/control-implementations/1.6/powershell-setup.md (line 170): Changed inline comment from `# Search for AI interaction events with enhanced metadata` to `# Search for AIP sensitivity label activity events` to accurately describe the AIP record types being queried.
-- docs/playbooks/control-implementations/1.7/portal-walkthrough.md (line 144): Changed `(effective May 2023)` to `(with compliance dates beginning January 2023)` to resolve the internal inconsistency with the "October 2022 amendments" info box and accurately reflect the initial compliance date per SEC Release No. 34-96034.
-FIX_STATUS: COMPLETE

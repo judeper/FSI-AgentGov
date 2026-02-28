@@ -1,8 +1,0 @@
-Now I'll move the `Get-AccessToken` helper function before its first usage:
-Now remove the duplicate definition that was at the bottom:
-Verify the changes look correct:
-Both fixes verified. Committing:
-CHANGES:
-- `docs/playbooks/control-implementations/2.23/troubleshooting.md`: Fixed typo on line 470 — `fsi_isx expired` → `fsi_isexpired` to match correct Dataverse field name
-- `docs/playbooks/control-implementations/2.23/powershell-setup.md`: Moved `Get-AccessToken` function definition before its first call site to prevent `CommandNotFoundException`; removed duplicate definition from after the catch block
-FIX_STATUS: COMPLETE

@@ -1,3 +1,0 @@
-CHANGES:
-- docs/playbooks/control-implementations/1.16/powershell-setup.md: Removed trailing comma after `$LibraryName` in `param()` block (line 73) to fix PowerShell parse error
-FIX_STATUS: COMPLETE

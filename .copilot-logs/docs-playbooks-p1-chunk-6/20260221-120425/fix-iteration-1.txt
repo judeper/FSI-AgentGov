@@ -1,5 +1,0 @@
-All 4 fixes applied. Verifying no remaining instances:
-CHANGES:
-- docs/playbooks/control-implementations/1.19/troubleshooting.md: `KeyQL` → `KQL` (3 instances: lines 9, 25, 66)
-- docs/playbooks/control-implementations/1.19/portal-walkthrough.md: `KeyQL` → `KQL` (1 instance: line 49)
-FIX_STATUS: COMPLETE

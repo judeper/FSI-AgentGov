@@ -1,4 +1,0 @@
-CHANGES:
-- docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 117): Changed "Control 3.1 (Usage Dashboards)" to "Control 3.2 (Usage Analytics and Activity Monitoring)"
-- docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md (line 124): Changed "Control 3.3 (Conversation Transcripts)" to "Control 3.3 (Compliance and Regulatory Reporting)"
-FIX_STATUS: COMPLETE

@@ -1,5 +1,0 @@
-Both fixes applied correctly.
-CHANGES:
-- docs/playbooks/control-implementations/1.24/powershell-setup.md: Replaced unsafe `$token = (Get-AzAccessToken ...).Token` with SecureString-safe Marshal pattern handling both Az.Accounts <5.0 and 5.0+
-- docs/playbooks/control-implementations/1.27/powershell-setup.md: Replaced commented-out unsafe `# $accessToken = (Get-AzAccessToken ...).Token` with commented SecureString-safe Marshal pattern
-FIX_STATUS: COMPLETE

@@ -1,4 +1,0 @@
-CHANGES:
-- docs/playbooks/control-implementations/2.13/portal-walkthrough.md: Changed "effective May 2023" to "compliance date May 2023" for regulatory precision
-- docs/playbooks/control-implementations/2.14/powershell-setup.md: Replaced deprecated `Send-MailMessage or Graph API` reference with `Microsoft Graph API (Send-MgUserMail)`
-FIX_STATUS: COMPLETE

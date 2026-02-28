@@ -1,7 +1,0 @@
-CHANGES:
-- docs/playbooks/control-implementations/1.22/powershell-setup.md: Updated H1 from "Information Barriers" to "Information Barriers for AI Agents"
-- docs/playbooks/control-implementations/1.22/verification-testing.md: Updated H1 from "Information Barriers" to "Information Barriers for AI Agents"
-- docs/playbooks/control-implementations/1.22/troubleshooting.md: Updated H1 from "Information Barriers" to "Information Barriers for AI Agents"
-- docs/playbooks/control-implementations/1.21/portal-walkthrough.md: SKIPPED — `AuditLogs` table name fix marked NEEDS_HUMAN_REVIEW; correct table depends on environment connector configuration
-- docs/playbooks/control-implementations/1.21/powershell-setup.md: SKIPPED — same NEEDS_HUMAN_REVIEW reason as above
-FIX_STATUS: COMPLETE

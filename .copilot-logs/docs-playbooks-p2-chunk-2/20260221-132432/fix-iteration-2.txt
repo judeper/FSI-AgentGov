@@ -1,9 +1,0 @@
-Now I'll apply all 5 fixes:
-Verify the changes look correct:
-The diff includes prior iteration changes too. All 5 fixes applied correctly.
-CHANGES:
-- docs/playbooks/control-implementations/2.6/powershell-setup.md: Fixed prerequisite comment (line 16) to reference Exchange Online instead of Dataverse; wrapped division on lines 39–40 in `if ($metrics.TotalConversations -gt 0)` guard to prevent divide-by-zero
-- docs/playbooks/control-implementations/2.5/powershell-setup.md: Added `if ($responseTimes.Count -gt 0)` guard around percentile calculations and `if ($allResults.Count -gt 0)` guard around success rate division to prevent `$null`/`NaN` on empty results
-- docs/playbooks/control-implementations/2.6/portal-walkthrough.md: Added `NEEDS_HUMAN_REVIEW` HTML comment above model availability table for model name/date verification
-- docs/playbooks/control-implementations/2.7/troubleshooting.md: Removed hardcoded `2025wave2` from release plan URL, using base path instead, with `NEEDS_HUMAN_REVIEW` comment to update to latest wave
-FIX_STATUS: COMPLETE

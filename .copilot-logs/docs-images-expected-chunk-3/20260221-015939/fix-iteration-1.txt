@@ -1,7 +1,0 @@
-The WARNING about inconsistent template formats (detailed "Screenshot N:" vs table format) spans files both inside and outside this batch and is a stylistic convention difference — normalizing it would require changes across all EXPECTED.md files, which is outside this batch's scope.
-Files are modified and staged changes are ready. The commit requires permission — the edits are applied in the working tree.
-CHANGES:
-- docs/images/1.11/EXPECTED.md: Changed "Zone 3-4 environments" → "Zone 3 environments" (line 21)
-- docs/images/1.15/EXPECTED.md: Changed "Zone 3-4" → "Zone 3" (line 19)
-- docs/images/2.2/EXPECTED.md: Changed "Zone 1-4" → "Zone 1-3" (line 17)
-FIX_STATUS: COMPLETE

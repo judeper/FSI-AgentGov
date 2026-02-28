@@ -1,7 +1,0 @@
-All three lines confirmed. Applying fixes:
-All three fixes applied cleanly, matching the guard pattern used in the Complete Configuration Scripts.
-CHANGES:
-- docs/playbooks/control-implementations/2.12/powershell-setup.md (line 93): Added `if ($total -gt 0) { ... } else { 0 }` guard around approval rate calculation
-- docs/playbooks/control-implementations/2.12/powershell-setup.md (line 101): Added `if ($total -gt 0) { ... } else { 0 }` guard around percentage calculation
-- docs/playbooks/control-implementations/2.14/powershell-setup.md (line 135): Added `if ($total -gt 0) { ... } else { 0 }` guard around compliance rate calculation
-FIX_STATUS: COMPLETE

@@ -1,4 +1,0 @@
-CHANGES:
-- docs/playbooks/control-implementations/1.8/powershell-setup.md: Appended `(hypothetical — not a real cmdlet)` to the comment on line 313 clarifying `Set-AdminPowerAppEnvironmentThreatDetection` is not a standard cmdlet.
-- docs/playbooks/control-implementations/1.9/powershell-setup.md: Added inline comment `# illustrative — verify cmdlet availability` next to `Get-DispositionItem` on line 151.
-FIX_STATUS: COMPLETE

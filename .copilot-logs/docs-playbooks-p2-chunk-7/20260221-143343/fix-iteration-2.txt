@@ -1,4 +1,0 @@
-CHANGES:
-- docs/playbooks/control-implementations/2.24/verification-testing.md: Changed `Total Tests: 19` to `Total Tests: 20` (line 591)
-- docs/playbooks/control-implementations/2.23/troubleshooting.md: Changed `-- FetchXML query` to `<!-- FetchXML query -->` in xml code block (line 231)
-FIX_STATUS: COMPLETE

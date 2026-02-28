@@ -1,4 +1,0 @@
-CHANGES:
-- docs/images/1.11/EXPECTED.md (line 21): Changed `"Risk-based policies for Zone 3-4 environments"` → `"Risk-based policies for Zone 3 environments"`
-- docs/images/3.8/EXPECTED.md (line 1): Changed `"# Control 3.8: Copilot Hub"` → `"# Control 3.8: Copilot Hub and Governance Dashboard"`
-FIX_STATUS: COMPLETE

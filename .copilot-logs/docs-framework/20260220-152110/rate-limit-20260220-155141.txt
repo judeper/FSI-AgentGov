@@ -1,8 +1,0 @@
-Timestamp: 2026-02-20T15:51:41.3275410-06:00
-Attempt: 3/3
-Exit Code: 1
-Model: claude-opus-4.6-fast
-Raw Output:
-
-Stderr:
-Sorry, you've hit a rate limit that restricts the number of Copilot model requests you can make within a specific time period. Please try again in 1 minute. Please review our Terms of Service (https://docs.github.com/site-policy/github-terms/github-terms-of-service).

@@ -1,7 +1,0 @@
-Both files already have `**Last UI Verified:** February 2026` on line 6 and `**Governance Levels:**` on line 7. Let me check what the "Last Verified" pattern looks like in other controls.
-Now I see — `**Last Verified:**` is a separate field on line 8, after `**Governance Levels:**`. Both 1.25 and 1.27 are missing it.
-CHANGES:
-- 1.25-mime-type-restrictions.md: Added `**Last Verified:** 2026-02-12` on line 8 after `**Governance Levels:**` to match the 26-control pattern
-- 1.27-ai-agent-content-moderation-enforcement.md: Added `**Last Verified:** 2026-02-12` on line 8 after `**Governance Levels:**` to match the 26-control pattern
-- 1.10-communication-compliance-monitoring.md: Skipped (deferred — extra section merge requires separate template-compliance pass)
-FIX_STATUS: COMPLETE

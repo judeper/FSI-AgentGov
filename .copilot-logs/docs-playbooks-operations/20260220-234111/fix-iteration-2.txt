@@ -1,5 +1,0 @@
-CHANGES:
-- phase-0-governance-setup.md (line 104): "Microsoft Purview compliance portal" → "Microsoft Purview portal"
-- phase-1-minimal-viable-controls.md (line 201): "per FINRA 3110" → "per FINRA Rule 3110"
-- phase-2-hardening.md (line 158): "Full fairness assessment program" → "Full fairness assessment program (building on Phase 1 foundations)"
-FIX_STATUS: COMPLETE

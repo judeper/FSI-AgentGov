@@ -1,5 +1,0 @@
-Both fixes applied correctly.
-CHANGES:
-- `scripts/governance/README.md` (line 18): Removed `mime-type-exceptions.csv` row from Scripts table (kept only in Data Files table)
-- `scripts/governance/README.md` (line 55): Replaced placeholder URL `https://github.com/your-org/FSI-AgentGov-Solutions` with `https://github.com/judeper/FSI-AgentGov-Solutions`
-FIX_STATUS: COMPLETE

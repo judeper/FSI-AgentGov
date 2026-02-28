@@ -1,8 +1,0 @@
-Now let me also check sibling file format for the back-links/footer convention:
-Now I have the sibling convention: back-links → `---` → footer. Applying all 4 fixes:
-CHANGES:
-- docs/playbooks/control-implementations/1.1/powershell-setup.md: Updated header date (line 3) from "January 2026" to "February 2026"; updated .NOTES block date (line 134) from "January 2026" to "February 2026"
-- docs/playbooks/control-implementations/1.1/troubleshooting.md: Updated header date (line 3) from "January 2026" to "February 2026"
-- docs/playbooks/control-implementations/1.1/verification-testing.md: Reordered footer section to match sibling convention: back-links → `---` → footer metadata
-- docs/playbooks/control-implementations/1.1/portal-walkthrough.md: Promoted Step 7, Step 8, Step 9 from H3 (`###`) to H2 (`##`) for consistency with Steps 0–6
-FIX_STATUS: COMPLETE
