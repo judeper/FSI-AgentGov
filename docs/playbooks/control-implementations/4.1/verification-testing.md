@@ -1,6 +1,8 @@
-# Verification & Testing: Control 4.1 - SharePoint Information Access Governance (IAG)
+# Control 4.1: SharePoint Information Access Governance (IAG) - Verification & Testing
 
-**Last Updated:** January 2026
+> This playbook provides verification and testing guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
+
+---
 
 ## Manual Verification Steps
 
@@ -176,3 +178,7 @@ else {
 ---
 
 [Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

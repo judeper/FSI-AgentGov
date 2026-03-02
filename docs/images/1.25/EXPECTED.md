@@ -37,3 +37,13 @@
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
 - All three settings fields (blocked extensions, blocked MIME types, allowed MIME types) are on the same Privacy + Security settings page
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.25-01-blocked-extensions.png` — Blocked file extensions field
+- `1.25-02-blocked-mime-types.png` — Blocked MIME types field
+- `1.25-03-allowed-mime-types.png` — Allowed MIME types field
+- `1.25-04-compliance-test-output.png` — PowerShell compliance test output

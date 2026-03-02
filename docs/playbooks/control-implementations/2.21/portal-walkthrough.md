@@ -1,13 +1,13 @@
 # Portal Walkthrough: Control 2.21 - AI Marketing Claims and Substantiation
 
 **Last Updated:** January 2026
-**Portal:** SharePoint, Microsoft Compliance Center
+**Portal:** SharePoint, Microsoft Purview compliance portal
 **Estimated Time:** 2-3 hours initial setup
 
 ## Prerequisites
 
 - [ ] SharePoint Admin or Site Owner permissions
-- [ ] Access to Microsoft Compliance Center
+- [ ] Access to Microsoft Purview compliance portal
 - [ ] Compliance Officer approval for workflow design
 - [ ] Legal review of claim categories completed
 - [ ] Marketing team stakeholders identified
@@ -87,9 +87,9 @@ Create a scheduled Power Automate flow:
    - Send reminder email to Compliance Reviewer
    - Include claim text, original approval date, substantiation file link
 
-### Step 5: Configure Compliance Center Integration
+### Step 5: Configure Purview Compliance Portal Integration
 
-1. Navigate to Microsoft Compliance Center
+1. Navigate to Microsoft Purview compliance portal
 2. Under **Information governance** > **Labels**, create retention label:
    - Name: "AI Marketing Claim - 7 Year Retention"
    - Retention period: 7 years from creation

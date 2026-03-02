@@ -52,3 +52,15 @@
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
 - Note: Multi-cloud screenshots only applicable if AWS/GCP AI services are in scope
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.24-01-ai-spm-plan.png` — AI-SPM plan enablement
+- `1.24-02-ai-workload-inventory.png` — AI workload discovery and inventory
+- `1.24-03-attack-path-analysis.png` — AI attack path analysis
+- `1.24-04-security-recommendations.png` — AI security recommendations
+- `1.24-05-multi-cloud-connector.png` — Multi-cloud connector configuration
+- `1.24-06-ai-spm-dashboard.png` — AI-SPM dashboard overview

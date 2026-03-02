@@ -158,7 +158,7 @@
 - License assignment report showing both users have M365 Copilot licenses
 - M365 Admin Center settings showing deployment group configuration
 
-**Regulatory Mapping:** SEC (controlled change management), SOX 404 (documented IT controls)
+**Regulatory Mapping:** SOX 404 (documented IT controls)
 
 ---
 
@@ -217,47 +217,6 @@
 
 ---
 
-### Test Case 1: Admin Exclusion Group Access Control (Legacy)
-
-**Objective:** Verify users in Admin Exclusion Group cannot access Copilot
-
-**Steps:**
-
-1. Create Admin Exclusion Group in M365 Admin
-2. Add test user to Admin Exclusion Group
-3. Wait for propagation (up to 24 hours)
-4. Sign in as test user
-5. Attempt to access Copilot Chat in Teams/Outlook
-
-**Expected Result:** Access denied or Copilot features not visible
-
-### Test Case 2: Deployment Group Restrictions
-
-**Objective:** Verify users outside deployment group cannot access Copilot
-
-**Steps:**
-
-1. Create deployment group with specific users
-2. Assign Copilot to deployment group only
-3. Wait for propagation (up to 8 hours)
-4. Test with user inside deployment group
-5. Test with user outside deployment group
-
-**Expected Result:** Feature available only to users in deployment group
-
-### Test Case 3: Web Search Control Disabled
-
-**Objective:** Verify Copilot responses use only organizational data when web search disabled
-
-**Steps:**
-
-1. Disable web search in Copilot Settings (Data Access tab)
-2. Wait for propagation (up to 8 hours)
-3. Test Copilot chat prompt requiring web search
-4. Verify web search not used in response
-
-**Expected Result:** Copilot respects disabled web search setting
-
 ### Test Case 4: Agent Access Restrictions
 
 **Objective:** Verify restricted agent access prevents third-party agent discovery
@@ -285,19 +244,7 @@
 
 **Expected Result:** Settings changes applied successfully without Global Admin
 
-### Test Case 6: Settings Application (Legacy)
-
-**Objective:** Verify settings changes take effect
-
-**Steps:**
-
-1. Disable web search in Copilot Settings
-2. Test Copilot chat prompt requiring web
-3. Verify web search not used
-
-**Expected Result:** Copilot respects disabled web search
-
-### Test Case 7: Agent Approval Workflow
+### Test Case 6: Agent Approval Workflow
 
 **Objective:** Verify agents require approval
 
@@ -311,7 +258,7 @@
 
 **Expected Result:** Agents require approval before availability
 
-### Test Case 8: MCP Server Blocking
+### Test Case 7: MCP Server Blocking
 
 **Objective:** Verify blocked servers are inaccessible
 

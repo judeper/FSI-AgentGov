@@ -618,4 +618,6 @@ Get-MgUser -UserId $agentId -ExpandProperty Extensions | Select-Object -ExpandPr
 
 ---
 
-*Updated: February 2026 | Version: v1.2.48*
+[Back to Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+*Updated: February 2026 | Version: v1.2*

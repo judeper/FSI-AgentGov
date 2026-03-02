@@ -135,7 +135,7 @@ Aggregates and correlates deny events from multiple Microsoft sources to provide
 
 - FINRA 4511 (Books and Records)
 - FINRA 3110 (Supervision)
-- FINRA Regulatory Notice 25-07 (Workplace Modernization)
+- FINRA Regulatory Notice 24-09 (Gen AI)
 - SEC 17a-3/4 (Recordkeeping)
 - SOX 302/404 (Internal Controls)
 - GLBA 501(b) (Safeguards)

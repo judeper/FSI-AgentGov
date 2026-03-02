@@ -163,9 +163,9 @@ if ($labels) {
 }
 Disconnect-ExchangeOnline -Confirm:$false
 
-# Check 3: WORM storage (manual)
-Write-Host "`n[Check 3] WORM Storage" -ForegroundColor Cyan
-Write-Host "[INFO] Verify immutable storage for Zone 3 (SEC 17a-4)"
+# Check 3: SEC 17a-4 compliant storage (manual)
+Write-Host "`n[Check 3] SEC 17a-4 Compliant Storage" -ForegroundColor Cyan
+Write-Host "[INFO] Verify immutable storage for Zone 3 (SEC 17a-4): WORM or audit-trail alternative per October 2022 amendments"
 
 # Check 4: Examination procedures
 Write-Host "`n[Check 4] Examination Procedures" -ForegroundColor Cyan

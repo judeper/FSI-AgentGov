@@ -59,7 +59,7 @@ Bulleted configuration items
 **Section 7: Related Controls**
 | Control | Relationship |
 |---------|--------------|
-| [X.Y - Name](path.md) | ... |
+| [X.Y - Name](../pillar-N-name/X.Y-control-name.md) | ... |
 
 **Section 8: Implementation Guides**
 Links to 4 playbooks (create these next)

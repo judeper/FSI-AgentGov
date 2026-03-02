@@ -181,6 +181,7 @@ Use these skills for detailed step-by-step workflows:
 | `/add-control` | Adding a new control to a pillar |
 | `/update-excel` | Maintaining Excel checklist templates |
 | `/verify-ui` | Verifying portal screenshots match documentation |
+| `/review-learn-changes` | Reviewing monitoring reports and drafting documentation updates |
 
 Skills are loaded on-demand to reduce context size. Each skill includes YAML frontmatter with:
 - `name` - Skill identifier

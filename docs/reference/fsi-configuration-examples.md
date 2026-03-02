@@ -25,7 +25,7 @@ A regional retail bank deploys a customer service agent to handle account inquir
 - **Zone:** Zone 3 (Enterprise Managed - Customer-facing)
 - **Risk Level:** High
 - **Data Types:** Customer PII, Account Numbers, Transaction History
-- **Regulations:** GLBA, FINRA, SOX, State Banking Regulations
+- **Regulations:** GLBA, OCC, SOX, State Banking Regulations
 
 ### Control Configuration
 

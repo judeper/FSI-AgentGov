@@ -39,3 +39,7 @@
 - Ensure site URLs and user information are representative but not sensitive
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
+
+---
+
+[Back to Control 4.6](../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md)

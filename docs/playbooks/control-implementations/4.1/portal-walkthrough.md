@@ -1,8 +1,8 @@
-# Portal Walkthrough: Control 4.1 - SharePoint Information Access Governance (IAG)
+# Control 4.1: SharePoint Information Access Governance (IAG) - Portal Walkthrough
 
-**Last Updated:** January 2026
-**Portal:** SharePoint Admin Center
-**Estimated Time:** 1-2 hours
+> This playbook provides portal configuration guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
+
+---
 
 ## Prerequisites
 
@@ -131,3 +131,7 @@ After completing these steps, verify:
 ---
 
 [Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

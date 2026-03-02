@@ -137,6 +137,8 @@ foreach ($event in $dlpEvents) {
 Connect-MgGraph -Scopes "InformationProtectionPolicy.Read.All"
 
 # Get sensitivity labels
+# NOTE: Uses Beta endpoint; cmdlet name may change at GA.
+# If unavailable, use: Get-Label (Exchange Online) as an alternative.
 Get-MgBetaInformationProtectionSensitivityPolicyLabel |
     Select-Object Id, Name, Description, IsDefault |
     Format-Table

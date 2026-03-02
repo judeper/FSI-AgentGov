@@ -145,4 +145,4 @@ FINRA's 2026 Annual Regulatory Oversight Report highlights the need for ongoing 
 ## References
 
 1. FINRA, *2026 Annual Regulatory Oversight Report: GenAI — Continuing and Emerging Trends* (December 2025). <https://www.finra.org/rules-guidance/guidance/reports/2026-finra-annual-regulatory-oversight-report/gen-ai>
-2. SEC Division of Examinations, *2026 Examination Priorities* (December 2025). <https://www.sec.gov/about/divisions-offices/division-examinations/examination-priorities>
+2. SEC Division of Examinations, *2026 Examination Priorities* (December 2025). <https://www.sec.gov/about/reports-publications/2026-examination-priorities>

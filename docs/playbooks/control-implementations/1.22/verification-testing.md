@@ -1,4 +1,4 @@
-# Verification & Testing: Control 1.22 - Information Barriers
+# Verification & Testing: Control 1.22 - Information Barriers for AI Agents
 
 **Last Updated:** January 2026
 

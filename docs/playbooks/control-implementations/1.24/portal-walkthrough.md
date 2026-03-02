@@ -1,4 +1,4 @@
-# Portal Walkthrough: Control 1.24 - Defender AI Security Posture Management
+# Portal Walkthrough: Control 1.24 - Defender AI Security Posture Management (AI-SPM)
 
 **Last Updated:** January 2026
 **Portal:** Microsoft Defender for Cloud (Azure Portal)

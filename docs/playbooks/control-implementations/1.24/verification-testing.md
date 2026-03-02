@@ -1,4 +1,4 @@
-# Verification & Testing: Control 1.24 - Defender AI Security Posture Management
+# Verification & Testing: Control 1.24 - Defender AI Security Posture Management (AI-SPM)
 
 **Last Updated:** January 2026
 

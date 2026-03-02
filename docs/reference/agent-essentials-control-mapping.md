@@ -1,7 +1,7 @@
 # Agent Essentials Control Mapping Reference
 
-**Last Updated:** January 2026
-**Version:** v1.2.6
+**Last Updated:** February 2026
+**Version:** v1.2.51
 
 ---
 
@@ -294,4 +294,4 @@ For organizations beginning Agent Essentials implementation, prioritize:
 
 ---
 
-*FSI Agent Governance Framework v1.2.6 - January 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

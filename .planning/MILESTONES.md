@@ -2,7 +2,7 @@
 
 ## v23 Comprehensive Review & Remediation (Completed: 2026-02-14)
 
-**Delivered:** Full-repo review and remediation covering both FSI-AgentGov and FSI-AgentGov-Solutions. Migrated all `src/` solution artifacts to companion repo (24 files across 2 rounds), resolved 3 unmerged branches (cherry-picked Agent 365 content, merged Learn Monitor URL updates, deleted superseded branch), fixed 12 issues found by 10-agent parallel review (version bumps, role names, footers, regulatory mappings, CHANGELOG catch-up, git hygiene). Framework version bumped to v1.2.41.
+**Delivered:** Full-repo review and remediation covering both FSI-AgentGov and FSI-AgentGov-Solutions. Migrated all `src/` solution artifacts to companion repo (24 files across 2 rounds), resolved 3 unmerged branches (cherry-picked Agent 365 content, merged Learn Monitor URL updates, deleted superseded branch), fixed 12 issues found by 10-agent parallel review (version bumps, role names, footers, regulatory mappings, CHANGELOG catch-up, git hygiene). Framework version bumped to v1.2.48.
 
 **Key accomplishments:**
 
@@ -10,9 +10,9 @@
 - **Branch Resolution:** Cherry-picked eloquent-jang (Agent 365 capabilities summary, Agent Store Governance, MCP Server Governance, Unified Visibility Architecture); merged learn-monitor/update-14 (30+ URL redirects, eDiscovery/Sentinel notices); deleted learn-monitor/update-6
 - **Companion Repo Scaffolding:** Created README + CHANGELOG for 3 new solutions, CHANGELOG for 2 existing solutions
 - **Quality Fixes:** 10 non-canonical role names, 3 footer metadata values, 11 missing regulatory-mappings entries, 24 stale version footers
-- **CHANGELOG:** Added [1.2.41] entry covering milestones v11-v22
+- **CHANGELOG:** Added [1.2.48] entry covering milestones v11-v22
 - **Git Hygiene:** Removed 2 stale worktrees, deleted 5 stale branches (local + remote)
-- **Version Bump:** v1.2.39c → v1.2.41 across 5 config files
+- **Version Bump:** v1.2.39c → v1.2.48 across 5 config files
 
 **Stats:**
 

@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 1.1 - Restrict Agent Publishing by Authorization
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Modules Required:** Microsoft.PowerApps.Administration.PowerShell
 
 ## Prerequisites
@@ -131,7 +131,7 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
     .\Configure-Control-1.1.ps1 -EnvironmentName "abc123..." -SecurityGroupId "def456..."
 
 .NOTES
-    Last Updated: January 2026
+    Last Updated: February 2026
     Related Control: Control 1.1 - Restrict Agent Publishing by Authorization
 #>
 

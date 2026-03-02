@@ -51,3 +51,15 @@
 - Ensure authentication context names and policy names are representative
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.23-01-authentication-contexts.png` — Authentication contexts configuration
+- `1.23-02-conditional-access-policy.png` — Conditional access step-up policy
+- `1.23-03-authentication-strength.png` — Authentication strength definition
+- `1.23-04-sign-in-frequency.png` — Sign-in frequency session controls
+- `1.23-05-pim-role-activation.png` — PIM role activation requirements
+- `1.23-06-report-only-mode.png` — Report-only mode verification

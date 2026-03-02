@@ -93,6 +93,7 @@ Write-Host "Sites accessible by Copilot: $includedCount"
 
 ```powershell
 # Exclude sensitive sites from Copilot
+# Replace 'tenant' with your tenant name and update site URLs to match your environment
 $sensitiveSites = @(
     "https://tenant.sharepoint.com/sites/ExecutiveCompensation",
     "https://tenant.sharepoint.com/sites/MergerTarget",

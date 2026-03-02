@@ -145,6 +145,8 @@ If your organization exposes Copilot Studio agents through Microsoft 365 integra
 
 ---
 
+## Agent and Tenant Configuration
+
 ### Step 6: Configure Agent-Level Authentication (Copilot Studio)
 
 For each Copilot Studio agent, configure authentication settings to prevent unauthorized or anonymous interactions:

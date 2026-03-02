@@ -26,7 +26,7 @@
 - Alert details pane showing matched pattern
 
 ### Screenshot 4: Audit Log Search for Adversarial Patterns
-**Portal Path:** Microsoft Purview → Audit → Search
+**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search
 **What to capture:**
 - Search parameters configured for CopilotInteraction
 - Search results showing detected adversarial input
@@ -46,3 +46,14 @@
 - Sensitive data (user identities, actual attack content) should be redacted
 - Include timestamps in screenshots for audit trail
 - Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.21-01-defender-policy-creation.png` — Defender for Cloud Apps activity policy
+- `1.21-02-sentinel-analytics-rule.png` — Sentinel scheduled query rule
+- `1.21-03-sentinel-incident-alert.png` — Sentinel adversarial detection incident
+- `1.21-04-audit-log-adversarial.png` — Purview audit log search results
+- `1.21-05-zone3-blocking-config.png` — Zone 3 session blocking policy

@@ -204,19 +204,16 @@ Initialize `.planning/config.json` if it doesn't exist:
 ```json
 {
   "project_name": "{name}",
-  "model_profile": "default",
+  "mode": "careful",
+  "depth": "standard",
+  "parallelization": true,
+  "model_profile": "balanced",
   "workflow": {
     "research": true,
     "plan_check": true,
     "verifier": true
   },
-  "commit_docs": true,
-  "paths": {
-    "planning": ".planning",
-    "phases": ".planning/phases",
-    "research": ".planning/research",
-    "todos": ".planning/todos"
-  }
+  "commit_docs": true
 }
 ```
 </step>

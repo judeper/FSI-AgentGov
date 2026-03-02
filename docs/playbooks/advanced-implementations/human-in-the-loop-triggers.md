@@ -30,7 +30,10 @@ This specification aligns with the **Agentic Oversight Framework** published by 
 
 ## AI Agent Autonomy Levels (FINRA 2026 Report)
 
-The FINRA 2026 Annual Regulatory Oversight Report defines autonomy levels that determine appropriate HITL patterns:
+The FINRA 2026 Annual Regulatory Oversight Report discusses autonomy levels that may inform appropriate HITL patterns:
+
+!!! warning "Citation Verification Required"
+    The autonomy level framework below (Assisted/Augmented/Automated/Autonomous) is an FSI-AgentGov interpretation applied to Microsoft 365 agent governance. Organizations should independently verify the specific FINRA publication and confirm the terminology aligns with their regulatory obligations.
 
 | Autonomy Level | Description | Recommended HITL Pattern | Zone |
 |---------------|-------------|-------------------------|------|

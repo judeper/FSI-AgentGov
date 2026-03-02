@@ -98,4 +98,8 @@ Confirm issue is not user-specific permission problem.
 
 ---
 
+[Back to Control 4.4](../../../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

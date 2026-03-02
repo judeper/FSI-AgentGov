@@ -1,4 +1,4 @@
-# PowerShell Setup: Control 1.22 - Information Barriers
+# PowerShell Setup: Control 1.22 - Information Barriers for AI Agents
 
 **Last Updated:** January 2026
 **Modules Required:** ExchangeOnlineManagement

@@ -19,7 +19,7 @@ This skill analyzes reports from the unified monitoring system (Microsoft Learn 
 ## When to Use
 
 - After a monitoring PR is created (labels: `learn-watch` or `monitoring`)
-- When `reports/monitoring/` contains HIGH priority changes
+- When `reports/learn-changes/` contains HIGH priority changes
 - To prepare documentation updates for human review
 
 ## Workflow
@@ -30,7 +30,7 @@ First, identify which type of report to review:
 
 ```bash
 # List recent reports
-ls -la reports/monitoring/ | tail -10
+ls -la reports/learn-changes/ | tail -10
 ```
 
 **Report Types:**
@@ -47,7 +47,7 @@ ls -la reports/monitoring/ | tail -10
 ### Step 1: Find the Latest Change Report
 
 ```bash
-ls -la reports/monitoring/ | tail -5
+ls -la reports/learn-changes/ | tail -5
 ```
 
 Or if given a PR number:
@@ -150,7 +150,7 @@ Before making any edits, output a summary. The format differs by report type:
 ```markdown
 ## Monitoring System AI Assist - Learn Changes Summary
 
-**Report Analyzed:** reports/monitoring/learn-changes-YYYY-MM-DD.md
+**Report Analyzed:** reports/learn-changes/learn-changes-YYYY-MM-DD.md
 **Date:** YYYY-MM-DD
 **Report Type:** Microsoft Learn Documentation
 
@@ -179,7 +179,7 @@ Before making any edits, output a summary. The format differs by report type:
 ```markdown
 ## Monitoring System AI Assist - Regulatory Changes Triage
 
-**Report Analyzed:** reports/monitoring/regulatory-changes-YYYY-MM-DD.md
+**Report Analyzed:** reports/learn-changes/regulatory-changes-YYYY-MM-DD.md
 **Date:** YYYY-MM-DD
 **Report Type:** Regulatory (Federal Register + FINRA)
 
@@ -250,7 +250,7 @@ User: /review-learn-changes
 
 Claude: I'll analyze the latest monitoring report.
 
-[Reads reports/monitoring/learn-changes-2026-02-01.md]
+[Reads reports/learn-changes/learn-changes-2026-02-01.md]
 
 Found 31 HIGH priority Learn changes affecting 15 controls.
 
@@ -290,7 +290,7 @@ User: Review the regulatory changes
 
 Claude: I'll analyze the latest regulatory monitoring report.
 
-[Reads reports/monitoring/regulatory-changes-2026-02-04.md]
+[Reads reports/learn-changes/regulatory-changes-2026-02-04.md]
 
 Found 4 regulatory items. All classified as NOISE.
 

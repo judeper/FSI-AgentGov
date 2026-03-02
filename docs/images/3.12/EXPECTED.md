@@ -310,7 +310,7 @@
   - "======================================" (Cyan)
   - "Exception Register Export" (Cyan)
   - "======================================" (Cyan)
-  - "Connecting to Dataverse environment: https://contoso.crm.dynamics.com..." (Cyan)
+  - "Connecting to Dataverse environment: `https://contoso.crm.dynamics.com`..." (Cyan)
   - "✓ Connected successfully" (Green)
   - "Querying Governance Exceptions table..." (Cyan)
   - "Found 42 exception records" (White)

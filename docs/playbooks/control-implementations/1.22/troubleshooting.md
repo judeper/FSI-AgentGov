@@ -1,4 +1,4 @@
-# Troubleshooting: Control 1.22 - Information Barriers
+# Troubleshooting: Control 1.22 - Information Barriers for AI Agents
 
 **Last Updated:** January 2026
 

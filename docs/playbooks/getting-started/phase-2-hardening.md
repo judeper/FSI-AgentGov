@@ -11,6 +11,12 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 **Timeline:** 6-12 months (after Phase 1)
 **Outcome:** Full control implementation, steady-state operations
 
+!!! info "Prerequisites"
+    Before starting Phase 2, confirm you have the required licenses and admin roles:
+
+    - [License Requirements](../../reference/license-requirements.md)
+    - [Role Catalog](../../reference/role-catalog.md)
+
 ---
 
 ## Quarter 3 (Months 7-9): Advanced Security

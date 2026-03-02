@@ -11,7 +11,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 **Implementation Status:** Active and operational as of February 2026.
 
 **Coverage:**
-- **Microsoft Learn:** 209 URLs monitored daily
+- **Microsoft Learn:** ~207 URLs monitored daily
 - **Regulatory Sources:** Federal Register (SEC, CFTC, OCC, Federal Reserve) + FINRA notices monitored weekly
 
 **Key Principle:** ONE unified monitoring system with multiple source adapters, not separate independent monitors.
@@ -172,7 +172,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 # Learn Monitor Report - YYYY-MM-DD
 
 **Run Date:** YYYY-MM-DD
-**URLs Monitored:** 209
+**URLs Monitored:** ~207
 **Meaningful Changes:** N
 
 ## Summary
@@ -229,7 +229,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 **Workflow:** `.github/workflows/learn-monitor.yml`
 **Schedule:** Daily at 6:00 AM UTC
 
-**Data Source:** `docs/reference/microsoft-learn-urls.md` (209 URLs)
+**Data Source:** `docs/reference/microsoft-learn-urls.md` (~207 URLs)
 
 **Process:**
 1. Load URLs from watchlist
@@ -616,7 +616,7 @@ REGULATORY_KEYWORDS = {
 **Status:** Manual monitoring (not automated)
 
 **Coverage:**
-- Colorado AI Act (SB 24-205) - Effective February 1, 2026
+- Colorado AI Act (SB 24-205) - Effective June 30, 2026 (extended from February 1, 2026 via SB 25B-004)
 - California AI Transparency Act (AB 2013) - Signed September 2024
 - New York City Local Law 144 - Effective July 2023
 - Illinois Biometric Information Privacy Act (BIPA) - Relevant to AI

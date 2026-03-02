@@ -1,6 +1,6 @@
 # Platform Change Governance - Hands-On Labs
 
-**Status:** January 2026 - FSI-AgentGov v1.2
+**Status:** February 2026 - FSI-AgentGov v1.2.51
 **Total Duration:** 5-6 hours across 3 labs
 
 ---

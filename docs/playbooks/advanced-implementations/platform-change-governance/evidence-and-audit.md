@@ -1,6 +1,6 @@
 # Platform Change Governance - Evidence and Audit
 
-**Status:** January 2026 - FSI-AgentGov v1.2
+**Status:** February 2026 - FSI-AgentGov v1.2.51
 **Related Controls:** 2.3 (Change Management), 2.10 (Patch Management), 2.13 (Documentation)
 
 ---
@@ -344,4 +344,4 @@ Write-Host "Evidence export complete. Files ready for upload to compliance libra
 
 ---
 
-*FSI Agent Governance Framework v1.2 - January 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*
