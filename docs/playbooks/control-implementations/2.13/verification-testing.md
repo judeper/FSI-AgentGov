@@ -16,10 +16,10 @@
 2. Verify retention label auto-applies
 3. **EXPECTED:** Label applied per policy
 
-### Test 3: Verify WORM Compliance (Zone 3)
+### Test 3: Verify SEC 17a-4 Immutable Storage Compliance (Zone 3)
 
-1. Attempt to delete WORM-protected document
-2. **EXPECTED:** Deletion blocked by immutability
+1. Attempt to delete immutably-stored document (WORM or audit-trail)
+2. **EXPECTED:** Deletion blocked or audit-trail entry created per SEC 17a-4
 
 ### Test 4: Test Examination Procedures
 
@@ -37,7 +37,7 @@
 | TC-2.13-01 | Site structure exists | All libraries present | |
 | TC-2.13-02 | Retention labels applied | Auto-labeling works | |
 | TC-2.13-03 | Metadata populated | Required fields completed | |
-| TC-2.13-04 | WORM prevents deletion | Deletion blocked | |
+| TC-2.13-04 | SEC 17a-4 compliant storage prevents deletion | Deletion blocked or audit-trail recorded | |
 | TC-2.13-05 | Examination drill | Response within SLA | |
 
 ---

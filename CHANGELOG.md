@@ -2599,10 +2599,10 @@ Addresses 3 minor gaps identified in the Manus AI v2 advisory review. The v2 rev
 ### Enhanced
 
 - **Microsoft Learn URLs** - Added 4 new URLs:
-  - Agent 365 Identity (Preview): `https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity`
-  - Agent 365 Observability (Preview): `https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability`
-  - Entra ID Lifecycle Workflows: `https://learn.microsoft.com/en-us/entra/id-governance/what-are-lifecycle-workflows`
-  - Defender for Cloud Apps Shadow IT: `https://learn.microsoft.com/en-us/defender-cloud-apps/tutorial-shadow-it`
+  - Agent 365 Identity (Preview): `https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity` (URL may have been relocated)
+  - Agent 365 Observability (Preview): `https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability` (URL may have been relocated)
+  - Entra ID Lifecycle Workflows: `https://learn.microsoft.com/en-us/entra/id-governance/what-are-lifecycle-workflows` (URL may have been relocated)
+  - Defender for Cloud Apps Shadow IT: `https://learn.microsoft.com/en-us/defender-cloud-apps/tutorial-shadow-it` (URL may have been relocated)
 
 ### Files Modified
 
@@ -3701,7 +3701,7 @@ These additions address gaps identified during framework self-review:
 
 #### Link Standardization
 
-- **Standardized Related Controls format** across all controls to Style A pattern: `| [X.Y - Control Name](path.md) | Description |`
+- **Standardized Related Controls format** across all controls to Style A pattern: `| [X.Y - Control Name](../pillar-N-name/X.Y-control-name.md) | Description |`
 - **Fixed Control 1.5** - Changed from Style B (`[Control 1.6: DSPM for AI]`) to Style A
 - **Fixed Control 4.2** - Removed unique Priority column, standardized link format
 - **Fixed Control 2.18** - Added missing reciprocal link to 2.12 (Supervision)
@@ -3919,8 +3919,6 @@ Converted plain text dependencies to markdown links in 7 Pillar 2 controls:
 - **Exam Preparation Guides**
   - FINRA, SEC, SOX, GLBA, OCC, and Federal Reserve exam focus areas
   - Control-to-regulation mapping for auditor Q&A
-
-#### Documentation Features
 
 ### Known Limitations (Beta)
 

@@ -93,4 +93,8 @@ $UncoveredSites | Select-Object Url, Title | Format-Table
 
 ---
 
+[Back to Control 4.3](../../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
+---
+
 *Updated: January 2026 | Version: v1.2*

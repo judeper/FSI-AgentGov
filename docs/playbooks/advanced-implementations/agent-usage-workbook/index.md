@@ -15,9 +15,9 @@ The workbook is designed for M365 administrators, compliance officers, and AI go
 
 | Tab | Purpose | Key Metrics |
 |-----|---------|-------------|
-| **Usage Overview** | Agent adoption and conversation volume | Active users, conversations per agent, channel distribution, usage trends |
+| **Usage & Business Value** | Agent adoption and conversation volume | Active users, conversations per agent, channel distribution, usage trends, ROI |
 | **Performance & Errors** | Agent health and reliability | Error rates, exception patterns, dependency failures, response latency estimates |
-| **Governance & Compliance** | Regulatory monitoring signals | Escalation rates, topic coverage, session patterns, generative AI usage |
+| **Operational Health** | Dependency health and quality monitoring | Dependency health, GenAI quality, anomaly detection, agent health summary |
 
 ---
 
@@ -47,4 +47,4 @@ See the [Telemetry Schema Reference](telemetry-schema.md) for detailed prerequis
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Framework: FSI Agent Governance*
+*Updated: February 2026 | Version: v1.2.51 | Framework: FSI Agent Governance*

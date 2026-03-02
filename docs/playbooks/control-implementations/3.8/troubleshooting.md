@@ -214,8 +214,10 @@ Get-MgGroupMember -GroupId $exclusionGroup.Id | Where-Object { $_.Id -eq $user.I
 
 ```powershell
 # Verify Copilot license assignment
+$copilotSkus = Get-MgSubscribedSku | Where-Object { $_.SkuPartNumber -like "*Copilot*" }
+$copilotSkuIds = $copilotSkus.SkuId
 Get-MgUser -Filter "assignedLicenses/any()" -All |
-    Where-Object { $_.AssignedLicenses.SkuId -like "*copilot*" } |
+    Where-Object { ($_.AssignedLicenses.SkuId | Where-Object { $_ -in $copilotSkuIds }).Count -gt 0 } |
     Select-Object DisplayName, UserPrincipalName
 
 # Check admin role assignments
@@ -246,4 +248,4 @@ Get-MgContext | Select-Object Account, TenantId, Scopes
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.3*

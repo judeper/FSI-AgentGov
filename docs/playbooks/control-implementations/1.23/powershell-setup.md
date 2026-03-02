@@ -1,4 +1,4 @@
-# PowerShell Setup: Control 1.23 - Step-Up Authentication
+# PowerShell Setup: Control 1.23 - Step-Up Authentication for AI Agent Operations
 
 **Last Updated:** January 2026
 **Modules Required:** Microsoft.Graph

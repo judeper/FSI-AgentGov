@@ -192,14 +192,14 @@ federal_register:
 ### Quick Syntax Check
 
 ```bash
-python3 -c "import yaml; yaml.safe_load(open('scripts/config/monitoring-config.yaml')); print('Valid')"
+python -c "import yaml; yaml.safe_load(open('scripts/config/monitoring-config.yaml')); print('Valid')"
 ```
 
 ### Full Validation (checks regex patterns)
 
 ```bash
 cd /path/to/FSI-AgentGov
-python3 -c "from scripts.monitoring_shared import load_monitoring_config; load_monitoring_config()"
+python -c "from scripts.monitoring_shared import load_monitoring_config; load_monitoring_config()"
 ```
 
 If validation passes, no output is shown. If validation fails, you'll see an error message indicating:
@@ -233,7 +233,7 @@ If validation passes, no output is shown. If validation fails, you'll see an err
 Before adding a pattern, test it:
 
 ```bash
-python3 -c "import re; re.compile(r'your-pattern-here'); print('Valid')"
+python -c "import re; re.compile(r'your-pattern-here'); print('Valid')"
 ```
 
 ---

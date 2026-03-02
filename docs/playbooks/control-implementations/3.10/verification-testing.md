@@ -38,7 +38,7 @@
 |------|--------------|--------|
 | Feedback enabled on all agents | Quality management | |
 | Taxonomy documented | Consistent categorization | |
-| Tracking system operational | CFPB UDAAP | |
+| Tracking system operational | FINRA 3110 (supervisory review) | |
 | Automated workflows active | Response SLA | |
 | Trend reporting configured | Continuous improvement | |
 | Evidence retention (6+ years) | SEC 17a-4 | |

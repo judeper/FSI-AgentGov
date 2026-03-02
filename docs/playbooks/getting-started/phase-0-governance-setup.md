@@ -11,6 +11,12 @@ Phase 0 establishes the organizational foundation and minimum viable controls ne
 **Timeline:** 0-60 days
 **Outcome:** Governance structure in place, Zone 1 and Zone 2 environments enabled
 
+!!! info "Prerequisites"
+    Before starting Phase 0, confirm you have the required licenses and admin roles:
+
+    - [License Requirements](../../reference/license-requirements.md)
+    - [Role Catalog](../../reference/role-catalog.md)
+
 ---
 
 ## Week 1-2: Governance Structure
@@ -48,7 +54,7 @@ Conduct kickoff meeting with key stakeholders:
 
 **Steps:**
 
-1. Navigate to Power Platform Admin Center
+1. Navigate to Power Platform Admin Center (PPAC)
 2. Go to Environments > [Zone 2 Environment] > Settings
 3. Enable "Managed Environment"
 4. Configure baseline settings
@@ -76,7 +82,7 @@ Conduct kickoff meeting with key stakeholders:
 - [ ] Attempt to share agent outside policy fails
 - [ ] Environment group rules active
 
-### Control 1.5: DLP Policies
+### Control 1.5: Data Loss Prevention (DLP) Policies
 
 **Purpose:** Prevent sensitive data from reaching unauthorized connectors
 

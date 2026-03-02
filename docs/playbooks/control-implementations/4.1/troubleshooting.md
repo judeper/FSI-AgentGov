@@ -1,6 +1,8 @@
-# Troubleshooting: Control 4.1 - SharePoint Information Access Governance (IAG)
+# Control 4.1: SharePoint Information Access Governance (IAG) - Troubleshooting
 
-**Last Updated:** January 2026
+> This playbook provides troubleshooting guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
+
+---
 
 ## Common Issues
 
@@ -127,12 +129,12 @@
 
 1. Verify RSS is enabled:
    ```powershell
-   Get-SPOTenant | Select-Object RestrictedSearchEnabled
+   Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
    ```
 
 2. Get current allow-list:
    ```powershell
-   Get-SPOSearchSiteConfiguration
+   Get-SPOTenantRestrictedSearchAllowedList
    ```
 
 3. Verify site URLs are exactly correct (no trailing slashes, correct case)
@@ -164,11 +166,11 @@ Write-Host "  SensitivityLabel: $($Site.SensitivityLabel)"
 # Check tenant settings
 $Tenant = Get-SPOTenant
 Write-Host "`nTenant Settings:" -ForegroundColor Yellow
-Write-Host "  RestrictedSearchEnabled: $($Tenant.RestrictedSearchEnabled)"
+Write-Host "  EnableRestrictedSearchAllList: $($Tenant.EnableRestrictedSearchAllList)"
 
 # Check for any RSS sites
 Write-Host "`nRestricted SharePoint Search Sites:" -ForegroundColor Yellow
-Get-SPOSearchSiteConfiguration | ForEach-Object {
+Get-SPOTenantRestrictedSearchAllowedList | ForEach-Object {
     Write-Host "  - $($_.SiteUrl)"
 }
 ```
@@ -218,3 +220,7 @@ else {
 ---
 
 [Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

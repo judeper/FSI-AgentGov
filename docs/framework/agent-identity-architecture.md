@@ -649,7 +649,7 @@ The following status reflects findings from the February 2026 governance review 
 - **Agent onboarding bugs:** Known activation issues are affecting some tenants; Microsoft is rolling out fixes. Organizations experiencing onboarding failures should contact their Frontier program representative.
 - **Observability for supervision:** Agent 365 Observability integration with supervision evidence collection (supporting FINRA 3110 requirements) remains in preview. Organizations should continue using existing Application Insights solutions for production supervision evidence until Observability reaches GA.
 
-### Phase 1: Foundation (Available Now with GA Features)
+### Phase 1: Foundation (Available Now — GA and Public Preview Features)
 
 **Objective:** Establish identity governance foundation using Entra Agent ID
 
@@ -1060,7 +1060,7 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 ### Microsoft Official Blogs
 
 - [Microsoft Agent 365: The Control Plane for AI Agents](https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/18/microsoft-agent-365-the-control-plane-for-ai-agents/)
-- [New Capabilities for AI Admins from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-agent-and-ai-management-capabilities-from-ignite-2025/4314229)
+- [New Capabilities for AI Admins from Ignite 2025](https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-agent-and-ai-management-capabilities-from-ignite-2025/4314229) <!-- URL returned HTTP 400 as of March 2026; verify or replace -->
 - [Four Priorities for AI-Powered Identity and Network Access Security in 2026](https://www.microsoft.com/en-us/security/blog/2026/01/20/four-priorities-for-ai-powered-identity-and-network-access-security-in-2026/)
 - [New Era of Agents, New Era of Posture](https://www.microsoft.com/en-us/security/blog/2026/01/21/new-era-of-agents-new-era-of-posture/)
 

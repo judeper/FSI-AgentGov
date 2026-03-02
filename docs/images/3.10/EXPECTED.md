@@ -53,3 +53,7 @@
 - Ensure conversation content is representative but not sensitive
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
+
+---
+
+[Back to Control 3.10](../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md)

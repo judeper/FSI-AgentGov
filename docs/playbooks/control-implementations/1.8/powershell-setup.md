@@ -310,8 +310,8 @@ try {
     Write-Host "`nConfiguration to apply:" -ForegroundColor Yellow
     $ThreatDetectionConfig | Format-List
 
-    # For actual API call, use:
-    # Set-AdminPowerAppEnvironmentThreatDetection -EnvironmentName $EnvironmentId -Config $ThreatDetectionConfig
+    # Note: No dedicated threat-detection cmdlet exists as of Feb 2026.
+    # Use the Power Platform Admin Center UI or the admin connector REST API instead.
 
     Write-Host "`n[INFO] Use Power Platform Admin Center UI for initial configuration" -ForegroundColor Yellow
     Write-Host "[INFO] API automation is recommended for bulk deployment after initial validation" -ForegroundColor Yellow

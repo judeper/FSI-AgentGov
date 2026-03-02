@@ -1,4 +1,4 @@
-# PowerShell Setup: Control 1.24 - Defender AI Security Posture Management
+# PowerShell Setup: Control 1.24 - Defender AI Security Posture Management (AI-SPM)
 
 **Last Updated:** January 2026
 **Modules Required:** Az.Security, Az.ResourceGraph
@@ -44,6 +44,11 @@ foreach ($sub in $subscriptions) {
         # Check extensions
         $extensions = $pricing.Extension
         $aiSpm = $extensions | Where-Object { $_.Name -eq "AIThreatProtection" }
+        if ($aiSpm) {
+            Write-Host "  AI-SPM (AIThreatProtection): Enabled" -ForegroundColor Green
+        } else {
+            Write-Host "  AI-SPM (AIThreatProtection): Not found" -ForegroundColor Yellow
+        }
         Write-Host "  Extensions enabled: $($extensions.Name -join ', ')"
     } else {
         Write-Host "  Defender CSPM: Not enabled" -ForegroundColor Red

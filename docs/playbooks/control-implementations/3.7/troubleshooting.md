@@ -62,10 +62,10 @@
 
 ```powershell
 # Check admin role
-Get-AdminPowerAppEnvironment | Select-Object DisplayName, IsAdmin
+Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentType
 
 # Verify DLP policies exist
-Get-DlpPolicy | Format-Table DisplayName, PolicyType
+Get-DlpPolicy | Format-Table DisplayName, Type
 
 # Check managed environment status
 Get-AdminPowerAppEnvironment | Select-Object DisplayName, @{N='IsManaged';E={$_.Internal.properties.governanceConfiguration.enableManagedEnvironment}}

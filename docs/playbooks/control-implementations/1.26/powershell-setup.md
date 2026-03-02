@@ -83,6 +83,15 @@ Write-Host "File upload disabled: $(($results | Where-Object FileUploadEnabled -
 $results | Format-Table -AutoSize
 ```
 
+!!! danger "API Availability — Verify Before Use"
+    The `Set-AdminPowerAppChatbot` cmdlet with `-FileUploadEnabled` parameter is based on **anticipated API schema** as of February 2026. This parameter may not be available in all tenants. Before running Script 2 or Script 4, test cmdlet availability:
+
+    ```powershell
+    Get-Help Set-AdminPowerAppChatbot -Parameter FileUploadEnabled
+    ```
+
+    If the parameter is not recognized, use the [Portal Walkthrough](portal-walkthrough.md) to manage file upload settings manually.
+
 ### Bulk Disable File Upload for Zone 3 Agents
 
 ```powershell

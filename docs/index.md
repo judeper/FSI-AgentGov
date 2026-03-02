@@ -124,6 +124,13 @@ See [Regulatory Framework](framework/regulatory-framework.md) for complete mappi
 
 See [CHANGELOG](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) for version history.
 
+**v1.2 (February 2026):**
+
+- Expanded to four pillars with 71 controls (added Pillar 4: SharePoint)
+- Added 284 implementation playbooks (4 per control)
+- Introduced companion FSI-AgentGov-Solutions repository with 27 deployable solutions
+- Enhanced regulatory mappings and license requirements reference
+
 **v1.1 (January 2026):**
 
 - Restructured into three layers (Framework, Controls, Playbooks)

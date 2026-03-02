@@ -251,9 +251,9 @@ Agent and prompt files use GitHub Copilot's recognized built-in aliases: `read`,
 
 ## Troubleshooting: prompt files not showing in `/`
 
-If you type `/` in Copilot Chat and don"t see the workspace prompt files from `.github/prompts/`:
+If you type `/` in Copilot Chat and don't see the workspace prompt files from `.github/prompts/`:
 
 - Open the **Chat view** and use **Diagnostics** (right-click inside Chat → **Diagnostics**) to see whether prompt files were **Loaded**, **Skipped**, or **Failed**, and why.
 - Check **Workspace Trust**: if VS Code shows **Restricted Mode**, trust the workspace and reload.
-- Confirm you"re on a recent VS Code version that supports prompt files (prompt files are `.prompt.md` and show up as slash commands).
+- Confirm you're on a recent VS Code version that supports prompt files (prompt files are `.prompt.md` and show up as slash commands).
 - If your org restricts chat customization, the diagnostics view typically indicates policy-based blocking.

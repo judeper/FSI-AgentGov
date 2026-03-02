@@ -121,6 +121,12 @@ When creating Choice columns in Dataverse, you must specify both the label and i
 | | ProvisioningFailed | 14 |
 | | RollbackInitiated | 15 |
 | | RollbackCompleted | 16 |
+| | CredentialRotated | 17 |
+| | UserSynced | 18 |
+| | RolesAssigned | 19 |
+| | AuditingConfigured | 20 |
+| | SessionTimeoutConfigured | 21 |
+| | SharingLimitsConfigured | 22 |
 | **pl_actortype** | User | 1 |
 | | ServicePrincipal | 2 |
 | | System | 3 |
@@ -173,7 +179,7 @@ Append-only audit trail of all provisioning actions with access controls. Organi
 | `pl_logid` | GUID (PK) | Unique log entry identifier |
 | `pl_environmentrequest` | Lookup | Parent request (Restrict Delete) |
 | `pl_sequence` | Whole Number | Action sequence (1, 2, 3...) |
-| `pl_action` | Choice | RequestCreated / ZoneClassified / ApprovalRequested / Approved / Rejected / ProvisioningStarted / EnvironmentCreated / ManagedEnabled / GroupAssigned / SecurityGroupBound / BaselineConfigApplied / DLPAssigned / ProvisioningCompleted / ProvisioningFailed / RollbackInitiated / RollbackCompleted |
+| `pl_action` | Choice | RequestCreated / ZoneClassified / ApprovalRequested / Approved / Rejected / ProvisioningStarted / EnvironmentCreated / ManagedEnabled / GroupAssigned / SecurityGroupBound / BaselineConfigApplied / DLPAssigned / ProvisioningCompleted / ProvisioningFailed / RollbackInitiated / RollbackCompleted / CredentialRotated / UserSynced / RolesAssigned / AuditingConfigured / SessionTimeoutConfigured / SharingLimitsConfigured |
 | `pl_actiondetails` | Multi-line | JSON payload with action-specific details |
 | `pl_actor` | Text (200) | UPN or Service Principal ID that performed action |
 | `pl_actortype` | Choice | User / ServicePrincipal / System |
@@ -194,7 +200,7 @@ Append-only audit trail of all provisioning actions with access controls. Organi
 
 ### Relationship Definition
 
-```
+```text
 EnvironmentRequest (1) ──────┬──────> (N) ProvisioningLog
                              │
                     pl_environmentrequest (Lookup)

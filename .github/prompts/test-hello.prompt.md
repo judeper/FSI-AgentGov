@@ -1,4 +1,5 @@
 ---
+name: "test-hello"
 description: "A simple test prompt"
 ---
 

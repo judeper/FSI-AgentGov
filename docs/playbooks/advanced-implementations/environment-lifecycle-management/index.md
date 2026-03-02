@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This playbook provides a canonical reference architecture for automated, governed Power Platform environment provisioning in regulated financial services organizations. The solution addresses governance gaps created by manual provisioning processes and ensures consistent security controls from environment creation.
+This playbook provides a canonical reference architecture for automated, governed Power Platform environment provisioning in regulated financial services organizations. The solution addresses governance gaps created by manual provisioning processes and applies consistent security controls from environment creation.
 
 **Applies to:** Zone 2/3 environments; recommended for any organization managing Power Platform environments under regulatory oversight.
 
@@ -68,7 +68,7 @@ flowchart LR
 | **Dataverse Tables** | EnvironmentRequest (requests), ProvisioningLog (append-only audit trail) |
 | **Power Automate Flows** | Provisioning orchestration with Service Principal identity |
 | **Service Principal** | Decoupled admin identity for automation (no human credential dependencies) |
-| **Environment Groups** | Zone rule inheritance ensures consistent governance from creation |
+| **Environment Groups** | Zone rule inheritance applies consistent governance from creation |
 
 ---
 

@@ -423,4 +423,41 @@ Establish ongoing monitoring for publishing compliance:
 
 ---
 
+## Attestation Statement Template
+
+```markdown
+## Control 1.28 Attestation - Policy-Based Agent Publishing Restrictions
+
+**Organization:** [Organization Name]
+**Control Owner:** [Name/Role]
+**Date:** [Date]
+
+I attest that:
+
+1. DLP policies are configured and enforced per governance zone:
+   - Zone 1 environments: [Count] — baseline DLP policies applied
+   - Zone 2 environments: [Count] — restrictive DLP policies with approval workflow
+   - Zone 3 environments: [Count] — strict DLP policies with environment promotion pipeline
+2. Publishing restrictions are actively enforced:
+   - DLP violations prevent agent publishing: [Yes/No]
+   - Security scans detect blocked channels: [Yes/No]
+   - Published agents blocked from updates on DLP violation: [Yes/No]
+3. Approval workflows are operational:
+   - Zone 2 single-approver workflow active: [Yes/No]
+   - Zone 3 multi-approver workflow with promotion pipeline active: [Yes/No]
+   - Rejection workflow prevents deployment: [Yes/No]
+4. Audit logging is configured:
+   - Publishing events captured in Microsoft Purview: [Yes/No]
+   - Approval/rejection events logged with approver identity: [Yes/No]
+   - Audit log retention meets regulatory requirements (7 years): [Yes/No]
+5. PowerShell compliance reporting is operational:
+   - Automated compliance audit script runs without errors: [Yes/No]
+   - Non-compliant agents are accurately identified: [Yes/No]
+
+**Signature:** ______________________
+**Date:** ______________________
+```
+
+---
+
 [Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)

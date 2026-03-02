@@ -171,8 +171,8 @@ if ($nonCompliantUsers) {
 
 param(
     [string]$NonCompliantFile = "Training-Non-Compliant.csv",
-    [string]$SenderEmail = "aigovernance@company.com",
-    [string]$TrainingUrl = "https://learning.company.com/ai-governance"
+    [string]$SenderEmail = "aigovernance@company.com",  # Replace with your organization's sender email
+    [string]$TrainingUrl = "https://learning.company.com/ai-governance"  # Replace with your organization's training URL
 )
 
 # Connect to Exchange Online

@@ -147,7 +147,7 @@ $zone3BlockedConnectors = @(
     "/providers/Microsoft.PowerApps/apis/shared_publicwebsites",
     "/providers/Microsoft.PowerApps/apis/shared_twitter",
     "/providers/Microsoft.PowerApps/apis/shared_rss",
-    "/providers/Microsoft.PowerApps/apis/*"  # Block all external connectors
+    "/providers/Microsoft.PowerApps/apis/shared_*"  # Wildcard path — verify your tenant's DLP API accepts this syntax; blocks remaining shared connectors not explicitly allowed
 )
 
 # Add connectors to Zone 3 policy
@@ -281,10 +281,10 @@ foreach ($env in $environments) {
             # NOTE: No native cmdlet exists for chatbot-specific DLP compliance testing.
             # Use Get-AdminDlpPolicy to verify policy configuration covers Copilot Studio connectors.
             $dlpPolicies = Get-AdminDlpPolicy
-            $dlpCompliant = $true
-            $dlpViolations = @()
-            # Verify the environment's DLP policies cover Copilot Studio connectors
-            # Manual review recommended — see portal walkthrough for detailed steps
+            $dlpCompliant = $null  # Unknown — requires manual verification
+            $dlpViolations = @("Manual review required")
+            # No native cmdlet exists for chatbot-specific DLP compliance testing.
+            # DLP compliance cannot be determined programmatically — verify via portal walkthrough.
             
             # Get agent details including channels
             $agentDetails = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ChatBotName $agent.ChatBotName
@@ -299,14 +299,14 @@ foreach ($env in $environments) {
             # Compile compliance record
             $complianceRecord = [PSCustomObject]@{
                 Environment     = $env.DisplayName
-                AgentName       = $agent.DisplayName
+                AgentName       = $agent.Properties.DisplayName
                 AgentId         = $agent.ChatBotName
-                PublishStatus   = $agent.PublishStatus
-                DLPCompliant    = $dlpCompliant
+                PublishStatus   = $agent.Properties.PublishStatus
+                DLPCompliant    = if ($null -eq $dlpCompliant) { "Unknown" } else { $dlpCompliant }
                 DLPViolations   = ($dlpViolations -join ", ")
                 BlockedChannels = ($blockedChannels.Type -join ", ")
-                LastModified    = $agent.LastModifiedTime
-                CreatedBy       = $agent.CreatedBy
+                LastModified    = $agent.Properties.LastModifiedTime
+                CreatedBy       = $agent.Properties.CreatedBy
             }
             
             $complianceReport += $complianceRecord
@@ -378,8 +378,7 @@ foreach ($env in $targetEnvironments) {
         Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
         # Note: Chatbot approval requires manual configuration in Admin Center or via Power Automate flow
         Write-Host "  ⚠ Chatbot approval must be configured manually in Power Platform Admin Center" -ForegroundColor Yellow
-        
-        Write-Host "  ✓ Approval workflows enabled for: $($env.DisplayName)" -ForegroundColor Green
+        Write-Host "  → Open: Power Platform Admin Center → Environments → $($env.DisplayName) → Settings → Features" -ForegroundColor Yellow
     }
     catch {
         Write-Host "  ✗ Failed to enable approval for: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red

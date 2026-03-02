@@ -95,7 +95,7 @@ The framework separates:
 
 ## Version Information
 
-- **Framework Version:** 1.2.42 (February 2026)
+- **Framework Version:** 1.2.51 (February 2026)
 - **Last Updated:** February 2026
 - **Update Frequency:** 1-2 times per year (major regulatory or platform changes)
 

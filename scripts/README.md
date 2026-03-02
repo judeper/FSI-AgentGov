@@ -168,7 +168,7 @@ Utility to verify temp files match repository files (development/debugging use).
 
 ### Governance Automation
 
-The `governance/` directory contains 16 PowerShell scripts and data files for automating governance control implementation. See [`governance/README.md`](governance/README.md) for full details, prerequisites, and usage instructions.
+The `governance/` directory contains 17 PowerShell scripts and data files for automating governance control implementation. See [`governance/README.md`](governance/README.md) for full details, prerequisites, and usage instructions.
 
 Key scripts include:
 - `Invoke-HardeningBaselineCheck.ps1` - Validate 18 hardening baseline items
@@ -190,6 +190,8 @@ Key scripts include:
 Future scripts for:
 - `generate-compliance-report.ps1` - Generate compliance reports
 - `export-agent-metadata.ps1` - Export agent inventory
+- `reconcile-agent-inventory.ps1` - Reconcile agent inventory across environments
+- `create-compliance-dashboard.ps1` - Create compliance status dashboard
 
 ## Safety Notes
 

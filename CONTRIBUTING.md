@@ -55,7 +55,7 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 10. **Additional Resources** - Microsoft Learn links
 
 **Footer Metadata:**
-- *Updated: Month-Year | Version: v1.1 | UI Verification Status: Current*
+- *Updated: Month-Year | Version: v1.2 | UI Verification Status: Current*
 
 **Administrator Role Naming:**
 - Use the framework's canonical short role names (e.g., "Power Platform Admin", "Purview Compliance Admin").

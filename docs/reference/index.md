@@ -47,6 +47,7 @@ This section provides technical reference materials, standards, and supporting d
 | [Agent Audit Event Taxonomy](agent-audit-event-taxonomy.md) | Consolidated audit event reference with KQL queries |
 | [Agent Essentials Control Mapping](agent-essentials-control-mapping.md) | Microsoft Agent Essentials to FSI control mapping |
 | [Agent 365 Capabilities Summary](agent-365-capabilities-summary.md) | Microsoft 365 agent capabilities overview |
+| [Power Platform SSPM Control Mapping](power-platform-sspm-control-mapping.md) | SaaS Security Posture Management control mapping |
 
 ### Solutions
 

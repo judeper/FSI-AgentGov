@@ -51,3 +51,15 @@
 - Verify UI matches documentation after Microsoft portal updates
 - The File Upload toggle is located under the agent's Security settings in Copilot Studio (not in PPAC)
 - Capture both enabled and disabled states to demonstrate toggle functionality
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.26-01-file-upload-enabled.png` — File upload toggle enabled
+- `1.26-02-file-upload-disabled.png` — File upload toggle disabled
+- `1.26-03-uploaded-knowledge-sources.png` — Uploaded files as knowledge sources
+- `1.26-04-sensitivity-label-inheritance.png` — Sensitivity label inheritance
+- `1.26-05-spe-container.png` — SPE container in PPAC
+- `1.26-06-file-upload-inventory.png` — PowerShell file upload inventory output

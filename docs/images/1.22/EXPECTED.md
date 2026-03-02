@@ -42,3 +42,14 @@
 - Ensure segment names and user information are representative but not sensitive
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.22-01-barrier-segments.png` — Information barrier segments list
+- `1.22-02-barrier-policies.png` — Information barrier policies configuration
+- `1.22-03-sharepoint-barrier-alignment.png` — SharePoint site barrier alignment
+- `1.22-04-wall-crossing-approval.png` — Wall-crossing approval workflow
+- `1.22-05-powershell-verification.png` — PowerShell verification output

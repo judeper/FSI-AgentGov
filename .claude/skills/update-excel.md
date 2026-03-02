@@ -15,7 +15,7 @@ Located in: `docs/downloads/`
 
 | File | Role | Controls | Notes |
 |------|------|----------|-------|
-| `governance-maturity-dashboard.xlsx` | AI Governance Lead | 62 (all) | "All Controls" + "Summary Dashboard" sheets |
+| `governance-maturity-dashboard.xlsx` | AI Governance Lead | 71 (all) | "All Controls" + "Summary Dashboard" sheets |
 | `purview-administrator-checklist.xlsx` | Purview Compliance Admin | 7 | DLP, DSPM, Audit, eDiscovery |
 | `sharepoint-administrator-checklist.xlsx` | SharePoint Admin | 7 | IAG, Access Reviews, Retention |
 | `power-platform-administrator-checklist.xlsx` | Power Platform Admin | 7 | Environments, Groups, Routing |

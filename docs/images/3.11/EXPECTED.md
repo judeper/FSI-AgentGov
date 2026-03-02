@@ -87,7 +87,7 @@
   - Last Modified Date: 2026-02-01
   - Approval Date: 2025-11-20
   - Approver: Jane Admin (AI Governance Lead)
-  - Documentation Link: https://sharepoint.contoso.com/agents/...
+  - Documentation Link: `https://sharepoint.contoso.com/agents/...`
   - Decommissioning Plan: Documented
   - Compliance Status: Compliant
 - Metadata completeness: 100%
@@ -448,7 +448,7 @@
   - Decommissioning Date: 2026-02-12
   - Decommissioning Reason: "Agent no longer in use. Zero usage for 90 days. Business owner approval obtained."
   - Metadata Archived: Yes
-  - Archive Location: https://sharepoint.contoso.com/governance/decommissioned/...
+  - Archive Location: `https://sharepoint.contoso.com/governance/decommissioned/...`
 - Demonstrates decommissioned agents remain in inventory for audit trail (not deleted)
 
 ---

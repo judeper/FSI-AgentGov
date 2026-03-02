@@ -6,7 +6,7 @@
 
 ## Summary
 
-FSI-AgentGov is a documentation-centric governance framework (v1.2.41) for Microsoft 365 AI agents in US financial services, built with MkDocs Material and published to GitHub Pages. The repository implements a rigorous three-layer documentation model (Framework -> Controls -> Playbooks) spanning 71 controls across 4 pillars, with 284 playbook files providing step-by-step implementation guidance. A companion repository (FSI-AgentGov-Solutions) houses 25 deployable Power Platform solutions.
+FSI-AgentGov is a documentation-centric governance framework (v1.2.48) for Microsoft 365 AI agents in US financial services, built with MkDocs Material and published to GitHub Pages. The repository implements a rigorous three-layer documentation model (Framework -> Controls -> Playbooks) spanning 71 controls across 4 pillars, with 284 playbook files providing step-by-step implementation guidance. A companion repository (FSI-AgentGov-Solutions) houses 25 deployable Power Platform solutions.
 
 ## Directory Structure
 
@@ -14,7 +14,7 @@ FSI-AgentGov is a documentation-centric governance framework (v1.2.41) for Micro
 |-----------|---------|
 | docs/ | All publishable documentation content (MkDocs source) |
 | scripts/ | Validation, monitoring, and maintenance scripts (Python/PowerShell) |
-| src/ | Adaptive card and Power Automate flow JSON definitions |
+
 | data/ | Runtime state (learn-monitor-state.json) |
 | releases/ | Release artifacts by version |
 | reports/ | Generated documentation review and learn-changes reports |
@@ -26,8 +26,8 @@ FSI-AgentGov is a documentation-centric governance framework (v1.2.41) for Micro
 ## Three-Layer Documentation Model
 
 - **Layer 1 (Framework):** 12 files in docs/framework/ - governance principles, strategy, organizational context (WHY)
-- **Layer 2 (Controls):** 62 files across 4 pillar directories - technical specifications with 10-section format (WHAT)
-- **Layer 3 (Playbooks):** 251 files in docs/playbooks/ - step-by-step implementation procedures (HOW)
+- **Layer 2 (Controls):** 71 files across 4 pillar directories - technical specifications with 10-section format (WHAT)
+- **Layer 3 (Playbooks):** 284 files in docs/playbooks/ - step-by-step implementation procedures (HOW)
 
 **Linkage:** Controls link to playbooks via Section 8. Playbooks link back to parent controls. Framework docs provide conceptual context.
 
@@ -35,14 +35,14 @@ FSI-AgentGov is a documentation-centric governance framework (v1.2.41) for Micro
 
 | Pillar | Count | Focus |
 |--------|-------|-------|
-| Pillar 1 - Security | 24 | DLP, encryption, access control, audit logging |
-| Pillar 2 - Management | 21 | Environments, change management, testing, risk |
-| Pillar 3 - Reporting | 10 | Inventory, analytics, compliance reporting |
+| Pillar 1 - Security | 28 | DLP, encryption, access control, audit logging |
+| Pillar 2 - Management | 24 | Environments, change management, testing, risk |
+| Pillar 3 - Reporting | 12 | Inventory, analytics, compliance reporting |
 | Pillar 4 - SharePoint | 7 | Content governance, access reviews, grounding |
 
 ## Navigation (mkdocs.yml - 598 lines)
 
-Home > Disclaimer > Getting Started (2) > Framework (12) > Control Catalog (62) > Playbooks (251) > Reference (19) > Downloads (6)
+Home > Disclaimer > Getting Started (2) > Framework (12) > Control Catalog (71) > Playbooks (284) > Reference (19) > Downloads (6)
 
 ## Multi-Agent Architecture
 

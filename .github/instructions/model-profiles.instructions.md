@@ -41,7 +41,7 @@ Or use the `/gsd-set-profile` command.
 
 The `workflow` section controls optional GSD steps:
 
-```json
+```jsonc
 {
   "workflow": {
     "research": true,      // Run phase research before planning

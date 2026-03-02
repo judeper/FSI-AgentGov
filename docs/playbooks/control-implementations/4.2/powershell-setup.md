@@ -1,7 +1,8 @@
-# PowerShell Setup: Control 4.2 - Site Access Reviews and Certification
+# Control 4.2: Site Access Reviews and Certification - PowerShell Setup
 
-**Last Updated:** January 2026
-**Modules Required:** Microsoft.Graph, Microsoft.Online.SharePoint.PowerShell
+> This playbook provides PowerShell automation guidance for [Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md).
+
+---
 
 ## Prerequisites
 
@@ -309,3 +310,7 @@ finally {
 ---
 
 [Back to Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

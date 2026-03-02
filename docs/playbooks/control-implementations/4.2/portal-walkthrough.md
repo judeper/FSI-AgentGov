@@ -1,8 +1,8 @@
-# Portal Walkthrough: Control 4.2 - Site Access Reviews and Certification
+# Control 4.2: Site Access Reviews and Certification - Portal Walkthrough
 
-**Last Updated:** January 2026
-**Portal:** SharePoint Admin Center, Microsoft Entra Admin Center
-**Estimated Time:** 1-2 hours
+> This playbook provides portal configuration guidance for [Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md).
+
+---
 
 ## Prerequisites
 
@@ -152,3 +152,7 @@ After completing these steps, verify:
 ---
 
 [Back to Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

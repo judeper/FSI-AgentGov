@@ -389,9 +389,9 @@ Script 4 requires topic-level data that is not available via PowerShell cmdlets.
 
 ```powershell
 # Replace {botId} with the agent's Dataverse bot ID (from $agent.ChatbotName in Script 4's loop)
-# Replace {orgUrl} with your Dataverse organization URL (e.g., https://yourorg.crm.dynamics.com)
+# Replace {orgUrl} with your Dataverse organization URL (e.g., https://contoso.crm.dynamics.com)
 $botId = "your-bot-id-here"  # Copy from Script 4 output or Copilot Studio agent URL
-$orgUrl = "https://yourorg.crm.dynamics.com"
+$orgUrl = "https://contoso.crm.dynamics.com"
 
 # Acquire an access token for Dataverse (requires Az module or MSAL)
 # Option 1: Using Az module (install with Install-Module Az.Accounts)

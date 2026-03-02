@@ -117,3 +117,19 @@ Content moderation levels (Low, Medium, High) with agent-level and topic-level c
 - Feature may be under preview or feature flag
 - Contact Microsoft support to confirm rollout status for your tenant region
 - Screenshots should be updated once the feature is available in your environment
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.27-01-moderation-high.png` — Agent-level moderation set to High
+- `1.27-02-moderation-medium.png` — Agent-level moderation set to Medium
+- `1.27-03-topic-moderation-override.png` — Topic-level moderation override
+- `1.27-04-custom-safety-message.png` — Custom safety message configuration
+- `1.27-05-safety-message-test.png` — Safety message in test panel
+- `1.27-06-moderation-level-options.png` — Moderation level dropdown options
+- `1.27-07-audit-log-moderation.png` — Purview audit log for moderation change
+- `1.27-08-moderation-inventory.png` — PowerShell moderation inventory output
+- `1.27-09-topic-override-report.png` — PowerShell topic override report
+- `1.27-10-moderation-test-results.png` — Moderation test results in test panel

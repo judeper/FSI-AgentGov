@@ -144,7 +144,7 @@ Deployable Power Platform solutions in the **[FSI-AgentGov-Solutions](https://gi
 
 ## 📚 Three-Layer Documentation Architecture
 
-Version 1.1 introduces a three-layer documentation model designed to serve different audiences and use cases:
+The framework uses a three-layer documentation model designed to serve different audiences and use cases:
 
 ### Layer 1: Framework (`docs/framework/`)
 **Purpose:** Strategic governance principles and organizational context
@@ -227,17 +227,19 @@ Use this workflow for implementing controls:
 
 ### Control Documentation Structure
 
-Every control file (1.1-4.7) follows this enhanced structure:
+Every control file (1.1–4.7) follows this standardized 10-section structure:
 
 | Section | Purpose |
 |---------|---------|
-| **Overview** | Control ID, name, regulatory references, setup time |
-| **Prerequisites** | Required licenses, admin roles, dependencies |
-| **Governance Levels** | Baseline, Recommended, and Regulated configurations |
-| **Setup & Configuration** | Step-by-step portal navigation and PowerShell scripts |
-| **Financial Sector Considerations** | Regulatory alignment, zone-specific guidance, FSI examples |
-| **Verification & Testing** | Steps to confirm configuration is active |
-| **Troubleshooting** | Common issues and resolutions |
+| **Objective** | Concise purpose statement |
+| **Why This Matters for FSI** | Regulatory justifications with specific regulation references |
+| **Control Description** | Detailed technical explanation |
+| **Key Configuration Points** | Specific settings to configure |
+| **Zone-Specific Requirements** | Zone 1/2/3 requirements and rationale |
+| **Roles & Responsibilities** | Admin roles mapped to responsibilities |
+| **Related Controls** | Cross-references to related controls |
+| **Implementation Playbooks** | Links to portal-walkthrough, PowerShell-setup, verification-testing, and troubleshooting guides |
+| **Verification Criteria** | Numbered checklist for validating effectiveness |
 | **Additional Resources** | Microsoft Learn links and admin portal URLs |
 
 ### Implementation Steps
@@ -276,7 +278,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
 | **License Requirements** | License mapping for all 71 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
-| **Solutions Index** | Catalog of 26 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
+| **Solutions Index** | Catalog of 27 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
 
 ### Priority Controls (Start Here)
 

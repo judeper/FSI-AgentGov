@@ -11,6 +11,12 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 **Timeline:** 2-6 months (after Phase 0)
 **Outcome:** Zone 3 governance operational, first production agents deployed
 
+!!! info "Prerequisites"
+    Before starting Phase 1, confirm you have the required licenses and admin roles:
+
+    - [License Requirements](../../reference/license-requirements.md)
+    - [Role Catalog](../../reference/role-catalog.md)
+
 ---
 
 ## Month 2: Access and Segregation

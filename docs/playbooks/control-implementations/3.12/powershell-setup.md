@@ -663,12 +663,15 @@ Write-Host "✓ Connected successfully" -ForegroundColor Green
 # Export all exceptions (same query as Script 1)
 Write-Host "Exporting exception register..." -ForegroundColor Cyan
 
+# NOTE: Restore the FetchXML query and Invoke-CrmRetrieveMultiple call from Script 1
+# to populate $exportData before running this section.
+
 # [FetchXML query from Script 1 - omitted for brevity]
 
 # ... (execute query and export as in Script 1)
 
 $exportFile = Join-Path $evidenceDir "ExceptionRegister.csv"
-# $exportData | Export-Csv -Path $exportFile -NoTypeInformation -Encoding UTF8
+$exportData | Export-Csv -Path $exportFile -NoTypeInformation -Encoding UTF8
 
 Write-Host "✓ Exception register exported" -ForegroundColor Green
 

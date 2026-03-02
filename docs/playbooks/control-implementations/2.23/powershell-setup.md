@@ -339,16 +339,6 @@ $fetchXml += @"
 </fetch>
 "@
 
-# Helper function to get access token (conceptual - implement based on your auth method)
-function Get-AccessToken {
-    param([string]$EnvironmentUrl)
-    # This is a placeholder - implement actual OAuth token acquisition
-    # Example: Use MSAL.PS or Azure CLI to get token
-    # az account get-access-token --resource $EnvironmentUrl --query accessToken -o tsv
-    Write-Warning "Implement Get-AccessToken function with your authentication method"
-    return ""
-}
-
 try {
     # Note: This uses a conceptual approach; actual Dataverse PowerShell cmdlet may differ
     # You may need to use Invoke-RestMethod with Dataverse Web API

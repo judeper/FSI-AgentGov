@@ -63,7 +63,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ### Week 3: Environment Governance
 
-#### Environment Routing (Control 2.15) ⭐ NEW
+#### Environment Routing (Control 2.15)
 - [ ] Navigate to PPAC → Manage → Environment groups
 - [ ] Enable default environment routing
 - [ ] Configure routing rules for security groups
@@ -239,7 +239,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 - [ ] Run oversharing assessments for agent knowledge sources
 - [ ] Document DSPM setup
 
-**Control 1.19: eDiscovery for Agent Interactions** ⭐ NEW
+**Control 1.19: eDiscovery for Agent Interactions**
 
 - [ ] Assign eDiscovery administrator role
 - [ ] Document agent content locations (Teams, SharePoint)
@@ -267,7 +267,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 - [ ] Create RCA template
 - [ ] Define escalation procedures
 
-#### PPAC Reporting ⭐ NEW
+#### PPAC Reporting
 
 **Control 3.7: PPAC Security Posture Assessment**
 
@@ -314,7 +314,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 - [ ] Limit external sharing
 - [ ] Document permissions
 
-**Control 1.2: Integrated Apps Management**
+**Control 1.2: Agent Registry and Integrated Apps Management**
 
 - [ ] Review all integrated apps in M365 Admin Center
 - [ ] Audit connector permissions

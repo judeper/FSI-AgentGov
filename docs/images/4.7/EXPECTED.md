@@ -58,3 +58,7 @@
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
 - EEEU remediation is a critical pre-deployment prerequisite
+
+---
+
+[Back to Control 4.7](../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md)

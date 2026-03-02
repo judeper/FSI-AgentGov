@@ -17,7 +17,7 @@ This guide explains how the automated Microsoft Learn documentation monitoring s
 
 ## System Overview
 
-The Learn monitor tracks **209 Microsoft Learn URLs** from the [Microsoft Learn URLs](microsoft-learn-urls.md) watchlist and detects content changes that may require updates to framework documentation.
+The Learn monitor tracks **~207 Microsoft Learn URLs** from the [Microsoft Learn URLs](microsoft-learn-urls.md) watchlist and detects content changes that may require updates to framework documentation.
 
 **Part of Unified Monitoring System:** The Learn Monitor is one source adapter within the broader unified monitoring architecture. See [monitoring-architecture.md](monitoring-architecture.md) for the complete system design.
 
@@ -382,7 +382,7 @@ rm reports/monitoring/learn-changes-*.md
 
 - **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Comprehensive unified monitoring system documentation
 - **AI-Assisted Review:** [learn-monitor-ai-enhancement.md](learn-monitor-ai-enhancement.md) - AI-assisted review implementation guide
-- **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - The watchlist of monitored URLs (209 URLs)
+- **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - The watchlist of monitored URLs (~207 URLs)
 - **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill for reviewing changes
 - **Repository Instructions:** `.claude/CLAUDE.md` - Complete repository instructions (in project root)
 

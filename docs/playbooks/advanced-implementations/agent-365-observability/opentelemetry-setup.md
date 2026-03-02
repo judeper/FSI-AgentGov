@@ -190,7 +190,7 @@ processors:
     actions:
       - key: fsi.governance.version
         action: upsert
-        value: "1.2.6"
+        value: "1.2.51"
       - key: fsi.data.classification
         action: upsert
         from_attribute: agent.zone
@@ -564,4 +564,4 @@ service:
 
 ---
 
-*FSI Agent Governance Framework v1.2.6 - January 2026*
+*FSI Agent Governance Framework v1.2.51 - January 2026*

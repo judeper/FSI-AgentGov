@@ -14,6 +14,7 @@
 
 1. Verify RCD setting on the site:
    ```powershell
+   # Replace 'tenant' and 'SiteName' with your actual tenant name and site name
    Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
        Select-Object Url, RestrictContentOrgWideSearch
    ```
@@ -70,6 +71,7 @@
 
 ```powershell
 # Check site exclusion status
+# Replace 'tenant' and 'SiteName' with your actual tenant name and site name
 Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
     Select-Object Url, RestrictContentOrgWideSearch, SensitivityLabel
 
