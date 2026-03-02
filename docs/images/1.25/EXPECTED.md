@@ -1,6 +1,6 @@
-# Control 1.25: MIME Type Restrictions for File Uploads - Screenshot Specifications
+# Control 1.25: MIME Type Restrictions for File Uploads
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: PPAC Blocked Extensions Field
 **Portal Path:** Power Platform Admin Center → Environments → [Environment] → Settings → Privacy + Security
@@ -31,7 +31,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 - Capture from pre-production environment when possible
 - Ensure environment names are representative but not sensitive
 - Include timestamps to demonstrate currency

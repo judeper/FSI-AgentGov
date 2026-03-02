@@ -1,6 +1,6 @@
-# Control 1.23: Step-Up Authentication for AI Agent Operations - Screenshot Specifications
+# Control 1.23: Step-Up Authentication for AI Agent Operations
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: Authentication Contexts Configuration
 **Portal Path:** Microsoft Entra Admin Center → Protection → Authentication contexts
@@ -46,7 +46,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 - Capture from pre-production environment when possible
 - Ensure authentication context names and policy names are representative
 - Include timestamps to demonstrate currency

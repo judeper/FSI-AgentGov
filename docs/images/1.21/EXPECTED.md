@@ -1,6 +1,6 @@
-# Control 1.21: Adversarial Input Logging - Screenshot Specifications
+# Control 1.21: Adversarial Input Logging
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: Defender for Cloud Apps Policy Creation
 **Portal Path:** Microsoft Defender Portal → Cloud Apps → Policies → Policy Management → Create policy
@@ -32,7 +32,7 @@
 - Search results showing detected adversarial input
 - Export option visible
 
-### Screenshot 5: Zone 3 Blocking Configuration
+### Screenshot 5: Zone 3 Blocking Configuration (Optional)
 **Portal Path:** Defender for Cloud Apps → Policies → Session policy
 **What to capture:**
 - Session policy configured for blocking
@@ -41,7 +41,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 - All screenshots should be captured from a production or pre-production environment
 - Sensitive data (user identities, actual attack content) should be redacted
 - Include timestamps in screenshots for audit trail

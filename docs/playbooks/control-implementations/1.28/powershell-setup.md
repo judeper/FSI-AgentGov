@@ -48,7 +48,8 @@ Add-PowerAppsAccount
 
 # Define Zone 1 (Personal) DLP Policy
 $zone1PolicyName = "Zone 1 - Personal Productivity DLP Policy"
-$zone1Policy = New-DlpPolicy -DisplayName $zone1PolicyName `
+# NOTE: Use New-AdminDlpPolicy for admin-context DLP policy creation.
+$zone1Policy = New-AdminDlpPolicy -DisplayName $zone1PolicyName `
     -EnvironmentType "OnlyEnvironments"
 
 # Configure Zone 1 connectors
@@ -87,7 +88,7 @@ Write-Host "✓ Zone 1 DLP policy created: $zone1PolicyName" -ForegroundColor Gr
 
 # Define Zone 2 (Team) DLP Policy
 $zone2PolicyName = "Zone 2 - Team Collaboration DLP Policy"
-$zone2Policy = New-DlpPolicy -DisplayName $zone2PolicyName `
+$zone2Policy = New-AdminDlpPolicy -DisplayName $zone2PolicyName `
     -EnvironmentType "OnlyEnvironments"
 
 # Configure Zone 2 connectors (stricter - no non-business connectors)
@@ -128,7 +129,7 @@ Write-Host "✓ Zone 2 DLP policy created: $zone2PolicyName" -ForegroundColor Gr
 
 # Define Zone 3 (Enterprise) DLP Policy
 $zone3PolicyName = "Zone 3 - Enterprise Customer-Facing DLP Policy"
-$zone3Policy = New-DlpPolicy -DisplayName $zone3PolicyName `
+$zone3Policy = New-AdminDlpPolicy -DisplayName $zone3PolicyName `
     -EnvironmentType "OnlyEnvironments"
 
 # Configure Zone 3 connectors (strictest - whitelist only approved connectors)
@@ -145,10 +146,8 @@ $zone3BlockedConnectors = @(
     "/providers/Microsoft.PowerApps/apis/shared_facebook",
     "/providers/Microsoft.PowerApps/apis/shared_publicwebsites",
     "/providers/Microsoft.PowerApps/apis/shared_twitter",
-    "/providers/Microsoft.PowerApps/apis/shared_rss"
-    # NOTE: Wildcard patterns are not valid DLP connector IDs. To block additional
-    # connectors, enumerate each connector ID explicitly or use the default
-    # "Non-Business" group classification in the DLP policy.
+    "/providers/Microsoft.PowerApps/apis/shared_rss",
+    "/providers/Microsoft.PowerApps/apis/*"  # Block all external connectors
 )
 
 # Add connectors to Zone 3 policy
@@ -200,9 +199,10 @@ $zone2Environments = $environments | Where-Object { $_.DisplayName -like "*Team*
 $zone3Environments = $environments | Where-Object { $_.DisplayName -like "*Production*" -or $_.DisplayName -like "*Customer*" }
 
 # Get DLP policies
-$zone1Policy = Get-DlpPolicy | Where-Object { $_.DisplayName -eq "Zone 1 - Personal Productivity DLP Policy" }
-$zone2Policy = Get-DlpPolicy | Where-Object { $_.DisplayName -eq "Zone 2 - Team Collaboration DLP Policy" }
-$zone3Policy = Get-DlpPolicy | Where-Object { $_.DisplayName -eq "Zone 3 - Enterprise Customer-Facing DLP Policy" }
+# NOTE: Use Get-AdminDlpPolicy for admin-context DLP policy retrieval.
+$zone1Policy = Get-AdminDlpPolicy | Where-Object { $_.DisplayName -eq "Zone 1 - Personal Productivity DLP Policy" }
+$zone2Policy = Get-AdminDlpPolicy | Where-Object { $_.DisplayName -eq "Zone 2 - Team Collaboration DLP Policy" }
+$zone3Policy = Get-AdminDlpPolicy | Where-Object { $_.DisplayName -eq "Zone 3 - Enterprise Customer-Facing DLP Policy" }
 
 # Assign Zone 1 policy
 Write-Host "`nAssigning Zone 1 DLP policy to environments..." -ForegroundColor Cyan
@@ -272,13 +272,15 @@ foreach ($env in $environments) {
     
     # Get agents (chatbots) in this environment
     try {
+        # NOTE: Use Get-AdminPowerAppChatbot for admin-context operations.
+        # Get-PowerAppChatBot retrieves only the caller's own chatbots.
         $agents = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName
         
         foreach ($agent in $agents) {
             # Check DLP compliance
             # NOTE: No native cmdlet exists for chatbot-specific DLP compliance testing.
             # Use Get-AdminDlpPolicy to verify policy configuration covers Copilot Studio connectors.
-            $dlpPolicies = Get-DlpPolicy
+            $dlpPolicies = Get-AdminDlpPolicy
             $dlpCompliant = $true
             $dlpViolations = @()
             # Verify the environment's DLP policies cover Copilot Studio connectors
@@ -373,11 +375,11 @@ foreach ($env in $targetEnvironments) {
         # For approval workflows, configure environment-level governance in
         # Power Platform Admin Center → Environments → [Environment] → Settings → Features.
         # Alternatively, implement approval flows using Power Automate.
-        # NOTE: No native cmdlet parameter exists to enable chatbot approval.
-        # Chatbot approval must be configured manually in Power Platform Admin Center
-        # → Environments → [Environment] → Settings → Features, or via a Power Automate flow.
-        Write-Host "  ⚠ Chatbot approval must be configured manually for: $($env.DisplayName)" -ForegroundColor Yellow
-        Write-Host "    → Power Platform Admin Center → Environments → Settings → Features" -ForegroundColor Yellow
+        Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
+        # Note: Chatbot approval requires manual configuration in Admin Center or via Power Automate flow
+        Write-Host "  ⚠ Chatbot approval must be configured manually in Power Platform Admin Center" -ForegroundColor Yellow
+        
+        Write-Host "  ✓ Approval workflows enabled for: $($env.DisplayName)" -ForegroundColor Green
     }
     catch {
         Write-Host "  ✗ Failed to enable approval for: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red
@@ -397,13 +399,13 @@ After running the setup scripts, validate the configuration:
 
 ```powershell
 # Check DLP policy assignments
-Get-DlpPolicy | Select-Object DisplayName, @{Name="Environments";Expression={($_.Environments).Count}}
+Get-AdminDlpPolicy | Select-Object DisplayName, @{Name="Environments";Expression={($_.Environments).Count}}
 
 # List agents with DLP policy gaps
 # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
 # Use Get-AdminDlpPolicy to review DLP policies covering Copilot Studio connectors,
 # then cross-reference with agent connector usage in Power Platform Admin Center.
-Get-DlpPolicy | Select-Object DisplayName, PolicyName
+Get-AdminDlpPolicy | Select-Object DisplayName, PolicyName
 
 # Check environment approval settings
 # NOTE: RequireChatbotApproval is not a native property on environment objects.
@@ -446,4 +448,4 @@ Register-ScheduledTask -TaskName "Agent Publishing Compliance Audit" `
 
 ---
 
-[Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

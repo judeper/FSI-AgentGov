@@ -245,3 +245,7 @@ catch {
 ---
 
 [Back to Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

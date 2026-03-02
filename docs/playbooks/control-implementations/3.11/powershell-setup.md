@@ -762,6 +762,4 @@ Get-AdminPowerAppEnvironment | Select-Object EnvironmentName, DisplayName
 
 [Back to Control 3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
----
-
 *Updated: February 2026 | Version: v1.0*

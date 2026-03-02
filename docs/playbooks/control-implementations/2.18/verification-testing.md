@@ -1,6 +1,6 @@
 # Verification & Testing: Control 2.18 - Automated Conflict of Interest Testing
 
-**Last Updated:** February 2026
+**Last Updated:** January 2026
 
 ## Manual Verification Steps
 

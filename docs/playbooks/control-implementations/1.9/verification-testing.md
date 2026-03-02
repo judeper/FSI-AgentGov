@@ -99,7 +99,7 @@
 |------------|-------------------|------------|
 | FINRA 4511 | 6 years | Books and records, communications |
 | SEC 17a-3/4 | 6-7 years | Trade records, communications |
-| SOX 404 | 7 years | Financial audit documentation |
+| SOX 802 | 7 years | Audit record retention |
 | GLBA 501(b) | Per company policy | Customer financial information |
 
 ---

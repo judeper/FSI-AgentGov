@@ -25,13 +25,13 @@ This playbook provides troubleshooting guidance for common issues related to pol
 
 1. **Identify the violating connector:**
    ```powershell
-   # Review DLP policies covering the agent's environment
    # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
-   # Retrieve DLP policies and review connector classifications manually.
+   # Instead, review DLP policies covering Copilot Studio connectors:
    $env = "YOUR_ENVIRONMENT_ID"
-   $dlpPolicies = Get-AdminDlpPolicy
-   $dlpPolicies | Where-Object { $_.Environments.name -contains $env } |
-       Select-Object DisplayName, PolicyName
+   Get-AdminDlpPolicy | Where-Object {
+       $_.Environments -contains $env
+   } | Select-Object DisplayName, PolicyName
+   # Then cross-reference agent connector usage in Power Platform Admin Center.
    ```
 
 2. **Review DLP policy for the environment:**
@@ -91,11 +91,11 @@ This playbook provides troubleshooting guidance for common issues related to pol
 
 1. **Check when agent was published vs. DLP policy last updated:**
    ```powershell
-   # Get agent last modified date
+   # Get agent last modified date (use Admin variant for cross-tenant visibility)
    Get-AdminPowerAppChatbot -EnvironmentName $env -ChatBotName $agent | Select-Object LastModifiedTime
    
    # Get DLP policy last modified date
-   Get-DlpPolicy | Where-Object { $_.Environments -contains $env } | Select-Object LastModifiedTime
+   Get-AdminDlpPolicy | Where-Object { $_.Environments -contains $env } | Select-Object LastModifiedTime
    ```
 
 2. **Compare agent connector usage to current DLP policy:**
@@ -173,10 +173,8 @@ This playbook provides troubleshooting guidance for common issues related to pol
 2. Run PowerShell compliance check:
    ```powershell
    # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
-   # Use Get-AdminDlpPolicy to review policies and cross-reference with
-   # agent connector usage in Power Platform Admin Center.
-   Get-AdminDlpPolicy | Where-Object { $_.Environments.name -contains $env } |
-       Select-Object DisplayName, PolicyName
+   # Review DLP policies for the environment and cross-reference with agent connector usage.
+   Get-AdminDlpPolicy | Select-Object DisplayName, PolicyName
    ```
 3. Contact Microsoft Support if feature is expected but not available
 

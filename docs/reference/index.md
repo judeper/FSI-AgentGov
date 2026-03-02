@@ -23,7 +23,16 @@ This section provides technical reference materials, standards, and supporting d
 | Document | Description |
 |----------|-------------|
 | [Administrator Role Catalog](role-catalog.md) | Complete list of admin roles with aliases |
+| [RACI Matrix](raci-matrix.md) | Roles and responsibilities matrix for governance activities |
 | [License Requirements](license-requirements.md) | License matrix for framework capabilities |
+| [SharePoint Advanced Management Licensing](sharepoint-advanced-management-licensing.md) | Licensing guide for SharePoint Advanced Management features |
+
+### Regulatory and Standards
+
+| Document | Description |
+|----------|-------------|
+| [Regulatory Mappings](regulatory-mappings.md) | Control-to-regulation mapping reference |
+| [NIST AI RMF Crosswalk](nist-ai-rmf-crosswalk.md) | NIST AI Risk Management Framework control crosswalk |
 
 ### Technical Reference
 
@@ -32,44 +41,20 @@ This section provides technical reference materials, standards, and supporting d
 | [Portal Paths Quick Reference](portal-paths-quick-reference.md) | Consolidated portal navigation paths |
 | [Microsoft Learn URLs](microsoft-learn-urls.md) | Official documentation links |
 | [Learn Monitor Guide](learn-monitor-guide.md) | How the documentation monitor works |
+| [Learn Monitor AI Enhancement](learn-monitor-ai-enhancement.md) | AI-assisted review implementation for monitoring |
+| [Monitoring Architecture](monitoring-architecture.md) | Unified monitoring system architecture |
 | [FSI Configuration Examples](fsi-configuration-examples.md) | Financial services-specific configurations |
 | [Agent Audit Event Taxonomy](agent-audit-event-taxonomy.md) | Consolidated audit event reference with KQL queries |
 | [Agent Essentials Control Mapping](agent-essentials-control-mapping.md) | Microsoft Agent Essentials to FSI control mapping |
-
-### Regulatory & Compliance
-
-| Document | Description |
-|----------|-------------|
-| [RACI Matrix](raci-matrix.md) | Roles and responsibilities for governance activities |
-| [Regulatory Mappings](regulatory-mappings.md) | Control-to-regulation requirement mappings |
-| [NIST AI RMF Crosswalk](nist-ai-rmf-crosswalk.md) | Framework controls mapped to NIST AI Risk Management Framework |
+| [Agent 365 Capabilities Summary](agent-365-capabilities-summary.md) | Microsoft 365 agent capabilities overview |
 
 ### Solutions
 
 | Document | Description |
 |----------|-------------|
-| [Solutions Index](solutions-index.md) | Deployable Power Platform solutions catalog |
-| [Solutions Coverage Gaps](solutions-coverage-gaps.md) | Coverage gap analysis against the 71-control framework |
-| [Solutions Architecture Guide](solutions-architecture-guide.md) | Enterprise scalability and platform selection reference |
-
-### Monitoring & Architecture
-
-| Document | Description |
-|----------|-------------|
-| [Monitoring Architecture](monitoring-architecture.md) | Unified monitoring system design |
-| [Learn Monitor AI Enhancement](learn-monitor-ai-enhancement.md) | AI-assisted review implementation guide |
-
-### Licensing
-
-| Document | Description |
-|----------|-------------|
-| [SharePoint Advanced Management Licensing](sharepoint-advanced-management-licensing.md) | SAM licensing requirements and Copilot license features |
-
-### Agent Capabilities
-
-| Document | Description |
-|----------|-------------|
-| [Agent 365 Capabilities Summary](agent-365-capabilities-summary.md) | Consolidated Agent 365 guidance across the framework |
+| [Solutions Index](solutions-index.md) | Catalog of deployable solution artifacts |
+| [Solutions Architecture Guide](solutions-architecture-guide.md) | Architecture patterns for governance solutions |
+| [Solutions Coverage Gap Analysis](solutions-coverage-gaps.md) | Gap analysis between solutions and controls |
 
 ### General Reference
 
@@ -108,4 +93,4 @@ This section provides technical reference materials, standards, and supporting d
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*

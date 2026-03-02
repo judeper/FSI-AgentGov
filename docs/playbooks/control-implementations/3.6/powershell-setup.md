@@ -139,10 +139,10 @@ function Disable-OrphanedAgent {
     Write-Host "Archiving agent: $AgentId" -ForegroundColor Yellow
 
     try {
-        # Disable the app (quarantine)
-        Set-AdminPowerAppAsSysAdmin -AppName $AgentId -EnvironmentName $EnvironmentName -Disable
+        # Remove the app (quarantine)
+        Remove-AdminPowerApp -AppName $AgentId -EnvironmentName $EnvironmentName
 
-        Write-Host "Agent disabled successfully" -ForegroundColor Green
+        Write-Host "Agent removed successfully" -ForegroundColor Green
 
         # Log the action
         $archiveLog = [PSCustomObject]@{

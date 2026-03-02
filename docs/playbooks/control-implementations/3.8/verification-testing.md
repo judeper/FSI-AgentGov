@@ -217,10 +217,7 @@
 
 ---
 
-!!! warning "Deprecated Legacy Test Cases"
-    The following legacy test cases are superseded by the detailed FAC-prefixed test procedures above (FAC-01 through FAC-03). Use the FAC-prefixed tests for current verification workflows. These legacy cases are retained for historical reference only.
-
-### Test Case 1: Admin Exclusion Group Access Control (Legacy — see FAC-01)
+### Test Case 1: Admin Exclusion Group Access Control (Legacy)
 
 **Objective:** Verify users in Admin Exclusion Group cannot access Copilot
 
@@ -234,7 +231,7 @@
 
 **Expected Result:** Access denied or Copilot features not visible
 
-### Test Case 2: Deployment Group Restrictions (Legacy — see FAC-02)
+### Test Case 2: Deployment Group Restrictions
 
 **Objective:** Verify users outside deployment group cannot access Copilot
 
@@ -242,26 +239,26 @@
 
 1. Create deployment group with specific users
 2. Assign Copilot to deployment group only
-3. Wait for propagation (up to 24 hours)
+3. Wait for propagation (up to 8 hours)
 4. Test with user inside deployment group
 5. Test with user outside deployment group
 
 **Expected Result:** Feature available only to users in deployment group
 
-### Test Case 3: Web Search Control Disabled (Legacy — see FAC-03)
+### Test Case 3: Web Search Control Disabled
 
 **Objective:** Verify Copilot responses use only organizational data when web search disabled
 
 **Steps:**
 
 1. Disable web search in Copilot Settings (Data Access tab)
-2. Wait for propagation (up to 24 hours)
+2. Wait for propagation (up to 8 hours)
 3. Test Copilot chat prompt requiring web search
 4. Verify web search not used in response
 
 **Expected Result:** Copilot respects disabled web search setting
 
-### Test Case 4: Agent Access Restrictions (Legacy)
+### Test Case 4: Agent Access Restrictions
 
 **Objective:** Verify restricted agent access prevents third-party agent discovery
 
@@ -274,7 +271,7 @@
 
 **Expected Result:** Third-party agents not discoverable
 
-### Test Case 5: AI Administrator Role Permissions (Legacy)
+### Test Case 5: AI Administrator Role Permissions
 
 **Objective:** Verify AI Administrator can configure Copilot settings without Global Admin
 
@@ -288,7 +285,7 @@
 
 **Expected Result:** Settings changes applied successfully without Global Admin
 
-### Test Case 6: Settings Application (Legacy — see FAC-03)
+### Test Case 6: Settings Application (Legacy)
 
 **Objective:** Verify settings changes take effect
 
@@ -300,7 +297,7 @@
 
 **Expected Result:** Copilot respects disabled web search
 
-### Test Case 7: Agent Approval Workflow (Legacy)
+### Test Case 7: Agent Approval Workflow
 
 **Objective:** Verify agents require approval
 
@@ -314,7 +311,7 @@
 
 **Expected Result:** Agents require approval before availability
 
-### Test Case 8: MCP Server Blocking (Legacy)
+### Test Case 8: MCP Server Blocking
 
 **Objective:** Verify blocked servers are inaccessible
 

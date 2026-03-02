@@ -30,9 +30,9 @@ Cross-solution integration that wires the 5 Tier 2 governance solutions (ACV, SS
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Canonical option set contract and status mapping reference document (SCH-01, SCH-02)
-- [ ] 01-02-PLAN.md — IntegrationConfig.psm1 shared constants module (SCH-03)
-- [ ] 01-03-PLAN.md — Integration solution scaffold and directory structure
+- [x] 01-01-PLAN.md — Canonical option set contract and status mapping reference document (SCH-01, SCH-02)
+- [x] 01-02-PLAN.md — IntegrationConfig.psm1 shared constants module (SCH-03)
+- [x] 01-03-PLAN.md — Integration solution scaffold and directory structure
 
 ### Phase 2: Compliance Dashboard Feed Layer
 **Goal**: Daily automated pipeline that pulls validation results from all 5 Tier 2 solutions, creates/updates CD assessments per control, auto-registers evidence, and updates the CD score calculator
@@ -46,10 +46,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Sync-SolutionAssessments.ps1 PowerShell script with per-solution query and CD upsert logic (CDF-02, CDF-03)
-- [ ] 02-02-PLAN.md — Evidence auto-registration and CD evidence linking (CDF-04)
-- [ ] 02-03-PLAN.md — CD-SolutionFeedCollector flow definition (CDF-01)
-- [ ] 02-04-PLAN.md — CD-ScoreCalculator flow update for automated assessment weighting (CDF-05)
+- [x] 02-01-PLAN.md — Sync-SolutionAssessments.ps1 PowerShell script with per-solution query and CD upsert logic (CDF-02, CDF-03)
+- [x] 02-02-PLAN.md — Evidence auto-registration and CD evidence linking (CDF-04)
+- [x] 02-03-PLAN.md — CD-SolutionFeedCollector flow definition (CDF-01)
+- [x] 02-04-PLAN.md — CD-ScoreCalculator flow update for automated assessment weighting (CDF-05)
 
 ### Phase 3: ELM Provisioning Hooks
 **Goal**: When ELM provisions a new environment, automatically register it in ACV and notify downstream solutions, closing the environment-to-validation lifecycle gap
@@ -62,9 +62,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — ELM-SolutionInitializer child flow definition (ELM-01, ELM-03)
-- [ ] 03-02-PLAN.md — ACV environment auto-registration logic (ELM-02)
-- [ ] 03-03-PLAN.md — Integration configuration and cascade contract documentation (ELM-03)
+- [x] 03-01-PLAN.md — ELM-SolutionInitializer child flow definition (ELM-01, ELM-03)
+- [x] 03-02-PLAN.md — ACV environment auto-registration logic (ELM-02)
+- [x] 03-03-PLAN.md — Integration configuration and cascade contract documentation (ELM-03)
 
 ### Phase 4: Unified Evidence Export
 **Goal**: Single-command evidence aggregation from all Tier 2 solutions into a master evidence package with SHA-256 chain integrity for quarterly regulatory examinations
@@ -77,9 +77,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Export-UnifiedComplianceEvidence.ps1 orchestration script (UEV-01, UEV-02)
-- [ ] 04-02-PLAN.md — Master evidence manifest and integrity chain (UEV-02)
-- [ ] 04-03-PLAN.md — Test-UnifiedEvidenceIntegrity.ps1 validation script (UEV-03)
+- [x] 04-01-PLAN.md — Export-UnifiedComplianceEvidence.ps1 orchestration script (UEV-01, UEV-02)
+- [x] 04-02-PLAN.md — Master evidence manifest and integrity chain (UEV-02)
+- [x] 04-03-PLAN.md — Test-UnifiedEvidenceIntegrity.ps1 validation script (UEV-03)
 
 ### Phase 5: Documentation & Framework Integration
 **Goal**: Update framework documentation, solutions-index, and Compliance Dashboard README to reflect the integrated governance platform
@@ -93,9 +93,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Integration architecture framework document (DOC-01)
-- [ ] 05-02-PLAN.md — solutions-index.md and control updates (DOC-02)
-- [ ] 05-03-PLAN.md — CD README update and integration solution docs suite (DOC-03, DOC-04)
+- [x] 05-01-PLAN.md — Integration architecture framework document (DOC-01)
+- [x] 05-02-PLAN.md — solutions-index.md and control updates (DOC-02)
+- [x] 05-03-PLAN.md — CD README update and integration solution docs suite (DOC-03, DOC-04)
 
 ## Progress
 

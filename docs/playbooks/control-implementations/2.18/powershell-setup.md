@@ -43,26 +43,6 @@ param(
     [string]$OutputPath = ".\results"
 )
 
-function Test-Criterion {
-    param($Response, $Criterion)
-
-    switch ($Criterion.type) {
-        "contains" {
-            return @{ Passed = $Response -match $Criterion.pattern }
-        }
-        "not_contains" {
-            return @{ Passed = $Response -notmatch $Criterion.pattern }
-        }
-        "sentiment" {
-            # Would integrate with sentiment analysis API
-            return @{ Passed = $true }
-        }
-        default {
-            return @{ Passed = $true }
-        }
-    }
-}
-
 Write-Host "=== COI Test Suite Execution ===" -ForegroundColor Cyan
 Write-Host "Agent: $AgentEndpoint"
 Write-Host "Test Suite: $TestSuitePath"
@@ -114,7 +94,7 @@ foreach ($testFile in $testFiles) {
         $violations = @()
 
         foreach ($criterion in $testCase.criteria) {
-            $evaluation = Test-Criterion -Response $response.message -Criterion $criterion
+            $evaluation = Evaluate-Criterion -Response $response.message -Criterion $criterion
             if (-not $evaluation.Passed) {
                 $passed = $false
                 $violations += $criterion.name
@@ -167,6 +147,7 @@ if ($failedTests -gt 0) {
     $results | Where-Object { -not $_.Passed } | Format-Table Category, TestName, Violations
     exit 1
 }
+
 ```
 
 ### Generate COI Compliance Report

@@ -166,7 +166,7 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 | SSPM-1.1-02 | Manual auth sign-in requirement | "Require users to sign in" enabled | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-03 | Authentication enforcement | Set to "Always" | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-04 | Sharing scope | Not set to "Anyone with the link" | Copilot Studio > Settings > Security > Authentication | Screenshot |
-| SSPM-1.1-05 | AI feature publishing | "Publish bots with AI features" disabled | PPAC > Manage > Tenant Settings | Screenshot |
+| SSPM-1.1-05 | AI feature publishing | "Publish bots with AI features" disabled | PPAC > Environments > Settings > Features | Screenshot |
 | SSPM-1.1-06 | Unapproved agent blocking | Unapproved agents blocked from Teams channels | Teams Admin Center > Manage Apps | Screenshot |
 
 ### Test Procedures
@@ -201,10 +201,10 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 
 **SSPM-1.1-05: AI Feature Publishing**
 
-1. Navigate to **PPAC** > **Manage** > **Tenant Settings**
+1. Navigate to **PPAC** > **Environments** > select environment > **Settings** > **Features**
 2. Locate "Publish bots with AI features" toggle
 3. Verify toggle is set to **Off** (disabled)
-4. **Pass criteria:** AI feature publishing is disabled at tenant level
+4. **Pass criteria:** AI feature publishing is disabled at environment level
 5. **Evidence:** Screenshot showing Features page with toggle state
 
 **SSPM-1.1-06: Unapproved Agent Blocking**

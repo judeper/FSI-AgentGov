@@ -2,6 +2,7 @@
 
 **Generated:** 2026-02-11
 **Scope:** Full repository architecture analysis
+**⚠️ Staleness Note:** This snapshot pre-dates v20.5 (added 9 controls, 62→71) and v23 (deleted src/, migrated solutions to companion repo). Counts and directory references below may be outdated.
 
 ## Summary
 

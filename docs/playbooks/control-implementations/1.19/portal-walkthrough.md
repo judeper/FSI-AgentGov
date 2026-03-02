@@ -46,7 +46,7 @@ Create inventory of agent content locations:
 ### Step 4: Create Content Search
 
 1. In the case, create new search
-2. Configure KeyQL query for agent content:
+2. Configure KQL query for agent content:
    ```
    kind:microsoftteams AND (from:"Copilot" OR subject:"Agent")
    ```

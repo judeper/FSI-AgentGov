@@ -108,13 +108,13 @@ All prior todos resolved. Excel re-save is the only pending item.
 
 ## Session Continuity
 
-**Active Tool:** copilot
+**Active Tool:** claude-code
 **Session Started:** 2026-02-14
 **Handoff Summary:** v23 COMPLETE. Comprehensive review and remediation session covering both repos:
 - **src/ migration:** 17 original + 7 ASARD artifacts migrated from FSI-AgentGov src/ to FSI-AgentGov-Solutions (6 solution folders). src/ directory deleted.
 - **Branch cleanup:** Cherry-picked eloquent-jang (Agent 365 content: capabilities summary, Agent Store Governance, MCP Server Governance, Unified Visibility Architecture). Merged learn-monitor/update-14 (30+ URL redirects, eDiscovery/Sentinel notices). Deleted learn-monitor/update-6 (superseded).
 - **Companion repo scaffolding:** README + CHANGELOG for 3 new solutions, CHANGELOG for 2 existing.
-- **10-agent review fixes:** Version bump v1.2.39c → v1.2.47, 10 non-canonical role names fixed, 3 footer metadata values, 11 missing regulatory-mappings entries, 24 stale version footers updated, CHANGELOG catch-up (v11-v22), 2 stale worktrees + 5 stale branches removed.
+- **10-agent review fixes:** Version bump v1.2.39c → v1.2.41, 10 non-canonical role names fixed, 3 footer metadata values, 11 missing regulatory-mappings entries, 24 stale version footers updated, CHANGELOG catch-up (v11-v22), 2 stale worktrees + 5 stale branches removed.
 - **Deferred:** Excel re-save (6 .xlsx, manual), Learn Monitor HIGH changes (31 items, informational only).
 - **Build:** mkdocs build --strict (0 errors), verify_controls.py (71/71). Both repos pushed.
 

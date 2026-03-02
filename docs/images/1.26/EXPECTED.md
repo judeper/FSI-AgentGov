@@ -1,6 +1,6 @@
-# Control 1.26: Agent File Upload and File Analysis Restrictions - Screenshot Specifications
+# Control 1.26: Agent File Upload and File Analysis Restrictions
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: Copilot Studio File Upload Toggle (Enabled)
 **Portal Path:** Copilot Studio → [Agent] → Settings → Security → File Upload
@@ -44,7 +44,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 - Capture from pre-production environment when possible
 - Ensure agent and environment names are representative but not sensitive
 - Include timestamps to demonstrate currency

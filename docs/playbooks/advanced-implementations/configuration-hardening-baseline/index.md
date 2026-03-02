@@ -1,6 +1,6 @@
 # Configuration Hardening Baseline
 
-**Status:** February 2026 - FSI-AgentGov v1.2
+**Status:** February 2026 - FSI-AgentGov v1.2.51
 **Related Controls:** 1.1, 1.7, 1.8, 1.18, 1.27, 2.1, 2.22, 3.7, 3.8
 
 ---
@@ -305,4 +305,4 @@ Evidence retention periods should align with applicable regulatory requirements:
 
 ---
 
-*Updated: February 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.2.51*

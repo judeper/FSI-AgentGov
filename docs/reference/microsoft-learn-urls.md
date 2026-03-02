@@ -5,7 +5,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 - **Organization:** by topic area (admin teams typically search by product)
 - **Automated Monitoring:** `scripts/learn_monitor.py` checks these URLs daily for content changes
 - **Last Verified:** last time this specific URL was checked for accuracy
-- **Total URLs Tracked:** ~175 (Learn URLs only, excludes admin portals and regulatory references)
+- **Total URLs Tracked:** ~207 (Learn URLs only, excludes admin portals and regulatory references)
 
 ---
 

@@ -247,4 +247,4 @@ This framework provides governance guidance and does not constitute legal, regul
 
 ---
 
-*FSI Agent Governance Framework v1.2.42 - February 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

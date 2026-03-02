@@ -1,6 +1,6 @@
 # Environment Lifecycle Management - Approval Flow
 
-**Status:** February 2026 - FSI-AgentGov v1.2.48
+**Status:** February 2026 - FSI-AgentGov v1.2.51
 **Related Controls:** 2.2 (Environment Groups), 2.8 (Access Control & SoD), 2.3 (Change Management)
 
 ---
@@ -91,7 +91,7 @@ flowchart TD
 After the trigger fires, retrieve the full request record and branch based on zone classification:
 
 1. **Get row** — Retrieve the full EnvironmentRequest record using the row ID from the trigger
-2. **Condition** — Branch on `er_zone_classification` value
+2. **Condition** — Branch on `er_zone` value
 
 ### Zone 1: Auto-Approve
 
@@ -101,8 +101,8 @@ Zone 1 (Personal Productivity) environments carry the lowest risk and can be aut
 2. **Delay** — Optional 30-second delay (allows for manual override if needed)
 3. **Update row** — Set:
    - `er_state` = `Approved`
-   - `er_approved_by` = `System (Auto-Approve)`
-   - `er_approved_date` = `utcNow()`
+   - `er_approver` = `System (Auto-Approve)`
+   - `er_approvedon` = `utcNow()`
 4. **Post message** — Notify requester via Teams
 
 !!! tip "Auto-Approve Governance"
@@ -118,9 +118,9 @@ Zone 2 (Team Collaboration) environments require approval from the Power Platfor
 | Property | Value |
 |----------|-------|
 | **Approval type** | Approve/Reject - First to respond |
-| **Title** | `Environment Request: [er_environment_name] (Zone 2)` |
+| **Title** | `Environment Request: [er_environmentname] (Zone 2)` |
 | **Assigned to** | Power Platform Admin email (or distribution group) |
-| **Details** | Include: requester, business purpose, data sensitivity, zone classification |
+| **Details** | Include: requester, business justification, data sensitivity, zone classification |
 | **Item link** | Deep link to the EnvironmentRequest record in model-driven app |
 
 3. **Condition** — Check approval outcome:
@@ -137,7 +137,7 @@ Zone 3 (Enterprise Managed) environments require sequential approval from both t
 | Property | Value |
 |----------|-------|
 | **Approval type** | Approve/Reject - First to respond |
-| **Title** | `[Level 1/2] Environment Request: [er_environment_name] (Zone 3)` |
+| **Title** | `[Level 1/2] Environment Request: [er_environmentname] (Zone 3)` |
 | **Assigned to** | Power Platform Admin |
 | **Details** | Include all request details plus zone escalation justification |
 
@@ -147,7 +147,7 @@ Zone 3 (Enterprise Managed) environments require sequential approval from both t
 | Property | Value |
 |----------|-------|
 | **Approval type** | Approve/Reject - First to respond |
-| **Title** | `[Level 2/2] Environment Request: [er_environment_name] (Zone 3)` |
+| **Title** | `[Level 2/2] Environment Request: [er_environmentname] (Zone 3)` |
 | **Assigned to** | Compliance Officer |
 | **Details** | Include request details plus Level 1 approval confirmation |
 
@@ -167,14 +167,12 @@ Use the following HTML template for the approval details field:
 ```html
 <h3>Environment Request Details</h3>
 <table>
-  <tr><td><b>Environment Name:</b></td><td>@{triggerOutputs()?['body/er_environment_name']}</td></tr>
-  <tr><td><b>Requested By:</b></td><td>@{triggerOutputs()?['body/er_requested_by']}</td></tr>
-  <tr><td><b>Business Purpose:</b></td><td>@{triggerOutputs()?['body/er_business_purpose']}</td></tr>
-  <tr><td><b>Zone Classification:</b></td><td>@{triggerOutputs()?['body/er_zone_classification']}</td></tr>
-  <tr><td><b>Data Sensitivity:</b></td><td>@{triggerOutputs()?['body/er_data_sensitivity']}</td></tr>
-  <tr><td><b>Has Customer Data:</b></td><td>@{triggerOutputs()?['body/er_has_customer_data']}</td></tr>
-  <tr><td><b>Has Financial Data:</b></td><td>@{triggerOutputs()?['body/er_has_financial_data']}</td></tr>
-  <tr><td><b>External Access:</b></td><td>@{triggerOutputs()?['body/er_has_external_access']}</td></tr>
+  <tr><td><b>Environment Name:</b></td><td>@{triggerOutputs()?['body/er_environmentname']}</td></tr>
+  <tr><td><b>Requested By:</b></td><td>@{triggerOutputs()?['body/er_requester']}</td></tr>
+  <tr><td><b>Business Justification:</b></td><td>@{triggerOutputs()?['body/er_businessjustification']}</td></tr>
+  <tr><td><b>Zone Classification:</b></td><td>@{triggerOutputs()?['body/er_zone']}</td></tr>
+  <tr><td><b>Data Sensitivity:</b></td><td>@{triggerOutputs()?['body/er_datasensitivity']}</td></tr>
+  <tr><td><b>Zone Auto Flags:</b></td><td>@{triggerOutputs()?['body/er_zoneautoflags']}</td></tr>
 </table>
 ```
 
@@ -189,12 +187,12 @@ Update the EnvironmentRequest row with:
 | Column | Value |
 |--------|-------|
 | `er_state` | `Approved` |
-| `er_approved_by` | Approver name (from approval response) |
-| `er_approved_date` | `utcNow()` |
+| `er_approver` | Approver name (from approval response) |
+| `er_approvedon` | `utcNow()` |
 
 For Zone 3 multi-level approvals, concatenate both approver names:
 
-- `er_approved_by` = `Level 1: [Admin Name], Level 2: [Compliance Name]`
+- `er_approver` = `Level 1: [Admin Name], Level 2: [Compliance Name]`
 
 ### On Reject
 
@@ -203,7 +201,7 @@ Update the EnvironmentRequest row with:
 | Column | Value |
 |--------|-------|
 | `er_state` | `Rejected` |
-| `er_rejection_reason` | Approver comments (from approval response) |
+| `er_approvalcomments` | Approver comments (from approval response) |
 
 ---
 
@@ -215,8 +213,8 @@ Send a Teams adaptive card to the requester on approval:
 
 | Field | Value |
 |-------|-------|
-| **Recipient** | `er_requested_by` email |
-| **Title** | `✅ Environment Request Approved: [er_environment_name]` |
+| **Recipient** | `er_requester` email |
+| **Title** | `✅ Environment Request Approved: [er_environmentname]` |
 | **Body** | Environment name, zone, approved by, expected provisioning time |
 
 ### Rejection Notification
@@ -225,8 +223,8 @@ Send a Teams message to the requester on rejection:
 
 | Field | Value |
 |-------|-------|
-| **Recipient** | `er_requested_by` email |
-| **Title** | `❌ Environment Request Rejected: [er_environment_name]` |
+| **Recipient** | `er_requester` email |
+| **Title** | `❌ Environment Request Rejected: [er_environmentname]` |
 | **Body** | Environment name, zone, rejected by, rejection reason, resubmission guidance |
 
 ---
@@ -261,7 +259,7 @@ For stale approvals that exceed the timeout:
 ### Flow Failure Recovery
 
 1. **Configure run-after** on error branches to catch failures
-2. **Update row** on failure — Set `er_state` to `Error` with error details
+2. **Update row** on failure — Set `er_state` to `Failed` with error details
 3. **Notify admin** — Send Teams message to Power Platform Admin with flow run URL
 
 ---
@@ -277,6 +275,19 @@ For stale approvals that exceed the timeout:
 - [ ] State transitions are recorded in Dataverse (audit trail)
 - [ ] Segregation of duties: requester cannot approve own request
 - [ ] Timeout escalation triggers after configured duration
+
+---
+
+## Related Documents
+
+| Document | Relationship |
+|----------|-------------|
+| [Architecture](architecture.md) | Data model and state machine |
+| [Overview](index.md) | Playbook introduction and regulatory alignment |
+| [Provisioning Flows](implementation-provisioning.md) | Power Automate provisioning implementation |
+| [Copilot Intake Agent](implementation-copilot-intake.md) | Conversational request collection |
+| [Labs](labs.md) | Hands-on implementation exercises |
+| [Evidence and Audit](evidence-and-audit.md) | Compliance evidence mapping |
 
 ---
 

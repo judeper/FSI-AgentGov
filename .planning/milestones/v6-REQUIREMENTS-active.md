@@ -1,7 +1,8 @@
-# Requirements: Agent Access Governance Monitor (v6)
+# Requirements: Agent Access Governance Monitor (v6) — Active Tracking Copy
 
 **Defined:** 2026-02-09
 **Core Value:** Documentation and solutions that US FSI customers trust.
+**Note:** This is the active tracking copy with completion status. The companion file `v6-REQUIREMENTS.md` preserves the original baseline with all items pending.
 
 ## v6 Requirements
 

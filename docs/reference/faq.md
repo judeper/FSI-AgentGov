@@ -301,7 +301,7 @@ A: Implement controls that satisfy all:
 3. Document compliance with each
 4. Implement control at highest level needed
 
-Example: If both FINRA (1yr) and SEC (6yr) apply, implement 6-year retention.
+Example: If both FINRA 4511 (6yr) and SOX (7yr) apply, implement 7-year retention.
 
 ### Q: Are there controls I don't need to implement?
 
@@ -551,7 +551,7 @@ A: Depends on regulation:
 - **SEC 17a-3/4:** 3–6 years (3 years for communications, 6 years for financial records), first 2 years readily accessible
 - **SOX 404:** 7 years minimum
 - **GLBA:** 5-7 years
-- **OCC 2011-12 / Fed SR 11-7:** Per model (typically 3+ years)
+- **OCC/SR 11-7:** Per model (typically 3+ years)
 
 See [Regulatory Mappings](../framework/regulatory-framework.md) for your regulations.
 
@@ -761,4 +761,4 @@ A: See Control 2.14: Training & Awareness Program
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*

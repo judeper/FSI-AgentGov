@@ -1,6 +1,6 @@
-# Control 1.24: Defender AI Security Posture Management (AI-SPM) - Screenshot Specifications
+# Control 1.24: Defender AI Security Posture Management (AI-SPM)
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: AI-SPM Plan Enablement
 **Portal Path:** Azure Portal → Microsoft Defender for Cloud → Environment settings → [Subscription] → Defender plans
@@ -46,7 +46,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 - Capture from pre-production environment when possible
 - Ensure subscription and resource names are representative but not sensitive
 - Include timestamps to demonstrate currency

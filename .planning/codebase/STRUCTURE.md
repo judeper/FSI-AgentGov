@@ -1,6 +1,7 @@
 # Codebase Structure
 
 **Analysis Date:** 2026-02-02
+**⚠️ Staleness Note:** This snapshot pre-dates v20.5 (added 9 controls, 62→71, 248→284 playbooks) and v23 (deleted src/, migrated solutions to companion repo). Counts and directory references below may be outdated.
 
 ## Directory Layout
 

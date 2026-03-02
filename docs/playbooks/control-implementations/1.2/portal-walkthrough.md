@@ -195,3 +195,7 @@ After completing these steps, verify:
 ---
 
 [Back to Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

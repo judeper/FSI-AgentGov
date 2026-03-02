@@ -43,6 +43,7 @@ foreach ($sub in $subscriptions) {
 
         # Check extensions
         $extensions = $pricing.Extension
+        $aiSpm = $extensions | Where-Object { $_.Name -eq "AIThreatProtection" }
         Write-Host "  Extensions enabled: $($extensions.Name -join ', ')"
     } else {
         Write-Host "  Defender CSPM: Not enabled" -ForegroundColor Red
@@ -128,14 +129,7 @@ if ($SubscriptionId) {
 }
 
 # Get attack paths via REST API (PowerShell module doesn't have direct cmdlet)
-# Acquire token (handles both Az.Accounts 5.0+ SecureString and older string format)
-$azToken = Get-AzAccessToken -ResourceUrl "https://management.azure.com"
-if ($azToken.Token -is [System.Security.SecureString]) {
-    $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
-        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
-} else {
-    $token = $azToken.Token
-}
+$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 $headers = @{
     "Authorization" = "Bearer $token"
     "Content-Type" = "application/json"

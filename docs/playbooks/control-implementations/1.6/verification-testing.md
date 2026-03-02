@@ -296,6 +296,8 @@
 - [ ] Data risk assessments can run
 - [ ] Evidence artifacts collected and stored
 
+[Back to Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

@@ -857,7 +857,6 @@ Wrap each major operation in a Scope with error handling:
 
 !!! note "Complete Error Handling"
     Include all non-success states in `runAfter`: `Failed`, `TimedOut`, `Skipped`, and `Cancelled`. This ensures the error handler runs regardless of how the scope terminates.
-```
 
 ### Rollback Procedure
 
@@ -1029,4 +1028,4 @@ You can access your environment now. Please review the governance policies in th
 
 ---
 
-*FSI Agent Governance Framework v1.2.10 - January 2026*
+*FSI Agent Governance Framework v1.2.12 - January 2026*

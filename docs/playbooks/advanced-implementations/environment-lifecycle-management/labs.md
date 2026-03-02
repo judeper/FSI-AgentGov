@@ -408,7 +408,8 @@ If(
     3,
     If(
         Topic.dataSensitivity = "Confidential" ||
-        Topic.environmentType = "Production",
+        Topic.environmentType = "Production" ||
+        Topic.expectedUsers <> "Just me (1)",
         2,
         1
     )

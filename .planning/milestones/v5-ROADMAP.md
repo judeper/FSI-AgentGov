@@ -12,8 +12,8 @@ The Session Security Configurator automates Conditional Access session control e
 
 - [x] **Phase 1: PowerShell Core** - Authentication context lifecycle, step-up policy deployment, zone validation, and safety controls
 - [x] **Phase 2: Dataverse Infrastructure** - Persistent state tables, environment variables, connection references, and deployment scripts
-- [ ] **Phase 3: Automation and Alerting** - Scheduled drift detection, Teams alerting, Power Automate flow, and baseline management
-- [ ] **Phase 4: Evidence Export and Framework Integration** - SHA-256 compliance export, Control 1.23 integration, and documentation suite
+- [x] **Phase 3: Automation and Alerting** - Scheduled drift detection, Teams alerting, Power Automate flow, and baseline management
+- [x] **Phase 4: Evidence Export and Framework Integration** - SHA-256 compliance export, Control 1.23 integration, and documentation suite
 
 ## Phase Details
 

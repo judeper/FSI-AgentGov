@@ -1,16 +1,16 @@
-# Control 1.22: Information Barriers for AI Agents - Screenshot Specifications
+# Control 1.22: Information Barriers for AI Agents
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: Purview Information Barrier Segments
-**Portal Path:** Microsoft Purview Compliance Center → Information Barriers → Segments
+**Portal Path:** Microsoft Purview Compliance Portal → Information Barriers → Segments
 **What to capture:**
 - List of defined segments (IB-Research, IB-Trading, IB-InvestmentBanking, IB-Sales, IB-Compliance)
 - Segment filter attributes (Department-based Microsoft Entra ID attributes)
 - Segment status (Active)
 
 ### Screenshot 2: Information Barrier Policies
-**Portal Path:** Microsoft Purview Compliance Center → Information Barriers → Policies
+**Portal Path:** Microsoft Purview Compliance Portal → Information Barriers → Policies
 **What to capture:**
 - Configured barrier policies showing blocked segment pairs (e.g., Research ↔ Trading)
 - Policy status (Active)
@@ -37,7 +37,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 - Capture from pre-production environment when possible
 - Ensure segment names and user information are representative but not sensitive
 - Include timestamps to demonstrate currency

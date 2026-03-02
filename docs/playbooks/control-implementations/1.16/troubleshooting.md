@@ -121,7 +121,7 @@ Connect-AipService
 Enable-AipServiceSuperUserFeature
 
 # Add super user group
-Add-AipServiceSuperUser -Group "SG-Compliance-SuperUsers"
+Set-AipServiceSuperUserGroup -GroupEmailAddress "SG-Compliance-SuperUsers@contoso.com"
 ```
 
 ---

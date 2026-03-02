@@ -102,6 +102,8 @@ Use this checklist to confirm control effectiveness:
 - [ ] All connector/policy changes appear in audit logs
 - [ ] Evidence artifacts collected and stored
 
+[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

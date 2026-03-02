@@ -154,7 +154,7 @@ python -m pytest scripts/test_bap_admin_client.py -v
   - `compliance_results`: List[Dict] — 1 record per agent scanned
   - `summary`: Dict — scan metadata and statistics
 - **Next steps:** Plan 02-02 will implement:
-  - Dataverse persistence (write to `fsi_AgentSharingViolations` table)
+  - Dataverse persistence (write to `fsi_AgentSharingCompliance` table)
   - Console output formatting (table view, summary stats)
   - CSV export (`--output-csv` flag)
 
@@ -173,7 +173,7 @@ python -m pytest scripts/test_bap_admin_client.py -v
   - `fsi_environmentpolicies` — Environment zone classification
   - `fsi_approvedsecuritygrouppolicies` — Zone 3 approved groups
 - **Tables written (Plan 02-02):**
-  - `fsi_AgentSharingViolations` — Compliance results
+  - `fsi_AgentSharingCompliance` — Compliance results
 
 ## Known Limitations
 

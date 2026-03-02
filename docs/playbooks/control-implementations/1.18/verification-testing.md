@@ -140,6 +140,6 @@ I attest that:
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*
+*Updated: February 2026 | Version: v1.2 | Classification: Verification Testing*
 
 [Back to Control 1.18](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
