@@ -18,7 +18,7 @@ flowchart TB
         P4[Pillar 4: SharePoint<br/>7 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (25 Deployable Automation Solutions)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (19 of 27 Solutions Shown)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]
@@ -127,7 +127,7 @@ Aggregates block events for unified compliance visibility.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Completed
+**Status:** Validated
 
 **Playbook:** [Deny Event Correlation Report](../playbooks/advanced-implementations/deny-event-correlation-report/index.md)
 
@@ -214,7 +214,7 @@ Identifies and helps prevent SoD violations in agent development workflows.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Work In Progress
+**Status:** Validated
 
 **Repository Link:** [segregation-detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)
 
@@ -256,7 +256,7 @@ Validates integrity of RAG knowledge sources with change detection.
 |---------|-------------------|
 | **2.16 RAG Source Integrity Validation** | SHA-256 hash validation detects unauthorized content modifications |
 | **1.7 Comprehensive Audit Logging** | Tracks knowledge source changes with immutable audit trail |
-| **2.13 Model Lifecycle Management** | Monitors knowledge source freshness for RAG model accuracy |
+| **2.13 Documentation and Record Keeping** | Monitors knowledge source freshness for RAG model accuracy |
 
 **Applicable Zones:** Zone 2, Zone 3
 
@@ -278,12 +278,12 @@ Automated testing for conflicts of interest in agent recommendations.
 | Control | How Solution Helps |
 |---------|-------------------|
 | **2.18 Automated Conflict of Interest Testing** | Runs 10 predefined scenarios for proprietary bias and suitability violations |
-| **2.11 Model Validation and Testing** | Integrates COI testing into agent validation lifecycle |
-| **2.5 Risk Assessment** | Provides evidence for COI risk mitigation |
+| **2.11 Bias Testing and Fairness Assessment** | Integrates COI testing into agent validation lifecycle |
+| **2.5 Testing, Validation, and Quality Assurance** | Provides evidence for COI risk mitigation |
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Planned
+**Status:** Work In Progress
 
 **Repository Link:** [coi-testing](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)
 
@@ -306,7 +306,7 @@ Feedback aggregation for hallucination pattern analysis.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Planned
+**Status:** Work In Progress
 
 **Repository Link:** [hallucination-tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
 
@@ -325,11 +325,11 @@ Automated disaster recovery testing for AI agent infrastructure.
 |---------|-------------------|
 | **2.4 Business Continuity and Disaster Recovery** | Validates agent restore procedures against RTO/RPO targets |
 | **2.1 Managed Environments** | Tests environment failover for production agent infrastructure |
-| **1.9 Backup and Disaster Recovery** | Verifies backup integrity for agent configurations and data |
+| **1.9 Data Retention and Deletion Policies** | Verifies backup integrity for agent configurations and data |
 
 **Applicable Zones:** Zone 3 (Enterprise Managed)
 
-**Status:** Planned
+**Status:** Work In Progress
 
 **Repository Link:** [dr-testing-framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
 
@@ -369,7 +369,7 @@ Validates per-agent file upload settings against zone governance policies with d
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Work In Progress
+**Status:** Completed
 
 **Repository Link:** [file-upload-security](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)
 
@@ -655,10 +655,10 @@ For detailed architecture guidance including scalability limits and alternative 
 **Solutions:** 27 automation solutions (25 deployable in FSI-AgentGov-Solutions + 2 framework-integrated advanced implementations)
 **Control Coverage:** 34 of 71 controls (47.9%) have direct solution support
 **Status Distribution:**
-- Completed: 19 solutions (ELM, MCM, PGC, DECR, ACM, SSC, CMM, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration, CHB, AUPW, UASD, ASCG, MIME, ITE, ASARD, AOF)
-- Validated: 1 solution (FINRA Supervision Workflow)
-- Work In Progress: 4 solutions (Segregation Detector, RAG Source Validator, FUS, AAM)
-- Planned: 3 solutions (COI Testing, Hallucination Tracker, DR Testing)
+- Completed: 20 solutions (ELM, MCM, PGC, FUS, ACM, SSC, AAM, CMM, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration, CHB, AUPW, UASD, ASCG, MIME, ITE, ASARD, AOF)
+- Validated: 3 solutions (DECR, FINRA Supervision Workflow, Segregation Detector)
+- Work In Progress: 4 solutions (RAG Source Validator, COI Testing, Hallucination Tracker, DR Testing)
+- Planned: 0 solutions
 
 **Pillar Support:**
 - Pillar 1 (Security): 7 solutions (+ cross-solution integration)
@@ -668,4 +668,4 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ---
 
-*FSI Agent Governance Framework v1.2.42 - February 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

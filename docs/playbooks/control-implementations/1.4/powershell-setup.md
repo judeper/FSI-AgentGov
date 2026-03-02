@@ -345,6 +345,8 @@ catch {
 }
 ```
 
+[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

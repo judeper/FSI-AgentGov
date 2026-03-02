@@ -153,3 +153,7 @@ After completing these steps, verify:
 ---
 
 [Back to Control 1.3](../../../controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

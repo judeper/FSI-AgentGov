@@ -65,6 +65,8 @@ To avoid common issues:
 - Annual recertification of approved connectors by security team
 - Incident response plan for unauthorized connector usage detection
 
+[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

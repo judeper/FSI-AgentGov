@@ -26,7 +26,7 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 
 ## Current State (v23 Complete)
 
-**Framework Version:** 1.2.47 (February 2026)
+**Framework Version:** 1.2.51 (February 2026)
 
 **Shipped:**
 - v1: 62 controls verified, Agent 365 architecture, regulatory validation, solutions audit, unified monitoring
@@ -48,12 +48,13 @@ A comprehensive audit and enhancement project for the FSI Agent Governance Frame
 - v19: Inactivity Timeout Enforcement — Control 2.22 with Cloud Flow daily scanning, BAP Admin API, policy-driven zone model, PowerShell remediation, Dataverse schema (policy + compliance + error log)
 
 **Solutions Status:**
-- 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Configuration Validator, Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation, Agent Usage & Performance Workbook
+- 13 Completed: Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Compliance Dashboard, Scope Drift Monitor, Agent Observability Foundation, Audit Compliance Manager (ACM), Session Security Configurator, Agent Access Governance Monitor, Content Moderation Governance Monitor, File Upload Security Configurator, Conditional Access Automation, Agent Usage & Performance Workbook
 - 1 Validated: FINRA Supervision Workflow
 - 1 Completed (v16): Unrestricted Agent Sharing Detector
 - 1 Completed (v17): Agent Security Configuration Governance
 - 1 Completed (v18): MIME Type Restrictions for File Uploads
 - 1 Completed (v19): Inactivity Timeout Enforcement
+- 1 Completed (v21): Audit Logging Compliance Automation (merged into ACM)
 - 2 Work In Progress: Segregation Detector, RAG Source Validator
 - 3 Planned: COI Testing, Hallucination Tracker, DR Testing Framework
 
@@ -124,7 +125,7 @@ No active milestone. v22 and v23 requirements fully delivered.
 
 - MCP server for governance framework
 - Copilot Studio agent for governance Q&A
-- Complete remaining WIP solutions (Deny Event, Conditional Access, Segregation Detector, RAG Validator)
+- Complete remaining WIP solutions (Deny Event, Segregation Detector, RAG Validator)
 - Complete Planned solutions (COI Testing, Hallucination Tracker, DR Testing)
 - Navigation auto-generation with Awesome Pages plugin (risk of breaking pedagogical structure)
 - .pbit Power BI template file (TMDL import path is functional workaround)
@@ -199,7 +200,8 @@ No active milestone. v22 and v23 requirements fully delivered.
 | v16 UASD complements AAM | AAM = environment-level access settings; UASD = per-agent sharing principals | ✓ Good |
 | v16 inline agent identity | No agentvault lookup; store fsi_agent_id, fsi_agent_name, fsi_environment_id inline | ✓ Good |
 | v16 lab-grade security | Interactive auth for now; managed identity deferred | ✓ Good |
-| v16 BAP APIs as specified | Spec endpoints used literally; API documentation gaps flagged | ✓ Good || v18 Control 1.25 (not 1.20) | 1.20 already exists as Network Isolation; 1.25 is next available | ✓ Good |
+| v16 BAP APIs as specified | Spec endpoints used literally; API documentation gaps flagged | ✓ Good |
+| v18 Control 1.25 (not 1.20) | 1.20 already exists as Network Isolation; 1.25 is next available | ✓ Good |
 | v18 new control (62→63) | New control, not replacing existing; framework count incremented | ✓ Good |
 | v19 Control 2.22 in Management Pillar | Next available after 2.21; inactivity timeout is operational management concern | ✓ Good |
 | v19 BAP Admin API (not Graph) | Privacy settings retrieved via BAP Admin API; SSC (v5) uses Graph for CA policies | ✓ Good |
@@ -211,7 +213,8 @@ No active milestone. v22 and v23 requirements fully delivered.
 | v21 Managed Identity auth | Enterprise-grade (Azure Automation MI); evolution from lab-grade interactive auth in v4-v18 | ✓ Good |
 | v21 fsi_ prefix (not jude_) | Rename personal dev prefix to framework standard; consistent with v16+ convention | ✓ Good |
 | v21 audit enablement only (not retention) | Retention is OUT OF SCOPE per spec; managed separately via Microsoft Purview | ✓ Good |
-| v21 upsert pattern (not immutable) | Query-then-create-or-update by environment ID; ACV uses immutable history | ✓ Good || v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
+| v21 upsert pattern (not immutable) | Query-then-create-or-update by environment ID; ACV uses immutable history | ✓ Good |
+| v9 canonical zone values 1/2/3 | Match ELM/CD convention; ACV's 100000001 series is internal-only | — Pending |
 | v9 daily batch feeds | Batch/daily sufficient for governance monitoring; no real-time webhooks | — Pending |
 | v9 ELM → ACV auto-registration | Only ACV auto-registers on provisioning; other solutions register on first scan | — Pending |
 | v9 cross-solution-integration dir | Integration code lives in dedicated solution directory in FSI-AgentGov-Solutions | — Pending |

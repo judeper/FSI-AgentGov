@@ -90,9 +90,6 @@ When creating Choice columns in Dataverse, you must specify both the label and i
 | **er_zone** | Zone 1 | 1 |
 | | Zone 2 | 2 |
 | | Zone 3 | 3 |
-
-!!! note "Zone Classification Algorithm"
-    Zone is automatically determined by the Copilot intake agent based on data sensitivity, customer data, financial data, and external access attributes. See [implementation-copilot-intake.md#classification-algorithm](implementation-copilot-intake.md#classification-algorithm) for the complete algorithm.
 | **er_environmenttype** | Sandbox | 1 |
 | | Production | 2 |
 | | Developer | 3 |
@@ -127,6 +124,9 @@ When creating Choice columns in Dataverse, you must specify both the label and i
 | **pl_actortype** | User | 1 |
 | | ServicePrincipal | 2 |
 | | System | 3 |
+
+!!! note "Zone Classification Algorithm"
+    Zone is automatically determined by the Copilot intake agent based on data sensitivity, customer data, financial data, and external access attributes. See [implementation-copilot-intake.md#classification-algorithm](implementation-copilot-intake.md#classification-algorithm) for the complete algorithm.
 
 #### Column Definitions
 
@@ -634,4 +634,4 @@ flowchart TB
 
 ---
 
-*FSI Agent Governance Framework v1.2.10 - January 2026*
+*FSI Agent Governance Framework v1.2.12 - January 2026*

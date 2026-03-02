@@ -14,7 +14,6 @@ scripts/
 │   ├── verify_controls.py              # Validate control structure and footers
 │   ├── verify_templates.py             # Validate template formats
 │   ├── verify_excel_templates.py       # Verify Excel template content and counts
-│   ├── verify_language_rules.py        # Check regulatory language compliance
 │   ├── validate_docs_anchors.py        # Check internal links
 │   └── audit_control_metadata.py       # Audit control file metadata
 │
@@ -25,81 +24,32 @@ scripts/
 │   ├── extract_whitepaper_text.py      # Extract text from whitepaper PDF
 │   └── check_temp.py                   # Utility to check temp files
 │
-├── Monitoring Scripts (root level)
-│   ├── learn_monitor.py               # Microsoft Learn documentation change monitor
-│   ├── regulatory_monitor.py          # Regulatory source change monitor
-│   └── monitoring_shared.py           # Shared monitoring utilities
-│
-├── Solution Deployment Scripts (root level)
-│   ├── deploy.py                      # Solution deployment orchestrator
-│   ├── create_asard_dataverse_schema.py   # ASARD Dataverse schema creation
-│   ├── create_connection_references.py    # Connection reference setup
-│   ├── create_dataverse_schema.py         # Dataverse schema creation
-│   ├── create_environment_variables.py    # Environment variable setup
-│   ├── create_timeout_connection_references.py  # Timeout solution connections
-│   ├── create_timeout_dataverse_schema.py       # Timeout Dataverse schema
-│   ├── create_timeout_environment_variables.py  # Timeout environment variables
-│   ├── create_timeout_errorlog_schema.py        # Timeout error log schema
-│   ├── create_uasd_connection_references.py     # UASD connections
-│   ├── create_uasd_dataverse_schema.py          # UASD Dataverse schema
-│   └── create_uasd_environment_variables.py     # UASD environment variables
-│
-├── Agent & Policy Scripts (root level)
-│   ├── detect_agent_sharing_violations.py    # Detect sharing violations
-│   ├── remediate_agent_sharing.py            # Remediate sharing violations
-│   ├── asard_zone_rules.py                   # ASARD zone rule definitions
-│   ├── bap_admin_client.py                   # BAP admin API client
-│   ├── caa_client.py                         # Conditional Access Automation client
-│   ├── generate_excel_templates.py           # Generate Excel templates
-│   ├── Start-CAAValidationRunbook.ps1        # CAA validation runbook
-│   ├── Test-PolicyCompliance.ps1             # Policy compliance testing
-│   └── conditional-access-automation.psd1    # CAA module manifest
-│
-├── Test Scripts (root level)
-│   ├── test_asard_zone_rules.py              # ASARD zone rules tests
-│   ├── test_bap_admin_client.py              # BAP admin client tests
-│   ├── test_detect_agent_sharing_violations.py   # Sharing violation tests
-│   └── test_remediate_agent_sharing.py       # Sharing remediation tests
+├── governance/                         # Governance automation (17 scripts/files)
+│   ├── README.md                       # Governance scripts overview
+│   ├── Invoke-HardeningBaselineCheck.ps1  # Hardening baseline validation
+│   ├── restrict-agent-publishing.ps1   # Publishing restriction validation
+│   ├── Test-AgentAuthConfiguration.ps1 # Auth configuration validation
+│   ├── Test-ZoneAgentAccess.ps1        # Zone access policy validation
+│   ├── FsiMimeControl.psm1            # MIME type management module
+│   ├── Set-InactivityTimeout.ps1       # Inactivity timeout remediation
+│   ├── Deploy-DetectionFlow.ps1        # UASD detection flow deployment
+│   ├── Deploy-RemediationFlow.ps1      # UASD remediation flow deployment
+│   ├── Export-ViolationReport.ps1      # Sharing violation report export
+│   ├── Import-ApprovedSecurityGroups.ps1 # Security group import
+│   ├── Invoke-SharingAudit.ps1         # On-demand sharing audit
+│   ├── ... (+ tests, data files)       # See governance/README.md for full list
+│   └── mime-templates/                 # MIME type zone templates
 │
 ├── config/                             # Monitoring configuration
-│   ├── README.md                       # Configuration guide
-│   └── monitoring-config.yaml          # Monitor classification settings
-│
-├── governance/                         # Governance automation (19 items)
-│   ├── README.md                       # Governance scripts overview
-│   ├── Invoke-HardeningBaselineCheck.ps1   # Hardening baseline validation
-│   ├── Deploy-DetectionFlow.ps1        # Detection flow deployment
-│   ├── Deploy-RemediationFlow.ps1      # Remediation flow deployment
-│   ├── Export-ViolationReport.ps1      # Violation report export
-│   ├── Import-ApprovedSecurityGroups.ps1   # Security group import
-│   ├── Invoke-SharingAudit.ps1         # Sharing audit execution
-│   ├── Set-InactivityTimeout.ps1       # Inactivity timeout configuration
-│   ├── Test-AgentAuthConfiguration.ps1 # Agent auth config testing
-│   ├── Test-ZoneAgentAccess.ps1        # Zone agent access testing
-│   ├── register-plugin.ps1            # Plugin registration
-│   ├── restrict-agent-publishing.ps1   # Agent publishing restrictions
-│   ├── test-plugin.ps1                # Plugin testing
-│   ├── validate-exceptions.ps1        # Exception validation
-│   ├── FsiMimeControl.psm1            # MIME control module
-│   ├── FsiMimeControl.Tests.ps1       # MIME control tests
-│   ├── Set-InactivityTimeout.Tests.ps1 # Inactivity timeout tests
-│   ├── mime-type-exceptions.csv       # MIME type exception list
-│   └── mime-templates/                # Zone MIME templates (zone1-3.json)
-│
-├── private/                            # Internal utility modules
-│   ├── CAAClient.psm1                 # CAA client module
-│   ├── Compare-PolicyBaseline.ps1     # Policy baseline comparison
-│   ├── Connect-GraphSession.ps1       # Graph API session management
-│   ├── Get-PolicyBaseline.ps1         # Policy baseline retrieval
-│   ├── Get-ZoneClassification.ps1     # Zone classification lookup
-│   └── Test-ParameterValidation.ps1   # Parameter validation testing
+│   ├── monitoring-config.yaml          # Learn & regulatory monitor settings
+│   └── README.md                       # Configuration guide
 │
 ├── reporting/                          # Reporting automation (planned)
 │   └── README.md                       # Placeholder
 │
 └── hooks/                              # Claude Code hooks
     ├── researcher-package-reminder.py  # Remind to update researcher package
-    └── boundary-check.py              # Prevent commands outside project
+    └── boundary-check.py               # Prevent commands outside project
 ```
 
 ## Prerequisites
@@ -178,12 +128,6 @@ python scripts/audit_control_metadata.py
 ```
 Checks control files for required metadata fields and footer format.
 
-**Verify regulatory language compliance:**
-```bash
-python scripts/verify_language_rules.py
-```
-Checks documentation for prohibited regulatory language (e.g., "ensures compliance", "guarantees").
-
 ### Maintenance Scripts
 
 **Normalize control formatting:**
@@ -224,21 +168,22 @@ Utility to verify temp files match repository files (development/debugging use).
 
 ### Governance Automation
 
-The `governance/` directory contains 16 PowerShell scripts for hardening baseline checks, sharing audits, MIME type controls, agent authentication testing, and more. See [`governance/README.md`](governance/README.md) for the full inventory and usage instructions.
+The `governance/` directory contains 16 PowerShell scripts and data files for automating governance control implementation. See [`governance/README.md`](governance/README.md) for full details, prerequisites, and usage instructions.
 
-### Monitoring Scripts
+Key scripts include:
+- `Invoke-HardeningBaselineCheck.ps1` - Validate 18 hardening baseline items
+- `restrict-agent-publishing.ps1` - Validate 6 publishing restriction criteria
+- `Test-AgentAuthConfiguration.ps1` - Validate per-agent authentication configuration
+- `Test-ZoneAgentAccess.ps1` - Validate zone-based agent access policies
+- `FsiMimeControl.psm1` - Zone-based MIME type configuration management
+- `Set-InactivityTimeout.ps1` - Remediate inactivity timeout via BAP Admin API
+- `Deploy-DetectionFlow.ps1` / `Deploy-RemediationFlow.ps1` - UASD flow deployment
+- `Invoke-SharingAudit.ps1` - On-demand agent sharing audit scan
 
-**Learn Monitor** — detects changes in Microsoft Learn documentation that may require playbook updates:
-```bash
-python scripts/learn_monitor.py
-```
-
-**Regulatory Monitor** — detects new rules and notices from SEC, CFTC, OCC, Federal Reserve, and FINRA:
-```bash
-python scripts/regulatory_monitor.py
-```
-
-Configuration is managed via `scripts/config/monitoring-config.yaml`. See [`config/README.md`](config/README.md) for the configuration guide.
+**Planned additions:**
+- `configure-managed-environment.ps1` - Enable Managed Environments
+- `setup-sod-groups.ps1` - Create segregation of duties groups
+- `enable-dlp-policies.ps1` - Configure DLP policies
 
 ### Reporting Automation (Planned)
 
@@ -266,14 +211,13 @@ All scripts should follow these standards:
 
 ## Script Inventory
 
-### Validation Scripts (7 scripts)
+### Validation Scripts (6 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
 | `validate_before_push.py` | Pre-push validation suite | v1.1 |
 | `verify_controls.py` | Control structure validation | v1.1 |
 | `verify_templates.py` | Template format validation | v1.1 |
 | `verify_excel_templates.py` | Excel template verification | Jan 2026 |
-| `verify_language_rules.py` | Regulatory language compliance checking | v1.2 |
 | `validate_docs_anchors.py` | Internal link checking | v1.1 |
 | `audit_control_metadata.py` | Control metadata audit | v1.1 |
 
@@ -286,55 +230,32 @@ All scripts should follow these standards:
 | `extract_whitepaper_text.py` | Whitepaper text extraction | v1.1 |
 | `check_temp.py` | Temp file verification utility | Dev only |
 
+### Governance Scripts (17 scripts/files)
+| Script | Purpose | Related Control |
+|--------|---------|-----------------|
+| `governance/Invoke-HardeningBaselineCheck.ps1` | Hardening baseline validation (18 items) | 1.7, 2.1, 3.7 |
+| `governance/restrict-agent-publishing.ps1` | Publishing restriction validation (6 criteria) | 1.1, 2.1, 3.7 |
+| `governance/Test-AgentAuthConfiguration.ps1` | Per-agent auth config validation | 1.1 |
+| `governance/Test-ZoneAgentAccess.ps1` | Zone access policy validation | 3.8 |
+| `governance/FsiMimeControl.psm1` | MIME type management module | 1.25 |
+| `governance/FsiMimeControl.Tests.ps1` | Pester 5 tests for MIME module (40 tests) | 1.25 |
+| `governance/register-plugin.ps1` | Dataverse plugin registration | 1.25 |
+| `governance/test-plugin.ps1` | Plugin integration tests | 1.25 |
+| `governance/validate-exceptions.ps1` | MIME exception register validation | 1.25 |
+| `governance/mime-type-exceptions.csv` | MIME type exception register | 1.25 |
+| `governance/Set-InactivityTimeout.ps1` | Inactivity timeout remediation | 2.22 |
+| `governance/Set-InactivityTimeout.Tests.ps1` | Pester 5 tests for timeout (44 tests) | 2.22 |
+| `governance/Deploy-DetectionFlow.ps1` | UASD detection flow deployment | 1.1 |
+| `governance/Deploy-RemediationFlow.ps1` | UASD remediation flow deployment | 1.1 |
+| `governance/Export-ViolationReport.ps1` | Sharing violation report export | 1.1 |
+| `governance/Import-ApprovedSecurityGroups.ps1` | Security group import | 1.1 |
+| `governance/Invoke-SharingAudit.ps1` | On-demand sharing audit | 1.1, 3.8 |
+
 ### Hooks (2 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
 | `hooks/researcher-package-reminder.py` | Claude Code post-edit reminder | v1.1 |
 | `hooks/boundary-check.py` | Claude Code command boundary check | v1.1 |
-
-### Monitoring Scripts (3 scripts)
-| Script | Purpose | Last Updated |
-|--------|---------|--------------|
-| `learn_monitor.py` | Microsoft Learn documentation change detection | v1.2 |
-| `regulatory_monitor.py` | Regulatory source change detection | v1.2 |
-| `monitoring_shared.py` | Shared monitoring utilities and config loader | v1.2 |
-
-### Solution Deployment Scripts (12 scripts)
-| Script | Purpose | Last Updated |
-|--------|---------|--------------|
-| `deploy.py` | Solution deployment orchestrator | v1.2 |
-| `create_asard_dataverse_schema.py` | ASARD Dataverse schema creation | v1.2 |
-| `create_connection_references.py` | Connection reference setup | v1.2 |
-| `create_dataverse_schema.py` | Dataverse schema creation | v1.2 |
-| `create_environment_variables.py` | Environment variable setup | v1.2 |
-| `create_timeout_connection_references.py` | Timeout solution connection references | v1.2 |
-| `create_timeout_dataverse_schema.py` | Timeout Dataverse schema | v1.2 |
-| `create_timeout_environment_variables.py` | Timeout environment variables | v1.2 |
-| `create_timeout_errorlog_schema.py` | Timeout error log schema | v1.2 |
-| `create_uasd_connection_references.py` | UASD connection references | v1.2 |
-| `create_uasd_dataverse_schema.py` | UASD Dataverse schema | v1.2 |
-| `create_uasd_environment_variables.py` | UASD environment variables | v1.2 |
-
-### Agent & Policy Scripts (9 scripts)
-| Script | Purpose | Last Updated |
-|--------|---------|--------------|
-| `detect_agent_sharing_violations.py` | Detect sharing violations | v1.2 |
-| `remediate_agent_sharing.py` | Remediate sharing violations | v1.2 |
-| `asard_zone_rules.py` | ASARD zone rule definitions | v1.2 |
-| `bap_admin_client.py` | BAP admin API client | v1.2 |
-| `caa_client.py` | Conditional Access Automation client | v1.2 |
-| `generate_excel_templates.py` | Generate Excel templates | v1.2 |
-| `Start-CAAValidationRunbook.ps1` | CAA validation runbook | v1.2 |
-| `Test-PolicyCompliance.ps1` | Policy compliance testing | v1.2 |
-| `conditional-access-automation.psd1` | CAA module manifest | v1.2 |
-
-### Test Scripts (4 scripts)
-| Script | Purpose | Last Updated |
-|--------|---------|--------------|
-| `test_asard_zone_rules.py` | ASARD zone rules tests | v1.2 |
-| `test_bap_admin_client.py` | BAP admin client tests | v1.2 |
-| `test_detect_agent_sharing_violations.py` | Sharing violation detection tests | v1.2 |
-| `test_remediate_agent_sharing.py` | Sharing remediation tests | v1.2 |
 
 ## Contributing
 
@@ -356,4 +277,4 @@ When adding new scripts:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.2 - March 2026*

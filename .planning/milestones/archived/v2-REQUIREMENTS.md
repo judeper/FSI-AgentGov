@@ -1,9 +1,9 @@
-# Requirements Archive: v2 Tech Debt, Architecture & Solution Completion
+# Requirements Archive: v1 + v2 Tech Debt, Architecture & Solution Completion
 
 **Archived:** 2026-02-05
 **Status:** SHIPPED
 
-This is the archived requirements specification for v2.
+This is the archived requirements specification combining v1 and v2 milestones.
 For current requirements, see `.planning/REQUIREMENTS.md` (created for next milestone).
 
 ---

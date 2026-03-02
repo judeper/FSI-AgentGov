@@ -172,3 +172,7 @@ If issues persist after troubleshooting:
 ---
 
 [Back to Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
+---
+
+*Updated: February 2026 | Version: v1.3*

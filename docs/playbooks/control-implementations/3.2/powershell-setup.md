@@ -37,15 +37,15 @@ $environments = Get-AdminPowerAppEnvironment
 foreach ($env in $environments) {
     Write-Host "Environment: $($env.DisplayName)" -ForegroundColor Cyan
 
-    # Get environment-level analytics
-    $analytics = Get-AdminPowerAppEnvironmentAnalytics -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
+    # Get apps in the environment for usage overview
+    $apps = Get-AdminPowerApp -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
 
-    if ($analytics) {
-        Write-Host "  Active Users: $($analytics.ActiveUsers)"
-        Write-Host "  Total Sessions: $($analytics.TotalSessions)"
-        Write-Host "  Last Updated: $($analytics.LastUpdated)"
+    if ($apps) {
+        Write-Host "  Total Apps: $($apps.Count)"
+        Write-Host "  Owners: $(($apps | Select-Object -ExpandProperty Owner -Unique).Count)"
+        Write-Host "  Last Modified: $(($apps | Sort-Object -Property LastModifiedTime -Descending | Select-Object -First 1).LastModifiedTime)"
     } else {
-        Write-Host "  Analytics not available for this environment" -ForegroundColor Yellow
+        Write-Host "  No apps found in this environment" -ForegroundColor Yellow
     }
 }
 ```
@@ -383,3 +383,7 @@ $summary
 ---
 
 [Back to Control 3.2](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

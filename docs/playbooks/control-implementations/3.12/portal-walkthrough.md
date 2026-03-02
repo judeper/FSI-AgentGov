@@ -651,6 +651,4 @@ After completing the portal walkthrough, verify the exception management system:
 
 [Back to Control 3.12](../../../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md)
 
----
-
 *Updated: February 2026 | Version: v1.0*

@@ -209,6 +209,8 @@ If issues persist after troubleshooting:
 2. **Second tier**: Security Operations - check integration issues
 3. **Third tier**: Microsoft Support - platform-level issues
 
+[Back to Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

@@ -4,7 +4,7 @@ Provide visibility, accountability, and metrics for agent governance.
 
 ## Overview
 
-Pillar 3 establishes the reporting and monitoring capabilities required to maintain oversight of AI agents across the organization. These 12 controls help provide governance teams, compliance officers, and regulators with visibility into agent inventory, usage patterns, security posture, incident response, hallucination feedback, inventory enforcement, and exception management—essential for demonstrating effective supervision to examiners.
+Pillar 3 establishes the reporting and monitoring capabilities required to maintain oversight of AI agents across the organization. These 12 controls ensure that governance teams, compliance officers, and regulators have visibility into agent inventory, usage patterns, security posture, incident response, and hallucination feedback—essential for demonstrating effective supervision to examiners.
 
 **Primary Regulatory Alignment:** FINRA 3110 (supervision), FINRA 4511 (recordkeeping), SEC 17a-3/4 (records)
 
@@ -12,12 +12,12 @@ Pillar 3 establishes the reporting and monitoring capabilities required to maint
 
 | Category | Controls | Focus |
 |----------|----------|-------|
-| Inventory & Tracking | 3.1, 3.5-3.6, 3.11 | Agent registry, cost tracking, orphan detection, inventory enforcement |
+| Inventory & Tracking | 3.1, 3.5-3.6 | Agent registry, cost tracking, orphan detection |
 | Activity Monitoring | 3.2, 3.8 | Usage analytics, Copilot Hub |
 | Compliance Reporting | 3.3-3.4 | Regulatory reporting, incident response |
 | Security Operations | 3.7, 3.9 | PPAC security posture, Sentinel integration |
 | Quality Feedback | 3.10 | Hallucination feedback loop |
-| Governance Enforcement | 3.12 | Exception and override management |
+| Inventory & Enforcement | 3.11-3.12 | Centralized inventory enforcement, exception management |
 
 ## Controls
 - [3.1 Agent Inventory and Metadata Management](3.1-agent-inventory-and-metadata-management.md)
@@ -35,4 +35,4 @@ Pillar 3 establishes the reporting and monitoring capabilities required to maint
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.3 - February 2026*

@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.17 - Endpoint Data Loss Prevention
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 
 ## Common Issues
 

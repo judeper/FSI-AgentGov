@@ -17,7 +17,7 @@
 - Phase 5 Plans (Production deployment, scheduled execution)
 
 ## Tech Stack
-- **Language:** Python 3.14
+- **Language:** Python 3.9+
 - **Libraries:** msal, requests, pytest, argparse
 - **APIs:** BAP Admin API (PATCH for permissions), Dataverse (compliance record updates)
 - **Testing:** pytest with unittest.mock for HTTP and Dataverse mocking

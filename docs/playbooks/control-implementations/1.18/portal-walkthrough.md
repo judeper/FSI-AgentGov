@@ -93,22 +93,7 @@
 
 ---
 
-## Validation
-
-After completing these steps, verify:
-
-- [ ] Security groups created and populated
-- [ ] Custom security roles assigned to groups
-- [ ] PIM configured for admin roles
-- [ ] Access reviews scheduled
-- [ ] Column-level security enforced
-- [ ] All agent actions have "Ask the user before running this action" enabled (Copilot Studio > Agent > Actions)
-- [ ] Connected agent access disabled for all agents unless explicitly approved (Copilot Studio > Agent > Settings > Connected Agents)
-- [ ] Admin count is below 10 per environment (PPAC > Environment > Users + Permissions)
-
----
-
-## Step 7: Configure Agent Action Consent
+### Step 7: Configure Agent Action Consent
 
 1. Open **Copilot Studio** ([https://copilotstudio.microsoft.com](https://copilotstudio.microsoft.com))
 2. Navigate to **Agents** and select each agent
@@ -140,8 +125,23 @@ After completing these steps, verify:
 
 ---
 
+## Validation
+
+After completing these steps, verify:
+
+- [ ] Security groups created and populated
+- [ ] Custom security roles assigned to groups
+- [ ] PIM configured for admin roles
+- [ ] Access reviews scheduled
+- [ ] Column-level security enforced
+- [ ] All agent actions have "Ask the user before running this action" enabled (Copilot Studio > Agent > Actions)
+- [ ] Connected agent access disabled for all agents unless explicitly approved (Copilot Studio > Agent > Settings > Connected Agents)
+- [ ] Admin count is below 10 per environment (PPAC > Environment > Users + Permissions)
+
+---
+
 [Back to Control 1.18](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Classification: Portal Walkthrough*
+*Updated: February 2026 | Version: v1.2 | Classification: Portal Walkthrough*

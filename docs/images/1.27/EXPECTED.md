@@ -1,10 +1,6 @@
-<!-- TEMPLATE NOTE: EXPECTED.md files use two formats across this repository:
-     - "Required Screenshots" (detailed per-screenshot subsections with Notes for Verification) — used for controls 1.21+, 2.16+, 3.10+, 4.6+
-     - "Expected Screenshots" (table format with Verification Focus) — used for earlier controls
-     Both formats are valid. The detailed format was adopted for later controls that require more verification guidance. -->
-# Control 1.27: AI Agent Content Moderation Enforcement - Screenshot Specifications
+# Control 1.27: AI Agent Content Moderation Enforcement
 
-## Required Screenshots
+## Expected Screenshots
 
 ### Screenshot 1: Agent-Level Content Moderation Setting (High)
 **Portal Path:** Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Content moderation
@@ -100,7 +96,7 @@
 
 ---
 
-## Notes for Verification
+## Verification Focus
 
 - Capture from pre-production or test environment when possible
 - Use non-sensitive agent names and prompts for screenshots
@@ -115,8 +111,6 @@
 
 ## Feature Availability Note
 
-<!-- NEEDS_HUMAN_REVIEW: MC1217615 is also referenced in 1.28/EXPECTED.md for security scan GA.
-     Verify this single MC post covers both content moderation GA and security scan GA features. -->
 Content moderation levels (Low, Medium, High) with agent-level and topic-level configuration became GA on January 31, 2026 (MC1217615). If your tenant has not yet received this update:
 
 - Moderation settings may appear in a different location

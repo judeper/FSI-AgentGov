@@ -286,7 +286,7 @@ $endDate = $startDate.AddMonths(3).AddDays(-1)
 
 Write-Host "Exporting PCG evidence for $Quarter ($startDate to $endDate)"
 
-# Connect to Dataverse (requires Microsoft.PowerApps.Administration.PowerShell)
+# Connect to Dataverse (requires Microsoft.Xrm.Data.PowerShell)
 Connect-CrmOnline -ServerUrl $EnvironmentUrl
 
 # Export DecisionLog
@@ -344,4 +344,4 @@ Write-Host "Evidence export complete. Files ready for upload to compliance libra
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*

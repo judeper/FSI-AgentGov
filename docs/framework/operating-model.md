@@ -444,4 +444,4 @@ This document defines the organizational structure, roles, and accountability fo
 
 ---
 
-*FSI Agent Governance Framework v1.2.42 - February 2026*
+*FSI Agent Governance Framework v1.2.51 - February 2026*

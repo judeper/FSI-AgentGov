@@ -163,7 +163,7 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 ### Phase 2: Source Adapters (Complete ✅)
 
 **Learn Monitor:** `scripts/learn_monitor.py`
-- 209 Microsoft Learn URLs monitored
+- 207 Microsoft Learn URLs monitored
 - Daily runs via GitHub Actions
 - Produces `reports/monitoring/learn-changes-*.md`
 

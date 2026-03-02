@@ -417,6 +417,8 @@ finally {
 }
 ```
 
+[Back to Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

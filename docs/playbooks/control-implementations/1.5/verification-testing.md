@@ -139,6 +139,8 @@ Run only if Devices/Endpoint DLP is in scope.
 - [ ] DSPM integration verified (if applicable)
 - [ ] Evidence artifacts collected and stored
 
+[Back to Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+
 ---
 
 *Updated: January 2026 | Version: v1.2*

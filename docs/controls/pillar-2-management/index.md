@@ -16,9 +16,8 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 | Lifecycle Management | 2.3-2.5, 2.10 | Change control, BCDR, testing, patching |
 | Risk Management | 2.6-2.8, 2.16-2.18 | Model risk, vendor risk, RAG validation, orchestration, conflict testing |
 | Oversight & Compliance | 2.9, 2.11-2.14 | Performance monitoring, bias testing, supervision, training |
-| Customer Transparency | 2.19, 2.21, 2.23 | AI disclosure, marketing claims, user consent |
-| Adversarial & Security Testing | 2.20 | Red team framework and adversarial testing |
-| Feature & Session Governance | 2.22, 2.24 | Inactivity timeout, feature enablement restrictions |
+| Customer Transparency | 2.19, 2.22-2.23 | AI disclosure, session timeout, consent enforcement |
+| Adversarial & Feature Governance | 2.20-2.21, 2.24 | Red teaming, marketing claims, feature enablement |
 
 !!! note
     Controls 2.6 and 2.11 address model risk management guidance (OCC 2011-12 / SR 11-7) but cover
@@ -53,4 +52,4 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 
 ---
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.2 - January 2026*
