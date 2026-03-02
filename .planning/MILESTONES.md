@@ -1,5 +1,17 @@
 # Project Milestones: FSI-AgentGov Comprehensive Audit & Enhancement
 
+## v24 — Automated Documentation Review (2026-03-02)
+
+**Delivered:** 48-batch ralph-docs-loop review (claude-opus-4.6-fast, MaxParallel=6).
+42/48 batches converged automatically; 4 handoff items fixed manually; 2 deferred.
+Substantive LLM fixes included SSPM control mapping (46 controls, 74% coverage),
+Control 2.22 (Session Expiration, zone thresholds), Control 3.7 language compliance,
+framework scope boundaries, 20+ stale footers, CO AI Act date correction,
+WORM→SEC 17a-4 terminology, and AGENTS.md escaped-quote typos.
+**Version Bump:** v1.2.51 → v1.2.52
+
+---
+
 ## v23 Comprehensive Review & Remediation (Completed: 2026-02-14)
 
 **Delivered:** Full-repo review and remediation covering both FSI-AgentGov and FSI-AgentGov-Solutions. Migrated all `src/` solution artifacts to companion repo (24 files across 2 rounds), resolved 3 unmerged branches (cherry-picked Agent 365 content, merged Learn Monitor URL updates, deleted superseded branch), fixed 12 issues found by 10-agent parallel review (version bumps, role names, footers, regulatory mappings, CHANGELOG catch-up, git hygiene). Framework version bumped to v1.2.48.
@@ -590,4 +602,4 @@
 
 ---
 
-*Last updated: 2026-02-14 after v23 milestone*
+*Last updated: 2026-03-02 after v24 milestone*
