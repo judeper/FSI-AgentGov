@@ -23,6 +23,7 @@ Thank you for your interest in contributing to the FSI Agent Governance Framewor
 3. Make your changes
 4. Test with `mkdocs build --strict`
 5. Submit a pull request with a clear description
+6. If using AI-assisted tools, review `AGENTS.md` for multi-agent conventions and session ownership protocol
 
 ## Style Guidelines
 

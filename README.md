@@ -7,19 +7,19 @@
 
 Comprehensive governance framework for Microsoft 365 AI agents in financial services organizations.
 
+> ⚠️ **Scope:** This framework is designed exclusively for **US financial institutions** using **Microsoft 365 AI agents** (Copilot Studio, Agent Builder). Non-US regulations (EU AI Act, GDPR, DORA) and non-M365 AI platforms are out of scope.
+
+> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](docs/disclaimer.md) for full details.
+
 ## 📋 Overview
 
 This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.2.51 (February 2026)
+**Version:** 1.2.53 (March 2026)
 **Target Audience:** Financial Services Organizations (FSI)
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
 To stay current: **Star** this repository, use **Watch → Releases** for low-noise update notifications, and **share with your compliance team** as part of your review.
-
-> **Scope:** This framework is designed for **US financial institutions** using **Microsoft 365 AI agents** (Copilot Studio, Agent Builder). Non-US regulations (EU AI Act, GDPR, DORA) and non-M365 AI platforms are out of scope.
-
-> **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](docs/disclaimer.md) for full details.
 
 ---
 
@@ -407,26 +407,18 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
+> For detailed changes, see the full [Changelog](CHANGELOG.md). Older versions: [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x and earlier](CHANGELOG-v1.0.md)
+
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.2.51 | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | FSI Governance Team |
-| 1.2.49 | Feb 2026 | Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes | FSI Governance Team |
-| 1.2.48 | Feb 2026 | Comprehensive repository review — 12 GitHub issues resolved across both repos | FSI Governance Team |
-| 1.2.47 | Feb 2026 | Solution consolidation (ACV + ALCA → ACM), version alignment | FSI Governance Team |
-| 1.2.46 | Feb 2026 | ITE solution customer readiness, PowerShell playbook fixes | FSI Governance Team |
-| 1.2.45 | Feb 2026 | Health check remediation — broken Learn URLs, deprecated terminology, CONTROL-INDEX solution links | FSI Governance Team |
-| 1.2.44 | Feb 2026 | UASD/ASARD discoverability fix in CONTROL-INDEX and playbooks | FSI Governance Team |
-| 1.2.43 | Feb 2026 | Post-remediation deep review — 106 findings resolved across both repos | FSI Governance Team |
-| 1.2.42 | Feb 2026 | Technical audit remediation — 87 findings resolved (P0/P1/P2) | FSI Governance Team |
-| 1.2 | Feb 2026 | Four-pillar expansion (71 controls), 284 playbooks, companion solutions, framework layer enhancements | FSI Governance Team |
-| 1.1.4 | Jan 2026 | Microsoft Audit Reporting Tools integration (AI-in-One Dashboard, PAX) | FSI Governance Team |
-| 1.1.3 | Jan 2026 | Deep review & enhancements, Microsoft Learn URLs expansion (159 URLs) | FSI Governance Team |
-| 1.1.2 | Jan 2026 | NIST AI RMF crosswalk accuracy corrections | FSI Governance Team |
-| 1.1.1 | Jan 2026 | Researcher gap analysis response, Control 2.21 (AI Marketing Claims) | FSI Governance Team |
-| 1.1 | Jan 2026 | Three-layer documentation architecture, 252 playbooks, framework layer | FSI Governance Team |
-| 1.0 | Jan 2026 | Added evaluation gates, adversarial testing, multi-agent governance, RACI templates | FSI Governance Team |
-| 1.0 Beta | Dec 2025 | Enhanced with DSPM, bias testing, runtime protection, FINRA Notice 25-07 alignment | FSI Governance Team |
-| 0.9 | Oct 2025 | Initial Internal Draft | FSI Governance Team |
+| [1.2.53](CHANGELOG.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
+| [1.2.51](CHANGELOG.md#1251--february-2026-uasd-review-remediation) | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | [@judeper](https://github.com/judeper) |
+| [1.2.49](CHANGELOG.md#1249--february-2026-five-solution-deep-dive-corrections) | Feb 2026 | Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes | [@judeper](https://github.com/judeper) |
+| [1.2.48](CHANGELOG.md#1248--february-2026-comprehensive-repository-review) | Feb 2026 | Comprehensive repository review — 12 GitHub issues resolved across both repos | [@judeper](https://github.com/judeper) |
+| [1.2.0](CHANGELOG.md#120--january-25-2026-platform-change-governance) | Jan 2026 | Four-pillar expansion (71 controls), 284 playbooks, companion solutions | [@judeper](https://github.com/judeper) |
+| [1.1.0](CHANGELOG-v1.1.md#11--january-2026) | Jan 2026 | Three-layer documentation architecture, 252 playbooks, framework layer | [@judeper](https://github.com/judeper) |
+| [1.0.0](CHANGELOG-v1.0.md#10--january-2026) | Jan 2026 | Evaluation gates, adversarial testing, multi-agent governance, RACI | [@judeper](https://github.com/judeper) |
+| [Beta](CHANGELOG-v1.0.md#beta--december-2025) | Dec 2025 | DSPM, bias testing, runtime protection, FINRA Notice 25-07 alignment | [@judeper](https://github.com/judeper) |
 
 ---
 
@@ -452,5 +444,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

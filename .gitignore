@@ -45,6 +45,7 @@ nul
 # Build/verify output files (scratch artifacts)
 /build_*.txt
 /verify_*.txt
+/push-result.txt
 
 # Generated assessment data (built by CI from control markdown)
 docs/javascripts/assessment-data.json
