@@ -300,6 +300,13 @@
 [data-md-color-scheme="slate"] .ag-badge-high { background: rgba(230, 81, 0, 0.2); color: #ffa726; }
 [data-md-color-scheme="slate"] .ag-badge-medium { background: rgba(245, 127, 23, 0.2); color: #ffca28; }
 [data-md-color-scheme="slate"] .ag-badge-solution { background: rgba(46, 125, 50, 0.2); color: #66bb6a; }
+[data-md-color-scheme="slate"] .ag-scoring-summary,
+[data-md-color-scheme="slate"] .ag-collab-callout {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+[data-md-color-scheme="slate"] .ag-modal {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
 
 .ag-control-objective {
   font-size: 0.82rem;
@@ -590,6 +597,10 @@
   .ag-dashboard-3col { grid-template-columns: 1fr; }
   .ag-control-header { flex-direction: column; gap: 0.3rem; }
   .ag-rag-label { min-width: 80px; font-size: 0.75rem; }
+  .ag-modal { max-height: 90vh; }
+  .ag-modal-body { padding: 1rem; font-size: 0.82rem; }
+  .ag-scoring-summary { margin: 1rem auto; max-width: 100%; }
+  .ag-collab-callout { padding: 0.75rem 1rem; }
 }
 
 /* ---- Screen reader only utility ---- */
@@ -637,7 +648,8 @@
 
   /* Assessment specific */
   .ag-steps, .ag-btn-group, .ag-notes-toggle,
-  .ag-export-grid, .ag-disclaimer { display: none !important; }
+  .ag-export-grid, .ag-disclaimer, .ag-modal-backdrop,
+  .ag-info-btn, .ag-edit-link, .ag-collab-callout { display: none !important; }
 
   /* Show all tab panels in print (not just active) */
   .ag-tabs { display: none !important; }
@@ -661,6 +673,7 @@
   /* Page breaks */
   .ag-pillar-group { break-before: page; }
   .ag-roadmap-phase { break-before: page; }
+  .ag-tab-panel[data-tab="responses"] { break-before: page; }
 
   /* Print header */
   .ag-print-header { display: block !important; }
@@ -671,3 +684,181 @@
   .ag-rag-fill.red { background: #c62828 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 .ag-print-header { display: none; }
+
+/* ---- Modal ---- */
+.ag-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.ag-modal {
+  background: var(--md-default-bg-color);
+  border-radius: var(--ag-radius);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+.ag-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+.ag-modal-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.ag-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--md-default-fg-color--light);
+  padding: 0.25rem;
+  line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ag-modal-close:hover { color: var(--md-default-fg-color); }
+.ag-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.ag-modal-body dt {
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+.ag-modal-body dd {
+  margin: 0.15rem 0 0 1rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* ---- Checkbox descriptions ---- */
+.ag-check-label-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.ag-check-desc {
+  font-size: 0.78rem;
+  color: var(--md-default-fg-color--light);
+  line-height: 1.35;
+  margin-left: 0;
+}
+.ag-check-hint {
+  font-size: 0.78rem;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.3rem;
+}
+.ag-check-hint a {
+  color: var(--md-primary-fg-color);
+}
+
+/* ---- Scoring summary card ---- */
+.ag-scoring-summary {
+  text-align: left;
+  max-width: 500px;
+  margin: 1.5rem auto;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: var(--ag-radius);
+  font-size: 0.82rem;
+}
+.ag-scoring-summary dt {
+  display: inline;
+  font-weight: 600;
+}
+.ag-scoring-summary dd {
+  display: inline;
+  margin: 0 1rem 0 0.25rem;
+}
+.ag-privacy-note {
+  font-size: 0.78rem;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* ---- Info button ---- */
+.ag-info-btn {
+  background: none;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: var(--ag-radius);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--md-primary-fg-color);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ag-info-btn:hover {
+  border-color: var(--md-primary-fg-color);
+  background: var(--md-default-fg-color--lightest);
+}
+
+/* ---- Instructional callout ---- */
+.ag-callout {
+  background: var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--md-primary-fg-color);
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+  border-radius: 0 var(--ag-radius) var(--ag-radius) 0;
+  line-height: 1.5;
+}
+.ag-callout strong { color: var(--md-default-fg-color); }
+
+/* ---- Collaboration callout ---- */
+.ag-collab-callout {
+  background: var(--md-default-fg-color--lightest);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: var(--ag-radius);
+  padding: 1rem 1.25rem;
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+}
+.ag-collab-callout strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+/* ---- Review responses table edit button ---- */
+.ag-edit-link {
+  background: none;
+  border: none;
+  color: var(--md-primary-fg-color);
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.4rem;
+  text-decoration: underline;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ag-edit-link:hover { text-decoration: none; }
+
+/* Highlight effect for scrolled-to control */
+.ag-control-card.ag-highlight {
+  box-shadow: 0 0 0 2px var(--md-primary-fg-color);
+  transition: box-shadow 0.3s;
+}

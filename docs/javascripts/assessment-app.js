@@ -129,6 +129,7 @@
     this.charts = [];           // Chart.js instances to destroy on cleanup
     this.step = "welcome";
     this._observers = [];
+    this._savePrompted = false; // Track if save prompt has been shown
     this._debouncedSave = debounce(this.saveToStorage.bind(this), 500);
   }
 
@@ -516,6 +517,83 @@
   };
 
   /* ================================================================
+     MODAL
+     ================================================================ */
+  AssessmentApp.prototype.showModal = function (title, contentEl) {
+    var backdrop = h("div", { className: "ag-modal-backdrop" });
+    var modal = h("div", { className: "ag-modal", role: "dialog", "aria-modal": "true", "aria-label": title });
+    var header = h("div", { className: "ag-modal-header" });
+    header.appendChild(h("h3", null, title));
+    var closeBtn = h("button", { className: "ag-modal-close", "aria-label": "Close" }, "\u00D7");
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
+    var body = h("div", { className: "ag-modal-body" });
+    body.appendChild(contentEl);
+    modal.appendChild(body);
+    backdrop.appendChild(modal);
+
+    var close = function () { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    closeBtn.addEventListener("click", close);
+    backdrop.addEventListener("click", function (e) { if (e.target === backdrop) close(); });
+    backdrop.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+
+    document.body.appendChild(backdrop);
+    closeBtn.focus();
+  };
+
+  AssessmentApp.prototype.showScoringModal = function () {
+    var content = h("div");
+    content.appendChild(h("p", null,
+      "Each control is scored based on your self-reported implementation status."));
+
+    var dl = document.createElement("dl");
+    var items = [
+      ["Yes = 1.0", "Fully implemented and verified."],
+      ["Partial = 0.5", "Some aspects implemented. Refined by Phase 2 drill-down sub-questions."],
+      ["No = 0.0", "Not yet implemented."],
+      ["N/A = excluded", "Not applicable to your organization; excluded from scoring."],
+    ];
+    items.forEach(function (pair) {
+      dl.appendChild(h("dt", null, pair[0]));
+      dl.appendChild(h("dd", null, pair[1]));
+    });
+    content.appendChild(dl);
+
+    content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Aggregate Score Formula"));
+    content.appendChild(h("p", null,
+      "score = sum(controlScores) / count(applicableControls) \u00D7 100"));
+
+    content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "RAG Thresholds"));
+    var ragDl = document.createElement("dl");
+    ragDl.appendChild(h("dt", { style: "color:var(--ag-green)" }, "Green (80%+)"));
+    ragDl.appendChild(h("dd", null, "Strong implementation; minor refinements may be needed."));
+    ragDl.appendChild(h("dt", { style: "color:var(--ag-amber)" }, "Amber (50\u201379%)"));
+    ragDl.appendChild(h("dd", null, "Partial implementation; focused remediation recommended."));
+    ragDl.appendChild(h("dt", { style: "color:var(--ag-red)" }, "Red (below 50%)"));
+    ragDl.appendChild(h("dd", null, "Significant gaps; prioritized remediation required."));
+    content.appendChild(ragDl);
+
+    content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Risk Priority"));
+    content.appendChild(h("p", null,
+      "riskPriority = (1 \u2212 score) \u00D7 regulatoryWeight \u00D7 zoneWeight \u00D7 phaseWeight"));
+    var rpDl = document.createElement("dl");
+    rpDl.appendChild(h("dt", null, "Regulatory weight"));
+    rpDl.appendChild(h("dd", null, "3.0 (4+ regulations), 2.0 (2\u20133), 1.0 (0\u20131)"));
+    rpDl.appendChild(h("dt", null, "Zone weight"));
+    rpDl.appendChild(h("dd", null, "3.0 (Zone 3), 2.0 (Zone 2), 1.0 (Zone 1)"));
+    rpDl.appendChild(h("dt", null, "Phase weight"));
+    rpDl.appendChild(h("dd", null, "3.0 (current phase), 2.0 (next phase), 1.0 (future)"));
+    content.appendChild(rpDl);
+
+    content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Zone-Specific Scoring"));
+    content.appendChild(h("p", null,
+      "Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A. " +
+      "Approximately 10 controls are excluded from Zone 1 scoring, while all 71 apply to Zone 3."));
+
+    this.showModal("How Scoring Works", content);
+  };
+
+  /* ================================================================
      STEP 1: WELCOME
      ================================================================ */
   AssessmentApp.prototype.renderWelcome = function (parent) {
@@ -534,6 +612,27 @@
       "and does not guarantee compliance with any regulation."
     ));
 
+    // Scoring summary
+    var scoringSummary = h("div", { className: "ag-scoring-summary" });
+    var scoringDl = document.createElement("dl");
+    scoringDl.style.margin = "0";
+    [["Yes", "1.0"], ["Partial", "0.5"], ["No", "0.0"], ["N/A", "excluded"]].forEach(function (pair) {
+      scoringDl.appendChild(h("dt", null, pair[0] + " ="));
+      scoringDl.appendChild(h("dd", null, pair[1]));
+    });
+    scoringSummary.appendChild(scoringDl);
+    var ragLine = h("div", { style: "margin-top:0.5rem" });
+    ragLine.appendChild(h("span", { style: "font-weight:600" }, "RAG: "));
+    ragLine.appendChild(h("span", { style: "color:var(--ag-green);font-weight:600" }, "Green 80%+ "));
+    ragLine.appendChild(h("span", { style: "color:var(--ag-amber);font-weight:600" }, "Amber 50\u201379% "));
+    ragLine.appendChild(h("span", { style: "color:var(--ag-red);font-weight:600" }, "Red <50%"));
+    scoringSummary.appendChild(ragLine);
+    var privacyNote = h("div", { className: "ag-privacy-note" },
+      "Data Privacy: All assessment data stays in your browser. No data is sent to any server. " +
+      "Use Save to File (JSON export) to share or archive results.");
+    scoringSummary.appendChild(privacyNote);
+    wrap.appendChild(scoringSummary);
+
     var btns = h("div", { className: "ag-btn-group", style: "justify-content: center" });
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-primary",
@@ -547,8 +646,13 @@
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-secondary",
       onClick: function () { self.triggerImport(); }
-    }, "Load Assessment File"));
+    }, "Resume or Import Saved Assessment"));
     wrap.appendChild(btns);
+
+    // Import helper text
+    wrap.appendChild(h("p", { style: "font-size:0.78rem;color:var(--md-default-fg-color--light);max-width:600px;margin:0.5rem auto" },
+      "Import a previously exported JSON file to resume an assessment or review completed results. " +
+      "You can also import role-specific sections completed by other team members."));
 
     // Saved assessments from localStorage
     var saved = this.getSavedList();
@@ -656,11 +760,21 @@
     }));
 
     // Zones
+    var zoneHint = h("div", { className: "ag-check-hint" });
+    zoneHint.appendChild(document.createTextNode("Select all zones your organization currently uses or plans to adopt. "));
+    var zoneLink = h("a", { href: getBasePath() + "framework/zones-and-tiers/", target: "_blank" }, "Learn about zones");
+    zoneHint.appendChild(zoneLink);
     form.appendChild(this.checkboxGroup("Active Governance Zones", [
-      { value: 1, label: "Zone 1 — Personal Productivity", checked: sc.zones.indexOf(1) >= 0 },
-      { value: 2, label: "Zone 2 — Team Collaboration", checked: sc.zones.indexOf(2) >= 0 },
-      { value: 3, label: "Zone 3 — Enterprise Managed", checked: sc.zones.indexOf(3) >= 0 },
-    ], function (vals) { sc.zones = vals.map(Number); }));
+      { value: 1, label: "Zone 1 \u2014 Personal Productivity",
+        description: "Low risk. Individual scope, M365 Graph only, self-service approval, minimal regulatory scrutiny.",
+        checked: sc.zones.indexOf(1) >= 0 },
+      { value: 2, label: "Zone 2 \u2014 Team Collaboration",
+        description: "Medium risk. Department scope, internal data access, manager approval, moderate regulatory scrutiny.",
+        checked: sc.zones.indexOf(2) >= 0 },
+      { value: 3, label: "Zone 3 \u2014 Enterprise Managed",
+        description: "High risk. Organization-wide, regulated/sensitive data, governance committee approval, full compliance required.",
+        checked: sc.zones.indexOf(3) >= 0 },
+    ], function (vals) { sc.zones = vals.map(Number); }, zoneHint));
 
     // Adoption phase
     var phaseOptions = [
@@ -745,9 +859,12 @@
     return wrap;
   };
 
-  AssessmentApp.prototype.checkboxGroup = function (label, items, onChange) {
+  AssessmentApp.prototype.checkboxGroup = function (label, items, onChange, hint) {
     var fieldset = h("fieldset", { className: "ag-field ag-fieldset" });
     fieldset.appendChild(h("legend", { className: "ag-label" }, label));
+    if (hint) {
+      fieldset.appendChild(hint);
+    }
     var group = h("div", { className: "ag-check-group" });
     items.forEach(function (item) {
       var lbl = h("label", { className: "ag-check-label" });
@@ -759,7 +876,14 @@
         onChange(vals);
       });
       lbl.appendChild(cb);
-      lbl.appendChild(document.createTextNode(item.label));
+      if (item.description) {
+        var wrap = h("span", { className: "ag-check-label-content" });
+        wrap.appendChild(h("span", null, item.label));
+        wrap.appendChild(h("span", { className: "ag-check-desc" }, item.description));
+        lbl.appendChild(wrap);
+      } else {
+        lbl.appendChild(document.createTextNode(item.label));
+      }
       group.appendChild(lbl);
     });
     fieldset.appendChild(group);
@@ -777,6 +901,21 @@
     wrap.appendChild(h("p", { className: "ag-card-subtitle" },
       "For each control, indicate your organization's implementation status."
     ));
+
+    // Instructional callout
+    var callout = h("div", { className: "ag-callout" });
+    callout.appendChild(h("strong", null, "How to answer: "));
+    callout.appendChild(document.createTextNode(
+      "For each control, assess your organization\u2019s current implementation. "));
+    callout.appendChild(h("strong", null, "Yes"));
+    callout.appendChild(document.createTextNode(" = fully in place, "));
+    callout.appendChild(h("strong", null, "Partial"));
+    callout.appendChild(document.createTextNode(" = some aspects implemented (triggers detailed drill-down), "));
+    callout.appendChild(h("strong", null, "No"));
+    callout.appendChild(document.createTextNode(" = not yet started, "));
+    callout.appendChild(h("strong", null, "N/A"));
+    callout.appendChild(document.createTextNode(" = not applicable to your organization."));
+    wrap.appendChild(callout);
 
     // Progress
     var answered = Object.keys(this.state.responses).length;
@@ -806,12 +945,16 @@
     });
     wrap.appendChild(liveRegion);
 
-    // Save button
+    // Save button + scoring help
     var topBtns = h("div", { className: "ag-btn-group", style: "margin-bottom:1rem" });
     topBtns.appendChild(h("button", {
       className: "ag-btn ag-btn-sm ag-btn-secondary",
       onClick: function () { self.exportJSON(); }
     }, "Save to File"));
+    topBtns.appendChild(h("button", {
+      className: "ag-info-btn",
+      onClick: function () { self.showScoringModal(); }
+    }, "\u2139 How Scoring Works"));
     wrap.appendChild(topBtns);
 
     // Group by pillar
@@ -894,6 +1037,13 @@
       onClick: function () {
         self.markStep("phase1");
         self.saveToStorage();
+        if (!self._savePrompted) {
+          self._savePrompted = true;
+          if (confirm("Would you like to save your assessment to a file before viewing results? " +
+            "You can also export later from the Export page.")) {
+            self.exportJSON();
+          }
+        }
         self.goToStep("results");
       }
     }, "View Results"));
@@ -933,9 +1083,10 @@
     header.appendChild(left);
     card.appendChild(header);
 
-    // Objective
-    if (ctrl.objective) {
-      card.appendChild(h("div", { className: "ag-control-objective" }, ctrl.objective));
+    // Objective (prefer question form if available)
+    var displayText = ctrl.questionText || ctrl.objective;
+    if (displayText) {
+      card.appendChild(h("div", { className: "ag-control-objective" }, displayText));
     }
 
     // Answer buttons
@@ -993,7 +1144,7 @@
     notesBtn.addEventListener("click", function () {
       var showing = notesArea.style.display !== "none";
       notesArea.style.display = showing ? "none" : "block";
-      notesBtn.textContent = showing ? "Add notes" : "Hide notes";
+      notesBtn.textContent = showing ? (notesArea.value ? "Edit notes" : "Add notes") : "Hide notes";
       notesBtn.setAttribute("aria-expanded", showing ? "false" : "true");
       if (!showing) notesArea.focus();
     });
@@ -1036,6 +1187,12 @@
       "This phase is presented by pillar so sections can be delegated to the responsible admin."
     ));
 
+    // Phase 2 reminder
+    wrap.appendChild(h("div", { className: "ag-disclaimer", style: "background:var(--md-default-fg-color--lightest);border-left-color:var(--md-primary-fg-color)" },
+      "Phase 2 refines Partial scores using verification criteria sub-questions. " +
+      "This helps distinguish between partially-implemented controls and informs remediation planning."
+    ));
+
     if (gaps.length === 0) {
       wrap.appendChild(h("div", { className: "ag-card" },
         h("p", null, "No gaps detected. All controls are fully implemented or marked N/A.")));
@@ -1047,12 +1204,16 @@
         byPillar[c.pillar].push(c);
       });
 
-      // Export section button
+      // Export section button + scoring help
       var exportBtns = h("div", { className: "ag-btn-group", style: "margin-bottom:1rem" });
       exportBtns.appendChild(h("button", {
         className: "ag-btn ag-btn-sm ag-btn-secondary",
         onClick: function () { self.exportJSON(); }
       }, "Save to File"));
+      exportBtns.appendChild(h("button", {
+        className: "ag-info-btn",
+        onClick: function () { self.showScoringModal(); }
+      }, "\u2139 How Scoring Works"));
       wrap.appendChild(exportBtns);
 
       // Role-specific export
@@ -1097,6 +1258,13 @@
       onClick: function () {
         self.markStep("phase2");
         self.saveToStorage();
+        if (!self._savePrompted) {
+          self._savePrompted = true;
+          if (confirm("Would you like to save your assessment to a file before viewing results? " +
+            "You can also export later from the Export page.")) {
+            self.exportJSON();
+          }
+        }
         self.goToStep("results");
       }
     }, "View Results"));
@@ -1240,6 +1408,7 @@
       { id: "regulatory", label: "Regulatory Exposure" },
       { id: "zones", label: "Zone Analysis" },
       { id: "gaps", label: "Gap Analysis" },
+      { id: "responses", label: "Review Responses" },
       { id: "roadmap", label: "Remediation Roadmap" },
     ];
     var tabBar = h("div", { className: "ag-tabs", role: "tablist", "aria-label": "Results views" });
@@ -1306,6 +1475,7 @@
         case "regulatory": self.renderRegulatory(panel); break;
         case "zones": self.renderZones(panel); break;
         case "gaps": self.renderGaps(panel); break;
+        case "responses": self.renderResponseReview(panel); break;
         case "roadmap": self.renderRoadmap(panel); break;
       }
       panels.appendChild(panel);
@@ -1313,6 +1483,18 @@
 
     wrap.appendChild(tabBar);
     wrap.appendChild(panels);
+
+    // Collaboration callout
+    var collabCard = h("div", { className: "ag-collab-callout" });
+    collabCard.appendChild(h("strong", null, "Delegate Sections to Team Members"));
+    collabCard.appendChild(h("p", { style: "margin:0.3rem 0" },
+      "Export role-specific sections as JSON for admins to complete independently. " +
+      "Import completed sections back with conflict detection."));
+    collabCard.appendChild(h("button", {
+      className: "ag-btn ag-btn-sm ag-btn-secondary",
+      onClick: function () { self.goToStep("phase2"); }
+    }, "Go to Phase 2 (Section Export)"));
+    wrap.appendChild(collabCard);
 
     // Re-render charts on dark mode toggle
     var observer = new MutationObserver(function (mutations) {
@@ -1622,6 +1804,80 @@
       card.appendChild(wrap);
     }
 
+    panel.appendChild(card);
+  };
+
+  /* ---- Response review tab ---- */
+  AssessmentApp.prototype.renderResponseReview = function (panel) {
+    var self = this;
+    var card = h("div", { className: "ag-card" });
+    card.appendChild(h("div", { className: "ag-card-title" }, "All Responses (" + this.data.controls.length + " controls)"));
+    card.appendChild(h("p", { className: "ag-card-subtitle" },
+      "Review every response. Click Edit to navigate back and change an answer."));
+
+    var wrap = h("div", { className: "ag-table-wrap" });
+    var table = h("table", { className: "ag-table" });
+    var thead = h("thead");
+    var hrow = h("tr");
+    ["Control", "Title", "Response", "Score", "Notes", ""].forEach(function (col) {
+      hrow.appendChild(h("th", null, col));
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    var tbody = h("tbody");
+    this.data.controls.forEach(function (ctrl) {
+      var resp = self.state.responses[ctrl.id] || {};
+      var score = self.getControlScore(ctrl.id);
+      var row = h("tr");
+      row.appendChild(h("td", null, h("strong", null, ctrl.id)));
+      row.appendChild(h("td", null, ctrl.title));
+      row.appendChild(h("td", null, resp.answer || "\u2014"));
+      row.appendChild(h("td", null, score !== null ? Math.round(score * 100) + "%" : "\u2014"));
+      var notesTd = h("td", null);
+      if (resp.notes) {
+        notesTd.appendChild(h("span", { style: "font-size:0.78rem" },
+          resp.notes.length > 60 ? resp.notes.substring(0, 60) + "\u2026" : resp.notes));
+      }
+      row.appendChild(notesTd);
+      var editTd = h("td");
+      editTd.appendChild(h("button", {
+        className: "ag-edit-link",
+        "aria-label": "Edit response for " + ctrl.id,
+        onClick: function () {
+          self.goToStep("phase1");
+          // Scroll to and highlight the control card after render
+          setTimeout(function () {
+            var target = self.el.querySelector(".ag-control-id");
+            var cards = self.el.querySelectorAll(".ag-control-card");
+            for (var i = 0; i < cards.length; i++) {
+              var idEl = cards[i].querySelector(".ag-control-id");
+              if (idEl && idEl.textContent === ctrl.id) {
+                cards[i].scrollIntoView({ behavior: "smooth", block: "center" });
+                cards[i].classList.add("ag-highlight");
+                // Expand parent pillar group if collapsed
+                var pillarControls = cards[i].closest(".ag-pillar-controls");
+                if (pillarControls && pillarControls.classList.contains("collapsed")) {
+                  pillarControls.classList.remove("collapsed");
+                  var pillarHeader = pillarControls.previousElementSibling;
+                  if (pillarHeader) {
+                    pillarHeader.classList.remove("collapsed");
+                    pillarHeader.setAttribute("aria-expanded", "true");
+                  }
+                }
+                setTimeout(function () { cards[i].classList.remove("ag-highlight"); }, 2000);
+                break;
+              }
+            }
+          }, 100);
+        }
+      }, "Edit"));
+      row.appendChild(editTd);
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    card.appendChild(wrap);
     panel.appendChild(card);
   };
 

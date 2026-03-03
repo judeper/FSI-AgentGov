@@ -268,6 +268,66 @@ def parse_objective(content):
     return paragraphs[0].strip() if paragraphs else section
 
 
+def generate_question_text(objective):
+    """Transform an imperative objective into a question for assessment.
+
+    Converts statements like "Ensure all agents have audit logging" into
+    "Does your organization ensure all agents have audit logging?"
+    """
+    if not objective:
+        return None
+
+    text = objective.strip()
+    # Remove trailing period
+    text = text.rstrip(".")
+
+    # Verb-to-question prefix mappings (order matters — first match wins)
+    transforms = [
+        (r"^Ensure\b", "Does your organization ensure"),
+        (r"^Restrict\b", "Has your organization restricted"),
+        (r"^Implement\b", "Has your organization implemented"),
+        (r"^Establish\b", "Has your organization established"),
+        (r"^Define\b", "Has your organization defined"),
+        (r"^Configure\b", "Has your organization configured"),
+        (r"^Deploy\b", "Has your organization deployed"),
+        (r"^Enable\b", "Has your organization enabled"),
+        (r"^Enforce\b", "Does your organization enforce"),
+        (r"^Monitor\b", "Does your organization monitor"),
+        (r"^Maintain\b", "Does your organization maintain"),
+        (r"^Require\b", "Does your organization require"),
+        (r"^Apply\b", "Has your organization applied"),
+        (r"^Create\b", "Has your organization created"),
+        (r"^Assign\b", "Has your organization assigned"),
+        (r"^Validate\b", "Does your organization validate"),
+        (r"^Track\b", "Does your organization track"),
+        (r"^Review\b", "Does your organization review"),
+        (r"^Automate\b", "Has your organization automated"),
+        (r"^Document\b", "Has your organization documented"),
+        (r"^Integrate\b", "Has your organization integrated"),
+        (r"^Protect\b", "Does your organization protect"),
+        (r"^Limit\b", "Has your organization limited"),
+        (r"^Manage\b", "Does your organization manage"),
+        (r"^Control\b", "Does your organization control"),
+        (r"^Prevent\b", "Does your organization prevent"),
+        (r"^Detect\b", "Does your organization detect"),
+        (r"^Extend\b", "Has your organization extended"),
+        (r"^Provide\b", "Does your organization provide"),
+        (r"^Identify\b", "Does your organization identify"),
+        (r"^Leverage\b", "Does your organization leverage"),
+        (r"^Govern\b", "Does your organization govern"),
+    ]
+
+    for pattern, replacement in transforms:
+        match = re.match(pattern, text, re.IGNORECASE)
+        if match:
+            # Replace the verb, preserving the rest of the sentence
+            result = replacement + text[match.end():]
+            return result + "?"
+
+    # Fallback for unmatched verbs
+    return "Has your organization addressed the following: " + text + "?"
+
+
 def parse_zone_requirements(content):
     """Extract zone-specific requirements from the table."""
     section = extract_section(content, "## Zone-Specific Requirements")
@@ -500,12 +560,15 @@ def parse_control(pillar_num, ctrl_num):
         "troubleshooting": f"playbooks/control-implementations/{control_id}/troubleshooting/",
     }
 
+    question_text = generate_question_text(objective)
+
     return {
         "id": control_id,
         "pillar": pillar_num,
         "pillarName": PILLARS[pillar_num]["name"],
         "title": meta.get("title", f"Control {control_id}"),
         "objective": objective,
+        "questionText": question_text,
         "regulations": regulations,
         "governanceLevels": meta.get("governanceLevels", ""),
         "zones": applicable_zones,

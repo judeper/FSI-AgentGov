@@ -79,6 +79,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Step indicator clarity** (MEDIUM): Added step numbers (1-6) and checkmark prefix on completed steps to clearly distinguish progress states; added tooltip text on hover
 - **Prohibited language** (LOW): Replaced "does not guarantee compliance" with "is not a compliance certification" in assessment disclaimer to pass language validation
 
+### Fixed (UX Polish)
+
+- **Notes toggle text** (MEDIUM): Toggle now shows "Edit notes" (not "Add notes") when hiding a textarea that contains content
+- **Print styles** (LOW): Hide modal backdrop, info buttons, edit links, and collaboration callout in print output
+- **Dark mode borders** (LOW): Scoring summary and collaboration callout borders visible in slate theme; modal shadow darkened
+- **Mobile responsive** (LOW): Modal, scoring summary, and collaboration callout adapt to narrow screens (max-height, padding, full-width)
+- **En-dash consistency** (LOW): RAG threshold range in scoring methodology now uses en-dash (`50–79%`) matching the rest of the document
+
 ---
 
 ## [1.2.52] — February 2026 (SSPM Coverage Remediation)

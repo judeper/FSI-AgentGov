@@ -1,5 +1,7 @@
 # Governance Readiness Assessment
 
+**Scoring:** Yes (1.0) · Partial (0.5) · No (0.0) · N/A (excluded) — **RAG:** Green 80%+ · Amber 50–79% · Red <50% — All data stays in your browser.
+
 <div id="assessment-app" class="assessment-container">
   <noscript>
     <div class="admonition warning">
@@ -36,7 +38,7 @@ The Governance Readiness Assessment is an interactive tool that helps organizati
 
 Aggregate scores are calculated as: `score = sum(controlScores) / count(applicableControls) x 100`
 
-**RAG thresholds:** Green (80%+), Amber (50-79%), Red (below 50%)
+**RAG thresholds:** Green (80%+), Amber (50–79%), Red (below 50%)
 
 **Zone-specific scoring:** Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A. Approximately 10 controls are excluded from Zone 1 (Personal Productivity) scoring, while all 71 controls apply to Zone 3 (Enterprise Managed). This prevents penalizing organizations for enterprise-only controls that do not apply to personal productivity agents.
 
