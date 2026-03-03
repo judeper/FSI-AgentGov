@@ -59,7 +59,10 @@ jobs:
 
       - name: Validate Language Rules
         run: python scripts/verify_language_rules.py
-        
+
+      - name: Generate Assessment Data
+        run: python scripts/extract_assessment_data.py
+
       - name: Validate Documentation
         run: mkdocs build --strict
 

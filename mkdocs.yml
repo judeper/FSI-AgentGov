@@ -57,6 +57,7 @@ exclude_docs: |
   templates/
   reference/raci-matrix.md
   controls/CONTROL-INDEX.md
+  javascripts/lib/VENDOR-MANIFEST.md
 
 markdown_extensions:
   - admonition
@@ -76,6 +77,9 @@ markdown_extensions:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/assessment-loader.js
+
 nav:
   - Home: index.md
   - Disclaimer: disclaimer.md
@@ -83,6 +87,8 @@ nav:
   - Getting Started:
     - Quick Start: getting-started/quick-start.md
     - Implementation Checklist: getting-started/checklist.md
+
+  - Readiness Assessment: assessment/index.md
 
   - Framework:
     - Overview: framework/index.md
