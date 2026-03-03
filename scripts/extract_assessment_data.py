@@ -660,6 +660,19 @@ def main():
     print(f"  Controls with solutions: {with_solutions}")
     print(f"  Avg verification criteria: {avg_criteria:.1f}")
     print(f"  Avg config points: {avg_config:.1f}")
+
+    # Validate generated playbook URLs (must not end in .md — MkDocs uses directory URLs)
+    bad_urls = []
+    for ctrl in data["controls"]:
+        for key, url in ctrl.get("playbooks", {}).items():
+            if url.endswith(".md"):
+                bad_urls.append(f"  {ctrl['id']}.playbooks.{key}: {url}")
+    if bad_urls:
+        print(f"\nFAILED: {len(bad_urls)} playbook URLs end in .md (MkDocs uses directory URLs)")
+        for b in bad_urls:
+            print(b)
+        sys.exit(1)
+
     print("\nSUCCESS")
 
 
