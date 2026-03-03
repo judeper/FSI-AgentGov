@@ -237,7 +237,7 @@ If you encounter:
 |------|--------|---------|
 | **Claude Code** | `.claude/CLAUDE.md` | Full project context, skills, hooks |
 | **Claude Code Skills** | `.claude/skills/` | On-demand workflows (`/update-control`, `/add-control`, etc.) |
-| **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy |
+| **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy (local only, gitignored) |
 | **Copilot Agents** | `.github/agents/` | Custom agents (doc-writer, GSD workflow agents) |
 | **Copilot Prompts** | `.github/prompts/` | GSD commands adapted for Copilot |
 | **Copilot Instructions** | `.github/instructions/` | Auto-included rules by file path |

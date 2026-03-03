@@ -126,6 +126,13 @@ See [Regulatory Framework](framework/regulatory-framework.md) for complete mappi
 
 See [CHANGELOG](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) for version history.
 
+**v1.2.53 (March 2026):**
+
+- Interactive Governance Readiness Assessment tool covering all 71 controls
+- Assessment data extraction script for build-time metadata parsing
+- CHANGELOG split into versioned files for navigability
+- Git tags and GitHub Release for version traceability
+
 **v1.2 (February 2026):**
 
 - Expanded to four pillars with 71 controls (added Pillar 4: SharePoint)
@@ -142,4 +149,4 @@ See [CHANGELOG](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) 
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*

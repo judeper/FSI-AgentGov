@@ -213,7 +213,7 @@ For maintainers with OpenAI access, the project includes a pre-configured `.code
 | *(default)* | `codex` | Multi-file control + playbook updates |
 | `quality` | `codex --profile quality` | Net-new design, cross-repo alignment |
 
-No additional configuration is needed — `.codex/config.toml` is committed to the repository. See `AGENTS.md` "Codex CLI Model Selection" for the full task-to-profile mapping.
+No additional configuration is needed — `.codex/config.toml` is included in the repository (maintained locally via `.gitignore`). See `AGENTS.md` "Codex CLI Model Selection" for the full task-to-profile mapping.
 
 > **Note:** Codex CLI does not support GSD workflows, and uses personal OpenAI quota. For GSD phase planning and execution from the terminal, use Claude Code CLI (`/gsd:` commands). For code assistance covered by your enterprise license, use VS Code Copilot Chat or `gh copilot`.
 
@@ -257,4 +257,4 @@ Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the m
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*
