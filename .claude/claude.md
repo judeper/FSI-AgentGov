@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.2.52** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+**FSI Agent Governance Framework v1.2.53** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
 - **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
@@ -123,12 +123,14 @@ FSI-AgentGov/
 │   ├── playbooks/             # Layer 3: Implementation guides (315 files)
 │   │   ├── control-implementations/  # 4 playbooks per control (284 files)
 │   │   └── advanced-implementations/ # Complex multi-control solutions (31 files)
+│   ├── assessment/            # Interactive readiness assessment tool
 │   ├── reference/             # Supporting materials
 │   ├── downloads/             # Excel templates
 │   └── images/                # Screenshot specs
 ├── scripts/                   # Python validation scripts
 │   ├── learn_monitor.py           # Microsoft Learn documentation monitor
 │   ├── verify_controls.py         # Control structure validation
+│   ├── extract_assessment_data.py # Assessment data extraction (71 controls → JSON)
 │   ├── compile_researcher_package.py  # Research package generator
 │   └── hooks/                     # Claude Code hooks
 ├── data/                      # Runtime data (state files)
@@ -350,6 +352,7 @@ See `docs/reference/learn-monitor-ai-enhancement.md` for the full design.
 | Implement Platform Change Governance | `docs/playbooks/advanced-implementations/platform-change-governance/` |
 | Implement Environment Lifecycle Management | `docs/playbooks/advanced-implementations/environment-lifecycle-management/` |
 | Plan adoption phases | `docs/framework/adoption-roadmap.md` |
+| Assess governance readiness | `docs/assessment/index.md` |
 | Review language rules | `CONTRIBUTING.md` |
 | Edit site navigation | `mkdocs.yml` |
 | View release history | `CHANGELOG.md` |
@@ -393,11 +396,12 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.2.52 (March 2026)
-**Status:** All 71 controls complete, 284 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs)
+**Version:** 1.2.53 (March 2026)
+**Status:** All 71 controls complete, 284 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs), interactive assessment tool live
 
 **Key capabilities in recent releases:**
 
+- Interactive Governance Readiness Assessment tool — client-side wizard assessing all 71 controls with smart scoping, two-phase drill-down, visual dashboard, remediation roadmap, and Excel/JSON/CSV/PDF export (v1.2.53)
 - 48-batch automated documentation review — SSPM mapping, Control 2.22 zone thresholds, stale footers, terminology fixes (v1.2.52)
 - UASD review remediation — 6 critical script fixes, 6 new troubleshooting scenarios (v1.2.51)
 - Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes (v1.2.49)
@@ -413,7 +417,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.52
+- **Framework Version:** 1.2.53
 - **Last Updated:** March 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FSI Agent Governance Framework v1.2.52 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+FSI Agent Governance Framework v1.2.53 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 - **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
@@ -36,6 +36,7 @@ FSI Agent Governance Framework v1.2.52 - A governance framework for Microsoft 36
 - **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
 - **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 284 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
+- **Assessment:** Interactive governance readiness assessment tool (client-side JavaScript)
 - **Getting Started:** Admin onboarding only (no repo structure info)
 - **Downloads:** Role-based Excel checklists for admins
 
@@ -73,6 +74,7 @@ docs/
 │   ├── compliance-and-audit/     # Audit preparation guides
 │   ├── incident-and-risk/        # Incident handling procedures
 │   └── agent-lifecycle/          # Agent lifecycle management
+├── assessment/                   # Interactive readiness assessment tool
 ├── reference/                    # Supporting materials
 │   ├── role-catalog.md
 │   ├── regulatory-mappings.md
@@ -81,7 +83,7 @@ docs/
 ├── templates/                    # Control authoring template
 ├── images/                       # Screenshot verification (LOCAL ONLY - gitignored)
 └── downloads/                    # Excel templates for admins
-scripts/                          # Validation scripts (verify_controls.py, verify_templates.py)
+scripts/                          # Validation scripts (verify_controls.py, verify_templates.py, extract_assessment_data.py)
 releases/                         # Release artifacts by version
 mkdocs.yml                        # Site navigation and configuration
 .config/wt.toml                   # Worktrunk project hooks (worktree management)

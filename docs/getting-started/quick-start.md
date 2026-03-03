@@ -40,6 +40,9 @@ The framework recommends a structured 3-phase adoption approach:
 
 ## For New Users (10 minutes)
 
+!!! tip "Quick Assessment"
+    Want a faster way to evaluate your readiness? Try the [Governance Readiness Assessment](../assessment/index.md) — an interactive tool that walks you through all 71 controls and generates a personalized remediation roadmap.
+
 ### Step 1: Understand the Framework Structure (3 min)
 
 The framework has **4 pillars** and **3 zones**:

@@ -58,6 +58,8 @@ Each Excel checklist includes:
 
 > **Tip:** The Governance Maturity Dashboard is useful for tracking overall progress across all roles and presenting to leadership.
 
+> **Complementary tool:** The [Governance Readiness Assessment](../assessment/index.md) generates personalized remediation roadmaps with role and phase assignments that align with these checklists. Run the assessment first to identify your priority controls, then use the role-specific checklists to track implementation progress.
+
 ---
 
 ## Control Assignments by Role

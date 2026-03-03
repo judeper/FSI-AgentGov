@@ -73,6 +73,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **CSV field sanitization** (LOW): All CSV fields now consistently pass through `csvField()` for formula injection prevention
 - **CSS cleanup on navigation** (LOW): Assessment CSS `<link>` element is now removed when navigating away from the assessment page
 
+### Fixed (Post-Merge)
+
+- **Broken playbook links** (HIGH): Removed `.md` extensions from generated playbook paths — MkDocs serves pages at directory URLs (e.g., `/powershell-setup/` not `/powershell-setup.md`); all 284 remediation roadmap links now resolve correctly
+- **Step indicator clarity** (MEDIUM): Added step numbers (1-6) and checkmark prefix on completed steps to clearly distinguish progress states; added tooltip text on hover
+- **Prohibited language** (LOW): Replaced "does not guarantee compliance" with "is not a compliance certification" in assessment disclaimer to pass language validation
+
 ---
 
 ## [1.2.52] — February 2026 (SSPM Coverage Remediation)

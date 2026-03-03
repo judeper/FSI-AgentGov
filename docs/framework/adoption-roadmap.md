@@ -8,6 +8,9 @@ Phased implementation guidance for deploying the FSI Agent Governance Framework.
 
 This roadmap provides a structured approach to implementing AI agent governance. Organizations should adapt timelines and priorities based on their specific regulatory obligations, existing infrastructure, and agent deployment plans.
 
+!!! tip "Start with the Readiness Assessment"
+    Before beginning Phase 0, run the [Governance Readiness Assessment](../assessment/index.md) to evaluate your current posture across all 71 controls. The assessment produces a personalized scorecard, gap analysis, and remediation roadmap tailored to your institution type, governance zones, and adoption phase.
+
 ---
 
 ## Implementation Phases

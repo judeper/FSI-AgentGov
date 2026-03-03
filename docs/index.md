@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework
 
-**Version:** 1.2.51 (February 2026)
+**Version:** 1.2.53 (March 2026)
 
 Comprehensive governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
@@ -15,10 +15,11 @@ Comprehensive governance framework for Microsoft 365 AI agents (Copilot Studio, 
 
 Start here to understand the governance framework and regulatory alignment.
 
-1. **Read:** [Executive Summary](framework/executive-summary.md) — Board-level overview
-2. **Then:** [Operating Model](framework/operating-model.md) — Roles and RACI
-3. **Then:** [Regulatory Framework](framework/regulatory-framework.md) — Control-to-regulation mappings
-4. **Action:** [Adoption Roadmap](framework/adoption-roadmap.md) — Phased implementation
+1. **Assess:** [Governance Readiness Assessment](assessment/index.md) — Evaluate your current posture across all 71 controls
+2. **Read:** [Executive Summary](framework/executive-summary.md) — Board-level overview
+3. **Then:** [Operating Model](framework/operating-model.md) — Roles and RACI
+4. **Then:** [Regulatory Framework](framework/regulatory-framework.md) — Control-to-regulation mappings
+5. **Action:** [Adoption Roadmap](framework/adoption-roadmap.md) — Phased implementation
 
 ### I'm a Power Platform Admin
 
@@ -99,6 +100,7 @@ See [Regulatory Framework](framework/regulatory-framework.md) for complete mappi
 
 **Getting Started:**
 
+- [Governance Readiness Assessment](assessment/index.md) — Interactive tool to assess all 71 controls
 - [Quick Start Guide](getting-started/quick-start.md)
 - [Implementation Checklist](getting-started/checklist.md)
 - [Phase 0 Setup Playbook](playbooks/getting-started/phase-0-governance-setup.md)

@@ -87,16 +87,17 @@ The framework separates:
 
 **For Implementation Teams:**
 
-1. Follow [Adoption Roadmap](adoption-roadmap.md)
-2. Reference [Playbooks](../playbooks/index.md) for step-by-step procedures
-3. Use [Control Catalog](../controls/index.md) for control objectives
+1. Run the [Governance Readiness Assessment](../assessment/index.md) to identify gaps and priorities
+2. Follow [Adoption Roadmap](adoption-roadmap.md)
+3. Reference [Playbooks](../playbooks/index.md) for step-by-step procedures
+4. Use [Control Catalog](../controls/index.md) for control objectives
 
 ---
 
 ## Version Information
 
-- **Framework Version:** 1.2.51 (February 2026)
-- **Last Updated:** February 2026
+- **Framework Version:** 1.2.53 (March 2026)
+- **Last Updated:** March 2026
 - **Update Frequency:** 1-2 times per year (major regulatory or platform changes)
 
 ---
