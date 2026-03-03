@@ -15,12 +15,12 @@
      ================================================================ */
   var STORAGE_KEY = "fsi-agentgov-assessment";
   var STEPS = [
-    { id: "welcome", label: "Welcome" },
-    { id: "scoping", label: "Scoping" },
-    { id: "phase1", label: "Phase 1" },
-    { id: "phase2", label: "Phase 2" },
-    { id: "results", label: "Results" },
-    { id: "export", label: "Export" },
+    { id: "welcome", label: "Welcome", num: 1 },
+    { id: "scoping", label: "Scoping", num: 2 },
+    { id: "phase1", label: "Phase 1", num: 3 },
+    { id: "phase2", label: "Phase 2", num: 4 },
+    { id: "results", label: "Results", num: 5 },
+    { id: "export", label: "Export", num: 6 },
   ];
   var ANSWERS = [
     { value: "yes", label: "Yes", cls: "selected" },
@@ -500,13 +500,16 @@
     STEPS.forEach(function (s) {
       var cls = "ag-step-indicator";
       var current = s.id === self.step;
+      var isCompleted = self.state && self.state.completedSteps && self.state.completedSteps.indexOf(s.id) >= 0;
       if (current) cls += " active";
-      else if (self.state && self.state.completedSteps && self.state.completedSteps.indexOf(s.id) >= 0) cls += " completed";
+      else if (isCompleted) cls += " completed";
+      var prefix = isCompleted && !current ? "\u2713 " : s.num + ". ";
       var el = h("button", {
         className: cls,
+        title: isCompleted ? s.label + " (completed)" : current ? s.label + " (current step)" : s.label,
         "aria-current": current ? "step" : null,
         onClick: function () { if (self.state || s.id === "welcome") self.goToStep(s.id); }
-      }, s.label);
+      }, prefix + s.label);
       nav.appendChild(el);
     });
     return nav;

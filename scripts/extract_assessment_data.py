@@ -492,12 +492,12 @@ def parse_control(pillar_num, ctrl_num):
         req_text = zone_data.get("requirement", "")
         zone_weights[str(z)] = compute_zone_weight(req_text, control_id, z)
 
-    # Build playbook paths
+    # Build playbook paths (no .md extension — MkDocs serves without it)
     playbooks = {
-        "portalWalkthrough": f"playbooks/control-implementations/{control_id}/portal-walkthrough.md",
-        "powershellSetup": f"playbooks/control-implementations/{control_id}/powershell-setup.md",
-        "verificationTesting": f"playbooks/control-implementations/{control_id}/verification-testing.md",
-        "troubleshooting": f"playbooks/control-implementations/{control_id}/troubleshooting.md",
+        "portalWalkthrough": f"playbooks/control-implementations/{control_id}/portal-walkthrough/",
+        "powershellSetup": f"playbooks/control-implementations/{control_id}/powershell-setup/",
+        "verificationTesting": f"playbooks/control-implementations/{control_id}/verification-testing/",
+        "troubleshooting": f"playbooks/control-implementations/{control_id}/troubleshooting/",
     }
 
     return {
