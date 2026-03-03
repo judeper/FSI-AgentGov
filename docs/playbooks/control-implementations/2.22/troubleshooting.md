@@ -351,6 +351,39 @@
 
 ---
 
+### Issue 12: ISO 8601 Duration Parsing Error
+
+**Symptoms:**
+
+- Error log entry with error type = `ParseError`
+- Compliance status shows **Unknown** for an environment that has a valid policy record
+- Flow run history shows the `Parse_Duration_Minutes` compose action failed or produced an unexpected result
+- `fsi_inactivitytimeouterrorlogs` contains an entry for the environment with a non-null `fsi_errorraw` value
+
+**Resolution Steps:**
+
+1. **Identify the raw duration string:**
+   - Open `fsi_inactivitytimeouterrorlogs` in Power Apps → Tables
+   - Find the error record for the affected environment
+   - Check the `fsi_errorraw` column for the actual duration string returned by the BAP API
+
+2. **Verify the format is unsupported:**
+   - Supported formats: `PTnM` (e.g., `PT60M`), `PTnH` (e.g., `PT2H`), `PTnHnM` (e.g., `PT1H30M`)
+   - Unsupported examples: `P1D` (days), `PT30S` (seconds only), `P1Y` (years)
+
+3. **If the format is unsupported:**
+   - This is a platform behavior from the BAP Admin API returning a non-standard duration format
+   - Do not modify the flow's inline parsing expression
+   - Open a Microsoft support ticket referencing the environment name and the raw duration value; include the BAP API endpoint `providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/{name}/settings/privacy`
+
+4. **If the format appears valid but still fails:**
+   - Check for leading/trailing whitespace or null characters in `fsi_errorraw`
+   - Verify the flow's `Parse_Duration_Minutes` compose expression matches the current supported formats in [SOLUTION-DOCUMENTATION.md Appendix: ISO 8601 Duration Parsing](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/inactivity-timeout-enforcement/SOLUTION-DOCUMENTATION.md)
+
+**Root Cause:** The BAP Admin API returned an inactivity timeout duration in a format not handled by the flow's ISO 8601 parser (e.g., `P1D` for 1 day instead of `PT1440M`). This is a platform behavior — the flow cannot automatically handle all possible ISO 8601 variants.
+
+---
+
 ## Escalation Path
 
 | Level | Contact | When to Escalate |
