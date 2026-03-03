@@ -57,4 +57,4 @@ The governance lead can export role-specific sections as JSON files for relevant
 All assessment data stays in your browser. No data is sent to any server. Use "Save to File" (JSON export) as the primary artifact for sharing and archival. Browser localStorage is used only as a convenience cache.
 
 !!! note "Disclaimer"
-    This tool helps support governance readiness assessment. It does not constitute legal advice, does not guarantee compliance with any regulation, and should not be used as a substitute for professional compliance guidance.
+    This tool helps support governance readiness assessment. It does not constitute legal advice, is not a compliance certification, and should not be used as a substitute for professional compliance guidance.
