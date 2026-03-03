@@ -6,6 +6,75 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.53] — March 2026 (Governance Readiness Assessment Tool)
+
+### Added
+
+- **Interactive Governance Readiness Assessment** (`docs/assessment/index.md`): Client-side JavaScript assessment wizard embedded in the MkDocs site. Walks users through a two-phase assessment of all 71 controls and generates visual scorecards, gap analysis, and personalized remediation roadmaps.
+  - **Smart scoping**: Configures assessment by institution type (broker-dealer, bank, adviser, dual-registered, insurance), governance zones, and adoption phase — all controls included but prioritized by profile
+  - **Phase 1 control-level assessment**: Per-control Yes/Partial/No/N/A with auto-save, progress tracking, and notes
+  - **Phase 2 gap drill-down**: Sub-questions from verification criteria to refine partial scores, presented by pillar for delegation
+  - **Results dashboard**: Executive scorecard, pillar radar chart, regulatory exposure bars, zone analysis, gap analysis table, and remediation roadmap grouped by role and adoption phase with playbook links
+  - **Export**: Excel workbook (5 sheets via SheetJS), JSON state file, CSV gap list, browser print-to-PDF
+  - **Collaboration**: Role-specific section export/import with conflict detection for delegated assessment
+  - **Trend comparison**: Upload previous assessment JSON for side-by-side score comparison
+  - **Dark mode**: Full support via Material theme CSS variables and MutationObserver
+  - **Accessibility**: ARIA roles, labels, tab navigation, semantic markup
+- **Assessment data extraction script** (`scripts/extract_assessment_data.py`): Build-time parser that extracts metadata, verification criteria, configuration points, zone requirements, regulatory mappings, and role assignments from all 71 control markdown files into `assessment-data.json`
+- **Vendor libraries**: Chart.js v4.4.7 and SheetJS v0.18.5 vendored in `docs/javascripts/lib/` with version manifest; lazy-loaded only on assessment page (~2KB global loader overhead)
+- **CI integration**: Assessment data extraction step added to `publish_docs.yml` workflow before `mkdocs build --strict`
+
+### Changed
+
+- **mkdocs.yml**: Added `extra_javascript` (assessment-loader.js), `extra_css` (assessment.css), and nav entry for Readiness Assessment
+- **.gitignore**: Added `docs/javascripts/assessment-data.json` (generated at build time)
+
+### Fixed (AI Council Review)
+
+- **Regulation name mismatch** (HIGH): Institution type regulations now use exact parsed keys from `regulatory-mappings.md` — fixes regulatory tab sorting that was broken for all 5 institution types
+- **Missing GLBA for dual-registered** (MEDIUM): Added `GLBA Safeguards Rule (501-505)` to dual-registered institution regulations
+- **Solution mapping errors** (MEDIUM): Corrected Control 3.8 from "Agent Observability Foundation" to "Agent Access Governance Monitor"; added "File Upload Security Configurator" for controls 1.4, 1.8, 1.14
+- **JSON import validation** (MEDIUM): Deep structural validation on import — verifies response types, sanitizes keys against prototype pollution, copies only known properties
+- **localStorage validation**: Validates loaded data structure before restoring state
+- **CSV/Excel formula injection** (MEDIUM): Prefixes dangerous leading characters (`=`, `+`, `-`, `@`) with single-quote in CSV and Excel exports
+- **Debounced localStorage saves**: Notes input now debounces saveToStorage by 500ms instead of firing on every keystroke
+- **h() null attribute handling**: Skips `null`/`undefined` attribute values instead of setting them as string "null"
+- **Print CSS shows all tabs**: All result tab panels now visible when printing to PDF (not just active tab)
+- **Export cards keyboard-accessible** (CRITICAL): Changed from `<div>` to `<button>` with `aria-label` for screen readers
+- **Focus indicators** (CRITICAL): Added `:focus-visible` outline on all interactive elements within assessment container
+- **Tab arrow key navigation**: Results tabs support Left/Right/Home/End arrow key navigation per WAI-ARIA tabs pattern
+- **Touch targets**: Answer buttons, tabs, and export cards now meet 44px minimum touch target size
+- **Chart.js dark mode**: MutationObserver re-renders charts when `data-md-color-scheme` changes
+- **Trend comparison validation**: Validates uploaded previous assessment JSON before comparison
+- **Zone scoring differentiation** (LOW): Added zone weights based on requirement text — 15 controls excluded from Zone 1 scoring (optional/awareness-only), 1 from Zone 2 (N/A), all 71 scored for Zone 3. Zone analysis tab now shows genuinely different scores per zone
+- **FINRA 25-07 contextual note** (LOW): Regulatory exposure tab shows clarifying note that FINRA 25-07's AI scope is limited to recordkeeping for AI-generated communications
+- **CSS scoped to assessment page**: Moved `assessment.css` from global `extra_css` to dynamic loading via `assessment-loader.js` — zero CSS overhead on non-assessment pages
+- **document$ race condition**: Added `readyState` fallback so the loader works even if DOM is already ready when the script executes
+- **SRI hashes**: Added SHA-256 integrity attributes to Chart.js and SheetJS script loads; recorded hashes in `VENDOR-MANIFEST.md` with verification instructions and SheetJS versioning context
+- **Regulatory tab sorting**: Replaced substring-based regulation matching with exact match (now possible since institution type regulation names match parsed keys)
+
+### Fixed (AI Council Review — Round 2)
+
+- **SRI hashes base64 encoding** (CRITICAL): Converted SHA-256 integrity hashes from hex encoding (non-functional) to W3C-required base64 encoding — fixes Chart.js and SheetJS loading in production
+- **Progress bar ARIA** (CRITICAL): Added `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label` to the Phase 1 progress bar
+- **Answer button `aria-pressed`** (HIGH): All 284 answer buttons now toggle `aria-pressed` for screen reader state communication
+- **RAG button contrast** (HIGH): Changed amber and red selected button text from white to black for WCAG AA compliance
+- **Form label association** (HIGH): All form inputs and selects now have associated `<label>` via `htmlFor`/`id` pairing with `aria-describedby` for hints
+- **Collapsible pillar groups** (HIGH): Phase 1 pillar headers are now collapsible toggles — fully-answered pillars collapse by default; keyboard-accessible with `role="button"`, `aria-expanded`, and Enter/Space support
+- **Scoping object deep copy** (MEDIUM): Import sanitization now constructs a clean scoping object with only known keys and validated types — prevents prototype pollution via crafted JSON
+- **SheetJS duplicate script guard** (MEDIUM): Excel export checks for existing `<script>` element before appending to prevent duplicate loads on rapid clicks
+- **Zone exclusion false positives** (MEDIUM): Added manual override map (`ZONE_WEIGHT_OVERRIDES`) for 5 controls incorrectly excluded from Zone 1 scoring where only a sub-aspect was optional (e.g., "PIM not required" when standard roles/annual review still apply)
+- **Methodology documentation** (MEDIUM): Scoring Methodology section now explains that zone-specific scores exclude controls with optional/N/A zone requirements
+- **Notes toggle `aria-expanded`** (MEDIUM): Toggle button announces expanded/collapsed state with `aria-controls` linking to textarea
+- **Notes toggle touch target** (MEDIUM): Increased minimum height to 44px
+- **Progress live region** (MEDIUM): Added `aria-live="polite"` region that announces progress milestones (every 10%) to screen readers
+- **importSection validation** (LOW): Section imports now validate response structure and sanitize drilldown answers (only yes/no)
+- **getSavedList validation** (LOW): Validates localStorage saved list structure before returning (filters out invalid entries)
+- **CSV field sanitization** (LOW): All CSV fields now consistently pass through `csvField()` for formula injection prevention
+- **CSS cleanup on navigation** (LOW): Assessment CSS `<link>` element is now removed when navigating away from the assessment page
+
+---
+
 ## [1.2.52] — February 2026 (SSPM Coverage Remediation)
 
 ### Added

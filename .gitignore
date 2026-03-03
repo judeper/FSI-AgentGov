@@ -46,6 +46,9 @@ nul
 /build_*.txt
 /verify_*.txt
 
+# Generated assessment data (built by CI from control markdown)
+docs/javascripts/assessment-data.json
+
 # Ralph docs-loop artifacts
 .copilot-logs/
 .ralph-doc-worktrees/
