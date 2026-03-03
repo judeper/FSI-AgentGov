@@ -53,3 +53,7 @@ docs/javascripts/assessment-data.json
 # Ralph docs-loop artifacts
 .copilot-logs/
 .ralph-doc-worktrees/
+
+# GSD planning state (kept locally, not tracked)
+.planning/
+.codex/

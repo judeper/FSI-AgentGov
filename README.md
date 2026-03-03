@@ -407,15 +407,14 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
-> For detailed changes, see the full [Changelog](CHANGELOG.md). Older versions: [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x and earlier](CHANGELOG-v1.0.md)
+> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.2.x](CHANGELOG-v1.2.md) | [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x](CHANGELOG-v1.0.md)
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| [1.2.53](CHANGELOG.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
-| [1.2.51](CHANGELOG.md#1251--february-2026-uasd-review-remediation) | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | [@judeper](https://github.com/judeper) |
-| [1.2.49](CHANGELOG.md#1249--february-2026-five-solution-deep-dive-corrections) | Feb 2026 | Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes | [@judeper](https://github.com/judeper) |
-| [1.2.48](CHANGELOG.md#1248--february-2026-comprehensive-repository-review) | Feb 2026 | Comprehensive repository review — 12 GitHub issues resolved across both repos | [@judeper](https://github.com/judeper) |
-| [1.2.0](CHANGELOG.md#120--january-25-2026-platform-change-governance) | Jan 2026 | Four-pillar expansion (71 controls), 284 playbooks, companion solutions | [@judeper](https://github.com/judeper) |
+| [1.2.53](CHANGELOG-v1.2.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
+| [1.2.52](CHANGELOG-v1.2.md#1252--february-2026-sspm-coverage-remediation) | Feb 2026 | SSPM coverage remediation | [@judeper](https://github.com/judeper) |
+| [1.2.51](CHANGELOG-v1.2.md#1251--february-2026-uasd-review-remediation) | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | [@judeper](https://github.com/judeper) |
+| [1.2.0](CHANGELOG-v1.2.md#120--january-25-2026-platform-change-governance) | Jan 2026 | Four-pillar expansion (71 controls), 284 playbooks, companion solutions | [@judeper](https://github.com/judeper) |
 | [1.1.0](CHANGELOG-v1.1.md#11--january-2026) | Jan 2026 | Three-layer documentation architecture, 252 playbooks, framework layer | [@judeper](https://github.com/judeper) |
 | [1.0.0](CHANGELOG-v1.0.md#10--january-2026) | Jan 2026 | Evaluation gates, adversarial testing, multi-agent governance, RACI | [@judeper](https://github.com/judeper) |
 | [Beta](CHANGELOG-v1.0.md#beta--december-2025) | Dec 2025 | DSPM, bias testing, runtime protection, FINRA Notice 25-07 alignment | [@judeper](https://github.com/judeper) |
