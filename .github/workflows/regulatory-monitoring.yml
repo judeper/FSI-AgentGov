@@ -5,7 +5,7 @@ on:
     paths:
       - 'scripts/regulatory_monitor.py'
       - 'scripts/monitoring_shared.py'
-      - '.github/workflows/regulatory-monitor.yml'
+      - '.github/workflows/regulatory-monitoring.yml'
   schedule:
     # Run weekly on Mondays at 7:00 AM UTC
     - cron: '0 7 * * 1'
@@ -91,7 +91,7 @@ jobs:
             | **MEDIUM Priority** | ${{ steps.monitor.outputs.medium_items }} |
             | **NOISE** | ${{ steps.monitor.outputs.noise_items }} |
 
-            **Total New Items:** ${{ steps.monitor.outputs.critical_items + steps.monitor.outputs.high_items + steps.monitor.outputs.medium_items + steps.monitor.outputs.noise_items }}
+            **Total New Items:** CRITICAL: ${{ steps.monitor.outputs.critical_items }}, HIGH: ${{ steps.monitor.outputs.high_items }}, MEDIUM: ${{ steps.monitor.outputs.medium_items }}, NOISE: ${{ steps.monitor.outputs.noise_items }}
 
             ### Next Steps
 
@@ -136,7 +136,7 @@ jobs:
             The following regulatory changes may require updates to FSI-AgentGov controls or playbooks:
 
             <details>
-            <summary>View ${{ steps.monitor.outputs.critical_items + steps.monitor.outputs.high_items }} CRITICAL/HIGH priority items</summary>
+            <summary>View CRITICAL/HIGH priority items (${{ steps.monitor.outputs.critical_items }} critical, ${{ steps.monitor.outputs.high_items }} high)</summary>
 
             See the full change report: `${{ steps.monitor.outputs.report_file }}`
 
