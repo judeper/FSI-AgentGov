@@ -10,7 +10,7 @@ This document describes the AI-assisted review capability for the unified monito
 
 **Current State:** The unified monitoring system detects changes from Microsoft Learn documentation and regulatory sources (Federal Register, FINRA). AI-assisted review provides automated drafts for Learn changes and triage analysis for regulatory changes.
 
-**How It Works:** The `/review-learn-changes` Claude Code skill analyzes monitoring reports and either drafts specific documentation updates (Learn changes) or provides triage summaries (regulatory changes) for human review.
+**How It Works:** The `/review-learn-changes` skill analyzes monitoring reports and either drafts specific documentation updates (Learn changes) or provides triage summaries (regulatory changes) for human review. Available in both Claude Code (`.claude/skills/review-learn-changes.md`) and GitHub Copilot (`.github/prompts/review-learn-changes.prompt.md`).
 
 ---
 
@@ -175,7 +175,10 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 
 ### Phase 3: AI-Assisted Review Skill (Complete ✅)
 
-**Delivered:** `.claude/skills/review-learn-changes.md`
+**Delivered:**
+
+- Claude Code: `.claude/skills/review-learn-changes.md`
+- GitHub Copilot: `.github/prompts/review-learn-changes.prompt.md`
 
 **Workflow:**
 1. User invokes `/review-learn-changes` after monitoring PR created
@@ -308,6 +311,7 @@ All items are out of scope. No action needed.
 - **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Unified monitoring system overview
 - **Learn Monitor Guide:** [learn-monitor-guide.md](learn-monitor-guide.md) - Learn Monitor documentation
 - **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill
+- **Copilot Prompt:** `.github/prompts/review-learn-changes.prompt.md` - Copilot Chat equivalent
 - **Contributing Guide:** `CONTRIBUTING.md` - Language guidelines and safety rules
 
 ---
