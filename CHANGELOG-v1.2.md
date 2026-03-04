@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- **Site UX and branding overhaul**: Navigation tabs (7 top-level sections), shield-shaped AG logo and favicon, announcement bar with changelog link, GitHub repo link in header and footer, blue-grey/blue color scheme, dynamic shields.io version badge on homepage
+- **Homepage restructure**: Expanded context paragraph, framework structure moved above fold, disclaimer moved below fold, simplified Latest Updates section with changelog link
+- **Navigation restructure**: Downloads merged into Reference, Disclaimer moved to Reference, Agent 365 Architecture archived under Reference > Archive, duplicate "Overview" entries eliminated via `navigation.indexes`, Playbooks "Getting Started" renamed to "Implementation Phases"
 - **Interactive Governance Readiness Assessment** (`docs/assessment/index.md`): Client-side JavaScript assessment wizard embedded in the MkDocs site. Walks users through a two-phase assessment of all 71 controls and generates visual scorecards, gap analysis, and personalized remediation roadmaps.
   - **Smart scoping**: Configures assessment by institution type (broker-dealer, bank, adviser, dual-registered, insurance), governance zones, and adoption phase — all controls included but prioritized by profile
   - **Phase 1 control-level assessment**: Per-control Yes/Partial/No/N/A with auto-save, progress tracking, and notes
