@@ -115,7 +115,7 @@ For initial deployment and ongoing workbook modifications, assign:
 ### 2.2: Open Advanced Editor
 
 1. Click **+ New**
-2. Click the **Advanced Editor** icon (`</>`)
+2. Click the **Advanced Editor** icon (code view)
 3. Set **Template Type** to **Gallery Template**
 
 ### 2.3: Paste Workbook JSON
@@ -284,7 +284,7 @@ This workbook directly addresses a governance gap for organizations subject to s
 | AgentFilter dropdown empty | No production conversations recorded | Send a test message via Teams or SharePoint channel (not Copilot Studio test canvas) |
 | Parameter changes don't refresh | Browser caching or unsaved workbook | Refresh browser; verify workbook is saved (not in draft state) |
 | ARM deployment fails | Invalid `serializedData` escaping | Use manual import method (Step 2); verify JSON is properly escaped in ARM template |
-| Empty anomaly charts | Insufficient historical data (<14 days) | Allow 14+ days of telemetry accumulation for anomaly baseline calculation |
+| Empty anomaly charts | Insufficient historical data (fewer than 14 days) | Allow 14+ days of telemetry accumulation for anomaly baseline calculation |
 | Business Value shows $0 | `MinutesSaved` or `HourlyRate` set to 0 | Update parameter defaults in workbook settings (Step 2.5) |
 | Workbook Contributor can't save | Insufficient permissions on resource group | Assign Contributor on the resource group or scope Workbook Contributor to the workbooks resource type |
 

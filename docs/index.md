@@ -1,13 +1,22 @@
 # FSI Agent Governance Framework
 
-**Version:** 1.2.53 (March 2026)
+![Version](https://img.shields.io/github/v/release/judeper/FSI-AgentGov?label=version&color=blue)
+![Controls](https://img.shields.io/badge/controls-71-green)
+![Regulations](https://img.shields.io/badge/FINRA%20%7C%20SEC%20%7C%20SOX%20%7C%20GLBA-covered-orange)
 
-Comprehensive governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
-
-!!! warning "Disclaimer"
-    This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [Disclaimer](disclaimer.md) for full details.
+Microsoft 365 AI agents are being deployed across financial services organizations at scale. Without governance controls, these agents create unmanaged compliance exposure under FINRA, SEC, SOX, and GLBA. This framework provides 71 controls across four pillars to help organizations manage that risk.
 
 ---
+
+## Framework Structure
+
+The framework is organized into three layers:
+
+| Layer | Audience | Content |
+|-------|----------|---------|
+| **[Framework](framework/index.md)** | Executives, Compliance, Governance | Principles, zones, regulatory context |
+| **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 71 control requirements |
+| **[Playbooks](playbooks/index.md)** | Platform Teams, Operations | Step-by-step procedures |
 
 ## Quick Start by Role
 
@@ -49,18 +58,6 @@ Start here to understand what's needed for agent approval.
 
 ---
 
-## Framework Structure
-
-The framework is organized into three layers:
-
-| Layer | Audience | Content |
-|-------|----------|---------|
-| **[Framework](framework/index.md)** | Executives, Compliance, Governance | Principles, zones, regulatory context |
-| **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 71 control requirements |
-| **[Playbooks](playbooks/index.md)** | Platform Teams, Operations | Step-by-step procedures |
-
----
-
 ## Control Summary
 
 **71 controls** across four governance pillars:
@@ -80,8 +77,6 @@ The framework is organized into three layers:
 | [Zone 2: Team](framework/zones-and-tiers.md#zone-2) | Medium | Internal data | Manager |
 | [Zone 3: Enterprise](framework/zones-and-tiers.md#zone-3) | High | Regulated data | Governance Committee |
 
----
-
 ## Regulatory Coverage
 
 Controls map to major US financial regulations:
@@ -93,8 +88,6 @@ Controls map to major US financial regulations:
 - **OCC 2011-12 / SR 11-7** — Model risk management
 
 See [Regulatory Framework](framework/regulatory-framework.md) for complete mappings.
-
----
 
 ## Quick Links
 
@@ -112,41 +105,15 @@ See [Regulatory Framework](framework/regulatory-framework.md) for complete mappi
 - [FAQ](reference/faq.md)
 - [Administrator Templates](downloads/index.md)
 
+*[Star this repository](https://github.com/judeper/FSI-AgentGov) on GitHub and use **Watch > Releases** for update notifications.*
+
 ---
 
-## Stay Current
-
-- [Star this repository](https://github.com/judeper/FSI-AgentGov) on GitHub
-- Use **Watch > Releases** for update notifications
-- Share with your compliance team for review
+!!! warning "Disclaimer"
+    This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [Disclaimer](disclaimer.md) for full details.
 
 ---
 
 ## Latest Updates
 
-See [CHANGELOG](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) for version history.
-
-**v1.2.53 (March 2026):**
-
-- Interactive Governance Readiness Assessment tool covering all 71 controls
-- Assessment data extraction script for build-time metadata parsing
-- CHANGELOG split into versioned files for navigability
-- Git tags and GitHub Release for version traceability
-
-**v1.2 (February 2026):**
-
-- Expanded to four pillars with 71 controls (added Pillar 4: SharePoint)
-- Added 284 implementation playbooks (4 per control)
-- Introduced companion FSI-AgentGov-Solutions repository with 27 deployable solutions
-- Enhanced regulatory mappings and license requirements reference
-
-**v1.1 (January 2026):**
-
-- Restructured into three layers (Framework, Controls, Playbooks)
-- Added Executive Summary and Adoption Roadmap
-- Created role-based navigation
-- Enhanced examination readiness materials
-
----
-
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+See [CHANGELOG](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) for full version history.
