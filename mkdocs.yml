@@ -92,6 +92,7 @@ nav:
   - Home: index.md
 
   - Getting Started:
+    - Start Here: start-here.md
     - Quick Start: getting-started/quick-start.md
     - Implementation Checklist: getting-started/checklist.md
 
@@ -103,6 +104,7 @@ nav:
     - Governance Fundamentals: framework/governance-fundamentals.md
     - Zones and Tiers: framework/zones-and-tiers.md
     - Agent Lifecycle: framework/agent-lifecycle.md
+    - Relationship to FSI-CopilotGov: framework/relationship-to-copilotgov.md
     - Unified Agent Governance: framework/agent-identity-architecture.md
     - Regulatory Framework: framework/regulatory-framework.md
     - Operating Model: framework/operating-model.md

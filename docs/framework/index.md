@@ -21,7 +21,7 @@ The FSI Agent Governance Framework uses a three-layer documentation model to sep
 
 | Layer | Content | Update Frequency | Files |
 |-------|---------|------------------|-------|
-| **1. Framework** (this layer) | Governance principles, zones, lifecycle, regulatory context | 1-2x per year | 11 documents |
+| **1. Framework** (this layer) | Governance principles, zones, lifecycle, regulatory context | 1-2x per year | 12 documents |
 | **2. Control Catalog** | 71 technical control specifications across 4 pillars | Quarterly | 71 control files |
 | **3. Playbooks** | Step-by-step implementation procedures | Continuous (as Microsoft portals change) | 284 playbook files (4 per control) |
 
@@ -37,6 +37,7 @@ This separation ensures governance stability while allowing rapid updates to imp
 | [Governance Fundamentals](governance-fundamentals.md) | Core framework concepts and structure | All stakeholders |
 | [Zones and Tiers](zones-and-tiers.md) | Three-zone governance model | Governance committees |
 | [Agent Lifecycle](agent-lifecycle.md) | Lifecycle phases and governance requirements | Compliance, Operations |
+| [Relationship to FSI-CopilotGov](relationship-to-copilotgov.md) | Scope boundary with the companion Copilot framework | New users, program leads |
 | [Regulatory Framework](regulatory-framework.md) | US regulatory requirements and control mappings | Compliance, Legal |
 | [Operating Model](operating-model.md) | RACI, roles, governance structure | All stakeholders |
 | [Governance Cadence](governance-cadence.md) | Review schedules and audit readiness | Compliance, Audit |
@@ -78,6 +79,12 @@ The framework separates:
 1. Start with [Executive Summary](executive-summary.md)
 2. Review [Zones and Tiers](zones-and-tiers.md) for risk classification
 3. Understand [Operating Model](operating-model.md) for accountability
+
+**For New Users Comparing Frameworks:**
+
+1. Read [Relationship to FSI-CopilotGov](relationship-to-copilotgov.md) to confirm scope
+2. Review [Zones and Tiers](zones-and-tiers.md) for the AgentGov operating model
+3. Continue to [Executive Summary](executive-summary.md) for governance context
 
 **For Compliance Officers:**
 

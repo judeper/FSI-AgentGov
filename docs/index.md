@@ -4,7 +4,21 @@
 ![Controls](https://img.shields.io/badge/controls-71-green)
 ![Regulations](https://img.shields.io/badge/FINRA%20%7C%20SEC%20%7C%20SOX%20%7C%20GLBA-covered-orange)
 
-Microsoft 365 AI agents are being deployed across financial services organizations at scale. Without governance controls, these agents create unmanaged compliance exposure under FINRA, SEC, SOX, and GLBA. This framework provides 71 controls across four pillars to help organizations manage that risk.
+FSI-AgentGov helps US financial services organizations govern Microsoft 365 AI agents such as Copilot Studio agents, Agent Builder agents, and related custom agent deployments. It exists to turn agent governance questions—who can build, publish, connect, approve, monitor, and retire agents—into a practical framework, control catalog, and implementation playbooks.
+
+!!! tip "New to this framework?"
+    Start with [Start Here](start-here.md) for newcomer orientation. If you are deciding between this repo and the M365 Copilot framework, also read [Relationship to FSI-CopilotGov](framework/relationship-to-copilotgov.md).
+
+## Why This Framework Exists
+
+Custom agents create governance decisions that standard product setup guidance does not answer consistently. Teams still need to decide how agents are classified, which environments and connectors they may use, what approvals apply before production use, and what evidence should be retained for risk, oversight, audit, and examination review.
+
+This framework helps you:
+
+- classify agents into **Zone 1, Zone 2, or Zone 3**
+- identify which controls should be implemented before broader rollout
+- move from governance policy to technical implementation with linked playbooks
+- support a more defensible operating model for regulated deployments
 
 ---
 
@@ -17,6 +31,14 @@ The framework is organized into three layers:
 | **[Framework](framework/index.md)** | Executives, Compliance, Governance | Principles, zones, regulatory context |
 | **[Control Catalog](controls/index.md)** | Compliance Officers, Architects | 71 control requirements |
 | **[Playbooks](playbooks/index.md)** | Platform Teams, Operations | Step-by-step procedures |
+
+## Key Concepts for First-Time Users
+
+| Term | What it means |
+|------|---------------|
+| **Zone** | The risk classification for how broadly an agent is used and what data it can access |
+| **Control** | A governance requirement that tells you what should be in place |
+| **Playbook** | Step-by-step implementation, verification, or troubleshooting guidance |
 
 ## Quick Start by Role
 
@@ -93,6 +115,7 @@ See [Regulatory Framework](framework/regulatory-framework.md) for complete mappi
 
 **Getting Started:**
 
+- [Start Here](start-here.md) — New user orientation and scope guidance
 - [Governance Readiness Assessment](assessment/index.md) — Interactive tool to assess all 71 controls
 - [Quick Start Guide](getting-started/quick-start.md)
 - [Implementation Checklist](getting-started/checklist.md)
@@ -100,6 +123,7 @@ See [Regulatory Framework](framework/regulatory-framework.md) for complete mappi
 
 **Reference:**
 
+- [Relationship to FSI-CopilotGov](framework/relationship-to-copilotgov.md)
 - [Control Index](controls/index.md)
 - [Glossary](reference/glossary.md)
 - [FAQ](reference/faq.md)

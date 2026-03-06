@@ -5,19 +5,50 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/judeper/FSI-AgentGov?style=social)](https://github.com/judeper/FSI-AgentGov/stargazers)
 
-Comprehensive governance framework for Microsoft 365 AI agents in financial services organizations.
+**Governance framework for Microsoft 365 AI agents in US financial services.**
+
+> **New to this framework? [Start Here](docs/start-here.md)** — understand what FSI-AgentGov covers, why it exists, and where to begin.
 
 > ⚠️ **Scope:** This framework is designed exclusively for **US financial institutions** using **Microsoft 365 AI agents** (Copilot Studio, Agent Builder). Non-US regulations (EU AI Act, GDPR, DORA) and non-M365 AI platforms are out of scope.
 
 > **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](docs/disclaimer.md) for full details.
 
-## 📋 Overview
+## Why This Repository Exists
 
-This framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
+Financial institutions can build and publish agents faster than they can consistently govern who may create them, what data and connectors they can access, how they move from experimentation to production, and what evidence must be retained for risk and compliance review. Microsoft product documentation explains how to create agents; FSI-AgentGov explains how to govern them in a regulated operating model.
+
+This repository helps teams:
+
+- classify agents into governance zones before rollout
+- identify the foundational controls needed before broader adoption
+- implement technical and procedural controls with step-by-step playbooks
+- support risk, compliance, and operational review with a common reference point
 
 **Version:** 1.2.53 (March 2026)
-**Target Audience:** Financial Services Organizations (FSI)
+**Primary Audience:** AI governance leads, Power Platform Admins, compliance teams, security architects, internal audit, and business sponsors in US financial services
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
+
+## Who Should Use This Repository
+
+Use this repository if you are:
+
+- deploying or reviewing **Copilot Studio**, **Agent Builder**, or related Microsoft 365 AI agents
+- responsible for **managed environments, connector governance, lifecycle controls, or approval workflows**
+- preparing a more defensible governance approach for **regulated agent deployments** in financial services
+
+This is not the right starting point if you are:
+
+- governing **Microsoft 365 Copilot** in Word, Excel, PowerPoint, Outlook, Teams, Copilot Chat, or Copilot Pages — use **[FSI-CopilotGov](https://github.com/judeper/FSI-CopilotGov)**
+- looking for **end-user prompting tips** or general user adoption guidance
+- working outside **regulated US financial services**
+
+## Relationship to FSI-CopilotGov
+
+FSI-AgentGov and FSI-CopilotGov are complementary:
+
+- **FSI-AgentGov** focuses on agent creation, publishing, environments, connectors, lifecycle, and agent-specific governance controls.
+- **FSI-CopilotGov** focuses on Microsoft 365 Copilot experiences embedded across M365 applications.
+- **If your program includes both**, use both repositories. See [Relationship to FSI-CopilotGov](docs/framework/relationship-to-copilotgov.md) for scope boundaries and routing guidance.
 
 To stay current: **Star** this repository, use **Watch → Releases** for low-noise update notifications, and **share with your compliance team** as part of your review.
 
@@ -100,6 +131,8 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 
 ### Documentation Files
 - **README.md** - This file (overview)
+- **Start-Here.md** - [New user orientation](docs/start-here.md)
+- **Relationship-to-CopilotGov.md** - [Scope boundary with the companion framework](docs/framework/relationship-to-copilotgov.md)
 - **Zones-Overview.md** - [Detailed governance zones](docs/framework/zones-and-tiers.md)
 - **Regulatory-Mappings.md** - [Regulation-to-control mapping](docs/reference/regulatory-mappings.md)
 - **Quick-Start-Guide.md** - [How to use the framework](docs/getting-started/quick-start.md)
@@ -124,9 +157,10 @@ Deployable Power Platform solutions in the **[FSI-AgentGov-Solutions](https://gi
 ## 🚀 Quick Start
 
 ### For First-Time Users
-1. Read **[Quick Start Guide](docs/getting-started/quick-start.md)** (10 minutes)
-2. Review **[Zones Overview](docs/framework/zones-and-tiers.md)** to classify your agents (15 minutes)
-3. Check **[Regulatory Mappings](docs/reference/regulatory-mappings.md)** for your relevant regulations (10 minutes)
+1. Read **[Start Here](docs/start-here.md)** to understand why the framework exists and when to use it
+2. Review **[Zones Overview](docs/framework/zones-and-tiers.md)** to classify your agents
+3. Use the **[Quick Start Guide](docs/getting-started/quick-start.md)** for the initial implementation path
+4. If needed, compare scope with **[FSI-CopilotGov](docs/framework/relationship-to-copilotgov.md)**
 
 ### For Implementation
 1. Use **[Implementation Checklist](docs/getting-started/checklist.md)** for step-by-step guidance
