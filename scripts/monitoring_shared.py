@@ -391,36 +391,44 @@ def load_state(state_path) -> dict:
     # Ensure Path object
     state_path = Path(state_path) if not isinstance(state_path, Path) else state_path
 
-    # Check for old format and migrate
-    old_state_path = state_path.parent / "learn-monitor-state.json"
-    if not state_path.exists() and old_state_path.exists():
-        print(f"Migrating old state file from {old_state_path} to unified format...")
-        try:
-            old_state = json.loads(old_state_path.read_text(encoding='utf-8'))
-            # Migrate to unified format
-            unified_state = {
-                "version": 1,
-                "sources": {
-                    "learn": old_state  # Preserve entire old state under "learn" key
-                }
-            }
-            return unified_state
-        except json.JSONDecodeError:
-            print("WARNING: Old state file corrupt, starting fresh")
-
-    # Load unified format
+    # Load unified format first (if it exists)
+    state = None
     if state_path.exists():
         try:
             state = json.loads(state_path.read_text(encoding='utf-8'))
-            # Ensure version field exists
             if "version" not in state:
                 state["version"] = 1
-            # Ensure sources field exists
             if "sources" not in state:
                 state["sources"] = {}
-            return state
         except json.JSONDecodeError:
-            print("WARNING: State file corrupt, starting fresh")
+            print("WARNING: State file corrupt, will attempt migration or start fresh")
+            state = None
+
+    # Check for old format and migrate if unified state is missing or empty
+    old_state_path = state_path.parent / "learn-monitor-state.json"
+    needs_migration = (
+        old_state_path.exists()
+        and (state is None or not state.get("sources", {}).get("learn"))
+    )
+    if needs_migration:
+        print(f"Migrating old state file from {old_state_path} to unified format...")
+        try:
+            old_state = json.loads(old_state_path.read_text(encoding='utf-8'))
+            if old_state.get("urls") or old_state.get("last_run"):
+                if state is None:
+                    state = {"version": 1, "sources": {}}
+                state["sources"]["learn"] = old_state
+                # Persist the migrated state and back up the old file
+                save_state_atomic(state, state_path)
+                backup_path = old_state_path.with_suffix('.json.migrated')
+                old_state_path.rename(backup_path)
+                print(f"Migration complete. Old file backed up to {backup_path.name}")
+                return state
+        except json.JSONDecodeError:
+            print("WARNING: Old state file corrupt, starting fresh")
+
+    if state is not None:
+        return state
 
     # Return empty unified state
     return {
