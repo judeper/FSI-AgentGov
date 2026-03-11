@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4
+          pip install requests beautifulsoup4 pyyaml
 
       - name: Run Regulatory Monitor
         id: monitor
