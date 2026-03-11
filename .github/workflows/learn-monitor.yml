@@ -43,8 +43,11 @@ jobs:
           fi
 
           # Run the monitor and capture exit code
+          # Disable set -e so exit code 1 (changes detected) doesn't abort the script
+          set +e
           python scripts/learn_monitor.py
           EXIT_CODE=$?
+          set -e
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
           # If changes were detected, extract summary stats from the report
