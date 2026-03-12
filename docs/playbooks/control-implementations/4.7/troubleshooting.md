@@ -8,7 +8,7 @@
 
 ### Issue: Copilot Returning Content from Excluded Site
 
-**Symptoms:** User sees content from site with RCD enabled
+**Symptoms:** User sees content from site with Restricted Content Discovery (RCD) enabled
 
 **Resolution:**
 
