@@ -118,4 +118,12 @@
 
 ---
 
+## Related Playbooks
+
+- [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration
+- [PowerShell Setup](./powershell-setup.md) - Automation scripts
+- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+
+---
+
 *Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*

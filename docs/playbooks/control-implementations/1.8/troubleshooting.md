@@ -356,4 +356,12 @@ For Native Microsoft Defender Integration issues:
 
 ---
 
+## Related Playbooks
+
+- [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration
+- [PowerShell Setup](./powershell-setup.md) - Automation scripts
+- [Verification & Testing](./verification-testing.md) - Test procedures
+
+---
+
 *Updated: February 2026 | Version: v1.3*
