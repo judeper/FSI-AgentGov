@@ -45,11 +45,11 @@
 
 **Portal Path:** Insider risk management > Policies > + Create policy
 
-### Policy 1: Data Theft by Departing Users
+### Policy 1: Data Theft from Microsoft 365 Apps by Users Leaving Your Organization
 
 1. Click **+ Create policy**
-2. **Template:** Data theft by departing users
-3. **Policy name:** `FSI-DepartingUser-DataTheft`
+2. **Template:** Data theft from Microsoft 365 apps by users leaving your organization
+3. **Policy name:** `FSI-DepartingUser-DataTheft-M365`
 4. **Users and groups:** All users or Priority user groups
 5. **Priority content:**
    - SharePoint sites (sensitive sites)
@@ -63,6 +63,16 @@
    - Printing documents
    - Copying to USB
 8. Click **Create policy**
+
+### Policy 1b: Data Theft from Non-Microsoft 365 Apps (Preview)
+
+1. Click **+ Create policy**
+2. **Template:** Data theft from non-Microsoft 365 apps by users leaving your organization
+3. **Policy name:** `FSI-DepartingUser-DataTheft-NonM365`
+4. **Users and groups:** All users or Priority user groups
+5. **Triggering event:** HR connector (resignation date) or Microsoft Entra ID deletion
+6. **Note:** This template (preview) covers non-Microsoft 365 cloud apps including Microsoft Fabric. Configure alongside Policy 1 for comprehensive departing-user coverage
+7. Click **Create policy**
 
 ### Policy 2: Data Leaks (General)
 
