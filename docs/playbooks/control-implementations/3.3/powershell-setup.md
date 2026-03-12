@@ -325,11 +325,7 @@ New-ExaminationPackage -Regulator "FINRA" -OutputFolder ".\FINRA_Exam_Package"
 
 ---
 
-## Next Steps
-
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+[Back to Control 3.3](../../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

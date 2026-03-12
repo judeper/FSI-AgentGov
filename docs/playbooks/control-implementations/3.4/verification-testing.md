@@ -114,11 +114,7 @@ For regulatory examinations, collect:
 
 ---
 
-## Next Steps
-
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Troubleshooting](./troubleshooting.md) - Common issues
+[Back to Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

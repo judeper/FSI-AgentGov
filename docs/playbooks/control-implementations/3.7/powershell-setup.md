@@ -286,11 +286,7 @@ catch {
 
 ---
 
-## Next Steps
-
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+[Back to Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

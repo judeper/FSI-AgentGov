@@ -6,10 +6,10 @@
 
 ## Prerequisites
 
-- Entra Security Admin or Purview Compliance Admin role
-- SharePoint Site Owner permissions for incident tracking
-- Power Automate license for workflow automation
-- Microsoft Sentinel workspace (for Level 4 implementations)
+- [ ] Entra Security Admin or Purview Compliance Admin role
+- [ ] SharePoint Site Owner permissions for incident tracking
+- [ ] Power Automate license for workflow automation
+- [ ] Microsoft Sentinel workspace (for Level 4 implementations)
 
 ---
 

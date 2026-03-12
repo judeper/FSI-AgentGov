@@ -92,14 +92,6 @@ For audits, collect:
 
 ---
 
-## Next Steps
-
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Troubleshooting](./troubleshooting.md) - Common issues
-
----
-
 ## SSPM Configuration Verification
 
 !!! abstract "Security Posture Assessment Test Cases"
@@ -184,6 +176,10 @@ For audits, collect:
 3. Verify "Enforce content security policy" is enabled
 4. **Pass criteria:** CSP enforcement toggle is enabled for model-driven apps
 5. **Evidence:** Screenshot of the Content Security Policy configuration
+
+---
+
+[Back to Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 

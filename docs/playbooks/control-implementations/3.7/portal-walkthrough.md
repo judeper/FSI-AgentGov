@@ -6,9 +6,9 @@
 
 ## Prerequisites
 
-- Power Platform Admin role
-- Entra Security Admin role for Defender integration
-- Power BI Pro license for advanced reporting
+- [ ] Power Platform Admin role
+- [ ] Entra Security Admin role for Defender integration
+- [ ] Power BI Pro license for advanced reporting
 
 ---
 

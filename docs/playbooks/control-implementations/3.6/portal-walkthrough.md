@@ -6,10 +6,10 @@
 
 ## Prerequisites
 
-- Power Platform Admin role
-- SharePoint Admin role (for SharePoint agents)
-- M365 Admin role (for Integrated Apps)
-- Power Automate license for automated workflows
+- [ ] Power Platform Admin role
+- [ ] SharePoint Admin role (for SharePoint agents)
+- [ ] M365 Admin role (for Integrated Apps)
+- [ ] Power Automate license for automated workflows
 
 ---
 

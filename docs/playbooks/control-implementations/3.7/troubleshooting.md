@@ -84,11 +84,7 @@ Get-AdminPowerAppEnvironment | Select-Object DisplayName, @{N='IsManaged';E={$_.
 
 ---
 
-## Next Steps
-
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
+[Back to Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
 
 ---
 

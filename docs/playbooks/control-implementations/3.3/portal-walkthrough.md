@@ -6,10 +6,10 @@
 
 ## Prerequisites
 
-- Purview Compliance Admin role in Microsoft Purview
-- SharePoint Site Owner permissions for report archiving
-- Power BI Pro or Premium license for dashboards
-- Power Automate license for automated workflows
+- [ ] Purview Compliance Admin role in Microsoft Purview
+- [ ] SharePoint Site Owner permissions for report archiving
+- [ ] Power BI Pro or Premium license for dashboards
+- [ ] Power Automate license for automated workflows
 
 ---
 
