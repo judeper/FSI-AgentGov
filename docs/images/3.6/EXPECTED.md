@@ -1,6 +1,6 @@
-# Control 3.6: Orphaned Agent Detection and Remediation
+# Control 3.6: Orphaned Agent Detection and Remediation - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-ppac-usage-analytics.png` | PPAC | Analytics → Usage | Inactive agent detection |
 | `07-sharepoint-remediation-log.png` | SharePoint | Remediation log | Remediation records |
 
-## Verification Focus
+## Notes for Verification
 
 - Detection flow runs on schedule
 - Orphaned agents are identified
 - Notification triggers on owner departure
 - Remediation is tracked
+
+---
+
+[Back to Control 3.6](../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)

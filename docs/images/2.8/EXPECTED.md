@@ -1,6 +1,6 @@
-# Control 2.8: Access Control and Segregation of Duties
+# Control 2.8: Access Control and Segregation of Duties - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-ppac-security-roles.png` | PPAC | Environment → Security roles | Role assignments |
 | `08-ppac-sod-validation.png` | PPAC | Users → Permissions | SoD conflict check |
 
-## Verification Focus
+## Notes for Verification
 
 - SoD conflicts are identified and documented
 - PIM is used for privileged access
 - Access reviews are scheduled and completed
 - Security roles enforce separation
+
+---
+
+[Back to Control 2.8](../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)

@@ -1,6 +1,6 @@
-# Control 4.2: Site Access Reviews and Certification
+# Control 4.2: Site Access Reviews and Certification - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-entra-review-create.png` | Entra | Access reviews → Create | Review creation |
 | `08-entra-review-results.png` | Entra | Access review → Results | Review decisions |
 
-## Verification Focus
+## Notes for Verification
 
 - Attestation policies are configured
 - Site owners receive attestation requests
 - Access reviews cover SharePoint groups
 - Inactive sites are identified
+
+---
+
+[Back to Control 4.2](../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md)

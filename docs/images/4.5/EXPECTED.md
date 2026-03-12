@@ -1,6 +1,6 @@
-# Control 4.5: SharePoint Security and Compliance Monitoring
+# Control 4.5: SharePoint Security and Compliance Monitoring - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-purview-audit-search.png` | Purview | Audit → Search | Audit search interface |
 | `08-purview-alert-policies.png` | Purview | Alert policies | SharePoint alert policies |
 
-## Verification Focus
+## Notes for Verification
 
 - Agent insights shows agent activity
 - Data governance reports are populated
 - Audit logging captures SharePoint events
 - Alert policies trigger on anomalies
+
+---
+
+[Back to Control 4.5](../../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md)

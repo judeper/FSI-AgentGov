@@ -1,6 +1,6 @@
-# Control 4.3: Site and Document Retention Management
+# Control 4.3: Site and Document Retention Management - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-purview-policy-sharepoint.png` | Purview | Policy → Locations → SharePoint | SharePoint scope |
 | `08-purview-disposition.png` | Purview | Disposition | Disposition queue |
 
-## Verification Focus
+## Notes for Verification
 
 - Lifecycle policies address inactive sites
 - Retention labels meet FSI requirements (6-7 years)
 - Policies cover SharePoint locations
 - Disposition review is configured
+
+---
+
+[Back to Control 4.3](../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md)

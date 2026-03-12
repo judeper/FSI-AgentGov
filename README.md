@@ -255,7 +255,7 @@ The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions
 
 Each control in this framework follows a consistent documentation structure.
 
-This repo is actively being expanded to include **how-to configure** guidance (step-by-step portal paths, optional automation, and evidence-grade verification).
+Each control includes linked **implementation playbooks** with step-by-step portal walkthroughs, PowerShell automation, verification testing, and troubleshooting.
 
 Use this workflow for implementing controls:
 

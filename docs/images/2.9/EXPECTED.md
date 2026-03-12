@@ -1,6 +1,6 @@
-# Control 2.9: Agent Performance Monitoring and Optimization
+# Control 2.9: Agent Performance Monitoring and Optimization - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-ppac-capacity.png` | PPAC | Resources → Capacity | Capacity usage |
 | `07-appinsights-dashboard.png` | Azure | Application Insights | Custom telemetry dashboard |
 
-## Verification Focus
+## Notes for Verification
 
 - Analytics show agent performance trends
 - Session data is being captured
 - CSAT tracking is enabled
 - Capacity usage is within limits
+
+---
+
+[Back to Control 2.9](../../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md)

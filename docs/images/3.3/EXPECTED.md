@@ -1,6 +1,6 @@
-# Control 3.3: Compliance and Regulatory Reporting
+# Control 3.3: Compliance and Regulatory Reporting - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-powerbi-compliance-dashboard.png` | Power BI | Compliance dashboard | Visual reporting |
 | `07-sharepoint-reg-calendar.png` | SharePoint | Regulatory calendar | Reporting schedule |
 
-## Verification Focus
+## Notes for Verification
 
 - Compliance score is tracked
 - Assessments cover AI/agent controls
 - Reports are generated and archived
 - Regulatory calendar is maintained
+
+---
+
+[Back to Control 3.3](../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)

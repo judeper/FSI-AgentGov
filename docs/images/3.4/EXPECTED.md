@@ -1,6 +1,6 @@
-# Control 3.4: Incident Reporting and Root Cause Analysis
+# Control 3.4: Incident Reporting and Root Cause Analysis - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-azure-sentinel-incidents.png` | Azure | Sentinel → Incidents | Security incidents |
 | `07-azure-sentinel-investigation.png` | Azure | Sentinel → Investigation | Investigation graph |
 
-## Verification Focus
+## Notes for Verification
 
 - Incident intake process works
 - RCA is performed for significant incidents
 - Escalation triggers appropriately
 - Sentinel integration captures security incidents
+
+---
+
+[Back to Control 3.4](../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
