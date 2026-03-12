@@ -288,4 +288,12 @@ finally {
 
 ---
 
+## Related Playbooks
+
+- [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration
+- [Verification & Testing](./verification-testing.md) - Test procedures
+- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+
+---
+
 *Updated: January 2026 | Version: v1.2*
