@@ -92,34 +92,73 @@ Copilot Studio, Agent Builder, and custom agent deployments.
 
 ## Framework Architecture
 
-```mermaid
-graph TB
-    subgraph Zones ["Governance Zones"]
-        direction LR
-        Z1["Zone 1: Personal\nLow Risk · Self-Service"]
-        Z2["Zone 2: Team\nMedium Risk · Manager Approval"]
-        Z3["Zone 3: Enterprise\nHigh Risk · Committee Approval"]
-    end
-
-    subgraph Pillars ["71 Controls across 4 Pillars"]
-        direction LR
-        P1["Security\n28 Controls"]
-        P2["Management\n24 Controls"]
-        P3["Reporting\n12 Controls"]
-        P4["SharePoint\n7 Controls"]
-    end
-
-    subgraph Regs ["Regulatory Coverage"]
-        direction LR
-        R1["FINRA\n4511/3110"]
-        R2["SEC\n17a-3/4"]
-        R3["SOX\n302/404"]
-        R4["GLBA\n501b"]
-        R5["OCC\n2011-12"]
-    end
-
-    Zones --> Pillars --> Regs
-```
+<div class="arch-diagram" markdown>
+<div class="arch-layer">
+<div class="arch-label">Governance Zones</div>
+<div class="arch-row">
+<div class="arch-card arch-zone">
+<strong>Zone 1: Personal</strong>
+Low Risk · Self-Service
+</div>
+<div class="arch-card arch-zone">
+<strong>Zone 2: Team</strong>
+Medium Risk · Manager Approval
+</div>
+<div class="arch-card arch-zone">
+<strong>Zone 3: Enterprise</strong>
+High Risk · Committee Approval
+</div>
+</div>
+</div>
+<div class="arch-arrow">▼</div>
+<div class="arch-layer">
+<div class="arch-label">71 Controls across 4 Pillars</div>
+<div class="arch-row">
+<div class="arch-card arch-pillar">
+<strong>Security</strong>
+28 Controls
+</div>
+<div class="arch-card arch-pillar">
+<strong>Management</strong>
+24 Controls
+</div>
+<div class="arch-card arch-pillar">
+<strong>Reporting</strong>
+12 Controls
+</div>
+<div class="arch-card arch-pillar">
+<strong>SharePoint</strong>
+7 Controls
+</div>
+</div>
+</div>
+<div class="arch-arrow">▼</div>
+<div class="arch-layer">
+<div class="arch-label">Regulatory Coverage</div>
+<div class="arch-row">
+<div class="arch-card arch-reg">
+<strong>FINRA</strong>
+4511/3110
+</div>
+<div class="arch-card arch-reg">
+<strong>SEC</strong>
+17a-3/4
+</div>
+<div class="arch-card arch-reg">
+<strong>SOX</strong>
+302/404
+</div>
+<div class="arch-card arch-reg">
+<strong>GLBA</strong>
+501(b)
+</div>
+<div class="arch-card arch-reg">
+<strong>OCC</strong>
+2011-12
+</div>
+</div>
+</div>
+</div>
 
 ---
 

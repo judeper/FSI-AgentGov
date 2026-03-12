@@ -99,6 +99,54 @@
   font-size: 0.9rem;
 }
 
+/* ── Architecture diagram ── */
+.arch-diagram {
+  max-width: 720px;
+  margin: 1.5rem auto 2rem;
+}
+.arch-layer {
+  background: var(--brand-surface);
+  border-radius: 8px;
+  padding: 1rem 1rem 1.25rem;
+  text-align: center;
+}
+.arch-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brand-subtle);
+  margin-bottom: 0.75rem;
+}
+.arch-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.arch-card {
+  min-width: 120px;
+  flex: 1 1 120px;
+  max-width: 160px;
+  padding: 0.75rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  text-align: center;
+  color: #fff;
+}
+.arch-card strong { display: block; margin-bottom: 0.15rem; }
+.arch-zone   { background: var(--brand-primary); }
+.arch-pillar { background: var(--brand-accent); }
+.arch-reg    { background: var(--brand-primary-dark); }
+.arch-arrow {
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0.4rem 0;
+  color: var(--brand-subtle);
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .hero { padding: 2.5rem 1rem; }
@@ -106,6 +154,7 @@
   .hero p { font-size: 1rem; }
   .metrics-strip { flex-wrap: wrap; gap: 1.5rem; }
   .metric-number { font-size: 2rem; }
+  .arch-card { min-width: 80px; max-width: 140px; font-size: 0.8rem; }
 }
 
 /* Print-friendly checkboxes */
