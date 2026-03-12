@@ -1,4 +1,4 @@
-# Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels - Portal Walkthrough
+# Portal Walkthrough: Control 1.5 - Data Loss Prevention (DLP) and Sensitivity Labels
 
 **Last Updated:** March 2026
 **Portal:** Microsoft Purview, Power Platform Admin Center
@@ -351,7 +351,7 @@ DLP policies can control which publishing channels Copilot Studio agents can use
 
 ### Customer Data Protection
 
-```
+```text
 Policy: Protect Customer PII in AI
 Locations: M365 Copilot, Copilot Studio
 Conditions:
@@ -364,7 +364,7 @@ Actions:
 
 ### Financial Data Protection
 
-```
+```text
 Policy: Block Financial Data in AI Responses
 Locations: Copilot Studio agents
 Conditions:
