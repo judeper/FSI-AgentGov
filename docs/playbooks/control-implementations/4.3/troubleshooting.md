@@ -39,9 +39,10 @@ Get-RetentionCompliancePolicy | Where-Object { $_.DistributionStatus -ne "Succes
 Get-RetentionComplianceRule -Policy "PolicyName" |
     Select-Object Name, RetentionDuration, RetentionComplianceAction, ExpirationDateOption
 
-# Verify label publication
+# Verify label publishing policy (use only for policies created with label publishing)
+# For standard retention policies, check Enabled, Mode, and DistributionStatus instead
 Get-RetentionCompliancePolicy -Identity "LabelPolicyName" |
-    Select-Object Name, Enabled, PublishComplianceTag
+    Select-Object Name, Enabled, Mode, DistributionStatus
 ```
 
 ### Check Site Coverage

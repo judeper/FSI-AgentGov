@@ -151,8 +151,19 @@ $complianceReport | ConvertTo-Json |
     Out-File "SharePoint-Compliance-Summary-$(Get-Date -Format 'yyyy-MM-dd').json"
 
 # Create audit event summary for regulators
-$auditSummary = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-90) -EndDate (Get-Date) `
-    -RecordType SharePoint -ResultSize 5000 |
+# Use session-based pagination to avoid 5,000-record truncation (see warning above)
+$sessionId = [guid]::NewGuid().ToString()
+$allAuditResults = @()
+$startDate90 = (Get-Date).AddDays(-90)
+$endDate90 = Get-Date
+do {
+    $batch = Search-UnifiedAuditLog -StartDate $startDate90 -EndDate $endDate90 `
+        -RecordType SharePoint -SessionId $sessionId `
+        -SessionCommand ReturnLargeSet -ResultSize 5000
+    $allAuditResults += $batch
+} while ($batch.Count -eq 5000)
+
+$auditSummary = $allAuditResults |
     Group-Object Operations |
     Select-Object Name, Count |
     Sort-Object Count -Descending

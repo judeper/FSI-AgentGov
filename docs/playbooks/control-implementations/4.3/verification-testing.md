@@ -73,9 +73,9 @@ Get-RetentionCompliancePolicy -Identity "FSI-Agent-Knowledge-Retention-7Years" |
 Get-RetentionComplianceRule -Policy "FSI-Agent-Knowledge-Retention-7Years" |
     Select-Object Name, RetentionDuration, RetentionComplianceAction
 
-# Verify label publication status
+# Verify retention policy status
 Get-RetentionCompliancePolicy -Identity "FSI-Retention-Labels-Policy" |
-    Select-Object Name, Enabled, PublishComplianceTag
+    Select-Object Name, Enabled, Mode, DistributionStatus
 
 # Check for policy distribution errors
 Get-RetentionCompliancePolicy | Where-Object { $_.DistributionStatus -ne "Success" } |

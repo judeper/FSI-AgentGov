@@ -30,8 +30,10 @@ Identify retention requirements for your organization:
 |------------|-----------------|--------------|
 | FINRA 4511 | 6 years | Books and records |
 | SEC 17a-3/4 | 3–6 years | Communications (3y), financial records (6y) |
-| SOX 404 | 7 years | Financial records |
-| GLBA | 5-7 years | Customer information |
+| SOX 802 | 7 years | Financial records |
+| GLBA | 5–7 years (industry practice) | Customer information |
+
+> **Note:** GLBA Section 501(b) does not prescribe a specific retention period. The 5–7 year range reflects common industry practice; verify your organization's obligations independently.
 
 ---
 
