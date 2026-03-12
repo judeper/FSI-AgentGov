@@ -6,10 +6,10 @@
 
 ## Prerequisites
 
-- Power Platform Admin role
-- Entra Global Admin role (for Copilot billing)
-- Azure Subscription Owner role (for Azure-based services)
-- Cost Management Reader role
+- [ ] Power Platform Admin role
+- [ ] Entra Global Admin role (for Copilot billing)
+- [ ] Azure Subscription Owner role (for Azure-based services)
+- [ ] Cost Management Reader role
 
 ---
 
