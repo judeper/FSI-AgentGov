@@ -1,3 +1,113 @@
+/* ── Brand color tokens (FSI-optimized Microsoft palette) ── */
+:root {
+  --brand-primary:      #0078D4;
+  --brand-primary-dark: #005A9E;
+  --brand-accent:       #007A7E;
+  --brand-accent-vivid: #00B7C3;
+  --brand-surface:      #F3F2F1;
+  --brand-text:         #201F1E;
+  --brand-subtle:       #605E5C;
+}
+
+/* ── Light mode Material overrides ── */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        var(--brand-primary);
+  --md-primary-fg-color--light: #2B88D8;
+  --md-primary-fg-color--dark:  var(--brand-primary-dark);
+  --md-accent-fg-color:         var(--brand-accent);
+  --md-default-bg-color:        #FFFFFF;
+}
+
+/* ── Dark mode Material overrides ── */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #429CE3;
+  --md-accent-fg-color:         #3DD6E0;
+  --md-default-bg-color:        #1B1A19;
+  --brand-primary:              #429CE3;
+  --brand-primary-dark:         #005A9E;
+  --brand-accent:               #3DD6E0;
+  --brand-surface:              #2D2C2B;
+  --brand-text:                 #F3F2F1;
+  --brand-subtle:               #A19F9D;
+}
+
+/* ── Hero section ── */
+.hero {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+  color: #fff;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+.hero p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  max-width: 600px;
+  margin: 0.75rem auto 1.5rem;
+}
+[data-md-color-scheme="slate"] .hero {
+  background: linear-gradient(135deg, #005A9E 0%, #003A70 100%);
+}
+
+/* ── Hero button overrides (scoped) ── */
+.hero .md-button--primary {
+  background-color: #fff !important;
+  color: var(--brand-primary) !important;
+  border-color: transparent !important;
+  font-weight: 600;
+}
+.hero .md-button--primary:hover {
+  background-color: var(--brand-surface) !important;
+}
+.hero .md-button:not(.md-button--primary) {
+  border-color: rgba(255,255,255,0.6) !important;
+  color: #fff !important;
+}
+
+/* ── Metrics strip ── */
+.metrics-strip {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem 1rem;
+  background: var(--brand-surface);
+  border-radius: 8px;
+  margin: 0 0 0.5rem;
+}
+.metric { text-align: center; }
+.metric-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+.metric-label {
+  font-size: 0.9rem;
+  color: var(--brand-subtle);
+}
+.metrics-regulations {
+  text-align: center;
+  color: var(--brand-subtle);
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { padding: 2.5rem 1rem; }
+  .hero h1 { font-size: 1.75rem; }
+  .hero p { font-size: 1rem; }
+  .metrics-strip { flex-wrap: wrap; gap: 1.5rem; }
+  .metric-number { font-size: 2rem; }
+}
+
 /* Print-friendly checkboxes */
 @media print {
   .task-list-item input[type="checkbox"] {
