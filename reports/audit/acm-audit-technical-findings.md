@@ -2,7 +2,7 @@
 
 **Audit Date:** 2026-02-16
 **Solution:** Audit Compliance Manager (ACM) v1.0.0
-**Scope:** 30 scripts (23 PS1 + 1 PSD1 + 7 PY) across `audit-compliance-manager/` in FSI-AgentGov-Solutions
+**Scope:** 31 files (23 PS1 + 1 PSD1 + 7 PY) across `audit-compliance-manager/` in FSI-AgentGov-Solutions
 
 ---
 
@@ -26,7 +26,7 @@ Every script in the ACM solution is affected by inconsistent PS version declarat
 
 ## Systemic Issue #2: Export-ModuleMember in .ps1 Files
 
-5 files in `scripts/private/` use `Export-ModuleMember` which only works in `.psm1` files. In `.ps1` files, this either does nothing (when run directly) or throws a terminating error (when dot-sourced):
+7 files in `scripts/private/` use `Export-ModuleMember` which only works in `.psm1` files. In `.ps1` files, this either does nothing (when run directly) or throws a terminating error (when dot-sourced):
 
 - `Connect-PowerPlatform.ps1`
 - `Connect-AuditServices.ps1`
@@ -108,7 +108,7 @@ Only `Get-ValidationResults.ps1` implements `@odata.nextLink` pagination. These 
 
 ---
 
-## Batch C: Remediation & Evidence (20 findings: 0 P0, 8 P1, 12 P2)
+## Batch C: Remediation & Evidence (19 findings: 0 P0, 7 P1, 12 P2)
 
 ### P1
 
@@ -121,7 +121,6 @@ Only `Get-ValidationResults.ps1` implements `@odata.nextLink` pagination. These 
 | C-5 | Write-ValidationResult.ps1 | Record ID extraction from `@odata.context` is incorrect — should use response property | Use `$response.fsi_auditvalidationhistoryid` |
 | C-6 | New-CanaryEvent.ps1 | `Set-Mailbox -CustomAttribute15 $null` throws — canary value never cleaned up for empty attributes | Use empty string `""` |
 | C-7 | Enable-AuditLogging.ps1 | `ShouldProcess` bypass in helper function — WhatIf protection fragile if called directly | Add `CmdletBinding(SupportsShouldProcess)` to helper |
-| C-8 | AuditComplianceHelpers.psm1 | Non-atomic upsert (GET-then-PATCH) race condition with concurrent runbooks | Use Dataverse native upsert with alternate key |
 
 ---
 

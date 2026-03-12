@@ -83,10 +83,10 @@
 **Classification:** Meaningful (UI element names)
 
 **Affected Controls:**
-- Control 2.6: Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7) (`controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`)
-- Control 2.9: Control 2.9: Agent Performance Monitoring and Optimization (`controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md`)
-- Control 3.10: Control 3.10: Hallucination Feedback Loop (`controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md`)
-- Control 3.2: Control 3.2: Usage Analytics and Activity Monitoring (`controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md`)
+- Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7) (`controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`)
+- Control 2.9: Agent Performance Monitoring and Optimization (`controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md`)
+- Control 3.10: Hallucination Feedback Loop (`controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md`)
+- Control 3.2: Usage Analytics and Activity Monitoring (`controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md`)
 
 **What Changed:**
 ```diff
@@ -161,7 +161,7 @@
 **Classification:** Meaningful (Configuration instructions)
 
 **Affected Controls:**
-- Control 2.17: Control 2.17: Multi-Agent Orchestration Limits (`controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md`)
+- Control 2.17: Multi-Agent Orchestration Limits (`controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md`)
 
 **What Changed:**
 ```diff
@@ -203,7 +203,7 @@
 - `playbooks/control-implementations/2.7/troubleshooting.md` 
 
 **Affected Controls:**
-- Control 2.10: Control 2.10: Patch Management and System Updates (`controls/pillar-2-management/2.10-patch-management-and-system-updates.md`)
+- Control 2.10: Patch Management and System Updates (`controls/pillar-2-management/2.10-patch-management-and-system-updates.md`)
 
 **What Changed:**
 ```diff
@@ -227,8 +227,8 @@
 **Classification:** Meaningful (UI element names)
 
 **Affected Controls:**
-- Control 1.1: Control 1.1: Restrict Agent Publishing by Authorization (`controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`)
-- Control 3.8: Control 3.8: Copilot Hub and Governance Dashboard (`controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md`)
+- Control 1.1: Restrict Agent Publishing by Authorization (`controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`)
+- Control 3.8: Copilot Hub and Governance Dashboard (`controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md`)
 
 **What Changed:**
 ```diff
@@ -284,13 +284,13 @@
 **Classification:** Meaningful (UI element names)
 
 **Affected Controls:**
-- Control 1.5: Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels (`controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md`)
-- Control 1.1: Control 1.1: Restrict Agent Publishing by Authorization (`controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`)
-- Control 1.6: Control 1.6: Microsoft Purview DSPM for AI (`controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md`)
-- Control 1.11: Control 1.11: Conditional Access and Phishing-Resistant MFA (`controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md`)
-- Control 3.5: Control 3.5: Cost Allocation and Budget Tracking (`controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md`)
-- Control 3.1: Control 3.1: Agent Inventory and Metadata Management (`controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`)
-- Control 3.8: Control 3.8: Copilot Hub and Governance Dashboard (`controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md`)
+- Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels (`controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md`)
+- Control 1.1: Restrict Agent Publishing by Authorization (`controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`)
+- Control 1.6: Microsoft Purview DSPM for AI (`controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md`)
+- Control 1.11: Conditional Access and Phishing-Resistant MFA (`controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md`)
+- Control 3.5: Cost Allocation and Budget Tracking (`controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md`)
+- Control 3.1: Agent Inventory and Metadata Management (`controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`)
+- Control 3.8: Copilot Hub and Governance Dashboard (`controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md`)
 
 **What Changed:**
 ```diff
@@ -368,9 +368,9 @@
 **Classification:** Meaningful (UI element names)
 
 **Affected Controls:**
-- Control 2.3: Control 2.3: Change Management and Release Planning (`controls/pillar-2-management/2.3-change-management-and-release-planning.md`)
-- Control 2.1: Control 2.1: Managed Environments (`controls/pillar-2-management/2.1-managed-environments.md`)
-- Control 1.11: Control 1.11: Conditional Access and Phishing-Resistant MFA (`controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md`)
+- Control 2.3: Change Management and Release Planning (`controls/pillar-2-management/2.3-change-management-and-release-planning.md`)
+- Control 2.1: Managed Environments (`controls/pillar-2-management/2.1-managed-environments.md`)
+- Control 1.11: Conditional Access and Phishing-Resistant MFA (`controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md`)
 
 **What Changed:**
 ```diff
@@ -433,11 +433,11 @@
 **Classification:** Meaningful (UI element names)
 
 **Affected Controls:**
-- Control 2.5: Control 2.5: Testing, Validation, and Quality Assurance (`controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`)
-- Control 1.7: Control 1.7: Comprehensive Audit Logging and Compliance (`controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`)
-- Control 1.2: Control 1.2: Agent Registry and Integrated Apps Management (`controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`)
-- Control 3.6: Control 3.6: Orphaned Agent Detection and Remediation (`controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`)
-- Control 3.2: Control 3.2: Usage Analytics and Activity Monitoring (`controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md`)
+- Control 2.5: Testing, Validation, and Quality Assurance (`controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`)
+- Control 1.7: Comprehensive Audit Logging and Compliance (`controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`)
+- Control 1.2: Agent Registry and Integrated Apps Management (`controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`)
+- Control 3.6: Orphaned Agent Detection and Remediation (`controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`)
+- Control 3.2: Usage Analytics and Activity Monitoring (`controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md`)
 
 **What Changed:**
 ```diff
@@ -499,7 +499,7 @@
 **Classification:** Meaningful (UI element names)
 
 **Affected Controls:**
-- Control 1.2: Control 1.2: Agent Registry and Integrated Apps Management (`controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`)
+- Control 1.2: Agent Registry and Integrated Apps Management (`controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`)
 
 **What Changed:**
 ```diff
@@ -607,8 +607,8 @@
 **Classification:** Meaningful (Configuration instructions)
 
 **Affected Controls:**
-- Control 1.5: Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels (`controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md`)
-- Control 1.3: Control 1.3: SharePoint Content Governance and Permissions (`controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`)
+- Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels (`controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md`)
+- Control 1.3: SharePoint Content Governance and Permissions (`controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`)
 
 **What Changed:**
 ```diff
@@ -639,8 +639,8 @@
 **Classification:** Meaningful (Deprecation notice)
 
 **Affected Controls:**
-- Control 1.19: Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
-- Control 1.9: Control 1.9: Data Retention and Deletion Policies (`controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md`)
+- Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
+- Control 1.9: Data Retention and Deletion Policies (`controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md`)
 
 **What Changed:**
 ```diff
@@ -675,7 +675,7 @@
 **Classification:** Meaningful (Deprecation notice)
 
 **Affected Controls:**
-- Control 1.19: Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
+- Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
 
 **What Changed:**
 ```diff
@@ -710,7 +710,7 @@
 **Classification:** Meaningful (Deprecation notice)
 
 **Affected Controls:**
-- Control 1.19: Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
+- Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
 
 **What Changed:**
 ```diff
@@ -745,8 +745,8 @@
 **Classification:** Meaningful (Deprecation notice)
 
 **Affected Controls:**
-- Control 1.19: Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
-- Control 1.9: Control 1.9: Data Retention and Deletion Policies (`controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md`)
+- Control 1.19: eDiscovery for Agent Interactions (`controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`)
+- Control 1.9: Data Retention and Deletion Policies (`controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md`)
 
 **What Changed:**
 ```diff
@@ -781,7 +781,7 @@
 **Classification:** Meaningful (Portal references)
 
 **Affected Controls:**
-- Control 1.23: Control 1.23: Step-Up Authentication for AI Agent Operations (`controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md`)
+- Control 1.23: Step-Up Authentication for AI Agent Operations (`controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md`)
 
 **What Changed:**
 ```diff
@@ -846,7 +846,7 @@
 **Classification:** Meaningful (Feature availability)
 
 **Affected Controls:**
-- Control 4.1: Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery (`controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md`)
+- Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery (`controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md`)
 
 **What Changed:**
 ```diff
@@ -882,11 +882,11 @@
 - `playbooks/control-implementations/4.5/troubleshooting.md` 
 
 **Affected Controls:**
-- Control 4.2: Control 4.2: Site Access Reviews and Certification (`controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md`)
-- Control 4.6: Control 4.6: Grounding Scope Governance (`controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`)
-- Control 4.5: Control 4.5: SharePoint Security and Compliance Monitoring (`controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md`)
-- Control 4.1: Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery (`controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md`)
-- Control 1.3: Control 1.3: SharePoint Content Governance and Permissions (`controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`)
+- Control 4.2: Site Access Reviews and Certification (`controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md`)
+- Control 4.6: Grounding Scope Governance (`controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`)
+- Control 4.5: SharePoint Security and Compliance Monitoring (`controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md`)
+- Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery (`controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md`)
+- Control 1.3: SharePoint Content Governance and Permissions (`controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`)
 
 **What Changed:**
 ```diff
@@ -913,7 +913,7 @@
 **Classification:** Meaningful (Portal references)
 
 **Affected Controls:**
-- Control 3.9: Control 3.9: Microsoft Sentinel Integration (`controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md`)
+- Control 3.9: Microsoft Sentinel Integration (`controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md`)
 
 **What Changed:**
 ```diff
@@ -993,7 +993,7 @@
 **Classification:** Meaningful (Portal references)
 
 **Affected Controls:**
-- Control 1.21: Control 1.21: Adversarial Input Logging (`controls/pillar-1-security/1.21-adversarial-input-logging.md`)
+- Control 1.21: Adversarial Input Logging (`controls/pillar-1-security/1.21-adversarial-input-logging.md`)
 
 **What Changed:**
 ```diff
@@ -1065,7 +1065,7 @@
 **Classification:** Meaningful (Configuration instructions)
 
 **Affected Controls:**
-- Control 1.20: Control 1.20: Network Isolation and Private Connectivity (`controls/pillar-1-security/1.20-network-isolation-private-connectivity.md`)
+- Control 1.20: Network Isolation and Private Connectivity (`controls/pillar-1-security/1.20-network-isolation-private-connectivity.md`)
 
 **What Changed:**
 ```diff
@@ -1104,7 +1104,7 @@
 **Classification:** Meaningful (Feature availability)
 
 **Affected Controls:**
-- Control 1.8: Control 1.8: Runtime Protection and External Threat Detection (`controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md`)
+- Control 1.8: Runtime Protection and External Threat Detection (`controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md`)
 
 **What Changed:**
 ```diff
@@ -1150,7 +1150,7 @@
 **Classification:** Meaningful (Portal references)
 
 **Affected Controls:**
-- Control 1.17: Control 1.17: Endpoint Data Loss Prevention (Endpoint DLP) (`controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md`)
+- Control 1.17: Endpoint Data Loss Prevention (Endpoint DLP) (`controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md`)
 
 **What Changed:**
 ```diff
