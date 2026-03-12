@@ -93,16 +93,16 @@ Copilot Studio, Agent Builder, and custom agent deployments.
 ## Framework Architecture
 
 ```mermaid
-graph LR
+graph TB
     subgraph Zones ["Governance Zones"]
-        direction TB
+        direction LR
         Z1["Zone 1: Personal\nLow Risk · Self-Service"]
         Z2["Zone 2: Team\nMedium Risk · Manager Approval"]
         Z3["Zone 3: Enterprise\nHigh Risk · Committee Approval"]
     end
 
     subgraph Pillars ["71 Controls across 4 Pillars"]
-        direction TB
+        direction LR
         P1["Security\n28 Controls"]
         P2["Management\n24 Controls"]
         P3["Reporting\n12 Controls"]
@@ -110,12 +110,12 @@ graph LR
     end
 
     subgraph Regs ["Regulatory Coverage"]
-        direction TB
-        R1["FINRA 4511/3110"]
-        R2["SEC 17a-3/4"]
-        R3["SOX 302/404"]
-        R4["GLBA 501b"]
-        R5["OCC 2011-12"]
+        direction LR
+        R1["FINRA\n4511/3110"]
+        R2["SEC\n17a-3/4"]
+        R3["SOX\n302/404"]
+        R4["GLBA\n501b"]
+        R5["OCC\n2011-12"]
     end
 
     Zones --> Pillars --> Regs
