@@ -140,7 +140,7 @@ Follow the steps below for manual deployment with full audit trail.
 | Provisioning Started | Date and time | No | |
 | Provisioning Completed | Date and time | No | |
 
-5. **Save** the table
+6. **Save** the table
 
 ### Step 1.2: Create ProvisioningLog Table
 
@@ -148,7 +148,7 @@ Follow the steps below for manual deployment with full audit trail.
 2. Configure:
    - **Display name:** Provisioning Log
    - **Plural name:** Provisioning Logs
-   - **Schema name prefix:** `pl_`
+   - **Schema name prefix:** Uses your publisher prefix (e.g., `fsi_`)
    - **Table ownership:** Organization
 
 3. Create columns:

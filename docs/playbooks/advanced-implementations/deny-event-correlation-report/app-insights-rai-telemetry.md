@@ -252,7 +252,12 @@ try {
     Connect-AzAccount -ServicePrincipal -TenantId $TenantId -Credential $credential -ErrorAction Stop | Out-Null
 
     Write-Verbose "Acquiring bearer token..."
-    $token = (Get-AzAccessToken -ResourceUrl "https://api.applicationinsights.io" -ErrorAction Stop).Token
+    # Az.Accounts 3.0+ returns .Token as SecureString; convert for use in headers
+    $tokenResponse = Get-AzAccessToken -ResourceUrl "https://api.applicationinsights.io" -ErrorAction Stop
+    $token = $tokenResponse.Token
+    if ($token -is [System.Security.SecureString]) {
+        $token = $token | ConvertFrom-SecureString -AsPlainText
+    }
     $headers = @{ "Authorization" = "Bearer $token" }
 }
 catch {

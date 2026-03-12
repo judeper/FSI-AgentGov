@@ -95,7 +95,7 @@ The ProvisioningLog uses layered access controls to protect audit data:
 # Install-Module -Name Microsoft.Xrm.Data.PowerShell -Scope CurrentUser
 
 # Connect to Dataverse
-$conn = Connect-CrmOnline -ServerUrl "https://yourorg.crm.dynamics.com" -Interactive
+$conn = Connect-CrmOnline -ServerUrl "https://<your-org>.crm.dynamics.com" -Interactive
 
 # Verify no role has Update/Delete on ProvisioningLog
 try {
@@ -222,7 +222,7 @@ For organizations electing WORM storage:
 # Install-Module -Name Az.Storage -Scope CurrentUser
 
 # Connect to Dataverse
-$conn = Connect-CrmOnline -ServerUrl "https://yourorg.crm.dynamics.com" -Interactive
+$conn = Connect-CrmOnline -ServerUrl "https://<your-org>.crm.dynamics.com" -Interactive
 
 # Connect to Azure
 Connect-AzAccount
@@ -281,7 +281,7 @@ finally {
 
 ```powershell
 # Connect to Dataverse
-$conn = Connect-CrmOnline -ServerUrl "https://yourorg.crm.dynamics.com" -Interactive
+$conn = Connect-CrmOnline -ServerUrl "https://<your-org>.crm.dynamics.com" -Interactive
 
 # Export ProvisioningLog for quarter
 $startDate = (Get-Date).AddMonths(-3)
@@ -436,12 +436,12 @@ When responding to examination requests, compile:
 
 ```powershell
 # Generate examination evidence package for specific request
-# Usage: .\Get-EvidencePackage.ps1 -RequestNumber "REQ-00142" -DataverseUrl "https://yourorg.crm.dynamics.com"
+# Usage: .\Get-EvidencePackage.ps1 -RequestNumber "REQ-00142" -DataverseUrl "https://<your-org>.crm.dynamics.com"
 
 param(
     [Parameter(Mandatory=$true)]
     [string]$RequestNumber,
-    [string]$DataverseUrl = "https://yourorg.crm.dynamics.com"
+    [string]$DataverseUrl = "https://<your-org>.crm.dynamics.com"
 )
 
 # Prerequisites
@@ -609,7 +609,7 @@ OfficeActivity
 # Install-Module -Name Microsoft.Xrm.Data.PowerShell -Scope CurrentUser
 
 param(
-    [string]$DataverseUrl = "https://yourorg.crm.dynamics.com",
+    [string]$DataverseUrl = "https://<your-org>.crm.dynamics.com",
     [string]$AlertEmail = "security@contoso.com"
 )
 

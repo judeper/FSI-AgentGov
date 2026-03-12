@@ -117,7 +117,10 @@ $workbookParams = @{
     Category = "workbook"
     SerializedData = (Get-Content -Path "workbook-performance.json" -Raw)
 }
-New-AzApplicationInsightsWorkbook @workbookParams
+# Note: Use New-AzWorkbook (Az.ApplicationInsights 0.4.0+) or deploy via
+# New-AzResourceGroupDeployment with an ARM/Bicep template if your module
+# version does not include the workbook cmdlet.
+New-AzWorkbook @workbookParams
 ```
 
 ---

@@ -175,7 +175,7 @@ pip install -r scripts/requirements.txt
 
 # Full deployment with interactive auth
 python scripts/deploy.py \
-    --environment-url https://org.crm.dynamics.com \
+    --environment-url https://<your-org>.crm.dynamics.com \
     --tenant-id <tenant-id> \
     --interactive
 ```
