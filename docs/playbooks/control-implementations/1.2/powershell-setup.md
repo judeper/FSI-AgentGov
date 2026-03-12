@@ -5,8 +5,11 @@
 
 ## Prerequisites
 
+!!! warning "Windows PowerShell 5.x Required"
+    The `Microsoft.PowerApps.Administration.PowerShell` and `Microsoft.PowerApps.PowerShell` modules use .NET Framework and are **incompatible with PowerShell 7+ (pwsh)**. You must run these cmdlets in **Windows PowerShell 5.x** (`powershell.exe`). PowerShell 7+ uses .NET Core, which is not supported by these modules. Microsoft Graph cmdlets work in both versions.
+
 ```powershell
-# Install required modules
+# Install required modules (run in Windows PowerShell 5.x, not pwsh)
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force
 Install-Module -Name Microsoft.Graph -Force
 
@@ -248,4 +251,4 @@ catch {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: March 2026 | Version: v1.3*

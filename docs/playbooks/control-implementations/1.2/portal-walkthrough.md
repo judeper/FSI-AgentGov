@@ -8,7 +8,7 @@
 
 - [ ] Entra Global Admin or Entra App Admin role
 - [ ] Dataverse System Admin role
-- [ ] Access to [Microsoft 365 Admin Center](https://admin.microsoft.com)
+- [ ] Access to [Microsoft 365 Admin Center](https://admin.cloud.microsoft)
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 - [ ] SharePoint Site Owner permissions for registry site
 - [ ] [Control 2.1: Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) enabled
@@ -45,7 +45,10 @@ Before building the registry, define the required metadata fields for FSI compli
 
 ### Step 2: Configure Integrated Apps in M365 Admin Center
 
-**Portal Path:** [Microsoft 365 Admin Center](https://admin.microsoft.com) > **Settings** > **Integrated Apps**
+**Portal Path:** [Microsoft 365 Admin Center](https://admin.cloud.microsoft) > **Settings** > **Integrated Apps**
+
+!!! note "Admin Center URL Update"
+    The Microsoft 365 admin center URL has moved to `admin.cloud.microsoft`. The legacy `admin.microsoft.com` URL redirects automatically, but bookmarks and documentation should reference the new URL. The add-in management page is now titled **Integrated apps** (previously "Manage add-ins"). Microsoft now refers to the Office Store as the **Microsoft Marketplace**.
 
 1. Sign in to the Microsoft 365 Admin Center
 2. Navigate to **Settings** > **Integrated Apps**
@@ -64,7 +67,7 @@ Before building the registry, define the required metadata fields for FSI compli
 
 ### Step 2b: Configure Agent Settings in M365 Admin Center
 
-**Portal Path:** [Microsoft 365 Admin Center](https://admin.microsoft.com) > **Settings** > **Agent settings**
+**Portal Path:** [Microsoft 365 Admin Center](https://admin.cloud.microsoft) > **Settings** > **Agent settings**
 
 !!! note "Agent 365 License Required"
     Some settings require Agent 365 licenses. Verify licensing before configuration.
@@ -198,4 +201,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: March 2026 | Version: v1.3*

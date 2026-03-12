@@ -158,14 +158,18 @@
 
 **Portal Path:** Insider risk management > Alerts
 
+!!! note "Dual Dashboard Layout"
+    The Alerts page now has two dashboards: the **Standard** dashboard (policy-generated alerts) and the **Triage Agent** dashboard (AI-prioritized alerts). Select the appropriate tab at the top of the dashboard. The Triage Agent dashboard provides agent-triaged categorization with priority filters. **Note:** The file risk section of the Triage Agent is deprecated — use the data risk graph and Activity explorer for file-level investigation.
+
 1. Navigate to **Alerts** tab
-2. Configure alert triage:
+2. Select the **Standard** dashboard for traditional alert triage, or the **Triage Agent** dashboard for AI-prioritized views
+3. Configure alert triage:
    - **Needs review:** Initial state
    - **Confirmed:** Escalate to case
    - **Dismissed:** False positive (document reason)
    - **Resolved:** No further action needed
 
-3. Configure escalation SLAs:
+4. Configure escalation SLAs:
    - Low/Medium alerts: 48-hour review
    - High/Critical alerts: 4-hour review
    - Confirmed: Create case with investigator assignment
@@ -176,4 +180,4 @@
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: March 2026 | Version: v1.3*
