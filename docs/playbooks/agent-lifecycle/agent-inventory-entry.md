@@ -128,3 +128,7 @@ Link to the agent’s detailed Per-Agent Data Handling Policy.
 ## 12) Notes
 
 Free-form notes for anything unusual (exception approvals, known limitations, roadmap).
+
+---
+
+*Updated: February 2026 | Version: v1.2*
