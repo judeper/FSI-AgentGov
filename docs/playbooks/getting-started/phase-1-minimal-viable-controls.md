@@ -231,7 +231,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 1. Document testing requirements by zone
 2. Create test plan template
 3. Define security testing requirements
-4. Establish bias testing process
+4. Establish bias testing process (see Control 2.11 below for detailed setup)
 
 **Verification:**
 
@@ -241,6 +241,9 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 ### Control 2.11: Bias Testing
 
 **Purpose:** Establish fairness assessment process
+
+!!! note "Progressive Implementation"
+    This establishes the initial bias testing process. See Phase 2 for comprehensive bias testing program expansion.
 
 **Steps:**
 
