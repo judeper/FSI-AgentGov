@@ -147,6 +147,17 @@
   color: var(--brand-subtle);
 }
 
+/* ── Control/playbook metadata field spacing ── */
+/* Bold labels separated by <br> in metadata blocks — add visual breathing room */
+.md-typeset p > strong:first-child {
+  color: var(--md-primary-fg-color);
+}
+.md-typeset br + strong {
+  display: inline-block;
+  margin-top: 0.4em;
+  color: var(--md-primary-fg-color);
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .hero { padding: 2.5rem 1rem; }
