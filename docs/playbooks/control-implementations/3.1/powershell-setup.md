@@ -354,4 +354,8 @@ catch {
 
 ---
 
-[Back to Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

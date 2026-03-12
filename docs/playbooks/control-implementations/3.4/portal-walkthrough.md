@@ -207,8 +207,6 @@ Create analytics rules for agent-related incidents:
 
 ---
 
----
-
 [Back to Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---

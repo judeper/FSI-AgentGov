@@ -74,8 +74,8 @@
 ## Diagnostic Commands
 
 ```powershell
-# Verify Microsoft Graph compliance module connection
-Get-MgCompliance | Format-List
+# Verify Microsoft Graph connection
+Get-MgContext | Format-List
 
 # Verify SharePoint permissions
 Get-PnPListItem -List "Compliance Reports" -Query "<View><Query><Where><Eq><FieldRef Name='Author'/><Value Type='User'>ServiceAccount</Value></Eq></Where></Query></View>"

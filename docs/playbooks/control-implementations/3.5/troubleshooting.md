@@ -68,7 +68,7 @@ Get-AzRoleAssignment | Where-Object { $_.RoleDefinitionName -like "*Cost*" }
 Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentType
 
 # Check budget status
-Get-AzConsumptionBudget | Format-Table Name, Amount, CurrentSpend
+Get-AzCostManagementBudget | Format-Table Name, Amount, CurrentSpend
 
 # Test Graph access for license data
 Get-MgSubscribedSku | Select-Object SkuPartNumber, ConsumedUnits
