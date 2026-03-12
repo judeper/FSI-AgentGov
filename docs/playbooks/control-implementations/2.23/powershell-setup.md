@@ -392,7 +392,7 @@ catch {
 ### Purpose
 Check for users who have interacted with Zone 3 agents without valid consent acknowledgment records.
 
-### Script: `Verify-ConsentCompliance.ps1`
+### Script: `Test-ConsentCompliance.ps1`
 
 ```powershell
 <#
@@ -410,10 +410,10 @@ Check for users who have interacted with Zone 3 agents without valid consent ack
     Number of days a consent record remains valid before re-acknowledgment is required. Default is 90.
 
 .EXAMPLE
-    .\Verify-ConsentCompliance.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com"
+    .\Test-ConsentCompliance.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com"
 
 .EXAMPLE
-    .\Verify-ConsentCompliance.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com" -ConsentValidityDays 60
+    .\Test-ConsentCompliance.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com" -ConsentValidityDays 60
 
 .NOTES
     Requires: Dataverse environment with fsi_aiconsent and usage log tables
@@ -536,7 +536,7 @@ After running these scripts, verify:
 - [ ] Custom disclosure URL is configured and accessible
 - [ ] All Zone 2 and Zone 3 agents have AI disclosure in greeting topics (Get-AgentDisclosureInventory.ps1 shows Compliant)
 - [ ] Zone 3 agents have consent records in Dataverse for all active users (Get-ConsentRecords.ps1)
-- [ ] No expired consent records for users who have recently interacted with Zone 3 agents (Verify-ConsentCompliance.ps1)
+- [ ] No expired consent records for users who have recently interacted with Zone 3 agents (Test-ConsentCompliance.ps1)
 - [ ] Compliance reports are generated and stored for audit trail (New-DisclosureComplianceReport.ps1)
 
 ---
