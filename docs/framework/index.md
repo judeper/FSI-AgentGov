@@ -42,7 +42,7 @@ This separation ensures governance stability while allowing rapid updates to imp
 | [Operating Model](operating-model.md) | RACI, roles, governance structure | All stakeholders |
 | [Governance Cadence](governance-cadence.md) | Review schedules and audit readiness | Compliance, Audit |
 | [Adoption Roadmap](adoption-roadmap.md) | Phased implementation guidance | Implementation teams |
-| [Agent 365 Architecture](agent-365-architecture.md) | Platform architecture, Agent 365 control plane, and Entra Agent ID governance | Platform architects |
+| [Agent 365 Architecture](agent-365-architecture.md) | Redirect to Agent Identity Architecture (content consolidated) | Platform architects |
 | [Agent Identity Architecture](agent-identity-architecture.md) | Agent identity, authentication, and authorization patterns | Security architects |
 | [Solutions Integration](solutions-integration.md) | Companion solution catalog and automation coverage | Implementation teams |
 
@@ -117,4 +117,4 @@ The framework separates:
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*

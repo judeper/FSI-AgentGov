@@ -51,7 +51,7 @@ Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institu
 | **FINRA 3110** | FINRA | Supervision of AI-assisted activities | Controls 2.12, 2.17, 2.18 |
 | **SEC 17a-3/4** | SEC | Recordkeeping requirements | Controls 1.7, 1.9, 2.13 |
 | **SOX 302/404** | Congress | Internal controls over financial reporting | Controls 1.7, 2.3, 3.3 |
-| **GLBA 501(b)** | FTC | Safeguards for customer information | Controls 1.5, 1.11, 1.15 |
+| **GLBA 501(b)** | Congress | Safeguards for customer information | Controls 1.5, 1.11, 1.15 |
 | **OCC 2011-12** | OCC | Model risk management | Controls 2.6, 2.11 |
 | **Fed SR 11-7** | Federal Reserve | Model risk management | Controls 2.6, 2.11 |
 
@@ -247,4 +247,4 @@ This framework provides governance guidance and does not constitute legal, regul
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*
