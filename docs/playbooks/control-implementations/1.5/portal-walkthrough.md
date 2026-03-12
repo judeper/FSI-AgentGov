@@ -1,5 +1,9 @@
 # Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels - Portal Walkthrough
 
+**Last Updated:** March 2026
+**Portal:** Microsoft Purview, Power Platform Admin Center
+**Estimated Time:** 2-4 hours
+
 > This playbook provides portal configuration guidance for [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
 
 ---
@@ -19,7 +23,7 @@ Before starting, confirm:
 
 ## DLP Enforcement Status (2025)
 
-As of early 2025, **data policy enforcement for Copilot Studio is enabled by default** for all tenants (per Microsoft message center alert MC973179). Organizations no longer need to manually enable DLP enforcement.
+As of early 2025, **data policy enforcement for Copilot Studio is enabled by default** for all tenants (per Microsoft message center alert MC973179). Organizations no longer need to manually enable DLP enforcement. Verify current enforcement status in your tenant's Message Center, as Microsoft may update this behavior over time.
 
 ---
 

@@ -1,5 +1,9 @@
 # Control 1.6: Microsoft Purview DSPM for AI - Portal Walkthrough
 
+**Last Updated:** March 2026
+**Portal:** Microsoft Purview
+**Estimated Time:** 2-3 hours
+
 > This playbook provides portal configuration guidance for [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
 
 ---
@@ -228,7 +232,7 @@ For high-priority sites not in the top 100, create custom assessments:
 ## Enhanced DSPM AI Observability (Preview)
 
 !!! warning "Preview Feature — UI may change at GA"
-    The unified DSPM experience consolidating DSPM and DSPM for AI is in preview. GA rollout expected June 2026 (per MC1191257). Portal navigation and feature availability may change before general availability.
+    The unified DSPM experience consolidating DSPM and DSPM for AI is in preview. GA rollout was expected June 2026 at time of writing (per MC1191257); check Message Center for the latest timeline. Portal navigation and feature availability may change before general availability.
 
 The unified DSPM experience provides a single interface for monitoring data security posture across all data types, including AI-specific interactions. This section covers configuring enhanced DSPM AI Observability capabilities that help FSI organizations meet comprehensive agent supervision requirements.
 

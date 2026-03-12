@@ -1,5 +1,9 @@
 # Control 1.4: Advanced Connector Policies (ACP) - Portal Walkthrough
 
+**Last Updated:** March 2026
+**Portal:** Power Platform Admin Center
+**Estimated Time:** 30-45 minutes
+
 > This playbook provides portal configuration guidance for [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md).
 
 ---
