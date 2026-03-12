@@ -92,43 +92,34 @@ Copilot Studio, Agent Builder, and custom agent deployments.
 
 ## Framework Architecture
 
-<div style="overflow-x: auto" markdown>
-
 ```mermaid
-graph TB
+graph LR
     subgraph Zones ["Governance Zones"]
-        Z1["Zone 1: Personal — Low Risk, Self-Service"]
-        Z2["Zone 2: Team — Medium Risk, Manager Approval"]
-        Z3["Zone 3: Enterprise — High Risk, Committee Approval"]
+        direction TB
+        Z1["Zone 1: Personal\nLow Risk · Self-Service"]
+        Z2["Zone 2: Team\nMedium Risk · Manager Approval"]
+        Z3["Zone 3: Enterprise\nHigh Risk · Committee Approval"]
     end
-    subgraph Pillars ["Control Pillars"]
-        P1["Security — 28 Controls"]
-        P2["Management — 24 Controls"]
-        P3["Reporting — 12 Controls"]
-        P4["SharePoint — 7 Controls"]
-    end
-    subgraph Regs ["Regulatory Coverage"]
-        R["FINRA 4511/3110 · SEC 17a-3/4 · SOX 302/404 · GLBA 501b · OCC 2011-12"]
-    end
-    Z1 --> P1
-    Z1 --> P2
-    Z1 --> P3
-    Z1 --> P4
-    Z2 --> P1
-    Z2 --> P2
-    Z2 --> P3
-    Z2 --> P4
-    Z3 --> P1
-    Z3 --> P2
-    Z3 --> P3
-    Z3 --> P4
-    P1 --> R
-    P2 --> R
-    P3 --> R
-    P4 --> R
-```
 
-</div>
+    subgraph Pillars ["71 Controls across 4 Pillars"]
+        direction TB
+        P1["Security\n28 Controls"]
+        P2["Management\n24 Controls"]
+        P3["Reporting\n12 Controls"]
+        P4["SharePoint\n7 Controls"]
+    end
+
+    subgraph Regs ["Regulatory Coverage"]
+        direction TB
+        R1["FINRA 4511/3110"]
+        R2["SEC 17a-3/4"]
+        R3["SOX 302/404"]
+        R4["GLBA 501b"]
+        R5["OCC 2011-12"]
+    end
+
+    Zones --> Pillars --> Regs
+```
 
 ---
 
