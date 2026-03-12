@@ -266,7 +266,7 @@ PowerShell script for automated evidence export:
     Connects to Dataverse, exports DecisionLog, AssessmentLog, and closed posts,
     then uploads to SharePoint compliance library.
 .PARAMETER EnvironmentUrl
-    Dataverse environment URL (e.g., https://org.crm.dynamics.com)
+    Dataverse environment URL (e.g., https://<your-org>.crm.dynamics.com)
 .PARAMETER Quarter
     Quarter to export (e.g., 2026Q1)
 #>
@@ -287,7 +287,7 @@ $endDate = $startDate.AddMonths(3).AddDays(-1)
 Write-Host "Exporting PCG evidence for $Quarter ($startDate to $endDate)"
 
 # Connect to Dataverse (requires Microsoft.Xrm.Data.PowerShell)
-Connect-CrmOnline -ServerUrl $EnvironmentUrl
+Connect-CrmOnline -ServerUrl $EnvironmentUrl -Interactive
 
 # Export DecisionLog
 $decisionLogs = Get-CrmRecords -EntityLogicalName "mc_decisionlog" `
