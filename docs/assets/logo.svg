@@ -1,4 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <path d="M64 8 L112 36 L112 92 L64 120 L16 92 L16 36 Z" fill="#546E7A" />
-  <text x="64" y="72" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">AG</text>
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0078D4"/>
+      <stop offset="100%" stop-color="#005A9E"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield shape -->
+  <path d="M64 6 L114 28 L114 62 C114 90 92 112 64 124 C36 112 14 90 14 62 L14 28 Z"
+        fill="url(#shieldGrad)" />
+  <!-- Inner shield highlight -->
+  <path d="M64 16 L104 34 L104 60 C104 84 86 102 64 112 C42 102 24 84 24 60 L24 34 Z"
+        fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+  <!-- Circuit nodes -->
+  <circle cx="64" cy="48" r="6" fill="#fff" opacity="0.95"/>
+  <circle cx="44" cy="72" r="4" fill="#fff" opacity="0.8"/>
+  <circle cx="84" cy="72" r="4" fill="#fff" opacity="0.8"/>
+  <circle cx="52" cy="92" r="3" fill="#fff" opacity="0.65"/>
+  <circle cx="76" cy="92" r="3" fill="#fff" opacity="0.65"/>
+  <!-- Circuit lines -->
+  <line x1="64" y1="54" x2="44" y2="72" stroke="#fff" stroke-width="1.8" opacity="0.6"/>
+  <line x1="64" y1="54" x2="84" y2="72" stroke="#fff" stroke-width="1.8" opacity="0.6"/>
+  <line x1="44" y1="72" x2="52" y2="92" stroke="#fff" stroke-width="1.5" opacity="0.5"/>
+  <line x1="84" y1="72" x2="76" y2="92" stroke="#fff" stroke-width="1.5" opacity="0.5"/>
+  <line x1="44" y1="72" x2="84" y2="72" stroke="#fff" stroke-width="1.5" opacity="0.4"/>
+  <!-- Central hub ring -->
+  <circle cx="64" cy="48" r="10" fill="none" stroke="#fff" stroke-width="1.2" opacity="0.35"/>
 </svg>
