@@ -1,6 +1,6 @@
-# Control 4.4: Guest and External User Access Controls
+# Control 4.4: Guest and External User Access Controls - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-entra-guest-settings.png` | Entra | External Identities → Guest settings | Guest access settings |
 | `08-entra-collaboration.png` | Entra | External Identities → Collaboration | B2B collaboration settings |
 
-## Verification Focus
+## Notes for Verification
 
 - Sharing is appropriately restricted per zone
 - Guest expiration is configured
 - Domain restrictions block unauthorized domains
 - External sharing is monitored
+
+---
+
+[Back to Control 4.4](../../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md)

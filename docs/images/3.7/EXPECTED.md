@@ -1,6 +1,6 @@
-# Control 3.7: PPAC Security Posture Assessment
+# Control 3.7: PPAC Security Posture Assessment - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -17,7 +17,7 @@
 | `11-env-session-expiration.png` | PPAC | Environments → [env] → Settings → Privacy + Security | Session expiration setting (≤ 1440 min) |
 | `12-env-csp-enforcement.png` | PPAC | Environments → [env] → Settings → Privacy + Security | Content Security Policy enforcement toggle |
 
-## Verification Focus
+## Notes for Verification
 
 - Security score is visible
 - Recommendations are actionable
@@ -26,3 +26,7 @@
 - Environment security settings match hardening baseline items #28-32
 - Blocked attachments include all 43 critical extensions
 - Timeout values are within organizational policy thresholds
+
+---
+
+[Back to Control 3.7](../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md)

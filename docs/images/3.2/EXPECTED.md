@@ -1,6 +1,6 @@
-# Control 3.2: Usage Analytics and Activity Monitoring
+# Control 3.2: Usage Analytics and Activity Monitoring - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-copilot-session-details.png` | Copilot | Analytics → Sessions | Session breakdown |
 | `07-copilot-topic-analytics.png` | Copilot | Analytics → Topics | Topic usage |
 
-## Verification Focus
+## Notes for Verification
 
 - Usage metrics are being collected
 - Trends show expected patterns
 - Session data is detailed
 - Topic performance is tracked
+
+---
+
+[Back to Control 3.2](../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md)

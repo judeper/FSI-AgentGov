@@ -1,6 +1,6 @@
-# Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery
+# Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-spac-oversharing-report.png` | SPAC | Data governance → Oversharing | Oversharing assessment |
 | `07-spac-restricted-sites.png` | SPAC | Sites filtered by restricted | Restricted sites list |
 
-## Verification Focus
+## Notes for Verification
 
 - Sites with sensitive content are identified
 - Restriction toggle is applied to sensitive sites
 - Data governance reports show restriction status
 - Oversharing report identifies at-risk content
+
+---
+
+[Back to Control 4.1](../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md)

@@ -1,6 +1,6 @@
-# Control 3.8: Copilot Hub and Governance Dashboard
+# Control 3.8: Copilot Hub and Governance Dashboard - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-ppac-copilot-section.png` | PPAC | Copilot | PPAC Copilot section |
 | `08-ppac-copilot-studio.png` | PPAC | Copilot → Copilot Studio | Copilot Studio settings |
 
-## Verification Focus
+## Notes for Verification
 
 - M365 Admin Copilot section accessible
 - Settings are configured for FSI
 - Agent management is centralized
 - Usage reports are available
+
+---
+
+[Back to Control 3.8](../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)

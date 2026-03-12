@@ -1,6 +1,6 @@
-# Control 3.5: Cost Allocation and Budget Tracking
+# Control 3.5: Cost Allocation and Budget Tracking - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -13,9 +13,13 @@
 | `07-azure-budget-alerts.png` | Azure | Budgets → Alerts | Alert thresholds |
 | `08-powerbi-cost-dashboard.png` | Power BI | Cost dashboard | Chargeback reporting |
 
-## Verification Focus
+## Notes for Verification
 
 - License usage is tracked
 - Capacity consumption is monitored
 - Azure costs are allocated
 - Budget alerts are configured
+
+---
+
+[Back to Control 3.5](../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md)

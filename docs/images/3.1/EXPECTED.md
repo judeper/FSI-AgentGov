@@ -1,6 +1,6 @@
-# Control 3.1: Agent Inventory and Metadata Management
+# Control 3.1: Agent Inventory and Metadata Management - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -12,9 +12,13 @@
 | `06-copilot-agent-metadata.png` | Copilot | Agent → Details | Agent metadata |
 | `07-sharepoint-registry.png` | SharePoint | Agent registry list | Registry with metadata |
 
-## Verification Focus
+## Notes for Verification
 
 - Inventory shows all deployed agents
 - Metadata is complete and accurate
 - Export provides compliance-ready data
 - Registry matches actual inventory
+
+---
+
+[Back to Control 3.1](../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)

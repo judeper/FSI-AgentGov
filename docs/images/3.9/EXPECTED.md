@@ -1,6 +1,6 @@
-# Control 3.9: Microsoft Sentinel Integration
+# Control 3.9: Microsoft Sentinel Integration - Screenshot Specifications
 
-## Expected Screenshots
+## Required Screenshots
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
@@ -14,9 +14,13 @@
 | `08-azure-sentinel-workbooks.png` | Azure | Sentinel → Workbooks | Dashboards/workbooks |
 | `09-azure-sentinel-automation.png` | Azure | Sentinel → Automation | Playbooks |
 
-## Verification Focus
+## Notes for Verification
 
 - Sentinel workspace is configured
 - Power Platform connector is enabled
 - Analytics rules detect agent threats
 - Incidents flow to Sentinel
+
+---
+
+[Back to Control 3.9](../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
