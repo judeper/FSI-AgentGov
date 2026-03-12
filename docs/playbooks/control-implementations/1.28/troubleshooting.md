@@ -371,7 +371,11 @@ This playbook provides troubleshooting guidance for common issues related to pol
 1. **Check environment group configuration:**
    ```powershell
    # Check if environment groups exist
+   # NOTE: Get-AdminPowerAppEnvironmentGroup is an anticipated cmdlet not yet
+   # available in all tenants. If not recognized, list environments manually:
    Get-AdminPowerAppEnvironmentGroup
+   # Fallback if cmdlet is unavailable:
+   # Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName, EnvironmentType
    ```
 
 2. **Verify promotion pipeline documentation:**

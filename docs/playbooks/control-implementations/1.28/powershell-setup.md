@@ -26,6 +26,16 @@ Import-Module Microsoft.PowerApps.Administration.PowerShell
 Add-PowerAppsAccount
 ```
 
+!!! danger "API Availability — Verify Before Use"
+    The `Set-AdminDlpPolicy -ConnectorGroups` parameter syntax, `Add-AdminPowerAppEnvironmentToPolicy` cmdlet, and wildcard connector path `shared_*` used in these scripts are based on **anticipated API schema** as of February 2026. These parameters and cmdlets may not be available in all tenants. Before running the scripts, test cmdlet availability:
+
+    ```powershell
+    Get-Help Set-AdminDlpPolicy -Parameter ConnectorGroups
+    Get-Help Add-AdminPowerAppEnvironmentToPolicy
+    ```
+
+    If the parameters or cmdlets are not recognized, use the [Portal Walkthrough](portal-walkthrough.md) to configure DLP policies and environment assignments manually.
+
 ---
 
 ## Script 1: Create Zone-Specific DLP Policies
@@ -147,7 +157,7 @@ $zone3BlockedConnectors = @(
     "/providers/Microsoft.PowerApps/apis/shared_publicwebsites",
     "/providers/Microsoft.PowerApps/apis/shared_twitter",
     "/providers/Microsoft.PowerApps/apis/shared_rss",
-    "/providers/Microsoft.PowerApps/apis/shared_*"  # Wildcard path — verify your tenant's DLP API accepts this syntax; blocks remaining shared connectors not explicitly allowed
+    "/providers/Microsoft.PowerApps/apis/shared_*"  # ⚠ Wildcard path — see danger admonition above; DLP API may not support wildcard syntax
 )
 
 # Add connectors to Zone 3 policy
