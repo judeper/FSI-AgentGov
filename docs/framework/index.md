@@ -42,7 +42,6 @@ This separation ensures governance stability while allowing rapid updates to imp
 | [Operating Model](operating-model.md) | RACI, roles, governance structure | All stakeholders |
 | [Governance Cadence](governance-cadence.md) | Review schedules and audit readiness | Compliance, Audit |
 | [Adoption Roadmap](adoption-roadmap.md) | Phased implementation guidance | Implementation teams |
-| [Agent 365 Architecture](agent-365-architecture.md) | Redirect to Agent Identity Architecture (content consolidated) | Platform architects |
 | [Agent Identity Architecture](agent-identity-architecture.md) | Agent identity, authentication, and authorization patterns | Security architects |
 | [Solutions Integration](solutions-integration.md) | Companion solution catalog and automation coverage | Implementation teams |
 
