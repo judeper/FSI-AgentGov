@@ -48,6 +48,9 @@ For each identified site:
 
 ### Step 3: Configure Restricted SharePoint Search (RSS) - Allow-List Approach
 
+!!! warning "Short-Term Solution Only"
+    RSS is designed as a short-term solution while you review and audit site permissions. It is not intended or scalable for long-term use. Plan to transition to comprehensive data security solutions (SAM, Microsoft Purview) for ongoing governance.
+
 For organizations preferring Zero Trust (allow-list approach):
 
 1. Navigate to **SharePoint Admin Center** > **Settings** > **Restricted SharePoint Search**
@@ -113,7 +116,7 @@ Record in your governance system:
 | Approach | Use Case | When to Use |
 |----------|----------|-------------|
 | **Restricted Content Discovery (RCD)** | Block-list: exclude specific sites | Mature deployment, good hygiene |
-| **Restricted SharePoint Search (RSS)** | Allow-list: include only approved sites | Initial Copilot deployment, Zero Trust |
+| **Restricted SharePoint Search (RSS)** | Allow-list: include only approved sites | Initial Copilot deployment, Zero Trust (short-term only) |
 | **Hybrid** | Start with RSS, transition to RCD | Phased rollout |
 
 ---

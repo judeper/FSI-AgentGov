@@ -101,6 +101,16 @@ Set-SPOSite -Identity $SiteUrl -RestrictedAccessControlGroups $GroupIds
 Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictedAccessControl, RestrictedAccessControlGroups
 ```
 
+### Delegate RAC Management to Site Admins
+
+```powershell
+# Enable delegation (site admins must provide justification when updating RAC)
+Set-SPOTenant -DelegateRestrictedAccessControlManagement $true
+
+# Check delegation status
+Get-SPOTenant | Select-Object DelegateRestrictedAccessControlManagement
+```
+
 ### Bulk Configure Sites by Zone
 
 ```powershell
