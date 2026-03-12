@@ -181,5 +181,5 @@ Even if relying on that concept, keep this impact assessment as evidence of “r
 
 ## References
 
-- **[1]** Colorado SB24-205, Deployer obligations — impact assessment requirements, transparency disclosures, post-deployment monitoring, and annual review duties (codified at C.R.S. § 6-1-1705).
-- **[2]** Colorado SB24-205, Definitions and deployer-related provisions — statutory definitions for "artificial intelligence system," "consequential decision," "high-risk artificial intelligence system," and "algorithmic discrimination" (C.R.S. § 6-1-1701); recordkeeping requirements and regulated-entity exemptions (C.R.S. § 6-1-1705).
+- **[1]** Colorado SB24-205, Deployer obligations — impact assessment requirements, transparency disclosures, post-deployment monitoring, and annual review duties (codified at C.R.S. § 6-1-1703).
+- **[2]** Colorado SB24-205, Definitions and deployer-related provisions — statutory definitions for "artificial intelligence system," "consequential decision," "high-risk artificial intelligence system," and "algorithmic discrimination" (C.R.S. § 6-1-1701); deployer recordkeeping requirements and regulated-entity exemptions (C.R.S. § 6-1-1703).
