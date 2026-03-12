@@ -19,3 +19,20 @@
 - Custom SITs for organization-specific patterns
 - Content explorer shows SIT coverage
 - EDM configured for customer data matching
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.13-01-purview-sits-list.png` — SITs list
+- `1.13-02-purview-sits-financial.png` — Financial SITs (SSN, account numbers)
+- `1.13-03-purview-sits-create.png` — Custom SIT creation
+- `1.13-04-purview-sits-patterns.png` — Pattern configuration
+- `1.13-05-purview-edm-classifiers.png` — Exact Data Match classifiers
+- `1.13-06-purview-trainable-classifiers.png` — Trainable classifier list
+- `1.13-07-purview-content-explorer.png` — Content with SIT detections
+- `1.13-08-purview-activity-explorer.png` — SIT-related activities

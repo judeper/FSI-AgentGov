@@ -19,3 +19,20 @@
 - Agent security policies are active
 - Alert policies trigger on suspicious activity
 - Authentication is required for all agents
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.8-01-ppac-managed-env-confirm.png` — Managed environment status confirmed
+- `1.8-02-ppac-agent-security.png` — Agent security policies
+- `1.8-03-ppac-security-settings.png` — Tenant security configuration
+- `1.8-04-copilot-security-settings.png` — Agent-level security settings
+- `1.8-05-copilot-authentication.png` — Authentication requirements
+- `1.8-06-purview-alert-policies.png` — Alert policy configuration
+- `1.8-07-purview-alerts-dashboard.png` — Active alerts view
+- `1.8-08-defender-threat-detection.png` — Defender for Cloud Apps integration

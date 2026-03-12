@@ -17,3 +17,18 @@
 - Retention meets regulatory requirements (7 years for FSI)
 - Power Platform activities are captured
 - Export functionality works for examinations
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.7-01-purview-audit-search.png` — Audit log search interface
+- `1.7-02-purview-audit-results.png` — Sample audit log results
+- `1.7-03-purview-audit-retention.png` — Audit retention configuration
+- `1.7-04-purview-audit-export.png` — Export options for compliance
+- `1.7-05-ppac-activity-logs.png` — Power Platform activity logs
+- `1.7-06-m365-audit-settings.png` — M365 audit configuration

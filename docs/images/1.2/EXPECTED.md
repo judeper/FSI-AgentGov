@@ -23,3 +23,24 @@
 - User consent is set to "Do not allow user consent" for FSI
 - SharePoint list has all required metadata columns
 - PPAC shows complete agent inventory per environment
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.2-01-m365-integrated-apps-list.png` — List of integrated applications with columns
+- `1.2-02-m365-app-details.png` — App details showing Publisher, Permissions
+- `1.2-03-m365-user-consent-settings.png` — Consent configuration panel
+- `1.2-04-spac-create-site.png` — Creating governance site for registry
+- `1.2-05-sharepoint-create-list.png` — Creating AI Agent Registry list
+- `1.2-06-sharepoint-list-columns.png` — Metadata columns configuration
+- `1.2-07-ppac-environments-list.png` — Environment list for discovery
+- `1.2-08-ppac-environment-resources.png` — Resources panel showing agents
+- `1.2-09-ppac-copilot-agents.png` — Agent list in environment
+- `1.2-10-copilot-environment-picker.png` — Environment selection
+- `1.2-11-copilot-agents-list.png` — List of agents in environment
+- `1.2-12-copilot-agent-details.png` — Agent details with knowledge/connectors

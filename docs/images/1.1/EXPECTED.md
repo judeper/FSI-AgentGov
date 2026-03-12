@@ -17,3 +17,19 @@
 - Security group type is "Security" (not M365)
 - PPAC shows security group assigned to environment
 - Copilot Studio shows access is restricted to group members
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.1-01-entra-create-security-group.png` — Security group creation dialog with "Agent Makers" name
+- `1.1-02-entra-group-members.png` — Adding members to the security group
+- `1.1-03-ppac-environment-settings.png` — Environment settings panel
+- `1.1-04-ppac-security-roles.png` — Security roles list and assignment
+- `1.1-05-ppac-maker-permissions.png` — Maker permission configuration
+- `1.1-06-copilot-settings-access.png` — Access restriction settings in Copilot Studio
+- `1.1-07-copilot-verify-restricted.png` — Verification that unauthorized users cannot create

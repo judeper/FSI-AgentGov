@@ -19,3 +19,20 @@
 - SharePoint sites have appropriate restrictions
 - Topics don't expose unnecessary data paths
 - Audit logs show appropriate data access patterns
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.14-01-ppac-agent-resources.png` — Agent list with details
+- `1.14-02-ppac-agent-details.png` — Agent configuration overview
+- `1.14-03-copilot-knowledge-sources.png` — Knowledge sources list
+- `1.14-04-copilot-manage-sources.png` — Data source management
+- `1.14-05-copilot-sharepoint-sources.png` — SharePoint site connections
+- `1.14-06-spac-site-permissions.png` — Site access restrictions
+- `1.14-07-copilot-topics-scope.png` — Topic scope and triggers
+- `1.14-08-purview-audit-agent-access.png` — Agent data access logs

@@ -19,3 +19,20 @@
 - Policies cover all locations with agent data
 - Disposition review is configured for regulated content
 - Records management supports immutable retention
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.9-01-purview-retention-labels.png` — Retention labels list
+- `1.9-02-purview-retention-create.png` — Retention label creation
+- `1.9-03-purview-retention-settings.png` — Retention period and action settings
+- `1.9-04-purview-retention-policies.png` — Retention policies list
+- `1.9-05-purview-policy-locations.png` — Policy scope (SharePoint, Exchange, etc.)
+- `1.9-06-purview-disposition.png` — Disposition review queue
+- `1.9-07-purview-records-management.png` — Records management dashboard
+- `1.9-08-ppac-data-policies.png` — Environment data settings
