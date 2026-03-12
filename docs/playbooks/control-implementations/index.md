@@ -17,7 +17,7 @@ Each control in the [Control Catalog](../../controls/index.md) links to four imp
 
 ### Navigation
 
-Navigate to any control in the Control Catalog to find links to its implementation playbooks in the **Implementation Guides** section.
+Navigate to any control in the Control Catalog to find links to its implementation playbooks in the **Implementation Playbooks** section.
 
 ---
 
@@ -155,4 +155,4 @@ Each playbook follows a consistent structure:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: February 2026 | Version: v1.2.51*

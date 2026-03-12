@@ -21,7 +21,7 @@ Install the following modules before running governance scripts:
 
 ```powershell
 # Microsoft 365 Administration
-Install-Module -Name ExchangeOnlineManagement -Force -AllowClobber
+Install-Module -Name ExchangeOnlineManagement -Force -AllowClobber  # Includes compliance cmdlets
 Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
 Install-Module -Name MicrosoftTeams -Force -AllowClobber
 
@@ -39,7 +39,6 @@ Install-Module -Name Az.Monitor -Force -AllowClobber
 Install-Module -Name Az.OperationalInsights -Force -AllowClobber
 
 # Security and Compliance
-Install-Module -Name ExchangeOnlineManagement -Force -AllowClobber  # Includes compliance cmdlets
 ```
 
 ### Verify Module Installation

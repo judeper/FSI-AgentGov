@@ -7,6 +7,7 @@ This folder contains templates for creating consistent documentation.
 | Template | Purpose |
 |----------|---------|
 | `control-setup-template.md` | Standard structure for all 71 governance controls |
+| `exception-template.md` | MIME type exception request form for zone allowlist changes |
 
 ## Using the Control Template
 
@@ -26,7 +27,7 @@ Use `control-setup-template.md` when:
 5. **Zone-Specific Requirements** - Zone 1/2/3 table
 6. **Roles & Responsibilities** - Admin roles table
 7. **Related Controls** - Cross-reference table
-8. **Implementation Guides** - Links to 4 playbooks
+8. **Implementation Playbooks** - Links to 4 playbooks
 9. **Verification Criteria** - Verification checklist
 10. **Additional Resources** - Microsoft Learn links
 

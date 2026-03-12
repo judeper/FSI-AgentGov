@@ -105,4 +105,4 @@ Confirm control effectiveness by verifying:
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | UI Verification Status: Current*
+*Updated: February 2026 | Version: v1.2 | UI Verification Status: Current*
