@@ -217,7 +217,7 @@
 
 ---
 
-### Test Case 4: Agent Access Restrictions
+### Test Case FAC-04: Agent Access Restrictions
 
 **Objective:** Verify restricted agent access prevents third-party agent discovery
 
@@ -230,7 +230,7 @@
 
 **Expected Result:** Third-party agents not discoverable
 
-### Test Case 5: AI Administrator Role Permissions
+### Test Case FAC-05: AI Administrator Role Permissions
 
 **Objective:** Verify AI Administrator can configure Copilot settings without Global Admin
 
@@ -244,7 +244,7 @@
 
 **Expected Result:** Settings changes applied successfully without Global Admin
 
-### Test Case 6: Agent Approval Workflow
+### Test Case FAC-06: Agent Approval Workflow
 
 **Objective:** Verify agents require approval
 
@@ -258,7 +258,7 @@
 
 **Expected Result:** Agents require approval before availability
 
-### Test Case 7: MCP Server Blocking
+### Test Case FAC-07: MCP Server Blocking
 
 **Objective:** Verify blocked servers are inaccessible
 

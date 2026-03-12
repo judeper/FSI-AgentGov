@@ -663,12 +663,69 @@ Write-Host "✓ Connected successfully" -ForegroundColor Green
 # Export all exceptions (same query as Script 1)
 Write-Host "Exporting exception register..." -ForegroundColor Cyan
 
-# NOTE: Restore the FetchXML query and Invoke-CrmRetrieveMultiple call from Script 1
-# to populate $exportData before running this section.
+# Query all exceptions (same FetchXML as Script 1)
+$fetchXml = @"
+<fetch>
+  <entity name="fsi_governanceexception">
+    <attribute name="fsi_governanceexceptionid" />
+    <attribute name="fsi_name" />
+    <attribute name="fsi_exceptionrequestdate" />
+    <attribute name="fsi_requestor" />
+    <attribute name="fsi_agentname" />
+    <attribute name="fsi_governancezone" />
+    <attribute name="fsi_exceptiontype" />
+    <attribute name="fsi_businessjustification" />
+    <attribute name="fsi_riskassessment" />
+    <attribute name="fsi_compensatingcontrols" />
+    <attribute name="fsi_approvalstatus" />
+    <attribute name="fsi_approver1" />
+    <attribute name="fsi_approvaldate1" />
+    <attribute name="fsi_approver2" />
+    <attribute name="fsi_approvaldate2" />
+    <attribute name="fsi_approver3" />
+    <attribute name="fsi_approvaldate3" />
+    <attribute name="fsi_expirationdate" />
+    <attribute name="fsi_renewalcount" />
+    <attribute name="fsi_closuredate" />
+    <attribute name="fsi_closurereason" />
+    <attribute name="createdon" />
+    <attribute name="modifiedon" />
+    <order attribute="fsi_exceptionrequestdate" descending="true" />
+  </entity>
+</fetch>
+"@
 
-# [FetchXML query from Script 1 - omitted for brevity]
+$results = Get-CrmRecords -conn $conn -Fetch $fetchXml
+Write-Host "Found $($results.CrmRecords.Count) exception records" -ForegroundColor White
 
-# ... (execute query and export as in Script 1)
+$exportData = @()
+foreach ($record in $results.CrmRecords) {
+    $exportData += [PSCustomObject]@{
+        ExceptionID          = $record.fsi_governanceexceptionid
+        ExceptionName        = $record.fsi_name
+        RequestDate          = $record.fsi_exceptionrequestdate
+        Requestor            = $record.fsi_requestor_Property.Value.Name
+        AgentName            = $record.fsi_agentname
+        GovernanceZone       = $record.fsi_governancezone_Property.Value.Name
+        ExceptionType        = $record.fsi_exceptiontype_Property.Value.Name
+        BusinessJustification = $record.fsi_businessjustification
+        RiskAssessment       = $record.fsi_riskassessment
+        CompensatingControls = $record.fsi_compensatingcontrols
+        ApprovalStatus       = $record.fsi_approvalstatus_Property.Value.Name
+        Approver1            = if ($record.fsi_approver1_Property.Value) { $record.fsi_approver1_Property.Value.Name } else { "" }
+        ApprovalDate1        = $record.fsi_approvaldate1
+        Approver2            = if ($record.fsi_approver2_Property.Value) { $record.fsi_approver2_Property.Value.Name } else { "" }
+        ApprovalDate2        = $record.fsi_approvaldate2
+        Approver3            = if ($record.fsi_approver3_Property.Value) { $record.fsi_approver3_Property.Value.Name } else { "" }
+        ApprovalDate3        = $record.fsi_approvaldate3
+        ExpirationDate       = $record.fsi_expirationdate
+        RenewalCount         = $record.fsi_renewalcount
+        ClosureDate          = $record.fsi_closuredate
+        ClosureReason        = $record.fsi_closurereason
+        CreatedOn            = $record.createdon
+        ModifiedOn           = $record.modifiedon
+    }
+}
 
 $exportFile = Join-Path $evidenceDir "ExceptionRegister.csv"
 $exportData | Export-Csv -Path $exportFile -NoTypeInformation -Encoding UTF8

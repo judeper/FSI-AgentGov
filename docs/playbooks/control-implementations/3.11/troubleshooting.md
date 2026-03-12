@@ -564,7 +564,8 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
 ### Check Agent Inventory API Availability
 
 ```powershell
-# Test if Agent Inventory API is accessible (adjust URL when API is GA)
+# Test if Agent Inventory API is accessible
+# NOTE: This is a placeholder URL — replace with the actual endpoint when the API reaches GA
 $apiUrl = "https://api.powerplatform.com/agentInventory/v1/inventory"
 try {
     Invoke-RestMethod -Uri $apiUrl -Method Get -Headers @{ Authorization = "Bearer $token" }
@@ -636,7 +637,7 @@ If issues persist after troubleshooting:
 
 3. **Community Resources:**
    - Power Platform Community Forums: https://powerusers.microsoft.com/
-   - Microsoft Tech Community: https://techcommunity.microsoft.com/
+   - Microsoft Tech Community: https://techcommunity.microsoft.com/t5/microsoft-365/ct-p/microsoft365
    - Stack Overflow: Tag `power-platform`, `copilot-studio`, `microsoft-graph`
 
 ---

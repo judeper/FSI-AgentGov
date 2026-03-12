@@ -195,7 +195,7 @@ Automated monitoring detects agents with missing or incomplete metadata and aler
 1. Add action: **HTTP - Send an HTTP request**
 2. Configure HTTP request to retrieve agent inventory:
    - **Method:** GET
-   - **URI:** `https://api.powerplatform.com/agentInventory/v1/inventory` (example endpoint; adjust based on actual API when available)
+   - **URI:** `https://api.powerplatform.com/agentInventory/v1/inventory` (**placeholder — replace with actual endpoint when available**; this API is in preview and may not yet be publicly accessible)
    - **Authentication:** Azure AD (use Managed Identity or service principal with appropriate permissions)
 3. Parse the JSON response to extract agent records
 
