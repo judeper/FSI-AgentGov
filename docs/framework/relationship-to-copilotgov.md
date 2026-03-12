@@ -87,3 +87,7 @@ Both repositories are standalone and complementary. Where governance topics over
 ## Next Step
 
 If you are new to this repository, return to [Start Here](../start-here.md). If you are ready to understand AgentGov's operating model, continue to [Zones and Tiers](zones-and-tiers.md) or the [Executive Summary](executive-summary.md).
+
+---
+
+*FSI Agent Governance Framework v1.2.53 - March 2026*
