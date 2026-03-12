@@ -45,3 +45,11 @@ Scripts in this directory require elevated permissions and should be:
 `Invoke-HardeningBaselineCheck.ps1` cross-references `restrict-agent-publishing.ps1` for hardening baseline items 1-6 (agent publishing restrictions). When `restrict-agent-publishing.ps1` is present in the same directory, items 1-6 are reported as "Pass" with automation level noted. When absent, items 1-6 are reported as "Skip" requiring manual attestation.
 
 `Test-ZoneAgentAccess.ps1` has a companion adaptive card template at `src/adaptive-card-zone-access-alert.json` for Teams webhook notifications when zone access policy drift is detected. The template follows the same pattern as `src/adaptive-card-uasd-alert.json` with scalar and per-finding template variables for Power Automate flow integration.
+
+## Planned Scripts
+
+| Script | Purpose | Related Control |
+|--------|---------|-----------------|
+| `configure-managed-environment.ps1` | Enable Managed Environments for governance zones | Control 2.1 |
+| `setup-sod-groups.ps1` | Create segregation of duties security groups | Control 1.7 |
+| `enable-dlp-policies.ps1` | Configure DLP policies for agent environments | Control 1.3 |

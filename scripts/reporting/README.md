@@ -27,4 +27,4 @@ Scripts generate output in:
 
 ---
 
-*Coming in a future release*
+*Planned for a future release (post-v1.2)*
