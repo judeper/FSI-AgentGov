@@ -14,8 +14,8 @@
 
 1. Verify RCD setting on the site:
    ```powershell
-   # Replace 'tenant' and 'SiteName' with your actual tenant name and site name
-   Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
+   # Replace 'contoso' and 'SiteName' with your actual tenant name and site name
+   Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName" |
        Select-Object Url, RestrictContentOrgWideSearch
    ```
 2. Allow 24 hours for index propagation
@@ -71,8 +71,8 @@
 
 ```powershell
 # Check site exclusion status
-# Replace 'tenant' and 'SiteName' with your actual tenant name and site name
-Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
+# Replace 'contoso' and 'SiteName' with your actual tenant name and site name
+Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName" |
     Select-Object Url, RestrictContentOrgWideSearch, SensitivityLabel
 
 # Verify Graph Connector status

@@ -89,14 +89,14 @@ Collect and store the following artifacts for audit readiness:
 Write-Host "=== Control 4.1 Validation ===" -ForegroundColor Cyan
 
 # Connect to SharePoint
-$AdminUrl = "https://yourtenant-admin.sharepoint.com"
+$AdminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $AdminUrl
 
 # Define expected restricted sites (from your governance inventory)
 $ExpectedRestrictedSites = @(
-    "https://yourtenant.sharepoint.com/sites/TradingData",
-    "https://yourtenant.sharepoint.com/sites/CustomerPII",
-    "https://yourtenant.sharepoint.com/sites/RegulatoryFilings"
+    "https://contoso.sharepoint.com/sites/TradingData",
+    "https://contoso.sharepoint.com/sites/CustomerPII",
+    "https://contoso.sharepoint.com/sites/RegulatoryFilings"
 )
 
 $PassCount = 0

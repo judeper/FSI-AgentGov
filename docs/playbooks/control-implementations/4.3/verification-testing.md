@@ -48,6 +48,20 @@
 
 ---
 
+## Test Cases
+
+| Test ID | Scenario | Expected Result | Pass/Fail |
+|---------|----------|-----------------|-----------|
+| TC-4.3-01 | Inactive site policy enabled | Policy shows "Active" in Site lifecycle management | |
+| TC-4.3-02 | Site inactive beyond threshold | Site owner receives notification email | |
+| TC-4.3-03 | Retention policy applied to Zone 3 site | Policy shows in compliance portal with correct duration | |
+| TC-4.3-04 | Retention label published | Label available for manual or auto-application | |
+| TC-4.3-05 | Document under retention deleted by user | Document moves to Preservation Hold Library | |
+| TC-4.3-06 | Retention period expires | Disposition review triggered (if configured) | |
+| TC-4.3-07 | OneDrive retention setting configured | Setting matches organizational requirements | |
+
+---
+
 ## PowerShell Validation Commands
 
 ```powershell

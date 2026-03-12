@@ -108,7 +108,7 @@ SharePoint Restricted Search implements a **positive governance model** where on
 1. **Enable Restricted Search Mode** (PowerShell):
    ```powershell
    # Connect to SharePoint Online
-   Connect-SPOService -Url "https://tenant-admin.sharepoint.com"
+   Connect-SPOService -Url "https://contoso-admin.sharepoint.com"
 
    # Enable Restricted Search
    Set-SPOTenant -EnableRestrictedSearchAllList $true

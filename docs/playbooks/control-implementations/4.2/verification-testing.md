@@ -97,7 +97,7 @@ Write-Host "=== Control 4.2 Validation ===" -ForegroundColor Cyan
 
 # Connect to services
 Connect-MgGraph -Scopes "AccessReview.Read.All"
-$adminUrl = "https://yourtenant-admin.sharepoint.com"
+$adminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $adminUrl
 
 $PassCount = 0

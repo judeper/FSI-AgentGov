@@ -20,7 +20,7 @@ Import-Module Microsoft.Online.SharePoint.PowerShell
 
 ```powershell
 # Connect to SharePoint Online Admin Center
-$AdminUrl = "https://yourtenant-admin.sharepoint.com"
+$AdminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $AdminUrl
 
 # Verify connection
@@ -53,7 +53,7 @@ Write-Host "Unrestricted Sites: $($AllSites.Count - $RestrictedSites.Count)" -Fo
 
 ```powershell
 # Enable Copilot content restriction for a specific site
-$SiteUrl = "https://yourtenant.sharepoint.com/sites/FinanceConfidential"
+$SiteUrl = "https://contoso.sharepoint.com/sites/FinanceConfidential"
 
 # Restrict content from Microsoft 365 Copilot
 Set-SPOSite -Identity $SiteUrl -RestrictContentOrgWideSearch $true
@@ -72,8 +72,8 @@ Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictContentOrgWideSearch
 Set-SPOTenant -EnableRestrictedSearchAllList $true
 
 # Add sites to the allow-list (one site at a time)
-Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://yourtenant.sharepoint.com/sites/ApprovedSite1"
-Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://yourtenant.sharepoint.com/sites/ApprovedSite2"
+Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/ApprovedSite1"
+Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/ApprovedSite2"
 
 # Get current RSS configuration
 Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
@@ -84,7 +84,7 @@ Get-SPOTenantRestrictedSearchAllowedList
 
 ```powershell
 # Configure restricted site access (limits access to specific security groups)
-$SiteUrl = "https://yourtenant.sharepoint.com/sites/MandA-ProjectAlpha"
+$SiteUrl = "https://contoso.sharepoint.com/sites/MandA-ProjectAlpha"
 $SecurityGroupId = "00000000-0000-0000-0000-000000000000"  # Replace with actual Entra ID group ID
 
 # Enable restricted access
@@ -107,10 +107,10 @@ Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictedAccessControl, Res
 # Bulk enable Copilot restrictions for enterprise-managed sites
 # Define enterprise-managed site URLs (from your governance inventory)
 $EnterpriseSites = @(
-    "https://yourtenant.sharepoint.com/sites/TradingData",
-    "https://yourtenant.sharepoint.com/sites/CustomerPII",
-    "https://yourtenant.sharepoint.com/sites/RegulatoryFilings",
-    "https://yourtenant.sharepoint.com/sites/MergerAcquisition"
+    "https://contoso.sharepoint.com/sites/TradingData",
+    "https://contoso.sharepoint.com/sites/CustomerPII",
+    "https://contoso.sharepoint.com/sites/RegulatoryFilings",
+    "https://contoso.sharepoint.com/sites/MergerAcquisition"
 )
 
 # Apply restrictions to all enterprise-managed sites

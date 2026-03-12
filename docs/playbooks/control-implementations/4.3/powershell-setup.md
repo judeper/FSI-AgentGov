@@ -54,10 +54,21 @@ Write-Host "Retention policy created: $PolicyName" -ForegroundColor Green
 
 ```powershell
 # Create zone-specific retention policies
+# Note: -SharePointLocation requires explicit site URLs; wildcards are NOT supported.
+# List each site individually or use "All" to cover all SharePoint sites.
 $Zones = @(
-    @{Name="Zone1-Personal"; Duration=365; Sites="https://contoso.sharepoint.com/sites/Zone1-*"},
-    @{Name="Zone2-Team"; Duration=1825; Sites="https://contoso.sharepoint.com/sites/Zone2-*"},
-    @{Name="Zone3-Enterprise"; Duration=2555; Sites="https://contoso.sharepoint.com/sites/Zone3-*"}
+    @{Name="Zone1-Personal"; Duration=365; Sites=@(
+        "https://contoso.sharepoint.com/sites/Zone1-PersonalAgents",
+        "https://contoso.sharepoint.com/sites/Zone1-Sandbox"
+    )},
+    @{Name="Zone2-Team"; Duration=1825; Sites=@(
+        "https://contoso.sharepoint.com/sites/Zone2-TeamAgents",
+        "https://contoso.sharepoint.com/sites/Zone2-ProjectHub"
+    )},
+    @{Name="Zone3-Enterprise"; Duration=2555; Sites=@(
+        "https://contoso.sharepoint.com/sites/Zone3-EnterpriseAgents",
+        "https://contoso.sharepoint.com/sites/Zone3-RegulatoryData"
+    )}
 )
 
 foreach ($Zone in $Zones) {

@@ -21,7 +21,7 @@ Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
 Connect-MgGraph -Scopes "User.Read.All", "Organization.Read.All", "Application.Read.All"
 
 # Connect to SharePoint Online
-Connect-SPOService -Url "https://tenant-admin.sharepoint.com"  # Replace 'tenant' with your tenant name
+Connect-SPOService -Url "https://contoso-admin.sharepoint.com"  # Replace 'contoso' with your tenant name
 ```
 
 ---
@@ -93,12 +93,12 @@ Write-Host "Sites accessible by Copilot: $includedCount"
 
 ```powershell
 # Exclude sensitive sites from Copilot
-# Replace 'tenant' with your tenant name and update site URLs to match your environment
+# Replace 'contoso' with your tenant name and update site URLs to match your environment
 $sensitiveSites = @(
-    "https://tenant.sharepoint.com/sites/ExecutiveCompensation",
-    "https://tenant.sharepoint.com/sites/MergerTarget",
-    "https://tenant.sharepoint.com/sites/LegalHold",
-    "https://tenant.sharepoint.com/sites/ComplianceInvestigations"
+    "https://contoso.sharepoint.com/sites/ExecutiveCompensation",
+    "https://contoso.sharepoint.com/sites/MergerTarget",
+    "https://contoso.sharepoint.com/sites/LegalHold",
+    "https://contoso.sharepoint.com/sites/ComplianceInvestigations"
 )
 
 foreach ($siteUrl in $sensitiveSites) {
