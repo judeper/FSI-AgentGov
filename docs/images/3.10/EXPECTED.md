@@ -56,4 +56,20 @@
 
 ---
 
+## Screenshot Naming Convention
+
+Save screenshots with the following naming format:
+```
+3.10_Screenshot-[Number]_[Description]_[YYYYMMDD].png
+```
+
+Examples:
+- `3.10_Screenshot-01_Customer-Satisfaction-Settings_20260212.png`
+- `3.10_Screenshot-03_Hallucination-Tracking-List_20260212.png`
+- `3.10_Screenshot-06_Application-Insights-Conversation-Analysis_20260212.png`
+
+Store all screenshots in the `docs/images/3.10/` directory for easy reference and documentation embedding.
+
+---
+
 [Back to Control 3.10](../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md)

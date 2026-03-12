@@ -61,4 +61,20 @@
 
 ---
 
+## Screenshot Naming Convention
+
+Save screenshots with the following naming format:
+```
+4.7_Screenshot-[Number]_[Description]_[YYYYMMDD].png
+```
+
+Examples:
+- `4.7_Screenshot-01_M365-Admin-Center-Copilot-Settings_20260212.png`
+- `4.7_Screenshot-04_Plugin-Governance-Settings_20260212.png`
+- `4.7_Screenshot-07_PowerShell-Verification-Output_20260212.png`
+
+Store all screenshots in the `docs/images/4.7/` directory for easy reference and documentation embedding.
+
+---
+
 [Back to Control 4.7](../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md)
