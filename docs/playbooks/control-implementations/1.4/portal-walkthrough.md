@@ -1,4 +1,4 @@
-# Control 1.4: Advanced Connector Policies (ACP) - Portal Walkthrough
+# Portal Walkthrough: Control 1.4 - Advanced Connector Policies (ACP)
 
 **Last Updated:** March 2026
 **Portal:** Power Platform Admin Center

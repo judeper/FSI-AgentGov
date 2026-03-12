@@ -409,5 +409,4 @@ For questions about evidence standards:
 
 ---
 
-**Updated:** Jan 2026
-**Version:** v1.2 (Jan 2026)
+*FSI Agent Governance Framework v1.2 - February 2026*

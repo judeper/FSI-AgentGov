@@ -123,9 +123,11 @@ foreach ($env in $environments) {
     
     # Get Copilot Studio agents (bots) in this environment
     try {
-        # NOTE: Get-AdminPowerAppCopilotStudioAgent is unverified and may not be available
-        # in all environments. As a fallback, use the Power Platform Admin Center inventory
-        # or the Dataverse API: GET /api/data/v9.2/bots?$select=name,botid,statecode
+        # NEEDS_HUMAN_REVIEW: Get-AdminPowerAppCopilotStudioAgent is unverified and may not be
+        # available in all versions of Microsoft.PowerApps.Administration.PowerShell. Confirm the
+        # cmdlet exists in your installed module version before relying on this script.
+        # Fallback: use the Power Platform Admin Center inventory export or the Dataverse API:
+        #   GET /api/data/v9.2/bots?$select=name,botid,statecode
         $agents = Get-AdminPowerAppCopilotStudioAgent -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
         
         foreach ($agent in $agents) {

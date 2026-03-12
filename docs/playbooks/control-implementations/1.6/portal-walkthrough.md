@@ -1,4 +1,4 @@
-# Control 1.6: Microsoft Purview DSPM for AI - Portal Walkthrough
+# Portal Walkthrough: Control 1.6 - Microsoft Purview DSPM for AI
 
 **Last Updated:** March 2026
 **Portal:** Microsoft Purview
