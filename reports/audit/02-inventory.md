@@ -14,7 +14,7 @@
 | Getting Started docs | 2 | FSI-AgentGov |
 | Downloads (Excel templates) | 6 | FSI-AgentGov |
 | Advanced playbooks | 15 | FSI-AgentGov |
-| Solution packages | 25 | FSI-AgentGov-Solutions |
+| Solution packages | 24 | FSI-AgentGov-Solutions |
 | Scripts (docs repo) | ~40 | FSI-AgentGov |
 | **Total reviewable units** | **~475** | |
 
@@ -67,7 +67,7 @@
 |----|-------|
 | 4.1–4.7 | SharePoint Advanced Management, Site Access Reviews, Document Retention, Guest Access, Content Lifecycle, Knowledge Source Security, M365 Copilot Data Governance |
 
-## Solutions Inventory (25)
+## Solutions Inventory (24)
 
 | # | Solution | Version | Primary Technologies |
 |---|---------|---------|---------------------|
@@ -75,26 +75,26 @@
 | 2 | agent-observability-foundation | 1.2.41 | KQL, Log Analytics |
 | 3 | agent-sharing-access-restriction-detector | 1.2.41 | PowerShell, Copilot Studio API |
 | 4 | audit-compliance-manager | 1.2.47 | PowerShell, Python, Exchange, Dataverse (consolidates former ACV + ALCA) |
-| 6 | coi-testing | 1.2.41 | Python, Azure AI |
-| 7 | compliance-dashboard | 1.2.41 | Python, Dataverse, Power BI |
-| 8 | conditional-access-automation | 1.2.41 | PowerShell, Graph API, Entra CA |
-| 9 | content-moderation-monitor | 1.2.41 | PowerShell, Azure AI Content Safety |
-| 10 | cross-solution-integration | 1.2.41 | PowerShell, Multi-solution |
-| 11 | deny-event-correlation-report | 1.2.41 | PowerShell, KQL, Graph |
-| 12 | dr-testing-framework | 1.2.41 | PowerShell, Azure BC/DR |
-| 13 | environment-lifecycle-management | 1.2.41 | Python, Dataverse, Power Platform |
-| 14 | file-upload-security | 1.2.41 | PowerShell, DLP, Copilot Studio |
-| 15 | finra-supervision-workflow | 1.2.41 | Power Automate, Dataverse |
-| 16 | hallucination-tracker | 1.2.41 | Python, Dataverse, Azure AI |
-| 17 | inactivity-timeout-enforcement | 1.2.41 | PowerShell, Power Platform |
-| 18 | message-center-monitor | 1.2.41 | Power Automate, Graph API |
-| 19 | mime-type-restrictions | 1.2.41 | C#, DLP, Copilot Studio |
-| 20 | pipeline-governance-cleanup | 1.2.41 | PowerShell, Power Platform |
-| 21 | rag-source-validator | 1.2.41 | PowerShell, Knowledge Sources |
-| 22 | scope-drift-monitor | 1.2.41 | PowerShell, Copilot Studio |
-| 23 | segregation-detector | 1.2.41 | PowerShell, Entra ID, PIM |
-| 24 | session-security-configurator | 1.2.41 | Python, PowerShell, Dataverse |
-| 25 | unrestricted-agent-sharing-detector | 1.2.41 | PowerShell, Copilot Studio |
+| 5 | coi-testing | 1.2.41 | Python, Azure AI |
+| 6 | compliance-dashboard | 1.2.41 | Python, Dataverse, Power BI |
+| 7 | conditional-access-automation | 1.2.41 | PowerShell, Graph API, Entra CA |
+| 8 | content-moderation-monitor | 1.2.41 | PowerShell, Azure AI Content Safety |
+| 9 | cross-solution-integration | 1.2.41 | PowerShell, Multi-solution |
+| 10 | deny-event-correlation-report | 1.2.41 | PowerShell, KQL, Graph |
+| 11 | dr-testing-framework | 1.2.41 | PowerShell, Azure BC/DR |
+| 12 | environment-lifecycle-management | 1.2.41 | Python, Dataverse, Power Platform |
+| 13 | file-upload-security | 1.2.41 | PowerShell, DLP, Copilot Studio |
+| 14 | finra-supervision-workflow | 1.2.41 | Power Automate, Dataverse |
+| 15 | hallucination-tracker | 1.2.41 | Python, Dataverse, Azure AI |
+| 16 | inactivity-timeout-enforcement | 1.2.41 | PowerShell, Power Platform |
+| 17 | message-center-monitor | 1.2.41 | Power Automate, Graph API |
+| 18 | mime-type-restrictions | 1.2.41 | C#, DLP, Copilot Studio |
+| 19 | pipeline-governance-cleanup | 1.2.41 | PowerShell, Power Platform |
+| 20 | rag-source-validator | 1.2.41 | PowerShell, Knowledge Sources |
+| 21 | scope-drift-monitor | 1.2.41 | PowerShell, Copilot Studio |
+| 22 | segregation-detector | 1.2.41 | PowerShell, Entra ID, PIM |
+| 23 | session-security-configurator | 1.2.41 | Python, PowerShell, Dataverse |
+| 24 | unrestricted-agent-sharing-detector | 1.2.41 | PowerShell, Copilot Studio |
 
 ## Framework & Reference Docs
 

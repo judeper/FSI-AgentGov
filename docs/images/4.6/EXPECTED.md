@@ -42,4 +42,20 @@
 
 ---
 
+## Screenshot Naming Convention
+
+Save screenshots with the following naming format:
+```
+4.6_Screenshot-[Number]_[Description]_[YYYYMMDD].png
+```
+
+Examples:
+- `4.6_Screenshot-01_SharePoint-Site-Settings-Copilot-Access_20260212.png`
+- `4.6_Screenshot-03_PowerShell-Verification-Output_20260212.png`
+- `4.6_Screenshot-05_Site-Property-Bag-CopilotReady-Metadata_20260212.png`
+
+Store all screenshots in the `docs/images/4.6/` directory for easy reference and documentation embedding.
+
+---
+
 [Back to Control 4.6](../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md)

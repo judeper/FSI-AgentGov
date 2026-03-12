@@ -189,4 +189,4 @@ If you find outdated content or broken procedures:
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - February 2026*

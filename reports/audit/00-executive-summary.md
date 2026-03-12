@@ -14,7 +14,7 @@ The documentation framework is **structurally sound** — all 71 controls follow
 
 | Category | Items Reviewed | Findings |
 |----------|---------------|----------|
-| Learn Validations | 31 claims deeply verified | 15 Contradicted, 4 Not Found, 3 Partially Verified, 9 Verified |
+| Learn Validations | 31 claims deeply verified | 22 Contradicted, 5 Not Found, 4 Partially Verified |
 | Technical Findings | 25 solution packages | 17 Critical, 3 High |
 | Documentation Findings | 71 controls + 34 framework/ref docs | 17 Incorrect, 7 Missing, 6 Ambiguity, 5 Gap, 1 Language |
 | Baseline Validation | 4 scripts | 3 Pass, 1 Fail (Excel LFS) |

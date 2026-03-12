@@ -2,7 +2,7 @@
 
 ## Overview
 
-This template provides a consolidated operational calendar for AI agent governance tasks. Control tasks from the FSI Agent Governance Framework are organized by cadence (weekly, monthly, quarterly, annually) to ensure consistent execution and regulatory compliance.
+This template provides a consolidated operational calendar for AI agent governance tasks. Control tasks from the FSI Agent Governance Framework are organized by cadence (weekly, monthly, quarterly, annually) to support consistent execution and help meet regulatory requirements.
 
 ---
 

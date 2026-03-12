@@ -45,7 +45,7 @@ scripts/
 │   └── README.md                       # Configuration guide
 │
 ├── reporting/                          # Reporting automation (planned)
-│   └── README.md                       # Placeholder
+│   └── README.md                       # Planned scripts overview
 │
 └── hooks/                              # Claude Code hooks
     ├── researcher-package-reminder.py  # Remind to update researcher package
@@ -185,13 +185,19 @@ Key scripts include:
 - `setup-sod-groups.ps1` - Create segregation of duties groups
 - `enable-dlp-policies.ps1` - Configure DLP policies
 
+### Monitoring Configuration
+
+The `config/` directory contains monitoring configuration for the Learn Monitor and Regulatory Monitor. See [`config/README.md`](config/README.md) for pattern syntax, classification tiers, and operational settings.
+
 ### Reporting Automation (Planned)
 
+The `reporting/` directory contains planned scripts for compliance reporting and governance data export. See [`reporting/README.md`](reporting/README.md) for full details.
+
 Future scripts for:
-- `generate-compliance-report.ps1` - Generate compliance reports
-- `export-agent-metadata.ps1` - Export agent inventory
-- `reconcile-agent-inventory.ps1` - Reconcile agent inventory across environments
-- `create-compliance-dashboard.ps1` - Create compliance status dashboard
+- `generate-compliance-report.ps1` - Generate compliance dashboard report
+- `export-agent-metadata.ps1` - Export agent inventory with metadata
+- `reconcile-agent-inventory.ps1` - Reconcile agent inventory against PPAC
+- `create-compliance-dashboard.ps1` - Generate Power BI dashboard data
 
 ## Safety Notes
 
@@ -216,21 +222,21 @@ All scripts should follow these standards:
 ### Validation Scripts (6 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
-| `validate_before_push.py` | Pre-push validation suite | v1.1 |
-| `verify_controls.py` | Control structure validation | v1.1 |
-| `verify_templates.py` | Template format validation | v1.1 |
+| `validate_before_push.py` | Pre-push validation suite | Mar 2026 |
+| `verify_controls.py` | Control structure validation | Mar 2026 |
+| `verify_templates.py` | Template format validation | Mar 2026 |
 | `verify_excel_templates.py` | Excel template verification | Jan 2026 |
-| `validate_docs_anchors.py` | Internal link checking | v1.1 |
-| `audit_control_metadata.py` | Control metadata audit | v1.1 |
+| `validate_docs_anchors.py` | Internal link checking | Mar 2026 |
+| `audit_control_metadata.py` | Control metadata audit | Mar 2026 |
 
 ### Maintenance Scripts (5 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
-| `normalize_controls.py` | Control formatting standardization | v1.1 |
-| `compile_researcher_package.py` | Researcher package generation | v1.1 |
+| `normalize_controls.py` | Control formatting standardization | Mar 2026 |
+| `compile_researcher_package.py` | Researcher package generation | Mar 2026 |
 | `update_excel_templates.py` | Excel template updates | Jan 2026 |
-| `extract_whitepaper_text.py` | Whitepaper text extraction | v1.1 |
-| `check_temp.py` | Temp file verification utility | Dev only |
+| `extract_whitepaper_text.py` | Whitepaper text extraction | Mar 2026 |
+| `check_temp.py` | Temp file verification utility | Mar 2026 |
 
 ### Governance Scripts (17 scripts/files)
 | Script | Purpose | Related Control |
@@ -256,8 +262,8 @@ All scripts should follow these standards:
 ### Hooks (2 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
-| `hooks/researcher-package-reminder.py` | Claude Code post-edit reminder | v1.1 |
-| `hooks/boundary-check.py` | Claude Code command boundary check | v1.1 |
+| `hooks/researcher-package-reminder.py` | Claude Code post-edit reminder | Mar 2026 |
+| `hooks/boundary-check.py` | Claude Code command boundary check | Mar 2026 |
 
 ## Contributing
 

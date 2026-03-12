@@ -231,4 +231,4 @@ For questions about specific controls or implementation guidance:
 
 ---
 
-*FSI Agent Governance Framework v1.3 - February 2026*
+*FSI Agent Governance Framework v1.2 - February 2026*

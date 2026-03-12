@@ -66,7 +66,7 @@ The ACV and ALCA solutions were physically consolidated into `audit-compliance-m
 |---|------|-------|-----|
 | DOC-13 | reports/audit/01-repo-map.md | Lines 73-74: old `audit-configuration-validator/` and `audit-logging-compliance-automation/` folder names | Merge into single `audit-compliance-manager/` entry |
 | DOC-14 | reports/audit/02-inventory.md | Lines 77-78: old solution rows | Merge into single ACM row |
-| DOC-15 | reports/audit/00-executive-summary.md | Lines 24, 38: uses "ALCA" as current name | Replace with "ACM" |
+| DOC-15 | reports/audit/00-executive-summary.md | Lines 24, 38: uses "ALCA" as current name | ~~Replace with "ACM"~~ **RESOLVED** — already reads "ACM (formerly ALCA)" on line 24 and "ACM" on line 38 |
 | DOC-16 | reports/audit/04-technical-findings.md | Lines 17, 27: uses "ALCA" as current name/heading | Replace with "ACM" |
 | DOC-17 | reports/audit/06-remediation-backlog.md | Lines 33, 121: uses "ALCA" as current name | Replace with "ACM" |
 | DOC-18 | reports/audit/07-post-remediation-review.md | Line 39: uses "ALCA" as current name | Replace with "ACM" |

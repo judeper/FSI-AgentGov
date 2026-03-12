@@ -189,7 +189,7 @@ To check for expiring exceptions manually:
 </fetch>
 ```
 
-**Dataverse Web API:**
+**Dataverse Web API** (replace `contoso` with your organization's Dataverse domain)**:**
 
 ```
 GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
@@ -351,7 +351,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 - If workflow disabled: Enable via Power Automate portal
 - If query action fails: Verify Dataverse connection reference
 - If Teams action fails: Verify Teams connection reference and channel ID
-- If no expiring/expired exceptions: Test with manual exception (set expires_at to past date)
+- If no expiring/expired exceptions: Test with manual exception (set gov_expirationdate to past date)
 
 ### Teams Notification Not Received
 
