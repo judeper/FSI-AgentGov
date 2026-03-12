@@ -55,6 +55,20 @@
 
 ---
 
+## Test Cases
+
+| Test ID | Scenario | Expected Result | Pass/Fail |
+|---------|----------|-----------------|-----------|
+| TC-4.5-01 | Dashboard accessible | Home page displays current metrics without errors | |
+| TC-4.5-02 | Agent insights report generated | Agent inventory and access patterns visible | |
+| TC-4.5-03 | Data access governance report run | Site permissions report generates successfully | |
+| TC-4.5-04 | Oversharing assessment completed | Advanced management shows assessment results | |
+| TC-4.5-05 | Audit logging enabled | UnifiedAuditLogIngestionEnabled returns True | |
+| TC-4.5-06 | Audit log search returns results | SharePoint events retrievable for past 24 hours | |
+| TC-4.5-07 | Zone 3 monitoring frequency met | Daily agent access review evidence documented | |
+
+---
+
 ## Zone-Specific Verification
 
 ### Zone 1 (Personal Productivity)

@@ -50,6 +50,20 @@
 
 ---
 
+## Test Cases
+
+| Test ID | Scenario | Expected Result | Pass/Fail |
+|---------|----------|-----------------|-----------|
+| TC-4.4-01 | Zone 3 site external sharing disabled | SharingCapability shows "Disabled" | |
+| TC-4.4-02 | Zone 2 site sharing restricted | SharingCapability shows "ExistingExternalUserSharingOnly" | |
+| TC-4.4-03 | Guest expiration configured | ExternalUserExpireInDays set to 30 (or per policy) | |
+| TC-4.4-04 | Unauthorized sharing link created | Sharing blocked or flagged per policy | |
+| TC-4.4-05 | External user accesses regulated site | Access denied if sharing is disabled | |
+| TC-4.4-06 | Guest access review completed | Review results documented with remediation actions | |
+| TC-4.4-07 | Data access governance report generated | Report shows sharing status across all sites | |
+
+---
+
 ## Zone-Specific Verification
 
 ### Zone 1 (Personal Productivity)

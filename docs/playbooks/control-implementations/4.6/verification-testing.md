@@ -156,7 +156,7 @@ Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
 
 ```powershell
 # Verify specific site exclusion
-Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocs" |
+Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/DraftDocs" |
     Select-Object Url, RestrictContentOrgWideSearch
 
 # Count indexed vs excluded sites

@@ -48,7 +48,7 @@ Get-RetentionCompliancePolicy -Identity "LabelPolicyName" |
 
 ```powershell
 # List all sites without retention policies
-Connect-SPOService -Url https://tenant-admin.sharepoint.com
+Connect-SPOService -Url https://contoso-admin.sharepoint.com
 
 $RetentionPolicies = Get-RetentionCompliancePolicy | Where-Object { $_.SharePointLocation -ne $null }
 $CoveredSites = $RetentionPolicies.SharePointLocation | Select-Object -Unique

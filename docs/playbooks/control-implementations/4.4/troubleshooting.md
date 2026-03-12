@@ -25,7 +25,7 @@ Site sharing cannot be more permissive than tenant settings.
 ```powershell
 # Check tenant vs site settings
 $tenant = Get-SPOTenant
-$site = Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName"
+$site = Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName"
 
 Write-Host "Tenant sharing: $($tenant.SharingCapability)"
 Write-Host "Site sharing: $($site.SharingCapability)"
@@ -39,7 +39,7 @@ Labels may block external sharing regardless of site settings.
 
 ```powershell
 # Verify if site has sensitivity label
-Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
+Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName" |
     Select-Object Url, SensitivityLabel
 ```
 

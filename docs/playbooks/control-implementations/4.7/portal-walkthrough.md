@@ -38,7 +38,7 @@ Exclude sensitive sites from M365 Copilot via Restricted Content Discovery:
 2. Go to **Sites** > **Active sites**
 3. Select the sensitive site
 4. Click **Settings**
-5. Under **Microsoft 365 Copilot**, set to **Restricted**
+5. Under **Microsoft 365 Copilot**, locate **Restrict content from Microsoft 365 Copilot** and set the toggle to **On**
 
 !!! warning "EEEU Risk — Discovery Amplification"
     Microsoft 365 Copilot can surface content shared with "Everyone except

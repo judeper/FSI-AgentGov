@@ -17,7 +17,7 @@ Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
 
 ```powershell
 # Connect to SharePoint Online Admin Center
-$adminUrl = "https://yourtenant-admin.sharepoint.com"
+$adminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $adminUrl
 ```
 
@@ -66,7 +66,7 @@ Set-SPOTenant `
 
 ```powershell
 # Get sharing settings for a specific site
-$siteUrl = "https://yourtenant.sharepoint.com/sites/YourSite"
+$siteUrl = "https://contoso.sharepoint.com/sites/YourSite"
 Get-SPOSite -Identity $siteUrl | Select-Object `
     Url, `
     SharingCapability, `
@@ -86,17 +86,17 @@ Get-SPOSite -Limit All | Select-Object Url, SharingCapability |
 
 ```powershell
 # Zone 3 (Enterprise managed): Disable external sharing completely
-Set-SPOSite -Identity "https://yourtenant.sharepoint.com/sites/RegulatedSite" `
+Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/RegulatedSite" `
     -SharingCapability Disabled
 
 # Zone 2 (Team collaboration): Restrict to existing guests only
-Set-SPOSite -Identity "https://yourtenant.sharepoint.com/sites/CollaborationSite" `
+Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/CollaborationSite" `
     -SharingCapability ExistingExternalUserSharingOnly `
     -DisableSharingForNonOwnersStatus $true `
     -ExternalUserExpirationInDays 30
 
 # Zone 1 (Personal productivity): Allow new guests with controls
-Set-SPOSite -Identity "https://yourtenant.sharepoint.com/sites/PersonalSite" `
+Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/PersonalSite" `
     -SharingCapability ExternalUserSharingOnly `
     -ExternalUserExpirationInDays 90
 ```
@@ -154,7 +154,7 @@ Get-SPOExternalUser -PageSize 50 | Select-Object `
     InvitedBy | Export-Csv -Path "ExternalUsers_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
 
 # Get external users for a specific site
-$siteUrl = "https://yourtenant.sharepoint.com/sites/YourSite"
+$siteUrl = "https://contoso.sharepoint.com/sites/YourSite"
 Get-SPOExternalUser -SiteUrl $siteUrl | Select-Object DisplayName, Email, AcceptedAs, WhenCreated
 
 # Remove expired or unauthorized external users (requires Microsoft Graph PowerShell)

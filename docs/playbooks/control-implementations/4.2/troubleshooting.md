@@ -51,7 +51,7 @@
 
 1. Verify site owners are assigned:
    ```powershell
-   Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/SiteName" |
+   Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName" |
        Select-Object Url, Owner, SecondaryContact
    ```
 
@@ -216,7 +216,7 @@ $instances | ForEach-Object {
 ```powershell
 # Quick status check
 Connect-MgGraph -Scopes "AccessReview.Read.All"
-Connect-SPOService -Url "https://yourtenant-admin.sharepoint.com"
+Connect-SPOService -Url "https://contoso-admin.sharepoint.com"
 
 # Check access reviews
 $reviews = Get-MgIdentityGovernanceAccessReviewDefinition

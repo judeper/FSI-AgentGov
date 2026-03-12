@@ -17,7 +17,7 @@ Install-Module -Name PnP.PowerShell -Scope CurrentUser
 ## Connect to SharePoint
 
 ```powershell
-Connect-SPOService -Url "https://tenant-admin.sharepoint.com"
+Connect-SPOService -Url "https://contoso-admin.sharepoint.com"
 ```
 
 ---
@@ -59,11 +59,11 @@ $siteInventory | Export-Csv -Path "Site-Copilot-Inventory.csv" -NoTypeInformatio
 
 ```powershell
 # Exclude specific site from Copilot/Semantic Index
-Set-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocuments" `
+Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/DraftDocuments" `
     -RestrictContentOrgWideSearch $true
 
 # Verify configuration
-Get-SPOSite -Identity "https://tenant.sharepoint.com/sites/DraftDocuments" |
+Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/DraftDocuments" |
     Select-Object Url, RestrictContentOrgWideSearch
 ```
 
@@ -120,7 +120,7 @@ function Set-CopilotReadyStatus {
 }
 
 # Mark site as approved for Copilot
-Set-CopilotReadyStatus -SiteUrl "https://tenant.sharepoint.com/sites/ProductKnowledge" `
+Set-CopilotReadyStatus -SiteUrl "https://contoso.sharepoint.com/sites/ProductKnowledge" `
     -IsReady $true -ApprovedBy "compliance@contoso.com" -ApprovedDate (Get-Date)
 ```
 
@@ -156,7 +156,7 @@ function Get-CopilotReadySites {
 }
 
 # Get all sites with CopilotReady status
-$copilotStatus = Get-CopilotReadySites -AdminUrl "https://tenant-admin.sharepoint.com"
+$copilotStatus = Get-CopilotReadySites -AdminUrl "https://contoso-admin.sharepoint.com"
 $copilotStatus | Export-Csv -Path "CopilotReady-Status.csv" -NoTypeInformation
 ```
 

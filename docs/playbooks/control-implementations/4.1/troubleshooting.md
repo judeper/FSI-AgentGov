@@ -26,7 +26,7 @@
 
 1. Verify the restriction is applied via PowerShell:
    ```powershell
-   Get-SPOSite -Identity "https://yourtenant.sharepoint.com/sites/SiteName" |
+   Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName" |
        Select-Object Url, RestrictContentOrgWideSearch
    ```
 
@@ -151,7 +151,7 @@
 
 ```powershell
 # Comprehensive IAG status check
-$SiteUrl = "https://yourtenant.sharepoint.com/sites/TestSite"
+$SiteUrl = "https://contoso.sharepoint.com/sites/TestSite"
 
 Write-Host "=== IAG Diagnostic Report ===" -ForegroundColor Cyan
 
@@ -199,7 +199,7 @@ Get-SPOTenantRestrictedSearchAllowedList | ForEach-Object {
 
 ```powershell
 # Quick status check
-$SiteUrl = "https://yourtenant.sharepoint.com/sites/RegulatedSite"
+$SiteUrl = "https://contoso.sharepoint.com/sites/RegulatedSite"
 $Site = Get-SPOSite -Identity $SiteUrl
 
 if ($Site.RestrictContentOrgWideSearch -eq $true) {

@@ -15,7 +15,7 @@ Install-Module Microsoft.Online.SharePoint.PowerShell -Scope CurrentUser
 Connect-MgGraph -Scopes "AccessReview.ReadWrite.All", "Directory.Read.All", "Sites.Read.All"
 
 # Connect to SharePoint Online
-$adminUrl = "https://yourtenant-admin.sharepoint.com"
+$adminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $adminUrl
 
 # Verify connections
