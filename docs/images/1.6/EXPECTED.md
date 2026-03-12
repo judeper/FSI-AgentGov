@@ -16,3 +16,18 @@
 - DSPM discovers Copilot Studio agents
 - Policies cover AI-specific data risks
 - Recommendations align with FSI requirements
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.6-01-purview-dspm-dashboard.png` — Main DSPM for AI overview
+- `1.6-02-purview-dspm-discovery.png` — AI app discovery results
+- `1.6-03-purview-dspm-policies.png` — Data security policies for AI
+- `1.6-04-purview-dspm-recommendations.png` — Security recommendations
+- `1.6-05-purview-dspm-reports.png` — AI usage and risk reports
+- `1.6-06-purview-dspm-settings.png` — Configuration options

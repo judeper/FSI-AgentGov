@@ -26,3 +26,23 @@
 - Application Insights connected via Private Link Scope
 - No public endpoint access for sensitive data sources
 - IP cookie binding enabled for session security (Zone 3)
+- Capture from pre-production environment when possible
+- Include timestamps to demonstrate currency
+- Verify UI matches documentation after Microsoft portal updates
+
+---
+
+## Screenshot Organization
+
+Organize screenshots in this directory as:
+- `1.20-01-ppac-environment-settings.png` — Environment settings overview showing Privacy + Security
+- `1.20-02-ppac-ip-firewall.png` — IP Firewall configuration with IP ranges
+- `1.20-03-ppac-vnet-config.png` — VNet configuration showing subscription, VNet, subnet selection
+- `1.20-04-azure-vnet-subnet.png` — Subnet configuration with Power Platform delegation
+- `1.20-05-azure-keyvault-pe.png` — Private endpoint configuration for Key Vault
+- `1.20-06-azure-keyvault-firewall.png` — Key Vault firewall settings (public access disabled)
+- `1.20-07-azure-appinsights-network.png` — App Insights private link configuration
+- `1.20-08-azure-ampls.png` — AMPLS configuration with linked resources
+- `1.20-09-azure-sql-pe.png` — Private endpoint for Azure SQL
+- `1.20-10-azure-private-dns-zone.png` — Private DNS zone with A records
+- `1.20-11-ppac-ip-cookie-binding.png` — IP cookie binding toggle
