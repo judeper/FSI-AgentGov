@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.1 - Managed Environments
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 **Portal:** Power Platform Admin Center
 **Estimated Time:** 30-45 minutes per environment
 
@@ -236,24 +236,6 @@ Managed Environment Configuration:
 
 ---
 
-## Validation
-
-After completing these steps, verify:
-
-- [ ] Managed Environment card shows enabled status
-- [ ] Sharing limits configured per governance zone
-- [ ] Solution checker set to appropriate enforcement level
-- [ ] Usage insights enabled with correct recipients
-- [ ] Maker welcome content displays correctly (use preview)
-- [ ] Data policies are applied and visible
-- [ ] Cross-tenant restrictions configured appropriately
-- [ ] Environment creation restricted to authorized admins only (PPAC > Tenant Settings)
-- [ ] Environment routing configured for correct region (PPAC > Tenant Settings > Environment Routing)
-- [ ] Tenant isolation enabled (PPAC > Security > Identity and access > Tenant Isolation)
-- [ ] Security groups assigned to all Zone 2/3 environments
-
----
-
 ### Step 11: Restrict Environment Creation
 
 1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
@@ -288,6 +270,24 @@ After completing these steps, verify:
 3. Assign the appropriate Entra ID security group to restrict who can access the environment
 4. Select **Save**
 5. Repeat for all Zone 2 and Zone 3 environments
+
+---
+
+## Validation
+
+After completing these steps, verify:
+
+- [ ] Managed Environment card shows enabled status
+- [ ] Sharing limits configured per governance zone
+- [ ] Solution checker set to appropriate enforcement level
+- [ ] Usage insights enabled with correct recipients
+- [ ] Maker welcome content displays correctly (use preview)
+- [ ] Data policies are applied and visible
+- [ ] Cross-tenant restrictions configured appropriately
+- [ ] Environment creation restricted to authorized admins only (PPAC > Tenant Settings)
+- [ ] Environment routing configured for correct region (PPAC > Tenant Settings > Environment Routing)
+- [ ] Tenant isolation enabled (PPAC > Security > Identity and access > Tenant Isolation)
+- [ ] Security groups assigned to all Zone 2/3 environments
 
 ---
 

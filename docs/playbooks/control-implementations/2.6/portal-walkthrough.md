@@ -62,7 +62,7 @@ Model Risk Manager
 
 | Model | Availability | Capability Level | FSI Recommendation |
 |-------|-------------|------------------|-------------------|
-| **GPT-5** | GA (Nov 2025) | Production-ready, default | Approved for all zones |
+| **GPT-5** | GA | Production-ready, default | Approved for all zones |
 | **GPT-5.2** | Preview | Experimental capabilities | Zone 1 only; Zone 2/3 disabled |
 | **GPT-4o** | GA | Previous generation | Approved for all zones |
 | **Custom models** | Varies | Organization-specific | Requires MRM validation |
