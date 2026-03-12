@@ -20,7 +20,7 @@
 ## Expected Results Checklist
 
 - [ ] Copilot licenses inventoried and tracked
-- [ ] Sensitive sites excluded via RCD
+- [ ] Sensitive sites excluded via Restricted Content Discovery (RCD)
 - [ ] Plugin governance established (approval workflow)
 - [ ] Web search configured per policy
 - [ ] Acceptable use policy published

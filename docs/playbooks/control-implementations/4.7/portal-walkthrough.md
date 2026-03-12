@@ -168,7 +168,7 @@ After completing the configuration, verify:
 4. Track changes at: [Microsoft Copilot AI Subprocessor](https://learn.microsoft.com/en-us/copilot/microsoft-365/connect-to-ai-subprocessor)
 
 !!! tip "Subprocessor Change Monitoring"
-    As of January 2026, Anthropic was added as an AI subprocessor. FSI organizations should incorporate subprocessor tracking into their third-party risk management cadence and update vendor risk registers when changes are detected.
+    As of January 2026, Anthropic was reported as an AI subprocessor. Verify the current subprocessor list at the link above, as it may have changed since this document was last updated. FSI organizations should incorporate subprocessor tracking into their third-party risk management cadence and update vendor risk registers when changes are detected.
 
 ---
 

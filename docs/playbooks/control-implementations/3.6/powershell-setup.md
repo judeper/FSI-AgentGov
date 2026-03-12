@@ -124,10 +124,10 @@ function Set-AgentOwner {
 
 ---
 
-## Archive Agent
+## Remove Agent
 
 ```powershell
-function Disable-OrphanedAgent {
+function Remove-OrphanedAgent {
     param(
         [Parameter(Mandatory=$true)]
         [string]$AgentId,
@@ -136,7 +136,7 @@ function Disable-OrphanedAgent {
         [string]$Reason = "Orphaned - pending review"
     )
 
-    Write-Host "Archiving agent: $AgentId" -ForegroundColor Yellow
+    Write-Host "Removing agent: $AgentId" -ForegroundColor Yellow
 
     try {
         # Remove the app (quarantine)
@@ -145,18 +145,18 @@ function Disable-OrphanedAgent {
         Write-Host "Agent removed successfully" -ForegroundColor Green
 
         # Log the action
-        $archiveLog = [PSCustomObject]@{
+        $removalLog = [PSCustomObject]@{
             AgentId = $AgentId
-            Action = "Archived"
+            Action = "Removed"
             Reason = $Reason
             ActionDate = Get-Date
             ActionBy = (Get-MgContext).Account
         }
 
-        return $archiveLog
+        return $removalLog
     }
     catch {
-        Write-Error "Failed to archive agent: $_"
+        Write-Error "Failed to remove agent: $_"
         return $null
     }
 }

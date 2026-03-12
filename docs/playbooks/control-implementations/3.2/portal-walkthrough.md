@@ -1,5 +1,7 @@
 # Portal Walkthrough: Control 3.2 - Usage Analytics and Activity Monitoring
 
+> This playbook provides step-by-step portal configuration guidance for [Control 3.2](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md).
+
 **Last Updated:** January 2026
 **Portal:** Power Platform Admin Center
 **Estimated Time:** 1-2 hours
@@ -160,4 +162,8 @@ After completing these steps, verify:
 
 ---
 
-[Back to Control 3.2](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 3.2](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

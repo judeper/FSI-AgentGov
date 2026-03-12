@@ -17,6 +17,10 @@ param(
 # Install/Import modules
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
+# Install Power Platform CLI (required for solution export)
+# winget install Microsoft.PowerAppsCLI
+# Or: dotnet tool install --global Microsoft.PowerApps.CLI
+
 # Connect to Power Platform (interactive authentication)
 Add-PowerAppsAccount
 

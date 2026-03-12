@@ -298,7 +298,7 @@ Test-IncidentSlaCompliance
     SharePoint site URL for incident tracking
 
 .EXAMPLE
-    .\Configure-Control-3.4.ps1 -SiteUrl "https://contoso.sharepoint.com/sites/AI-Governance"
+    .\Configure-Control-3.4.ps1 -SiteUrl "https://[tenant].sharepoint.com/sites/AI-Governance"
 
 .NOTES
     Last Updated: January 2026

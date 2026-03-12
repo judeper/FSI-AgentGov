@@ -279,7 +279,7 @@ function Set-AICostBudgetAlert {
     }
 
     try {
-        New-AzConsumptionBudget @budget
+        New-AzCostManagementBudget @budget
         Write-Host "Budget alert created successfully" -ForegroundColor Green
     }
     catch {

@@ -262,4 +262,6 @@ For Managed Environment issues:
 
 ---
 
+*Updated: January 2026 | Version: v1.2*
+
 [Back to Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)

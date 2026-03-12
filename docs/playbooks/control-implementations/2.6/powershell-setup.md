@@ -4,6 +4,28 @@
 
 ---
 
+## Prerequisites
+
+```powershell
+# Install required modules
+Install-Module -Name ExchangeOnlineManagement -Force -Scope CurrentUser
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Scope CurrentUser
+
+# Connect to Exchange Online (required for Search-UnifiedAuditLog)
+Connect-ExchangeOnline
+
+# Connect to Power Platform
+Add-PowerAppsAccount
+
+# For automated/unattended scenarios, use service principal authentication:
+# $appId = "<Application-Client-ID>"
+# $secret = "<Client-Secret>"
+# $tenantId = "<Tenant-ID>"
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
+```
+
+---
+
 ## Model Performance Monitoring Script
 
 ```powershell
@@ -36,8 +58,14 @@ if ($auditResults) {
 # GET /api/data/v9.2/conversationtranscripts?$filter=createdon ge {startDate}
 
 # Calculate performance scores
-$resolutionRate = $metrics.SuccessfulResolutions / $metrics.TotalConversations * 100
-$escalationRate = $metrics.Escalations / $metrics.TotalConversations * 100
+if ($metrics.TotalConversations -gt 0) {
+    $resolutionRate = $metrics.SuccessfulResolutions / $metrics.TotalConversations * 100
+    $escalationRate = $metrics.Escalations / $metrics.TotalConversations * 100
+} else {
+    $resolutionRate = 0
+    $escalationRate = 0
+    Write-Host "[WARN] No conversations found in the analysis period" -ForegroundColor Yellow
+}
 
 # Determine status
 $status = "Green"

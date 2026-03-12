@@ -1,6 +1,6 @@
 # Verification & Testing: Control 2.1 - Managed Environments
 
-**Last Updated:** January 2026
+**Last Updated:** February 2026
 
 ## Manual Verification Steps
 

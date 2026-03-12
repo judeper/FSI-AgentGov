@@ -1,5 +1,7 @@
 # Portal Walkthrough: Control 3.1 - Agent Inventory and Metadata Management
 
+> This playbook provides step-by-step portal configuration guidance for [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+
 **Last Updated:** January 2026
 **Portal:** Power Platform Admin Center, Microsoft 365 Admin Center
 **Estimated Time:** 1-2 hours
@@ -7,7 +9,7 @@
 ## Prerequisites
 
 - [ ] Power Platform Admin role assigned
-- [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
+- [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com) (sign-in required)
 - [ ] Access to [Microsoft 365 Admin Center](https://admin.microsoft.com)
 - [ ] Global Reader role for compliance review access
 - [ ] [Control 2.1: Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) enabled
@@ -150,4 +152,8 @@ After completing these steps, verify:
 
 ---
 
-[Back to Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: January 2026 | Version: v1.2*

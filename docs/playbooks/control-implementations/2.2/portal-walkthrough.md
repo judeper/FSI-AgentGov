@@ -227,4 +227,6 @@ Capture the following for audit documentation:
 
 ---
 
+*Updated: January 2026 | Version: v1.2*
+
 [Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

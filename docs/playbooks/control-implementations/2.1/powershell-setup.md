@@ -301,4 +301,6 @@ For automated Dataverse schema creation, security roles, and evidence export scr
 
 ---
 
+*Updated: January 2026 | Version: v1.2*
+
 [Back to Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
