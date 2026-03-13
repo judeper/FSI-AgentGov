@@ -242,7 +242,7 @@ graph TD
 
 The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides ready-to-deploy Power Platform automation that operationalizes framework controls. Each solution includes Power Automate flows, Dataverse components, and configuration guidance.
 
-**27 solutions** (20 completed, 3 validated, 4 in progress) covering 34 controls across all four pillars.
+**27 solutions** (20 completed, 3 validated, 4 in progress) covering 37 controls across all four pillars.
 
 | Category | Solutions | Controls Addressed |
 |----------|-----------|-------------------|
@@ -451,6 +451,7 @@ This framework is designed for continuous evolution:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| [1.2.54](CHANGELOG-v1.2.md#1254--march-13-2026-csa-enablement--automation-indicators) | Mar 2026 | CSA Quick Reference, CSA Positioning Guide, automation indicators on all 71 controls, exportable diagrams | [@judeper](https://github.com/judeper) |
 | [1.2.53](CHANGELOG-v1.2.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
 | [1.2.52](CHANGELOG-v1.2.md#1252--february-2026-sspm-coverage-remediation) | Feb 2026 | SSPM coverage remediation | [@judeper](https://github.com/judeper) |
 | [1.2.51](CHANGELOG-v1.2.md#1251--february-2026-uasd-review-remediation) | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | [@judeper](https://github.com/judeper) |

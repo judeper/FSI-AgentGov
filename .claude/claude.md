@@ -413,7 +413,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes (v1.2.49)
 - Comprehensive repository review — 12 GitHub issues resolved across both repos (v1.2.48)
 - Solution consolidation — ACV + ALCA merged into Audit Compliance Manager (v1.2.47)
-- 27 deployable FSI-AgentGov-Solutions covering 34 controls / ~48% coverage (v1.2.48)
+- 27 deployable FSI-AgentGov-Solutions covering 37 controls / ~52% coverage (v1.2.54)
 - Native Microsoft Defender integration for AI agents (v1.2.37)
 - AI-assisted Learn Monitor review with `/review-learn-changes` skill (v1.2.37)
 - State AI law monitoring — Colorado, Texas, Illinois, California, NYC (v1.2.20–v1.2.31)

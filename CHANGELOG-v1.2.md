@@ -35,6 +35,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Dead URL**: Removed deprecated `tenant-wide-agent-inventory` reference (HTTP 404) from microsoft-learn-urls.md and monitor-state.json — replaced by existing `power-platform-inventory` entry
 - **Relative paths**: Fixed 40 control files with incorrect `../../../framework/` paths (should be `../../framework/`) in automation indicator admonitions
 - **Dense paragraph formatting**: Broke up hard-to-read single-line paragraphs into structured lists on assessment page (scoring/RAG info, zone-specific scoring), start-here page (governance questions), and CSA quick reference (control link lists)
+- **N+1 Dataverse query**: Refactored `upsert_compliance_record()` to return exception-preserved status, eliminating duplicate Dataverse GET per record in `write_compliance_results_to_dataverse()`
+- **Import anti-pattern**: Moved `from dateutil import parser` from inside conditional blocks to top-level imports in `detect_agent_sharing_violations.py` and `remediate_agent_sharing.py`
+- **Nonexistent template path**: Fixed default `card_template_path` in `send_teams_notification()` from nonexistent `src/` path to script-relative `config/` path
+- **Missing dependency**: Added `python-dateutil>=2.8.0` to `scripts/requirements.txt`
+- **Solutions coverage count**: Corrected "34 controls" to "37 controls" across README, AGENTS.md, and CLAUDE.md to match actual solutions-index.md catalog
+- **CITATION.cff**: Updated version to 1.2.54 and date-released to 2026-03-13
+- **scripts/private/ documentation**: Added README.md explaining CAA PowerShell module internals
 
 ---
 

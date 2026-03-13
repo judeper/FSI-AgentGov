@@ -59,6 +59,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
+from dateutil import parser as dateparser
 
 # Import Phase 1 modules
 from asard_zone_rules import check_agent_compliance
@@ -283,7 +284,7 @@ def _map_compliance_status_to_optionset(compliance_status: str) -> int:
 
 def upsert_compliance_record(
     caa_client: CAAClient, record: Dict[str, Any]
-) -> Optional[str]:
+) -> Tuple[Optional[str], bool]:
     """Upsert a compliance record to Dataverse via alternate key.
     
     Parameters
@@ -295,8 +296,8 @@ def upsert_compliance_record(
     
     Returns
     -------
-    str | None
-        HTTP status code (201=created, 204=updated) or None on failure.
+    tuple[str | None, bool]
+        (HTTP status code as string or None on failure, whether an active exception was preserved).
     """
     # Build Dataverse record payload
     agent_id = record["agent_id"]
@@ -324,7 +325,6 @@ def upsert_compliance_record(
             
             if compliance_status == 2 and expires_at_str:
                 # Parse expiration date
-                from dateutil import parser as dateparser
                 expires_at = dateparser.parse(expires_at_str)
                 now = datetime.now(timezone.utc)
                 
@@ -389,7 +389,7 @@ def upsert_compliance_record(
                 record["agent_name"],
                 agent_id,
             )
-            return str(response.status_code)
+            return (str(response.status_code), has_active_exception)
         else:
             logger.error(
                 "Dataverse upsert failed for %s (%s): HTTP %d — %s",
@@ -398,7 +398,7 @@ def upsert_compliance_record(
                 response.status_code,
                 response.text[:200],
             )
-            return None
+            return (None, False)
     except Exception as exc:
         logger.error(
             "Dataverse upsert exception for %s (%s): %s",
@@ -406,7 +406,7 @@ def upsert_compliance_record(
             agent_id,
             exc,
         )
-        return None
+        return (None, False)
 
 
 def write_compliance_results_to_dataverse(
@@ -448,35 +448,11 @@ def write_compliance_results_to_dataverse(
                 record["agent_name"],
             )
         
-        # Check if this record will be treated as an exception
-        agent_id = record["agent_id"]
-        environment_id = record["environment_id"]
-        
-        try:
-            # Query for existing active exception
-            alternate_key = f"fsi_agent_id='{agent_id}',fsi_environment_id='{environment_id}'"
-            url = f"{caa_client.api_url}/fsi_agentsharingcompliances({alternate_key})"
-            headers = caa_client._get_headers()
-            response = caa_client._session.get(url, headers=headers, timeout=60)
-            
-            if response.status_code == 200:
-                existing_record = response.json()
-                compliance_status = existing_record.get("fsi_compliance_status")
-                expires_at_str = existing_record.get("fsi_exception_expires_at")
-                
-                if compliance_status == 2 and expires_at_str:
-                    from dateutil import parser as dateparser
-                    expires_at = dateparser.parse(expires_at_str)
-                    now = datetime.now(timezone.utc)
-                    
-                    if expires_at >= now:
-                        exceptions += 1
-        except Exception:
-            pass  # If check fails, proceed normally
-        
-        status = upsert_compliance_record(caa_client, record)
+        status, exception_preserved = upsert_compliance_record(caa_client, record)
         if status:
             upserted += 1
+            if exception_preserved:
+                exceptions += 1
         else:
             failed += 1
     
@@ -696,7 +672,7 @@ def send_teams_notification(
     webhook_url: str,
     results: List[Dict[str, Any]],
     summary: Dict[str, Any],
-    card_template_path: str = "src/adaptive-card-asard-alert.json",
+    card_template_path: str = str(Path(__file__).parent / "config" / "adaptive-card-asard-alert.json"),
 ) -> bool:
     """Send Teams adaptive card notification via webhook.
     

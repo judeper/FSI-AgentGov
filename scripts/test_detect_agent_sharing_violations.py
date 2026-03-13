@@ -96,8 +96,8 @@ def test_upsert_compliance_record_create():
     # Execute upsert
     result = upsert_compliance_record(mock_client, record)
     
-    # Verify HTTP 201 returned as string
-    assert result == "201"
+    # Verify HTTP 201 returned as first element, no exception preserved
+    assert result == ("201", False)
     
     # Verify PATCH called with alternate key
     mock_client._session.patch.assert_called_once()
@@ -140,10 +140,8 @@ def test_upsert_compliance_record_update():
     
     result = upsert_compliance_record(mock_client, record)
     
-    # Verify HTTP 204 returned as string
-    assert result == "204"
-    
-    # Verify payload contains mapped values
+    # Verify HTTP 204 returned as first element
+    assert result == ("204", False)
     payload = mock_client._session.patch.call_args[1]["json"]
     assert payload["fsi_compliance_status"] == 1  # NonCompliant
     assert payload["fsi_violation_type"] == 2  # UnapprovedGroup
@@ -179,8 +177,8 @@ def test_upsert_compliance_record_failure():
     
     result = upsert_compliance_record(mock_client, record)
     
-    # Verify None returned on failure
-    assert result is None
+    # Verify (None, False) returned on failure
+    assert result == (None, False)
 
 
 # =========================================================================
@@ -787,9 +785,7 @@ def test_upsert_compliance_record_with_active_exception():
     result = upsert_compliance_record(mock_caa_client, record)
     
     # Verify PATCH was called
-    assert result == "204"
-    
-    # Verify PATCH payload includes exception fields and compliance_status=2
+    assert result == ("204", True)
     patch_call = mock_caa_client._session.patch.call_args
     payload = patch_call[1]["json"]
     
@@ -844,9 +840,7 @@ def test_upsert_compliance_record_with_expired_exception():
     result = upsert_compliance_record(mock_caa_client, record)
     
     # Verify PATCH was called
-    assert result == "204"
-    
-    # Verify PATCH payload does NOT include exception fields (expired)
+    assert result == ("204", False)
     patch_call = mock_caa_client._session.patch.call_args
     payload = patch_call[1]["json"]
     
@@ -890,9 +884,7 @@ def test_upsert_compliance_record_no_existing_exception():
     result = upsert_compliance_record(mock_caa_client, record)
     
     # Verify PATCH was called
-    assert result == "201"
-    
-    # Verify PATCH payload has compliance_status=1 (NonCompliant)
+    assert result == ("201", False)
     patch_call = mock_caa_client._session.patch.call_args
     payload = patch_call[1]["json"]
     

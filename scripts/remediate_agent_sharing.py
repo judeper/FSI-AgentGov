@@ -53,6 +53,8 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+from dateutil import parser as dateparser
+
 from asard_zone_rules import (
     check_agent_compliance,
     classify_environment_zone,
@@ -580,8 +582,6 @@ def remediate_agent(
             
             if compliance_status == 2 and expires_at_str:
                 # Parse expiration date
-                from dateutil import parser as dateparser
-                from datetime import datetime, timezone
                 expires_at = dateparser.parse(expires_at_str)
                 now = datetime.now(timezone.utc)
                 
