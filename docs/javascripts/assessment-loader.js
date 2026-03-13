@@ -52,7 +52,8 @@
   function loadScript(url, integrity) {
     return new Promise(function (resolve, reject) {
       var existing = document.querySelector('script[src="' + url + '"]');
-      if (existing) { resolve(); return; }
+      if (existing && !existing.dataset.failed) { resolve(); return; }
+      if (existing) existing.remove();
       var s = document.createElement("script");
       s.src = url;
       if (integrity) {
@@ -60,7 +61,10 @@
         s.crossOrigin = "anonymous";
       }
       s.onload = resolve;
-      s.onerror = function () { reject(new Error("Failed to load " + url)); };
+      s.onerror = function () {
+        s.dataset.failed = "true";
+        reject(new Error("Failed to load " + url));
+      };
       document.head.appendChild(s);
     });
   }

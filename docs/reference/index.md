@@ -49,13 +49,6 @@ This section provides technical reference materials, standards, and supporting d
 | [Agent 365 Capabilities Summary](agent-365-capabilities-summary.md) | Microsoft 365 agent capabilities overview |
 | [Power Platform SSPM Control Mapping](power-platform-sspm-control-mapping.md) | SaaS Security Posture Management control mapping |
 
-### Partner and CSA Engagement
-
-| Document | Description |
-|----------|-------------|
-| [CSA Quick Reference](csa-quick-reference.md) | Quick reference summary for partner/CSA engagement |
-| [CSA Positioning Guide](csa-positioning-guide.md) | Positioning guide for CSA conversations |
-
 ### Solutions
 
 | Document | Description |

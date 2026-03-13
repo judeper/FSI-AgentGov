@@ -1,6 +1,12 @@
 # Start Here
 
-**FSI-AgentGov explains how to govern Microsoft 365 AI agents in regulated financial services environments — especially when your questions are about who can build agents, where they can run, what data and connectors they can use, how they move into production, and what evidence should be retained.**
+**FSI-AgentGov explains how to govern Microsoft 365 AI agents in regulated financial services environments** — especially when your questions are about:
+
+- **Who** can build agents
+- **Where** they can run
+- **What** data and connectors they can use
+- **How** they move into production
+- **What evidence** should be retained
 
 !!! warning "Disclaimer"
     This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [full disclaimer](disclaimer.md).
@@ -58,7 +64,6 @@ If you are new to the repository, it helps you:
 | "We need to govern connectors, file handling, and data boundaries." | [Control 1.4 - Advanced Connector Policies](controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) + [Control 1.5 - DLP and Sensitivity Labels](controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) + [Control 1.26 - File Upload Restrictions](controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) |
 | "We need step-by-step implementation guidance, not just policy statements." | [Quick Start Guide](getting-started/quick-start.md) + [Playbooks Overview](playbooks/index.md) + [Phase 0: Governance Setup](playbooks/getting-started/phase-0-governance-setup.md) |
 | "We need evidence for governance, audit, or compliance review." | [Regulatory Framework](framework/regulatory-framework.md) + [Evidence Standards](reference/evidence-standards.md) + [Audit Readiness Checklist](playbooks/compliance-and-audit/audit-readiness-checklist.md) |
-| "I'm a CSA preparing for a customer engagement on AI agent governance." | [CSA Quick Reference](reference/csa-quick-reference.md) + [CSA Positioning Guide](reference/csa-positioning-guide.md) |
 | "We are not sure whether AgentGov or CopilotGov is the right starting point." | [Relationship to FSI-CopilotGov](framework/relationship-to-copilotgov.md) |
 
 ---

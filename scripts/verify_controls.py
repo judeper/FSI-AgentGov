@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 
 # Fix Unicode encoding issues on Windows
@@ -21,10 +22,20 @@ REQUIRED_PLAYBOOK_FILES = [
     "troubleshooting.md",
 ]
 
-CANON_UPDATED = "Updated: February 2026"
+def _accepted_update_dates(lookback_months=3):
+    """Generate accepted 'Updated: Month Year' values for the current and previous months."""
+    today = date.today()
+    dates = []
+    for i in range(lookback_months):
+        d = today.replace(day=1) - timedelta(days=i * 28)
+        label = f"Updated: {d.strftime('%B %Y')}"
+        if label not in dates:
+            dates.append(label)
+    return dates
+
+CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 CANON_VERSION = "Version: v1.3"
-# Also accept previous canonical values for controls not yet updated
-_ACCEPTED_UPDATED = ["Updated: January 2026", "Updated: February 2026"]
+_ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
 _ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3"]
 CANON_UI_STATUS_PREFIX = "UI Verification Status:"
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field

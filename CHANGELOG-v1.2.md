@@ -31,8 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- **Assessment tool load error**: Corrected SRI integrity hash for Chart.js (`chart.min.js`) — hash was incorrect since initial commit, causing browsers to block the script and show "Failed to load the assessment tool" on first page visit. Also hardened `loadScript()` to mark failed script tags and retry instead of resolving from stale DOM entries during instant navigation.
 - **Dead URL**: Removed deprecated `tenant-wide-agent-inventory` reference (HTTP 404) from microsoft-learn-urls.md and monitor-state.json — replaced by existing `power-platform-inventory` entry
 - **Relative paths**: Fixed 40 control files with incorrect `../../../framework/` paths (should be `../../framework/`) in automation indicator admonitions
+- **Dense paragraph formatting**: Broke up hard-to-read single-line paragraphs into structured lists on assessment page (scoring/RAG info, zone-specific scoring), start-here page (governance questions), and CSA quick reference (control link lists)
 
 ---
 

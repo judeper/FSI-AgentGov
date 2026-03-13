@@ -11,3 +11,6 @@
 # Local instruction files
 README.md
 VERIFY.md
+
+# Exception: exportable diagrams are committed
+!diagrams/*.png
