@@ -303,44 +303,47 @@ def evaluate_zone_compliance(
                 "compliant": True/False,
                 "violation_type": None | "Everyone" | "Public" | "UnapprovedGroup" | ...,
                 "details": "Human-readable explanation",
+                "violations": [{"type": str, "details": str}, ...],
             }
+
+        ``violation_type`` and ``details`` reflect the first (highest-severity)
+        violation for backward compatibility.  ``violations`` contains all
+        detected violations.
     """
     rules = ZONE_SHARING_RULES.get(zone, ZONE_SHARING_RULES[0])
+    violations = []
 
     # Check Everyone
     if parsed_principals.get("has_everyone") and not rules["allow_everyone"]:
-        return {
-            "compliant": False,
-            "violation_type": "Everyone",
+        violations.append({
+            "type": "Everyone",
             "details": (
                 f"Zone {zone} ({rules['name']}) prohibits Everyone sharing. "
                 f"Agent is shared with Everyone or all organization users."
             ),
-        }
+        })
 
     # Check Public
     if parsed_principals.get("has_public") and not rules["allow_public"]:
-        return {
-            "compliant": False,
-            "violation_type": "Public",
+        violations.append({
+            "type": "Public",
             "details": (
                 f"Zone {zone} ({rules['name']}) prohibits Public sharing. "
                 f"Agent has a public internet link."
             ),
-        }
+        })
 
     groups = parsed_principals.get("security_groups", [])
 
     # Zone 1: No group sharing allowed
     if not rules["allow_group_sharing"] and groups:
-        return {
-            "compliant": False,
-            "violation_type": "UnapprovedGroup",
+        violations.append({
+            "type": "UnapprovedGroup",
             "details": (
                 f"Zone {zone} ({rules['name']}) does not allow group sharing. "
                 f"Agent is shared with {len(groups)} security group(s)."
             ),
-        }
+        })
 
     # Zone 3: Require approved groups
     if rules["require_approved_groups"] and groups:
@@ -354,32 +357,39 @@ def evaluate_zone_compliance(
             approved_set = {g.lower() for g in approved_groups}
             unapproved = [g for g in groups if g.lower() not in approved_set]
             if unapproved:
-                return {
-                    "compliant": False,
-                    "violation_type": "UnapprovedGroup",
+                violations.append({
+                    "type": "UnapprovedGroup",
                     "details": (
                         f"Zone {zone} ({rules['name']}) requires pre-approved security groups. "
                         f"{len(unapproved)} unapproved group(s) found: {', '.join(unapproved[:5])}"
                         + (" ..." if len(unapproved) > 5 else "")
                     ),
-                }
+                })
 
     # Zone 3: No individual sharing
     individuals = parsed_principals.get("individuals", [])
     if not rules["allow_individual_sharing"] and individuals:
-        return {
-            "compliant": False,
-            "violation_type": "ExcessiveIndividual",
+        violations.append({
+            "type": "ExcessiveIndividual",
             "details": (
                 f"Zone {zone} ({rules['name']}) does not allow individual sharing. "
                 f"Agent is shared with {len(individuals)} individual user(s)."
             ),
+        })
+
+    if violations:
+        return {
+            "compliant": False,
+            "violation_type": violations[0]["type"],
+            "details": violations[0]["details"],
+            "violations": violations,
         }
 
     return {
         "compliant": True,
         "violation_type": None,
         "details": f"Zone {zone} ({rules['name']}): Sharing configuration is compliant.",
+        "violations": [],
     }
 
 

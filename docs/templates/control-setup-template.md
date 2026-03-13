@@ -1,9 +1,9 @@
 # Control [X.X]: [Control Name]
 
-**Control ID:** [X.X]
-**Pillar:** [Security / Management / Reporting / SharePoint]
-**Regulatory Reference:** [FINRA 4511, SEC 17a-4, etc.]
-**Last UI Verified:** [Month Year]
+**Control ID:** [X.X]<br>
+**Pillar:** [Security / Management / Reporting / SharePoint]<br>
+**Regulatory Reference:** [FINRA 4511, SEC 17a-4, etc.]<br>
+**Last UI Verified:** [Month Year]<br>
 **Governance Levels:** Baseline / Recommended / Regulated
 
 ---

@@ -726,13 +726,9 @@ def send_teams_notification(
         
         violation_list = "\n\n".join(violation_lines) if violation_lines else "No violations to display"
         
-        # Escape violation_list for JSON embedding (escape newlines, quotes, backslashes)
-        violation_list_escaped = (
-            violation_list
-            .replace("\\", "\\\\")
-            .replace('"', '\\"')
-            .replace("\n", "\\n")
-        )
+        # Escape violation_list for safe JSON embedding using json.dumps
+        # (strips surrounding quotes to get the inner escaped string)
+        violation_list_escaped = json.dumps(violation_list)[1:-1]
         
         # Populate template placeholders
         card_json = json.dumps(card_template)

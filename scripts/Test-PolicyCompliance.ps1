@@ -181,7 +181,11 @@ $complianceResults.Checks += [PSCustomObject]@{ Check = 'PolicyState'; Results =
 Write-Verbose "Check 3: Break-Glass Exclusions..."
 $breakGlassAccounts = $config.breakGlassAccounts
 $bgResults = @()
-foreach ($policy in $policies) {
+# Skip block-only policies — break-glass exclusion may be intentionally absent
+$nonBlockPolicies = $policies | Where-Object {
+    $_.GrantControls.BuiltInControls -notcontains 'block'
+}
+foreach ($policy in $nonBlockPolicies) {
     $excludedUsers = $policy.Conditions.Users.ExcludeUsers
     $allExcluded = $true
     foreach ($bg in $breakGlassAccounts) {
