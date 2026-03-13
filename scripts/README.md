@@ -225,7 +225,7 @@ All scripts should follow these standards:
 | `validate_before_push.py` | Pre-push validation suite | Mar 2026 |
 | `verify_controls.py` | Control structure validation | Mar 2026 |
 | `verify_templates.py` | Template format validation | Mar 2026 |
-| `verify_excel_templates.py` | Excel template verification | Jan 2026 |
+| `verify_excel_templates.py` | Excel template verification | Mar 2026 |
 | `validate_docs_anchors.py` | Internal link checking | Mar 2026 |
 | `audit_control_metadata.py` | Control metadata audit | Mar 2026 |
 
@@ -234,7 +234,7 @@ All scripts should follow these standards:
 |--------|---------|--------------|
 | `normalize_controls.py` | Control formatting standardization | Mar 2026 |
 | `compile_researcher_package.py` | Researcher package generation | Mar 2026 |
-| `update_excel_templates.py` | Excel template updates | Jan 2026 |
+| `update_excel_templates.py` | Excel template updates | Mar 2026 |
 | `extract_whitepaper_text.py` | Whitepaper text extraction | Mar 2026 |
 | `check_temp.py` | Temp file verification utility | Mar 2026 |
 

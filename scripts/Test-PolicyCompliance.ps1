@@ -111,9 +111,7 @@ if ($BaselinePath -and -not (Test-Path $BaselinePath)) {
 }
 
 # ─── WhatIf Preview ──────────────────────────────────────────────────
-if ($PSCmdlet.ShouldProcess("Tenant $TenantId", "Run compliance checks against CA policies")) {
-    # Placeholder: actual compliance check implementation
-} else {
+if (-not $PSCmdlet.ShouldProcess("Tenant $TenantId", "Run compliance checks against CA policies")) {
     Write-Verbose "WhatIf: Would check CA policies for tenant $TenantId using config $ConfigPath"
     return
 }
@@ -227,10 +225,12 @@ foreach ($policy in $policies) {
     $persistBrowser = $session.PersistentBrowser.Mode
     $isBlock = $policy.GrantControls.BuiltInControls -contains 'block'
 
+    # Match both naming conventions: "Zone3"/"Zone2"/"Zone1" and "Z3"/"Z2"/"Z1"
+    # Canonical policy names use short form (e.g., FSI-Z3-EnterpriseAgentAdmin-Maximum)
     $zone = $null
-    if ($policy.DisplayName -match 'Zone3') { $zone = 3 }
-    elseif ($policy.DisplayName -match 'Zone2') { $zone = 2 }
-    elseif ($policy.DisplayName -match 'Zone1') { $zone = 1 }
+    if ($policy.DisplayName -match 'Zone\s*3|[\-_]Z3[\-_]') { $zone = 3 }
+    elseif ($policy.DisplayName -match 'Zone\s*2|[\-_]Z2[\-_]') { $zone = 2 }
+    elseif ($policy.DisplayName -match 'Zone\s*1|[\-_]Z1[\-_]') { $zone = 1 }
 
     $sessionResults += [PSCustomObject]@{
         PolicyName          = $policy.DisplayName
@@ -318,7 +318,12 @@ elseif ($DataverseUrl -and $PersistResults) {
 
             # Persist validation history
             $resultsJson = $complianceResults | ConvertTo-Json -Depth 10
-            $passedPolicies = $policies.Count - $totalGaps
+            # Count unique policies that generated gaps (a single policy can have multiple gaps)
+            $failedPolicyNames = @($complianceResults.Gaps | ForEach-Object {
+                if ($_ -match "Policy '([^']+)'") { $Matches[1] }
+                elseif ($_ -match 'Missing expected policy:\s*(.+)$') { $Matches[1].Trim() }
+            } | Select-Object -Unique)
+            $passedPolicies = $policies.Count - $failedPolicyNames.Count
             $historyId = Write-CAAValidationHistory `
                 -RunId $runId `
                 -TotalPolicies $policies.Count `

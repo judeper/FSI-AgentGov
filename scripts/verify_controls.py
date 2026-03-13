@@ -26,14 +26,19 @@ def _accepted_update_dates(lookback_months=3):
     """Generate accepted 'Updated: Month Year' values for the current and previous months."""
     today = date.today()
     dates = []
+    first_of_month = today.replace(day=1)
     for i in range(lookback_months):
-        d = today.replace(day=1) - timedelta(days=i * 28)
-        label = f"Updated: {d.strftime('%B %Y')}"
+        label = f"Updated: {first_of_month.strftime('%B %Y')}"
         if label not in dates:
             dates.append(label)
+        # Move to first of previous month
+        first_of_month = (first_of_month - timedelta(days=1)).replace(day=1)
     return dates
 
 CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
+# Control docs use an internal version (v1.2 or v1.3) that is separate from the
+# overall framework version shown in README.md (v1.2.x). This is intentional:
+# controls increment their internal version when the template structure changes.
 CANON_VERSION = "Version: v1.3"
 _ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
 _ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3"]
@@ -79,13 +84,11 @@ def parse_control_index():
         return controls
         
     content = CONTROL_INDEX_PATH.read_text()
-    # Assuming format: | 1.1 | [Restrict Agent Publishing...](...) | ...
-    # Or markdown list: - **1.1**: ...
-    # based on file preview, it likely has a table or headers.
-    # Let's try a regex for "X.Y" ids.
-    
-    # We'll need to adjust this after seeing the file, but for now assuming standard ID format
+    # CONTROL-INDEX.md uses table format: | 1.1 | [Control Name](path.md) | Implementation |
     matches = re.findall(r'\|\s*(\d+\.\d+)\s*\|\s*\[?([^\]\|]+)\]?', content)
+    if not matches:
+        print(f"WARNING: No control IDs parsed from {CONTROL_INDEX_PATH}. "
+              "Index consistency check will be skipped.")
     for cid, title in matches:
         controls[cid] = title.strip()
     return controls

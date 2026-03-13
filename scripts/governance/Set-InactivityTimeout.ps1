@@ -38,6 +38,10 @@
     to fsi_inactivitytimeoutcompliances table. When omitted, no audit record is written.
     Example: https://org12345.crm.dynamics.com/
 
+.PARAMETER Zone
+    Optional. Governance zone number (1, 2, or 3). When set to 3, emits a warning if
+    TimeoutDuration exceeds 60 minutes (Zone 3 maximum per FSI governance framework).
+
 .PARAMETER OutputFormat
     Output format for results. Valid values: Table, JSON, Object. Default: Object.
 
@@ -94,6 +98,10 @@ param(
     [int]$WarningDuration = 5,
 
     [Parameter()]
+    [ValidateRange(1, 3)]
+    [int]$Zone,
+
+    [Parameter()]
     [string]$DataverseUrl,
 
     [Parameter()]
@@ -114,6 +122,14 @@ $startTime = [DateTime]::UtcNow
 if ($WarningDuration -ge $TimeoutDuration) {
     throw "WarningDuration ($WarningDuration) must be less than TimeoutDuration ($TimeoutDuration). " +
           "The warning notification fires WarningDuration minutes before session expiry; it cannot exceed or equal the timeout itself."
+}
+
+# Zone 3 requires maximum 60-minute timeout per FSI governance framework
+if ($Zone -eq 3 -and $TimeoutDuration -gt 60) {
+    Write-Warning "Zone 3 (Enterprise Managed) requires a maximum 60-minute inactivity timeout. Current value: $TimeoutDuration minutes. Consider using -TimeoutDuration 60 for Zone 3 environments."
+}
+elseif (-not $Zone -and $TimeoutDuration -gt 60) {
+    Write-Warning "TimeoutDuration of $TimeoutDuration minutes exceeds the Zone 3 maximum of 60 minutes. If this is a Zone 3 environment, use -Zone 3 -TimeoutDuration 60."
 }
 
 # ─── Banner ───────────────────────────────────────────────────────────
@@ -461,8 +477,9 @@ if ($DataverseUrl) {
         $dvToken = Get-DataverseToken -ResourceUrl $dvUrl
 
         $scanTimestamp = Get-Date -Format 'o'
+        $safeTimestamp = $scanTimestamp.Substring(0,19) -replace ':', '-'
         $auditPayload = @{
-            fsi_name                     = "$EnvironmentName - $($scanTimestamp.Substring(0,19)) - Remediated"
+            fsi_name                     = "$EnvironmentName - $safeTimestamp - Remediated"
             fsi_environmentid            = $EnvironmentName
             # fsi_environmentname omitted — script only has the GUID-like EnvironmentName,
             # not the human-readable display name. The column is optional (required=False).

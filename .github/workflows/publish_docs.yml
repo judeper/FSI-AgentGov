@@ -52,7 +52,7 @@ jobs:
             mkdocs-material-
             
       - name: Install MkDocs and Material Theme
-        run: pip install mkdocs-material
+        run: pip install 'mkdocs-material>=9.5,<10'
 
       - name: Validate Control Structure
         run: python scripts/verify_controls.py

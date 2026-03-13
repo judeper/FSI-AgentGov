@@ -36,7 +36,7 @@
 .EXAMPLE
     .\Invoke-HardeningBaselineCheck.ps1
 
-    Runs all 7 checks with default settings and displays results in table format.
+    Runs all 4 check groups (18 baseline items) with default settings and displays results in table format.
 
 .EXAMPLE
     .\Invoke-HardeningBaselineCheck.ps1 -OutputFormat JSON -OutputPath .\evidence\baseline.json -IncludeEvidence
@@ -291,6 +291,10 @@ try {
                     -Method Get -ErrorAction Stop
 
                 $retentionDays = $retResponse.value[0].auditretentionperiodv2
+                # Note: Dataverse default auditretentionperiodv2 = 0 means "unlimited retention".
+                # We treat 0 as non-compliant because FSI regulations require explicit, documented
+                # retention periods. Organizations using unlimited retention should set an explicit
+                # value matching their zone requirements.
                 $requiredDays = switch ($zone) {
                     1 { 180 }
                     2 { 365 }
@@ -513,6 +517,10 @@ foreach ($env in $environments) {
         }
 
         # Item 30 — Inactivity Timeout
+        # Note: isaborttimeenabled / inactivitytimeoutinmins are the Dataverse Organization entity
+        # fields for the same setting that Set-InactivityTimeout.ps1 patches via the BAP Admin API
+        # (InactivityTimeoutEnabled / InactivityTimeoutInMinutes). Both APIs target the same
+        # underlying platform configuration.
         $inactivityEnabled = $org.isaborttimeenabled -eq $true
         $inactivityMinutes = $org.inactivitytimeoutinmins
 
