@@ -88,6 +88,8 @@ flowchart TB
     CORR --> DASHBOARD
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-solution-overview-2.png) | [SVG](../../../images/diagrams/index-solution-overview-2.svg)
+
 ---
 
 ## Data Sources
@@ -232,6 +234,8 @@ flowchart LR
     ALERT --> NOTIFY[Teams / Email<br/>Notifications]
     CORR --> EVID[Evidence<br/>Export]
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-daily-orchestration.png) | [SVG](../../../images/diagrams/index-daily-orchestration.svg)
 
 ---
 

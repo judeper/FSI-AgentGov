@@ -62,6 +62,8 @@ flowchart TB
     BIND -->|Log| LOG
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/implementation-provisioning-provisioning-architecture.png) | [SVG](../../../images/diagrams/implementation-provisioning-provisioning-architecture.svg)
+
 ---
 
 ## Flow 1: Main Provisioning Flow
@@ -876,6 +878,8 @@ flowchart TB
     DEL_OK -->|No| MANUAL
     MANUAL --> LOG_MAN[Log RollbackFailed<br/>Manual Review Required]
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/implementation-provisioning-rollback-procedure.png) | [SVG](../../../images/diagrams/implementation-provisioning-rollback-procedure.svg)
 
 **Rollback Actions:**
 

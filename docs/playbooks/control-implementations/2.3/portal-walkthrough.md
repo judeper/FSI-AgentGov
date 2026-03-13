@@ -52,6 +52,8 @@ The dashboard displays:
 
 > **Warning:** Target environments in pipelines must be enabled as Managed Environments. This helps ensure every environment used in pipelines meets Microsoft Enterprise compliance standards.
 
+> **Note:** Microsoft automatically enables Managed Environments for pipeline target environments you have already deployed to, independent of the **Auto-Conversion** setting above. The Auto-Conversion setting is a separate, opt-in control that ensures *future* target environments also become Managed. See the [Admin deployment hub FAQ](https://learn.microsoft.com/en-us/power-platform/alm/admin-deployment-hub) for details.
+
 ---
 
 ## Part 3: Set Up ALM Pipelines
@@ -184,4 +186,4 @@ After completing the configuration, verify:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: March 2026 | Version: v1.3*

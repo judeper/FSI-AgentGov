@@ -305,6 +305,8 @@ graph TD
     Q -->|No - 14 days| J
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/agent-identity-architecture-entra-agent-id-architecture-flow.png) | [SVG](../images/diagrams/agent-identity-architecture-entra-agent-id-architecture-flow.svg)
+
 ---
 
 ## Agent 365: Unified Control Plane
@@ -469,6 +471,8 @@ graph TD
     N --> R[Purview DLP]
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/agent-identity-architecture-agent-365-control-plane-architec.png) | [SVG](../images/diagrams/agent-identity-architecture-agent-365-control-plane-architec.svg)
+
 ---
 
 ## M365 Admin Center: Agent Settings
@@ -619,6 +623,8 @@ graph TD
     F --> F4[Suspend/Reactivate]
     F --> F5[Export to CSV]
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/agent-identity-architecture-m365-admin-center-agent-settings.png) | [SVG](../images/diagrams/agent-identity-architecture-m365-admin-center-agent-settings.svg)
 
 ---
 

@@ -66,6 +66,8 @@ flowchart TB
     CSI --> ELM
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/solutions-integration-overview.png) | [SVG](../images/diagrams/solutions-integration-overview.svg)
+
 ---
 
 ## Solution-to-Control Mapping
@@ -478,6 +480,8 @@ flowchart TB
     CMM --> EXPORT
     FUS --> EXPORT
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/solutions-integration-integration-architecture.png) | [SVG](../images/diagrams/solutions-integration-integration-architecture.svg)
 
 ### Integration Components
 

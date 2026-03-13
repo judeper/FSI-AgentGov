@@ -9,6 +9,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.54] — March 13, 2026 (CSA Enablement & Automation Indicators)
+
+### Added
+
+- **CSA Quick Reference** (`docs/reference/csa-quick-reference.md`): One-page orientation for Cloud Solution Architects — top 3 customer questions, top 10 controls, repository map, implementation phases, and quick links
+- **CSA Positioning Guide** (`docs/reference/csa-positioning-guide.md`): Do's and don'ts for customer engagements — supported claims table, common objection responses, competitive positioning, and conversation starters
+- **Automation indicators on all 71 controls**: Standardized `!!! tip "Automation Available"` admonitions on 31 controls with companion solutions, and `!!! info "No Automation Solution"` on 40 controls without — provides instant visibility into automation coverage
+- **Exportable diagram assets** (`docs/images/diagrams/`): 35 Mermaid diagrams rendered as high-resolution PNG and SVG files for slide decks and offline presentations — includes governance zones, three-layer model, architecture flows, and solution integration diagrams
+- **CSA navigation entries** in mkdocs.yml and start-here.md scenario table
+
+### Changed
+
+- **Control 1.2**: Updated admin center URL (`admin.cloud.microsoft`), renamed "Office Store" → "Microsoft Marketplace", added Windows PowerShell 5.x requirement warning for PowerApps admin modules
+- **Control 1.12**: Updated insider risk template names (departing users → Microsoft 365 and non-Microsoft 365 app variants), added Triage Agent dual-dashboard layout, deprecated file risk section noted
+- **Control 1.22**: Added Microsoft Planner integration for information barrier policies, updated Exchange Online ABP behavior (no longer relies on ABPs in single/multi-segment modes)
+- **Control 4.1**: Added Restricted SharePoint Search (RSS) short-term caveat per Microsoft guidance, added RAC delegation capability (`DelegateRestrictedAccessControlManagement`)
+- **Control 4.5**: Corrected "Agent Insights" casing to match Learn page, added Microsoft 365 E1 to base license list
+- **Walkthrough 2.1**: Updated version to v1.4, confirmed sharing limits feature is GA (no longer preview)
+- **Walkthrough 2.3**: Added clarifying note on unmanaged pipeline auto-enablement vs opt-in Auto-Conversion setting
+
+### Fixed
+
+- **Dead URL**: Removed deprecated `tenant-wide-agent-inventory` reference (HTTP 404) from microsoft-learn-urls.md and monitor-state.json — replaced by existing `power-platform-inventory` entry
+- **Relative paths**: Fixed 40 control files with incorrect `../../../framework/` paths (should be `../../framework/`) in automation indicator admonitions
+
+---
+
 ## [1.2.53] — March 2026 (Governance Readiness Assessment Tool)
 
 ### Added

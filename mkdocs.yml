@@ -661,6 +661,8 @@ nav:
 
   - Reference:
     - reference/index.md
+    - CSA Quick Reference: reference/csa-quick-reference.md
+    - CSA Positioning Guide: reference/csa-positioning-guide.md
     - Agent 365 Capabilities Summary: reference/agent-365-capabilities-summary.md
     - Solutions Index: reference/solutions-index.md
     - Solutions Coverage Gaps: reference/solutions-coverage-gaps.md

@@ -55,6 +55,8 @@ flowchart TB
     end
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-architecture-overview.png) | [SVG](../../../images/diagrams/index-architecture-overview.svg)
+
 ---
 
 ## Telemetry Signal Categories

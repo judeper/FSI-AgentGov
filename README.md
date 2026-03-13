@@ -24,7 +24,7 @@ This repository helps teams:
 - implement technical and procedural controls with step-by-step playbooks
 - support risk, compliance, and operational review with a common reference point
 
-**Version:** 1.2.53 (March 2026)
+**Version:** 1.2.54 (March 2026)
 **Primary Audience:** AI governance leads, Power Platform Admins, compliance teams, security architects, internal audit, and business sponsors in US financial services
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -95,6 +95,8 @@ graph LR
     style Z2 fill:#FFA726,color:#fff
     style Z3 fill:#EF5350,color:#fff
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](docs/images/diagrams/README-three-governance-zones.png) | [SVG](docs/images/diagrams/README-three-governance-zones.svg)
 
 ---
 
@@ -232,6 +234,8 @@ graph TD
     style C fill:#42A5F5,color:#fff
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](docs/images/diagrams/README-layer-3-playbooks-docsplaybooks.png) | [SVG](docs/images/diagrams/README-layer-3-playbooks-docsplaybooks.svg)
+
 ---
 
 ## 🔗 Companion Solutions
@@ -286,6 +290,8 @@ graph LR
     D --> E[5. Document Evidence]
     E --> F[6. Schedule Review]
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](docs/images/diagrams/README-implementation-steps.png) | [SVG](docs/images/diagrams/README-implementation-steps.svg)
 
 1. **Check Prerequisites**: Verify licenses, admin roles, and dependencies (other controls that must be configured first)
 2. **Follow Setup Steps**: Use portal-based or PowerShell configuration methods
@@ -477,5 +483,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.2.54 - March 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

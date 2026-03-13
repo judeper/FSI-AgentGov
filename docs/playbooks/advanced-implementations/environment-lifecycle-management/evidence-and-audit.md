@@ -40,6 +40,8 @@ flowchart TB
     SP -->|Broker-Dealer| BLOB
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/evidence-and-audit-evidence-architecture.png) | [SVG](../../../images/diagrams/evidence-and-audit-evidence-architecture.svg)
+
 ---
 
 ## ProvisioningLog Access Controls

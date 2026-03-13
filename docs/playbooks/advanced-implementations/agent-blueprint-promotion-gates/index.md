@@ -36,6 +36,8 @@ flowchart LR
     S -->|Gate 4| P[Production]
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-blueprint-lifecycle-phases.png) | [SVG](../../../images/diagrams/index-blueprint-lifecycle-phases.svg)
+
 | Phase | Purpose | Governance Focus |
 |-------|---------|------------------|
 | **Design** | Requirements and architecture | Business justification, data sources |

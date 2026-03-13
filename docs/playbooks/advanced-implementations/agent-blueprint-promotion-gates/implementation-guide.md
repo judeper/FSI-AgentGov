@@ -43,6 +43,8 @@ flowchart TB
     end
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/implementation-guide-architecture-overview.png) | [SVG](../../../images/diagrams/implementation-guide-architecture-overview.svg)
+
 ---
 
 ## Step 1: Configure SharePoint Artifact Storage

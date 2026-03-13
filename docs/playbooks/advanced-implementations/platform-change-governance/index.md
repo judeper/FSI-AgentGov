@@ -56,6 +56,8 @@ flowchart LR
     APP --> DV
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-solution-overview.png) | [SVG](../../../images/diagrams/index-solution-overview.svg)
+
 ---
 
 ## Path Selection Decision Framework

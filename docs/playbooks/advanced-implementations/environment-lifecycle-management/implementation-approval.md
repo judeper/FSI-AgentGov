@@ -60,6 +60,8 @@ flowchart TD
     REJECTED --> NOTIFY
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/implementation-approval-approval-flow-architecture.png) | [SVG](../../../images/diagrams/implementation-approval-approval-flow-architecture.svg)
+
 ---
 
 ## Trigger Configuration

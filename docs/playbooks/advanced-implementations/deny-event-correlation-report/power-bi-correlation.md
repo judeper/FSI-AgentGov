@@ -52,6 +52,8 @@ erDiagram
     fsi_denycorrelations ||--o{ fsi_denyalerts : "triggers alerts"
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/power-bi-correlation-dataverse-tables.png) | [SVG](../../../images/diagrams/power-bi-correlation-dataverse-tables.svg)
+
 ### Correlation Logic
 
 The `fsi_denycorrelations` table provides pre-computed daily summaries grouped by:

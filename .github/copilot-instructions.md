@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FSI Agent Governance Framework v1.2.53 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+FSI Agent Governance Framework v1.2.54 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 - **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
@@ -24,6 +24,12 @@ FSI Agent Governance Framework v1.2.53 - A governance framework for Microsoft 36
 ### Deliverables (Scope)
 - **Ship:** GitHub Pages web docs + Excel templates under `docs/downloads/`
 - **Do not ship:** Word/PDF document bundles
+
+### Key Reference Materials
+- **CSA Quick Reference** (`docs/reference/csa-quick-reference.md`) — partner/CSA engagement summary
+- **CSA Positioning Guide** (`docs/reference/csa-positioning-guide.md`) — positioning for CSA conversations
+- **Automation indicators** — all 71 controls include automation feasibility indicators
+- **Exportable diagrams** — PNG/SVG architecture diagrams in `docs/images/diagrams/`
 
 ### Screenshots
 - **LOCAL ONLY** - never push to GitHub

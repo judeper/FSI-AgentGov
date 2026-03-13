@@ -62,6 +62,8 @@ flowchart LR
     RB -->|JSON Output| TEAMS
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-solution-overview-3.png) | [SVG](../../../images/diagrams/index-solution-overview-3.svg)
+
 ---
 
 ## Components

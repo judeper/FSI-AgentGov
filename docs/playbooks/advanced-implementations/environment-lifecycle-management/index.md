@@ -60,6 +60,8 @@ flowchart LR
     PA -->|Log Actions| DV
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/index-solution-overview-4.png) | [SVG](../../../images/diagrams/index-solution-overview-4.svg)
+
 **Key Components:**
 
 | Component | Purpose |

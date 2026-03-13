@@ -50,6 +50,8 @@ flowchart TB
     Phase3 --> Phase4
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/deployment-guide-deployment-architecture.png) | [SVG](../../../images/diagrams/deployment-guide-deployment-architecture.svg)
+
 ---
 
 ## Prerequisites Checklist

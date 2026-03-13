@@ -62,6 +62,8 @@ flowchart TB
     WH --> DL
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/architecture-component-overview.png) | [SVG](../../../images/diagrams/architecture-component-overview.svg)
+
 ---
 
 ## Data Layer: Dataverse Tables
@@ -187,6 +189,8 @@ stateDiagram-v2
     Decide --> Closed: Decision approved
     Assess --> Triage: Reassign (owner change only)
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/architecture-workflow-state-machine.png) | [SVG](../../../images/diagrams/architecture-workflow-state-machine.svg)
 
 ---
 

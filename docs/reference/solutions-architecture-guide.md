@@ -239,6 +239,8 @@ flowchart LR
     AF --> |Update| KV
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/solutions-architecture-guide-azure-key-vault-integration.png) | [SVG](../images/diagrams/solutions-architecture-guide-azure-key-vault-integration.svg)
+
 **Implementation Steps:**
 
 1. Store credentials in Azure Key Vault (not Dataverse or flow variables)
@@ -373,6 +375,8 @@ flowchart TB
     AF --> |Outbound via NAT| Graph
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/solutions-architecture-guide-high-security-deployment-vnet-i.png) | [SVG](../images/diagrams/solutions-architecture-guide-high-security-deployment-vnet-i.svg)
+
 **Changes from Standard Deployment:**
 
 | Component | Standard | VNet Isolated |
@@ -413,6 +417,8 @@ flowchart TB
     SA --> PBI
     SA --> ALERT
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/solutions-architecture-guide-streaming-architecture-near-rea.png) | [SVG](../images/diagrams/solutions-architecture-guide-streaming-architecture-near-rea.svg)
 
 **Trade-offs:**
 

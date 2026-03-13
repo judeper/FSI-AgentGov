@@ -44,6 +44,8 @@ flowchart LR
     VAL -->|Invalid| SLOTS
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/implementation-copilot-intake-intake-agent-architecture.png) | [SVG](../../../images/diagrams/implementation-copilot-intake-intake-agent-architecture.svg)
+
 ---
 
 ## Topic Configuration

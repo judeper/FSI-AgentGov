@@ -62,6 +62,8 @@ flowchart TB
     SG --> ENTRA
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/architecture-component-overview-2.png) | [SVG](../../../images/diagrams/architecture-component-overview-2.svg)
+
 ---
 
 ## Data Layer: Dataverse Tables
@@ -236,6 +238,8 @@ stateDiagram-v2
     Rejected --> [*]
     Completed --> [*]
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/architecture-workflow-state-machine-2.png) | [SVG](../../../images/diagrams/architecture-workflow-state-machine-2.svg)
 
 ---
 
@@ -491,6 +495,8 @@ flowchart TB
     SUCCESS --> NEXT[Continue Baseline Config]
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/architecture-async-polling-pattern.png) | [SVG](../../../images/diagrams/architecture-async-polling-pattern.svg)
+
 **Polling Configuration:**
 
 | Parameter | Value | Rationale |
@@ -592,6 +598,8 @@ flowchart TB
     style PL fill:#f9f,stroke:#333
     style SP fill:#bbf,stroke:#333
 ```
+
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/architecture-security-model-diagram.png) | [SVG](../../../images/diagrams/architecture-security-model-diagram.svg)
 
 ---
 

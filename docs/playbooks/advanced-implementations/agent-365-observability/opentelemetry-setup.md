@@ -21,6 +21,8 @@ flowchart LR
     B -->|File Exporter| F[WORM Storage]
 ```
 
+> :inbox_tray: **Download diagram:** [PNG](../../../images/diagrams/opentelemetry-setup-architecture.png) | [SVG](../../../images/diagrams/opentelemetry-setup-architecture.svg)
+
 ---
 
 ## Prerequisites

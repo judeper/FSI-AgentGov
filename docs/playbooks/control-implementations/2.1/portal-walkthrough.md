@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.1 - Managed Environments
 
-**Last Updated:** February 2026
+**Last Updated:** March 2026
 **Portal:** Power Platform Admin Center
 **Estimated Time:** 30-45 minutes per environment
 
@@ -295,4 +295,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Classification: Portal Walkthrough*
+*Updated: March 2026 | Version: v1.4 | Classification: Portal Walkthrough*

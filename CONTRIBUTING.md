@@ -58,6 +58,12 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 **Footer Metadata:**
 - *Updated: Month-Year | Version: v1.2 | UI Verification Status: Current*
 
+**Automation Indicators:**
+- Each control must include an automation indicator identifying whether the control can be automated, partially automated, or requires manual implementation.
+
+**CSA Reference Pages:**
+- `docs/reference/csa-quick-reference.md` and `docs/reference/csa-positioning-guide.md` provide partner/CSA engagement materials. Update these when adding controls with CSA relevance.
+
 **Administrator Role Naming:**
 - Use the framework's canonical short role names (e.g., "Power Platform Admin", "Purview Compliance Admin").
 - Avoid inconsistent synonyms ("Global Admin" vs "Global Administrator").
@@ -257,4 +263,4 @@ Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the m
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.2.54 - March 2026*
