@@ -3,7 +3,7 @@
 Extract assessment data from FSI-AgentGov control markdown files.
 
 Generates docs/javascripts/assessment-data.json for the Governance Readiness
-Assessment Tool. Parses all 71 controls to extract metadata, verification
+Assessment Tool. Parses all 72 controls to extract metadata, verification
 criteria, configuration points, zone requirements, and role assignments.
 
 Also parses:
@@ -54,7 +54,7 @@ PILLARS = {
     4: {
         "name": "SharePoint",
         "folder": "pillar-4-sharepoint",
-        "controls": list(range(1, 8)),  # 4.1 to 4.7 (7 controls)
+        "controls": list(range(1, 9)),  # 4.1 to 4.8 (8 controls)
     },
 }
 
@@ -638,8 +638,8 @@ def build_output():
                 errors.append(f"{pillar_num}.{ctrl_num}")
 
     # Validate we got all 71 controls
-    if len(controls) != 71:
-        print(f"\nERROR: Expected 71 controls, got {len(controls)}")
+    if len(controls) != 72:
+        print(f"\nERROR: Expected 72 controls, got {len(controls)}")
         if errors:
             print(f"  Missing: {', '.join(errors)}")
         return None

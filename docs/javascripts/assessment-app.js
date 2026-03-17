@@ -2,7 +2,7 @@
  * FSI-AgentGov Governance Readiness Assessment Tool
  *
  * Client-side SPA that walks users through a scoped assessment of the
- * 71-control governance framework and produces scorecards, gap analysis,
+ * 72-control governance framework and produces scorecards, gap analysis,
  * and remediation roadmaps.
  *
  * @version 1.0.0
@@ -588,7 +588,7 @@
     content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Zone-Specific Scoring"));
     content.appendChild(h("p", null,
       "Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A. " +
-      "Approximately 10 controls are excluded from Zone 1 scoring, while all 71 apply to Zone 3."));
+      "Approximately 10 controls are excluded from Zone 1 scoring, while all 72 apply to Zone 3."));
 
     this.showModal("How Scoring Works", content);
   };
@@ -602,7 +602,7 @@
 
     wrap.appendChild(h("h2", null, "Governance Readiness Assessment"));
     wrap.appendChild(h("p", null,
-      "Assess your organization's readiness across the 71-control FSI Agent Governance Framework. " +
+      "Assess your organization's readiness across the 72-control FSI Agent Governance Framework. " +
       "This tool helps identify gaps and generates a personalized remediation roadmap."
     ));
 
@@ -730,7 +730,7 @@
     wrap.appendChild(h("h2", { style: "font-size:1.3rem;margin-bottom:0.3rem" }, "Assessment Scoping"));
     wrap.appendChild(h("p", { className: "ag-card-subtitle" },
       "Configure the assessment scope for your organization. " +
-      "All 71 controls will be included but prioritized based on your profile."
+      "All 72 controls will be included but prioritized based on your profile."
     ));
 
     var form = h("div", { className: "ag-card" });

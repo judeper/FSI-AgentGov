@@ -23,7 +23,7 @@ All data stays in your browser.
 
 ## About This Tool
 
-The Governance Readiness Assessment is an interactive tool that helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md) across all 71 controls. It produces a personalized scorecard, gap analysis, and remediation roadmap.
+The Governance Readiness Assessment is an interactive tool that helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md) across all 72 controls. It produces a personalized scorecard, gap analysis, and remediation roadmap.
 
 ### How It Works
 
@@ -47,7 +47,7 @@ Aggregate scores are calculated as: `score = sum(controlScores) / count(applicab
 **Zone-specific scoring:** Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A.
 
 - **Zone 1** (Personal Productivity) — approximately 10 controls excluded from scoring
-- **Zone 3** (Enterprise Managed) — all 71 controls apply
+- **Zone 3** (Enterprise Managed) — all 72 controls apply
 
 This prevents penalizing organizations for enterprise-only controls that do not apply to personal productivity agents.
 

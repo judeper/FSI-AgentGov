@@ -4,7 +4,7 @@
 
 FSI Agent Governance Framework v1.2.54 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
-- **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **72 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
@@ -28,7 +28,7 @@ FSI Agent Governance Framework v1.2.54 - A governance framework for Microsoft 36
 ### Key Reference Materials
 - **CSA Quick Reference** (`docs/reference/csa-quick-reference.md`) — partner/CSA engagement summary
 - **CSA Positioning Guide** (`docs/reference/csa-positioning-guide.md`) — positioning for CSA conversations
-- **Automation indicators** — all 71 controls include automation feasibility indicators
+- **Automation indicators** — all 72 controls include automation feasibility indicators
 - **Exportable diagrams** — PNG/SVG architecture diagrams in `docs/images/diagrams/`
 
 ### Screenshots
@@ -72,7 +72,7 @@ docs/
 │   ├── pillar-1-security/        # 28 security controls (1.1-1.28)
 │   ├── pillar-2-management/      # 24 management controls (2.1-2.24)
 │   ├── pillar-3-reporting/       # 12 reporting controls (3.1-3.12)
-│   ├── pillar-4-sharepoint/      # 7 SharePoint controls (4.1-4.7)
+│   ├── pillar-4-sharepoint/      # 8 SharePoint controls (4.1-4.8)
 │   └── CONTROL-INDEX.md          # Master control list
 ├── playbooks/                    # NEW in v1.1: Implementation layer
 │   ├── control-implementations/  # Per-control guides (284 files, 4 per control)
@@ -156,7 +156,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
 | `docs/templates/control-setup-template.md` | Control format (10 sections) |
-| `docs/controls/CONTROL-INDEX.md` | Master list of all 71 controls |
+| `docs/controls/CONTROL-INDEX.md` | Master list of all 72 controls |
 | `mkdocs.yml` | Site navigation structure |
 
 ## Claude Code Skills (On-Demand Workflows)

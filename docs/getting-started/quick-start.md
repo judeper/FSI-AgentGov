@@ -41,7 +41,7 @@ The framework recommends a structured 3-phase adoption approach:
 ## For New Users (10 minutes)
 
 !!! tip "Quick Assessment"
-    Want a faster way to evaluate your readiness? Try the [Governance Readiness Assessment](../assessment/index.md) — an interactive tool that walks you through all 71 controls and generates a personalized remediation roadmap.
+    Want a faster way to evaluate your readiness? Try the [Governance Readiness Assessment](../assessment/index.md) — an interactive tool that walks you through all 72 controls and generates a personalized remediation roadmap.
 
 ### Step 1: Understand the Framework Structure (3 min)
 
@@ -52,7 +52,7 @@ The framework has **4 pillars** and **3 zones**:
 1. Security (28 controls) - Protect data
 2. Management (24 controls) - Govern lifecycle
 3. Reporting (12 controls) - Monitor activities
-4. SharePoint (7 controls) - Govern SharePoint
+4. SharePoint (8 controls) - Govern SharePoint
 
 **3 Zones (risk levels):**
 
@@ -203,7 +203,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 **Controls Required (comprehensive):**
 
-- All 71 controls apply
+- All 72 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 
@@ -236,7 +236,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 ## Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (71 total)
+- **Control:** Governance requirement (72 total)
 - **Pillar:** Control category (Security, Management, Reporting, SharePoint)
 - **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
 - **MFA:** Multi-Factor Authentication (login security)

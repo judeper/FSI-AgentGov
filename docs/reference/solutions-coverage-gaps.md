@@ -1,6 +1,6 @@
 # Solutions Coverage Gap Analysis
 
-Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, identifying high-risk gaps and implementation prioritization guidance.
+Analysis of FSI-AgentGov-Solutions coverage against the 72-control framework, identifying high-risk gaps and implementation prioritization guidance.
 
 ---
 
@@ -8,10 +8,10 @@ Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, id
 
 | Metric | Value |
 |--------|-------|
-| Total Controls | 71 |
+| Total Controls | 72 |
 | Controls with Deployable Solutions | 37 |
-| Controls Without Solutions | 34 |
-| Overall Solution Coverage | 52.1% |
+| Controls Without Solutions | 35 |
+| Overall Solution Coverage | 51.4% |
 
 !!! info "Important Context"
     Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
@@ -20,7 +20,7 @@ Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, id
 
 ## Current Solution Coverage
 
-### Covered Controls (37 of 71)
+### Covered Controls (37 of 72)
 
 | Control ID | Control Name | Solution |
 |------------|--------------|----------|
@@ -69,8 +69,8 @@ Analysis of FSI-AgentGov-Solutions coverage against the 71-control framework, id
 | **Pillar 1 - Security** | 28 | 13 | 15 | 46.4% |
 | **Pillar 2 - Management** | 24 | 15 | 9 | 62.5% |
 | **Pillar 3 - Reporting** | 12 | 8 | 4 | 66.7% |
-| **Pillar 4 - SharePoint** | 7 | 1 | 6 | 14.3% |
-| **Total** | 71 | 37 | 34 | 52.1% |
+| **Pillar 4 - SharePoint** | 8 | 1 | 7 | 12.5% |
+| **Total** | 72 | 37 | 35 | 51.4% |
 
 ---
 
@@ -302,7 +302,7 @@ Priority solutions for FSI-AgentGov-Solutions repository development, addressing
 |----------|---------------|-------------|--------|
 | ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
 | ~~**conditional-access-automation**~~ | 1.11 | ~~Entra ID Conditional Access policy templates and deployment automation for AI workloads~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 71 controls with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
+| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 72 controls with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
 
 ### P1 - High (Q2-Q3 2026) - ALL RELEASED ✓
 

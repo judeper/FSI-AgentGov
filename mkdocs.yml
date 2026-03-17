@@ -201,6 +201,7 @@ nav:
       - 4.5 Security Monitoring: controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md
       - 4.6 Grounding Scope: controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md
       - 4.7 M365 Copilot Data Governance: controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md
+      - 4.8 Item-Level Permission Scanning: controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md
 
   - Playbooks:
     - playbooks/index.md
@@ -567,6 +568,11 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/4.7/powershell-setup.md
           - Verification: playbooks/control-implementations/4.7/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/4.7/troubleshooting.md
+        - 4.8 Item-Level Permission Scanning:
+          - Portal Walkthrough: playbooks/control-implementations/4.8/portal-walkthrough.md
+          - PowerShell Setup: playbooks/control-implementations/4.8/powershell-setup.md
+          - Verification: playbooks/control-implementations/4.8/verification-testing.md
+          - Troubleshooting: playbooks/control-implementations/4.8/troubleshooting.md
     - Implementation Phases:
       - Phase 0 - Governance Setup: playbooks/getting-started/phase-0-governance-setup.md
       - Phase 1 - Minimal Viable Controls: playbooks/getting-started/phase-1-minimal-viable-controls.md

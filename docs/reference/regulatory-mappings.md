@@ -132,7 +132,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (8/71 controls). Implementation required.
+Framework provides supervision procedure guidance (8/72 controls). Implementation required.
 
 ---
 
@@ -237,7 +237,7 @@ See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notice
 The framework applies FINRA's existing supervision principles to AI agents, treating them as tools requiring documented procedures, ongoing monitoring, and supervisory oversight.
 
 ### Framework Coverage
-Framework addresses FINRA supervision requirements through 8/71 controls. Implementation and validation required.
+Framework addresses FINRA supervision requirements through 8/72 controls. Implementation and validation required.
 
 ---
 
@@ -262,6 +262,7 @@ Requires SEC-registered firms to maintain records for varying periods: 3 years f
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Evidence retention |
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Knowledge source records |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | M365 Copilot usage logging |
+| 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Agent knowledge source access documentation and control |
 
 !!! warning "Dataverse Audit Event Changes — May 2026"
     Starting May 2026, Dataverse will no longer include before-and-after field change values in audit events sent to Microsoft Purview. Organizations relying on Purview audit events for Dataverse field-level change records to support SEC 17a-4 record retention requirements should transition to Dataverse API-based retrieval before May 2026. This may affect the completeness of audit records for agent interactions involving Dataverse entities. See [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for implementation guidance.
@@ -358,7 +359,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (6/71 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance (6/72 controls). Legal review recommended. Implementation required.
 
 ---
 
@@ -489,7 +490,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
-**Total: 44 controls (62% of 71)**
+**Total: 44 controls (61% of 72)**
 
 ### Management Assessment Requirements
 
@@ -527,7 +528,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 62% control coverage (44/71 controls). SOX-specific testing required. Implementation required.
+Framework provides 61% control coverage (44/72 controls). SOX-specific testing required. Implementation required.
 
 ---
 
@@ -645,8 +646,9 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [4.4](../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md) | Guest Access Controls | Technical safeguard - third-party access |
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Technical safeguard - data source governance |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
+| 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Item-level access control validation for agent knowledge sources |
 
-**Total: 51 controls (72% of 71)**
+**Total: 52 controls (72% of 72)**
 
 ### Key Safeguard Areas
 
@@ -685,7 +687,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 72% control coverage (51/71 controls). Implementation validation required.
+Framework provides 72% control coverage (52/72 controls). Implementation validation required.
 
 ---
 
@@ -750,8 +752,9 @@ Applies to national banks and federal savings associations. Requires governance 
 | [4.1](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | Information Access Governance | Model data access controls |
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Model data source governance |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
+| 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Data governance for AI model knowledge sources |
 
-**Total: 33 controls (46% of 71)**
+**Total: 34 controls (47% of 72)**
 
 ### Model Risk Framework (SR 11-7)
 
@@ -803,7 +806,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 46% control coverage (33/71 controls). OCC-specific model validation required for full compliance.
+Framework provides 47% control coverage (34/72 controls). OCC-specific model validation required for full compliance.
 
 ---
 
@@ -849,7 +852,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/71 controls applicable). ECOA-specific testing and validation required.
+Framework provides bias testing controls (2/72 controls applicable). ECOA-specific testing and validation required.
 
 ---
 
@@ -991,7 +994,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (6/71 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics (6/72 controls). CFPB-specific implementation required.
 
 ---
 
@@ -1335,24 +1338,24 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 | Regulation | Applicable Controls | Coverage | Implementation Status |
 |-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 62/71 | 87% | Full coverage - implementation required |
-| FINRA 3110 | 8/71 | 11% | Partial - supervision focus |
-| FINRA 3110/2111 (AI) | 11/71 | 15% | Partial - supervision/suitability focus |
-| SEC 17a-3/4 | 49/71 | 69% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/71 | 10% | Limited - fairness + disclosure focus |
-| SEC Marketing Rule (206(4)-1) | 5/71 | 7% | AI marketing claims - Control 2.21 |
-| SOX 302/404 | 44/71 | 62% | Substantial coverage |
-| GLBA 501-505 | 51/71 | 72% | Substantial coverage |
-| OCC 2011-12 | 33/71 | 46% | Partial - model risk focus |
-| Fed SR 11-7 | 33/71 | 46% | Partial - model risk focus |
-| Fed ECOA | 3/71 | 4% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/71 | 10% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/71 | 13% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 62/71 | 87% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/71 | 72% | Security program alignment |
-| NYDFS Part 500 | 45/71 | 63% | State-level awareness |
-| NAIC Model Law | 41/71 | 58% | Insurance awareness |
-| State AI Laws | 6/71 | 8% | Emerging - transparency, bias, human review |
+| FINRA 4511 | 62/72 | 86% | Full coverage - implementation required |
+| FINRA 3110 | 8/72 | 11% | Partial - supervision focus |
+| FINRA 3110/2111 (AI) | 11/72 | 15% | Partial - supervision/suitability focus |
+| SEC 17a-3/4 | 50/72 | 69% | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | 7/72 | 10% | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | 5/72 | 7% | AI marketing claims - Control 2.21 |
+| SOX 302/404 | 44/72 | 61% | Substantial coverage |
+| GLBA 501-505 | 52/72 | 72% | Substantial coverage |
+| OCC 2011-12 | 34/72 | 47% | Partial - model risk focus |
+| Fed SR 11-7 | 34/72 | 47% | Partial - model risk focus |
+| Fed ECOA | 3/72 | 4% | Minimal - bias testing only |
+| CFPB / UDAAP | 7/72 | 10% | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | 9/72 | 13% | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | 63/72 | 88% | Full applicability; align to interagency guidance |
+| NCUA Part 748 | 51/72 | 71% | Security program alignment |
+| NYDFS Part 500 | 45/72 | 63% | State-level awareness |
+| NAIC Model Law | 41/72 | 57% | Insurance awareness |
+| State AI Laws | 6/72 | 8% | Emerging - transparency, bias, human review |
 
 > **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 

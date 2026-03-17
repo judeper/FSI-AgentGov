@@ -9,13 +9,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.2.55] — March 17, 2026 (Control 4.8 — Item-Level Permission Scanning)
+
+### Added
+
+- **Control 4.8 — Item-Level Permission Scanning for Agent Knowledge Sources** (`docs/controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md`): New CRITICAL-priority control requiring item-level permission scanning of all SharePoint libraries connected as Copilot Studio agent knowledge sources before deployment and on a recurring cadence. Addresses amplified data exposure risk when AI agents actively retrieve and surface overshared content. Mapped to GLBA §314.4(c)(3), SEC 17a-4, FFIEC AI/ML Risk Management, NIST AI RMF, SR 11-7.
+- **4.8 Implementation Playbooks** (`docs/playbooks/control-implementations/4.8/`): Portal walkthrough, PowerShell setup (with standalone scanning script and Get-KnowledgeSourceItemPermissions.ps1 reference), verification & testing (compliance attestation template, zone-specific verification), and troubleshooting guides
+- **Cross-references**: Controls 4.1, 4.5, 4.6, and 4.7 updated with Related Controls entries pointing to 4.8
+
+### Changed
+
+- **Framework total**: 71 → 72 controls across all documentation
+- **Pillar 4 count**: 7 → 8 controls (SharePoint Advanced Management)
+- **CONTROL-INDEX.md**: Added 4.8 row with automation link to FSI-AgentGov-Solutions agent-knowledge-source-scanner
+- **Pillar 4 index**: Updated overview and controls list
+- **mkdocs.yml**: Added navigation entries for Control 4.8 and its 4 playbooks
+
+---
+
 ## [1.2.54] — March 13, 2026 (CSA Enablement & Automation Indicators)
 
 ### Added
 
 - **CSA Quick Reference** (`docs/reference/csa-quick-reference.md`): One-page orientation for Cloud Solution Architects — top 3 customer questions, top 10 controls, repository map, implementation phases, and quick links
 - **CSA Positioning Guide** (`docs/reference/csa-positioning-guide.md`): Do's and don'ts for customer engagements — supported claims table, common objection responses, competitive positioning, and conversation starters
-- **Automation indicators on all 71 controls**: Standardized `!!! tip "Automation Available"` admonitions on 31 controls with companion solutions, and `!!! info "No Automation Solution"` on 40 controls without — provides instant visibility into automation coverage
+- **Automation indicators on all 72 controls**: Standardized `!!! tip "Automation Available"` admonitions on 31 controls with companion solutions, and `!!! info "No Automation Solution"` on 40 controls without — provides instant visibility into automation coverage
 - **Exportable diagram assets** (`docs/images/diagrams/`): 35 Mermaid diagrams rendered as high-resolution PNG and SVG files for slide decks and offline presentations — includes governance zones, three-layer model, architecture flows, and solution integration diagrams
 - **CSA navigation entries** in mkdocs.yml and start-here.md scenario table
 

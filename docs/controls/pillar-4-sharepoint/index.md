@@ -7,7 +7,7 @@ Govern content access, site lifecycle, and external sharing within SharePoint as
 
 ## Overview
 
-Pillar 4 addresses SharePoint-specific governance requirements when SharePoint serves as a knowledge source for **Microsoft 365 Copilot** and **Copilot Studio agents**. These 7 controls ensure that agents only access authorized content, site permissions are regularly reviewed, retention policies are enforced, external sharing is appropriately restricted, grounding scope is properly governed, and M365 Copilot data access is controlled - critical for preventing unauthorized disclosure of sensitive financial information.
+Pillar 4 addresses SharePoint-specific governance requirements when SharePoint serves as a knowledge source for **Microsoft 365 Copilot** and **Copilot Studio agents**. These 8 controls ensure that agents only access authorized content, site permissions are regularly reviewed, retention policies are enforced, external sharing is appropriately restricted, grounding scope is properly governed, M365 Copilot data access is controlled, and item-level permissions in agent knowledge sources are scanned and validated - critical for preventing unauthorized disclosure of sensitive financial information.
 
 **Primary Regulatory Alignment:** GLBA 501(b) (safeguards), SEC 17a-4 (records retention), FINRA 4511 (recordkeeping)
 
@@ -28,6 +28,7 @@ Pillar 4 addresses SharePoint-specific governance requirements when SharePoint s
 - [4.5 SharePoint Security and Compliance Monitoring](4.5-sharepoint-security-and-compliance-monitoring.md)
 - [4.6 Grounding Scope Governance](4.6-grounding-scope-governance.md)
 - [4.7 Microsoft 365 Copilot Data Governance](4.7-microsoft-365-copilot-data-governance.md)
+- [4.8 Item-Level Permission Scanning for Agent Knowledge Sources](4.8-item-level-permission-scanning-agent-knowledge-sources.md)
 
 ---
 

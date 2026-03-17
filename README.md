@@ -63,9 +63,9 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 | **1. Security** | 28 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers, Content Moderation, Publishing Restrictions |
 | **2. Management** | 24 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework, Inactivity Timeout, Feature Governance |
 | **3. Reporting** | 12 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback, Exception Management |
-| **4. SharePoint Mgmt** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
+| **4. SharePoint Mgmt** | 8 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
-**Total: 71 Comprehensive Controls**
+**Total: 72 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -110,12 +110,12 @@ Strategic governance principles in `docs/framework/`:
 - Operating model and regulatory framework
 - Agent identity architecture and solutions integration
 
-### Control Files (71 Total)
+### Control Files (72 Total)
 Technical specifications in `docs/controls/`:
 - **Pillar 1:** 28 Security Controls (1.1-1.28)
 - **Pillar 2:** 24 Management Controls (2.1-2.24)
 - **Pillar 3:** 12 Reporting Controls (3.1-3.12)
-- **Pillar 4:** 7 SharePoint Controls (4.1-4.7)
+- **Pillar 4:** 8 SharePoint Controls (4.1-4.8)
 
 Each control includes:
 - Overview and regulatory reference
@@ -125,7 +125,7 @@ Each control includes:
 
 ### Implementation Playbooks (284 Files)
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
-- **4 playbooks per control** (71 controls × 4 = 284 playbooks)
+- **4 playbooks per control** (72 controls × 4 = 288 playbooks)
 - Portal walkthrough guides with click-by-click navigation
 - PowerShell automation scripts with validation
 - Verification testing procedures with evidence checklists
@@ -200,11 +200,11 @@ The framework uses a three-layer documentation model designed to serve different
 **Purpose:** Technical control specifications
 **Audience:** Administrators, engineers, security teams
 
-71 detailed controls organized by pillar:
+72 detailed controls organized by pillar:
 - **Pillar 1 - Security:** 28 controls (1.1-1.28)
 - **Pillar 2 - Management:** 24 controls (2.1-2.24)
 - **Pillar 3 - Reporting:** 12 controls (3.1-3.12)
-- **Pillar 4 - SharePoint:** 7 controls (4.1-4.7)
+- **Pillar 4 - SharePoint:** 8 controls (4.1-4.8)
 
 Each control follows a 10-section format including objective, regulatory alignment, configuration points, zone-specific requirements, and verification criteria.
 
@@ -316,7 +316,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 71 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for all 72 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
 | **Solutions Index** | Catalog of 27 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
 

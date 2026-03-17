@@ -9,7 +9,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 import os
 
-# ── All 71 controls ──────────────────────────────────────────────────────────
+# ── All 72 controls ──────────────────────────────────────────────────────────
 
 ALL_CONTROLS = {
     "Pillar 1 \u2014 Security": [
@@ -90,6 +90,7 @@ ALL_CONTROLS = {
         ("4.5", "SharePoint Security and Compliance Monitoring"),
         ("4.6", "Grounding Scope Governance"),
         ("4.7", "Microsoft 365 Copilot Data Governance"),
+        ("4.8", "Item-Level Permission Scanning for Agent Knowledge Sources"),
     ],
 }
 
@@ -120,7 +121,7 @@ ROLE_TEMPLATES = {
     "sharepoint-administrator-checklist.xlsx": {
         "title": "SharePoint Administrator Checklist",
         "role": "SharePoint Admin",
-        "controls": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7"],
+        "controls": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8"],
     },
     "compliance-officer-checklist.xlsx": {
         "title": "Compliance Officer Checklist",

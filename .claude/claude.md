@@ -5,7 +5,7 @@
 **FSI Agent Governance Framework v1.2.54** - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ### Key Stats
-- **71 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **72 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **6 advanced implementations** (Platform Change Governance, Environment Lifecycle Management, Agent 365 Observability, etc.)
@@ -25,7 +25,7 @@
 | `deny-event-correlation-report/` | v1.1.0 | Unified deny event reporting across Purview/DLP/App Insights |
 | `finra-supervision-workflow/` | v1.0.0 | FINRA 3110 supervision queue for AI agent outputs |
 | `conditional-access-automation/` | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads |
-| `compliance-dashboard/` | v1.0.0-beta | Aggregated compliance reporting across 71 controls |
+| `compliance-dashboard/` | v1.0.0-beta | Aggregated compliance reporting across 72 controls |
 | `segregation-detector/` | v1.0.0 | Role conflict detection for Maker/Checker enforcement |
 | `scope-drift-monitor/` | v1.0.0 | Detect agent data access beyond declared scope |
 | `rag-source-validator/` | v1.0.0 | Integrity validation for RAG knowledge sources |
@@ -115,11 +115,11 @@ FSI-AgentGov/
 │   └── skills/                # On-demand workflow guides (YAML frontmatter)
 ├── docs/
 │   ├── framework/             # Layer 1: Governance principles (10 docs)
-│   ├── controls/              # Layer 2: Control catalog (71 controls)
+│   ├── controls/              # Layer 2: Control catalog (72 controls)
 │   │   ├── pillar-1-security/     # 1.1-1.28 (28 controls)
 │   │   ├── pillar-2-management/   # 2.1-2.24 (24 controls)
 │   │   ├── pillar-3-reporting/    # 3.1-3.12 (12 controls)
-│   │   └── pillar-4-sharepoint/   # 4.1-4.7 (7 controls)
+│   │   └── pillar-4-sharepoint/   # 4.1-4.8 (8 controls)
 │   ├── playbooks/             # Layer 3: Implementation guides (315 files)
 │   │   ├── control-implementations/  # 4 playbooks per control (284 files)
 │   │   └── advanced-implementations/ # Complex multi-control solutions (31 files)
@@ -130,7 +130,7 @@ FSI-AgentGov/
 ├── scripts/                   # Python validation scripts
 │   ├── learn_monitor.py           # Microsoft Learn documentation monitor
 │   ├── verify_controls.py         # Control structure validation
-│   ├── extract_assessment_data.py # Assessment data extraction (71 controls → JSON)
+│   ├── extract_assessment_data.py # Assessment data extraction (72 controls → JSON)
 │   ├── compile_researcher_package.py  # Research package generator
 │   └── hooks/                     # Claude Code hooks
 ├── data/                      # Runtime data (state files)
@@ -157,7 +157,7 @@ FSI-AgentGov/
 | Pillar 1 - Security | 1.1-1.28 (28) | Data protection, access, audit |
 | Pillar 2 - Management | 2.1-2.24 (24) | Lifecycle, risk, operations |
 | Pillar 3 - Reporting | 3.1-3.12 (12) | Visibility, metrics, dashboards |
-| Pillar 4 - SharePoint | 4.1-4.7 (7) | Content governance, grounding |
+| Pillar 4 - SharePoint | 4.1-4.8 (8) | Content governance, grounding |
 
 ### Playbook Structure
 
@@ -257,7 +257,7 @@ python scripts/compile_researcher_package.py
 
 ### What "Pass" Means
 - `mkdocs build --strict` produces zero errors/warnings
-- `verify_controls.py` reports all 71 controls valid
+- `verify_controls.py` reports all 72 controls valid
 - No broken internal links
 
 ---
@@ -400,14 +400,14 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 ## Current State
 
 **Version:** 1.2.54 (March 2026)
-**Status:** All 71 controls complete with automation indicators, 284 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs), interactive assessment tool live, CSA reference guides published, exportable diagrams available
+**Status:** All 72 controls complete with automation indicators, 288 control playbooks + 31 advanced implementation docs, build passing, Learn monitor active (207 URLs), interactive assessment tool live, CSA reference guides published, exportable diagrams available
 
 **Key capabilities in recent releases:**
 
 - CSA Quick Reference and Positioning Guide — partner/CSA engagement materials in `docs/reference/` (v1.2.54)
-- Automation indicators on all 71 controls — each control now identifies automation feasibility (v1.2.54)
+- Automation indicators on all 72 controls — each control now identifies automation feasibility (v1.2.54)
 - Exportable architecture diagrams — PNG/SVG exports available in `docs/images/diagrams/` (v1.2.54)
-- Interactive Governance Readiness Assessment tool — client-side wizard assessing all 71 controls with smart scoping, two-phase drill-down, visual dashboard, remediation roadmap, and Excel/JSON/CSV/PDF export (v1.2.53)
+- Interactive Governance Readiness Assessment tool — client-side wizard assessing all 72 controls with smart scoping, two-phase drill-down, visual dashboard, remediation roadmap, and Excel/JSON/CSV/PDF export (v1.2.53)
 - 48-batch automated documentation review — SSPM mapping, Control 2.22 zone thresholds, stale footers, terminology fixes (v1.2.52)
 - UASD review remediation — 6 critical script fixes, 6 new troubleshooting scenarios (v1.2.51)
 - Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes (v1.2.49)

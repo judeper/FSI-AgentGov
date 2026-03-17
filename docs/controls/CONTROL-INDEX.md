@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (71 Controls)
+## Complete Control Reference (72 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars.
 
@@ -85,7 +85,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 3.11 | [Centralized Agent Inventory Enforcement](pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Portal / PowerShell |
 | 3.12 | [Agent Governance Exception and Override Management](pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Portal / PowerShell |
 
-## Pillar 4: SharePoint Advanced Management (7 Controls)
+## Pillar 4: SharePoint Advanced Management (8 Controls)
 
 | Control ID | Control Name | Implementation |
 |-----------|----------|----------------|
@@ -96,6 +96,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 4.5 | [SharePoint Security and Compliance Monitoring](pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Portal |
 | 4.6 | [Grounding Scope Governance](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Portal |
 | 4.7 | [Microsoft 365 Copilot Data Governance](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | Portal |
+| 4.8 | [Item-Level Permission Scanning for Agent Knowledge Sources](pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md) | PowerShell, [AKSS](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner) |
 
 ---
 
@@ -185,7 +186,7 @@ Focus: Visibility and monitoring of agent activities, performance, and complianc
 - Centralized Inventory Enforcement
 - Exception & Override Management
 
-### Pillar 4: SharePoint Advanced Management (7 Controls)
+### Pillar 4: SharePoint Advanced Management (8 Controls)
 Focus: Govern SharePoint content accessed by agents with specific access, retention, and security controls.
 - Information Access Governance
 - Access Reviews
@@ -194,6 +195,7 @@ Focus: Govern SharePoint content accessed by agents with specific access, retent
 - Security Monitoring
 - Grounding Scope Governance
 - M365 Copilot Data Governance
+- Item-Level Permission Scanning for Agent Knowledge Sources
 
 ---
 

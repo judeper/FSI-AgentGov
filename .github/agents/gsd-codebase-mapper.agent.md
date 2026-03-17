@@ -62,7 +62,7 @@ Write analysis to `.planning/codebase/{focus-area}.md`:
 
 ## FSI-AgentGov Context
 
-- **71 controls** across 4 pillars in `docs/controls/`
+- **72 controls** across 4 pillars in `docs/controls/`
 - **284 playbooks** in `docs/playbooks/control-implementations/`
 - **16 solutions** in companion repo FSI-AgentGov-Solutions
 - **MkDocs Material** site with strict build validation

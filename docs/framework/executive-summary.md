@@ -86,7 +86,7 @@ Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institu
 +-------------------+-------------------+-------------------+-------------------+
 ```
 
-**71 Total Controls** across four pillars addressing security, management, reporting, and SharePoint-specific governance.
+**72 Total Controls** across four pillars addressing security, management, reporting, and SharePoint-specific governance.
 
 ### Three Governance Zones
 
