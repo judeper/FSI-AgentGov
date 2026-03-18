@@ -1,0 +1,974 @@
+# Microsoft Learn Documentation Changes
+
+**Run Date:** 2026-03-18
+**Run Time:** 2026-03-18T07:04:03.460370+00:00
+**Total URLs Checked:** 208
+
+---
+
+## Executive Summary
+
+| Category | Count |
+|----------|-------|
+| HIGH Changes | 19 |
+| MEDIUM Changes | 11 |
+| NOISE Changes | 1 |
+| Redirects | 21 |
+| Errors | 1 |
+
+---
+
+## Change Summary (Quick Scan)
+
+| # | URL | Classification | Affected Controls | Action Required |
+|---|-----|----------------|-------------------|-----------------|
+| 1 | ...en-us/connectors/connector-reference/ | HIGH | 1.4 | Review and update |
+| 2 | alerts | HIGH | None | Review and update |
+| 3 | manage-copilot-studio-messages-capacity | MEDIUM | None | Review optional |
+| 4 | security-and-governance | MEDIUM | 1.8, 1.28, 1.1 | Review optional |
+| 5 | ...ication-fundamentals-publish-channels | HIGH | None | Review and update |
+| 6 | analytics-improve-agent-effectiveness | HIGH | None | Review and update |
+| 7 | nlu-gpt-overview | HIGH | 2.12 | Review and update |
+| 8 | microsoft-365-copilot-privacy | MEDIUM | 4.6, 4.7, 2.23 | Review and update |
+| 9 | manage-copilot-agents-integrated-apps | HIGH | 3.8, 3.11, 3.6, 3.1 | Review and update |
+| 10 | microsoft-365-copilot-usage | MEDIUM | 3.8 | Review optional |
+| 11 | m365-agents-visual-map | MEDIUM | 3.8, 1.1 | Review optional |
+| 12 | m365-agents-checklist | HIGH | 3.8, 3.5, 3.1, 1.11, 1.1, 1.6, 1.5 | Review and update |
+| 13 | m365-agents-blueprint | HIGH | 2.1, 2.3, 1.11 | Review and update |
+| 14 | dlp-policy-reference | HIGH | None | Review and update |
+| 15 | dspm-for-ai-considerations | HIGH | None | Review and update |
+| 16 | insider-risk-management-policies | HIGH | 1.12 | Review and update |
+| 17 | ...management-settings-policy-indicators | HIGH | 1.12 | Review and update |
+| 18 | import-hr-data | HIGH | 1.12 | Review and update |
+| 19 | ediscovery-create-holds | MEDIUM | 1.9, 1.19 | Review optional |
+| 20 | endpoint-dlp-learn-about | MEDIUM | 1.17 | Review optional |
+| 21 | information-barriers | MEDIUM | 1.22 | Review optional |
+| 22 | permissions-reference | HIGH | None | Review and update |
+| 23 | access-reviews-overview | HIGH | 1.3 | Review and update |
+| 24 | create-access-review | HIGH | 4.2, 2.8 | Review and update |
+| 25 | pim-configure | HIGH | 2.8, 1.18 | Review and update |
+| 26 | request-site-attestations | MEDIUM | 4.2 | Review optional |
+| 27 | application | MEDIUM | 1.2 | Review optional |
+| 28 | new-dlpcompliancepolicy | NOISE | 1.5 | Monitor |
+| 29 | whats-new | HIGH | None | Review and update |
+
+---
+
+## HIGH: Control Review Recommended
+
+### 1. Connector Reference
+
+**URL:** https://learn.microsoft.com/en-us/connectors/connector-reference/
+**Section:** Power Platform Administration
+**Classification:** HIGH (Portal references)
+
+**Affected Controls:**
+- Control 1.4: Control 1.4: Advanced Connector Policies (ACP)
+  - File: `controls/pillar-1-security/1.4-advanced-connector-policies-acp.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -112,11 +112,13 @@ Adobe Experience Manager
+ By: Adobe
+ Adobe PDF Services
+-By: Adobe Inc.
++By: Adobe Acrobat Services
+ Advanced Data Operations
+ By: State Solutions
+ Advanced Scraper (Independent Publisher)
+ By: Troy Taylor, Hitachi Solutions
++Aexum
++By: Nodefusion d.o.o
+ Affirmations (Independent Publisher)
+ By: Troy Taylor
+ Africa's Talking Airtime
+@@ -737,6 +739,8 @@ By: Troy Taylor
+ Databricks
+ By: Databricks Inc.
++DataFlows SMS
++By: DATAFLOWS SMS
+ DataMotion
+ By: DataMotion, Inc.
+ Datamuse (Independent Publisher)
+@@ -973,6 +977,8 @@ By: Encodian
+ Encodian - PowerPoint
+ By: Encodian
++Encodian - Sign
++By: Encodian
+ Encodian - Utilities
+ By: Encodian
+ Encodian - Word
+@@ -980,8 +986,6 @@ Encodian [DEPRECATED]
+ By: Encodian
+ Encodian Filer
+-By: Encodian
+-Encodian Trigr
+ By: Encodian
+ Engagement Cloud
+ By: dotdigital
+@@ -1045,6 +1049,8 @@ By: EXPOCAD
+ Ezekia-MCP
+ By: Ezekia
++Fabric MCP
++By: Microsoft
+ Face API
+ By: Microsoft
+ FactSet
+@@ -1264,7 +1270,7 @@ HitHorizons
+ By: FinStat, s. r. o.
+ Hive CPQ Product Configurator
+-By: NimbleOps NV
++By: Hive CPQ
+ Holopin
+ By: Troy Taylor
+ Holopin (Independent Publisher)
+@@ -1669,8 +1675,6 @@ By: Build My Team LLC
+ Michael Scott Quotes (Independent Publisher) [DEPRECATED]
+ By: Troy Taylor
+-Microsoft 365 Admin Center MCP
+-By: Microsoft
+ Microsoft 365 compliance
+ By: Microsoft
+ Microsoft 365 message center
+@@ -2931,18 +2935,6 @@ By: Microsoft
+ WordPress
+ By: Microsoft
+-Work IQ Calendar MCP
+-By: Microsoft
+-Work IQ Copilot MCP
+-By: Microsoft
+-Work IQ Mail MCP
+-By: Microsoft
+-Work IQ Teams MCP
+-By: Microsoft
+-Work IQ User MCP
+-By: Microsoft
+-Work IQ Word MCP
+-By: Microsoft
+ Workable (Independent Publisher)
+ By: David Kjell
+ Workday HCM
+@@ -3037,6 +3029,8 @@ By: Troy Taylor
+ Zenlogin (Independent Publisher)
+ By: Troy Taylor
++ZeroTrain AI Core
++By: Leonard Gambrell - DBA Gambrell Software
+ Zippopotamus (Independent Publisher)
+ By: Tomasz Poszytek
+ ZIPPYDOC
+
+```
+
+---
+
+### 2. Monitor Alerts
+
+**URL:** https://learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts
+**Section:** Power Platform Administration
+**Classification:** HIGH (Portal references)
+
+**What Changed:**
+```diff
+--- +++ @@ -30,15 +30,17 @@ [This article is prerelease documentation and is subject to change.]
+ Tenant and environment admins in Power Platform use
+ alerts
+-to track the operational health of their resources. Admins set up custom thresholds and get notifications when metrics for their resources pass specific thresholds. Create alerts on any metrics in the Monitor area of the Power Platform admin center.
++to track the operational health of their resources. Admins set up custom thresholds and get notifications when metrics for their resources pass specific thresholds. Create alerts on any metrics in the
++Monitor
++area of the Power Platform admin center.
+ Keep the following principles in mind:
+ Alerts are evaluated after new metrics are produced. Currently, all metrics are 24-hour aggregates, which means an alert rule in the
+ Monitor
+ area is evaluated every 24 hours after the newest 24-hour aggregates are produced. An alert rule does an on-demand evaluation upon its creation.
+-Alert rules are alerts that admins create to monitor their resources. You can edit, delete, and turn an alert rule on or off. Alert rules can be placed on an environment and a specific resource.
++Alert rules are alerts that admins create to monitor their resources. You can edit, delete, and turn an alert rule on or off. You can place alert rules on an environment and a specific resource.
+ A
+ triggered alert
+-is when one or more of the resources that are being monitored by an alert rule pass specific thresholds defined by the admin who configured the alert rule. You can select the triggered alert to learn what resources triggered the alert rule, and get recommendations for how to improve the resources if it's in a managed environment.
++occurs when one or more of the resources that an alert rule monitors pass specific thresholds that the admin defines when configuring the alert rule. You can select the triggered alert to learn what resources triggered the alert rule, and get recommendations for 
+```
+
+---
+
+### 3. Agent Publishing
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels
+**Section:** Copilot Studio
+**Classification:** HIGH (Policy language)
+
+**What Changed:**
+```diff
+--- +++ @@ -169,6 +169,16 @@ Twitter
+ ).
+ Suggested actions are presented as a text-only list; users must retype an option to respond.
++Troubleshoot publishing errors
++If you run into issues when publishing your agent, use the following troubleshooting steps to resolve common publishing errors:
++Verify all configurations are correct.
++Make sure that the agent settings, authentication options, and channel configurations are set up properly before publishing.
++Check for any missing dependencies.
++Ensure that all required components, such as topics, flows, connectors, and data sources, are available and properly configured.
++Review error logs for specific error codes and messages.
++Go to the
++Publish
++page and check the publish status for any error details. Use the error codes and messages to identify and address the root cause.
+ Next steps (Web app)
+ Article
+ Description
+
+```
+
+---
+
+### 4. Customer Satisfaction
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness
+**Section:** Copilot Studio
+**Classification:** HIGH (UI element names)
+
+**What Changed:**
+```diff
+--- +++ @@ -276,21 +276,11 @@ Poor
+ quality label. The tooltip also indicates the number of answers sampled to arrive at the calculated percent value.
+ In the legend below the chart, hover over any of the quality label reasons to highlight that reason in the chart.
+-You can provide feedback to Microsoft about this section with the
+-Thumbs up
+-and
+-Thumbs down
+-icons
+-. Use the
+-Submit feedback to Microsoft
+-panel to add a comment and share related files. By providing descriptive feedback like this, we can work together to continuously improve our product.
+-On the
+-Submit feedback to Microsoft
+-panel, describe in natural language your likes or dislikes, depending on which icon you selected to open the panel.
+-Choose whether to share prompt, generated response, relevant content samples, and additional log files.
+ Select
+-Submit
+-.
++See questions
++to
++see an unfiltered list of all questions
++within the configured time period.
+ Select
+ See details
+ to open a side panel with question answer rates, knowledge source usage, and error rates over your selected time period. You can use these charts to identify which knowledge sources work well to help users, and which to target for improvements.
+@@ -318,6 +308,117 @@ thumbs down
+ reactions.
+ A stacked bar chart showing the breakdown of the quality of response relative weightings for questions referencing this knowledge source. Hover over any segment of the bar chart to see the value of that segment's relative weighting and the number of questions sampled to arrive at that value.
++Drill down to a list of agent questions
++Drill down to view specific questions that contributed to a metric and the supporting context, such as how the agent responded, how users reacted, and which knowledge sources were involved. This view provides better insight into response quality and helps identify possible gaps in knowledge coverage.
++Important
++You need a Bot Transcript Viewer security role to view the list and its metrics. Only admins can gra
+```
+
+---
+
+### 5. Generative AI
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-gpt-overview
+**Section:** Copilot Studio
+**Classification:** HIGH (Policy language)
+
+**Affected Controls:**
+- Control 2.12: Control 2.12: Supervision and Oversight (FINRA Rule 3110)
+  - File: `controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -32,59 +32,67 @@ Generative AI
+ in the Artificial Intelligence (AI) playbook.
+ In Copilot Studio, you can use the following generative AI features to retrieve and create content, either individually or all together.
+-Create an agent
+-. With no manual authoring of topics required, an
++Create an agent.
++With no manual authoring of topics required, an
+ empty
+-agent can generate answers based on knowledge sources you specify such as websites and files. See
+-Generative answers
+-and the
+-Quickstart
++agent can generate answers based on knowledge sources you specify such as websites and files. Learn more in
++Quickstart: Create and deploy an agent
+ .
+-Harness AI general knowledge
+-. When this option is enabled, the agent can answer general questions unrelated to your specific knowledge sources or topics. See
+-AI general knowledge
++Harness AI general knowledge.
++When
++Use general knowledge
++is turned on, the agent can answer general questions unrelated to your specific knowledge sources or topics. Learn more in
++Allow the agent to use general knowledge
+ .
+-Author topics using natural language
+-. Describe what you want your topic to do, and Copilot Studio creates it for you. Your agent includes conversational responses and multiple types of nodes. Use the suggested default topic or as a starting point for further development. See
++Author topics using natural language.
++Describe what you want your topic to do, and Copilot Studio creates it for you. Your agent includes conversational responses and multiple types of nodes. Use the suggested default topic as a starting point for further development. Learn more in
+ Create and edit topics with Copilot
+ .
+-Author prompts using natural language
+-. Describe the prompt you want to create, and Copilot Studio generates it for you. You can use the suggested default prompt or as a starting point for further development. See
+-Create and edit prompts with Copilot
++Author prompts using natural language.
++Describe the prompt you want
+```
+
+---
+
+### 6. Data, Privacy, and Security
+
+**URL:** https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy
+**Section:** Microsoft 365 Copilot
+**Classification:** MEDIUM (General content update)
+
+**Affected Controls:**
+- Control 4.6: Control 4.6: Grounding Scope Governance
+  - File: `controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
+- Control 4.7: Control 4.7: Microsoft 365 Copilot Data Governance
+  - File: `controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md`
+- Control 2.23: Control 2.23: User Consent and AI Disclosure Enforcement
+  - File: `controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md`
+
+**Affected Playbooks:**
+- ℹ️ `playbooks/control-implementations/4.6/troubleshooting.md` (HIGH)
+- ℹ️ `playbooks/control-implementations/4.7/troubleshooting.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -158,7 +158,7 @@ Encryption in the Microsoft Cloud
+ .
+ Your control over your data is reinforced by Microsoft's commitment to comply with broadly applicable privacy laws, such as the GDPR, and privacy standards, such as ISO/IEC 27018, the worldâs first international code of practice for cloud privacy.
+-For content accessed through Microsoft 365 Copilot agents, encryption can exclude programmatic access, thus limiting the agent from accessing the content. For more information, see
++For content accessed through agents in Microsoft 365, encryption can exclude programmatic access, thus limiting the agent from accessing the content. For more information, see
+ Configure usage rights for Azure Information Protection
+ .
+ Meeting regulatory compliance requirements
+
+```
+
+---
+
+### 7. Manage Copilot Agents
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps
+**Section:** Microsoft 365 Copilot
+**Classification:** HIGH (Portal references)
+
+**Affected Controls:**
+- Control 3.8: Control 3.8: Copilot Hub and Governance Dashboard
+  - File: `controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md`
+- Control 3.11: Control 3.11: Centralized Agent Inventory Enforcement
+  - File: `controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md`
+- Control 3.6: Control 3.6: Orphaned Agent Detection and Remediation
+  - File: `controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`
+- Control 3.1: Control 3.1: Agent Inventory and Metadata Management
+  - File: `controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -24,7 +24,7 @@ Access to this page requires authorization. You can try
+ changing directories
+ .
+-Manage Copilot agents in the Microsoft 365 admin center
++Manage agents in the Microsoft 365 admin center
+ Feedback
+ Summarize this article for me
+ Important
+
+```
+
+---
+
+### 8. Deployment Checklist
+
+**URL:** https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-checklist
+**Section:** Agent Essentials & Agent 365 SDK (Preview)
+**Classification:** HIGH (Compliance features)
+
+**Affected Controls:**
+- Control 3.8: Control 3.8: Copilot Hub and Governance Dashboard
+  - File: `controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md`
+- Control 3.5: Control 3.5: Cost Allocation and Budget Tracking
+  - File: `controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md`
+- Control 3.1: Control 3.1: Agent Inventory and Metadata Management
+  - File: `controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`
+- Control 1.11: Control 1.11: Conditional Access and Phishing-Resistant MFA
+  - File: `controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md`
+- Control 1.1: Control 1.1: Restrict Agent Publishing by Authorization
+  - File: `controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md`
+- Control 1.6: Control 1.6: Microsoft Purview DSPM for AI
+  - File: `controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md`
+- Control 1.5: Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels
+  - File: `controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -27,7 +27,7 @@ Microsoft 365 agents deployment checklist
+ Feedback
+ Summarize this article for me
+-This checklist is intended to assist admins with the successful deployment of Copilot agent governance. This checklisdt provides a comprehensive guide to help you understand, set up, manage, and deploy agents.
++This checklist is intended to assist admins with the successful deployment of Copilot agent governance. This checklist provides a comprehensive guide to help you understand, set up, manage, and deploy agents.
+ Required administrators for the engagement
+ :
+ Microsoft 365 admin
+@@ -42,8 +42,8 @@ :
+ Downloadable resources
+ :
+-Microsoft 365 Copilot agents blueprint
+-Microsoft 365 Copilot agents visual guide
++Agents blueprint for Microsoft 365
++Agents visual guide for Microsoft 365
+ Manage Microsoft 365 Copilot agent access and availability policies
+ Agent policies refer to the tenant settings you can make as an administrator in the Copilot Control System within Microsoft 365 admin center. Agent policies relate to the available settings for all agents in your tenant.
+ Step
+@@ -51,13 +51,13 @@ Description
+ Administrator
+ 1
+-Manage access to Microsoft 365 Copilot agents
++Manage access to agents in Microsoft 365
+ Control how your users interact with agents:
+ Choose who can access agents
+ Choose which type of agents users are allowed to install
+ Copilot administrator, SharePoint administrator, Copilot Studio administrator
+ 2
+-Share and publish Microsoft 365 Copilot agents
++Share and publish agents in Microsoft 365
+ Agent sharing methods:
+ Sideload agents for personal use
+ Shared agent with others
+@@ -203,7 +203,7 @@ Manage requested agents
+ Upload custom agents
+ Manage agent inventory
+-AI administrator, Global admininistrator, Global reader (view-only, no edit)
++AI administrator, Global administrator, Global reader (view-only, no edit)
+ 4
+ Manage Copilot connectors
+ Microsoft 365 Copilot connectors provide a platform for you to ingest your unstructured, line-o
+```
+
+---
+
+### 9. Deployment Blueprint
+
+**URL:** https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-blueprint
+**Section:** Agent Essentials & Agent 365 SDK (Preview)
+**Classification:** HIGH (Portal references)
+
+**Affected Controls:**
+- Control 2.1: Control 2.1: Managed Environments
+  - File: `controls/pillar-2-management/2.1-managed-environments.md`
+- Control 2.3: Control 2.3: Change Management and Release Planning
+  - File: `controls/pillar-2-management/2.3-change-management-and-release-planning.md`
+- Control 1.11: Control 1.11: Conditional Access and Phishing-Resistant MFA
+  - File: `controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -24,7 +24,7 @@ Access to this page requires authorization. You can try
+ changing directories
+ .
+-Microsoft 365 Copilot agents deployment blueprint
++Agents deployment blueprint for Microsoft 365
+ Feedback
+ Summarize this article for me
+ This deployment blueprint helps you enable agents in
+@@ -34,7 +34,7 @@ This blueprint is scoped primarily to agents created in the
+ Agent Builder
+ experience using the Microsoft 365 Copilot app.
+-The primary challenges when enabling Microsoft 365 Copilot agents include the following:
++The primary challenges when enabling agents in Microsoft 365 include the following:
+ Security and governance concerns
+ - Your organization can address oversharing, data protection, and compliance risks by implementing robust security and governance controls to safely enable agents in Microsoft 365 Copilot.
+ Deployment complexity
+@@ -64,7 +64,7 @@ PowerPoint
+ Documentation resources
+ Governance and security best practices overview
+-Manage Microsoft 365 Copilot agents in the Microsoft 365 admin center
++Manage agents in the Microsoft 365 admin center
+ Related content
+ Microsoft Purview blueprint: Secure by default
+ Feedback
+
+```
+
+---
+
+### 10. DLP Policy Reference
+
+**URL:** https://learn.microsoft.com/en-us/purview/dlp-policy-reference
+**Section:** Microsoft Purview
+**Classification:** HIGH (Feature availability)
+
+**What Changed:**
+```diff
+--- +++ @@ -863,7 +863,7 @@ No
+ SharePoint
+ Yes
+-site location at the policy level. If the policy is scoped to an administrative unit that includes SharePoint sites, the policy will only apply to all sites in the administrative unit, no further scoping is possible
++site locations and, in preview, adaptive scopes at the policy level. If the policy is scoped to an administrative unit that includes SharePoint sites, the policy will only apply to all sites in the administrative unit, no further scoping is possible
+ data-at-rest
+ data-in-use
+ No
+@@ -1115,7 +1115,7 @@ User3
+ (These are the only users that appear in the results of both the first and second evaluations.)
+ SharePoint location scoping
+-When scoping a policy for SharePoint locations, you can limit the scope of a policy to specific SharePoint sites. DLP supports scoping policies to up to 100 sites.
++When scoping a policy for SharePoint locations, you can limit the scope of a policy to specific SharePoint sites and adaptive scopes. DLP supports scoping policies to up to 100 sites.
+ Device scoping
+ Microsoft Purview Data Loss Prevention (DLP) policies that include the
+ Devices
+
+```
+
+---
+
+### 11. DSPM Considerations
+
+**URL:** https://learn.microsoft.com/en-us/purview/dspm-for-ai-considerations
+**Section:** Microsoft Purview
+**Classification:** HIGH (Policy language)
+
+**What Changed:**
+```diff
+--- +++ @@ -107,12 +107,34 @@ .
+ In the Microsoft Entra admin portal,
+ create and configure a registered app
+-to be the service principal authentication for Fabric.
++to be the service principal authentication for Fabric. You will authenticate the app in one of two ways: With
++Federated Credentials
++(recommended) or
++Client Secret
++. The federated credentials option is more secure because it lets Kubernetes workloads authenticate to Azure services without hardâcoding secrets, while ensuring each pod only has the permissions it needs. For more information about this authentication method, see
++Overview of federated identity credentials in Microsoft Entra ID
++.
+ After you've created this registered app and still in the Entra admin portal, copy and store the
+ Application (client) ID
+-and
+-Client secret
+-values that are required to set up data risk assessments in DSPM for AI:
++, which is always required to setup data risk assessments for Fabric. Then, to authenticate with federated credentials, work with your compliance administrator to identify and enter the
++OIDC Issuer URL
++,
++Namespace
++, and
++Service Account Name
++under
++Edit connection
++. Enter these values into the corresponding fields in
++Your App name
++>
++Certificates & Secrets
++>
++Federated Credentials
++>
++Kubernetes accessing Azure resources
++. Alternatively, to authenticate with a client secret, store the
++Client Secret
++value to then enter in the Microsoft Purview portal:
+ To locate the
+ Application (client) ID
+ : In the Microsoft Entra admin portal,
+
+```
+
+---
+
+### 12. Create Insider Risk Policies
+
+**URL:** https://learn.microsoft.com/en-us/purview/insider-risk-management-policies
+**Section:** Microsoft Purview
+**Classification:** HIGH (Feature availability)
+
+**Affected Controls:**
+- Control 1.12: Control 1.12: Insider Risk Detection and Response
+  - File: `controls/pillar-1-security/1.12-insider-risk-detection-and-response.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -88,7 +88,7 @@ Data theft from Microsoft 365 apps by users leaving your organization
+ : Detects potential data theft from Microsoft 365 cloud apps by users leaving your organization or whose account was deleted from Microsoft Entra ID.
+ Data theft from non-Microsoft 365 apps by users leaving your organization
+-: (preview) Detects potential data theft from non-Microsoft 365 cloud apps, including Microsoft Fabric, by users leaving your organization or whose account was deleted from Microsoft Entra ID.
++: Detects potential data theft from non-Microsoft 365 cloud apps, including Microsoft Fabric, by users leaving your organization or whose account was deleted from Microsoft Entra ID.
+ Email exfiltration
+ : Detects when users email sensitive assets outside your organization. For example, users emailing sensitive assets to their personal email address.â
+ To get started, go to
+
+```
+
+---
+
+### 13. Insider Risk Indicators
+
+**URL:** https://learn.microsoft.com/en-us/purview/insider-risk-management-settings-policy-indicators
+**Section:** Microsoft Purview
+**Classification:** HIGH (Feature availability)
+
+**Affected Controls:**
+- Control 1.12: Control 1.12: Insider Risk Detection and Response
+  - File: `controls/pillar-1-security/1.12-insider-risk-detection-and-response.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -145,7 +145,7 @@ To use this indicator, enable
+ pay-as-you-go billing
+ in your organization.
+-These indicators include policy indicators for Microsoft Fabric workloads such as Power BI and Lakehouse (preview). They help you detect techniques used to:
++These indicators include policy indicators for Microsoft Fabric workloads such as Power BI and Lakehouse. They help you detect techniques used to:
+ Figure out the environment (for example, viewing Power BI reports and dashboards).
+ Gather data of interest (for example, downloading Power BI reports).
+ Obfuscate the data gathered or change protection (for example, downgrading or removing sensitivity labels of Power BI or Lakehouse assets).
+
+```
+
+---
+
+### 14. HR Data Connector
+
+**URL:** https://learn.microsoft.com/en-us/purview/import-hr-data
+**Section:** Microsoft Purview
+**Classification:** HIGH (Portal references)
+
+**Affected Controls:**
+- Control 1.12: Control 1.12: Insider Risk Detection and Response
+  - File: `controls/pillar-1-security/1.12-insider-risk-detection-and-response.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -37,12 +37,13 @@ Assign the Data Connector Admin role to the user who creates the HR connector in Step 3. This role is required to add connectors on the
+ Data connectors
+ page in the Microsoft Purview portal. Multiple role groups include this role by default. For a list of these role groups, see
+-Roles in Microsoft Defender for Office 365 and Microsoft Purview compliance
+-. Alternatively, an admin in your organization can create a custom role group, assign the Data Connector Admin role, and add the appropriate users as members. For instructions, see:
++Roles in Microsoft Defender for Office 365 and Microsoft Purview
++. Alternatively, an admin in your organization can create a custom role group, assign the Data Connector Admin role, and then add the appropriate users as members. For instructions, see:-
+ Permissions in the Microsoft Purview portal
++-
+ Roles and role groups in Microsoft Defender for Office 365 and Microsoft Purview compliance
+-Understand that the sample script you run in Step 4 uploads your HR data to the Microsoft cloud so that the insider risk management solution can use it. This sample script isn't supported under any Microsoft standard support program or service. It's provided AS IS without warranty of any kind. Microsoft further disclaims all implied warranties including, without limitation, any implied warranties of merchantability or of fitness for a particular purpose. You assume all risk arising from the use or performance of the sample script and documentation. In no event shall Microsoft, its authors, or anyone else involved in the creation, production, or delivery of the scripts be liable for any damages whatsoever (including, without limitation, damages for loss of business profits, business interruption, loss of business information, or other pecuniary loss) arising out of the use of or inability to use the sample scripts or documentation, even if Microsoft has been advised of the possibility of such damages.
+-Know that this con
+```
+
+---
+
+### 15. Admin Roles
+
+**URL:** https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference
+**Section:** Microsoft Entra ID
+**Classification:** HIGH (Feature availability)
+
+**What Changed:**
+```diff
+--- +++ @@ -91,6 +91,9 @@ Authentication Extensibility Administrator
+ Customize sign in and sign up experiences for users by creating and managing custom authentication extensions.
+ 25a516ed-2fa0-40ea-a2d0-12923a21473a
++Authentication Extensibility Password Administrator
++Trigger a password submit event for custom authentication.
++0b00bede-4072-4d22-b441-e7df02a1ef63
+ Authentication Policy Administrator
+ Can create and manage the authentication methods policy, tenant-wide MFA settings, password protection policy, and verifiable credentials.
+ 0526716b-113d-4c15-b2c8-68e3c22b9f80
+@@ -506,10 +509,14 @@ Permanently delete agent identity blueprints, which can no longer be restored
+ microsoft.directory/deletedItems.agentIdentityBlueprints/restore
+ Restore soft deleted agent identity blueprints to original state
++microsoft.directory/externalUserProfiles/standard/read
++Read standard properties of external user profiles in the extended directory for Teams
++microsoft.directory/groups.unified/createAsOwner
++Create Microsoft 365 groups, excluding role-assignable groups. Creator is added as the first owner.
+ microsoft.directory/groups/hiddenMembers/read
+ Read hidden members of Security groups and Microsoft 365 groups, including role-assignable groups
+-microsoft.directory/groups.unified/createAsOwner
+-Create Microsoft 365 groups, excluding role-assignable groups. Creator is added as the first owner.
++microsoft.directory/organization/standard/read
++Read basic properties on an organization
+ microsoft.directory/policies/standard/read
+ Read basic properties on policies
+ microsoft.directory/signInReports/allProperties/read
+@@ -628,6 +635,8 @@ Update application credentials
+ microsoft.directory/applications/delete
+ Delete all types of applications
++microsoft.directory/applications/disablement/update
++Update whether an application is enabled for users to sign in
+ microsoft.directory/applications/extensionProperties/update
+ Update extension properties on applications
+ microsoft.directory
+```
+
+---
+
+### 16. Access Reviews
+
+**URL:** https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview
+**Section:** Microsoft Entra ID
+**Classification:** HIGH (Compliance features)
+
+**Affected Controls:**
+- Control 1.3: Control 1.3: SharePoint Content Governance and Permissions
+  - File: `controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -34,7 +34,7 @@ As new employees join, how do you ensure they have the access they need to be productive?
+ As people move teams or leave the company, how do you make sure that their old access is removed?
+ Excessive access rights can lead to compromises.
+-Excessive access right can also lead audit findings as they indicate a lack of control over access.
++Excessive access rights can also lead to audit findings as they indicate a lack of control over access.
+ You have to proactively engage with resource owners to ensure they regularly review who has access to their resources.
+ When should you use access reviews?
+ Too many users in privileged roles:
+@@ -46,9 +46,9 @@ Microsoft Entra Privileged Identity Management (PIM)
+ experience.
+ When automation is not possible:
+-You can create rules for dynamic membership groups, security groups, or Microsoft 365 Groups, but what if the HR data isn't in Microsoft Entra ID or if users still need access after leaving the group to train their replacement? You can then create a review on that group to ensure those who still need access keeps access.
++You can create rules for dynamic membership groups, security groups, or Microsoft 365 Groups, but what if the HR data isn't in Microsoft Entra ID or if users still need access after leaving the group to train their replacements? You can then create a review on that group to ensure those who still need access keeps access.
+ When a group is used for a new purpose:
+-If you have a group that is going to be synced to Microsoft Entra ID, or if you plan to enable the application Salesforce for everyone in the Sales team group, it would be useful to ask the group owner to review the dynamic membership group before it's used in a different risk content.
++If you have a group that is going to be synced to Microsoft Entra ID, or if you plan to enable the application Salesforce for everyone in the Sales team group, it would be useful to ask the group owner to review the dynamic membership gro
+```
+
+---
+
+### 17. Create Access Review
+
+**URL:** https://learn.microsoft.com/en-us/entra/id-governance/create-access-review
+**Section:** Microsoft Entra ID
+**Classification:** HIGH (UI element names)
+
+**Affected Controls:**
+- Control 4.2: Control 4.2: Site Access Reviews and Certification
+  - File: `controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md`
+- Control 2.8: Control 2.8: Access Control and Segregation of Duties
+  - File: `controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -110,7 +110,7 @@ Inactive users (on tenant level)
+ . If you check the box, the scope of the review focuses on inactive users only, those who haven't signed in either interactively or non-interactively to the tenant. Then, specify
+ Days inactive
+-with many days inactive up to 730 days (two years). Users in the group inactive for the specified number of days are the only users in the review.
++with the number of days inactive up to 730 days (two years). Users in the group inactive for the specified number of days are the only users in the review.
+ Note
+ Recently created users aren't affected when configuring the inactivity time. The Access Review checks if a user has been created in the time frame configured and disregard users who havenât existed for at least that amount of time. For example, if you set the inactivity time as 90 days and a guest user was created or invited less than 90 days ago, the guest user won't be in scope of the Access Review. This ensures that a user can sign in at least once before being removed.
+ Select
+@@ -119,6 +119,7 @@ Next: Reviews
+ You can create a single-stage or multi-stage review. For a single stage review, continue here. To create a multi-stage access review, follow the steps in
+ Create a multi-stage access review
++.
+ In the
+ Specify reviewers
+ section, in the
+@@ -158,7 +159,6 @@ .
+ Note
+ When creating an access review, you're able to specify the start date, but the start time could vary a few hours based on system processing. For example, if you create an access review at 03:00 UTC on 09/09 that is set to run on 09/12, then the review is scheduled to run at 03:00 UTC on the start date, but could be delayed due to system processing.
+-You're able to specify the start date, but the start time can vary a few hours based on system processing.
+ Next: Settings
+ In the
+ Upon completion settings
+@@ -178,7 +178,7 @@ Take recommendations
+ : Takes the system's recommendation to deny or approve the user's continued access.
+ Warning
+```
+
+---
+
+### 18. Privileged Identity Management
+
+**URL:** https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
+**Section:** Microsoft Entra ID
+**Classification:** HIGH (Feature availability)
+
+**Affected Controls:**
+- Control 2.8: Control 2.8: Access Control and Segregation of Duties
+  - File: `controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md`
+- Control 1.18: Control 1.18: Application-Level Authorization and Role-Based Access Control (RBAC)
+  - File: `controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -63,7 +63,7 @@ Download
+ audit history
+ for internal or external audit
+-Prevents removal of the
++Prevent removal of the
+ last active Global Administrator
+ and
+ Privileged Role Administrator
+@@ -119,21 +119,21 @@ principle of least privilege access
+ A recommended security practice in which every user is provided with only the minimum privileges needed to accomplish the tasks they're authorized to perform. This practice minimizes the number of Global Administrators and instead uses specific administrator roles for certain scenarios.
+ Role assignment overview
+-The PIM role assignments give you a secure way to grant access to resources in your organization. This section describes the assignment process. It includes assign roles to members, activate assignments, approve or deny requests, extend and renew assignments.
++The PIM role assignments give you a secure way to grant access to resources in your organization. This section describes the assignment process. It includes assigning roles to members, activating assignments, approving or denying requests, and extending and renewing assignments.
+ PIM keeps you informed by sending you and other participants
+ email notifications
+-. These emails might also include links to relevant tasks, such activating, approve or deny a request.
++. These emails might also include links to relevant tasks, such as activating, approving, or denying a request.
+ The following screenshot shows an email message sent by PIM. The email informs Patti that Alex updated a role assignment for Emily.
+ Assign
+ The assignment process starts by assigning roles to members. To grant access to a resource, the administrator assigns roles to users, groups, service principals, or managed identities. The assignment includes the following data:
+ The members or owners to assign the role.
+ The scope of the assignment. The scope limits the assigned role to a particular set of resources.
+-The type of the assignment
++The type of the assignment.
+ Eligible
+ ass
+```
+
+---
+
+### 19. Purview What's New
+
+**URL:** https://learn.microsoft.com/en-us/purview/whats-new
+**Section:** Release Plans and Roadmaps
+**Classification:** HIGH (Feature availability)
+
+**What Changed:**
+```diff
+--- +++ @@ -48,6 +48,10 @@ :
+ Authoring custom data quality rules using SQL expression
+ language is now generally available. Users can create custom rules using both Azure Data Factory expression and SQL expression languages.
++Data Loss Prevention
++Preview
++: DLP supports adaptive scopes for scoping SharePoint policies.
++SharePoint location scoping
+ Data Security Investigations
+ New
+ :
+@@ -59,11 +63,30 @@ option.
+ Standard
+ categorization can significantly reduce the time it takes to complete processing and the amount of Data Security Investigation Compute Units (compute unit) needed for categorization.
++Data Security Posture Management (preview)
++New
++: You can now use
++federated credentials
++as a more secure method of authentication to run Fabric data risk assessments. This change is also available for data risk assessments in Data Security Posture Management for AI (classic). For more information, see
++Prerequisites for Fabric data risk assessments
++.
+ Insider Risk Management
+ In preview
+ : Disable content download to create cases without content to reduce triage time. To get started, see
+ Enable or disable content download
+ .
++General availability (GA)
++:
++Microsoft Fabric indicators
++now include Lakehouse indicators.
++General availability (GA)
++: A new quick policy template for
++detecting data theft from non-Microsoft 365 apps by users leaving your organization
++is now available.
++General availability (GA)
++:
++Pay-as-you-go usage reports
++provide transparency and enable more accurate budget planning and policy tuning.
+ Sensitivity labels
+ General availability (GA)
+ : Manual labeling for OneNote, supported at the
+
+```
+
+---
+
+## MEDIUM: Minor Changes (Review Optional)
+
+### 1. Copilot Studio Message Capacity
+**URL:** https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-messages-capacity
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 2. Security and Governance
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 3. Data, Privacy, and Security
+**URL:** https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 4. Copilot Usage Reports
+**URL:** https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 5. Visual Governance Guide
+**URL:** https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-visual-map
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 6. eDiscovery Holds
+**URL:** https://learn.microsoft.com/en-us/purview/ediscovery-create-holds
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 7. Endpoint DLP
+**URL:** https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 8. Information Barriers
+**URL:** https://learn.microsoft.com/en-us/purview/information-barriers
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 9. Site Attestation
+**URL:** https://learn.microsoft.com/en-us/sharepoint/request-site-attestations
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 10. Application Resources
+**URL:** https://learn.microsoft.com/en-us/graph/api/resources/application
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 11. DLP Cmdlets
+**URL:** https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy
+**Classification:** NOISE (Metadata or formatting only)
+
+---
+
+## URL Redirects Detected
+
+Consider updating microsoft-learn-urls.md:
+
+| Original URL | Redirects To |
+|--------------|--------------|
+| https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide |
+| https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage?view=o365-worldwide |
+| https://learn.microsoft.com/purview/compliance-manager | https://learn.microsoft.com/en-us/purview/compliance-manager |
+| https://learn.microsoft.com/purview/compliance-manager-assessments | https://learn.microsoft.com/en-us/purview/compliance-manager-assessments |
+| https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-addins-in-the-admin-center | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-addins-in-the-admin-center?view=o365-worldwide |
+| https://learn.microsoft.com/en-us/microsoft-365/enterprise/view-service-health | https://learn.microsoft.com/en-us/microsoft-365/enterprise/view-service-health?view=o365-worldwide |
+| https://learn.microsoft.com/en-us/microsoft-365/admin/manage/message-center | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/message-center?view=o365-worldwide |
+| https://learn.microsoft.com/azure/sentinel/connect-data-sources | https://learn.microsoft.com/en-us/azure/sentinel/connect-data-sources |
+| https://learn.microsoft.com/azure/sentinel/monitor-your-data | https://learn.microsoft.com/en-us/azure/sentinel/monitor-your-data |
+| https://learn.microsoft.com/azure/sentinel/automate-incident-handling-with-automation-rules | https://learn.microsoft.com/en-us/azure/sentinel/automate-incident-handling-with-automation-rules |
+| https://learn.microsoft.com/azure/sentinel/investigate-cases | https://learn.microsoft.com/en-us/azure/sentinel/investigate-cases |
+| https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai | https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai?view=azureml-api-2 |
+| https://learn.microsoft.com/azure/cost-management-billing/costs/overview-cost-management | https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/overview-cost-management |
+| https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets | https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets |
+| https://learn.microsoft.com/en-us/azure/devops/test/overview | https://learn.microsoft.com/en-us/azure/devops/test/overview?view=azure-devops |
+| https://learn.microsoft.com/en-us/power-apps/guidance/planning/testing-phase | https://learn.microsoft.com/en-us/power-apps/maker/plan-designer/plan-designer |
+| https://learn.microsoft.com/en-us/graph/api/resources/application | https://learn.microsoft.com/en-us/graph/api/resources/application?view=graph-rest-1.0 |
+| https://learn.microsoft.com/en-us/graph/api/resources/accessreviewsv2-overview | https://learn.microsoft.com/en-us/graph/api/resources/accessreviewsv2-overview?view=graph-rest-1.0 |
+| https://learn.microsoft.com/security/operations/incident-response-planning | https://learn.microsoft.com/en-us/security/operations/incident-response-planning |
+| https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy | https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-dlpcompliancepolicy?view=exchange-ps |
+| https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-overview | https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-overview?view=o365-worldwide |
+
+---
+
+## Errors
+
+- **Azure Service Health** (HTTP 404): https://learn.microsoft.com/en-us/azure/service-health/service-health-overview
+
+---
+
+*Generated by `scripts/learn_monitor.py` (unified monitoring framework)*
