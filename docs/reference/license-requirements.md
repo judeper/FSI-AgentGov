@@ -1,6 +1,6 @@
 # License Requirements by Control
 
-Complete license mapping for all 72 FSI Agent Governance Framework controls.
+License mapping guidance for the current FSI Agent Governance Framework control catalog.
 
 ---
 
@@ -71,6 +71,13 @@ Complete license mapping for all 72 FSI Agent Governance Framework controls.
 
 **Documentation Guidance:** When referencing E5 requirements, specify whether Microsoft Purview Suite is sufficient (Purview features) or full E5/E5 Security is required (Defender features).
 
+## Copilot Control System License Language
+
+!!! note "Foundational vs Optimized"
+    Microsoft Learn now describes Copilot Control System licensing in **Foundational** and **Optimized** tiers. Foundational controls map to Microsoft 365 admin center, SharePoint Advanced Management, and Microsoft Purview capabilities available with A3/E3/G3 licensing. Optimized controls map to Microsoft Purview and Microsoft Defender for Cloud Apps capabilities available with A5/E5/G5 licensing.
+
+    For FSI implementations, Zone 2 deployments often start with Foundational controls, while Zone 3 deployments typically need Optimized data security, insider risk, and reporting capabilities.
+
 ---
 
 ## Pillar 1: Security Controls
@@ -136,6 +143,7 @@ Complete license mapping for all 72 FSI Agent Governance Framework controls.
 | **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
 | **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium | PPAC Copilot governance page |
+| **2.25** | Agent 365 Governance Console | Microsoft 365 Copilot (Frontier preview prerequisite); Agent 365 or Microsoft 365 E7 at GA | AI Admin/Global Admin/Global Reader roles; 25 preview licenses visible per tenant today |
 
 ---
 
@@ -150,7 +158,7 @@ Complete license mapping for all 72 FSI Agent Governance Framework controls.
 | **3.5** | Cost Allocation | Power Platform Premium | License tracking |
 | **3.6** | Orphaned Agent Detection | Power Platform Premium | Managed Environments feature |
 | **3.7** | PPAC Security Posture | Power Platform Premium | Managed Environments security dashboard |
-| **3.8** | Copilot Hub | Power Platform Premium | PPAC Copilot Hub governance dashboard |
+| **3.8** | Copilot Hub | Power Platform Premium + Microsoft 365 Copilot | PPAC Copilot Hub plus M365 admin center agent reporting; Agent overview metrics require Frontier preview today |
 | **3.9** | Microsoft Sentinel Integration | Microsoft Sentinel + E5 Security | Azure Sentinel workspace required |
 | **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
 | **3.11** | Centralized Agent Inventory Enforcement | Power Platform Premium | PPAC Agent Inventory feature |
@@ -254,56 +262,46 @@ To verify current license assignments:
 
 ---
 
-## Agent 365 SDK Licensing (Preview)
+## Microsoft Agent 365 and Agent Management Essentials (Preview)
 
-> **Note:** Agent 365 SDK licensing is in preview and subject to change. Check Microsoft documentation for current requirements.
+> **Preview note:** Microsoft Agent 365 currently requires Frontier preview enrollment. Licensing, entitlement names, and UI behavior can change before general availability. Validate current terms in Microsoft Learn before procurement or production dependency decisions.
 
-### Agent 365 Feature Tiers
+### Current official prerequisites
 
-| Tier | Included Features | Licensing Basis |
-|------|-------------------|-----------------|
-| **Standard** | Blueprint registration, basic SDK features, M365 Admin Center visibility | Included with Copilot Studio |
-| **Premium** | Observability SDK, advanced telemetry, compliance export | Additional capacity or per-agent |
-| **Enterprise** | Multi-tenant deployment, cross-tenant agent sharing, advanced governance | Enterprise agreement |
+| Requirement | Official guidance | Source |
+|-------------|-------------------|--------|
+| Tenant enablement | Enroll the tenant in Copilot Frontier from the Microsoft 365 admin center before Agent 365 features appear | Agent 365 overview |
+| Base license | At least one Microsoft 365 Copilot license must exist in the tenant to enable Agent 365 in Frontier | Agent 365 overview |
+| Preview entitlement visibility | Billing > Licenses should show **25 Microsoft Agent 365 Frontier** entitlements in preview | Agent 365 overview |
+| Day-to-day admin roles | AI Admin, Global Admin, or Global Reader (view-only) can manage agents in Microsoft 365 admin center | Agent prerequisites / Manage agents |
+| Power Platform admin roles | Power Platform Administrator or Dynamics 365 Administrator may still be needed for Copilot Studio environment administration | Agent prerequisites |
+| Sensitive role hardening | Use Entra Privileged Identity Management for AI Admin and other high-privilege roles | Agent prerequisites |
 
-### Blueprint Registration Requirements
+### GA transition already documented by Microsoft
 
-| Capability | License Required | Notes |
-|------------|------------------|-------|
-| Blueprint registration | Copilot Studio | Required for Zone 3 agents |
-| Agent identity (Entra) | Microsoft Entra ID P1+ | P2 for PIM/Access Reviews |
-| Observability SDK telemetry | Application Insights (Azure) | Pay-per-use or commitment tier |
-| DSPM integration | Microsoft 365 E5 or Microsoft Purview Suite | Activity Explorer ingestion |
+| Licensing point | Microsoft-published guidance |
+|-----------------|------------------------------|
+| Preview model | In Frontier preview, Agent 365 licenses are assigned per agent instance before an instance can be created |
+| GA model | Agent 365 transitions to **per-user** licensing at general availability |
+| Included entitlement | Agents acting on behalf of a licensed user are covered under that user's **Agent 365** or **Microsoft 365 E7** license |
+| Framework implication | Treat preview Frontier entitlements as temporary rollout mechanics, not the long-term steady-state licensing model |
 
-### Observability SDK Premium Features
+### Control-specific interpretation
 
-| Feature | Tier | Description |
-|---------|------|-------------|
-| Basic telemetry | Standard | Metrics and basic traces |
-| Prompt/response logging | Premium | Full conversation capture |
-| Compliance export | Premium | WORM-ready export formats |
-| Real-time alerting | Premium | Azure Monitor integration |
-| Custom instrumentation | Enterprise | SDK extensibility APIs |
+| Control | Licensing interpretation |
+|---------|--------------------------|
+| **2.25 - Agent 365 Governance Console** | Requires Microsoft 365 Copilot to enable Frontier preview today; plan for Agent 365 or Microsoft 365 E7 licensing at GA |
+| **3.8 - Copilot Hub and Governance Dashboard** | Power Platform Premium covers PPAC Copilot Hub; Microsoft 365 Copilot and Frontier preview enrollment are currently required for Agent overview metrics and governance cards |
+| **2.23 - User Consent and AI Disclosure Enforcement** | Follow Agent Management Essentials prerequisites for AI Admin role assignment and PIM when delegating admin-center agent governance |
 
-### Multi-Tenant Licensing Considerations
+### Microsoft Agent 365 Resources
 
-For FSI organizations with multiple tenants (e.g., separate tenants for different business units or regulatory jurisdictions):
-
-| Scenario | Licensing Approach |
-|----------|-------------------|
-| **Single tenant, multiple environments** | Standard per-environment licensing |
-| **Multi-tenant, centralized governance** | Enterprise agreement with cross-tenant licensing |
-| **ISV/white-label agents** | Per-customer deployment licensing |
-
-### Cost Planning for Agent 365
-
-| Component | Cost Driver | Optimization |
-|-----------|------------|--------------|
-| Blueprint registration | Per-agent registration | Consolidate agents where appropriate |
-| Observability telemetry | Data ingestion volume | Configure sampling for Zone 1 |
-| Application Insights | Retention duration | Align retention with regulatory minimums |
-| DSPM integration | Activity Explorer storage | Archive older data to cold storage |
+- [Agent Management Essentials overview](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/agent-essentials-overview)
+- [Agent prerequisites](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/agent-prerequisites)
+- [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
+- [Agent 365 overview page in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview)
+- [Copilot Control System overview](https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/overview)
 
 ---
 
-*Last Updated: February 2026 | Framework Version: v1.2.51*
+*Last Updated: March 2026 | Framework Version: v1.2.52*

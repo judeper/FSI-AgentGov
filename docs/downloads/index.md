@@ -17,7 +17,7 @@ Role names below use the framework's canonical short naming. See the [Administra
 | [Purview Administrator Checklist](purview-administrator-checklist.xlsx) | Purview Compliance Admin | Purview controls: DLP, DSPM for AI, Audit, eDiscovery |
 | [SharePoint Administrator Checklist](sharepoint-administrator-checklist.xlsx) | SharePoint Admin | SharePoint governance controls: access, retention, external sharing |
 | [Compliance Officer Checklist](compliance-officer-checklist.xlsx) | Compliance Officer | Regulatory mappings and audit evidence tracking |
-| [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 72 controls with maturity scoring and dashboard |
+| [Governance Maturity Dashboard](governance-maturity-dashboard.xlsx) | AI Governance Lead | All 78 controls with maturity scoring and dashboard |
 
 ---
 
@@ -113,4 +113,4 @@ Each Excel checklist includes:
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - February 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

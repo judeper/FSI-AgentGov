@@ -4,7 +4,7 @@ Protect data and systems from unauthorized access, misuse, and exploitation.
 
 ## Overview
 
-Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 28 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
+Pillar 1 establishes the technical safeguards required to protect sensitive data when AI agents access, process, and generate content. These 29 controls address core risks including data leakage, unauthorized access, insufficient audit trails, inadequate encryption, and adversarial attacks—all critical concerns for regulated financial services environments.
 
 **Primary Regulatory Alignment:** FINRA 4511 (recordkeeping), SEC 17a-3/4 (records retention), GLBA 501(b) (safeguards), SOX 302/404 (internal controls)
 
@@ -15,7 +15,7 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 | Access Management | 1.1-1.4 | Agent publishing, connectors, permissions |
 | Data Protection | 1.5-1.9 | DLP, sensitivity labels, retention, encryption |
 | Monitoring & Detection | 1.10-1.14 | Compliance monitoring, insider risk, threat detection |
-| Advanced Security | 1.15-1.23 | Encryption, IRM, endpoint DLP, RBAC, eDiscovery, network isolation, adversarial input, information barriers, step-up auth |
+| Advanced Security | 1.15-1.23, 1.29 | Encryption, IRM, endpoint DLP, RBAC, eDiscovery, network isolation, adversarial input, information barriers, step-up auth, outbound network controls |
 | Security Posture | 1.24 | Multi-cloud AI security posture management |
 | Agent Content & Publishing | 1.25-1.28 | MIME type restrictions, file upload controls, content moderation, publishing restrictions |
 
@@ -48,6 +48,7 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 - [1.26 Agent File Upload and File Analysis Restrictions](1.26-agent-file-upload-and-file-analysis-restrictions.md)
 - [1.27 AI Agent Content Moderation Enforcement](1.27-ai-agent-content-moderation-enforcement.md)
 - [1.28 Policy-Based Agent Publishing Restrictions](1.28-policy-based-agent-publishing-restrictions.md)
+- [1.29 Global Secure Access: Network Controls for Copilot Studio Agents](1.29-global-secure-access-network-controls.md)
 
 ---
 

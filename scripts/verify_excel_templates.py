@@ -1,5 +1,5 @@
 """
-Excel Template Verification Script for FSI-AgentGov v1.1
+Excel Template Verification Script for FSI-AgentGov v1.3.0
 
 Verifies all Excel files in docs/downloads/ for:
 1. Correct file format (OOXML .xlsx, not DRM-encrypted OLE2)
@@ -20,12 +20,12 @@ from openpyxl import load_workbook
 
 # Expected control counts per template
 EXPECTED_COUNTS = {
-    "governance-maturity-dashboard.xlsx": 72,
+    "governance-maturity-dashboard.xlsx": 78,
+    "entra-administrator-checklist.xlsx": 5,
+    "power-platform-administrator-checklist.xlsx": 8,
     "purview-administrator-checklist.xlsx": 7,
-    "sharepoint-administrator-checklist.xlsx": 8,
-    "power-platform-administrator-checklist.xlsx": 7,
+    "sharepoint-administrator-checklist.xlsx": 9,
     "compliance-officer-checklist.xlsx": 12,
-    "entra-administrator-checklist.xlsx": 4
 }
 
 # Stale content patterns to search for

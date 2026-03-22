@@ -183,7 +183,7 @@ Automates CA policy deployment and compliance monitoring for AI workloads.
 
 ### Compliance Dashboard
 
-Unified compliance visibility across all 72 framework controls.
+Unified compliance visibility across the framework control catalog.
 
 | Control | How Solution Helps |
 |---------|-------------------|
@@ -657,7 +657,7 @@ For detailed architecture guidance including scalability limits and alternative 
 ## Summary Statistics
 
 **Solutions:** 27 automation solutions (25 deployable in FSI-AgentGov-Solutions + 2 framework-integrated advanced implementations)
-**Control Coverage:** 34 of 72 controls (47.2%) have direct solution support
+**Control Coverage:** 34 mapped controls have direct solution support
 **Status Distribution:**
 - Completed: 19 solutions (ELM, MCM, PGC, FUS, ACM, SSC, CMM, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration, CHB, AUPW, UASD, ASCG, MIME, ITE, ASARD, AOF)
 - Validated: 3 solutions (DECR, FINRA Supervision Workflow, Segregation Detector)
@@ -672,4 +672,4 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

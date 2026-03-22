@@ -1,8 +1,8 @@
 """
-Excel Template Update Script for FSI-AgentGov v1.1
+Excel Template Update Script for FSI-AgentGov v1.3.0
 
 Updates all Excel files in docs/downloads/:
-1. Changes "v1.0 Beta" to "v1.1" in all files
+1. Changes stale version references to "v1.3.0" in all files
 2. Identifies missing controls in governance-maturity-dashboard.xlsx
 3. Adds missing controls to the dashboard
 
@@ -20,9 +20,9 @@ from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
-# All 72 controls in the framework
+# All 78 controls in the framework
 ALL_CONTROLS = {
-    # Pillar 1 - Security (24 controls)
+    # Pillar 1 - Security (29 controls)
     "1.1": "Restrict Agent Publishing by Authorization",
     "1.2": "Agent Registry and Integrated Apps Management",
     "1.3": "SharePoint Content Governance and Permissions",
@@ -46,7 +46,13 @@ ALL_CONTROLS = {
     "1.21": "Adversarial Input Logging",
     "1.22": "Information Barriers",
     "1.23": "Step-Up Authentication for Agent Operations",
-    # Pillar 2 - Management (21 controls)
+    "1.24": "Defender AI Security Posture Management (AI-SPM)",
+    "1.25": "MIME Type Restrictions for File Uploads",
+    "1.26": "Agent File Upload and File Analysis Restrictions",
+    "1.27": "AI Agent Content Moderation Enforcement",
+    "1.28": "Policy-Based Agent Publishing Restrictions",
+    "1.29": "Global Secure Access: Network Controls for Copilot Studio Agents",
+    # Pillar 2 - Management (26 controls)
     "2.1": "Managed Environments",
     "2.2": "Environment Groups and Tier Classification",
     "2.3": "Change Management and Release Planning",
@@ -68,7 +74,12 @@ ALL_CONTROLS = {
     "2.19": "Customer AI Disclosure and Transparency",
     "2.20": "Adversarial Testing and Red Team Framework",
     "2.21": "AI Marketing Claims and Substantiation",
-    # Pillar 3 - Reporting (10 controls)
+    "2.22": "Inactivity Timeout Enforcement",
+    "2.23": "User Consent and AI Disclosure Enforcement",
+    "2.24": "Agent Feature Enablement and Restriction Governance",
+    "2.25": "Microsoft Agent 365: Admin Center Governance Console",
+    "2.26": "Entra Agent ID: Identity Governance for Agents",
+    # Pillar 3 - Reporting (14 controls)
     "3.1": "Agent Inventory and Metadata Management",
     "3.2": "Usage Analytics and Activity Monitoring",
     "3.3": "Compliance and Regulatory Reporting",
@@ -79,7 +90,11 @@ ALL_CONTROLS = {
     "3.8": "Copilot Hub and Governance Dashboard",
     "3.9": "Microsoft Sentinel Integration",
     "3.10": "Hallucination Feedback Loop",
-    # Pillar 4 - SharePoint (7 controls)
+    "3.11": "Centralized Agent Inventory Enforcement",
+    "3.12": "Agent Governance Exception and Override Management",
+    "3.13": "Agent 365 Admin Center Analytics and Reporting",
+    "3.14": "Agent 365 Observability SDK and Custom Agent Telemetry",
+    # Pillar 4 - SharePoint (9 controls)
     "4.1": "SharePoint Information Access Governance (IAG) / Restricted Content Discovery",
     "4.2": "Site Access Reviews and Certification",
     "4.3": "Site and Document Retention Management",
@@ -88,6 +103,7 @@ ALL_CONTROLS = {
     "4.6": "Grounding Scope Governance",
     "4.7": "Microsoft 365 Copilot Data Governance",
     "4.8": "Item-Level Permission Scanning for Agent Knowledge Sources",
+    "4.9": "Embedded File Content Governance",
 }
 
 PILLAR_NAMES = {
@@ -143,7 +159,7 @@ def find_version_cells(file_path):
 
 
 def update_version_references(file_path, dry_run=True):
-    """Update all v1.0 references to v1.1."""
+    """Update all v1.0 references to v1.3.0."""
     version_cells = find_version_cells(file_path)
 
     if not version_cells:
@@ -159,8 +175,8 @@ def update_version_references(file_path, dry_run=True):
         sheet = wb[vc["sheet"]]
         cell = sheet.cell(row=vc["row"], column=vc["col"])
 
-        # Replace v1.0 Beta with v1.1
-        new_value = str(cell.value).replace("v1.0 Beta", "v1.1").replace("v1.0", "v1.1")
+        # Replace v1.0 Beta with v1.3.0
+        new_value = str(cell.value).replace("v1.0 Beta", "v1.3.0").replace("v1.0", "v1.3.0")
         cell.value = new_value
         vc["new_value"] = new_value
 
@@ -302,7 +318,7 @@ def update_summary_count(file_path, dry_run=True):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Update Excel templates for FSI-AgentGov v1.1")
+    parser = argparse.ArgumentParser(description="Update Excel templates for FSI-AgentGov v1.3.0")
     parser.add_argument("--check", action="store_true", help="Preview changes only (dry run)")
     parser.add_argument("--update", action="store_true", help="Apply changes")
     args = parser.parse_args()
@@ -352,9 +368,9 @@ def main():
             print(f"\n[VERSION] Found {count} version reference(s) to update:")
             for vc in version_cells:
                 if dry_run:
-                    print(f"   {vc['cell_ref']}: '{vc['current_value']}' -> v1.1")
+                    print(f"   {vc['cell_ref']}: '{vc['current_value']}' -> v1.3.0")
                 else:
-                    print(f"   {vc['cell_ref']}: Updated to '{vc.get('new_value', 'v1.1')}'")
+                    print(f"   {vc['cell_ref']}: Updated to '{vc.get('new_value', 'v1.3.0')}'")
             file_changes["version_updates"] = version_cells
         else:
             print(f"\n[VERSION] No version references to update")
@@ -375,7 +391,7 @@ def main():
                         print(f"\n[CONTROLS] Added {len(added)} control(s) to spreadsheet")
                         file_changes["added_controls"] = added
             else:
-                print(f"\n[CONTROLS] All 72 controls present")
+                print(f"\n[CONTROLS] All 78 controls present")
 
             if extra:
                 print(f"\n[WARN] Found {len(extra)} unexpected control ID(s): {extra}")

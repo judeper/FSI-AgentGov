@@ -3,7 +3,7 @@
 Extract assessment data from FSI-AgentGov control markdown files.
 
 Generates docs/javascripts/assessment-data.json for the Governance Readiness
-Assessment Tool. Parses all 72 controls to extract metadata, verification
+Assessment Tool. Parses all 78 controls to extract metadata, verification
 criteria, configuration points, zone requirements, and role assignments.
 
 Also parses:
@@ -39,22 +39,22 @@ PILLARS = {
     1: {
         "name": "Security",
         "folder": "pillar-1-security",
-        "controls": list(range(1, 29)),  # 1.1 to 1.28 (28 controls)
+        "controls": list(range(1, 30)),  # 1.1 to 1.29 (29 controls)
     },
     2: {
         "name": "Management",
         "folder": "pillar-2-management",
-        "controls": list(range(1, 25)),  # 2.1 to 2.24 (24 controls)
+        "controls": list(range(1, 27)),  # 2.1 to 2.26 (26 controls)
     },
     3: {
         "name": "Reporting",
         "folder": "pillar-3-reporting",
-        "controls": list(range(1, 13)),  # 3.1 to 3.12 (12 controls)
+        "controls": list(range(1, 15)),  # 3.1 to 3.14 (14 controls)
     },
     4: {
         "name": "SharePoint",
         "folder": "pillar-4-sharepoint",
-        "controls": list(range(1, 9)),  # 4.1 to 4.8 (8 controls)
+        "controls": list(range(1, 10)),  # 4.1 to 4.9 (9 controls)
     },
 }
 
@@ -134,10 +134,10 @@ EFFORT_ESTIMATES = {
 
 # Role-to-control assignments (from docs/downloads/index.md)
 ROLE_CONTROLS = {
-    "Entra Global Admin": ["1.11", "1.12", "1.18", "3.1"],
-    "Power Platform Admin": ["2.1", "2.2", "2.15", "2.16", "2.17", "3.7", "3.8"],
+    "Entra Global Admin": ["1.11", "1.12", "1.18", "2.26", "3.1"],
+    "Power Platform Admin": ["1.29", "2.1", "2.2", "2.15", "2.16", "2.17", "3.7", "3.8"],
     "Purview Compliance Admin": ["1.5", "1.6", "1.7", "1.9", "1.10", "1.19", "1.22"],
-    "SharePoint Admin": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7"],
+    "SharePoint Admin": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9"],
     "Compliance Officer": [
         "1.7", "1.19", "1.22", "2.6", "2.11", "2.12", "2.13",
         "2.18", "2.19", "2.21", "3.3", "3.10",
@@ -145,9 +145,10 @@ ROLE_CONTROLS = {
     "AI Governance Lead": [
         "1.1", "1.2", "1.3", "1.4", "1.8", "1.13", "1.14", "1.15",
         "1.16", "1.17", "1.20", "1.21", "1.23", "1.24", "1.25", "1.26",
-        "1.27", "1.28", "2.3", "2.4", "2.5", "2.7", "2.8", "2.9", "2.10",
-        "2.14", "2.20", "2.22", "2.23", "2.24", "3.2", "3.4", "3.5",
-        "3.6", "3.9", "3.11", "3.12",
+        "1.27", "1.28", "1.29", "2.3", "2.4", "2.5", "2.7", "2.8", "2.9",
+        "2.10", "2.14", "2.20", "2.22", "2.23", "2.24", "2.25", "2.26",
+        "3.2", "3.4", "3.5", "3.6", "3.9", "3.11", "3.12", "3.13", "3.14",
+        "4.9",
     ],
 }
 
@@ -417,6 +418,26 @@ def parse_verification_criteria(content):
         if text:
             criteria.append(text)
 
+    if criteria:
+        return criteria
+
+    # Fallback: parse verification tables and extract the primary criterion column.
+    for line in section.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if not cells or all(re.fullmatch(r"[-:\s]+", cell) for cell in cells):
+            continue
+        if cells[0].lower() in {"#", "criterion", "criteria"}:
+            continue
+
+        text = cells[1] if re.fullmatch(r"\d+", cells[0]) and len(cells) > 1 else cells[0]
+        text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+        text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+        if text:
+            criteria.append(text)
+
     return criteria
 
 
@@ -436,17 +457,60 @@ def parse_config_points(content):
                 results.append(item)
         return results
 
+    def extract_numbered_items(text):
+        """Extract numbered list items from a block of text."""
+        results = []
+        items = re.split(r"\n\d+\.\s+", "\n" + text)
+        for item in items[1:]:
+            entry = item.strip()
+            entry = re.sub(r"\n\s+", " ", entry)
+            entry = re.sub(r"\*\*([^*]+)\*\*", r"\1", entry)
+            entry = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", entry)
+            if entry:
+                results.append(entry)
+        return results
+
+    def extract_table_actions(text):
+        """Extract the first data column from markdown tables."""
+        results = []
+        for line in text.splitlines():
+            line = line.strip()
+            if not line.startswith("|"):
+                continue
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            if not cells or all(re.fullmatch(r"[-:\s]+", cell) for cell in cells):
+                continue
+            if cells[0].lower() in {"configuration action", "action", "configuration item"}:
+                continue
+
+            entry = re.sub(r"\*\*([^*]+)\*\*", r"\1", cells[0])
+            entry = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", entry)
+            if entry:
+                results.append(entry)
+        return results
+
+    def extract_items(text):
+        bullets = extract_bullets(text)
+        if bullets:
+            return bullets
+
+        numbered = extract_numbered_items(text)
+        if numbered:
+            return numbered
+
+        return extract_table_actions(text)
+
     # Split by subsection headings
     subsections = re.split(r"^###\s+(.+)$", section, flags=re.MULTILINE)
 
     # subsections[0] contains content before any ### heading (top-level bullets)
     if subsections[0].strip():
-        points.extend(extract_bullets(subsections[0]))
+        points.extend(extract_items(subsections[0]))
 
     # Process subsection content: [preamble, heading1, content1, heading2, content2, ...]
     for i in range(1, len(subsections), 2):
         body = subsections[i + 1] if i + 1 < len(subsections) else ""
-        points.extend(extract_bullets(body))
+        points.extend(extract_items(body))
 
     return points
 
@@ -637,9 +701,9 @@ def build_output():
             else:
                 errors.append(f"{pillar_num}.{ctrl_num}")
 
-    # Validate we got all 71 controls
-    if len(controls) != 72:
-        print(f"\nERROR: Expected 72 controls, got {len(controls)}")
+    # Validate we got all 78 controls
+    if len(controls) != 78:
+        print(f"\nERROR: Expected 78 controls, got {len(controls)}")
         if errors:
             print(f"  Missing: {', '.join(errors)}")
         return None

@@ -4,7 +4,7 @@ Provide visibility, accountability, and metrics for agent governance.
 
 ## Overview
 
-Pillar 3 establishes the reporting and monitoring capabilities required to maintain oversight of AI agents across the organization. These 12 controls ensure that governance teams, compliance officers, and regulators have visibility into agent inventory, usage patterns, security posture, incident response, and hallucination feedback—essential for demonstrating effective supervision to examiners.
+Pillar 3 establishes the reporting and monitoring capabilities required to maintain oversight of AI agents across the organization. These 14 controls ensure that governance teams, compliance officers, and regulators have visibility into agent inventory, usage patterns, security posture, incident response, analytics, observability telemetry, and hallucination feedback—essential for demonstrating effective supervision to examiners.
 
 **Primary Regulatory Alignment:** FINRA 3110 (supervision), FINRA 4511 (recordkeeping), SEC 17a-3/4 (records)
 
@@ -17,7 +17,7 @@ Pillar 3 establishes the reporting and monitoring capabilities required to maint
 | Compliance Reporting | 3.3-3.4 | Regulatory reporting, incident response |
 | Security Operations | 3.7, 3.9 | PPAC security posture, Sentinel integration |
 | Quality Feedback | 3.10 | Hallucination feedback loop |
-| Inventory & Enforcement | 3.11-3.12 | Centralized inventory enforcement, exception management |
+| Governance Analytics & Enforcement | 3.11-3.14 | Centralized inventory enforcement, exception management, admin center analytics, observability telemetry |
 
 ## Controls
 - [3.1 Agent Inventory and Metadata Management](3.1-agent-inventory-and-metadata-management.md)
@@ -32,6 +32,8 @@ Pillar 3 establishes the reporting and monitoring capabilities required to maint
 - [3.10 Hallucination Feedback Loop](3.10-hallucination-feedback-loop.md)
 - [3.11 Centralized Agent Inventory Enforcement](3.11-centralized-agent-inventory-enforcement.md)
 - [3.12 Agent Governance Exception and Override Management](3.12-agent-governance-exception-and-override-management.md)
+- [3.13 Agent 365 Admin Center Analytics and Reporting](3.13-agent-365-admin-center-analytics.md)
+- [3.14 Agent 365 Observability SDK and Custom Agent Telemetry](3.14-agent-365-observability-sdk.md)
 
 ---
 

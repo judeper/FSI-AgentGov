@@ -23,7 +23,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 
 ## Playbooks by Pillar
 
-### Pillar 1: Security (28 controls)
+### Pillar 1: Security (29 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -55,8 +55,9 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.26 File Upload Restrictions](../../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | [Portal](1.26/portal-walkthrough.md) | [PS](1.26/powershell-setup.md) | [Test](1.26/verification-testing.md) | [Fix](1.26/troubleshooting.md) |
 | [1.27 Content Moderation](../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | [Portal](1.27/portal-walkthrough.md) | [PS](1.27/powershell-setup.md) | [Test](1.27/verification-testing.md) | [Fix](1.27/troubleshooting.md) |
 | [1.28 Policy-Based Publishing](../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal](1.28/portal-walkthrough.md) | [PS](1.28/powershell-setup.md) | [Test](1.28/verification-testing.md) | [Fix](1.28/troubleshooting.md) |
+| [1.29 Global Secure Access](../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md) | [Portal](1.29/portal-walkthrough.md) | [PS](1.29/powershell-setup.md) | [Test](1.29/verification-testing.md) | [Fix](1.29/troubleshooting.md) |
 
-### Pillar 2: Management (24 controls)
+### Pillar 2: Management (26 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -84,8 +85,10 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [2.22 Inactivity Timeout Enforcement](../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) | [Portal](2.22/portal-walkthrough.md) | [PS](2.22/powershell-setup.md) | [Test](2.22/verification-testing.md) | [Fix](2.22/troubleshooting.md) |
 | [2.23 User Consent and AI Disclosure](../../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | [Portal](2.23/portal-walkthrough.md) | [PS](2.23/powershell-setup.md) | [Test](2.23/verification-testing.md) | [Fix](2.23/troubleshooting.md) |
 | [2.24 Feature Enablement Governance](../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | [Portal](2.24/portal-walkthrough.md) | [PS](2.24/powershell-setup.md) | [Test](2.24/verification-testing.md) | [Fix](2.24/troubleshooting.md) |
+| [2.25 Agent 365 Governance Console](../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | [Portal](2.25/portal-walkthrough.md) | [PS](2.25/powershell-setup.md) | [Test](2.25/verification-testing.md) | [Fix](2.25/troubleshooting.md) |
+| [2.26 Entra Agent ID Identity Governance](../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) | [Portal](2.26/portal-walkthrough.md) | [PS](2.26/powershell-setup.md) | [Test](2.26/verification-testing.md) | [Fix](2.26/troubleshooting.md) |
 
-### Pillar 3: Reporting (12 controls)
+### Pillar 3: Reporting (14 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -101,8 +104,10 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [3.10 Hallucination Feedback](../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | [Portal](3.10/portal-walkthrough.md) | [PS](3.10/powershell-setup.md) | [Test](3.10/verification-testing.md) | [Fix](3.10/troubleshooting.md) |
 | [3.11 Centralized Inventory Enforcement](../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal](3.11/portal-walkthrough.md) | [PS](3.11/powershell-setup.md) | [Test](3.11/verification-testing.md) | [Fix](3.11/troubleshooting.md) |
 | [3.12 Exception and Override Management](../../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | [Portal](3.12/portal-walkthrough.md) | [PS](3.12/powershell-setup.md) | [Test](3.12/verification-testing.md) | [Fix](3.12/troubleshooting.md) |
+| [3.13 Agent 365 Analytics and Reporting](../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal](3.13/portal-walkthrough.md) | [PS](3.13/powershell-setup.md) | [Test](3.13/verification-testing.md) | [Fix](3.13/troubleshooting.md) |
+| [3.14 Agent 365 Observability SDK](../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal](3.14/portal-walkthrough.md) | [PS](3.14/powershell-setup.md) | [Test](3.14/verification-testing.md) | [Fix](3.14/troubleshooting.md) |
 
-### Pillar 4: SharePoint (7 controls)
+### Pillar 4: SharePoint (9 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -113,6 +118,8 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [4.5 Security Monitoring](../../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | [Portal](4.5/portal-walkthrough.md) | [PS](4.5/powershell-setup.md) | [Test](4.5/verification-testing.md) | [Fix](4.5/troubleshooting.md) |
 | [4.6 Grounding Scope](../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | [Portal](4.6/portal-walkthrough.md) | [PS](4.6/powershell-setup.md) | [Test](4.6/verification-testing.md) | [Fix](4.6/troubleshooting.md) |
 | [4.7 M365 Copilot Data Governance](../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | [Portal](4.7/portal-walkthrough.md) | [PS](4.7/powershell-setup.md) | [Test](4.7/verification-testing.md) | [Fix](4.7/troubleshooting.md) |
+| [4.8 Item-Level Permission Scanning](../../controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md) | [Portal](4.8/portal-walkthrough.md) | [PS](4.8/powershell-setup.md) | [Test](4.8/verification-testing.md) | [Fix](4.8/troubleshooting.md) |
+| [4.9 Embedded File Content Governance](../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md) | [Portal](4.9/portal-walkthrough.md) | [PS](4.9/powershell-setup.md) | [Test](4.9/verification-testing.md) | [Fix](4.9/troubleshooting.md) |
 
 ---
 

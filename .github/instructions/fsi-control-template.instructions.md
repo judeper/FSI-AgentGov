@@ -68,7 +68,7 @@ Related controls link format:
 
 | Pillar | Controls | Directory |
 |--------|----------|-----------|
-| Pillar 1 — Security | 1.1–1.28 | `docs/controls/pillar-1-security/` |
-| Pillar 2 — Management | 2.1–2.24 | `docs/controls/pillar-2-management/` |
-| Pillar 3 — Reporting | 3.1–3.12 | `docs/controls/pillar-3-reporting/` |
-| Pillar 4 — SharePoint | 4.1–4.7 | `docs/controls/pillar-4-sharepoint/` |
+| Pillar 1 — Security | 1.1–1.29 | `docs/controls/pillar-1-security/` |
+| Pillar 2 — Management | 2.1–2.26 | `docs/controls/pillar-2-management/` |
+| Pillar 3 — Reporting | 3.1–3.14 | `docs/controls/pillar-3-reporting/` |
+| Pillar 4 — SharePoint | 4.1–4.9 | `docs/controls/pillar-4-sharepoint/` |

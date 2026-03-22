@@ -1,6 +1,6 @@
 # Control Catalog
 
-Complete catalog of 71 governance controls for Microsoft 365 AI agents.
+Complete catalog of 78 governance controls for Microsoft 365 AI agents.
 
 ---
 
@@ -32,7 +32,7 @@ The Control Catalog provides detailed requirements for each governance control. 
 **I'm a SharePoint Admin...**
 
 - Start with [Pillar 4: SharePoint Controls](pillar-4-sharepoint/index.md)
-- Focus on: Controls 4.1-4.7
+- Focus on: Controls 4.1-4.9
 
 **I'm preparing for an examination...**
 
@@ -43,7 +43,7 @@ The Control Catalog provides detailed requirements for each governance control. 
 
 ## Control Summary by Pillar
 
-### Pillar 1: Security Controls (28)
+### Pillar 1: Security Controls (29)
 
 Protect data and systems from unauthorized access and misuse.
 
@@ -77,12 +77,13 @@ Protect data and systems from unauthorized access and misuse.
 | [1.26](pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | All | GLBA, FINRA 4511 |
 | [1.27](pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | All | FINRA 3110, GLBA |
 | [1.28](pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Policy-Based Publishing | All | SOX, FINRA 3110 |
+| [1.29](pillar-1-security/1.29-global-secure-access-network-controls.md) | Global Secure Access Network Controls | 2-3 | GLBA, FINRA 4511 |
 
 [View Pillar 1 Overview](pillar-1-security/index.md)
 
 ---
 
-### Pillar 2: Management Controls (24)
+### Pillar 2: Management Controls (26)
 
 Govern agent lifecycle, risk, and operational processes.
 
@@ -112,12 +113,14 @@ Govern agent lifecycle, risk, and operational processes.
 | [2.22](pillar-2-management/2.22-inactivity-timeout-enforcement.md) | Inactivity Timeout Enforcement | 2-3 | GLBA, SOX, FINRA 4511 |
 | [2.23](pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | All | FINRA 3110, GLBA |
 | [2.24](pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | All | SOX, FINRA 3110 |
+| [2.25](pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent 365 Governance Console | 2-3 | FINRA 3110, SOX |
+| [2.26](pillar-2-management/2.26-entra-agent-id-identity-governance.md) | Entra Agent ID Identity Governance | 2-3 | SOX 404, GLBA |
 
 [View Pillar 2 Overview](pillar-2-management/index.md)
 
 ---
 
-### Pillar 3: Reporting Controls (12)
+### Pillar 3: Reporting Controls (14)
 
 Monitor, track, and report on agent activities and compliance.
 
@@ -135,12 +138,14 @@ Monitor, track, and report on agent activities and compliance.
 | [3.10](pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback | 2-3 | FINRA 4511 |
 | [3.11](pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | All | FINRA 4511, SOX |
 | [3.12](pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception and Override Management | All | SOX, FINRA 3110 |
+| [3.13](pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | Agent 365 Analytics and Reporting | All | FINRA 3110, SEC 17a-4 |
+| [3.14](pillar-3-reporting/3.14-agent-365-observability-sdk.md) | Agent 365 Observability SDK | 2-3 | FINRA 4511, SEC 17a-4 |
 
 [View Pillar 3 Overview](pillar-3-reporting/index.md)
 
 ---
 
-### Pillar 4: SharePoint Controls (7)
+### Pillar 4: SharePoint Controls (9)
 
 SharePoint-specific governance for agent knowledge sources.
 
@@ -155,6 +160,8 @@ SharePoint-specific governance for agent knowledge sources.
 | [4.5](pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | 2-3 | - |
 | [4.6](pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope | 2-3 | FINRA 4511 |
 | [4.7](pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | 2-3 | - |
+| [4.8](pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md) | Item-Level Permission Scanning | 2-3 | GLBA, SEC 17a-4 |
+| [4.9](pillar-4-sharepoint/4.9-embedded-file-content-governance.md) | Embedded File Content Governance | 2-3 | FINRA 4511, GLBA |
 
 [View Pillar 4 Overview](pillar-4-sharepoint/index.md)
 
@@ -181,4 +188,4 @@ Use this table to track implementation progress:
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - February 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

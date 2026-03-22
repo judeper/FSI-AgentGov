@@ -888,7 +888,7 @@ The following status reflects findings from the February 2026 governance review 
 
 ## Control Impact Analysis
 
-Agent 365's unified architecture and Entra Agent ID identity foundation affect 17 controls across the FSI-AgentGov framework (24% of 71 controls). The following table shows how governance approaches change with Agent 365 adoption:
+Agent 365's unified architecture and Entra Agent ID identity foundation affect 17 controls across the FSI-AgentGov framework. The following table shows how governance approaches change with Agent 365 adoption:
 
 ### High Impact Controls (Major Changes)
 
@@ -1072,4 +1072,4 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

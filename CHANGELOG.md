@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 | Version | Period | File |
 |---------|--------|------|
-| **v1.2.x** (current) | January–March 2026 | [CHANGELOG-v1.2.md](CHANGELOG-v1.2.md) |
+| **v1.3.x** (current) | March 2026 | [CHANGELOG-v1.3.md](CHANGELOG-v1.3.md) |
+| **v1.2.x** | January–March 2026 | [CHANGELOG-v1.2.md](CHANGELOG-v1.2.md) |
 | **v1.1.x** | January 2026 | [CHANGELOG-v1.1.md](CHANGELOG-v1.1.md) |
 | **v1.0.x and earlier** | October–December 2025 | [CHANGELOG-v1.0.md](CHANGELOG-v1.0.md) |

@@ -412,11 +412,11 @@ Organizations should conduct separate analysis for state-specific requirements.
 | OCC 2011-12 / SR 11-7 | 6 controls | Model risk |
 | CFTC 1.31 | 3 controls | Recordkeeping |
 
-**Total:** 72 controls across 4 pillars providing mapped coverage to primary US financial regulations.
+**Total:** 78 controls across 4 pillars providing mapped coverage to primary US financial regulations.
 
 !!! note
     Coverage indicates which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance.
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

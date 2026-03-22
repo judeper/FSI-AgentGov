@@ -58,7 +58,7 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 | 2.3 Change Management | N/A | Managed by Microsoft |
 | 3.1 Agent Inventory | Full | Visible in M365 Admin Center |
 | 3.2 Usage Analytics | Full | Copilot usage reports |
-| 4.1-4.7 SharePoint | Full | Grounding data governance applies |
+| 4.1-4.9 SharePoint | Full | Grounding data governance applies |
 
 **Zone Classification:** Based on data access - Zone 1 (personal M365), Zone 2 (team sites), Zone 3 (regulated content).
 
@@ -89,14 +89,14 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 
 ## Four Governance Pillars
 
-The framework organizes 72 controls across four pillars:
+The framework organizes 78 controls across four pillars:
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. [Security](../controls/pillar-1-security/index.md)** | 28 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. [Management](../controls/pillar-2-management/index.md)** | 24 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
-| **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 12 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
-| **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 7 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
+| **1. [Security](../controls/pillar-1-security/index.md)** | 29 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
+| **2. [Management](../controls/pillar-2-management/index.md)** | 26 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
+| **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 14 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
+| **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 9 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
 **Note:** Pillar 4 specializes Pillars 1-3 for SharePoint as an agent knowledge source. Controls address SharePoint-specific implementation of data protection, access governance, and content management.
 
@@ -225,7 +225,7 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 **For Control Requirements:**
 
-- [Control Catalog](../controls/index.md) — All 72 controls
+- [Control Catalog](../controls/index.md) — All 78 controls
 - [Regulatory Framework](regulatory-framework.md) — Regulation-to-control mappings
 
 **For Implementation:**
@@ -259,4 +259,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

@@ -38,7 +38,7 @@ Start from the goal, not the task list:
 ### 3. Build Validation
 ```bash
 mkdocs build --strict          # Zero errors/warnings
-python scripts/verify_controls.py   # All 72 controls valid
+python scripts/verify_controls.py   # All 78 controls valid
 ```
 
 ### 4. Cross-Reference Integrity

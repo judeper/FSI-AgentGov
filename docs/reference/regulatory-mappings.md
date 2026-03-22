@@ -132,7 +132,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 - Monthly compliance certification
 
 ### Framework Coverage
-Framework provides supervision procedure guidance (8/72 controls). Implementation required.
+Framework provides supervision procedure guidance through 8 mapped controls. Implementation required.
 
 ---
 
@@ -237,7 +237,7 @@ See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notice
 The framework applies FINRA's existing supervision principles to AI agents, treating them as tools requiring documented procedures, ongoing monitoring, and supervisory oversight.
 
 ### Framework Coverage
-Framework addresses FINRA supervision requirements through 8/72 controls. Implementation and validation required.
+Framework addresses FINRA supervision requirements through 8 mapped controls. Implementation and validation required.
 
 ---
 
@@ -359,7 +359,7 @@ Requires fair dealing in transactions and investment advice, including disclosur
 - Customer disclosure completed
 
 ### Framework Coverage
-Framework incorporates SEC AI disclosure guidance (6/72 controls). Legal review recommended. Implementation required.
+Framework incorporates SEC AI disclosure guidance through 6 mapped controls. Legal review recommended. Implementation required.
 
 ---
 
@@ -490,7 +490,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
-**Total: 44 controls (61% of 72)**
+**Mapped controls: 44**
 
 ### Management Assessment Requirements
 
@@ -528,7 +528,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 61% control coverage (44/72 controls). SOX-specific testing required. Implementation required.
+Framework provides 44 mapped controls relevant to SOX requirements. SOX-specific testing required. Implementation required.
 
 ---
 
@@ -648,7 +648,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
 | 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Item-level access control validation for agent knowledge sources |
 
-**Total: 52 controls (72% of 72)**
+**Mapped controls: 52**
 
 ### Key Safeguard Areas
 
@@ -687,7 +687,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 72% control coverage (52/72 controls). Implementation validation required.
+Framework provides 52 mapped controls relevant to GLBA safeguards. Implementation validation required.
 
 ---
 
@@ -754,7 +754,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
 | 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Data governance for AI model knowledge sources |
 
-**Total: 34 controls (47% of 72)**
+**Mapped controls: 34**
 
 ### Model Risk Framework (SR 11-7)
 
@@ -806,7 +806,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 47% control coverage (34/72 controls). OCC-specific model validation required for full compliance.
+Framework provides 34 mapped controls relevant to OCC and SR 11-7 topics. OCC-specific model validation required for full compliance.
 
 ---
 
@@ -852,7 +852,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides bias testing controls (2/72 controls applicable). ECOA-specific testing and validation required.
+Framework provides 2 mapped bias-testing controls applicable to ECOA and fair lending topics. ECOA-specific testing and validation required.
 
 ---
 
@@ -994,7 +994,7 @@ Consumer-facing AI agents must avoid Unfair, Deceptive, or Abusive Acts or Pract
 - UDAAP compliance review for all consumer-facing agent outputs
 
 ### Framework Coverage
-Framework addresses consumer protection topics (6/72 controls). CFPB-specific implementation required.
+Framework addresses consumer protection topics through 6 mapped controls. CFPB-specific implementation required.
 
 ---
 
@@ -1063,7 +1063,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 - Maintain evidence for examination readiness
 
 ### Framework Coverage
-Framework provides equivalent coverage to OCC/Fed institutions. All 71 framework controls applicable.
+Framework provides equivalent coverage to OCC/Fed institutions. All current framework controls are applicable.
 
 ---
 
@@ -1123,7 +1123,7 @@ Part 748 requires credit unions to maintain a security program. Framework contro
 - Compliance Officer oversight for Zone 2+ agents
 
 ### Framework Coverage
-All 71 framework controls applicable to credit unions. Adapt based on asset size and AI agent complexity.
+All current framework controls are applicable to credit unions. Adapt based on asset size and AI agent complexity.
 
 ---
 
@@ -1405,7 +1405,7 @@ FINOS identifies that agentic AI systems may:
 |-------------------------------|----------------------|----------|
 | Authorization Bypass | 1.14 (Scope Control), 1.18 (RBAC), [AAM Template](../playbooks/governance-operations/action-authorization-matrix.md) | Full |
 | Privilege Escalation | 1.4 (ACP), 2.17 (Orchestration Limits) | Full |
-| Data Access Violations | 1.5 (DLP), 4.1-4.7 (SharePoint Controls) | Full |
+| Data Access Violations | 1.5 (DLP), 4.1-4.9 (SharePoint Controls) | Full |
 | Audit Trail Gaps | 1.7 (Audit Logging), 3.2 (Usage Analytics) | Full |
 | Workflow Circumvention | [HITL Triggers](../playbooks/advanced-implementations/human-in-the-loop-triggers.md), 2.12 (Supervision) | Full |
 | Multi-Agent Coordination | 2.17 (Orchestration Limits), 2.12 (Supervision) | Full |

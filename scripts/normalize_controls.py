@@ -1,12 +1,15 @@
-"""Normalize control document metadata across all 71 controls.
+"""Legacy helper for January 2026 control footer normalization.
 
-This script enforces the v1.1 requirements:
+This script preserves the original v1.1-era normalization requirements:
 - Footer must include the exact string: "v1.1 (Jan 2026)"
 - Footer must include: "Updated: Jan 2026" (month-year)
 
 It also removes legacy/conflicting metadata in control overviews/footers
 (e.g., "Version: 2.0", "Last Updated: January 2025") and collapses
 duplicate footer blocks into one canonical footer.
+
+Do not use this helper as the default normalizer for the current catalog
+without first reviewing and updating the canonical footer constants below.
 
 Design goals:
 - Conservative edits: only touch obvious metadata lines and footer blocks.

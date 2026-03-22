@@ -6,7 +6,7 @@ This folder contains templates for creating consistent documentation.
 
 | Template | Purpose |
 |----------|---------|
-| `control-setup-template.md` | Standard structure for all 71 governance controls |
+| `control-setup-template.md` | Standard structure for all 78 governance controls |
 | `exception-template.md` | MIME type exception request form for zone allowlist changes |
 
 ## Using the Control Template

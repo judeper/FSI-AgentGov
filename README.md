@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework v1.2
+# FSI Agent Governance Framework v1.3
 
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
@@ -24,7 +24,7 @@ This repository helps teams:
 - implement technical and procedural controls with step-by-step playbooks
 - support risk, compliance, and operational review with a common reference point
 
-**Version:** 1.2.54 (March 2026)
+**Version:** 1.3.0 (March 2026)
 **Primary Audience:** AI governance leads, Power Platform Admins, compliance teams, security architects, internal audit, and business sponsors in US financial services
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -60,12 +60,12 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
-| **1. Security** | 28 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers, Content Moderation, Publishing Restrictions |
-| **2. Management** | 24 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework, Inactivity Timeout, Feature Governance |
-| **3. Reporting** | 12 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback, Exception Management |
-| **4. SharePoint Mgmt** | 8 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
+| **1. Security** | 29 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers, Content Moderation, Publishing Restrictions |
+| **2. Management** | 26 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework, Inactivity Timeout, Feature Governance |
+| **3. Reporting** | 14 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback, Exception Management |
+| **4. SharePoint Mgmt** | 9 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Knowledge Source Scanning, Embedded File Content Governance |
 
-**Total: 72 Comprehensive Controls**
+**Total: 78 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -110,12 +110,12 @@ Strategic governance principles in `docs/framework/`:
 - Operating model and regulatory framework
 - Agent identity architecture and solutions integration
 
-### Control Files (72 Total)
+### Control Files (78 Total)
 Technical specifications in `docs/controls/`:
-- **Pillar 1:** 28 Security Controls (1.1-1.28)
-- **Pillar 2:** 24 Management Controls (2.1-2.24)
-- **Pillar 3:** 12 Reporting Controls (3.1-3.12)
-- **Pillar 4:** 8 SharePoint Controls (4.1-4.8)
+- **Pillar 1:** 29 Security Controls (1.1-1.29)
+- **Pillar 2:** 26 Management Controls (2.1-2.26)
+- **Pillar 3:** 14 Reporting Controls (3.1-3.14)
+- **Pillar 4:** 9 SharePoint Controls (4.1-4.9)
 
 Each control includes:
 - Overview and regulatory reference
@@ -123,9 +123,9 @@ Each control includes:
 - Zone-specific requirements
 - Verification and testing procedures
 
-### Implementation Playbooks (284 Files)
+### Implementation Playbooks
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
-- **4 playbooks per control** (72 controls × 4 = 288 playbooks)
+- **4 playbooks per control** (78 controls × 4 = 312 playbooks)
 - Portal walkthrough guides with click-by-click navigation
 - PowerShell automation scripts with validation
 - Verification testing procedures with evidence checklists
@@ -143,11 +143,13 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (27 Automation Packages)
-Deployable Power Platform solutions in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 20 completed, 3 validated, 4 in progress
-- Covers security, management, reporting, and cross-cutting automation
-- See [Solutions Index](docs/reference/solutions-index.md) for full catalog
+### Companion Solutions (33 Live Solutions)
+Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
+- 33 live top-level solution folders aligned to the companion repository inventory
+- Coverage spans security, management, reporting, SharePoint governance, and cross-solution integration
+- Solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds
+- Framework-native assets without matching top-level solution folders remain documented in this repository and are not counted as companion solutions
+- See [Solutions Index](docs/reference/solutions-index.md) for the live catalog and primary control mappings
 
 ### Supporting Files
 - **CONTROL-INDEX.md** - [Master index of all controls](docs/controls/CONTROL-INDEX.md)
@@ -200,11 +202,11 @@ The framework uses a three-layer documentation model designed to serve different
 **Purpose:** Technical control specifications
 **Audience:** Administrators, engineers, security teams
 
-72 detailed controls organized by pillar:
-- **Pillar 1 - Security:** 28 controls (1.1-1.28)
-- **Pillar 2 - Management:** 24 controls (2.1-2.24)
-- **Pillar 3 - Reporting:** 12 controls (3.1-3.12)
-- **Pillar 4 - SharePoint:** 8 controls (4.1-4.8)
+78 detailed controls organized by pillar:
+- **Pillar 1 - Security:** 29 controls (1.1-1.29)
+- **Pillar 2 - Management:** 26 controls (2.1-2.26)
+- **Pillar 3 - Reporting:** 14 controls (3.1-3.14)
+- **Pillar 4 - SharePoint:** 9 controls (4.1-4.9)
 
 Each control follows a 10-section format including objective, regulatory alignment, configuration points, zone-specific requirements, and verification criteria.
 
@@ -214,7 +216,7 @@ Each control follows a 10-section format including objective, regulatory alignme
 **Purpose:** Step-by-step implementation procedures
 **Audience:** Hands-on implementers, auditors
 
-284 implementation playbooks (4 per control):
+312 implementation playbooks (4 per control):
 1. **Portal Walkthrough** - Click-by-click configuration in admin portals
 2. **PowerShell Setup** - Automation scripts with validation
 3. **Verification Testing** - Test cases, evidence collection, attestation templates
@@ -240,18 +242,11 @@ graph TD
 
 ## 🔗 Companion Solutions
 
-The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides ready-to-deploy Power Platform automation that operationalizes framework controls. Each solution includes Power Automate flows, Dataverse components, and configuration guidance.
+The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **33 live solution folders** that operationalize framework controls. This catalog is aligned to the top-level companion repository inventory and excludes framework-native assets that do not have matching solution folders.
 
-**27 solutions** (20 completed, 3 validated, 4 in progress) covering 37 controls across all four pillars.
+Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 
-| Category | Solutions | Controls Addressed |
-|----------|-----------|-------------------|
-| **Security Automation** | Audit Compliance Manager, Session Security Configurator, Conditional Access Automation, Scope Drift Monitor, Content Moderation Monitor, File Upload Security, MIME Type Restrictions, Configuration Hardening Baseline | 1.1, 1.4, 1.5, 1.7, 1.8, 1.11, 1.14, 1.18, 1.23, 1.25, 1.27 |
-| **Management Automation** | Environment Lifecycle Management, Message Center Monitor, Pipeline Governance Cleanup, Segregation of Duties Detector, Inactivity Timeout Enforcement | 2.1, 2.2, 2.3, 2.8, 2.10, 2.22 |
-| **Reporting & Monitoring** | Compliance Dashboard, Agent Access Governance Monitor, Deny Event Correlation, Agent Usage & Performance Workbook, Unrestricted Agent Sharing Detector, FINRA Supervision Workflow | 3.1, 3.2, 3.3, 3.4, 3.7, 3.8, 3.9 |
-| **Cross-Cutting** | Cross-Solution Integration, Agent Security Configuration Governance, Agent Sharing Access Restriction Detector | Multiple pillars |
-
-> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for version details, deployment status, and repository links. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings.
+> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for the live inventory, versions, and primary control mappings. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings.
 
 ---
 
@@ -265,7 +260,7 @@ Use this workflow for implementing controls:
 
 ### Control Documentation Structure
 
-Every control file (1.1–4.7) follows this standardized 10-section structure:
+Every control file (1.1–4.9) follows this standardized 10-section structure:
 
 | Section | Purpose |
 |---------|---------|
@@ -316,7 +311,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Control Template** | Standard template for control documentation | [templates/control-setup-template.md](docs/templates/control-setup-template.md) |
 | **Microsoft Learn URLs** | Master list of official documentation | [reference/microsoft-learn-urls.md](docs/reference/microsoft-learn-urls.md) |
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
-| **License Requirements** | License mapping for all 72 controls | [reference/license-requirements.md](docs/reference/license-requirements.md) |
+| **License Requirements** | License mapping for the current control catalog | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
 | **Solutions Index** | Catalog of 27 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
 
@@ -423,7 +418,7 @@ See **[Implementation Checklist](docs/getting-started/checklist.md)** for detail
 - **"How do I automate this?"** → See **[Solutions Index](docs/reference/solutions-index.md)**
 
 ### For Technical Implementation:
-- Reference individual control files (1.1-4.7)
+- Reference individual control files (1.1-4.9)
 - Each control includes step-by-step verification procedures
 - Contact your Power Platform Admin for platform-specific setup
 
@@ -447,10 +442,11 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
-> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.2.x](CHANGELOG-v1.2.md) | [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x](CHANGELOG-v1.0.md)
+> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.3.x](CHANGELOG-v1.3.md) | [v1.2.x](CHANGELOG-v1.2.md) | [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x](CHANGELOG-v1.0.md)
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| [1.3.0](CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
 | [1.2.54](CHANGELOG-v1.2.md#1254--march-13-2026-csa-enablement--automation-indicators) | Mar 2026 | CSA Quick Reference, CSA Positioning Guide, automation indicators on all 71 controls, exportable diagrams | [@judeper](https://github.com/judeper) |
 | [1.2.53](CHANGELOG-v1.2.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
 | [1.2.52](CHANGELOG-v1.2.md#1252--february-2026-sspm-coverage-remediation) | Feb 2026 | SSPM coverage remediation | [@judeper](https://github.com/judeper) |
@@ -484,5 +480,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.2.54 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

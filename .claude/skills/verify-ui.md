@@ -86,23 +86,22 @@ docs/images/
 ├── 1.2/
 │   └── EXPECTED.md
 ...
-├── 4.7/
+├── 4.9/
 │   └── EXPECTED.md
 ```
 
 ## Control Folders That Exist
 
-71 possible folders (one per control):
-- 1.1 through 1.28 (Pillar 1 - Security)
-- 2.1 through 2.24 (Pillar 2 - Management)
-- 3.1 through 3.12 (Pillar 3 - Reporting)
-- 4.1 through 4.7 (Pillar 4 - SharePoint)
+78 possible folders (one per control):
+- 1.1 through 1.29 (Pillar 1 - Security)
+- 2.1 through 2.26 (Pillar 2 - Management)
+- 3.1 through 3.14 (Pillar 3 - Reporting)
+- 4.1 through 4.9 (Pillar 4 - SharePoint)
 
 ## Known Missing Folders (Low Priority)
 
-These are screenshot spec gaps, not control gaps:
-- 1.22, 1.23, 1.24, 1.25, 1.26, 1.27, 1.28, 2.19, 2.20, 2.22, 2.23, 2.24, 4.7 (missing folders)
-- 2.17, 2.18, 3.10, 3.11, 3.12 (missing EXPECTED.md files)
+The current `v1.3.0` baseline includes screenshot spec folders and `EXPECTED.md` files for the published controls.
+If you suspect drift, re-check `docs/images/` against `docs/controls/CONTROL-INDEX.md` rather than relying on a hardcoded gap list.
 
 ## Portal Verification Sources
 

@@ -730,7 +730,7 @@
     wrap.appendChild(h("h2", { style: "font-size:1.3rem;margin-bottom:0.3rem" }, "Assessment Scoping"));
     wrap.appendChild(h("p", { className: "ag-card-subtitle" },
       "Configure the assessment scope for your organization. " +
-      "All 72 controls will be included but prioritized based on your profile."
+      "All 78 controls will be included but prioritized based on your profile."
     ));
 
     var form = h("div", { className: "ag-card" });

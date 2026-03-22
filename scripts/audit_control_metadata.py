@@ -48,11 +48,11 @@ def audit_control_file(filepath):
     else:
         footer_text = footer_match.group(0)
 
-        # Check version is v1.1
+        # Check version is a current supported release marker
         if 'Version: v1.0' in footer_text:
-            issues.append("Footer has v1.0 (should be v1.1)")
-        elif 'Version: v1.1' not in footer_text:
-            issues.append("Footer missing 'Version: v1.1'")
+            issues.append("Footer has v1.0 (should be v1.2 or v1.3)")
+        elif 'Version: v1.2' not in footer_text and 'Version: v1.3' not in footer_text:
+            issues.append("Footer missing 'Version: v1.2' or 'Version: v1.3'")
 
         # Check UI Verification Status is valid
         if 'UI Verification Status: Current' not in footer_text and \

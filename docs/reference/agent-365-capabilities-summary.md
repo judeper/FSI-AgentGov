@@ -120,6 +120,18 @@ Agent 365 is Microsoft's governance control plane for AI agents, announced at Ig
 | [Blueprint Promotion Gates](../playbooks/advanced-implementations/agent-blueprint-promotion-gates/index.md) | Lifecycle phase transition governance |
 | [Sponsorship Lifecycle Workflows](../playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md) | Entra Lifecycle Workflows for sponsor governance |
 
+### Native Admin Center Coverage vs. Deployable Solutions
+
+Microsoft's Agent overview page already provides the tenant-level Agent Registry, pending request queue, ownerless agent queue, and overview analytics surfaces for administrators. In the FSI framework, those native capabilities are covered by [Control 2.25 — Agent 365 Admin Center Governance Console](../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [Control 3.13 — Agent 365 Admin Center Analytics and Reporting](../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md), and [Control 3.14 — Agent 365 Observability SDK](../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md). Deployable solutions should complement those native surfaces rather than duplicate them.
+
+| Need | Primary artifact | Notes |
+|------|------------------|-------|
+| Native Agent Registry, pending requests, ownerless agents, overview analytics | Controls 2.25 and 3.13 | Use the Microsoft 365 Agent overview and Agent Registry surfaces as the system of record for tenant-level governance monitoring. |
+| Automated sponsor enforcement, access reviews, inactivity handling, deactivation workflows | `agent-365-lifecycle-governance` solution | Extends Agent 365 and Entra governance with workflow automation and Dataverse evidence. |
+| Custom-agent telemetry, workbooks, and alert routing | Control 3.14 and the `agent-observability-foundation` solution | Use when native overview metrics are insufficient for custom agents or longer-term operational evidence. |
+
+There is no separate live `agent-365-governance-monitor` solution in this repository. If future work is needed, it should stay limited to gaps not already covered by the native Agent 365 admin surfaces and the deployable solutions listed above.
+
 ### Controls with Agent 365 Sections
 
 | Control | Agent 365 Section |

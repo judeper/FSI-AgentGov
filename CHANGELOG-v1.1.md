@@ -4,7 +4,7 @@ All notable changes to the FSI Agent Governance Framework v1.1.x releases are do
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to semantic versioning.
 
-**Other versions:** [Current (v1.2.x)](CHANGELOG-v1.2.md) | [v1.0.x and earlier](CHANGELOG-v1.0.md)
+**Other versions:** [Current (v1.3.x)](CHANGELOG-v1.3.md) | [v1.2.x](CHANGELOG-v1.2.md) | [v1.0.x and earlier](CHANGELOG-v1.0.md)
 
 ---
 

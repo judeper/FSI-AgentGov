@@ -90,4 +90,4 @@ If you are new to this repository, return to [Start Here](../start-here.md). If 
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

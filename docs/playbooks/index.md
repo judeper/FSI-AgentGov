@@ -141,7 +141,7 @@ Regulation-specific implementation guidance.
 
 Per-control implementation guides extracted from control documentation.
 
-**288 playbooks** (72 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
+**312 per-control playbooks** (78 controls × 4 playbooks each) provide step-by-step implementation guidance for every control in the framework.
 
 Each control has a dedicated folder with:
 
@@ -151,7 +151,7 @@ Each control has a dedicated folder with:
 - `troubleshooting.md` — Common issues and solutions
 
 !!! success "Available Now"
-    All 284 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
+    All 312 per-control implementation playbooks are available in the [Control Implementations Index](control-implementations/index.md). Navigate to any control in the Control Catalog to find direct links to its 4 playbooks in the "Implementation Guides" section.
 
 ---
 
@@ -189,4 +189,4 @@ If you find outdated content or broken procedures:
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - February 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

@@ -9,8 +9,9 @@ hide:
 # AI Agent Governance for **Financial Services**
 
 Govern Microsoft 365 AI agents with confidence — from policy to production.
-71 controls, implementation playbooks, and regulatory mappings for
-Copilot Studio, Agent Builder, and custom agent deployments.
+78 controls, 33 live companion solutions, implementation playbooks,
+and regulatory mappings for Copilot Studio, Agent Builder, and custom
+agent deployments.
 
 [Get Started](getting-started/quick-start.md){ .md-button .md-button--primary }
 [View Control Catalog](controls/index.md){ .md-button }
@@ -19,7 +20,7 @@ Copilot Studio, Agent Builder, and custom agent deployments.
 
 <div class="metrics-strip">
   <div class="metric">
-    <span class="metric-number">71</span>
+    <span class="metric-number">78</span>
     <span class="metric-label">Controls</span>
   </div>
   <div class="metric">
@@ -66,7 +67,7 @@ Copilot Studio, Agent Builder, and custom agent deployments.
     ---
 
     Implement DLP, audit logging, encryption, MFA,
-    and 28 security controls across your tenant.
+    and 29 security controls across your tenant.
 
     [:material-arrow-right: Start Here](controls/pillar-1-security/index.md)
 
@@ -112,23 +113,23 @@ High Risk · Committee Approval
 </div>
 <div class="arch-arrow">▼</div>
 <div class="arch-layer">
-<div class="arch-label">71 Controls across 4 Pillars</div>
+<div class="arch-label">78 Controls across 4 Pillars</div>
 <div class="arch-row">
 <div class="arch-card arch-pillar">
 <strong>Security</strong>
-28 Controls
+29 Controls
 </div>
 <div class="arch-card arch-pillar">
 <strong>Management</strong>
-24 Controls
+26 Controls
 </div>
 <div class="arch-card arch-pillar">
 <strong>Reporting</strong>
-12 Controls
+14 Controls
 </div>
 <div class="arch-card arch-pillar">
 <strong>SharePoint</strong>
-7 Controls
+9 Controls
 </div>
 </div>
 </div>

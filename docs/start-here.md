@@ -40,7 +40,7 @@ Microsoft product documentation explains how to create and configure agents. It 
 - scaling controls as agents move from **personal experiments** to **team** and **enterprise** use
 - collecting the evidence needed for **oversight, audit, examination preparation, and recurring review**
 
-FSI-AgentGov packages those decisions into **72 controls**, **288 implementation playbooks**, and a **three-zone governance model** so teams can move from ad hoc experimentation to a more structured rollout.
+FSI-AgentGov packages those decisions into **78 controls**, **312 implementation playbooks**, and a **three-zone governance model** so teams can move from ad hoc experimentation to a more structured rollout.
 
 ---
 

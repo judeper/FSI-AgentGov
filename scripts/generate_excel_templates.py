@@ -9,7 +9,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 import os
 
-# ── All 72 controls ──────────────────────────────────────────────────────────
+# ── All 78 controls ──────────────────────────────────────────────────────────
 
 ALL_CONTROLS = {
     "Pillar 1 \u2014 Security": [
@@ -41,6 +41,7 @@ ALL_CONTROLS = {
         ("1.26", "Agent File Upload and File Analysis Restrictions"),
         ("1.27", "AI Agent Content Moderation Enforcement"),
         ("1.28", "Policy-Based Agent Publishing Restrictions"),
+        ("1.29", "Global Secure Access: Network Controls for Copilot Studio Agents"),
     ],
     "Pillar 2 \u2014 Management": [
         ("2.1", "Managed Environments"),
@@ -67,6 +68,8 @@ ALL_CONTROLS = {
         ("2.22", "Inactivity Timeout Enforcement"),
         ("2.23", "User Consent and AI Disclosure Enforcement"),
         ("2.24", "Agent Feature Enablement and Restriction Governance"),
+        ("2.25", "Microsoft Agent 365: Admin Center Governance Console"),
+        ("2.26", "Entra Agent ID: Identity Governance for Agents"),
     ],
     "Pillar 3 \u2014 Reporting": [
         ("3.1", "Agent Inventory and Metadata Management"),
@@ -81,6 +84,8 @@ ALL_CONTROLS = {
         ("3.10", "Hallucination Feedback Loop"),
         ("3.11", "Centralized Agent Inventory Enforcement"),
         ("3.12", "Agent Governance Exception and Override Management"),
+        ("3.13", "Agent 365 Admin Center Analytics and Reporting"),
+        ("3.14", "Agent 365 Observability SDK and Custom Agent Telemetry"),
     ],
     "Pillar 4 \u2014 SharePoint": [
         ("4.1", "SharePoint Information Access Governance (IAG)"),
@@ -91,6 +96,7 @@ ALL_CONTROLS = {
         ("4.6", "Grounding Scope Governance"),
         ("4.7", "Microsoft 365 Copilot Data Governance"),
         ("4.8", "Item-Level Permission Scanning for Agent Knowledge Sources"),
+        ("4.9", "Embedded File Content Governance"),
     ],
 }
 
@@ -106,12 +112,12 @@ ROLE_TEMPLATES = {
     "entra-administrator-checklist.xlsx": {
         "title": "Entra Administrator Checklist",
         "role": "Entra Global Admin",
-        "controls": ["1.11", "1.12", "1.18", "3.1"],
+        "controls": ["1.11", "1.12", "1.18", "2.26", "3.1"],
     },
     "power-platform-administrator-checklist.xlsx": {
         "title": "Power Platform Administrator Checklist",
         "role": "Power Platform Admin",
-        "controls": ["2.1", "2.2", "2.15", "2.16", "2.17", "3.7", "3.8"],
+        "controls": ["1.29", "2.1", "2.2", "2.15", "2.16", "2.17", "3.7", "3.8"],
     },
     "purview-administrator-checklist.xlsx": {
         "title": "Purview Administrator Checklist",
@@ -121,7 +127,7 @@ ROLE_TEMPLATES = {
     "sharepoint-administrator-checklist.xlsx": {
         "title": "SharePoint Administrator Checklist",
         "role": "SharePoint Admin",
-        "controls": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8"],
+        "controls": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9"],
     },
     "compliance-officer-checklist.xlsx": {
         "title": "Compliance Officer Checklist",
@@ -172,7 +178,7 @@ HEADER_BORDER = Border(
 HEADERS = ["Control ID", "Control Name", "Status", "Notes", "Due Date"]
 COL_WIDTHS = [14, 56, 18, 45, 16]
 STATUS_OPTIONS = '"Not Started,In Progress,Completed,N/A"'
-VERSION_FOOTER = "FSI Agent Governance Framework v1.2.41 \u2014 February 2026"
+VERSION_FOOTER = "FSI Agent Governance Framework v1.3.0 \u2014 March 2026"
 
 
 def style_header_row(ws, row):

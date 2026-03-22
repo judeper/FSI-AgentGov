@@ -54,6 +54,42 @@ This matrix provides a board-level summary for executive reporting and oversight
 | Would a failure create reputational risk? | No | Limited | Significant |
 | Is external audit evidence required? | No | Limited | Yes |
 
+## Frontier Agent Types (March 2026 documentation update)
+
+!!! note "Microsoft 365 admin center classification"
+    Microsoft 365 admin center now documents **Frontier agents** as experimental or advanced agents that use new capabilities or integrations and might require more oversight or limited rollout. When these agents rely on Agent 365 analytics or registry features, some reporting surfaces still depend on Frontier preview enrollment.
+
+### App Builder agent
+
+An **App Builder agent** is a Frontier agent developed by Microsoft. Microsoft documents that it can be managed in Microsoft 365 Copilot and in the Power Platform admin center.
+
+- **Default zone assignment:** Zone 2
+- **Escalate to Zone 3 when:** the agent accesses regulated data, spans multiple departments, or supports customer-facing workflows
+
+### Workflows agent
+
+A **Workflows agent** is a Frontier agent developed by Microsoft that creates flows on the user's behalf. Microsoft documents that flows created in Copilot are saved to the **default environment** unless [environment routing](../controls/pillar-2-management/2.15-environment-routing.md) is enabled for Copilot Studio.
+
+!!! warning "Environment routing is the minimum guardrail for Workflows agent"
+    If environment routing is not enabled, Workflows agent flows can remain in the default environment and miss Zone 2 or Zone 3 governance baselines. Treat Workflows agent enablement as dependent on [Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) and environment routing.
+
+- **Minimum zone assignment:** Zone 2
+- **Escalate to Zone 3 when:** workflows call regulated data sources, external connectors, or customer-impacting systems
+
+### Frontier agent zone summary
+
+| Frontier agent type | Default zone | Zone 3 escalation trigger | Primary controls |
+|---------------------|--------------|---------------------------|------------------|
+| **App Builder agent** | Zone 2 | Regulated data, multi-department deployment, customer-facing use | [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md), [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md), [3.8](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) |
+| **Workflows agent** | Zone 2 minimum | External actions, regulated connectors, customer data, or default-environment sprawl | [2.1](../controls/pillar-2-management/2.1-managed-environments.md), [2.15](../controls/pillar-2-management/2.15-environment-routing.md), [1.4](../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md), [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
+
+### Governance actions
+
+1. Inventory Frontier agents during monthly Copilot Hub reviews so App Builder and Workflows agents are not missed in standard Copilot Studio inventories.
+2. Confirm environment routing before broad Workflows agent rollout.
+3. Apply the same approval, access review, and data classification requirements that would apply to any other Zone 2 or Zone 3 agent.
+4. Treat Frontier labels as an additional scrutiny signal, not as a substitute for zone classification.
+
 ---
 
 ## Zone 1: Personal Productivity {#zone-1}
@@ -499,4 +535,4 @@ Each zone should have recurring compliance reviews:
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

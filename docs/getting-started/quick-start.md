@@ -41,7 +41,7 @@ The framework recommends a structured 3-phase adoption approach:
 ## For New Users (10 minutes)
 
 !!! tip "Quick Assessment"
-    Want a faster way to evaluate your readiness? Try the [Governance Readiness Assessment](../assessment/index.md) — an interactive tool that walks you through all 72 controls and generates a personalized remediation roadmap.
+    Want a faster way to evaluate your readiness? Try the [Governance Readiness Assessment](../assessment/index.md) — an interactive tool that walks you through all 78 controls and generates a personalized remediation roadmap.
 
 ### Step 1: Understand the Framework Structure (3 min)
 
@@ -203,7 +203,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 **Controls Required (comprehensive):**
 
-- All 72 controls apply
+- All 78 controls apply
 - Enhanced versions per regulation
 
 **Compliance:** 
@@ -265,4 +265,4 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.3.0 - March 2026*

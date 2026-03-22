@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-FSI Agent Governance Framework v1.2.54 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+FSI Agent Governance Framework v1.3.0 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
-- **72 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
@@ -28,7 +28,7 @@ FSI Agent Governance Framework v1.2.54 - A governance framework for Microsoft 36
 ### Key Reference Materials
 - **CSA Quick Reference** (`docs/reference/csa-quick-reference.md`) — partner/CSA engagement summary
 - **CSA Positioning Guide** (`docs/reference/csa-positioning-guide.md`) — positioning for CSA conversations
-- **Automation indicators** — all 72 controls include automation feasibility indicators
+- **Automation indicators** — the current control catalog includes automation feasibility indicators
 - **Exportable diagrams** — PNG/SVG architecture diagrams in `docs/images/diagrams/`
 
 ### Screenshots
@@ -40,7 +40,7 @@ FSI Agent Governance Framework v1.2.54 - A governance framework for Microsoft 36
 ### Navigation Philosophy (Three-Layer Model)
 - **Framework:** Governance principles, strategy, organizational context (`docs/framework/`)
 - **Controls:** Technical specifications with 10-section format (`docs/controls/pillar-*/`)
-- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - ALL 284 control implementation playbooks are fully integrated into mkdocs.yml navigation (4 per control: portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- **Playbooks:** Step-by-step implementation procedures (`docs/playbooks/`) - Standard control implementation playbooks are fully integrated into `mkdocs.yml` navigation (4 per control), with supplemental control-specific guides where needed
 - **Reference:** Supporting materials (glossary, RACI, regulatory mappings, license requirements)
 - **Assessment:** Interactive governance readiness assessment tool (client-side JavaScript)
 - **Getting Started:** Admin onboarding only (no repo structure info)
@@ -69,13 +69,13 @@ docs/
 │   ├── adoption-roadmap.md       # 30/60/90-day phased implementation
 │   └── index.md
 ├── controls/                     # RENAMED in v1.1 (was: reference/pillar-*)
-│   ├── pillar-1-security/        # 28 security controls (1.1-1.28)
-│   ├── pillar-2-management/      # 24 management controls (2.1-2.24)
-│   ├── pillar-3-reporting/       # 12 reporting controls (3.1-3.12)
-│   ├── pillar-4-sharepoint/      # 8 SharePoint controls (4.1-4.8)
+│   ├── pillar-1-security/        # 29 security controls (1.1-1.29)
+│   ├── pillar-2-management/      # 26 management controls (2.1-2.26)
+│   ├── pillar-3-reporting/       # 14 reporting controls (3.1-3.14)
+│   ├── pillar-4-sharepoint/      # 9 SharePoint controls (4.1-4.9)
 │   └── CONTROL-INDEX.md          # Master control list
 ├── playbooks/                    # NEW in v1.1: Implementation layer
-│   ├── control-implementations/  # Per-control guides (284 files, 4 per control)
+│   ├── control-implementations/  # Per-control guides (312 standard playbooks + 2 supplemental control guides)
 │   ├── governance-operations/    # Standing procedures
 │   ├── compliance-and-audit/     # Audit preparation guides
 │   ├── incident-and-risk/        # Incident handling procedures
@@ -128,7 +128,7 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 10. Additional Resources (Microsoft Learn links)
 
 **Footer Metadata:**
-- *Updated: Month-Year | Version: v1.1 | UI Verification Status: Current*
+- *Updated: Month-Year | Version: v1.3 | UI Verification Status: Current*
 
 ### Administrator Role Naming (Canonical)
 
@@ -156,7 +156,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
 | `docs/templates/control-setup-template.md` | Control format (10 sections) |
-| `docs/controls/CONTROL-INDEX.md` | Master list of all 72 controls |
+| `docs/controls/CONTROL-INDEX.md` | Master list of all 78 controls |
 | `mkdocs.yml` | Site navigation structure |
 
 ## Claude Code Skills (On-Demand Workflows)

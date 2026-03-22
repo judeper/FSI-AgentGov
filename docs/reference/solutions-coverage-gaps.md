@@ -105,7 +105,7 @@ These controls are fully addressed through Microsoft admin portal configuration.
 | 3.2 | Usage Analytics | PPAC Analytics |
 | ~~3.7~~ | ~~PPAC Security Posture~~ | ~~PPAC native dashboard~~ **Now also has [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md)** |
 | ~~3.8~~ | ~~Copilot Hub~~ | ~~M365 Admin Center Copilot Hub~~ **Now has [Agent Access Governance Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)** |
-| 4.1-4.7 | SharePoint Controls | SharePoint Advanced Management |
+| 4.1-4.9 | SharePoint Controls | SharePoint Advanced Management |
 
 ### Category 2: Custom Solution Recommended
 
@@ -302,7 +302,7 @@ Priority solutions for FSI-AgentGov-Solutions repository development, addressing
 |----------|---------------|-------------|--------|
 | ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
 | ~~**conditional-access-automation**~~ | 1.11 | ~~Entra ID Conditional Access policy templates and deployment automation for AI workloads~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across all 72 controls with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
+| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across the framework control catalog with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
 
 ### P1 - High (Q2-Q3 2026) - ALL RELEASED ✓
 
