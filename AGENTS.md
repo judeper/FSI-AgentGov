@@ -14,7 +14,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 **Full context:** See `.github/copilot-instructions.md` for complete repository structure and design decisions.
 
-**Companion Repository:** `FSI-AgentGov-Solutions` contains deployable solution artifacts (27 solutions covering 37 controls). See `docs/reference/solutions-index.md` for catalog.
+**Companion Repository:** `FSI-AgentGov-Solutions` contains 33 live solution implementations plus 2 documentation-only preview placeholder folders mapped to the current 78-control framework baseline. See `docs/reference/solutions-index.md` for the current catalog.
 
 **Key reference documents:**
 - `docs/reference/csa-quick-reference.md` — CSA Quick Reference for partner/CSA engagement

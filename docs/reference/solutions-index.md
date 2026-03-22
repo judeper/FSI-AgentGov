@@ -6,13 +6,13 @@ Live inventory reference for the companion FSI-AgentGov-Solutions repository.
 
 ## Overview
 
-This index tracks the **33 live top-level solution folders** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
+This index tracks the **33 live solution implementations** and **2 documentation-only preview placeholder folders** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds. They do not store exported Power Platform runtime artifacts in this catalog.
 
-This file is intentionally folder-driven to reduce drift: framework-native assets without matching top-level solution folders remain documented in FSI-AgentGov and are not counted as companion solutions here.
+This file is intentionally folder-driven to reduce drift: live solution implementations and preview placeholders are derived from top-level companion repository folders with root `README.md` files. Framework-native assets without matching solution folders remain documented in FSI-AgentGov and are not counted as companion solutions here.
 
-*Control coverage listed below reflects the primary controls published with each live solution.*
+*Control coverage listed below reflects the primary controls published with each live solution. Preview placeholders are tracked separately until they move beyond placeholder scope.*
 
 ## Live Inventory (33 Solutions)
 
@@ -25,12 +25,12 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 | [Agent Knowledge Source Scanner](#agent-knowledge-source-scanner) | [`agent-knowledge-source-scanner`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner) | v1.0.0 | 4.3, 1.4, 1.5 | Item-level permission scanning for agent knowledge source SharePoint libraries. |
 | [Agent Observability Foundation](#agent-observability-foundation) | [`agent-observability-foundation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation) | v1.1.0 | — | Foundational observability infrastructure for agent monitoring. |
 | [Agent Registry Automation](#agent-registry-automation) | [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation) | v1.0.0 | 1.2, 1.7, 2.1, 2.13 | Automated discovery, registration, approval, and lifecycle governance of AI agents. |
-| [Agent Sharing Access Restriction Detector](#agent-sharing-access-restriction-detector) | [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector) | v1.0.0 | 1.18, 2.8 | Zone-based agent sharing policy enforcement with approval workflows. |
+| [Agent Sharing Access Restriction Detector](#agent-sharing-access-restriction-detector) | [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector) | v1.0.1 | 1.18, 2.8 | Zone-based agent sharing policy enforcement with approval workflows. |
 | [Audit Compliance Manager](#audit-compliance-manager) | [`audit-compliance-manager`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager) | v1.0.0 | 1.7 | Audit configuration validation, gap detection, and remediation workflows. |
 | [COI Testing](#coi-testing) | [`coi-testing`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) | v1.0.0 | 2.18, 2.11, 2.5 | Conflict of interest testing for agent recommendations. |
 | [Compliance Dashboard](#compliance-dashboard) | [`compliance-dashboard`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) | v1.0.0 | 3.3, 3.1, 3.2 | Aggregated compliance reporting across the framework control catalog with Exchange coverage. |
-| [Conditional Access Automation](#conditional-access-automation) | [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) | v1.1.0 | 1.11, 1.23, 1.18 | CA policy deployment, compliance monitoring, and drift detection. |
-| [Content Moderation Monitor](#content-moderation-monitor) | [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor) | v1.0.0 | 1.8, 1.14 | Per-agent content moderation validation against zone requirements. |
+| [Conditional Access Automation](#conditional-access-automation) | [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) | v1.1.1 | 1.11, 1.23, 1.18 | CA policy deployment, compliance monitoring, and drift detection. |
+| [Content Moderation Monitor](#content-moderation-monitor) | [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor) | v1.0.1 | 1.8, 1.14 | Per-agent content moderation validation against zone requirements. |
 | [Copilot Studio Analytics](#copilot-studio-analytics) | [`copilot-studio-analytics`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-studio-analytics) | v1.0.0 | 3.2 | Business impact analytics for Copilot Studio agents. |
 | [Cross-Solution Integration](#cross-solution-integration) | [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration) | v1.0.0 | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 | Wires Tier 2 companion solutions into Compliance Dashboard. |
 | [Cross-Tenant External Sharing Governance](#cross-tenant-external-sharing-governance) | [`cross-tenant-external-sharing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-tenant-external-sharing-governance) | v1.0.0 | 1.1, 1.18, 2.1, 2.8, 3.1, 1.11 | Three-layer cross-tenant access governance covering tenant isolation, Entra cross-tenant access, and agent sharing. |
@@ -41,9 +41,9 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | [`finra-supervision-workflow`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) | v1.0.0 | 2.12, 1.10, 1.7 | Automated supervision queue for AI agent outputs. |
 | [Generative AI Config Auditor](#generative-ai-config-auditor) | [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor) | v1.0.0 | 2.24 | GenAI feature enablement governance by governance zone. |
 | [Hallucination Tracker](#hallucination-tracker) | [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) | v1.0.0 | 3.10, 2.9, 2.12 | Feedback aggregation for hallucination pattern analysis. |
-| [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) | v1.0.0 | 2.22, 1.23, 3.7, 3.8 | Policy-driven inactivity timeout validation with zone-based durations. |
+| [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) | v1.0.2 | 2.22, 1.23, 3.7, 3.8 | Policy-driven inactivity timeout validation with zone-based durations. |
 | [Message Center Monitor](#message-center-monitor) | [`message-center-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) | v2.1.1 | 2.3, 2.10 | M365 Message Center monitoring for platform changes. |
-| [MIME Type Restrictions](#mime-type-restrictions) | [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) | v1.0.0 | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 | Zone-based MIME type configuration with server-side validation. |
+| [MIME Type Restrictions](#mime-type-restrictions) | [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) | v1.0.1 | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 | Zone-based MIME type configuration with server-side validation. |
 | [Model Risk Management Automation](#model-risk-management-automation) | [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation) | v1.0.0 | 2.6, 2.5, 2.9, 2.11, 2.13, 3.1, 1.2 | OCC 2011-12 / SR 11-7 model risk management with inventory, risk scoring, validation workflows, and Agent Card generation. |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | [`pipeline-governance-cleanup`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) | v1.0.8 | 2.3, 2.1 | Personal pipeline discovery and ALM governance enforcement. |
 | [RAG Source Validator](#rag-source-validator) | [`rag-source-validator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) | v1.0.0 | 2.16, 1.7, 2.13 | Integrity validation for RAG knowledge sources. |
@@ -51,6 +51,15 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 | [Segregation Detector](#segregation-detector) | [`segregation-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) | v1.0.0 | 2.8, 2.1, 2.3 | Role conflict detection for Maker/Checker enforcement. |
 | [Session Security Configurator](#session-security-configurator) | [`session-security-configurator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator) | v1.0.0 | 1.23, 1.11 | Session security validation per governance zone with drift detection. |
 | [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector) | [`unrestricted-agent-sharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/unrestricted-agent-sharing-detector) | v1.0.2 | 1.1, 3.8 | Continuous detection of overly permissive agent sharing. |
+
+## Preview Placeholders (2)
+
+These folders reserve solution namespaces for validated preview capabilities. They are intentionally excluded from the 33-solution live inventory until they include deployable guidance beyond placeholder scope.
+
+| Solution | Repository folder | Status | Primary controls | Summary |
+|----------|-------------------|--------|------------------|---------|
+| [HITL Workflow Governance](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance) | [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance) | Preview placeholder | 2.12, 2.17, 1.10 | Planned evidence-collection workflow for supervisory approvals, request-for-information routing, and audit-trail capture around human-in-the-loop checkpoints. |
+| [Credential Oversharing Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector) | [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector) | Planned preview placeholder | 1.14, 1.4, 1.18 | Planned zone-aware review pattern for Copilot Studio safe-sharing and credential-scope signals before broader deployable guidance is available. |
 
 ## Solution Details
 
@@ -98,7 +107,7 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 
 ### Agent Sharing Access Restriction Detector
 - **Repository folder:** [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector)
-- **Version:** v1.0.0
+- **Version:** v1.0.1
 - **Primary controls:** 1.18, 2.8
 - **Summary:** Zone-based agent sharing policy enforcement with approval workflows.
 
@@ -122,13 +131,13 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 
 ### Conditional Access Automation
 - **Repository folder:** [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
-- **Version:** v1.1.0
+- **Version:** v1.1.1
 - **Primary controls:** 1.11, 1.23, 1.18
 - **Summary:** CA policy deployment, compliance monitoring, and drift detection.
 
 ### Content Moderation Monitor
 - **Repository folder:** [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
-- **Version:** v1.0.0
+- **Version:** v1.0.1
 - **Primary controls:** 1.8, 1.14
 - **Summary:** Per-agent content moderation validation against zone requirements.
 
@@ -194,7 +203,7 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 
 ### Inactivity Timeout Enforcement
 - **Repository folder:** [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement)
-- **Version:** v1.0.0
+- **Version:** v1.0.2
 - **Primary controls:** 2.22, 1.23, 3.7, 3.8
 - **Summary:** Policy-driven inactivity timeout validation with zone-based durations.
 
@@ -206,7 +215,7 @@ This file is intentionally folder-driven to reduce drift: framework-native asset
 
 ### MIME Type Restrictions
 - **Repository folder:** [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions)
-- **Version:** v1.0.0
+- **Version:** v1.0.1
 - **Primary controls:** 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3
 - **Summary:** Zone-based MIME type configuration with server-side validation.
 

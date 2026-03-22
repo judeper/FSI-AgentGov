@@ -246,7 +246,7 @@ Zone 2 is subject to MODERATE regulatory oversight:
 
 - **Approval:** Governance Committee + Legal review
 - **Publishing:** Change control process
-- **Sharing:** Pre-approved security groups only — individual-to-individual sharing is prohibited. All sharing recipients must be members of governance-approved Azure AD security groups.
+- **Sharing:** Pre-approved security groups only — individual-to-individual sharing is prohibited. All sharing recipients must be members of governance-approved Microsoft Entra ID security groups.
 - **Data:** All regulated and sensitive data
 - **Retention:** 10 years minimum (conservative buffer exceeding SEC 17a-3/4: 6 years, first 2 years readily accessible)
 - **Audit:** Real-time monitoring

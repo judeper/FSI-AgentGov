@@ -15,26 +15,7 @@
 
 ### Companion Repository
 
-**FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`) contains deployable solution artifacts:
-
-| Solution | Version | Description |
-|----------|---------|-------------|
-| `environment-lifecycle-management/` | v1.1.2 | Automated environment provisioning with zone classification |
-| `message-center-monitor/` | v2.1.1 | M365 Message Center polling and Teams notifications |
-| `pipeline-governance-cleanup/` | v1.0.8 | Personal pipeline discovery and cleanup automation |
-| `deny-event-correlation-report/` | v1.1.0 | Unified deny event reporting across Purview/DLP/App Insights |
-| `finra-supervision-workflow/` | v1.0.0 | FINRA 3110 supervision queue for AI agent outputs |
-| `conditional-access-automation/` | v1.0.0 | CA policy deployment and compliance monitoring for AI workloads |
-| `compliance-dashboard/` | v1.0.0-beta | Aggregated compliance reporting across framework controls |
-| `segregation-detector/` | v1.0.0 | Role conflict detection for Maker/Checker enforcement |
-| `scope-drift-monitor/` | v1.0.0 | Detect agent data access beyond declared scope |
-| `rag-source-validator/` | v1.0.0 | Integrity validation for RAG knowledge sources |
-| `coi-testing/` | v1.0.0 | Conflict of interest testing for agent recommendations |
-| `hallucination-tracker/` | v1.0.0 | Feedback aggregation for hallucination pattern analysis |
-| `dr-testing-framework/` | v1.0.0 | Automated disaster recovery testing for AI agents |
-| `agent-observability-foundation/` | v1.1.0 | Telemetry infrastructure for Copilot Studio agents |
-| `audit-compliance-manager/` | v1.0.0 | Consolidated audit configuration validation and logging compliance automation |
-| `session-security-configurator/` | v1.0.0 | Authentication context lifecycle and step-up policies |
+**FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`) contains **33 live solution implementations** plus **2 documentation-only preview placeholder folders** mapped to the current 78-control framework baseline. Use `docs/reference/solutions-index.md` in this repository as the source of truth for the current catalog, versions, and primary control mappings.
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
@@ -414,7 +395,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes (v1.2.49)
 - Comprehensive repository review — 12 GitHub issues resolved across both repos (v1.2.48)
 - Solution consolidation — ACV + ALCA merged into Audit Compliance Manager (v1.2.47)
-- Live solutions index tracks 33 top-level FSI-AgentGov-Solutions folders with mapped control coverage
+- Live solutions index tracks 33 live companion solution implementations plus 2 documentation-only preview placeholders with mapped control coverage
 - Native Microsoft Defender integration for AI agents (v1.2.37)
 - AI-assisted Learn Monitor review with `/review-learn-changes` skill (v1.2.37)
 - State AI law monitoring — Colorado, Texas, Illinois, California, NYC (v1.2.20–v1.2.31)

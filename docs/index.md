@@ -9,8 +9,8 @@ hide:
 # AI Agent Governance for **Financial Services**
 
 Govern Microsoft 365 AI agents with confidence — from policy to production.
-78 controls, 33 live companion solutions, implementation playbooks,
-and regulatory mappings for Copilot Studio, Agent Builder, and custom
+78 controls, 33 live companion solutions, 2 preview placeholders,
+implementation playbooks, and regulatory mappings for Copilot Studio, Agent Builder, and custom
 agent deployments.
 
 [Get Started](getting-started/quick-start.md){ .md-button .md-button--primary }

@@ -143,11 +143,12 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (33 Live Solutions)
+### Companion Solutions (33 Live Solutions + 2 Preview Placeholders)
 Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 33 live top-level solution folders aligned to the companion repository inventory
+- 33 live solution implementations plus 2 documentation-only preview placeholder folders aligned to the companion repository inventory
 - Coverage spans security, management, reporting, SharePoint governance, and cross-solution integration
 - Solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds
+- Preview placeholders for `hitl-workflow-governance` and `credential-oversharing-detector` are tracked separately until they move beyond placeholder scope
 - Framework-native assets without matching top-level solution folders remain documented in this repository and are not counted as companion solutions
 - See [Solutions Index](docs/reference/solutions-index.md) for the live catalog and primary control mappings
 
@@ -242,7 +243,7 @@ graph TD
 
 ## 🔗 Companion Solutions
 
-The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **33 live solution folders** that operationalize framework controls. This catalog is aligned to the top-level companion repository inventory and excludes framework-native assets that do not have matching solution folders.
+The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **33 live solution implementations** plus **2 documentation-only preview placeholder folders** that operationalize or reserve namespaces for framework controls. The live catalog remains aligned to the top-level companion repository inventory, while placeholder folders are tracked separately until they move beyond placeholder scope.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 

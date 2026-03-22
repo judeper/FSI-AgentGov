@@ -331,7 +331,7 @@ An agent cannot have more than 20 embedded files.
 
 ### Resolution A — User Is Missing the Required License or Group Membership
 
-If the label requires membership in a specific Azure AD group (for scoped label policies):
+If the label requires membership in a specific Microsoft Entra ID group (for scoped label policies):
 1. Add the user to the appropriate group, or
 2. Adjust the label policy scope if the user is a legitimate agent user who was inadvertently excluded.
 

@@ -1,6 +1,6 @@
 # Solutions Coverage Gap Analysis
 
-Analysis of FSI-AgentGov-Solutions coverage against the 72-control framework, identifying high-risk gaps and implementation prioritization guidance.
+Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 78-control FSI Agent Governance Framework baseline.
 
 ---
 
@@ -8,369 +8,64 @@ Analysis of FSI-AgentGov-Solutions coverage against the 72-control framework, id
 
 | Metric | Value |
 |--------|-------|
-| Total Controls | 72 |
-| Controls with Deployable Solutions | 37 |
-| Controls Without Solutions | 35 |
-| Overall Solution Coverage | 51.4% |
+| Total controls | 78 |
+| Live top-level solution folders | 33 |
+| Controls with live solutions | 39 |
+| Controls without live solutions | 39 |
+| Overall solution coverage | 50.0% |
 
-!!! info "Important Context"
-    Many "gaps" are addressed by **native Microsoft 365 and Power Platform features** that require portal configuration, not custom solutions. This analysis focuses specifically on deployable automation from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) repository. A control without a deployable solution is not necessarily unimplemented—it may be fully addressed through portal configuration following the control's playbooks.
+!!! info "Important context"
+    This page tracks deployable companion solutions only. A control without a live solution may still be addressed through native Microsoft 365 and Power Platform configuration, framework playbooks, or documented process controls.
 
 ---
 
-## Current Solution Coverage
-
-### Covered Controls (37 of 72)
-
-| Control ID | Control Name | Solution |
-|------------|--------------|----------|
-| 1.1 | Restrict Agent Publishing | [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 1.4 | Advanced Connector Policies | [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security) |
-| 1.5 | DLP and Sensitivity Labels | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [Scope Drift Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor) |
-| 1.7 | Comprehensive Audit Logging | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator), [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 1.8 | Runtime Protection | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report), [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security), [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 1.11 | Conditional Access and MFA | [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) |
-| 1.14 | Data Minimization | [Scope Drift Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor), [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security) |
-| 1.18 | Application-Level RBAC | [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 2.1 | Managed Environments | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management), [Segregation of Duties Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector), [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 2.2 | Environment Groups | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
-| 2.3 | Change Management | [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Governance Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup), [Segregation of Duties Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) |
-| 2.4 | Business Continuity | [DR Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework) |
-| 2.8 | Segregation of Duties | [Segregation of Duties Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) |
-| 2.10 | Patch Management | [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) |
-| 2.12 | Supervision and Oversight | [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow), [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) |
-| 2.15 | Environment Routing | [Environment Lifecycle Management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management) |
-| 2.16 | RAG Source Integrity | [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) |
-| 2.18 | Conflict of Interest Testing | [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) |
-| 3.3 | Compliance Reporting | [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) |
-| 3.4 | Incident Reporting | [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) |
-| 3.7 | PPAC Security Posture | [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 3.8 | Copilot Hub | [Agent Access Governance Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor), [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md) |
-| 3.10 | Hallucination Feedback | [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) |
-| 1.9 | Data Retention and Deletion Policies | [DR Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework) |
-| 1.10 | Communication Compliance Monitoring | [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow), [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
-| 1.13 | Sensitive Information Types (SITs) | [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
-| 1.23 | Step-Up Authentication | [Session Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator), [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) |
-| 1.25 | MIME Type Restrictions for File Uploads | [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
-| 2.5 | Testing, Validation, and Quality Assurance | [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) |
-| 2.9 | Agent Performance Monitoring | [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker), [Agent Usage & Performance Workbook](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-usage-workbook) |
-| 2.11 | Bias Testing and Fairness Assessment | [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) |
-| 2.13 | Documentation and Record Keeping | [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) |
-| 2.22 | Inactivity Timeout Enforcement | [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md), [Inactivity Timeout Enforcement](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) |
-| 3.1 | Agent Inventory and Metadata Management | [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) |
-| 3.2 | Usage Analytics and Activity Monitoring | [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard), [Agent Usage & Performance Workbook](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-usage-workbook) |
-| 3.9 | Microsoft Sentinel Integration | [Agent Usage & Performance Workbook](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-usage-workbook) |
-| 4.3 | Site and Document Retention Management | [MIME Type Restrictions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) |
-
-### Coverage by Pillar
+## Coverage by Pillar
 
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
-| **Pillar 1 - Security** | 28 | 13 | 15 | 46.4% |
-| **Pillar 2 - Management** | 24 | 15 | 9 | 62.5% |
-| **Pillar 3 - Reporting** | 12 | 8 | 4 | 66.7% |
-| **Pillar 4 - SharePoint** | 8 | 1 | 7 | 12.5% |
-| **Total** | 72 | 37 | 35 | 51.4% |
+| **Pillar 1 - Security** | 29 | 14 | 15 | 48.3% |
+| **Pillar 2 - Management** | 26 | 17 | 9 | 65.4% |
+| **Pillar 3 - Reporting** | 14 | 7 | 7 | 50.0% |
+| **Pillar 4 - SharePoint** | 9 | 1 | 8 | 11.1% |
+| **Total** | 78 | 39 | 39 | 50.0% |
 
 ---
 
-## Gap Classification
+## Current Coverage Register
 
-Not all gaps require custom solutions. Understanding the gap type helps prioritize development efforts.
+| Pillar | Controls with live solutions |
+|--------|------------------------------|
+| **Pillar 1 - Security** | 1.1, 1.2, 1.4, 1.5, 1.7, 1.8, 1.9, 1.10, 1.11, 1.13, 1.14, 1.18, 1.23, 1.25 |
+| **Pillar 2 - Management** | 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.8, 2.9, 2.10, 2.11, 2.12, 2.13, 2.16, 2.17, 2.18, 2.22, 2.24 |
+| **Pillar 3 - Reporting** | 3.1, 3.2, 3.3, 3.4, 3.7, 3.8, 3.10 |
+| **Pillar 4 - SharePoint** | 4.3 |
 
-### Category 1: Native Microsoft Features (Portal Configuration)
-
-These controls are fully addressed through Microsoft admin portal configuration. No custom solution is needed—follow the control's playbooks for implementation.
-
-| Control | Control Name | Native Feature |
-|---------|--------------|----------------|
-| ~~1.1~~ | ~~Restrict Agent Publishing~~ | ~~Power Platform Admin Center settings~~ **Now also has [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md)** |
-| 1.2 | Agent Registry | Integrated Apps management in M365 Admin |
-| ~~1.4~~ | ~~Advanced Connector Policies~~ | ~~PPAC connector classification~~ **Now has [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
-| 1.6 | DSPM for AI | Purview compliance portal |
-| ~~1.8~~ | ~~Runtime Protection~~ | ~~Defender for Cloud Apps~~ **Now has [Deny Event Correlation Report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) and [File Upload Security Configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
-| 1.9 | Data Retention | Purview retention policies |
-| 1.10 | Communication Compliance | Purview Communication Compliance |
-| ~~1.11~~ | ~~Conditional Access~~ | ~~Entra ID Conditional Access policies~~ **Now has [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| 1.12 | Insider Risk Detection | Purview Insider Risk Management |
-| 1.13 | Sensitive Information Types | Purview SIT configuration |
-| 1.15 | Encryption | Microsoft-managed encryption (default) |
-| 1.16 | Information Rights Management | Purview sensitivity labels with IRM |
-| 1.17 | Endpoint DLP | Purview Endpoint DLP |
-| ~~1.18~~ | ~~Application-Level RBAC~~ | ~~Entra ID app roles~~ **Now also has [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md)** |
-| 1.19 | eDiscovery | Purview eDiscovery |
-| 1.22 | Information Barriers | Purview Information Barriers |
-| 1.24 | Defender AI-SPM | Defender for Cloud |
-| 3.1 | Agent Inventory | PPAC + CoE Starter Kit |
-| 3.2 | Usage Analytics | PPAC Analytics |
-| ~~3.7~~ | ~~PPAC Security Posture~~ | ~~PPAC native dashboard~~ **Now also has [Configuration Hardening Baseline](../playbooks/advanced-implementations/configuration-hardening-baseline/index.md)** |
-| ~~3.8~~ | ~~Copilot Hub~~ | ~~M365 Admin Center Copilot Hub~~ **Now has [Agent Access Governance Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)** |
-| 4.1-4.9 | SharePoint Controls | SharePoint Advanced Management |
-
-### Category 2: Custom Solution Recommended
-
-These controls would benefit from custom automation beyond native features. Prioritize based on Zone 3 / Priority Tier 1 risk.
-
-| Control | Control Name | Gap Type | Priority |
-|---------|--------------|----------|----------|
-| 1.3 | SharePoint Content Governance | Automated permission scanning | Medium |
-| ~~1.14~~ | ~~Data Minimization~~ | ~~Scope drift detection automation~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)** |
-| 1.20 | Network Isolation | Connectivity validation automation | Medium |
-| 1.21 | Adversarial Input Logging | Centralized attack pattern analysis | High |
-| 1.23 | Step-Up Authentication | Auth challenge orchestration | Medium |
-| ~~2.4~~ | ~~Business Continuity~~ | ~~Automated DR testing~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)** |
-| 2.5 | Testing and Validation | Test orchestration framework | High |
-| ~~2.8~~ | ~~Segregation of Duties~~ | ~~Role conflict detection~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)** |
-| 2.9 | Performance Monitoring | Custom KPI dashboards | Medium |
-| ~~2.16~~ | ~~RAG Source Integrity~~ | ~~Source validation automation~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)** |
-| 2.17 | Multi-Agent Orchestration | Orchestration limit enforcement | Medium |
-| ~~2.18~~ | ~~Conflict of Interest Testing~~ | ~~Automated COI detection~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)** |
-| ~~3.3~~ | ~~Compliance Reporting~~ | ~~Aggregated compliance dashboard~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
-| 3.5 | Cost Allocation | Chargeback automation | Medium |
-| 3.6 | Orphaned Agent Detection | Automated remediation workflows | Medium |
-| 3.9 | Sentinel Integration | Custom data connectors | High |
-| ~~3.10~~ | ~~Hallucination Feedback~~ | ~~Feedback aggregation pipeline~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)** |
-
-### Category 3: Process/Documentation Controls
-
-These controls are inherently process-based and cannot be fully automated. They require documented procedures, training, and human judgment.
-
-| Control | Control Name | Why Not Automatable |
-|---------|--------------|---------------------|
-| 2.6 | Model Risk Management | OCC 2011-12 requires human model validation and governance committee oversight |
-| 2.7 | Vendor Risk Management | Third-party assessments require human judgment and negotiation |
-| 2.11 | Bias Testing | Fairness assessment requires domain expertise and ethical judgment |
-| 2.12 | Supervision and Oversight | ~~FINRA 3110 requires designated supervisory principals~~ **Now has [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** - Automates routing and tracking while human review remains required |
-| 2.13 | Documentation | Record-keeping is a process discipline |
-| 2.14 | Training Program | Human learning and awareness |
-| 2.19 | AI Disclosure | Customer communication decisions |
-| 2.20 | Adversarial Testing | Red team exercises require human creativity |
-| 2.21 | AI Marketing Claims | Legal/compliance review of marketing materials |
+See [Solutions Index](solutions-index.md) for the live 33-solution catalog and the published [Solutions Control Mapping](https://judeper.github.io/FSI-AgentGov-Solutions/reference/control-mapping/) for per-control solution references.
 
 ---
 
-## High-Risk Gaps (Zone 3 / Priority Tier 1)
+## Current Gap Register
 
-These 32 controls apply to Zone 3 (Enterprise Managed) agents and Priority Tier 1 (Critical) materiality classifications. Gaps in these controls present elevated regulatory and operational risk.
-
-### Zone 3 Controls Without Solutions
-
-| Control | Control Name | Gap Category | Regulatory Impact |
-|---------|--------------|--------------|-------------------|
-| 1.3 | SharePoint Content Governance | Custom Recommended | Data exposure risk |
-| ~~1.4~~ | ~~Advanced Connector Policies~~ | ~~Native Feature~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
-| 1.6 | DSPM for AI | Native Feature | - |
-| ~~1.8~~ | ~~Runtime Protection~~ | ~~Native Feature~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)** |
-| 1.9 | Data Retention | Native Feature | SEC 17a-4, FINRA 4511 |
-| 1.10 | Communication Compliance | Native Feature | FINRA 3110 |
-| ~~1.11~~ | ~~Conditional Access~~ | ~~Native Feature~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| 1.12 | Insider Risk Detection | Native Feature | - |
-| ~~1.14~~ | ~~Data Minimization~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)** |
-| 1.19 | eDiscovery | Native Feature | SEC 17a-4, FINRA 4511 |
-| 1.20 | Network Isolation | Custom Recommended | Security posture |
-| 1.21 | Adversarial Input Logging | Custom Recommended | Threat detection |
-| 1.22 | Information Barriers | Native Feature | FINRA Rule 5110 |
-| 1.23 | Step-Up Authentication | Custom Recommended | Access control |
-| 1.24 | Defender AI-SPM | Native Feature | - |
-| ~~2.4~~ | ~~Business Continuity~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)** |
-| 2.5 | Testing and Validation | Custom Recommended | FINRA Notice 15-09 |
-| 2.6 | Model Risk Management | Process Control | OCC 2011-12, SR 11-7 |
-| 2.7 | Vendor Risk Management | Process Control | OCC 2013-29 |
-| ~~2.8~~ | ~~Segregation of Duties~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)** |
-| 2.9 | Performance Monitoring | Custom Recommended | SLA compliance |
-| 2.11 | Bias Testing | Process Control | ECOA, CFPB |
-| 2.13 | Documentation | Process Control | SEC 17a-3 |
-| ~~2.16~~ | ~~RAG Source Integrity~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)** |
-| 2.17 | Multi-Agent Orchestration | Custom Recommended | Complexity risk |
-| ~~2.18~~ | ~~Conflict of Interest Testing~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)** |
-| 2.19 | AI Disclosure | Process Control | CFPB guidance |
-| 2.20 | Adversarial Testing | Process Control | Security posture |
-| ~~3.3~~ | ~~Compliance Reporting~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
-| 3.9 | Sentinel Integration | Custom Recommended | SIEM coverage |
-| ~~3.10~~ | ~~Hallucination Feedback~~ | ~~Custom Recommended~~ | **[ADDRESSED](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)** |
+| Pillar | Controls without live solutions | Notes |
+|--------|---------------------------------|-------|
+| **Pillar 1 - Security** | 1.3, 1.6, 1.12, 1.15, 1.16, 1.17, 1.19, 1.20, 1.21, 1.22, 1.24, 1.26, 1.27, 1.28, 1.29 | Mix of native Microsoft configuration, SharePoint governance, and targeted automation opportunities. |
+| **Pillar 2 - Management** | 2.7, 2.14, 2.15, 2.19, 2.20, 2.21, 2.23, 2.25, 2.26 | Includes process-first controls, native Agent 365 admin-center capabilities, and future automation candidates. |
+| **Pillar 3 - Reporting** | 3.5, 3.6, 3.9, 3.11, 3.12, 3.13, 3.14 | Includes native analytics/admin-center reporting surfaces plus future observability and cost-management work. |
+| **Pillar 4 - SharePoint** | 4.1, 4.2, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9 | SharePoint controls remain primarily framework/playbook driven; Control 4.3 is the only live solution-backed control today. |
 
 ---
 
-## Critical Regulatory Gaps
+## Current Architecture Notes
 
-One control has significant regulatory implications with no native Microsoft feature fully addressing it.
-
-### FINRA Rule 3110 - Supervision (Control 2.12) - ADDRESSED
-
-!!! success "Solution Available"
-    The [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) solution provides automated routing and tracking for supervisory review while maintaining human oversight as required by regulation.
-
-**Regulation:** FINRA Rule 3110 requires member firms to establish and maintain a system to supervise the activities of each associated person that is reasonably designed to achieve compliance.
-
-**Solution:** The [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) solution automates:
-
-- Queue management for flagged AI agent outputs
-- Routing to designated supervisory principals based on zone/tier
-- SLA monitoring with automatic escalation
-- Evidence collection with SHA-256 integrity hashing
-- Integration with Communication Compliance for content detection
-
-**Remaining Human Requirements:**
-
-1. Designate supervisory principals with AI agent oversight responsibilities
-2. Document supervision procedures in Written Supervisory Procedures (WSP)
-3. Perform actual content review and approval decisions
-4. Configure zone/tier-specific review percentages and SLAs
-
-**See:** [Control 2.12 Playbooks](../playbooks/control-implementations/2.12/portal-walkthrough.md)
-
-### OCC 2011-12 / SR 11-7 - Model Risk Management (Control 2.6)
-
-**Regulation:** OCC Bulletin 2011-12 and Fed SR 11-7 require banks to establish a model risk management framework including model validation, ongoing monitoring, and governance.
-
-**Gap:** Microsoft provides infrastructure for deploying AI agents, not a pre-built model risk management solution. MRM requires human judgment and governance structures.
-
-**Mitigation:**
-
-1. Document AI agents in your model inventory
-2. Classify agents by materiality tier (Tier 1/2/3)
-3. Establish model validation procedures appropriate to agent complexity
-4. Define model owner and validator roles with appropriate independence
-5. Implement ongoing performance monitoring (Control 2.9)
-6. Maintain model documentation per SR 11-7 requirements
-
-**See:** [Control 2.6 Playbooks](../playbooks/control-implementations/2.6/portal-walkthrough.md)
+- The live inventory is folder-driven: if a top-level solution folder is added or removed, update [Solutions Index](solutions-index.md) and the companion Solutions control mapping in the same change set.
+- There is no separate live `agent-365-governance-monitor` solution. Native Agent 365 admin-center surfaces remain the primary implementation path for Controls 2.25 and 3.13, while `agent-365-lifecycle-governance` complements them with workflow automation and evidence capture.
+- `agent-observability-foundation` is intentionally foundational and does not carry a standalone primary-control mapping, even though it supports multiple monitoring and reporting scenarios.
+- Solution coverage should be interpreted together with each control's playbooks. A solution gap does not mean the control is unsupported; it means the current implementation path is documentation-led rather than packaged as a live companion solution.
 
 ---
 
-## Implementation Roadmap Priority
+## Follow-up Priorities
 
-Recommended prioritization for addressing solution gaps, organized by quarter. Effort estimates assume a dedicated implementation team with Power Platform and Azure experience.
-
-### Phase 1: Q1 2026 (Foundation)
-
-Focus on controls with highest regulatory impact and broadest applicability.
-
-| Priority | Control | Action | Approach | Effort |
-|----------|---------|--------|----------|--------|
-| 1 | 2.12 | ~~Configure supervision workflow~~ **DONE** - Deploy [FINRA Supervision Workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) | Solution Available | - |
-| 2 | 2.6 | Establish MRM governance for AI agents; create model inventory | Process + Documentation | 3 weeks |
-| 3 | 1.22 | Configure Information Barriers for research/trading separation | Portal Configuration | 1 week |
-| 4 | 1.11 | ~~Deploy Conditional Access policies for AI app access~~ **DONE** - Deploy [Conditional Access Automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) | Solution Available | - |
-| 5 | 3.3 | ~~Build compliance reporting dashboard using existing audit data~~ **DONE** - Deploy [Compliance Dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard) | Solution Available | - |
-
-### Phase 2: Q2 2026 (Hardening)
-
-Extend coverage to operational excellence controls.
-
-| Priority | Control | Action | Approach | Effort |
-|----------|---------|--------|----------|--------|
-| 1 | 2.5 | Implement automated testing framework for Zone 3 agents | Custom Development | 6 weeks |
-| 2 | 2.8 | ~~Build role conflict detection for Maker/Checker enforcement~~ **DONE** - Deploy [Segregation of Duties Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) | Solution Available | - |
-| 3 | 1.14 | ~~Deploy scope drift detection automation~~ **DONE** - Deploy [Scope Drift Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor) | Solution Available | - |
-| 4 | 3.9 | Configure Sentinel MCP Server for agent telemetry | Portal + Integration | 2 weeks |
-| 5 | 2.16 | ~~Implement RAG source validation checks~~ **DONE** - Deploy [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) | Solution Available | - |
-
-### Phase 3: Q3 2026 (Optimization)
-
-Address remaining gaps and enhance automation maturity.
-
-| Priority | Control | Action | Approach | Effort |
-|----------|---------|--------|----------|--------|
-| 1 | 2.18 | ~~Deploy automated conflict of interest testing~~ **DONE** - Deploy [COI Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing) | Solution Available | - |
-| 2 | 1.21 | Centralize adversarial input analysis | Custom Development | 3 weeks |
-| 3 | 3.10 | ~~Build hallucination feedback aggregation pipeline~~ **DONE** - Deploy [Hallucination Tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) | Solution Available | - |
-| 4 | 2.4 | ~~Implement automated DR testing workflows~~ **DONE** - Deploy [DR Testing Framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework) | Solution Available | - |
-| 5 | 3.5 | Deploy cost allocation and chargeback automation | Custom Development | 3 weeks |
-
-### Phase 4: Q4 2026 (Maturity)
-
-Achieve comprehensive automation coverage and operational excellence.
-
-| Priority | Control | Action | Approach | Effort |
-|----------|---------|--------|----------|--------|
-| 1 | 1.3 | Automated SharePoint permission scanning | Custom Development | 4 weeks |
-| 2 | 1.20 | Network isolation connectivity validation | Custom Development | 3 weeks |
-| 3 | 2.17 | Multi-agent orchestration limit enforcement | Custom Development | 4 weeks |
-| 4 | 3.6 | Orphaned agent automated remediation | Custom Development | 3 weeks |
-| 5 | 1.23 | Step-up authentication challenge orchestration | Custom Development | 4 weeks |
-
----
-
-## Solution Development Backlog
-
-Priority solutions for FSI-AgentGov-Solutions repository development, addressing critical regulatory and operational gaps.
-
-### P0 - Critical (Q1-Q2 2026) - ALL RELEASED ✓
-
-| Solution | Target Control | Description | Status |
-|----------|---------------|-------------|--------|
-| ~~**finra-supervision-workflow**~~ | 2.12 | ~~Automated supervision queue for AI agent outputs~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)** |
-| ~~**conditional-access-automation**~~ | 1.11 | ~~Entra ID Conditional Access policy templates and deployment automation for AI workloads~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)** |
-| ~~**compliance-dashboard**~~ | 3.3 | ~~Aggregated compliance reporting across the framework control catalog with zone-based filtering~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)** |
-
-### P1 - High (Q2-Q3 2026) - ALL RELEASED ✓
-
-| Solution | Target Control | Description | Status |
-|----------|---------------|-------------|--------|
-| ~~**segregation-detector**~~ | 2.8 | ~~Role conflict detection for Maker/Checker enforcement in agent pipelines~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)** |
-| ~~**scope-drift-monitor**~~ | 1.14 | ~~Automated detection of agent data access beyond declared scope~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)** |
-| ~~**rag-source-validator**~~ | 2.16 | ~~Integrity validation for RAG knowledge sources with change detection~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)** |
-
-### P2 - Medium (Q3-Q4 2026) - ALL RELEASED ✓
-
-| Solution | Target Control | Description | Status |
-|----------|---------------|-------------|--------|
-| ~~**coi-testing**~~ | 2.18 | ~~Automated conflict of interest testing for agent recommendations~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)** |
-| ~~**hallucination-tracker**~~ | 3.10 | ~~Feedback aggregation pipeline for hallucination detection patterns~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)** |
-| ~~**dr-testing-framework**~~ | 2.4 | ~~Automated disaster recovery testing for agent infrastructure~~ | **[RELEASED v1.0.0](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)** |
-
----
-
-## Duplicate Coverage Analysis
-
-Some controls are covered by multiple solutions, providing redundancy.
-
-### Control 2.3 - Change Management
-
-| Solution | Coverage Aspect |
-|----------|-----------------|
-| Message Center Monitor | Platform change notifications from Microsoft |
-| Pipeline Governance Cleanup | Internal deployment pipeline governance |
-
-**Recommendation:** Deploy both solutions. They address different aspects of change management—external platform changes vs. internal deployment governance.
-
-### Controls 1.5, 1.7, and 1.8
-
-| Solution | Controls |
-|----------|----------|
-| Deny Event Correlation Report | 1.5 (DLP), 1.7 (Audit), 1.8 (Runtime Protection), 3.4 (Incident) |
-
-**Note:** The Deny Event Correlation Report provides unified visibility across multiple controls by correlating events from Purview Audit, DLP, Defender for Cloud Apps, and Application Insights.
-
-### Controls 1.4, 1.8, and 1.14
-
-| Solution | Controls |
-|----------|----------|
-| File Upload Security Configurator | 1.4 (Connector Policies), 1.8 (Runtime Protection), 1.14 (Data Minimization) |
-
-**Note:** The File Upload Security Configurator validates per-agent file upload settings against zone governance policies, covering connector-level restrictions, runtime threat detection, and data minimization controls.
-
----
-
-## Next Steps
-
-1. **Assess current state** - For each gap, determine if native features are already configured
-2. **Prioritize by zone** - Focus on Zone 3 gaps first for enterprise agents
-3. **Leverage existing solutions** - Deploy available FSI-AgentGov-Solutions before building custom
-4. **Document process controls** - For Category 3 controls, focus on procedures and training
-5. **Track progress** - Use the implementation roadmap to measure gap closure
-
----
-
-## Related Resources
-
-- [Solutions Index](solutions-index.md) - Complete FSI-AgentGov-Solutions catalog
-- [Solutions Integration](../framework/solutions-integration.md) - How solutions map to framework pillars
-- [Solutions Architecture Guide](solutions-architecture-guide.md) - Enterprise scalability patterns
-- [Control Index](../controls/index.md) - Full control reference with implementation links
-- [Adoption Roadmap](../framework/adoption-roadmap.md) - Phased implementation guidance
-
----
-
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+1. Preserve the **33-solution / 78-control** baseline across summary pages before updating detailed solution narratives.
+2. Treat native Agent 365 governance surfaces as native capabilities unless a new live top-level solution folder is intentionally introduced.
+3. Prioritize SharePoint-governance and reporting gaps only when the framework team decides they require packaged automation beyond portal guidance and playbooks.

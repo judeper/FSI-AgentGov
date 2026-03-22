@@ -444,7 +444,7 @@ Get-AzDiagnosticSetting -ResourceId $EntraResourceUri | Where-Object { $_.Name -
 ```
 
 !!! note "Entra Diagnostic Settings API"
-    Entra (Azure AD) diagnostic settings are configured at the tenant level using a specific resource URI format (`/tenants/{tenantId}/providers/microsoft.aadiam`). This differs from resource-level diagnostic settings. If the `Set-AzDiagnosticSetting` cmdlet returns an error with this resource URI, use the Azure REST API or the Entra Admin Center portal UI (Playbook 3.12-A, Part 2) as an alternative. The `Az.Monitor` module version must support Entra diagnostic settings — use `Az.Monitor 3.0.0` or later.
+    Microsoft Entra ID diagnostic settings are configured at the tenant level using a specific resource URI format (`/tenants/{tenantId}/providers/microsoft.aadiam`). This differs from resource-level diagnostic settings. If the `Set-AzDiagnosticSetting` cmdlet returns an error with this resource URI, use the Azure REST API or the Entra Admin Center portal UI (Playbook 3.12-A, Part 2) as an alternative. The `Az.Monitor` module version must support Entra diagnostic settings — use `Az.Monitor 3.0.0` or later.
 
 ---
 

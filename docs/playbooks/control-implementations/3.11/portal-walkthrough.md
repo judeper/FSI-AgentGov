@@ -196,7 +196,7 @@ Automated monitoring detects agents with missing or incomplete metadata and aler
 2. Configure HTTP request to retrieve agent inventory:
    - **Method:** GET
    - **URI:** `https://api.powerplatform.com/agentInventory/v1/inventory` (**placeholder — replace with actual endpoint when available**; this API is in preview and may not yet be publicly accessible)
-   - **Authentication:** Azure AD (use Managed Identity or service principal with appropriate permissions)
+   - **Authentication:** Microsoft Entra ID (use Managed Identity or service principal with appropriate permissions)
 3. Parse the JSON response to extract agent records
 
 > **API Availability Note:** As of February 2026, the Agent Inventory API is in preview. If the API is not available, use alternative data sources: (1) Export Agent Inventory to CSV and store in SharePoint, parse CSV in Power Automate, or (2) Use PowerShell scripts to query Power Platform environments and populate a Dataverse table, then query that table in Power Automate.
