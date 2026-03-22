@@ -10,11 +10,13 @@
 
 Organizations deploying Microsoft 365 Copilot and Copilot Studio agents face a common challenge: **native M365 Admin Center reporting provides limited granularity**, and Viva Insights data is de-identified for privacy. For FSI compliance needs, detailed per-user and per-agent analytics often require direct access to the Unified Audit Log.
 
-Microsoft Engineering has released two open-source tools that address these gaps:
+The broader [Analytics Hub](https://github.com/microsoft/Analytics-Hub) catalogs multiple Microsoft open-source analytics repositories. For AgentGov, the most relevant discovery and companion repositories are listed below:
 
 | Tool | GitHub Repository | Purpose |
 |------|-------------------|---------|
+| **Analytics Hub** | [microsoft/Analytics-Hub](https://github.com/microsoft/Analytics-Hub) | Discovery hub for Microsoft Copilot analytics companion repositories |
 | **AI-in-One Dashboard** | [microsoft/AI-in-One-Dashboard](https://github.com/microsoft/AI-in-One-Dashboard) | Power BI template for Copilot/AI adoption analytics |
+| **Copilot Chat & Agent Intelligence** | [microsoft/CopilotChatAnalytics](https://github.com/microsoft/CopilotChatAnalytics) | Power BI templates for Copilot Chat and agent adoption analytics |
 | **PAX (Portable Audit eXporter)** | [microsoft/PAX](https://github.com/microsoft/PAX) | PowerShell scripts to export audit log data at enterprise scale |
 
 ---
@@ -61,7 +63,48 @@ The repository includes setup guides, Power BI template files, and data connecti
 
 ---
 
-## 2) PAX (Portable Audit eXporter)
+## 2) Copilot Chat & Agent Intelligence
+
+### Overview
+
+Copilot Chat & Agent Intelligence provides two companion Power BI templates:
+
+- **Chat Intelligence** for Copilot Chat prompt, session, and engagement analysis
+- **Agent Intelligence** for agent inventory, usage, and adoption trend reporting
+
+### Key Features
+
+| Feature | Description | FSI Relevance |
+|---------|-------------|---------------|
+| **Chat Session Analytics** | Prompt volume, session patterns, and engagement progression | Supervisory visibility into AI-assisted communications |
+| **Agent Adoption Tracking** | Usage trends by agent, surface, and user cohort | Governance monitoring for agent rollout and approval workflows |
+| **Org Segmentation** | Reporting by business unit, role, or custom attributes | Zone- or function-specific governance reporting |
+| **Agent Inventory Context** | Visibility into deployed agents and their usage patterns | Supports approved-use-case inventories and review coverage |
+
+### Prerequisites
+
+- Power BI Desktop (free) or Power BI Pro license
+- Purview audit data or supporting portal exports
+- Entra data for org hierarchy and user segmentation
+- Microsoft 365 Copilot and/or agent deployment
+
+### FSI Implementation Considerations
+
+1. **Agent Inventory Review:** Compare active agent usage against the approved agent inventory for supervisory completeness
+2. **Usage Outlier Detection:** Look for departments or users with rapid changes in agent adoption that may indicate governance drift
+3. **Cross-Reference with PAX:** Use PAX exports when native portal exports do not provide the depth or scale required for review
+4. **Executive Reporting:** Use the agent view when governance committees need a focused lens on agent adoption instead of a broad Copilot dashboard
+
+### Deployment
+
+Refer to the official repository for deployment instructions:
+- [Copilot Chat & Agent Intelligence GitHub](https://github.com/microsoft/CopilotChatAnalytics)
+
+The repository includes template files, interpretation guides, and setup instructions.
+
+---
+
+## 3) PAX (Portable Audit eXporter)
 
 ### Overview
 
@@ -130,7 +173,7 @@ The repository includes detailed documentation for each processor, permission re
 
 ---
 
-## 3) Compliance Considerations
+## 4) Compliance Considerations
 
 ### Data Handling Responsibilities
 
@@ -157,35 +200,38 @@ When using these tools, organizations remain responsible for:
 
 ---
 
-## 4) Integration with Framework Controls
+## 5) Integration with Framework Controls
 
 These tools enhance the following FSI Agent Governance Framework controls:
 
 | Control | Integration |
 |---------|-------------|
 | **[1.7 - Audit Logging](../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)** | PAX enables export beyond native portal limits; supports WORM storage workflows |
-| **[3.2 - Usage Analytics](../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md)** | AI-in-One Dashboard provides executive-ready adoption analytics |
-| **[3.3 - Compliance Reporting](../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)** | Both tools support examination evidence generation |
-| **[3.8 - Copilot Hub](../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)** | Supplements native Copilot Hub reporting with detailed analytics |
+| **[3.2 - Usage Analytics](../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md)** | AI-in-One Dashboard and Copilot Chat & Agent Intelligence provide executive-ready adoption analytics |
+| **[3.3 - Compliance Reporting](../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)** | All three tools support examination evidence generation and reporting workflows |
+| **[3.8 - Copilot Hub](../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)** | AI-in-One Dashboard and Copilot Chat & Agent Intelligence supplement native Copilot Hub and agent reporting |
 
 ---
 
-## 5) Known Limitations
+## 6) Known Limitations
 
 | Tool | Limitation | Workaround |
 |------|-----------|------------|
 | AI-in-One Dashboard | Requires Power BI refresh for current data | Schedule automatic refresh |
+| Copilot Chat & Agent Intelligence | Requires supporting export inputs and Power BI refresh | Standardize export cadence and dashboard refresh schedule |
 | PAX | Content capture requires elevated Graph permissions | Use audit-only processor if content not required |
 | PAX | Large exports may take significant time | Use incremental watermarking; run overnight |
-| Both | Tools maintained by Microsoft Engineering, not official support | Monitor GitHub for updates; test in non-production first |
+| All | Tools maintained by Microsoft Engineering, not official support | Monitor GitHub for updates; test in non-production first |
 
 ---
 
-## 6) Additional Resources
+## 7) Additional Resources
 
 ### Microsoft Official Repositories
 
+- [Analytics Hub GitHub](https://github.com/microsoft/Analytics-Hub)
 - [AI-in-One Dashboard GitHub](https://github.com/microsoft/AI-in-One-Dashboard)
+- [Copilot Chat & Agent Intelligence GitHub](https://github.com/microsoft/CopilotChatAnalytics)
 - [PAX (Portable Audit eXporter) GitHub](https://github.com/microsoft/PAX)
 
 ### Related Microsoft Learn Documentation

@@ -438,7 +438,9 @@ These Microsoft Engineering open-source tools extend native M365 Admin Center re
 
 | Tool | GitHub Repository | Purpose |
 |------|-------------------|---------|
+| Analytics Hub | https://github.com/microsoft/Analytics-Hub | Discovery hub for Microsoft Copilot analytics companion repositories |
 | AI-in-One Dashboard | https://github.com/microsoft/AI-in-One-Dashboard | Power BI template for Copilot adoption analytics |
+| Copilot Chat & Agent Intelligence | https://github.com/microsoft/CopilotChatAnalytics | Power BI templates for Copilot Chat and agent adoption analytics |
 | PAX (Portable Audit eXporter) | https://github.com/microsoft/PAX | PowerShell scripts to export audit log data at scale |
 
 See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-implementations/microsoft-audit-reporting-tools.md) for FSI implementation guidance.
