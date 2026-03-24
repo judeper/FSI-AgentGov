@@ -225,11 +225,11 @@
 
 | Role | Responsibility | Contact |
 |------|----------------|---------|
-| Compliance Officer | Claim review, regulatory questions | compliance@company.com |
-| AI Governance Lead | Technical accuracy validation | ai-governance@company.com |
-| SharePoint Admin | List/library configuration | sharepoint-support@company.com |
-| Power Platform Admin | Workflow troubleshooting | powerplatform@company.com |
-| Legal | Regulatory interpretation, high-risk claims | legal@company.com |
+| Compliance Officer | Claim review, regulatory questions | compliance@example.com |
+| AI Governance Lead | Technical accuracy validation | ai-governance@example.com |
+| SharePoint Admin | List/library configuration | sharepoint-support@example.com |
+| Power Platform Admin | Workflow troubleshooting | powerplatform@example.com |
+| Legal | Regulatory interpretation, high-risk claims | legal@example.com |
 
 ---
 

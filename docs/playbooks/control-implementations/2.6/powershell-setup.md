@@ -308,7 +308,7 @@ try {
                 ModelID = "AGENT-001"
                 ModelName = "Example Agent"
                 Tier = "2"
-                ModelOwner = "owner@company.com"
+                ModelOwner = "owner@example.com"
                 LastValidation = (Get-Date).AddDays(-30).ToString("yyyy-MM-dd")
                 NextValidationDue = (Get-Date).AddDays(60).ToString("yyyy-MM-dd")
                 PerformanceStatus = "Green"

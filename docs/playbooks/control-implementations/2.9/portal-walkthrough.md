@@ -129,7 +129,7 @@ KPIs by Zone:
 
 Alerting:
   Channels: Teams + Email
-  Recipients: ai-governance@company.com
+  Recipients: ai-governance@example.com
   Escalation: CISO (SLA breach)
 
 Dashboards:

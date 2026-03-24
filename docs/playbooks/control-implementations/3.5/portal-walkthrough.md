@@ -97,7 +97,7 @@ For Azure-based Copilot Studio components:
 | CostCenter | Yes | CC-1001, CC-1002 |
 | BusinessUnit | Yes | Wealth, Lending, Ops |
 | Zone | Yes | Zone1, Zone2, Zone3 |
-| Owner | Yes | email@company.com |
+| Owner | Yes | email@example.com |
 | Application | Yes | CustomerServiceBot |
 
 ---

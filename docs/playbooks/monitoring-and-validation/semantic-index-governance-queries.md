@@ -464,7 +464,7 @@ union
 
 param(
     [string]$OutputPath = "\\governance\reports\semantic-index",
-    [string[]]$AlertRecipients = @("ai-governance@company.com")
+    [string[]]$AlertRecipients = @("ai-governance@example.com")
 )
 
 $timestamp = Get-Date -Format "yyyyMMdd"
@@ -523,4 +523,4 @@ Write-Host "`nAudit complete. Reports saved to: $reportPath" -ForegroundColor Gr
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*

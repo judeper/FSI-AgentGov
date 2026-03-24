@@ -124,7 +124,7 @@ Example: 1.5-DLPPolicy-Prod-20260115-001.png
   "controlId": "1.5",
   "evidenceType": "screenshot",
   "captureDate": "2026-01-15T10:30:00Z",
-  "capturedBy": "john.smith@company.com",
+  "capturedBy": "j.reviewer@example.com",
   "environment": "production",
   "portal": "purview.microsoft.com",
   "description": "DLP policy configuration for AI agent data protection"
@@ -182,7 +182,7 @@ For each log evidence capture, document:
     "end": "2026-01-15T23:59:59Z"
   },
   "recordCount": 1234,
-  "exportedBy": "analyst@company.com",
+  "exportedBy": "analyst@example.com",
   "exportDate": "2026-01-16T09:00:00Z",
   "purpose": "Quarterly audit logging verification for Control 1.7"
 }

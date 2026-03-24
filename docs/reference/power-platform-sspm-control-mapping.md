@@ -1,12 +1,12 @@
 # Power Platform SSPM Control Mapping
 
-**Last Updated:** February 2026
-**Version:** v1.2.51
+**Last Updated:** March 2026
+**Version:** v1.2.53
 
 ---
 
 !!! note "Point-in-Time Reference"
-    This mapping was prepared in February 2026 based on FSI-AgentGov v1.2.51 and a representative Power Platform SSPM security assessment. Control coverage may change as the framework evolves.
+    This mapping was prepared in February 2026 based on FSI-AgentGov v1.2.53 and a representative Power Platform SSPM security assessment. Control coverage may change as the framework evolves.
 
 ## Overview
 
@@ -150,4 +150,4 @@ SSPM control SSPM-2 (Prevent Unauthorized Agent Actions) maps to two complementa
 
 ---
 
-*Updated: February 2026 | Version: v1.2.51 | Source: Power Platform SSPM Assessment*
+*Updated: March 2026 | Version: v1.2.53 | Source: Power Platform SSPM Assessment*

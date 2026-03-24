@@ -226,7 +226,7 @@ function New-OrphanAgentReport {
 $orphans = Find-OrphanedAgents -InactiveDays 90
 
 # Reassign an orphaned agent
-Set-AgentOwner -AgentId "agent-123" -EnvironmentName "Default" -NewOwnerEmail "newowner@company.com"
+Set-AgentOwner -AgentId "agent-123" -EnvironmentName "Default" -NewOwnerEmail "newowner@example.com"
 
 # Archive an orphaned agent
 Disable-OrphanedAgent -AgentId "agent-456" -EnvironmentName "Default" -Reason "Owner departed, no replacement identified"

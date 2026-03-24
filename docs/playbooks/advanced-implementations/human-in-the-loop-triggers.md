@@ -464,7 +464,7 @@ zone_3_hitl:
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - January 2026*
+*FSI Agent Governance Framework v1.2.53 - March 2026*
 
 ---
 

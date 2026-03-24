@@ -358,11 +358,11 @@ regression_testing:
 
   notifications:
     on_regression:
-      - ai-governance-team@company.com
-      - agent-owner@company.com
+      - ai-governance-team@example.com
+      - agent-owner@example.com
     on_critical_failure:
-      - compliance@company.com
-      - ciso@company.com
+      - compliance@example.com
+      - ciso@example.com
 
   blocking:
     block_deployment_on_failure: true

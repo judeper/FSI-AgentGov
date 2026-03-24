@@ -65,7 +65,7 @@
 Get-AdminPowerApp -AppName "agent-id" -EnvironmentName "environment" | Select-Object DisplayName, AppType, IsDeleted
 
 # Check user status
-Get-MgUser -UserId "owner@company.com" | Select-Object DisplayName, AccountEnabled
+Get-MgUser -UserId "owner@example.com" | Select-Object DisplayName, AccountEnabled
 
 # List disabled agents
 Get-AdminPowerApp -EnvironmentName "environment" | Where-Object { $_.Internal.properties.isDisabled -eq $true }

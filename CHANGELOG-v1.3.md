@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.3.1] — March 2026 (PII Remediation)
+
+### Fixed
+
+- **Email address PII remediation**: Replaced all `@company.com` and `@firm.com` email addresses with RFC 2606 reserved `@example.com` domain across both repositories. Addressed 26 occurrences in 12 FSI-AgentGov documentation files and 5 occurrences in 4 FSI-AgentGov-Solutions files. Removed person-name email pattern (`john.smith@company.com` → `j.reviewer@example.com`). No actual customer PII was found — all addresses were example placeholders using real registered domains (`company.com`, `firm.com`) that could be confused with real organizational emails.
+
+---
+
 ## [1.3.0] — March 2026 (Agent 365 Catalog Expansion)
 
 ### Added

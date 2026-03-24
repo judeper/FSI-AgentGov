@@ -111,7 +111,7 @@ This is a **team collaboration environment**. Before creating agents:
 - Complete required training
 - All agents require manager approval before sharing
 
-Contact governance@company.com for questions.
+Contact governance@example.com for questions.
 ```
 
 ### Step 7: Configure AI Features (Optional)
@@ -215,8 +215,8 @@ Managed Environment Configuration:
   Usage Insights:
     Enabled: Yes
     Recipients:
-      - it-governance@firm.com
-      - compliance@firm.com
+      - it-governance@example.com
+      - compliance@example.com
     Frequency: Weekly
 
   Maker Welcome Content:
@@ -225,7 +225,7 @@ Managed Environment Configuration:
       This is an enterprise-managed regulated environment.
       All solutions require governance approval.
       Client data is subject to SEC and FINRA regulations.
-      Contact compliance@firm.com before publishing.
+      Contact compliance@example.com before publishing.
     Acknowledgment: Required
 
   Data Policies:

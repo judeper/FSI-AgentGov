@@ -135,4 +135,4 @@ UASD detects five violation types, records findings in Dataverse, drives remedia
 !!! note "Platform Context"
     Beginning October 2025, Microsoft introduced an admin control to disable organization-wide sharing for Copilot Studio agents ([MC post reference](https://admin.microsoft.com)). This tenant-level setting complements UASD by providing a preventive control, while UASD provides continuous detection, remediation workflows, exception tracking, and audit evidence across multiple violation types.
 
-*Updated: February 2026 | Version: v1.1 | Framework: FSI Agent Governance v1.2.51*
+*Updated: February 2026 | Version: v1.1 | Framework: FSI Agent Governance v1.2.53*

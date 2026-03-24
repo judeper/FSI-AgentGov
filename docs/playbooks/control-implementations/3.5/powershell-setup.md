@@ -240,7 +240,7 @@ function Set-AICostBudgetAlert {
         [decimal]$MonthlyBudget,
         [Parameter(Mandatory=$true)]
         [string]$ResourceGroupName,
-        [string[]]$AlertRecipients = @("ai-governance@company.com")
+        [string[]]$AlertRecipients = @("ai-governance@example.com")
     )
 
     Write-Host "Creating budget alert: $BudgetName" -ForegroundColor Cyan
@@ -303,7 +303,7 @@ Get-AgentCostByBusinessUnit -DaysBack 30
 New-ChargebackReport -Month 1 -Year 2026
 
 # Create budget alert
-Set-AICostBudgetAlert -BudgetName "AI-Agents-Monthly" -MonthlyBudget 10000 -ResourceGroupName "rg-ai-agents" -AlertRecipients @("ai-team@company.com", "finance@company.com")
+Set-AICostBudgetAlert -BudgetName "AI-Agents-Monthly" -MonthlyBudget 10000 -ResourceGroupName "rg-ai-agents" -AlertRecipients @("ai-team@example.com", "finance@example.com")
 ```
 
 ---
