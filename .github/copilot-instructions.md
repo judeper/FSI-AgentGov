@@ -90,6 +90,13 @@ docs/
 ├── images/                       # Screenshot verification (LOCAL ONLY - gitignored)
 └── downloads/                    # Excel templates for admins
 scripts/                          # Validation scripts (verify_controls.py, verify_templates.py, extract_assessment_data.py)
+assessment/                       # Automated assessment engine (collectors, scoring, reports)
+│   ├── manifest/controls.json        # Machine-readable 78-control definitions
+│   ├── collectors/                   # 5 PowerShell data collectors (PPAC, Graph, Purview, SharePoint, Sentinel)
+│   ├── engine/                       # Python scoring (score.py) and report generator (report.py)
+│   ├── tests/                        # pytest tests with fixture data
+│   ├── run-assessment.ps1            # Main orchestrator
+│   └── output/                       # Run outputs (gitignored — customer data)
 releases/                         # Release artifacts by version
 mkdocs.yml                        # Site navigation and configuration
 .config/wt.toml                   # Worktrunk project hooks (worktree management)
@@ -246,7 +253,25 @@ python scripts/verify_templates.py
 
 # Validate Excel templates (control counts, version references)
 python scripts/verify_excel_templates.py
+
+# Run assessment engine tests
+cd assessment && pip install -r requirements.txt && pytest tests/ -v
 ```
+
+## Automated Assessment Engine
+
+The `assessment/` directory contains a programmatic assessment engine that collects Microsoft 365 tenant configuration via APIs, scores all 78 controls against zone thresholds, and generates pre-filled assessment reports.
+
+**Key components:**
+- `manifest/controls.json` — machine-readable definitions for all 78 controls with checks, zone thresholds, and manual questions
+- `collectors/` — 5 PowerShell collectors (PPAC, Graph, Purview, SharePoint, Sentinel) that write JSON to `output/collected/`
+- `engine/score.py` — evaluates checks against collected data, derives maturity scores (0–4)
+- `engine/report.py` — generates `assessment-prefilled.md`, `manual-questionnaire.md`, and `assessment-summary.json`
+- `run-assessment.ps1` — orchestrator with `-Zone`, `-AuthMode`, `-SkipCollectors` parameters
+
+**Usage:** `.\assessment\run-assessment.ps1 -TenantId <id> -Zone 2 -AuthMode Interactive -CustomerName "Contoso"`
+
+See `assessment/README.md` for full prerequisites and usage documentation.
 
 ## Worktree Management (Parallel Agent Runs)
 

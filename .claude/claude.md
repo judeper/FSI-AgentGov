@@ -114,6 +114,13 @@ FSI-AgentGov/
 │   ├── extract_assessment_data.py # Assessment data extraction (78 controls → JSON)
 │   ├── compile_researcher_package.py  # Research package generator
 │   └── hooks/                     # Claude Code hooks
+├── assessment/                # Automated assessment engine
+│   ├── manifest/controls.json     # Machine-readable 78-control definitions
+│   ├── collectors/                # 5 PowerShell collectors (PPAC, Graph, Purview, SharePoint, Sentinel)
+│   ├── engine/                    # Python scoring (score.py) and report generator (report.py)
+│   ├── tests/                     # pytest tests with fixture data
+│   ├── run-assessment.ps1         # Main orchestrator
+│   └── output/                    # Run outputs (gitignored — customer data)
 ├── data/                      # Runtime data (state files)
 ├── reports/                   # Generated reports
 │   └── learn-changes/             # Learn documentation change reports
@@ -234,6 +241,9 @@ python scripts/learn_monitor.py --dry-run --limit 5
 
 # Regenerate researcher package after control changes
 python scripts/compile_researcher_package.py
+
+# Run assessment engine tests
+cd assessment && pip install -r requirements.txt && pytest tests/ -v
 ```
 
 ### What "Pass" Means

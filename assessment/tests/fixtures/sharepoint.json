@@ -1,0 +1,35 @@
+{
+  "_metadata": {
+    "collector": "SharePoint",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "sites": [
+    {
+      "id": "site-001",
+      "displayName": "Agent Knowledge Base",
+      "webUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "sharingCapability": "Disabled"
+    }
+  ],
+  "external_sharing": {
+    "site-001": "Disabled"
+  },
+  "retention_labels": {
+    "site-001": ["Retain-7Years"]
+  },
+  "guest_access": {
+    "site-001": false
+  },
+  "permission_scan": {
+    "site-001": {
+      "files_scanned": 50,
+      "overshared_files": []
+    }
+  },
+  "grounding_scope": {
+    "approved": ["https://contoso.sharepoint.com/sites/agentKB"],
+    "unapproved": []
+  }
+}

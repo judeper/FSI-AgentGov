@@ -1,0 +1,49 @@
+{
+  "_metadata": {
+    "collector": "PPAC",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "environments": [
+    {
+      "DisplayName": "Production",
+      "EnvironmentName": "env-prod-001",
+      "Properties": {
+        "environmentSku": "Production",
+        "linkedEnvironmentMetadata": {
+          "securityGroupId": "sg-001"
+        }
+      },
+      "States": {
+        "management": {
+          "id": "Managed"
+        }
+      }
+    }
+  ],
+  "dlp_policies": [
+    {
+      "DisplayName": "FSI Default DLP",
+      "Environments": ["env-prod-001"],
+      "ConnectorGroups": {
+        "BusinessDataGroup": ["SharePoint"],
+        "BlockedGroup": ["Twitter"]
+      }
+    }
+  ],
+  "role_assignments": {
+    "env-prod-001": [
+      {
+        "PrincipalType": "User",
+        "PrincipalDisplayName": "Admin User",
+        "RoleDefinition": {
+          "name": "Environment Maker"
+        }
+      }
+    ]
+  },
+  "environment_settings": {},
+  "security_posture": null,
+  "agent_feature_flags": {}
+}

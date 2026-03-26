@@ -157,6 +157,13 @@ Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/
 - **Administrator Excel Templates** - Role-specific checklists and dashboards (see [Downloads](docs/downloads/index.md))
 - **Offline Deliverables** - This repository ships **web docs + Excel templates only** (no Word/PDF document bundle)
 
+### Automated Assessment Engine
+The `assessment/` directory provides programmatic governance assessment:
+- **5 PowerShell collectors** gather tenant configuration from PPAC, Graph, Purview, SharePoint, and Sentinel
+- **Python scoring engine** evaluates 78 controls against zone thresholds (maturity 0–4)
+- **Report generator** produces a pre-filled assessment with evidence tables plus a focused manual questionnaire for the ~30 controls requiring human attestation
+- See [Assessment README](assessment/README.md) for prerequisites and usage
+
 ---
 
 ## 🚀 Quick Start

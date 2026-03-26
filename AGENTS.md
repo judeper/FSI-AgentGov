@@ -211,7 +211,25 @@ Additional validations (when applicable):
 ```bash
 python scripts/verify_excel_templates.py        # After template changes
 python scripts/compile_researcher_package.py    # After pillar control changes
+cd assessment && pytest tests/ -v               # After assessment engine changes
 ```
+
+## Automated Assessment Engine
+
+The `assessment/` directory contains a programmatic assessment engine that collects tenant configuration via APIs, scores all 78 controls against zone thresholds, and generates pre-filled reports with a focused manual questionnaire.
+
+**Structure:**
+- `manifest/controls.json` — machine-readable 78-control manifest (checks, zone thresholds, manual questions)
+- `collectors/` — 5 PowerShell collectors: Collect-PPAC, Collect-Graph, Collect-Purview, Collect-SharePoint, Collect-Sentinel
+- `engine/score.py` — Python scoring engine (evaluates pass_conditions, derives maturity 0–4, sets confidence)
+- `engine/report.py` — generates assessment-prefilled.md, manual-questionnaire.md, assessment-summary.json
+- `run-assessment.ps1` — orchestrator (validates, runs collectors, calls scoring + reporting)
+- `tests/` — pytest suite with fixture data for 5 representative controls
+
+**When editing assessment code:**
+1. Run `cd assessment && pytest tests/ -v` to verify no regressions
+2. If modifying `controls.json`, ensure all 78 entries are present with required schema fields
+3. `assessment/output/` is gitignored — customer data must never be committed
 
 ## Advanced Implementations
 

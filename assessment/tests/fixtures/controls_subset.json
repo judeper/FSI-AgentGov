@@ -1,0 +1,168 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-25T20:00:00Z",
+  "controls": [
+    {
+      "id": "1.1",
+      "title": "Restrict Agent Publishing by Authorization",
+      "pillar": 1,
+      "pillar_name": "Security",
+      "source_file": "docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md",
+      "automation": "full",
+      "collection_methods": ["PPAC_PowerShell", "Graph_API"],
+      "checks": [
+        {
+          "check_id": "1.1.a",
+          "description": "Environment Maker role not assigned to All Users",
+          "api_call": "Get-AdminPowerAppEnvironmentRoleAssignment",
+          "pass_condition": "no_everyone_assignment",
+          "zone_required": [1, 2, 3]
+        },
+        {
+          "check_id": "1.1.b",
+          "description": "Agent publisher security group exists",
+          "api_call": "Get-MgGroup",
+          "pass_condition": "fsi_publisher_group_exists",
+          "zone_required": [2, 3]
+        },
+        {
+          "check_id": "1.1.c",
+          "description": "Share with Everyone disabled",
+          "api_call": "Get-AdminPowerAppEnvironmentRoleAssignment",
+          "pass_condition": "share_everyone_disabled",
+          "zone_required": [3]
+        }
+      ],
+      "zone_thresholds": {
+        "zone1": { "min_checks_passed": 1, "maturity_score": 1 },
+        "zone2": { "min_checks_passed": 2, "maturity_score": 2 },
+        "zone3": { "min_checks_passed": 3, "maturity_score": 4 }
+      },
+      "manual_question": null
+    },
+    {
+      "id": "1.3",
+      "title": "Enforce Conditional Access for Copilot Studio",
+      "pillar": 1,
+      "pillar_name": "Security",
+      "source_file": "docs/controls/pillar-1-security/1.3-enforce-conditional-access-for-copilot-studio.md",
+      "automation": "partial",
+      "collection_methods": ["Graph_API"],
+      "checks": [
+        {
+          "check_id": "1.3.a",
+          "description": "Conditional Access policy targets Copilot Studio app ID",
+          "api_call": "Get-MgIdentityConditionalAccessPolicy",
+          "pass_condition": "ca_policy_targets_copilot_studio",
+          "zone_required": [1, 2, 3]
+        },
+        {
+          "check_id": "1.3.b",
+          "description": "MFA required in grant controls",
+          "api_call": "Get-MgIdentityConditionalAccessPolicy",
+          "pass_condition": "ca_policy_requires_mfa",
+          "zone_required": [2, 3]
+        }
+      ],
+      "zone_thresholds": {
+        "zone1": { "min_checks_passed": 1, "maturity_score": 1 },
+        "zone2": { "min_checks_passed": 2, "maturity_score": 2 },
+        "zone3": { "min_checks_passed": 2, "maturity_score": 3 }
+      },
+      "manual_question": "Has the organization documented exceptions to Conditional Access policies for service accounts or break-glass scenarios?"
+    },
+    {
+      "id": "2.1",
+      "title": "Establish Environment Strategy with Security Groups",
+      "pillar": 2,
+      "pillar_name": "Management",
+      "source_file": "docs/controls/pillar-2-management/2.1-establish-environment-strategy-with-security-groups.md",
+      "automation": "full",
+      "collection_methods": ["PPAC_PowerShell"],
+      "checks": [
+        {
+          "check_id": "2.1.a",
+          "description": "Production environments have security group restrictions",
+          "api_call": "Get-AdminPowerAppEnvironment",
+          "pass_condition": "prod_env_has_security_group",
+          "zone_required": [1, 2, 3]
+        },
+        {
+          "check_id": "2.1.b",
+          "description": "Production environments are Managed type",
+          "api_call": "Get-AdminPowerAppEnvironment",
+          "pass_condition": "prod_env_is_managed",
+          "zone_required": [2, 3]
+        }
+      ],
+      "zone_thresholds": {
+        "zone1": { "min_checks_passed": 1, "maturity_score": 1 },
+        "zone2": { "min_checks_passed": 2, "maturity_score": 2 },
+        "zone3": { "min_checks_passed": 2, "maturity_score": 4 }
+      },
+      "manual_question": null
+    },
+    {
+      "id": "3.1",
+      "title": "Enable Unified Audit Logging for Copilot Studio",
+      "pillar": 3,
+      "pillar_name": "Reporting",
+      "source_file": "docs/controls/pillar-3-reporting/3.1-enable-unified-audit-logging-for-copilot-studio.md",
+      "automation": "full",
+      "collection_methods": ["Purview_PowerShell"],
+      "checks": [
+        {
+          "check_id": "3.1.a",
+          "description": "Unified Audit Log ingestion is enabled",
+          "api_call": "Get-AdminAuditLogConfig",
+          "pass_condition": "audit_log_enabled",
+          "zone_required": [1, 2, 3]
+        },
+        {
+          "check_id": "3.1.b",
+          "description": "Copilot interaction retention policy exists",
+          "api_call": "Get-RetentionCompliancePolicy",
+          "pass_condition": "copilot_retention_policy_exists",
+          "zone_required": [2, 3]
+        }
+      ],
+      "zone_thresholds": {
+        "zone1": { "min_checks_passed": 1, "maturity_score": 1 },
+        "zone2": { "min_checks_passed": 2, "maturity_score": 2 },
+        "zone3": { "min_checks_passed": 2, "maturity_score": 4 }
+      },
+      "manual_question": null
+    },
+    {
+      "id": "4.4",
+      "title": "Validate SharePoint Grounding Sources Against Approved List",
+      "pillar": 4,
+      "pillar_name": "SharePoint Grounding",
+      "source_file": "docs/controls/pillar-4-sharepoint/4.4-validate-sharepoint-grounding-sources.md",
+      "automation": "full",
+      "collection_methods": ["SharePoint_PnP"],
+      "checks": [
+        {
+          "check_id": "4.4.a",
+          "description": "All grounding sources are in approved sites list",
+          "api_call": "Get-PnPSiteSearchQueryResults",
+          "pass_condition": "grounding_sources_approved",
+          "zone_required": [1, 2, 3]
+        },
+        {
+          "check_id": "4.4.b",
+          "description": "No unapproved external sharing on grounding sites",
+          "api_call": "Get-PnPTenantSite",
+          "pass_condition": "no_external_sharing_on_grounding",
+          "zone_required": [2, 3]
+        }
+      ],
+      "zone_thresholds": {
+        "zone1": { "min_checks_passed": 1, "maturity_score": 1 },
+        "zone2": { "min_checks_passed": 2, "maturity_score": 2 },
+        "zone3": { "min_checks_passed": 2, "maturity_score": 4 }
+      },
+      "manual_question": null
+    }
+  ]
+}

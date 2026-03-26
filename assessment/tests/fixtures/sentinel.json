@@ -1,0 +1,20 @@
+{
+  "_metadata": {
+    "collector": "Sentinel",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "workspace": {
+    "WorkspaceId": "ws-001",
+    "ProvisioningState": "Succeeded",
+    "Sku": "PerGB2018"
+  },
+  "data_connectors": {
+    "Office365": true,
+    "MicrosoftCloudAppSecurity": true
+  },
+  "copilot_audit_records": {
+    "last_7_days_count": 142
+  }
+}

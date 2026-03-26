@@ -1,0 +1,211 @@
+{
+  "_metadata": {
+    "engine_version": "1.0.0",
+    "timestamp": "2026-03-25T21:05:00Z",
+    "zone": 2,
+    "manifest_version": "1.0.0",
+    "total_controls": 5,
+    "auto_scored": 4,
+    "needs_manual": 1
+  },
+  "controls": [
+    {
+      "id": "1.1",
+      "title": "Restrict Agent Publishing by Authorization",
+      "pillar": 1,
+      "pillar_name": "Security",
+      "automation": "full",
+      "zone": 2,
+      "checks": [
+        {
+          "check_id": "1.1.a",
+          "description": "Environment Maker role not assigned to All Users",
+          "zone_required": [1, 2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "No 'All Users' assignment found in role_assignments for production environments"
+        },
+        {
+          "check_id": "1.1.b",
+          "description": "Agent publisher security group exists",
+          "zone_required": [2, 3],
+          "applicable": true,
+          "passed": false,
+          "evidence": "No FSI publisher security group found in fsi_security_groups"
+        },
+        {
+          "check_id": "1.1.c",
+          "description": "Share with Everyone disabled",
+          "zone_required": [3],
+          "applicable": false,
+          "passed": null,
+          "evidence": "Check not required for zone 2"
+        }
+      ],
+      "checks_applicable": 2,
+      "checks_passed": 1,
+      "min_checks_required": 2,
+      "maturity_score": 0,
+      "maturity_label": "Not Implemented",
+      "confidence": "high",
+      "needs_manual": false
+    },
+    {
+      "id": "1.3",
+      "title": "Enforce Conditional Access for Copilot Studio",
+      "pillar": 1,
+      "pillar_name": "Security",
+      "automation": "partial",
+      "zone": 2,
+      "checks": [
+        {
+          "check_id": "1.3.a",
+          "description": "Conditional Access policy targets Copilot Studio app ID",
+          "zone_required": [1, 2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "CA policy 'Require MFA for Copilot Studio' targets app ID 96ff4394-9197-43aa-b393-6a41652e21f8"
+        },
+        {
+          "check_id": "1.3.b",
+          "description": "MFA required in grant controls",
+          "zone_required": [2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "CA policy includes 'mfa' in builtInControls"
+        }
+      ],
+      "checks_applicable": 2,
+      "checks_passed": 2,
+      "min_checks_required": 2,
+      "maturity_score": 2,
+      "maturity_label": "Recommended",
+      "confidence": "high",
+      "needs_manual": true,
+      "manual_question": "Has the organization documented exceptions to Conditional Access policies for service accounts or break-glass scenarios?"
+    },
+    {
+      "id": "2.1",
+      "title": "Establish Environment Strategy with Security Groups",
+      "pillar": 2,
+      "pillar_name": "Management",
+      "automation": "full",
+      "zone": 2,
+      "checks": [
+        {
+          "check_id": "2.1.a",
+          "description": "Production environments have security group restrictions",
+          "zone_required": [1, 2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "Environment 'Production' has securityGroupId 'sg-001'"
+        },
+        {
+          "check_id": "2.1.b",
+          "description": "Production environments are Managed type",
+          "zone_required": [2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "Environment 'Production' management state is 'Managed'"
+        }
+      ],
+      "checks_applicable": 2,
+      "checks_passed": 2,
+      "min_checks_required": 2,
+      "maturity_score": 2,
+      "maturity_label": "Recommended",
+      "confidence": "high",
+      "needs_manual": false
+    },
+    {
+      "id": "3.1",
+      "title": "Enable Unified Audit Logging for Copilot Studio",
+      "pillar": 3,
+      "pillar_name": "Reporting",
+      "automation": "full",
+      "zone": 2,
+      "checks": [
+        {
+          "check_id": "3.1.a",
+          "description": "Unified Audit Log ingestion is enabled",
+          "zone_required": [1, 2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "UnifiedAuditLogIngestionEnabled is true"
+        },
+        {
+          "check_id": "3.1.b",
+          "description": "Copilot interaction retention policy exists",
+          "zone_required": [2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "Retention policy 'Copilot Retention' covers CopilotInteraction workload"
+        }
+      ],
+      "checks_applicable": 2,
+      "checks_passed": 2,
+      "min_checks_required": 2,
+      "maturity_score": 2,
+      "maturity_label": "Recommended",
+      "confidence": "high",
+      "needs_manual": false
+    },
+    {
+      "id": "4.4",
+      "title": "Validate SharePoint Grounding Sources Against Approved List",
+      "pillar": 4,
+      "pillar_name": "SharePoint Grounding",
+      "automation": "full",
+      "zone": 2,
+      "checks": [
+        {
+          "check_id": "4.4.a",
+          "description": "All grounding sources are in approved sites list",
+          "zone_required": [1, 2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "All grounding sources in approved list; no unapproved sources found"
+        },
+        {
+          "check_id": "4.4.b",
+          "description": "No unapproved external sharing on grounding sites",
+          "zone_required": [2, 3],
+          "applicable": true,
+          "passed": true,
+          "evidence": "External sharing is 'Disabled' on all grounding sites"
+        }
+      ],
+      "checks_applicable": 2,
+      "checks_passed": 2,
+      "min_checks_required": 2,
+      "maturity_score": 2,
+      "maturity_label": "Recommended",
+      "confidence": "high",
+      "needs_manual": false
+    }
+  ],
+  "summary": {
+    "total_controls": 5,
+    "auto_scored": 4,
+    "needs_manual": 1,
+    "average_maturity": 1.6,
+    "by_pillar": {
+      "1": { "pillar_name": "Security", "controls": 2, "average_maturity": 1.0 },
+      "2": { "pillar_name": "Management", "controls": 1, "average_maturity": 2.0 },
+      "3": { "pillar_name": "Reporting", "controls": 1, "average_maturity": 2.0 },
+      "4": { "pillar_name": "SharePoint Grounding", "controls": 1, "average_maturity": 2.0 }
+    },
+    "by_maturity": {
+      "0": 1,
+      "1": 0,
+      "2": 3,
+      "3": 0,
+      "4": 0
+    },
+    "confidence_distribution": {
+      "high": 5,
+      "medium": 0,
+      "low": 0
+    }
+  }
+}
