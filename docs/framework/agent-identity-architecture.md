@@ -3,7 +3,7 @@
 **Last Updated:** February 2026
 
 !!! warning "Preview Features - Verify Before Implementing"
-    This document covers both generally available and preview features as of February 2026. Agent 365 Unified Control Plane and Agent 365 Observability are in Frontier Preview. **Entra Agent ID** is in **Public Preview** (since November 2025). M365 Admin Center Agent Settings and Registry are generally available. **Conditional Access for agents** depends on Entra Agent ID and should be treated as preview until Entra Agent ID reaches GA. Verify current GA status at Microsoft Learn before implementing preview capabilities in production.
+    This document covers both generally available and preview features. Agent 365 Unified Control Plane and Agent 365 Observability reach GA on May 1, 2026. **Entra Agent ID** remains in **Public Preview** (since November 2025). M365 Admin Center Agent Settings and Registry are generally available. **Conditional Access for agents** depends on Entra Agent ID and should be treated as preview until Entra Agent ID reaches GA. Verify current GA status at Microsoft Learn before implementing preview capabilities in production.
 
     **Known Limitations (February 2026):**
 
@@ -713,7 +713,7 @@ The following status reflects findings from the February 2026 governance review 
 
 ---
 
-### Phase 2: Evaluation (Frontier Preview - Non-Production)
+### Phase 2: Evaluation (GA — Pilot Environment)
 
 **Objective:** Evaluate Agent 365 unified registry and governance capabilities in test environments
 
@@ -881,7 +881,7 @@ The following status reflects findings from the February 2026 governance review 
 | Phase | Timeline | Key Actions | Prerequisites |
 |-------|----------|-------------|---------------|
 | **Phase 1: Foundation** | Now (4-6 weeks) | Enable Entra Agent ID; assign sponsors; configure lifecycle workflows; implement Conditional Access; configure M365 Admin Center Agent Settings | M365 E5, Power Platform Premium |
-| **Phase 2: Evaluation** | Frontier Preview (6-8 weeks) | Enroll in Frontier; register test agents in Agent 365; compare governance approaches; identify gaps; provide Microsoft feedback | Phase 1 complete; Frontier enrollment approved; test environments available |
+| **Phase 2: Evaluation** | GA — Pilot (6-8 weeks) | Register pilot agents in Agent 365; compare governance approaches; identify gaps; validate GA features in pilot environment | Phase 1 complete; Agent 365 or M365 E7 licensing provisioned; pilot environments available |
 | **Phase 3: Adoption** | Post-GA (12-16 weeks) | Validate GA features; pilot production migration; phased rollout by zone (Zone 1 → Zone 2 → Zone 3); sunset per-platform processes | Agent 365 GA; Phase 2 evaluation complete; compliance approval |
 
 ---

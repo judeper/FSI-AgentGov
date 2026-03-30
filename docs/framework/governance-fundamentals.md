@@ -37,10 +37,10 @@ This framework provides governance guidance for:
 | Agent Builder agents (M365) | Primary focus | M365 Admin Center + PPAC |
 | Microsoft-built agents (Researcher, Analyst, Facilitator) | Partial | M365 Admin Center (limited controls) |
 | Third-party/partner agents | Varies by integration | M365 Admin Center |
-| Agent 365 control plane | Future (Frontier preview) | M365 Admin Center |
+| Agent 365 control plane | GA (May 1, 2026) | M365 Admin Center |
 
-!!! info "Microsoft Agent 365"
-    **Microsoft Agent 365** is a new centralized control plane for agent governance announced at Ignite 2025, currently in **Frontier preview**. It provides centralized agent registry, Entra Agent ID, lifecycle management, and observability dashboards. This framework will incorporate Agent 365 capabilities as they reach general availability.
+!!! info "Microsoft Agent 365 — Generally Available May 1, 2026"
+    **Microsoft Agent 365** is the centralized control plane for agent governance, announced at Ignite 2025 and **generally available as of May 1, 2026**. It provides centralized agent registry, Entra Agent ID, lifecycle management, and observability dashboards. At GA, Agent 365 transitions from preview per-agent-instance licensing to **per-user** licensing — agents acting on behalf of a licensed user are covered under that user's **Agent 365** or **Microsoft 365 E7** license. See [Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) for current details.
 
 !!! info "Entra Agent ID (Public Preview)"
     **Entra Agent ID** provides first-class agent identities in Microsoft Entra, enabling Conditional Access, Identity Protection, and lifecycle management for AI agents. Currently in **Public Preview** since November 2025. See [Agent Identity Architecture](agent-identity-architecture.md) for implementation guidance and FSI readiness assessment.
@@ -259,4 +259,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*FSI Agent Governance Framework v1.3.0 - March 2026*
+*FSI Agent Governance Framework v1.3.2 - March 2026*

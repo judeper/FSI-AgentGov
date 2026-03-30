@@ -8,6 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.3.2] — March 2026 (Agent 365 GA Update + Learn Monitor Baseline)
+
+### Changed
+
+- **Agent 365 GA update**: Updated all Agent 365 references from "Frontier preview" to reflect general availability on May 1, 2026 with per-user licensing (Agent 365 or Microsoft 365 E7). Updated governance-fundamentals.md, Controls 2.25, 2.26, 2.12, 3.6, 3.8, 3.11, 3.13, 3.14, and all reference docs (glossary, license-requirements, FAQ, agent-365-capabilities-summary, agent-essentials-control-mapping, microsoft-learn-urls, agent-identity-architecture, zones-and-tiers). Playbook files retain historically accurate "Frontier preview" verification context with GA timeline notes.
+
+### Added
+
+- **MCP Server Governance playbook**: New advanced implementation playbook covering Model Context Protocol (MCP) governance for FSI — DLP connector policy scoping, authentication governance (OAuth 2.0 / API key), FSI-specific risks for regulated data sources, VNet integration, and audit requirements.
+- **Agent evaluations enhancement**: Expanded Controls 2.5 and 2.18 with set-level grading frameworks, multi-dimensional graders, Purview audit integration, import/export test sets, and SR 11-7 model validation mapping.
+- **2026 Wave 1 feature tracking**: Added new Microsoft Learn URLs to watchlist for Enhanced Admin Controls, Agentic Center of Enablement, Safe Sharing enhancements, and Custom MCP Servers.
+- **Architecting Agent Solutions guidance**: Cross-referenced Microsoft's January 2026 guidance hub covering ALM strategy, multi-agent orchestration patterns, and responsible AI into relevant framework controls.
+
+### Fixed
+
+- **Learn Monitor baseline reset**: Squash-merged PR #87 (cumulative state from 18 monitoring runs); closed 17 superseded PRs (#70-#86). Processed 34 HIGH and 24 MEDIUM priority Microsoft Learn content changes affecting 30+ controls. Updated 25 URL redirects.
+
+---
+
 ## [1.3.1] — March 2026 (PII Remediation)
 
 ### Fixed

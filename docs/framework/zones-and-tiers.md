@@ -57,7 +57,7 @@ This matrix provides a board-level summary for executive reporting and oversight
 ## Frontier Agent Types (March 2026 documentation update)
 
 !!! note "Microsoft 365 admin center classification"
-    Microsoft 365 admin center now documents **Frontier agents** as experimental or advanced agents that use new capabilities or integrations and might require more oversight or limited rollout. When these agents rely on Agent 365 analytics or registry features, some reporting surfaces still depend on Frontier preview enrollment.
+    Microsoft 365 admin center now documents **Frontier agents** as experimental or advanced agents that use new capabilities or integrations and might require more oversight or limited rollout. Agent 365 analytics and registry features reach GA on May 1, 2026 under Agent 365 or Microsoft 365 E7 per-user licensing.
 
 ### App Builder agent
 

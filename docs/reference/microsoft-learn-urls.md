@@ -118,10 +118,10 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 ---
 
-## Microsoft Agent 365 & Agent Essentials (Preview)
+## Microsoft Agent 365 & Agent Essentials
 
-> **Note:** Microsoft Agent 365 currently requires Frontier preview enrollment for early access.
-> Microsoft documents these pages as preview content and notes that features, licensing, and workflows can change before general availability.
+> **Note:** Microsoft Agent 365 reaches general availability on May 1, 2026.
+> Microsoft documents these pages as GA content; features, licensing, and workflows may still evolve.
 > Use the URLs below for current Microsoft-published guidance.
 
 ### Agent Management Essentials

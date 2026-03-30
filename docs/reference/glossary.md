@@ -28,7 +28,7 @@ See ALIM.
 [Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) that control which AI models agents can use within an environment group. Configured in Power Platform Admin Center under Manage → Environment groups → Rules.
 
 **Agent 365 (Microsoft Agent 365)**
-Microsoft's centralized control plane for unified agent governance across the Microsoft 365 ecosystem. Provides a single registry, lifecycle management, observability dashboards, and policy enforcement for all agent types — including Copilot Studio, Agent Builder, SharePoint, and third-party agents. Currently in Frontier Preview (announced Ignite 2025). See [Agent 365 Architecture](../framework/agent-identity-architecture.md) for how this framework maps to the platform.
+Microsoft's centralized control plane for unified agent governance across the Microsoft 365 ecosystem. Provides a single registry, lifecycle management, observability dashboards, and policy enforcement for all agent types — including Copilot Studio, Agent Builder, SharePoint, and third-party agents. Generally available as of May 1, 2026 (announced Ignite 2025; GA as part of Microsoft 365 E7). See [Agent 365 Architecture](../framework/agent-identity-architecture.md) for how this framework maps to the platform.
 
 **Agentic User**
 An identity that acts on behalf of a human user but with delegated autonomy. In the Microsoft agent governance model, agentic users can perform tasks without direct real-time human supervision. See [Agent Identity Architecture](../framework/agent-identity-architecture.md).

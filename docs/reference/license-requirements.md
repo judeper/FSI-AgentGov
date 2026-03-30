@@ -143,7 +143,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
 | **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium | PPAC Copilot governance page |
-| **2.25** | Agent 365 Governance Console | Microsoft 365 Copilot (Frontier preview prerequisite); Agent 365 or Microsoft 365 E7 at GA | AI Admin/Global Admin/Global Reader roles; 25 preview licenses visible per tenant today |
+| **2.25** | Agent 365 Governance Console | GA May 1, 2026 — Agent 365 or Microsoft 365 E7 per-user licensing | AI Admin/Global Admin/Global Reader roles |
 
 ---
 
@@ -158,7 +158,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **3.5** | Cost Allocation | Power Platform Premium | License tracking |
 | **3.6** | Orphaned Agent Detection | Power Platform Premium | Managed Environments feature |
 | **3.7** | PPAC Security Posture | Power Platform Premium | Managed Environments security dashboard |
-| **3.8** | Copilot Hub | Power Platform Premium + Microsoft 365 Copilot | PPAC Copilot Hub plus M365 admin center agent reporting; Agent overview metrics require Frontier preview today |
+| **3.8** | Copilot Hub | Power Platform Premium + Microsoft 365 Copilot | PPAC Copilot Hub plus M365 admin center agent reporting; Agent overview metrics available with Agent 365 or M365 E7 licensing at GA |
 | **3.9** | Microsoft Sentinel Integration | Microsoft Sentinel + E5 Security | Azure Sentinel workspace required |
 | **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
 | **3.11** | Centralized Agent Inventory Enforcement | Power Platform Premium | PPAC Agent Inventory feature |
@@ -262,36 +262,33 @@ To verify current license assignments:
 
 ---
 
-## Microsoft Agent 365 and Agent Management Essentials (Preview)
+## Microsoft Agent 365 and Agent Management Essentials
 
-> **Preview note:** Microsoft Agent 365 currently requires Frontier preview enrollment. Licensing, entitlement names, and UI behavior can change before general availability. Validate current terms in Microsoft Learn before procurement or production dependency decisions.
+> **GA note:** Microsoft Agent 365 reaches general availability on May 1, 2026 as part of Microsoft 365 E7 and standalone Agent 365 per-user licensing. Validate current terms in Microsoft Learn before procurement or production dependency decisions.
 
-### Current official prerequisites
+### Official prerequisites
 
 | Requirement | Official guidance | Source |
 |-------------|-------------------|--------|
-| Tenant enablement | Enroll the tenant in Copilot Frontier from the Microsoft 365 admin center before Agent 365 features appear | Agent 365 overview |
-| Base license | At least one Microsoft 365 Copilot license must exist in the tenant to enable Agent 365 in Frontier | Agent 365 overview |
-| Preview entitlement visibility | Billing > Licenses should show **25 Microsoft Agent 365 Frontier** entitlements in preview | Agent 365 overview |
+| Tenant licensing | Agent 365 or Microsoft 365 E7 per-user licensing required; assign licenses from Microsoft 365 admin center | Agent 365 overview |
 | Day-to-day admin roles | AI Admin, Global Admin, or Global Reader (view-only) can manage agents in Microsoft 365 admin center | Agent prerequisites / Manage agents |
 | Power Platform admin roles | Power Platform Administrator or Dynamics 365 Administrator may still be needed for Copilot Studio environment administration | Agent prerequisites |
 | Sensitive role hardening | Use Entra Privileged Identity Management for AI Admin and other high-privilege roles | Agent prerequisites |
 
-### GA transition already documented by Microsoft
+### Microsoft Agent 365 Licensing at GA
 
 | Licensing point | Microsoft-published guidance |
 |-----------------|------------------------------|
-| Preview model | In Frontier preview, Agent 365 licenses are assigned per agent instance before an instance can be created |
-| GA model | Agent 365 transitions to **per-user** licensing at general availability |
+| GA model (May 1, 2026) | At GA (May 1, 2026), Agent 365 transitions to per-user licensing. Agents acting on behalf of a licensed user are covered under that user's Agent 365 or Microsoft 365 E7 license |
 | Included entitlement | Agents acting on behalf of a licensed user are covered under that user's **Agent 365** or **Microsoft 365 E7** license |
-| Framework implication | Treat preview Frontier entitlements as temporary rollout mechanics, not the long-term steady-state licensing model |
+| Framework implication | Per-user licensing replaces the earlier per-agent-instance Frontier preview model; plan procurement and entitlement tracking accordingly |
 
 ### Control-specific interpretation
 
 | Control | Licensing interpretation |
 |---------|--------------------------|
-| **2.25 - Agent 365 Governance Console** | Requires Microsoft 365 Copilot to enable Frontier preview today; plan for Agent 365 or Microsoft 365 E7 licensing at GA |
-| **3.8 - Copilot Hub and Governance Dashboard** | Power Platform Premium covers PPAC Copilot Hub; Microsoft 365 Copilot and Frontier preview enrollment are currently required for Agent overview metrics and governance cards |
+| **2.25 - Agent 365 Governance Console** | Requires Agent 365 or Microsoft 365 E7 per-user licensing at GA (May 1, 2026) |
+| **3.8 - Copilot Hub and Governance Dashboard** | Power Platform Premium covers PPAC Copilot Hub; Agent overview metrics and governance cards available with Agent 365 or M365 E7 licensing at GA (May 1, 2026) |
 | **2.23 - User Consent and AI Disclosure Enforcement** | Follow Agent Management Essentials prerequisites for AI Admin role assignment and PIM when delegating admin-center agent governance |
 
 ### Microsoft Agent 365 Resources

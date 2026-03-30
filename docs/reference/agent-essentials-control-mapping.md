@@ -9,8 +9,8 @@
 
 This reference maps Microsoft's Agent Essentials deployment checklist categories to the FSI Agent Governance Framework controls. Use this mapping to align Microsoft's governance recommendations with your existing FSI control implementations.
 
-!!! note "Preview Status"
-    Microsoft Agent Essentials and Agent 365 SDK are in preview through the Microsoft 365 Frontier preview program. Category definitions and checklist items may change before general availability.
+!!! note "GA Status"
+    Microsoft Agent 365 reaches general availability on May 1, 2026 as part of Microsoft 365 E7 and standalone Agent 365 per-user licensing. Agent Essentials category definitions and checklist items are expected to stabilize at GA; organizations should verify current details in Microsoft Learn.
 
 ---
 

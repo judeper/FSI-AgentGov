@@ -9,8 +9,8 @@
 
 This reference consolidates all Microsoft Agent 365 capabilities documented across the FSI-AgentGov framework. Use this page to quickly locate Agent 365-specific guidance and demonstrate comprehensive coverage to stakeholders and auditors.
 
-!!! note "Preview Status"
-    Microsoft Agent 365 SDK and Agent Essentials remain in preview through the Microsoft 365 Frontier preview program. Feature availability and documentation may change before general availability.
+!!! note "GA Status Update"
+    Microsoft Agent 365 reaches general availability on May 1, 2026, as part of Microsoft 365 E7 and standalone Agent 365 per-user licensing. Agent Essentials SDK capabilities are expected to mature alongside the broader Agent 365 platform. Feature availability and documentation may change at or after GA.
 
 ---
 
