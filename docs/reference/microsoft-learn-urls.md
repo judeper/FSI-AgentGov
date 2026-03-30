@@ -110,7 +110,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **M365 Copilot Overview** | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-overview | Feb 2026 |
 | Data, Privacy, and Security | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy | Feb 2026 |
 | Manage Copilot | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-enable-users | Feb 2026 |
-| **Manage Copilot Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Mar 2026 |
+| **Manage Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Mar 2026 |
 | Copilot Usage Reports | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage | Jan 2026 |
 | **Copilot Control System Overview** | https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/overview | Mar 2026 |
 | Copilot Control System - Security and Governance | https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/security-governance | Mar 2026 |
@@ -211,8 +211,8 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | **Information Rights Management** | https://learn.microsoft.com/en-us/purview/encryption-sensitivity-labels | Feb 2026 |
 | **Encryption** | https://learn.microsoft.com/en-us/purview/encryption | Feb 2026 |
 | Activity Explorer | https://learn.microsoft.com/en-us/purview/data-classification-activity-explorer | Jan 2026 |
-| **Compliance Manager** | https://learn.microsoft.com/purview/compliance-manager | Jan 2026 |
-| Assessments | https://learn.microsoft.com/purview/compliance-manager-assessments | Jan 2026 |
+| **Compliance Manager** | https://learn.microsoft.com/en-us/purview/compliance-manager | Jan 2026 |
+| Assessments | https://learn.microsoft.com/en-us/purview/compliance-manager-assessments | Jan 2026 |
 
 ---
 
@@ -226,7 +226,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Session Controls | https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-session-lifetime | Jan 2026 |
 | **Phishing-Resistant MFA** | https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-strengths | Jan 2026 |
 | Authentication Methods | https://learn.microsoft.com/en-us/entra/identity/authentication/overview-authentication | Feb 2026 |
-| FIDO2 Security Keys | https://learn.microsoft.com/en-us/entra/identity/authentication/how-to-enable-passkey-fido2 | Feb 2026 |
+| FIDO2 Security Keys | https://learn.microsoft.com/en-us/entra/identity/authentication/how-to-authentication-passkeys-fido2 | Feb 2026 |
 | **Role-Based Access Control** | https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/custom-overview | Jan 2026 |
 | Admin Roles | https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference | Jan 2026 |
 | **Access Reviews** | https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview | Jan 2026 |
@@ -286,25 +286,25 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Microsoft Sentinel** | https://learn.microsoft.com/en-us/azure/sentinel/overview | Jan 2026 |
-| Data Connectors | https://learn.microsoft.com/azure/sentinel/connect-data-sources | Jan 2026 |
+| Data Connectors | https://learn.microsoft.com/en-us/azure/sentinel/connect-data-sources | Jan 2026 |
 | Custom Analytics Rules | https://learn.microsoft.com/en-us/azure/sentinel/create-analytics-rules | Feb 2026 |
 | Built-in Analytics | https://learn.microsoft.com/en-us/azure/sentinel/threat-detection | Feb 2026 |
-| Workbooks | https://learn.microsoft.com/azure/sentinel/monitor-your-data | Jan 2026 |
-| Automation Rules | https://learn.microsoft.com/azure/sentinel/automate-incident-handling-with-automation-rules | Jan 2026 |
-| Investigate Incidents | https://learn.microsoft.com/azure/sentinel/investigate-cases | Jan 2026 |
+| Workbooks | https://learn.microsoft.com/en-us/azure/sentinel/monitor-your-data | Jan 2026 |
+| Automation Rules | https://learn.microsoft.com/en-us/azure/sentinel/automate-incident-handling-with-automation-rules | Jan 2026 |
+| Investigate Incidents | https://learn.microsoft.com/en-us/azure/sentinel/investigate-cases | Jan 2026 |
 | **Azure Key Vault** | https://learn.microsoft.com/en-us/azure/key-vault/general/overview | Jan 2026 |
 | Key Vault Private Endpoints | https://learn.microsoft.com/en-us/azure/key-vault/general/private-link-service | Jan 2026 |
 | **Azure Private Link** | https://learn.microsoft.com/en-us/azure/private-link/private-link-overview | Jan 2026 |
 | **Immutable Blob Storage** | https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview | Jan 2026 |
 | **Azure Monitor Alerts** | https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview | Jan 2026 |
-| **Azure Service Health** | https://learn.microsoft.com/en-us/azure/service-health/service-health-overview | Jan 2026 |
+| **Azure Service Health** | https://learn.microsoft.com/en-us/azure/service-health/overview | Jan 2026 |
 | **Azure Information Protection** | https://learn.microsoft.com/en-us/azure/information-protection/what-is-information-protection | Jan 2026 |
 | Track and Revoke Documents | https://learn.microsoft.com/en-us/purview/track-and-revoke-admin | Feb 2026 |
 | Apply IRM to SharePoint | https://learn.microsoft.com/en-us/purview/apply-irm-to-a-list-or-library | Feb 2026 |
 | **Responsible AI** | https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai | Jan 2026 |
 | AI Content Safety | https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview | Jan 2026 |
-| **Cost Management** | https://learn.microsoft.com/azure/cost-management-billing/costs/overview-cost-management | Jan 2026 |
-| Azure Budgets | https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets | Jan 2026 |
+| **Cost Management** | https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/overview-cost-management | Jan 2026 |
+| Azure Budgets | https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets | Jan 2026 |
 | **Azure DevOps Test Plans** | https://learn.microsoft.com/en-us/azure/devops/test/overview | Jan 2026 |
 
 ---
@@ -332,7 +332,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Solution Checker** | https://learn.microsoft.com/en-us/power-apps/maker/data-platform/use-powerapps-checker | Jan 2026 |
-| Testing Guidance | https://learn.microsoft.com/en-us/power-apps/guidance/planning/testing-phase | Jan 2026 |
+| Testing Guidance | https://learn.microsoft.com/en-us/power-apps/maker/plan-designer/plan-designer | Jan 2026 |
 
 ---
 
@@ -373,7 +373,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Incident Response Planning** | https://learn.microsoft.com/security/operations/incident-response-planning | Jan 2026 |
+| **Incident Response Planning** | https://learn.microsoft.com/en-us/security/operations/incident-response-planning | Jan 2026 |
 | **AI Red Team** | https://learn.microsoft.com/en-us/security/ai-red-team/ | Jan 2026 |
 
 ---

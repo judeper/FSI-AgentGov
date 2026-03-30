@@ -170,7 +170,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 
 | Control | Control Name | Required License | Notes |
 |---------|--------------|------------------|-------|
-| **4.1** | IAG / Restricted Content Discovery | SharePoint Advanced Management | Required for IAG |
+| **4.1** | IAG / Restricted Content Discovery | SharePoint Advanced Management + at least one Microsoft 365 Copilot license | SAM required for IAG; RCD requires at least one Copilot license assigned in tenant (March 2026 prerequisite) |
 | **4.2** | Site Access Reviews | Microsoft Entra ID P2 + SAM | Access Reviews + SAM |
 | **4.3** | Retention Management | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
 | **4.4** | Guest Access Controls | Microsoft 365 E3+ | Basic; E5 for advanced |

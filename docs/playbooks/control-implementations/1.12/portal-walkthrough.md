@@ -64,14 +64,14 @@
    - Copying to USB
 8. Click **Create policy**
 
-### Policy 1b: Data Theft from Non-Microsoft 365 Apps (Preview)
+### Policy 1b: Data Theft from Non-Microsoft 365 Apps
 
 1. Click **+ Create policy**
 2. **Template:** Data theft from non-Microsoft 365 apps by users leaving your organization
 3. **Policy name:** `FSI-DepartingUser-DataTheft-NonM365`
 4. **Users and groups:** All users or Priority user groups
 5. **Triggering event:** HR connector (resignation date) or Microsoft Entra ID deletion
-6. **Note:** This template (preview) covers non-Microsoft 365 cloud apps including Microsoft Fabric. Configure alongside Policy 1 for comprehensive departing-user coverage
+6. **Note:** This template covers non-Microsoft 365 cloud apps including Microsoft Fabric. Configure alongside Policy 1 for comprehensive departing-user coverage
 7. Click **Create policy**
 
 ### Policy 2: Data Leaks (General)
@@ -169,7 +169,7 @@
 **Portal Path:** Insider risk management > Alerts
 
 !!! note "Dual Dashboard Layout"
-    The Alerts page now has two dashboards: the **Standard** dashboard (policy-generated alerts) and the **Triage Agent** dashboard (AI-prioritized alerts). Select the appropriate tab at the top of the dashboard. The Triage Agent dashboard provides agent-triaged categorization with priority filters. **Note:** The file risk section of the Triage Agent is deprecated — use the data risk graph and Activity explorer for file-level investigation.
+    The Alerts page now has two dashboards: the **Standard** dashboard (policy-generated alerts) and the **Triage Agent** dashboard (AI-prioritized alerts). Select the appropriate tab at the top of the dashboard. The Triage Agent dashboard provides agent-triaged categorization with priority filters. When reviewing individual alerts, the **Agent summary tab** in alert details provides AI-generated risk pattern narratives to help investigators quickly assess context and severity. **Note:** The file risk section of the Triage Agent is deprecated — use the data risk graph and Activity explorer for file-level investigation.
 
 1. Navigate to **Alerts** tab
 2. Select the **Standard** dashboard for traditional alert triage, or the **Triage Agent** dashboard for AI-prioritized views
@@ -190,4 +190,4 @@
 
 ---
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: March 2026 | Version: v1.3.2*
