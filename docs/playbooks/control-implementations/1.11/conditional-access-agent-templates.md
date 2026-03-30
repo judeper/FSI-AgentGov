@@ -52,7 +52,7 @@ Before implementing policies, create the following security groups:
 | **State** | Enabled |
 | **Users** | All users |
 | **Exclude** | `sg-breakglass-accounts` |
-| **Cloud apps** | Power Apps, Power Apps Maker Portal, Copilot Studio |
+| **Target resources** | Power Apps, Power Apps Maker Portal, Copilot Studio |
 | **Conditions** | None |
 | **Grant** | Require multifactor authentication |
 | **Session** | Sign-in frequency: 12 hours |
@@ -124,7 +124,7 @@ SigninLogs
 | **State** | Enabled |
 | **Users** | `sg-agent-creators-zone2` |
 | **Exclude** | `sg-breakglass-accounts` |
-| **Cloud apps** | Power Apps, Copilot Studio, Power Platform Admin Center |
+| **Target resources** | Power Apps, Copilot Studio, Power Platform Admin Center |
 | **Conditions** | Client apps: Browser, Mobile apps and desktop clients |
 | **Grant** | Require authentication strength: Phishing-resistant MFA **AND** Require compliant device |
 | **Session** | Sign-in frequency: 4 hours; Persistent browser session: Never |
@@ -208,7 +208,7 @@ SigninLogs
 | **State** | Enabled |
 | **Users** | `sg-agent-creators-zone3` |
 | **Exclude** | `sg-breakglass-accounts` |
-| **Cloud apps** | All cloud apps (when accessing from agent admin context) |
+| **Target resources** | All cloud apps (when accessing from agent admin context) |
 | **Conditions** | All client apps; All locations (including trusted) |
 | **Grant** | Require authentication strength: Phishing-resistant MFA **AND** Require compliant device **AND** Require approved client app |
 | **Session** | Sign-in frequency: 1 hour; Conditional Access App Control: Block downloads |
@@ -341,7 +341,7 @@ SigninLogs
 | **Name** | `FSI-BreakGlass-EmergencyAccess` |
 | **State** | Enabled |
 | **Users** | `sg-breakglass-accounts` |
-| **Cloud apps** | All cloud apps |
+| **Target resources** | All cloud apps |
 | **Conditions** | None |
 | **Grant** | Block access (inverted - other policies must explicitly exclude) |
 
@@ -392,7 +392,7 @@ SigninLogs
 | **Name** | `FSI-CICD-AgentPublishing-ServicePrincipal` |
 | **State** | Enabled |
 | **Users** | Workload identities: `sg-agent-cicd-principals` |
-| **Cloud apps** | Power Platform, Dataverse |
+| **Target resources** | Power Platform, Dataverse |
 | **Conditions** | Filter for devices: Managed Identity |
 | **Grant** | Require compliant network location |
 | **Session** | None (non-interactive) |
@@ -489,7 +489,7 @@ The following policies apply to Agentic User identities created through Microsof
 | **Name** | `FSI-AgenticUser-AuthenticationControls` |
 | **State** | Report-only (preview) |
 | **Users** | Filter: userType eq 'AgenticUser' |
-| **Cloud apps** | All cloud apps |
+| **Target resources** | All cloud apps |
 | **Conditions** | All locations |
 | **Grant** | Require managed identity authentication |
 | **Session** | Continuous access evaluation: Enabled |

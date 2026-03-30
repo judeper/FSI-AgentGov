@@ -86,7 +86,7 @@ Exceptions: None for Zone 3
 ```
 Policy Name: FSI-CustomerAgent-CA
 Users: All customer service representatives
-Cloud Apps: Copilot Studio, Power Platform
+Target resources: Copilot Studio, Power Platform
 Conditions:
   - Locations: Corporate network + approved remote locations only
   - Devices: Compliant devices only (Intune managed)

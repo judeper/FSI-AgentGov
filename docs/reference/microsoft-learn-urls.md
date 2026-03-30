@@ -89,7 +89,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Customer Satisfaction | https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness | Feb 2026 |
 | **Connectors** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-connectors | Jan 2026 |
 | **Knowledge Sources** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio | Jan 2026 |
-| **Generative AI** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-gpt-overview | Jan 2026 |
+| **Quickstart: Create and deploy an agent** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-gpt-overview | Jan 2026 |
 | Agent Orchestration | https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-tools-custom-agent | Feb 2026 |
 | **External Threat Detection** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider | Jan 2026 |
 | Human Agent Handoff | https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off | Jan 2026 |
@@ -99,6 +99,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Governance Guidance | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/sec-gov-intro | Mar 2026 |
 | Planned Features (2026 Wave 1) [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Mar 2026 |
 | Custom MCP Servers [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/connect-agent-external-data-custom-mcp-servers | Mar 2026 |
+| Create Custom MCP Server | https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server | Mar 2026 |
 | Safe Sharing / Credential Oversharing [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enforce-safe-sharing-detecting-credential-oversharing | Mar 2026 |
 
 ---

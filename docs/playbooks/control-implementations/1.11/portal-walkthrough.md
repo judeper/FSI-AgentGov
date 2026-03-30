@@ -88,7 +88,7 @@
 2. Configure:
    - **Name:** FSI-Baseline-All-Users-MFA
    - **Users:** All users (exclude break-glass accounts)
-   - **Cloud apps:** All cloud apps
+   - **Target resources:** All cloud apps
    - **Grant:** Require MFA
    - **State:** Enabled
 3. Click **Create**
@@ -99,7 +99,7 @@
 2. Configure:
    - **Name:** FSI-Enterprise-Agent-Creators-PhishingResistantMFA
    - **Users:** sg-enterprise-agent-creators (exclude break-glass)
-   - **Cloud apps:** Power Platform, Copilot Studio
+   - **Target resources:** Power Platform, Copilot Studio
    - **Grant:** Require authentication strength (FSI-Phishing-Resistant)
    - **State:** Report-only (test first)
 3. Click **Create**

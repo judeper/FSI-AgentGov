@@ -4,7 +4,7 @@
 **Applies to:** Zone 2/3 agents (required for regulated), Zone 1 (recommended for baseline evidencing).  
 **Microsoft grounding:** Purview “Audit (Standard)” automatically logs user interactions with Copilot/AI applications when auditing is enabled (no extra configuration needed beyond enabling auditing).  
 **Evidence grounding:** Copilot audit records include `AccessedResources` (with resource IDs/URLs, sensitivity label IDs, policy restriction details, and a boolean for cross-prompt injection detection) and include agent properties like `AgentId`, `AgentName`, and `AgentVersion`.  
-**Operational grounding:** Microsoft 365 admins can manage Copilot agents (enable/disable/assign/block/remove) via the Microsoft 365 admin center, which makes agent identity and lifecycle governance practical to evidence via an inventory + audit queries.
+**Operational grounding:** Microsoft 365 admins can manage agents (enable/disable/assign/block/remove) via the Microsoft 365 admin center, which makes agent identity and lifecycle governance practical to evidence via an inventory + audit queries.
 
 ---
 

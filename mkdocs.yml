@@ -670,6 +670,8 @@ nav:
         - OpenTelemetry Setup: playbooks/advanced-implementations/agent-365-observability/opentelemetry-setup.md
         - Application Insights Workbooks: playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks.md
         - Alerting Configuration: playbooks/advanced-implementations/agent-365-observability/alerting-configuration.md
+      - MCP Server Governance:
+        - playbooks/advanced-implementations/mcp-server-governance/index.md
       - Conditional Access Automation:
         - playbooks/advanced-implementations/conditional-access-automation/index.md
         - Deployment Guide: playbooks/advanced-implementations/conditional-access-automation/deployment-guide.md

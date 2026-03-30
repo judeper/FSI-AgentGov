@@ -2,7 +2,7 @@
 
 **Purpose:** Standardize the metadata captured for every agent so governance controls (zones, approvals, logging, data policy, escalation, vendor risk) can be applied consistently.  
 **Applies to:** All zones (Zone 1–3).  
-**Microsoft grounding:** Microsoft 365 admins can manage Copilot agents (deploy/assign/block/remove) through the Microsoft 365 admin center, treating agents as manageable assets at tenant scope.  
+**Microsoft grounding:** Microsoft 365 admins can manage agents (deploy/assign/block/remove) through the Microsoft 365 admin center, treating agents as manageable assets at tenant scope.  
 **Audit grounding:** Microsoft Purview audit logs for Copilot/AI interactions include details like accessed resources (including sensitivity label IDs) and policy restriction details, which can be correlated back to an agent inventory.  
 **Related controls (examples):** 3.1 Agent Inventory and Registration, 2.3 Change management, 2.12 Supervision/oversight, 1.7 Audit logging.
 
