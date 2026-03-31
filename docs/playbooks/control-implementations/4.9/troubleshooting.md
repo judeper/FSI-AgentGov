@@ -140,7 +140,7 @@ The most common cause of a broken agent is direct deletion of the SharePoint Emb
 3. Restore the container associated with the agent.
 4. After restoration, verify the agent's Data & tools tab shows the files correctly.
 5. Test the agent with a sample query to confirm grounding is restored.
-6. Document the incident: who deleted the container, when, how it was restored, and what process controls will prevent recurrence.
+6. Document the incident: who deleted the container, when, how it was restored, and what process controls help avoid recurrence.
 7. Escalate to the relevant team lead for the person who performed the deletion — add "do not delete Declarative Agent containers" to operator training.
 
 **Resolution — If Container Is NOT in the Recycle Bin (Beyond 93 Days or Permanently Deleted):**

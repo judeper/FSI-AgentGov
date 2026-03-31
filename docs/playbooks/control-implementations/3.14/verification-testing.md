@@ -119,7 +119,7 @@ assert len(token) > 0, "Token acquisition failed"
 print(f"Token acquired successfully (length: {len(token)} characters)")
 ```
 
-Expected: Token acquired without error. A failed token acquisition will prevent all telemetry export.
+Expected: Token acquired without error. A failed token acquisition blocks all telemetry export.
 
 **Evidence to Record**:
 - Package version output (copy/paste from terminal)
