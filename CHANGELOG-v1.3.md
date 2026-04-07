@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.3.3] — April 2026 (Learn Monitor Response — URL Redirects & Content Updates)
+
+### Fixed
+
+- **Learn Monitor workflow bug**: Corrected 4 regex patterns in `.github/workflows/learn-monitor.yml` that caused PR descriptions to always show "0 HIGH, 0 MEDIUM" counts. Patterns now match the actual Markdown table format used in change reports.
+- **56 Microsoft Learn URL redirects**: Updated 50 Copilot URL paths (`/copilot/microsoft-365/` → `/microsoft-365/copilot/`) and 6 MCP server URLs (consolidated into planned-features page) across 28 documentation files.
+
+### Changed
+
+- **Control 1.9** (Data Retention and Deletion Policies): Updated sensitivity label publishing scope to include Viva Engage communities and Loop workspaces, reflecting Microsoft's expanded container support.
+
+### Reviewed (No Action Needed)
+
+- Processed Learn Monitor Run 81 (PR #95): 24 HIGH, 13 MEDIUM, 26 redirects, 3 errors across 229 monitored URLs. After investigation, 30 potentially affected controls were found to already be current — only 1 content update and 56 URL fixes were needed. Two CRITICAL classifications (session lifetime deprecation, activity logging deprecation) were confirmed as false positives.
+
+---
+
 ## [1.3.2] — March 2026 (Agent 365 GA Update + Learn Monitor Baseline)
 
 ### Changed
