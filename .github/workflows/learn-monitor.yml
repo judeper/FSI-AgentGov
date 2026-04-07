@@ -54,11 +54,11 @@ jobs:
           if [ "$EXIT_CODE" -eq 1 ]; then
             REPORT_FILE=$(ls -t reports/monitoring/learn-changes-*.md 2>/dev/null | head -1)
             if [ -n "$REPORT_FILE" ]; then
-              # Extract counts from the report
-              MEANINGFUL=$(grep -oP 'Meaningful Changes:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
-              MINOR=$(grep -oP 'Minor Changes:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
-              REDIRECTS=$(grep -oP 'Redirects:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
-              ERRORS=$(grep -oP 'Errors:\*\* \K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              # Extract counts from the report (format: | HIGH Changes | 24 |)
+              MEANINGFUL=$(grep -oP 'HIGH Changes\s*\|\s*\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              MINOR=$(grep -oP 'MEDIUM Changes\s*\|\s*\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              REDIRECTS=$(grep -oP 'Redirects\s*\|\s*\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              ERRORS=$(grep -oP 'Errors\s*\|\s*\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
 
               echo "meaningful_changes=$MEANINGFUL" >> $GITHUB_OUTPUT
               echo "minor_changes=$MINOR" >> $GITHUB_OUTPUT
