@@ -293,11 +293,11 @@ To verify current license assignments:
 
 ### Microsoft Agent 365 Resources
 
-- [Agent Management Essentials overview](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/agent-essentials-overview)
-- [Agent prerequisites](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/agent-prerequisites)
+- [Agent Management Essentials overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-essentials-overview)
+- [Agent prerequisites](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites)
 - [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
 - [Agent 365 overview page in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview)
-- [Copilot Control System overview](https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/overview)
+- [Copilot Control System overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/overview)
 
 ---
 

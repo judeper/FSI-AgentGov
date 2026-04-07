@@ -1057,8 +1057,8 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 **Agent 365 Unified Control Plane (Preview):**
 
-- [Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-blueprint)
-- [Agent 365 Deployment Checklist (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-checklist)
+- [Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint)
+- [Agent 365 Deployment Checklist (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-checklist)
 - [Agent 365 Identity (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity)
 - [Agent 365 Observability (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability)
 - [Agent 365 Observability Schema Reference (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/reference/observability-schema/)

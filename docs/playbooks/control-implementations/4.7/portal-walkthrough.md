@@ -165,7 +165,7 @@ After completing the configuration, verify:
 1. Navigate to [Microsoft 365 Admin Center](https://admin.microsoft.com)
 2. Go to **Settings** > **Microsoft 365 Copilot** > **Data and privacy**
 3. Review the list of AI subprocessors
-4. Track changes at: [Microsoft Copilot AI Subprocessor](https://learn.microsoft.com/en-us/copilot/microsoft-365/connect-to-ai-subprocessor)
+4. Track changes at: [Microsoft Copilot AI Subprocessor](https://learn.microsoft.com/en-us/microsoft-365/copilot/connect-to-ai-subprocessor)
 
 !!! tip "Subprocessor Change Monitoring"
     As of January 2026, Anthropic was reported as an AI subprocessor. Verify the current subprocessor list at the link above, as it may have changed since this document was last updated. FSI organizations should incorporate subprocessor tracking into their third-party risk management cadence and update vendor risk registers when changes are detected.

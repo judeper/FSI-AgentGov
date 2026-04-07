@@ -204,7 +204,7 @@ Get-SPOSite -Limit All | Where-Object {
 
 ## Related Resources
 
-- [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy)
+- [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy)
 - [Restrict Discovery of SharePoint Sites and Content](https://learn.microsoft.com/en-us/sharepoint/restricted-content-discovery)
 - [SharePoint Advanced Management overview](https://learn.microsoft.com/en-us/sharepoint/advanced-management)
 

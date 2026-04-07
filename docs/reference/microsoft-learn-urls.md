@@ -99,7 +99,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Governance Guidance | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/sec-gov-intro | Mar 2026 |
 | Architecting Agent Solutions | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/architecture/ | Mar 2026 |
 | Planned Features (2026 Wave 1) [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Mar 2026 |
-| Custom MCP Servers [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/connect-agent-external-data-custom-mcp-servers | Mar 2026 |
+| Copilot Studio Planned Features (2026 Wave 1) | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Apr 2026 |
 | Create Custom MCP Server | https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server | Mar 2026 |
 | Safe Sharing / Credential Oversharing [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enforce-safe-sharing-detecting-credential-oversharing | Mar 2026 |
 | Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enhanced-admin-controls-agent-security | Mar 2026 |
@@ -113,14 +113,14 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **M365 Copilot Overview** | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-overview | Feb 2026 |
-| Data, Privacy, and Security | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy | Feb 2026 |
-| Manage Copilot | https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-enable-users | Feb 2026 |
+| **M365 Copilot Overview** | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview | Feb 2026 |
+| Data, Privacy, and Security | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy | Feb 2026 |
+| Manage Copilot | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-enable-users | Feb 2026 |
 | **Manage Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Mar 2026 |
 | Copilot Usage Reports | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage | Jan 2026 |
-| **Copilot Control System Overview** | https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/overview | Mar 2026 |
-| Copilot Control System - Security and Governance | https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/security-governance | Mar 2026 |
-| Copilot Control System - Management Controls | https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-control-system/management-controls | Mar 2026 |
+| **Copilot Control System Overview** | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/overview | Mar 2026 |
+| Copilot Control System - Security and Governance | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/security-governance | Mar 2026 |
+| Copilot Control System - Management Controls | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/management-controls | Mar 2026 |
 
 ---
 
@@ -134,11 +134,11 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Agent Management Essentials Hub** | https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/agent-essentials-overview | Mar 2026 |
-| Agent Prerequisites | https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/agent-prerequisites | Mar 2026 |
-| **Visual Governance Guide** | https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-visual-map | Mar 2026 |
-| **Deployment Checklist** | https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-checklist | Mar 2026 |
-| **Deployment Blueprint** | https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-blueprint | Mar 2026 |
+| **Agent Management Essentials Hub** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-essentials-overview | Mar 2026 |
+| Agent Prerequisites | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites | Mar 2026 |
+| **Visual Governance Guide** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-visual-map | Mar 2026 |
+| **Deployment Checklist** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-checklist | Mar 2026 |
+| **Deployment Blueprint** | https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint | Mar 2026 |
 
 ### Microsoft Agent 365
 

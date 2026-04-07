@@ -209,7 +209,7 @@ Environment with governance policies enforced at the platform level.
 Login requirement combining something you know (password) with something you have (phone, security key).
 
 **Microsoft 365 Copilot**
-The built-in AI assistant in Microsoft 365 apps (e.g., Teams, Outlook, Word) that can use organizational data and policies. Distinct from **Copilot Studio**, which is for building agents. See [Microsoft 365 Copilot overview](https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-overview)
+The built-in AI assistant in Microsoft 365 apps (e.g., Teams, Outlook, Word) that can use organizational data and policies. Distinct from **Copilot Studio**, which is for building agents. See [Microsoft 365 Copilot overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview)
 
 **Model**
 System that makes predictions or decisions based on data. AI agents using ML algorithms are treated as models.

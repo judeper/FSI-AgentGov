@@ -400,7 +400,7 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 
 ## Related Documentation
 
-- [Microsoft Learn: Harmful content protection for M365 Copilot Chat](https://learn.microsoft.com/en-us/copilot/microsoft-365/harmful-content-protection-copilot-chat)
+- [Microsoft Learn: Harmful content protection for M365 Copilot Chat](https://learn.microsoft.com/en-us/microsoft-365/copilot/harmful-content-protection-copilot-chat)
 - [Microsoft Learn: Azure AI Content Safety](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/)
 - [Microsoft Learn: Responsible AI for Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/responsible-ai-overview)
 - [Microsoft Learn: Microsoft Purview audit logging](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)

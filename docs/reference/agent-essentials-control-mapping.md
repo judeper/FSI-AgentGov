@@ -288,9 +288,9 @@ For organizations beginning Agent Essentials implementation, prioritize:
 ## Related Resources
 
 - [Agent Identity Architecture](../framework/agent-identity-architecture.md) - Agent ID vs Blueprint guidance
-- [Microsoft Learn: Agent Essentials Checklist (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-checklist)
-- [Microsoft Learn: Agent Essentials Visual Guide (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-visual-map)
-- [Microsoft Learn: Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/copilot/microsoft-365/agent-essentials/m365-agents-blueprint)
+- [Microsoft Learn: Agent Essentials Checklist (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-checklist)
+- [Microsoft Learn: Agent Essentials Visual Guide (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-visual-map)
+- [Microsoft Learn: Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint)
 
 ---
 
