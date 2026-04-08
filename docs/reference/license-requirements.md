@@ -88,7 +88,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.2** | Agent Registry | Microsoft 365 E3+ | Integrated Apps in M365 Admin |
 | **1.3** | SharePoint Content Governance | Microsoft 365 E3+ | SharePoint included; SAM for advanced |
 | **1.4** | Advanced Connector Policies | Power Platform Premium | Managed Environments + Environment Groups |
-| **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection |
+| **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection. **Note:** DLP for Copilot *prompts* is available to all M365 Copilot/Copilot Chat users at no additional cost (any SKU); DLP to restrict Copilot from *processing files/emails* requires E5/Purview Suite |
 | **1.6** | DSPM for AI | Microsoft 365 E5 or Microsoft Purview Suite | Microsoft Purview DSPM for AI |
 | **1.7** | Audit Logging | Microsoft 365 E5 (Premium) or E3 (Standard) | E5 for 10-year retention |
 | **1.8** | Runtime Protection | Power Platform Premium | Managed Environments feature |

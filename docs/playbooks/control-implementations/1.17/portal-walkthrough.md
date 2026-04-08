@@ -78,6 +78,8 @@
 1. In Endpoint DLP settings
 2. Enable **Always audit file activities for devices**
 3. Configure offline cache for policy enforcement
+4. For detailed JIT concepts and supported activities, see [Learn about just-in-time protection](https://learn.microsoft.com/en-us/purview/endpoint-dlp-learn-about-jit)
+5. For deployment and configuration steps, see [Get started with just-in-time protection](https://learn.microsoft.com/en-us/purview/endpoint-dlp-get-started-jit)
 
 ### Step 7: Enable Browser-Based DLP for Edge
 
