@@ -160,7 +160,7 @@
 3. **Evidence collection:**
    - Collect activity explorer data
    - Preserve audit logs
-   - Enable content preview (with privacy controls)
+   - Enable **Content preview (Preview)** to allow investigators to preview files from SharePoint, Exchange, and OneDrive for Business directly in Activity Explorer (configure with appropriate privacy controls)
 
 ---
 
