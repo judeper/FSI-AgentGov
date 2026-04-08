@@ -18,10 +18,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **Control 1.9** (Data Retention and Deletion Policies): Updated sensitivity label publishing scope to include Viva Engage communities and Loop workspaces, reflecting Microsoft's expanded container support.
+- **Control 1.12** (Insider Risk Detection and Response): Added Content Preview (Preview) as an Activity Explorer triage capability for SharePoint, Exchange, and OneDrive files during alert investigation.
+- **Control 1.17** (Endpoint DLP): Added new Microsoft Learn URLs for restructured just-in-time (JIT) protection documentation (conceptual and deployment articles).
+- **Control 1.5** (DLP and Sensitivity Labels): Clarified DLP-for-Copilot prompt licensing — available to all M365 Copilot/Copilot Chat users at no additional cost (any SKU).
+- **License requirements**: Added note that DLP for Copilot prompts is available across all SKUs, while DLP to restrict Copilot from processing files/emails still requires E5/Purview Suite.
 
 ### Reviewed (No Action Needed)
 
 - Processed Learn Monitor Run 81 (PR #95): 24 HIGH, 13 MEDIUM, 26 redirects, 3 errors across 229 monitored URLs. After investigation, 30 potentially affected controls were found to already be current — only 1 content update and 56 URL fixes were needed. Two CRITICAL classifications (session lifetime deprecation, activity logging deprecation) were confirmed as false positives.
+- Processed Learn Monitor Run 82 (PR #96): 4 HIGH, 3 MEDIUM, 14 redirects, 3 errors across 229 monitored URLs. 3 HIGH items required documentation updates (Controls 1.12, 1.17, 1.5); 1 HIGH (What's New) was informational only.
 
 ---
 
