@@ -368,9 +368,9 @@ After completing the configuration, verify:
 
 ### Step 11: Configure AI Feature Toggles Per Environment
 
-**Portal Path:** PPAC > Environments > [Select Environment] > Settings > Product > Features
+**Portal Path:** PPAC > Copilot > Settings (previously under Environments > [Select Environment] > Settings > Product > Features)
 
-1. Navigate to the environment settings in PPAC
+1. Navigate to the Copilot settings in PPAC
 2. Review and configure each AI feature toggle:
 
 | Toggle | Action for Zone 2/3 |
@@ -412,7 +412,7 @@ After completing the configuration, verify:
 
 ### Step 14: Configure Conversational Transcript Access
 
-**Portal Path:** PPAC > Environments > [Select Environment] > Settings > Product > Features > Copilot Studio Agents
+**Portal Path:** PPAC > Copilot > Settings (previously under Environments > [Select Environment] > Settings > Product > Features > Copilot Studio Agents)
 
 1. Navigate to the environment's Features settings
 2. Under **Copilot Studio Agents**, configure transcript access controls

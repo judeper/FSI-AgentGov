@@ -47,7 +47,7 @@ If you are reviewing FSI-AgentGov coverage against a Power Platform SSPM assessm
 | SSPM-4: User Authentication Required| [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), [1.23](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md), [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Full | Comprehensive authentication with MFA and step-up auth |
 | SSPM-5: Require Users to Sign In | [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Full | Phishing-resistant authentication mandated |
 | SSPM-6: Auth Bypass Prevention | [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), [1.23](../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Full | No bypass scenarios allowed |
-| SSPM-2: Prevent Unauthorized Actions | [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md), [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Full | RBAC + agent action consent ("Ask the user before running this action") |
+| SSPM-2: Prevent Unauthorized Actions | [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md), [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Full | RBAC + agent tool consent ("Ask the user before running this tool") |
 | SSPM-23: Unrestricted Access to AI Agents | [1.1](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [1.2](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Full | Zone-based access with security groups |
 | SSPM-32: Configure Security Groups | [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), [1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | Full | Managed Environments with RBAC |
 | SSPM-38: Set PPAC/Environment Admins | [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Full | Least privilege admin roles |
@@ -145,7 +145,7 @@ The following SSPM controls have no FSI-AgentGov equivalent by design:
 
 SSPM control SSPM-2 (Prevent Unauthorized Agent Actions) maps to two complementary FSI-AgentGov controls:
 
-- **[Control 1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)** — Agent action consent: "Ask the user before running this action" for all agent actions in Zone 2/3
+- **[Control 1.18](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)** — Agent tool consent: "Ask the user before running this tool" for all agent tools in Zone 2/3
 - **[Control 2.23](../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md)** — AI disclosure consent: User acknowledgment of AI interaction with 90-day re-acknowledgment cycle
 
 ---

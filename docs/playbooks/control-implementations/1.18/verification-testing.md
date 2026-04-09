@@ -99,8 +99,8 @@ I attest that:
 
 | Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
 |---------|-------------------|-----------------|-------------|----------|
-| SSPM-1.18-01 | Agent action consent | Enabled for all published agents | PPAC > Environments > Settings > Features | Screenshot |
-| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | PPAC > Environments > Settings > Features | Screenshot |
+| SSPM-1.18-01 | Agent tool consent | Enabled for all published agents | PPAC > Copilot > Settings (previously under Environments > Settings > Features) | Screenshot |
+| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | PPAC > Copilot > Settings (previously under Environments > Settings > Features) | Screenshot |
 | SSPM-1.18-03 | Admin count | < 10 environment-level admins per environment | PPAC > Environments > Settings > Users + permissions > Security roles | Screenshot |
 | SSPM-1.18-04 | RPA admin roles | RPA/service accounts not assigned admin roles | PPAC > Environments > Settings > Users + permissions > Security roles | Screenshot |
 

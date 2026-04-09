@@ -127,6 +127,9 @@ See [Run pipelines](https://learn.microsoft.com/en-us/power-platform/alm/run-pip
 - [ ] Basic security review completed
 - [ ] Target environment identified
 - [ ] Solution exported from Zone 1
+
+> **Important:** Not all Copilot Studio agent components are included in solution export. Custom topics and knowledge sources stored separately may be excluded. Verify all components are captured before promoting.
+
 - [ ] Deployment plan created
 - [ ] Rollback plan defined
 

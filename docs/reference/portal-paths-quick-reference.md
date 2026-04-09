@@ -164,7 +164,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | Create New Agent | **Create** (left nav) or **+ Create** button |
 | Agent Settings | Select agent > **Settings** (gear icon) |
 | **Topics** | Select agent > **Topics** |
-| **Actions** | Select agent > **Actions** |
+| **Tools** | Select agent > **Tools** |
 | **Channels** | Select agent > **Channels** |
 | Publish Agent | Select agent > **Publish** |
 | **Analytics** | Select agent > **Analytics** |

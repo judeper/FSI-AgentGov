@@ -134,7 +134,7 @@ After completing these steps, verify:
 - [ ] PIM configured for admin roles
 - [ ] Access reviews scheduled
 - [ ] Column-level security enforced
-- [ ] All agent actions have "Ask the user before running this action" enabled (Copilot Studio > Agent > Actions)
+- [ ] All agent actions have "Ask the user before running this action" enabled (Copilot Studio > Agent > Tools)
 - [ ] Connected agent access disabled for all agents unless explicitly approved (Copilot Studio > Agent > Settings > Connected Agents)
 - [ ] Admin count is below 10 per environment (PPAC > Environment > Users + Permissions)
 

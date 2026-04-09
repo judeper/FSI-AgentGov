@@ -26,6 +26,8 @@ Add-PowerAppsAccount
 
 ## Solution Export Commands
 
+> **Note:** Copilot Studio solution exports may not include all agent components. Custom topics and knowledge sources stored outside the solution may require separate export procedures.
+
 ```powershell
 # Export a solution (unmanaged) for development
 $environmentUrl = "https://[your-env].crm.dynamics.com"

@@ -84,7 +84,7 @@ Financial services organizations face continuous configuration drift risk across
 
 | # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
 |---|---------|-------------|---------------------------|----------|------------|
-| 18 | AI Prompts | PPAC > Environment > Settings > Features | Off (unless approved) | Medium | Semi-Automated |
+| 18 | AI Prompts | PPAC > Copilot > Settings (previously under Environment > Settings > Features) | Off (unless approved) | Medium | Semi-Automated |
 | 19 | Generative Actions | Copilot Studio > Agent > Overview > Orchestration | Off (unless approved) | High | Manual Attestation |
 | 20 | File Analysis | Copilot Studio > Agent > Settings > Generative AI > File processing | Off (unless approved) | Medium | Manual Attestation |
 | 21 | Model Knowledge | Copilot Studio > Agent > Settings > Generative AI | Off for sensitive data agents | Medium | Manual Attestation |
