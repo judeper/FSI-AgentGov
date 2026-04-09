@@ -78,7 +78,7 @@ Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institu
 +-------------------+-------------------+-------------------+-------------------+
 |     PILLAR 1      |     PILLAR 2      |     PILLAR 3      |     PILLAR 4      |
 |     Security      |    Management     |    Reporting      |    SharePoint     |
-|   (28 controls)   |   (24 controls)   |   (12 controls)   |   (7 controls)    |
+|   (29 controls)   |   (26 controls)   |   (14 controls)   |   (9 controls)    |
 +-------------------+-------------------+-------------------+-------------------+
 | DLP, Audit,       | Lifecycle, MRM,   | Inventory,        | Access, Grounding |
 | Encryption, MFA,  | Testing, Change,  | Usage, PPAC,      | Retention,        |
@@ -86,7 +86,11 @@ Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institu
 +-------------------+-------------------+-------------------+-------------------+
 ```
 
-**72 Total Controls** across four pillars addressing security, management, reporting, and SharePoint-specific governance.
+**78 Total Controls** across four pillars addressing security, management, reporting, and SharePoint-specific governance.
+
+### Adaptive Governance
+
+The framework follows an **adaptive governance** philosophy: controls scale proportionally with risk rather than applying uniform restrictions. Low-risk personal agents operate with minimal friction, while high-risk enterprise agents require comprehensive oversight. This graduated approach — enforced through the platform via managed environments, sharing limits, and environment routing — helps prevent shadow AI by providing supported innovation paths alongside appropriate controls. See [Governance Fundamentals](governance-fundamentals.md#adaptive-governance-philosophy) for details.
 
 ### Three Governance Zones
 

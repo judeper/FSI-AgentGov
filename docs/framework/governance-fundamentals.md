@@ -4,6 +4,21 @@ Core concepts and principles for AI agent governance in financial services.
 
 ---
 
+## Adaptive Governance Philosophy
+
+This framework is built on the principle of **adaptive governance**: controls that scale proportionally with risk rather than applying uniform restrictions across all agent use cases. A low-risk personal productivity agent is not the same as an agent connected to a core business system — governance should reflect that difference.
+
+Adaptive governance rests on three operational pillars:
+
+1. **Classify risk clearly** — The [three governance zones](zones-and-tiers.md) (Personal, Team, Enterprise) provide graduated risk classification that determines the level of oversight, approval, and audit requirements for each agent.
+2. **Enforce through the platform** — Governance is most effective when it is inherent to the platform, not layered on through policy documents alone. [Managed environments](../controls/pillar-2-management/2.1-managed-environments.md), [environment groups](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), [DLP policies](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), and [environment routing](../controls/pillar-2-management/2.15-environment-routing.md) enforce boundaries automatically — reducing reliance on manual processes and individual compliance.
+3. **Create promotion paths** — Rather than restricting all agent development, the framework provides a supported path from personal experimentation (Zone 1) through team collaboration (Zone 2) to enterprise production (Zone 3). [Sharing limits](../controls/pillar-2-management/2.1-managed-environments.md) paired with [zone progression criteria](zones-and-tiers.md#zone-progression-model) create a clear on-ramp: agents can scale when they meet the governance requirements of the next zone.
+
+!!! tip "Why This Matters"
+    Governance models that only restrict — without providing supported paths for innovation — tend to drive shadow IT. By combining platform-enforced controls with clear promotion criteria, organizations can let teams experiment freely in Zone 1 while requiring deliberate promotion, review, and accountability when agents are ready to reach broader audiences.
+
+---
+
 ## Framework Overview
 
 The FSI Agent Governance Framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
@@ -84,6 +99,10 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 | **Microsoft Purview** | Compliance and data governance capabilities |
 | **Power Platform licensing** | Required for environment management and DLP policies |
 | **Foundational IT controls** | Network security, endpoint protection, backup/recovery assumed in place |
+| **Identity and access hygiene** | Existing permissions are correctly scoped before agent deployment |
+
+!!! warning "Agents Expose Existing Permission Problems"
+    Agents generally operate under the calling user's identity and permissions — they do not create new access rights. This means agents do not introduce permission problems; they **surface existing over-permissioning faster** by making previously obscure but technically accessible content more discoverable. Organizations should audit and remediate identity and access management (IAM) gaps — particularly oversharing in SharePoint, broad security group memberships, and excessive delegated permissions — **before** deploying agents broadly. See [DSPM for AI](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) and [M365 Copilot Data Governance](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) for assessment tools and remediation guidance.
 
 ---
 
@@ -158,6 +177,16 @@ Accountability and human oversight:
 1. **Policy enables Process** — Technical controls automate workflow enforcement
 2. **Process guides People** — Defined procedures clarify responsibilities
 3. **People inform Policy** — Human judgment shapes control configuration
+
+### Trust by Design with Built-In Verification
+
+The Governance Triangle reflects a **trust-by-design** approach: strong proactive controls (Policy Layer) set boundaries that allow agents to operate with appropriate autonomy, while reactive controls (Process Layer) verify those boundaries hold through monitoring, diagnostics, and audit trails.
+
+This mirrors how organizations manage other operational risks. Consider expense approvals: humans unintentionally approve incorrect items regularly, and that risk is managed through audits, compensating controls, and limits on blast radius — not by eliminating approvals entirely. Agent governance follows the same principle: know what happened, understand why it happened, and contain the impact when outcomes differ from expectations.
+
+- **Proactive controls** — DLP policies, sharing limits, environment groups, publishing restrictions
+- **Reactive controls** — Audit logging, Sentinel integration, compliance reporting, incident response
+- **Compensating controls** — Hallucination feedback loops, access reviews, orphaned agent detection
 
 !!! tip "FSI Note"
     In regulated environments, all three layers must be documented and auditable. Examiners expect
@@ -256,6 +285,14 @@ This framework is designed to **complement, not replace** existing enterprise go
 2. Establish governance committee per [Zones and Tiers](zones-and-tiers.md)
 3. Schedule recurring compliance reviews
 4. Track incidents per playbook procedures
+
+---
+
+## Further Reading
+
+- [Building Trustworthy AI: A Practical Framework for Adaptive Governance](https://www.microsoft.com/en-us/power-platform/blog/2026/04/01/building-trustworthy-ai-a-practical-framework-for-adaptive-governance/) — Microsoft Power Platform Blog (April 2026). Discusses adaptive governance, graduated risk zones, and platform-enforced controls for AI agents.
+- [Agent Identity Architecture](agent-identity-architecture.md) — Entra Agent ID and Agent 365 governance architecture
+- [Zones and Tiers](zones-and-tiers.md) — Detailed zone definitions and progression criteria
 
 ---
 

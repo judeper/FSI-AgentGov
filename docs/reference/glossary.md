@@ -6,6 +6,9 @@ Key terms and definitions used in the FSI Agent Governance Framework.
 
 ## A
 
+**Adaptive Governance**
+A governance approach where controls scale proportionally with risk level rather than applying uniform restrictions across all use cases. In this framework, adaptive governance is implemented through three [governance zones](../framework/zones-and-tiers.md) (Personal, Team, Enterprise), platform-enforced sharing limits, and promotion paths that require increasing oversight as agents access more sensitive data or broader audiences. The goal is to enable innovation in low-risk scenarios while applying rigorous controls where risk is highest. See [Governance Fundamentals](../framework/governance-fundamentals.md#adaptive-governance-philosophy).
+
 **Agent**
 In this framework, an **agent** means a **Microsoft 365 agent**: an AI capability in Microsoft 365 that performs tasks based on user prompts and configured tools/data. Examples include Copilot Studio agents, Agent Builder agents, SharePoint agents, and Teams agents. *Note: This framework governs only Microsoft 365 agents; other AI platforms are out of scope.*
 

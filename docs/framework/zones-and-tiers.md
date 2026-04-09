@@ -352,7 +352,23 @@ Zone 3 agents handling regulated data may be subject to comprehensive oversight 
 
 ## Zone Progression Model
 
-Agents typically progress through zones as they mature:
+Agents typically progress through zones as they mature. The primary governance mechanism that drives zone progression is **sharing limits paired with a clear on-ramp** — one of the most effective controls in the adaptive governance model.
+
+### Sharing Limits as Governance On-Ramp
+
+When someone builds an agent for themselves or their immediate teammates, that represents one risk profile. When they want to share that agent more broadly, that represents a different one. The platform distinguishes between these cases through managed environment sharing limits and environment group rules:
+
+| Sharing Scope | Risk Profile | Governance Trigger |
+|---------------|-------------|-------------------|
+| **Creator only** | Low — personal experimentation | No additional governance required (Zone 1) |
+| **Named individuals or small team** | Low to Medium — team collaboration | Manager approval; consider Zone 2 promotion |
+| **Security group or department** | Medium — broader organizational impact | Zone 2 governance required: DLP, audit, managed environment |
+| **Organization-wide or customer-facing** | High — regulatory and reputational exposure | Zone 3 governance required: committee approval, full compliance controls |
+
+This approach allows teams to experiment freely in constrained environments — no tickets, no friction for personal productivity agents — while requiring deliberate promotion, review, and accountability when an agent is ready to scale. The on-ramp ensures that good ideas can grow without becoming tomorrow's incident response.
+
+!!! tip "Platform Enforcement"
+    Sharing limits are enforced at the platform level through [Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) and [Environment Groups](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), not through policy documents alone. This means governance applies automatically when a maker attempts to share beyond their current zone's boundaries.
 
 ### Promotion Criteria
 
