@@ -83,7 +83,7 @@ Configure organization-wide settings:
 
 For comprehensive document-level retention:
 
-1. Navigate to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
+1. Navigate to [Microsoft Purview](https://purview.microsoft.com)
 2. Go to **Data lifecycle management** > **Microsoft 365**
 3. Create retention labels for document-level retention
 4. Apply retention labels to sensitivity-labeled content
@@ -139,4 +139,4 @@ After completing the configuration, verify:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
