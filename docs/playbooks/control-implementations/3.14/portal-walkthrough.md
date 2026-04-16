@@ -1,10 +1,10 @@
-# Playbook 3.12-A: Portal Walkthrough — Configuring Entra Diagnostic Settings and Verifying Telemetry in Admin Center
+# Playbook 3.14-A: Portal Walkthrough — Configuring Entra Diagnostic Settings and Verifying Telemetry in Admin Center
 
-**Playbook ID:** 3.12-A
-**Control:** 3.12 — Agent 365 Observability SDK and Custom Agent Telemetry
+**Playbook ID:** 3.14-A
+**Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 45–90 minutes (initial configuration); 15–20 minutes (recurring verification)
-**Required Role:** Global Administrator, Entra Administrator (for diagnostic settings), M365 Copilot Admin (for Admin Center verification)
+**Required Role:** Entra Global Admin, Entra Administrator (for diagnostic settings), AI Administrator (for Admin Center verification)
 **Last Verified:** March 2026
 
 ---
@@ -16,7 +16,7 @@
 
 ## Overview
 
-This playbook guides administrators through the portal-based configuration tasks required for Control 3.14 — specifically the Entra diagnostic settings that capture agent authentication telemetry, and the Admin Center verification steps that confirm SDK-instrumented custom agents are visible in the analytics dashboard. SDK installation procedures are covered in Playbook 3.12-B.
+This playbook guides administrators through the portal-based configuration tasks required for Control 3.14 — specifically the Entra diagnostic settings that capture agent authentication telemetry, and the Admin Center verification steps that confirm SDK-instrumented custom agents are visible in the analytics dashboard. SDK installation procedures are covered in Playbook 3.14-B.
 
 ---
 
@@ -24,10 +24,10 @@ This playbook guides administrators through the portal-based configuration tasks
 
 Before beginning, confirm:
 
-- [ ] You have Global Administrator and Entra Administrator role assignments.
+- [ ] You have Entra Global Admin and Entra Administrator role assignments.
 - [ ] You have identified all custom (non-Microsoft-built) agents deployed in the tenant that require SDK instrumentation.
 - [ ] A Log Analytics workspace exists in Azure for diagnostic log routing (or you will create one).
-- [ ] WORM-compliant Azure Blob Storage is configured per Playbook 3.11-B (reused for agentSignIn log retention).
+- [ ] WORM-compliant Azure Blob Storage is configured per Playbook 3.13-B (reused for agentSignIn log retention).
 - [ ] Frontier program enrollment is active or in progress (for Admin Center metric verification).
 
 ---
@@ -38,7 +38,7 @@ Before beginning, confirm:
 
 **1.1.1** Navigate to Entra Admin Center: `https://entra.microsoft.com`
 
-**1.1.2** Sign in with Global Administrator or Security Reader credentials.
+**1.1.2** Sign in with Entra Global Admin or Security Reader credentials.
 
 **1.1.3** In the left navigation, go to: **Monitoring & health** > **Sign-in logs**
 
@@ -113,7 +113,7 @@ Also consider enabling complementary log categories for comprehensive agent tele
 **Destination 2 — Storage Account** (for long-term WORM retention — Zone 3 requirement):
 - Check **Archive to a storage account**
 - Select your Azure Subscription
-- Select the WORM-compliant storage account configured in Playbook 3.11-B
+- Select the WORM-compliant storage account configured in Playbook 3.13-B
 - Retention: set to **0** (meaning "keep indefinitely" — rely on the immutability policy for retention governance, not the storage account's own retention setting)
 
 **2.2.4** Select **Save**
@@ -139,7 +139,7 @@ MicrosoftServicePrincipalSignInLogs
 | project LogCount = Count, Status = iff(Count > 0, "FLOWING", "NO DATA YET")
 ```
 
-Expected result: Count > 0 if service-to-service agent authentication activity has occurred in the last hour. If Count = 0 after 30 minutes, see Troubleshooting Playbook 3.12-D.
+Expected result: Count > 0 if service-to-service agent authentication activity has occurred in the last hour. If Count = 0 after 30 minutes, see Troubleshooting Playbook 3.14-D.
 
 ---
 
@@ -183,7 +183,7 @@ Expected result: Count > 0 if service-to-service agent authentication activity h
 
 ## Part 4: Verify SDK-Instrumented Agents in M365 Admin Center
 
-After SDK implementation (Playbook 3.12-B), return to this step to confirm that custom agents are visible in the Admin Center.
+After SDK implementation (Playbook 3.14-B), return to this step to confirm that custom agents are visible in the Admin Center.
 
 ### Step 4.1: Confirm Agent Registry Visibility
 
@@ -245,7 +245,7 @@ Expected result: At least one audit record is present for each SDK-instrumented 
 
 **5.2.1** Compare the number of agent sessions you know occurred (from your test invocations or operational monitoring) to the number of Purview audit records found.
 
-**5.2.2** If Purview records are significantly fewer than expected sessions, a telemetry gap exists. Refer to Troubleshooting Playbook 3.12-D.
+**5.2.2** If Purview records are significantly fewer than expected sessions, a telemetry gap exists. Refer to Troubleshooting Playbook 3.14-D.
 
 ---
 

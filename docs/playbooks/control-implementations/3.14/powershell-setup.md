@@ -1,10 +1,10 @@
-# Playbook 3.12-B: PowerShell and SDK Setup — Installing the Observability SDK and Configuring Log Retention
+# Playbook 3.14-B: PowerShell and SDK Setup — Installing the Observability SDK and Configuring Log Retention
 
-**Playbook ID:** 3.12-B
-**Control:** 3.12 — Agent 365 Observability SDK and Custom Agent Telemetry
+**Playbook ID:** 3.14-B
+**Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 3–6 hours (initial SDK integration per agent); 30–60 minutes (log retention configuration)
-**Required Role:** Application Developer (SDK implementation); Global Administrator (Entra configuration); Azure Subscription Owner (storage and Log Analytics)
+**Required Role:** Application Developer (SDK implementation); Entra Global Admin (Entra configuration); Azure Subscription Owner (storage and Log Analytics)
 **Last Verified:** March 2026
 
 ---
@@ -350,7 +350,7 @@ Document all installed package versions in the agent's deployment manifest for S
 
 ## Part 4: Entra Diagnostic Settings Configuration via PowerShell
 
-The portal-based configuration is covered in Playbook 3.12-A. Use PowerShell for automated configuration or for organizations that require infrastructure-as-code (IaC) governance of diagnostic settings.
+The portal-based configuration is covered in Playbook 3.14-A. Use PowerShell for automated configuration or for organizations that require infrastructure-as-code (IaC) governance of diagnostic settings.
 
 ### Step 4.1: Configure MicrosoftServicePrincipalSignInLogs via Azure PowerShell
 
@@ -444,7 +444,7 @@ Get-AzDiagnosticSetting -ResourceId $EntraResourceUri | Where-Object { $_.Name -
 ```
 
 !!! note "Entra Diagnostic Settings API"
-    Microsoft Entra ID diagnostic settings are configured at the tenant level using a specific resource URI format (`/tenants/{tenantId}/providers/microsoft.aadiam`). This differs from resource-level diagnostic settings. If the `Set-AzDiagnosticSetting` cmdlet returns an error with this resource URI, use the Azure REST API or the Entra Admin Center portal UI (Playbook 3.12-A, Part 2) as an alternative. The `Az.Monitor` module version must support Entra diagnostic settings — use `Az.Monitor 3.0.0` or later.
+    Microsoft Entra ID diagnostic settings are configured at the tenant level using a specific resource URI format (`/tenants/{tenantId}/providers/microsoft.aadiam`). This differs from resource-level diagnostic settings. If the `Set-AzDiagnosticSetting` cmdlet returns an error with this resource URI, use the Azure REST API or the Entra Admin Center portal UI (Playbook 3.14-A, Part 2) as an alternative. The `Az.Monitor` module version must support Entra diagnostic settings — use `Az.Monitor 3.0.0` or later.
 
 ---
 

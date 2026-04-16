@@ -1,7 +1,7 @@
-# Playbook 3.12-D: Troubleshooting — Resolving SDK Integration and Telemetry Ingestion Issues
+# Playbook 3.14-D: Troubleshooting — Resolving SDK Integration and Telemetry Ingestion Issues
 
-**Playbook ID:** 3.12-D
-**Control:** 3.12 — Agent 365 Observability SDK and Custom Agent Telemetry
+**Playbook ID:** 3.14-D
+**Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Last Verified:** March 2026
 
@@ -303,7 +303,7 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 - Defender does not yet have native Agent 365 anomaly detection rules during Preview
 
 **Resolution**:
-1. Check Microsoft Defender > Advanced hunting using the KQL queries in Playbook 3.12-C, Test 4. If the event appears in advanced hunting tables but no alert was generated, the issue is alert rule configuration, not telemetry ingestion.
+1. Check Microsoft Defender > Advanced hunting using the KQL queries in Playbook 3.14-C, Test 4. If the event appears in advanced hunting tables but no alert was generated, the issue is alert rule configuration, not telemetry ingestion.
 2. Create a custom detection rule in Defender: Settings > Advanced hunting > Custom detection rules > Create rule. Build a rule that triggers on agent exception events from the CloudAppEvents or equivalent table.
 3. During Preview, native Defender alerting for Agent 365 exceptions may not yet be available for all exception types. Document this as a known Preview limitation and rely on Log Analytics alert rules as the interim exception detection mechanism.
 
@@ -350,7 +350,7 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 3. Check current Microsoft Learn documentation for the exact log category name as of the current month.
 
 **Resolution**:
-1. Use the Entra diagnostic settings UI (Playbook 3.12-A, Part 2) rather than PowerShell to get a current list of available log categories — the UI will only show log categories valid for your tenant.
+1. Use the Entra diagnostic settings UI (Playbook 3.14-A, Part 2) rather than PowerShell to get a current list of available log categories — the UI will only show log categories valid for your tenant.
 2. If the category is truly not available: the feature has not yet rolled out to your tenant region. Document this as a known Preview limitation and plan to enable it when the feature becomes available.
 
 ---
@@ -390,7 +390,7 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 **Regulatory Impact**: A retention period shorter than FINRA Rule 4511's 6-year requirement is a recordkeeping compliance deficiency.
 
 **Resolution**:
-1. Create a new Purview audit retention policy as described in Playbook 3.12-A, Part 3, with a duration of at least 2,190 days.
+1. Create a new Purview audit retention policy as described in Playbook 3.14-A, Part 3, with a duration of at least 2,190 days.
 2. Set a higher priority than the existing default policy.
 3. Note: Purview retention policies are prospective. Records that aged out under the previous shorter policy before the new policy was applied cannot be recovered. Document the gap period for CCO review.
 4. Escalate to CCO to assess whether the retention gap requires FINRA self-reporting under applicable rules.

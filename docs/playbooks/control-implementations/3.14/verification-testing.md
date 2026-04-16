@@ -1,10 +1,10 @@
-# Playbook 3.12-C: Verification Testing — Confirming Telemetry Flow to Purview, Defender, and Admin Center
+# Playbook 3.14-C: Verification Testing — Confirming Telemetry Flow to Purview, Defender, and Admin Center
 
-**Playbook ID:** 3.12-C
-**Control:** 3.12 — Agent 365 Observability SDK and Custom Agent Telemetry
+**Playbook ID:** 3.14-C
+**Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 2–3 hours
-**Required Role:** Global Administrator; Security Analyst (Defender verification); Compliance Analyst (Purview verification); Application Developer (SDK-level verification)
+**Required Role:** Entra Global Admin; Security Analyst (Defender verification); Compliance Analyst (Purview verification); Application Developer (SDK-level verification)
 **Last Verified:** March 2026
 
 ---
@@ -168,7 +168,7 @@ Confirm the Exception Rate metric has not declined as a result of the test invoc
 
 Pass Criteria: Total Sessions increases after test invocation. Agent appears in registry. Exception Rate unaffected.
 
-Fail Criteria: Total Sessions unchanged after 2+ hours. Refer to Troubleshooting Playbook 3.12-D, Issue 2.1.
+Fail Criteria: Total Sessions unchanged after 2+ hours. Refer to Troubleshooting Playbook 3.14-D, Issue 2.1.
 
 ---
 
@@ -218,7 +218,7 @@ Navigate to Purview > Data lifecycle management > Retention policies (or Audit >
 
 Pass Criteria: At least one Purview audit record found corresponding to the test session. Retention policy confirmed at 6+ years.
 
-Fail Criteria: No Purview records found after 90 minutes. Refer to Troubleshooting Playbook 3.12-D, Issue 3.1.
+Fail Criteria: No Purview records found after 90 minutes. Refer to Troubleshooting Playbook 3.14-D, Issue 3.1.
 
 ---
 
@@ -312,7 +312,7 @@ Pass Criteria: A Defender alert or advanced hunting record is found correspondin
 
 Partial Pass: Advanced hunting shows the exception event but no automatic alert was generated. Document Defender detection rule configuration as a gap item.
 
-Fail Criteria: No evidence of the exception event in Defender or advanced hunting after 4 hours. Refer to Troubleshooting Playbook 3.12-D.
+Fail Criteria: No evidence of the exception event in Defender or advanced hunting after 4 hours. Refer to Troubleshooting Playbook 3.14-D.
 
 ---
 
@@ -350,7 +350,7 @@ For each attribute listed in T5.5, document whether it was populated or blank. B
 
 **T5.7 — Log Analytics Correlation**
 
-If MicrosoftServicePrincipalSignInLogs are flowing to Log Analytics (confirmed in Playbook 3.12-A), run the following verification query:
+If MicrosoftServicePrincipalSignInLogs are flowing to Log Analytics (confirmed in Playbook 3.14-A), run the following verification query:
 
 ```kql
 // Correlate Entra agent sign-in to Log Analytics
@@ -408,7 +408,7 @@ $Blobs | Select-Object Name, LastModified, Length | Format-Table -AutoSize
 Expected: Files present with date-stamped names and recent LastModified timestamps.
 
 **T6.3 — Purview Retention Policy Verification**
-Navigate to Microsoft Purview > Audit > Audit retention policies. Confirm the policy configured in Playbook 3.12-A is:
+Navigate to Microsoft Purview > Audit > Audit retention policies. Confirm the policy configured in Playbook 3.14-A is:
 - Status: Active
 - Duration: 2,555 days (7 years) or greater *(the playbook recommends 10 years = 3,650 days for buffer)*
 - Record types: covers agent-related activity types
@@ -428,7 +428,7 @@ Complete one Verification Certificate per custom agent tested. Retain as an exam
 
 ---
 
-**CONTROL 3.12 VERIFICATION CERTIFICATE**
+**Control 3.14 VERIFICATION CERTIFICATE**
 
 Agent Name: ____________________________
 Agent Entra Service Principal ID: ____________________________
