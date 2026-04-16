@@ -358,12 +358,12 @@
 - Error log entry with error type = `ParseError`
 - Compliance status shows **Unknown** for an environment that has a valid policy record
 - Flow run history shows the `Parse_Duration_Minutes` compose action failed or produced an unexpected result
-- `fsi_inactivitytimeouterrorlogs` contains an entry for the environment with a non-null `fsi_errorraw` value
+- `fsi_inactivitytimeouterrorlog` contains an entry for the environment with a non-null `fsi_errorraw` value
 
 **Resolution Steps:**
 
 1. **Identify the raw duration string:**
-   - Open `fsi_inactivitytimeouterrorlogs` in Power Apps → Tables
+   - Open `fsi_inactivitytimeouterrorlog` in Power Apps → Tables
    - Find the error record for the affected environment
    - Check the `fsi_errorraw` column for the actual duration string returned by the BAP API
 
