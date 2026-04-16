@@ -2,9 +2,9 @@
 
 **Playbook Type:** Portal Walkthrough
 **Control:** 1.29 — Global Secure Access: Network Controls for Copilot Studio Agents
-**Audience:** Power Platform Administrators, Security Administrators (Entra)
+**Audience:** Power Platform Admins, Entra Security Admins
 **Estimated Duration:** 60–90 minutes for full configuration across a single environment
-**Prerequisites:** Global Secure Access license, Power Platform admin role, Security Administrator role in Entra admin center
+**Prerequisites:** Global Secure Access license, Power Platform admin role, Entra Security Admin role
 
 !!! warning "Preview Feature"
     This is a preview feature. Preview features aren't meant for production use and may have restricted functionality. Features may change before becoming generally available. Subject to the [Microsoft Azure Preview Supplemental Terms of Use](https://azure.microsoft.com/en-us/support/legal/preview-supplemental-terms/). Screenshots and navigation paths reflect the March 2026 UI state and may change. Validate each step against current UI before executing in production.

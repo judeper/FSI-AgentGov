@@ -611,7 +611,7 @@ $failCount  = ($checks | Where-Object { $_.Status -eq "FAIL" }).Count
 $errorCount = ($checks | Where-Object { $_.Status -eq "ERROR" }).Count
 
 if ($failCount -eq 0 -and $errorCount -eq 0) {
-    Write-Host "All checks passed. GSA configuration is compliant with Control 1.29 requirements." -ForegroundColor Green
+    Write-Host "All checks passed. GSA configuration aligns with Control 1.29 requirements." -ForegroundColor Green
 } else {
     Write-Host "$failCount check(s) FAILED, $errorCount check(s) ERROR." -ForegroundColor Red
     Write-Host "Remediate failures before declaring compliance. See portal-walkthrough.md for configuration steps." -ForegroundColor Yellow
