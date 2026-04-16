@@ -1,12 +1,12 @@
 # Portal Walkthrough: Control 1.15 - Encryption: Data in Transit and at Rest
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Microsoft 365 Admin Center, Azure Portal, Power Platform Admin Center
 **Estimated Time:** 4-8 hours for Customer Key setup
 
 ## Prerequisites
 
-- [ ] Entra Global Admin or Security Admin role
+- [ ] Entra Global Admin or Entra Security Admin role
 - [ ] Azure Key Vault Contributor access
 - [ ] Power Platform Admin role
 - [ ] Microsoft 365 E5 or equivalent license (for Customer Key)

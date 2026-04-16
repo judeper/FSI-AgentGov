@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 1.15 - Encryption: Data in Transit and at Rest
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Az.KeyVault, ExchangeOnlineManagement
 
 ## Prerequisites
