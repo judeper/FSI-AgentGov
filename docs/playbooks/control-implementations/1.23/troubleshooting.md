@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.23 - Step-Up Authentication for AI Agent Operations
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
@@ -44,7 +44,7 @@
 ## Escalation Path
 
 1. **Entra Security Admin** - CA policy configuration
-2. **Entra Admin** - Authentication methods
+2. **Entra Global Admin** - Authentication methods
 3. **Help Desk** - User enrollment assistance
 4. **Microsoft Support** - Platform issues
 
