@@ -1,6 +1,6 @@
 # Verification & Testing: Control 3.12 - Agent Governance Exception and Override Management
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **Test Duration:** 60-90 minutes
 **Test Environments:** Dataverse test environment, Power Automate test flows
 
@@ -637,4 +637,4 @@ For audit purposes, collect:
 
 [Back to Control 3.12](../../../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md)
 
-*Updated: February 2026 | Version: v1.0*
+*Updated: April 2026 | Version: v1.3*
