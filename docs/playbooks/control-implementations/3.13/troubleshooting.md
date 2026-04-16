@@ -1,7 +1,7 @@
-# Playbook 3.11-D: Troubleshooting — Resolving Common Analytics and Export Issues
+# Playbook 3.13-D: Troubleshooting — Resolving Common Analytics and Export Issues
 
-**Playbook ID:** 3.11-D
-**Control:** 3.11 — Agent 365 Admin Center Analytics and Reporting
+**Playbook ID:** 3.13-D
+**Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Last Verified:** March 2026
 
@@ -25,17 +25,17 @@ This playbook documents the most common issues encountered when implementing and
 **Symptom**: The "Agents" item does not appear in the M365 Admin Center left navigation, even after selecting "Show all."
 
 **Probable Causes**:
-- The signed-in account does not have the Global Administrator or Microsoft 365 Copilot Admin role
+- The signed-in account does not have the Entra Global Admin or Microsoft 365 AI Administrator role
 - The tenant does not have an active Microsoft 365 Copilot license
 - A browser caching issue is presenting a stale navigation state
 
 **Diagnostic Steps**:
-1. Verify the signed-in account's roles: Entra Admin Center > Users > [your account] > Assigned roles. Confirm "Global Administrator" or "Microsoft 365 Copilot Administrator" is listed.
+1. Verify the signed-in account's roles: Entra Admin Center > Users > [your account] > Assigned roles. Confirm "Entra Global Admin" or "Microsoft 365 AI Administratoristrator" is listed.
 2. Verify Copilot licensing: M365 Admin Center > Billing > Licenses. Confirm Microsoft 365 Copilot licenses are present and assigned.
 3. Check the M365 Message Center for any active service advisories affecting the Admin Center navigation.
 
 **Resolution**:
-1. If the account lacks the required role: have a current Global Admin assign the Microsoft 365 Copilot Admin role via Entra Admin Center > Roles and administrators.
+1. If the account lacks the required role: have a current Global Admin assign the Microsoft 365 AI Administrator role via Entra Admin Center > Roles and administrators.
 2. If the tenant lacks Copilot licenses: the Agent 365 features require Copilot licensing. Work with your Microsoft account team to acquire appropriate licenses.
 3. If a caching issue is suspected: clear browser cache and cookies, open a new private browsing window, and navigate to `https://admin.microsoft.com` again.
 4. Try the direct navigation URL: `https://admin.microsoft.com/Adminportal/Home#/agents`
@@ -104,7 +104,7 @@ This playbook documents the most common issues encountered when implementing and
 3. If exception rate = 0%, check Microsoft Defender for agent-related incident alerts that may indicate a widespread failure event.
 
 **Resolution**:
-1. If the root cause is missing SDK instrumentation: implement the Agent 365 Observability SDK per Control 3.14 and Playbook 3.12-B.
+1. If the root cause is missing SDK instrumentation: implement the Agent 365 Observability SDK per Control 3.14 and Playbook 3.14-B.
 2. If Total Sessions = 0 despite known agent usage: see Issue 2.3 below.
 3. If exception rate = 0% and Defender shows active incidents: initiate incident response procedures; do not attempt Admin Center resolution until the agent failure is understood.
 
@@ -219,7 +219,7 @@ Set-AzStorageBlobContent -File "C:\test.txt" -Container "agent-inventory-exports
 - Alert emails are being delivered to the spam/junk folder
 
 **Diagnostic Steps**:
-1. Navigate to Power Automate > My flows > `FSI-AgentGov-3.11-ComplianceAlerts`.
+1. Navigate to Power Automate > My flows > `FSI-AgentGov-3.13-ComplianceAlerts`.
 2. Check flow status: must be "On."
 3. Review flow run history: expand recent runs and check for error states in individual actions.
 4. If the flow is running but emails are not received: check the recipient's spam/junk folder.

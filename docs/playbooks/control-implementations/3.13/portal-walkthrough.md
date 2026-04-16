@@ -1,10 +1,10 @@
-# Playbook 3.11-A: Portal Walkthrough — Accessing and Navigating Agent 365 Analytics
+# Playbook 3.13-A: Portal Walkthrough — Accessing and Navigating Agent 365 Analytics
 
-**Playbook ID:** 3.11-A
-**Control:** 3.11 — Agent 365 Admin Center Analytics and Reporting
+**Playbook ID:** 3.13-A
+**Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Estimated Duration:** 30–45 minutes (initial setup); 10–15 minutes (recurring review)
-**Required Role:** Global Administrator or Microsoft 365 Copilot Admin
+**Required Role:** Entra Global Admin or Microsoft 365 AI Administrator
 **Last Verified:** March 2026
 
 ---
@@ -24,7 +24,7 @@ This playbook walks compliance officers, IT governance leads, and M365 administr
 
 Before beginning this walkthrough, confirm the following:
 
-- [ ] You have a Microsoft 365 Global Administrator or Copilot Admin account for the target tenant.
+- [ ] You have a Microsoft 365 Entra Global Admin or AI Administrator account for the target tenant.
 - [ ] Multi-factor authentication (MFA) is enabled and functioning for your admin account.
 - [ ] If accessing hero metrics: the tenant is enrolled in the Microsoft 365 Frontier program.
 - [ ] You have reviewed Control 3.13 and understand the Zone designation applicable to your organization.
@@ -38,7 +38,7 @@ Before beginning this walkthrough, confirm the following:
 
 **1.2** Navigate to: `https://admin.microsoft.com`
 
-**1.3** Sign in with your Global Administrator or Copilot Admin credentials. Complete MFA if prompted.
+**1.3** Sign in with your Entra Global Admin or AI Administrator credentials. Complete MFA if prompted.
 
 **1.4** Confirm you are in the correct tenant by verifying the tenant name displayed in the upper-right corner of the Admin Center. If you manage multiple tenants, use the tenant switcher before proceeding.
 
@@ -58,7 +58,7 @@ Before beginning this walkthrough, confirm the following:
 **2.4** Select **"Overview"** from the Agents submenu. The Agent 365 Overview page will load.
 
 !!! note "Navigation Variability"
-    The M365 Admin Center navigation layout may vary based on your Microsoft 365 license, tenant configuration, and any Admin Center preview features enabled. If "Agents" is not visible even after selecting "Show all," verify that your account has the required Copilot Admin or Global Admin role and that your tenant has M365 Copilot licensing.
+    The M365 Admin Center navigation layout may vary based on your Microsoft 365 license, tenant configuration, and any Admin Center preview features enabled. If "Agents" is not visible even after selecting "Show all," verify that your account has the required AI Administrator or Global Admin role and that your tenant has M365 Copilot licensing.
 
 ---
 

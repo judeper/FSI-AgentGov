@@ -1,17 +1,17 @@
-# Playbook 3.11-B: PowerShell Setup — Automated Inventory Export and Alert Configuration
+# Playbook 3.13-B: PowerShell Setup — Automated Inventory Export and Alert Configuration
 
-**Playbook ID:** 3.11-B
-**Control:** 3.11 — Agent 365 Admin Center Analytics and Reporting
+**Playbook ID:** 3.13-B
+**Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Estimated Duration:** 2–4 hours (initial setup); ongoing automation thereafter
-**Required Role:** Global Administrator, Exchange Administrator (for retention), Power Platform Admin (for alerts)
+**Required Role:** Entra Global Admin, Exchange Online Admin (for retention), Power Platform Admin (for alerts)
 **Prerequisites:** Microsoft Graph PowerShell SDK installed; Power Automate license; Azure subscription for storage
 **Last Verified:** March 2026
 
 ---
 
 !!! info "Automation Scope"
-    This playbook covers: (1) automated agent inventory export via Microsoft Graph API and PowerShell, (2) WORM-compliant storage configuration for SEC 17a-4 compliance, (3) Power Automate alert workflow setup for exception rate and pending request threshold notifications, and (4) scheduled task configuration for recurring exports. Manual portal export procedures are covered in Playbook 3.11-A.
+    This playbook covers: (1) automated agent inventory export via Microsoft Graph API and PowerShell, (2) WORM-compliant storage configuration for SEC 17a-4 compliance, (3) Power Automate alert workflow setup for exception rate and pending request threshold notifications, and (4) scheduled task configuration for recurring exports. Manual portal export procedures are covered in Playbook 3.13-A.
 
 !!! warning "Graph API Preview Endpoints"
     The Microsoft Graph API endpoints for Agent 365 inventory data are subject to change during the Preview period. Validate all endpoint paths against the current Microsoft Graph API documentation before deploying scripts to production. Script examples in this playbook use placeholder endpoint paths that reflect the expected API structure based on available documentation as of March 2026.
@@ -20,7 +20,7 @@
 
 ## Overview
 
-Manual inventory exports (Playbook 3.11-A) are sufficient for Zone 1 and Zone 2 quarterly cadences. Zone 3 firms requiring monthly exports and automated alerting need a programmatic approach. This playbook provides the automation framework to:
+Manual inventory exports (Playbook 3.13-A) are sufficient for Zone 1 and Zone 2 quarterly cadences. Zone 3 firms requiring monthly exports and automated alerting need a programmatic approach. This playbook provides the automation framework to:
 
 - Export agent inventory on a scheduled basis without manual portal access
 - Store exports automatically in WORM-compliant Azure Blob Storage
@@ -105,7 +105,7 @@ Save the following as `Export-AgentInventory.ps1` in your automation scripts dir
     a defensible record of the agent roster at each measurement date.
 
 .NOTES
-    Control:       3.11 - Agent 365 Admin Center Analytics and Reporting
+    Control:       3.13 - Agent 365 Admin Center Analytics and Reporting
     Version:       v1.0
     Last Updated:  March 2026
     Prerequisite:  Microsoft.Graph and Az modules installed; Entra app registered
@@ -405,7 +405,7 @@ Write-Host "Create a Schedule in the Automation Account for monthly execution."
 
 The following Power Automate flow template sends automated email alerts to the Compliance Officer when exception rate or pending request thresholds are breached. Configure this flow in Power Automate (https://make.powerautomate.com).
 
-**Flow Name**: `FSI-AgentGov-3.11-ComplianceAlerts`
+**Flow Name**: `FSI-AgentGov-3.13-ComplianceAlerts`
 
 **Trigger**: Scheduled (every 24 hours for Zone 3; every 7 days for Zone 2)
 

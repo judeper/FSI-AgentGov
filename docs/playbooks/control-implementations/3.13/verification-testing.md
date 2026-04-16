@@ -1,10 +1,10 @@
-# Playbook 3.11-C: Verification Testing — Confirming Analytics Visibility and Export Integrity
+# Playbook 3.13-C: Verification Testing — Confirming Analytics Visibility and Export Integrity
 
-**Playbook ID:** 3.11-C
-**Control:** 3.11 — Agent 365 Admin Center Analytics and Reporting
+**Playbook ID:** 3.13-C
+**Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Estimated Duration:** 1–2 hours
-**Required Role:** Global Administrator or Microsoft 365 Copilot Admin; Internal Audit (for attestation)
+**Required Role:** Entra Global Admin or Microsoft 365 AI Administrator; Internal Audit (for attestation)
 **Last Verified:** March 2026
 
 ---
@@ -34,19 +34,19 @@ Verification testing for Control 3.13 confirms that:
 **Test Steps**:
 
 **T1.1 — Authorized Access Test**
-1. Sign in to the M365 Admin Center with a Global Administrator account.
+1. Sign in to the M365 Admin Center with a Entra Global Admin account.
 2. Navigate to Agents > Overview.
 3. Confirm the page loads and displays the Agent Registry count.
 4. Record: page load time, Agent Registry count, and any error messages.
 
 Expected Result: Page loads successfully. Agent Registry count displays a non-zero value if agents are deployed.
 
-**T1.2 — Copilot Admin Role Test**
-1. Sign in with an account that has only the Microsoft 365 Copilot Admin role (not Global Admin).
+**T1.2 — AI Administrator Role Test**
+1. Sign in with an account that has only the Microsoft 365 AI Administrator role (not Global Admin).
 2. Navigate to Agents > Overview.
 3. Confirm the page loads and displays data.
 
-Expected Result: Page loads successfully. Copilot Admin role has sufficient privileges.
+Expected Result: Page loads successfully. AI Administrator role has sufficient privileges.
 
 **T1.3 — Unauthorized Access Test**
 1. Sign in with a standard Microsoft 365 user account (no admin roles).
@@ -219,7 +219,7 @@ Expected Result: Policy State = "Locked"; Immutability period = 2,190 days (6 ye
 
 **T5.1 — Power Automate Flow Status**
 1. Navigate to Power Automate (https://make.powerautomate.com).
-2. Locate the `FSI-AgentGov-3.11-ComplianceAlerts` flow.
+2. Locate the `FSI-AgentGov-3.13-ComplianceAlerts` flow.
 3. Confirm the flow status is "On."
 4. Review the flow run history for the most recent executions.
 
@@ -286,7 +286,7 @@ Expected Result: Log entries are present at the required cadence. Gaps, if any, 
 Expected Result: All three sampled log entries contain the required elements.
 
 **T6.4 — Reviewer Authorization Verification**
-1. For each sampled log entry, confirm the listed reviewer holds the Global Administrator or Copilot Admin role in Entra.
+1. For each sampled log entry, confirm the listed reviewer holds the Entra Global Admin or AI Administrator role in Entra.
 2. Verify via Entra admin center: Users > [reviewer name] > Assigned roles.
 
 Expected Result: All reviewers hold an authorized role. Log entries from users without appropriate roles should be treated as a control deficiency.
