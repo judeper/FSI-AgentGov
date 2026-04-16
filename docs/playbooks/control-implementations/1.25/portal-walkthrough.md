@@ -87,7 +87,7 @@
 |---------|-------------------|----------------------|---------------------|
 | **Blocked File Extensions** | Yes — executable types | Yes — executable types | Yes — executable types |
 | **Blocked MIME Types** | Optional | Yes | Yes |
-| **Allowed MIME Types (Allowlist)** | Not required | Recommended | Required |
+| **Allowed MIME Types (Allowlist)** | Not required | Required | Required |
 | **DLP Policy for File Uploads** | Not required | Yes | Yes — with alerts |
 | **Sentinel Monitoring** | Not required | Optional | Required |
 | **Review Frequency** | Quarterly | Monthly | Weekly |
