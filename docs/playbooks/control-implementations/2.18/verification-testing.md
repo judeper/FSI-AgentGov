@@ -1,6 +1,6 @@
 # Verification & Testing: Control 2.18 - Automated Conflict of Interest Testing
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Manual Verification Steps
 
@@ -85,7 +85,7 @@ Select grader types appropriate to each conflict dimension:
 Effective evaluation combines both data types:
 
 - **Authentic queries** — Use sanitized versions of real customer inquiries to test how agents handle messy, ambiguous, or multi-part questions. These reveal edge cases that synthetic data may miss.
-- **Structured test cases** — Use the test cases in the table above (TC-2.18-01 through TC-2.18-07) as baseline synthetic scenarios with known expected outcomes.
+- **Structured test cases** — Use the test cases in the table above (TC-2.18-01 through TC-2.18-10) as baseline synthetic scenarios with known expected outcomes.
 - **Hybrid approach** — Start with structured scenarios to establish baseline metrics, then layer in authentic queries to validate real-world performance.
 
 !!! warning "Data Privacy"

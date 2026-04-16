@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.18 - Automated Conflict of Interest Testing
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Copilot Studio, Custom Testing Framework
 **Estimated Time:** 2-4 hours initial setup, ongoing testing cycles
 
