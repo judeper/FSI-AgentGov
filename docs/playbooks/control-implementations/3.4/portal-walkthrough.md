@@ -9,7 +9,7 @@
 - [ ] Entra Security Admin or Purview Compliance Admin role
 - [ ] SharePoint Site Owner permissions for incident tracking
 - [ ] Power Automate license for workflow automation
-- [ ] Microsoft Sentinel workspace (for Level 4 implementations)
+- [ ] Microsoft Sentinel workspace (for Zone 3 / Regulated implementations)
 
 ---
 
@@ -211,4 +211,4 @@ Create analytics rules for agent-related incidents:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
