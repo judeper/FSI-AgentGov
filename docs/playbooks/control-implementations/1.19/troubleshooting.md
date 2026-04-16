@@ -6,7 +6,7 @@
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| Search returns no results | Query syntax error | Validate KeyQL syntax |
+| Search returns no results | Query syntax error | Validate KQL syntax |
 | Cannot create case | Missing permissions | Assign eDiscovery Manager role |
 | Export failing | Large result set | Split search or increase timeout |
 | Hold not preserving | Location not specified | Add correct locations to hold |
@@ -22,7 +22,7 @@
 
 **Diagnostic Steps:**
 
-1. Verify query syntax is valid KeyQL
+1. Verify query syntax is valid KQL
 2. Check date range includes content period
 3. Verify locations are correctly specified
 
@@ -63,7 +63,7 @@
 | Search limit 1000 items preview | Large searches need export | Use export for full results |
 | Export can take hours | Delays for large datasets | Plan ahead |
 | Some agent content locations | Not all Dataverse content searchable | Document limitations |
-| Copilot activity condition scope | May not cover all AI agent types | Combine with KeyQL queries for broader coverage |
+| Copilot activity condition scope | May not cover all AI agent types | Combine with KQL queries for broader coverage |
 
 ---
 
