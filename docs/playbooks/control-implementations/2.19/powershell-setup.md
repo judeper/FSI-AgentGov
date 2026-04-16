@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.19 - Customer AI Disclosure and Transparency
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Microsoft.PowerApps.Administration.PowerShell, Dataverse SDK
 
 ## Prerequisites
