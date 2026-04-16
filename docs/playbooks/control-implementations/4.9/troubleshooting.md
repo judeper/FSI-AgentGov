@@ -36,7 +36,7 @@ The embedded files filter applies only to agents created via **Agent Builder** i
 
 **Resolution:**
 1. Verify where the agent was built. Navigate to the agent detail view and review the creation metadata or ask the agent owner.
-2. If the agent was built in Copilot Studio and uses file knowledge sources, governance of those files falls under Copilot Studio governance controls (see the Copilot Studio pillar), not Control 4.9.
+2. If the agent was built in Copilot Studio and uses file knowledge sources, governance of those files falls under Copilot Studio governance controls (see the applicable governance controls across Pillars 1-3), not Control 4.9.
 3. Update the agent inventory (Control 3.1) to correctly record the agent type and applicable control reference.
 
 ### Cause B — Agent Uses SharePoint Site Knowledge, Not Uploaded Files

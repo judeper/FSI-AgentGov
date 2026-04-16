@@ -14,10 +14,10 @@
     The scripts in this playbook require the following permissions:
 
     - **SharePoint Administrator** role (for container enumeration via PnP.PowerShell)
-    - **Global Reader** or **Compliance Administrator** (for reading sensitivity label metadata)
+    - **Entra Global Reader** or **Purview Compliance Admin** (for reading sensitivity label metadata)
     - **Microsoft Graph API** permissions: `Sites.Read.All`, `Files.Read.All` (for Graph-based queries)
 
-    Run all scripts in a dedicated service account context where possible. Do not run with Global Administrator credentials as a routine practice.
+    Run all scripts in a dedicated service account context where possible. Do not run with Entra Global Admin credentials as a routine practice.
 
 ## Overview
 
@@ -541,7 +541,7 @@ This consolidated script runs the full quarterly audit workflow and produces a s
     SharePoint Admin Center URL for the tenant.
 
 .EXAMPLE
-    .\Invoke-Control48QuarterlyAudit.ps1 `
+    .\Invoke-Control49QuarterlyAudit.ps1 `
         -OutputDirectory "C:\FSI-AgentGov\Audits\2026-Q1" `
         -TenantAdminUrl "https://contoso-admin.sharepoint.com"
 #>
