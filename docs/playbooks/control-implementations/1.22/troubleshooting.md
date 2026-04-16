@@ -44,7 +44,7 @@
 
 1. **Purview Compliance Admin** - Segment and policy configuration
 2. **SharePoint Admin** - Site permission alignment
-3. **Entra Admin** - User attribute population
+3. **Entra User Admin** - User attribute population
 4. **Microsoft Support** - Policy application issues
 
 ---
