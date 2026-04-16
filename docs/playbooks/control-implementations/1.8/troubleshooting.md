@@ -347,9 +347,9 @@ For Native Microsoft Defender Integration issues:
 
 | Issue Category | Escalation Path |
 |---------------|-----------------|
-| Defender portal configuration | Defender XDR Admin → Microsoft Defender Support |
+| Defender portal configuration | Entra Security Admin → Microsoft Defender Support |
 | PPAC toggle issues | Power Platform Admin → Microsoft Power Platform Support |
-| M365 App Connector | Defender XDR Admin → Microsoft Defender Support |
+| M365 App Connector | Entra Security Admin → Microsoft Defender Support |
 | Agent inventory issues | Security Operations → Microsoft Defender Support |
 | Licensing issues | Microsoft 365 Admin → Microsoft Licensing Support |
 | Cross-portal sync issues | Both admins coordinate → Microsoft Support (joint ticket) |
