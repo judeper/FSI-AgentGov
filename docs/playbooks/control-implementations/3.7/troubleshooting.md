@@ -78,7 +78,7 @@ Get-AdminPowerAppEnvironment | Select-Object DisplayName, @{N='IsManaged';E={$_.
 | Issue Severity | Escalate To | Response Time |
 |----------------|-------------|---------------|
 | Dashboard failure | Microsoft Support | 4 hours |
-| Score calculation error | Platform Admin | 24 hours |
+| Score calculation error | Power Platform Admin | 24 hours |
 | Missing recommendations | AI Governance Lead | 48 hours |
 | Audit log gaps | Security Team | Immediate |
 
