@@ -190,4 +190,4 @@ If issues cannot be resolved using this guide:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
