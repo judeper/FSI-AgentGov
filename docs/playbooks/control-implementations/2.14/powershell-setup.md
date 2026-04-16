@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.14 - Training and Awareness Program
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Microsoft.Graph, ExchangeOnlineManagement
 
 ## Prerequisites

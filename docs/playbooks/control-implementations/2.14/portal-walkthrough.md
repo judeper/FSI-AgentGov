@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.14 - Training and Awareness Program
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portals:** Microsoft 365 Admin Center, Microsoft Viva Learning
 **Estimated Time:** 2-4 hours initial setup, ongoing management
 
@@ -86,7 +86,7 @@
 |---------|-------------------|----------------------|--------------------|
 | **Training Required** | Recommended | Required for makers | **Mandatory for all** |
 | **Completion Tracking** | Optional | Enabled | **Enforced with blocking** |
-| **Refresh Frequency** | Annual | Annual | **Semi-annual** |
+| **Refresh Frequency** | Annual | Annual | **Quarterly** |
 | **Policy Acknowledgment** | Optional | Annual | **Per policy update** |
 | **Evidence Retention** | 1 year | 3 years | **7 years** |
 
