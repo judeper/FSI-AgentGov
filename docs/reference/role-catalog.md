@@ -58,6 +58,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Purview Data Security AI Admin** | Manage DSPM for AI policies, configurations, and data security settings | Data Security AI Administrator |
 | **Purview Data Security AI Viewer** | View-only access to DSPM for AI dashboards and reports | Data Security AI Viewer |
 | **Purview Data Security AI Content Viewer** | View sensitive content flagged by DSPM for AI policies | Data Security AI Content Viewer |
+| **Purview DLP Content Viewer** | View actual matched sensitive content in Content Explorer (gating role for DLP investigation) | Content Explorer Content Viewer |
 
 ### Power Platform (PPAC / Copilot Studio)
 
@@ -149,8 +150,8 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 | **Agent Owner** | Power Platform | Owns agent lifecycle, configuration, and compliance for assigned agents |
 | **Model Risk Manager** | Organization | Oversees model risk management per OCC 2011-12 and Fed SR 11-7 |
 | **Security Architect** | Organization | Defines security standards and reviews agent security configurations |
-| **SOC Analyst** | Organization | Monitors security alerts and investigates AI agent-related incidents |
+| **SOC Analyst** | Organization | Monitors security alerts and investigates AI agent-related incidents — see [SOC Analyst Purview RBAC Role Matrix](purview-soc-analyst-roles.md) for required Purview role assignments |
 
 ---
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.3 - April 2026*
