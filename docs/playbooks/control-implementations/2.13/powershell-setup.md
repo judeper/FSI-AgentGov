@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.13 - Documentation and Record Keeping
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** PnP.PowerShell, ExchangeOnlineManagement
 
 ## Prerequisites

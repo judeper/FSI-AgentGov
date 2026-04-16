@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.13 - Documentation and Record Keeping
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** SharePoint, Microsoft Purview
 **Estimated Time:** 4-6 hours
 
