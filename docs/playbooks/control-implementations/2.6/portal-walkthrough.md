@@ -241,4 +241,4 @@ Agent Cards provide standardized documentation for each AI agent, capturing capa
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
