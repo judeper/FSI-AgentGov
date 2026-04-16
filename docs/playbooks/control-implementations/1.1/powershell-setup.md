@@ -54,6 +54,10 @@ if ($allUsersPermission) {
 
 ```powershell
 # Add Environment Maker role to authorized security group
+# NOTE: Set-AdminPowerAppEnvironmentRoleAssignment applies ONLY to environments
+# WITHOUT a Dataverse database. For Dataverse-backed Copilot Studio environments,
+# assign security roles via PPAC > Environments > [env] > Settings > Users + permissions
+# > Security roles, or use the Dataverse security role assignment API.
 $SecurityGroupId = "your-security-group-id"  # Get from Entra ID
 
 Set-AdminPowerAppEnvironmentRoleAssignment `
@@ -116,10 +120,16 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
     Configures Control 1.1 - Restrict Agent Publishing by Authorization
 
 .DESCRIPTION
-    This script restricts agent publishing by:
-    1. Removing Environment Maker role from All Users
-    2. Assigning Environment Maker role to authorized security groups
-    3. Disabling Share with Everyone capability
+    This script automates baseline tenant and environment checks for Control 1.1:
+    1. Reviewing Environment Maker role exposure
+    2. Assigning or validating authorized environment access (non-Dataverse environments only)
+    3. Reviewing tenant "Share with Everyone" settings
+
+    NOTE: For Dataverse-backed Copilot Studio environments, security role assignments
+    must use PPAC or Dataverse APIs. This script covers non-Dataverse environments and
+    tenant-level settings. Manual follow-up is required for Managed Environment sharing
+    rules, Copilot Studio authentication and sharing, approval workflows, and M365
+    agent blocking actions.
 
 .PARAMETER EnvironmentName
     The GUID of the target Power Platform environment
@@ -193,4 +203,4 @@ catch {
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: February 2026 | Version: v1.3 | Classification: PowerShell Setup*

@@ -76,6 +76,9 @@
 
 1. Verify Unified Audit Log is enabled:
    ```powershell
+   # Requires ExchangeOnlineManagement module
+   # Install-Module ExchangeOnlineManagement -Scope CurrentUser
+   # Connect-ExchangeOnline
    Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled
    ```
 
@@ -175,4 +178,4 @@ If issues persist after troubleshooting:
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: February 2026 | Version: v1.3 | Classification: Troubleshooting*
