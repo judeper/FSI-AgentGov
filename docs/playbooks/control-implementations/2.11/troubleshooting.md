@@ -1,6 +1,6 @@
 # Troubleshooting: Control 2.11 - Bias Testing and Fairness Assessment
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 

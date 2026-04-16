@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.11 - Bias Testing and Fairness Assessment
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Custom testing environment, Power BI for analysis
 **Estimated Time:** 8-16 hours for initial assessment
 
