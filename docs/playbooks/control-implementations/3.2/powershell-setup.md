@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 3.2 - Usage Analytics and Activity Monitoring
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Microsoft.PowerApps.Administration.PowerShell, ExchangeOnlineManagement
 
 ## Prerequisites
@@ -386,4 +386,4 @@ $summary
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
