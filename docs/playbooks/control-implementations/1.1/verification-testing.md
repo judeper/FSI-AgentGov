@@ -29,7 +29,7 @@
 ### Test 4: Verify Audit Logging
 
 1. Navigate to [Microsoft Purview portal](https://purview.microsoft.com) > Audit
-2. Search for `Published bot` events
+2. Search for Copilot Studio activities and filter for agent publish events (e.g., `BotUpdateOperation-BotPublish`)
 3. Verify all publishing attempts are logged with:
    - User identity
    - Timestamp
@@ -165,8 +165,8 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 | SSPM-1.1-01 | Agent authentication mode | Not set to "No Authentication" | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-02 | Manual auth sign-in requirement | "Require users to sign in" enabled | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-03 | Authentication enforcement | Set to "Always" | Copilot Studio > Settings > Security > Authentication | Screenshot |
-| SSPM-1.1-04 | Sharing scope | Not set to "Anyone with the link" | Copilot Studio > Settings > Security > Authentication | Screenshot |
-| SSPM-1.1-05 | AI feature publishing | "Publish bots with AI features" disabled | PPAC > Manage > Tenant Settings | Screenshot |
+| SSPM-1.1-04 | Sharing scope | Not set to "Anyone with the link" | Copilot Studio > Agent > **…** > **Share** | Screenshot |
+| SSPM-1.1-05 | Generative AI publishing | Generative AI agent publishing disabled | PPAC > Manage > Tenant Settings | Screenshot |
 | SSPM-1.1-06 | Unapproved agent blocking | Unapproved agents blocked from Teams channels | Teams Admin Center > Manage Apps | Screenshot |
 
 ### Test Procedures
@@ -194,18 +194,18 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 
 **SSPM-1.1-04: Sharing Scope**
 
-1. Navigate to **Copilot Studio** > select agent > **Settings** > **Security** > **Authentication**
-2. Verify sharing scope is NOT set to "Anyone with the link"
+1. Navigate to **Copilot Studio** > select agent > **…** > **Share**
+2. Verify the agent is NOT shared with "Anyone with the link" or unrestricted access
 3. **Pass criteria:** Sharing is restricted to specific users or security groups
 4. **Evidence:** Screenshot showing sharing scope configuration
 
-**SSPM-1.1-05: AI Feature Publishing**
+**SSPM-1.1-05: Generative AI Publishing**
 
 1. Navigate to **PPAC** > **Manage** > **Tenant Settings**
-2. Locate "Publish bots with AI features" toggle
-3. Verify toggle is set to **Off** (disabled)
-4. **Pass criteria:** AI feature publishing is disabled at tenant level
-5. **Evidence:** Screenshot showing Features page with toggle state
+2. Locate the tenant-level setting for publishing agents that use generative AI features
+3. Verify the setting is **Off** (disabled)
+4. **Pass criteria:** Generative AI agent publishing is disabled at tenant level
+5. **Evidence:** Screenshot showing tenant settings page with toggle state
 
 **SSPM-1.1-06: Unapproved Agent Blocking**
 

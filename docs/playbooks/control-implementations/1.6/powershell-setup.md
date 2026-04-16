@@ -153,7 +153,7 @@ Write-Host "Evidence exported to: $evidencePath"
 ## Enhanced DSPM AI Observability - Data Export (Preview)
 
 !!! warning "Preview Feature — Cmdlets may change at GA"
-    PowerShell cmdlets for unified DSPM experience are in preview. Command syntax and parameters may change at GA (June 2026).
+    PowerShell cmdlets for unified DSPM experience are in preview. Command syntax and parameters may change at GA (May 2026).
 
 ### Export Activity Explorer Enhanced Data
 
@@ -256,7 +256,7 @@ $htmlReport = @"
 <li>DLP Violations: $($violationSummary.DLPViolations)</li>
 </ul>
 
-<p><em>Note: Agent Risk Observability data currently requires manual export from Purview portal. PowerShell API for agent risk scores expected at GA (June 2026).</em></p>
+<p><em>Note: Agent Risk Observability data currently requires manual export from Purview portal. PowerShell API for agent risk scores expected at GA (May 2026).</em></p>
 </body>
 </html>
 "@
@@ -421,4 +421,4 @@ finally {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

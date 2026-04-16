@@ -82,7 +82,7 @@
 2. Check you're searching correct date range (events may have 24-48hr delay)
 
 3. Verify correct search criteria:
-   - Activity: "Published bot"
+   - Activity: Copilot Studio activities (e.g., `BotUpdateOperation-BotPublish`)
    - Record type: "PowerApps"
 
 4. Check user has audit log search permissions

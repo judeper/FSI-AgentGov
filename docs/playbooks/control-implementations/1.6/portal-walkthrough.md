@@ -232,7 +232,7 @@ For high-priority sites not in the top 100, create custom assessments:
 ## Enhanced DSPM AI Observability (Preview)
 
 !!! warning "Preview Feature — UI may change at GA"
-    The unified DSPM experience consolidating DSPM and DSPM for AI is in preview. GA rollout was expected June 2026 at time of writing (per MC1191257); check Message Center for the latest timeline. Portal navigation and feature availability may change before general availability.
+    The unified DSPM experience consolidating DSPM and DSPM for AI is in preview. GA rollout was expected May 2026 at time of writing (per MC1191257); check Message Center for the latest timeline. Portal navigation and feature availability may change before general availability.
 
 The unified DSPM experience provides a single interface for monitoring data security posture across all data types, including AI-specific interactions. This section covers configuring enhanced DSPM AI Observability capabilities that help FSI organizations meet comprehensive agent supervision requirements.
 
@@ -360,4 +360,4 @@ Enhanced DSPM AI Observability provides real-time insights into how agents inter
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

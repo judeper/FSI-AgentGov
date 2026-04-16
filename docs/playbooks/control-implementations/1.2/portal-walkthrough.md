@@ -180,7 +180,7 @@ Create a scheduled flow to refresh the registry:
 | **Metadata required** | Basic | Full schema | Full + audit trail |
 | **Approval level** | Self-service | Team lead + IT | AI Governance Committee |
 | **Risk assessment** | Not required | Checklist | Full assessment |
-| **Retention** | 1 year | 3 years | 7 years (exceeds SEC 17a-4(a) 6-year minimum) |
+| **Retention** | 1 year | 3 years | 7–10 years (exceeds SEC 17a-4(a) six-year minimum) |
 
 ---
 
