@@ -3,7 +3,7 @@
 **Control:** 2.26 — Entra Agent ID: Identity Governance for Agents
 **Playbook Type:** PowerShell Setup
 **Estimated Time:** 1–2 hours (initial setup and first report run); 15–30 minutes per subsequent governance report
-**Prerequisites:** Microsoft Graph PowerShell SDK installed; Global Administrator, Identity Governance Administrator, or custom role with agent identity read permissions; Frontier enrollment active
+**Prerequisites:** Microsoft Graph PowerShell SDK installed; Entra Global Admin, Entra Identity Governance Admin, or custom role with agent identity read permissions; Frontier enrollment active
 
 ---
 

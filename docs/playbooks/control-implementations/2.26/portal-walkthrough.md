@@ -3,7 +3,7 @@
 **Control:** 2.26 — Entra Agent ID: Identity Governance for Agents
 **Playbook Type:** Portal Walkthrough
 **Estimated Time:** 2–4 hours (initial setup); 30 minutes per subsequent agent onboarding
-**Prerequisites:** Microsoft 365 Global Administrator or Identity Governance Administrator; Frontier program enrollment completed or in progress
+**Prerequisites:** Entra Global Admin or Entra Identity Governance Admin; Frontier program enrollment completed or in progress
 
 ---
 

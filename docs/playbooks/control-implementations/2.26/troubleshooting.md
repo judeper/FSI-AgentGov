@@ -14,7 +14,7 @@
 !!! note "Before Troubleshooting — Quick Checklist"
     Before investigating any specific issue, confirm these prerequisites are met:
     - [ ] Frontier enrollment is confirmed active (M365 Admin Center > Copilot > Settings > Frontier shows "Enrolled")
-    - [ ] Your account has the required Entra roles: at minimum Identity Governance Administrator and Application Administrator
+    - [ ] Your account has the required Entra roles: at minimum Entra Identity Governance Admin and Application Administrator
     - [ ] Required licenses are assigned: Entra ID Governance (P2 or add-on) and Microsoft 365 E3/E5 with Frontier
     - [ ] Browser cache has been cleared (many Frontier preview UI issues resolve after a hard refresh or private browsing session)
 
@@ -60,7 +60,7 @@ try {
 
 **Resolution:**
 1. Re-attempt Frontier enrollment: M365 Admin Center > Copilot > Settings > Frontier > Enroll.
-2. Ensure you are completing the enrollment as a **Global Administrator** — other admin roles cannot complete Frontier enrollment.
+2. Ensure you are completing the enrollment as a **Entra Global Admin** — other admin roles cannot complete Frontier enrollment.
 3. If the Frontier option is not visible in the Copilot settings panel, verify that your Microsoft 365 subscription includes a plan that supports Frontier (generally M365 E3 or E5 with Copilot add-on, or M365 Copilot license).
 
 ---
@@ -69,10 +69,10 @@ try {
 
 **Diagnosis:**
 1. Verify the administrator's Entra role assignments: Entra admin center > Users > [User] > Assigned roles.
-2. Confirm the user has one of: Global Administrator, Application Administrator, or Identity Governance Administrator.
+2. Confirm the user has one of: Entra Global Admin, Application Administrator, or Entra Identity Governance Admin.
 
 **Resolution:**
-Assign the appropriate Entra role to the user. For least-privilege access to agent identities only, use Identity Governance Administrator combined with Application Administrator.
+Assign the appropriate Entra role to the user. For least-privilege access to agent identities only, use Entra Identity Governance Admin combined with Application Administrator.
 
 ---
 
