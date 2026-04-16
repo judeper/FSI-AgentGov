@@ -76,8 +76,8 @@
 ## Escalation Path
 
 1. **Power Platform Admin** - Role and environment configuration
-2. **Entra Admin** - Security groups and PIM
-3. **Dataverse Admin** - Security role privileges
+2. **Entra Global Admin** - Security groups and PIM
+3. **Dataverse System Admin** - Security role privileges
 4. **Microsoft Support** - Platform issues
 
 ---
@@ -87,7 +87,7 @@
 | Limitation | Impact | Workaround |
 |------------|--------|------------|
 | Role sync delay | Up to 15 minutes | Plan ahead for changes |
-| PIM max 8 hours | Long sessions need re-activation | Use permanent for service accounts |
+| PIM max 4 hours | Long sessions need re-activation | Use permanent for service accounts |
 | Limited custom roles | Some privileges cannot be separated | Use multiple roles |
 | Column security performance | May slow queries | Limit fields covered |
 

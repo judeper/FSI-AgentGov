@@ -1,13 +1,13 @@
 # Portal Walkthrough: Control 1.18 - Application-Level Authorization and RBAC
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Power Platform Admin Center, Microsoft Entra Admin Center
 **Estimated Time:** 3-5 hours
 
 ## Prerequisites
 
 - [ ] Power Platform Admin role
-- [ ] Entra Global Admin or Privileged Role Admin
+- [ ] Entra Global Admin or Entra Privileged Role Admin
 - [ ] Dataverse System Admin for security role creation
 
 ---
@@ -97,7 +97,7 @@
 
 1. Open **Copilot Studio** ([https://copilotstudio.microsoft.com](https://copilotstudio.microsoft.com))
 2. Navigate to **Agents** and select each agent
-3. Go to **Actions** and locate each configured action
+3. Go to **Tools** and locate each configured tool
 4. For every action, enable **"Ask the user before running this action"**
 5. Where available, set "How do you want to ask the user?" to **"You create the message"** and configure a clear, human-written description of what the action will do
 6. Repeat for all agents in Zone 2 and Zone 3 environments
@@ -144,4 +144,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: February 2026 | Version: v1.2 | Classification: Portal Walkthrough*
+*Updated: April 2026 | Version: v1.3 | Classification: Portal Walkthrough*
