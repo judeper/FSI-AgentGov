@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.16 - Information Rights Management (IRM)
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
@@ -154,7 +154,7 @@ If issues persist after troubleshooting:
 
 1. **Purview Info Protection Admin** - Label configuration
 2. **SharePoint Admin** - Library settings
-3. **Security Admin** - RMS activation
+3. **Entra Security Admin** - RMS activation
 4. **Microsoft Support** - Platform issues
 
 ---

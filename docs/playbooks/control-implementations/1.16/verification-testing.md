@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.16 - Information Rights Management (IRM)
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Manual Verification Steps
 
