@@ -240,4 +240,4 @@ Phase 3: Failback (Target: <2 hours)
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

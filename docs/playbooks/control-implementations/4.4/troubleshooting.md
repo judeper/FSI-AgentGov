@@ -102,4 +102,4 @@ Confirm issue is not user-specific permission problem.
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

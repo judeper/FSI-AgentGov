@@ -279,4 +279,4 @@ if ($LatestScan) {
 
 ---
 
-*Updated: March 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

@@ -108,4 +108,4 @@ Get-AdminFlow -EnvironmentName "<your-environment-GUID>" | Where-Object { $_.Dis
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

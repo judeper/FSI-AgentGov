@@ -85,4 +85,4 @@ Get-MgUserMemberOf -UserId "admin@contoso.com" |
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
