@@ -1,6 +1,6 @@
 # Troubleshooting: Control 2.10 - Patch Management and System Updates
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
