@@ -1,6 +1,6 @@
 # Verification & Testing: Control 2.21 - AI Marketing Claims and Substantiation
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Test Environment:** SharePoint, Power Automate
 **Estimated Time:** 1-2 hours
 
@@ -152,7 +152,7 @@ For audit and compliance documentation, collect the following evidence:
 ```
 AI MARKETING CLAIMS CONTROL ATTESTATION
 Control 2.21 - AI Marketing Claims and Substantiation
-Framework Version: 1.1
+Framework Version: 1.3
 
 Organization: ____________________________________
 Attestation Date: ____________________________________

@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.21 - AI Marketing Claims and Substantiation
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** SharePoint, Microsoft Purview compliance portal
 **Estimated Time:** 2-3 hours initial setup
 

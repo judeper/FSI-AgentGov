@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.21 - AI Marketing Claims and Substantiation
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Module Requirements:** PnP.PowerShell, Microsoft.Graph
 **Estimated Time:** 30-45 minutes
 

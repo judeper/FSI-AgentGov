@@ -1,6 +1,6 @@
 # Troubleshooting: Control 2.21 - AI Marketing Claims and Substantiation
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Support Contacts:** Compliance Officer, AI Governance Lead
 **Escalation Path:** Legal → Chief Compliance Officer
 
