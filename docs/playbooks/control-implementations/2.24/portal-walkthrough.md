@@ -63,7 +63,7 @@
 5. Click **Save** to apply Zone 3 environment restrictions
 6. Repeat for all Zone 3 environments in your tenant
 
-> **Best Practice:** Start with Zone 3 (most restrictive), then configure Zone 2 and Zone 1. This ensures your highest-risk environments are secured first, and you can progressively enable features for lower-risk zones.
+> **Best Practice:** Start with Zone 3 (most restrictive), then configure Zone 2 and Zone 1. This helps ensure your highest-risk environments are secured first, and you can progressively enable features for lower-risk zones.
 
 #### Step 4: Configure Zone 2 (Team) Environment Features
 
