@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - [ ] Azure subscription with Defender for Cloud enabled
-- [ ] Security Admin or Subscription Owner role
+- [ ] Entra Security Admin or Azure Subscription Owner role
 - [ ] AI workloads deployed (Azure AI Foundry, Azure OpenAI, or Copilot Studio with Azure integration)
 
 ---
