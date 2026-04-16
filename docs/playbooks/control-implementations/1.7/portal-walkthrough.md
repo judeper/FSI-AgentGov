@@ -112,7 +112,7 @@
 
 ---
 
-## AI Communications Recordkeeping (FINRA 4511/3110)
+## AI Communications Recordkeeping (FINRA Rule 4511 / Rule 3110)
 
 !!! warning "FINRA Notice 25-07 Clarification"
     FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. It references AI only in the context of recordkeeping for AI-generated communications. For AI supervision requirements, refer to **FINRA Rule 3110** (Supervision).
