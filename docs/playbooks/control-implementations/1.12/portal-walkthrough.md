@@ -18,7 +18,7 @@
 
 **Portal Path:** Microsoft Purview > Insider risk management > Settings
 
-1. Navigate to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
+1. Navigate to [Microsoft Purview portal](https://purview.microsoft.com)
 2. Go to **Insider risk management**
 3. Complete initial setup wizard:
    - Accept terms and conditions
@@ -190,4 +190,4 @@
 
 ---
 
-*Updated: March 2026 | Version: v1.3.2*
+*Updated: April 2026 | Version: v1.3*

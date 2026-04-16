@@ -108,7 +108,7 @@
 
 If issues persist:
 
-1. **First tier**: Insider Risk Admin - policy configuration
+1. **First tier**: Insider Risk Management Admin - policy configuration
 2. **Second tier**: HR - data connector coordination
 3. **Third tier**: Legal - investigation procedures
 4. **Fourth tier**: Microsoft Support - platform issues
@@ -123,4 +123,4 @@ If issues persist:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

@@ -15,7 +15,7 @@ Connect-IPPSSession
 ## Get Insider Risk Policies
 
 !!! note "Cmdlet Availability"
-    The `Get-InsiderRiskPolicy`, `Get-InsiderRiskAlert`, and `Get-InsiderRiskPriorityUserGroup` cmdlets may have limited public availability. If these cmdlets are not available in your environment, use the Microsoft Purview compliance portal to review insider risk policies and alerts.
+    The `Get-InsiderRiskPolicy`, `Get-InsiderRiskAlert`, and `Get-InsiderRiskPriorityUserGroup` cmdlets may have limited public availability. If these cmdlets are not available in your environment, use the Microsoft Purview portal to review insider risk policies and alerts.
 
 ```powershell
 Get-InsiderRiskPolicy | Select-Object Name, Mode, Enabled, Priority |
@@ -294,4 +294,4 @@ finally {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
