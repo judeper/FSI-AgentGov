@@ -11,7 +11,7 @@
 - [ ] Power Platform Admin role assigned
 - [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com) (sign-in required)
 - [ ] Access to [Microsoft 365 Admin Center](https://admin.microsoft.com)
-- [ ] Global Reader role for compliance review access
+- [ ] Entra Global Reader role for compliance review access
 - [ ] [Control 2.1: Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) enabled
 - [ ] Inventory export location prepared (SharePoint, network share, or GRC tool)
 
@@ -156,4 +156,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
