@@ -64,7 +64,7 @@
 
 | Rule | Setting | Rationale |
 |------|---------|-----------|
-| Sharing agents with Editor permissions | **Disabled** | Prevents uncontrolled agent co-authoring |
+| Sharing agents with Editor permissions | **Disabled** | Helps prevent uncontrolled agent co-authoring |
 | Sharing agents with Viewer permissions | **Disabled** | Limits agent distribution |
 | Channel access for published agents | **Teams + M365 Copilot only** | Restricts to internal channels |
 | Enable External Models | **Disabled** | Prevents external AI model usage |
@@ -227,6 +227,6 @@ Capture the following for audit documentation:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
 
 [Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
