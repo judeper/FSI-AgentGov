@@ -114,7 +114,7 @@
 If issues persist:
 
 1. **First tier**: Communication Compliance Admin - policy configuration
-2. **Second tier**: Purview Administrator - platform settings
+2. **Second tier**: Microsoft Purview Admin - platform settings
 3. **Third tier**: Legal/Compliance - escalation procedures
 4. **Fourth tier**: Microsoft Support - platform issues
 
@@ -128,4 +128,4 @@ If issues persist:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
