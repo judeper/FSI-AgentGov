@@ -38,7 +38,7 @@ This playbook documents common issues encountered when configuring and operating
 |---|---|---|
 | No Microsoft 365 Copilot license in tenant | High | Billing > Licenses — check for any M365 Copilot SKU |
 | Frontier enrollment not completed | High | Copilot > Settings > User Access — is Frontier toggle present? |
-| Admin account lacks required roles | Medium | Entra ID > Roles — requires Global Admin or Copilot Admin role |
+| Admin account lacks required roles | Medium | Entra ID > Roles — requires Entra Global Admin or AI Administrator role |
 | Tenant region not yet supported | Low | Check Microsoft 365 Roadmap for regional GA dates |
 | Provisioning still in progress | Medium | Wait 60 minutes after enrolling |
 
@@ -51,7 +51,7 @@ This playbook documents common issues encountered when configuring and operating
    Navigate to **Copilot > Settings**. If the User Access tab is not visible, your account may lack the required admin role (see step 3). If the tab is visible, check whether the Copilot Frontier toggle is present and its state.
 
 3. **Verify admin role assignment:**
-   Navigate to **Entra ID > Roles and Administrators** and confirm your account has one of the following roles: Global Administrator, Copilot Administrator, or a custom role with M365 admin center agent management permissions.
+   Navigate to **Entra ID > Roles and Administrators** and confirm your account has one of the following roles: Entra Global Admin, AI Administrator, or a custom role with M365 admin center agent management permissions.
 
 4. **Complete Frontier enrollment:**
    If the toggle is present but set to Disabled, toggle it to Enabled and wait 15–60 minutes. Refresh the admin center browser tab (Ctrl+F5 / Cmd+Shift+R for a hard refresh).
@@ -192,7 +192,7 @@ This playbook documents common issues encountered when configuring and operating
 ## Issue 5: Pending Requests Card Shows No Requests Despite Known Submissions
 
 **Severity:** High
-**Regulatory Impact:** If pending requests are not surfacing, the governance review queue is silently broken. Agents may be publishing without the admin approval that satisfies FINRA 3110 supervision requirements.
+**Regulatory Impact:** If pending requests are not surfacing, the governance review queue is silently broken. Agents may be publishing without the admin approval that supports FINRA 3110 supervision requirements.
 
 **Symptoms:**
 - A developer confirms they submitted an agent for approval

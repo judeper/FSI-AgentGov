@@ -1,6 +1,6 @@
 # Control 2.25: Microsoft Agent 365 — Admin Center Governance Console — Verification & Testing
 
-This playbook provides test cases, evidence collection procedures, and attestation templates for Control 2.25. All test procedures are designed to produce examination-ready evidence satisfying FINRA Rule 3110 supervisory documentation requirements, SEC 17a-4 recordkeeping obligations, SOX 404 IT general controls testing, and OCC 2011-12 technology risk management review.
+This playbook provides test cases, evidence collection procedures, and attestation templates for Control 2.25. All test procedures are designed to produce examination-ready evidence supporting FINRA Rule 3110 supervisory documentation requirements, SEC 17a-4 recordkeeping obligations, SOX 404 IT general controls testing, and OCC 2011-12 technology risk management review.
 
 !!! info "Evidence Retention"
     All test outputs documented in this playbook must be retained in your compliance repository with the same retention schedule applied to technology control evidence — minimum 3 years for general IT controls, 6 years for records tied to broker-dealer supervision or customer activity. Apply your firm's SEC Rule 17a-4(f) compliant storage policy to all exported evidence files.
