@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.17 - Multi-Agent Orchestration Limits
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Copilot Studio, Power Automate
 **Estimated Time:** 1-2 hours per orchestration pattern
 
@@ -59,7 +59,7 @@ Check against max_depth before delegating
 
 ### Step 4: Configure Circuit Breakers
 
-Implement circuit breakers to prevent cascade failures:
+Implement circuit breakers to help reduce cascade-failure risk:
 
 1. **Timeout Configuration:**
    - Set maximum response time for delegated calls

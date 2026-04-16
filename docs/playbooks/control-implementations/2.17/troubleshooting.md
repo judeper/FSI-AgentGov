@@ -1,6 +1,6 @@
 # Troubleshooting: Control 2.17 - Multi-Agent Orchestration Limits
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
