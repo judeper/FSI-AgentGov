@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.15 - Environment Routing and Auto-Provisioning
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Microsoft.PowerApps.Administration.PowerShell
 
 ## Prerequisites

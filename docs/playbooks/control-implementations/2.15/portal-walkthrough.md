@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.15 - Environment Routing and Auto-Provisioning
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Power Platform Admin Center
 **Estimated Time:** 30-60 minutes
 
