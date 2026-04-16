@@ -168,9 +168,13 @@ $startDate = (Get-Date).AddDays(-30)
 $endDate = Get-Date
 
 # Search for AI interaction events with enhanced metadata
-$aiActivityData = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
-    -RecordType "AIPDiscover,AIPFileDeleted,AIPHeartBeat,AIPProtectionAction,AIPSensitivityLabelAction" `
-    -ResultSize 5000
+# NOTE: -RecordType accepts a single value; loop through multiple types
+$recordTypes = @("AIPDiscover","AIPFileDeleted","AIPHeartBeat",
+                  "AIPProtectionAction","AIPSensitivityLabelAction")
+$aiActivityData = foreach ($rt in $recordTypes) {
+    Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+        -RecordType $rt -ResultSize 5000
+}
 
 # Parse and export with enhanced fields
 $enhancedData = $aiActivityData | ForEach-Object {
@@ -421,4 +425,4 @@ finally {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
