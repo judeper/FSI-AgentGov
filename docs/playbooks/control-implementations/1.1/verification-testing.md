@@ -16,8 +16,8 @@
 1. Sign in as a user **IN** the authorized security group
 2. Navigate to [Copilot Studio](https://copilotstudio.microsoft.com)
 3. Create a test agent in the appropriate environment
-4. Verify the agent can be created and saved in the governed non-production environment
-5. **EXPECTED:** Can create agents in DEV/UAT; production publish still requires the approved PROD publisher path
+4. Verify publishing succeeds
+5. **EXPECTED:** Can create and publish agents
 
 ### Test 3: Verify Release Gate Enforcement (PROD)
 
@@ -29,7 +29,7 @@
 ### Test 4: Verify Audit Logging
 
 1. Navigate to [Microsoft Purview portal](https://purview.microsoft.com) > Audit
-2. Search for `Published bot` events
+2. Search for Copilot Studio activities and filter for agent publish events (e.g., `BotUpdateOperation-BotPublish`)
 3. Verify all publishing attempts are logged with:
    - User identity
    - Timestamp
@@ -114,7 +114,7 @@ Collect and store the following artifacts for audit readiness:
 
 ---
 
-## Baseline Validation Script (Partial Automation)
+## Automated Validation Script
 
 ```powershell
 # Run validation checks for Control 1.1
@@ -165,9 +165,9 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 | SSPM-1.1-01 | Agent authentication mode | Not set to "No Authentication" | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-02 | Manual auth sign-in requirement | "Require users to sign in" enabled | Copilot Studio > Settings > Security > Authentication | Screenshot |
 | SSPM-1.1-03 | Authentication enforcement | Set to "Always" | Copilot Studio > Settings > Security > Authentication | Screenshot |
-| SSPM-1.1-04 | Sharing scope | Not shared with "Anyone" or "Any multi-tenant" | Copilot Studio > top menu "…" > Share | Screenshot |
-| SSPM-1.1-05 | AI feature publishing | "Publish bots with AI features" disabled | PPAC > Manage > Tenant Settings | Screenshot |
-| SSPM-1.1-06 | Unapproved agent blocking | Unapproved agents blocked in Agent Inventory | M365 Admin Center > Copilot > Agents & connectors | Screenshot |
+| SSPM-1.1-04 | Sharing scope | Not set to "Anyone with the link" | Copilot Studio > Agent > **…** > **Share** | Screenshot |
+| SSPM-1.1-05 | Generative AI publishing | Generative AI agent publishing disabled | PPAC > Manage > Tenant Settings | Screenshot |
+| SSPM-1.1-06 | Unapproved agent blocking | Unapproved agents blocked from Teams channels | Teams Admin Center > Manage Apps | Screenshot |
 
 ### Test Procedures
 
@@ -189,31 +189,31 @@ if ($settings.powerPlatform.powerApps.disableShareWithEveryone -eq $true) {
 
 1. Navigate to **Copilot Studio** > select agent > **Settings** > **Security** > **Authentication**
 2. Verify authentication enforcement is set to "Always"
-3. **Pass criteria:** Enforcement is "Always" — not "As Needed"
+3. **Pass criteria:** Enforcement is "Always" — not "Optional" or "None"
 4. **Evidence:** Screenshot showing enforcement setting
 
 **SSPM-1.1-04: Sharing Scope**
 
-1. Navigate to **Copilot Studio** > select agent > top menu bar > **…** > **Share**
-2. Review sharing entries and confirm the agent is NOT shared with "Everyone in \<Organization\>" or other unapproved broad audiences
-3. **Pass criteria:** Sharing is restricted to approved individuals or security groups
-4. **Evidence:** Screenshot showing Share panel configuration
+1. Navigate to **Copilot Studio** > select agent > **…** > **Share**
+2. Verify the agent is NOT shared with "Anyone with the link" or unrestricted access
+3. **Pass criteria:** Sharing is restricted to specific users or security groups
+4. **Evidence:** Screenshot showing sharing scope configuration
 
-**SSPM-1.1-05: AI Feature Publishing**
+**SSPM-1.1-05: Generative AI Publishing**
 
 1. Navigate to **PPAC** > **Manage** > **Tenant Settings**
-2. Locate "Publish bots with AI features" toggle
-3. Verify toggle is set to **Off** (disabled)
-4. **Pass criteria:** AI feature publishing is disabled at tenant level
-5. **Evidence:** Screenshot showing Tenant Settings page with toggle state
+2. Locate the tenant-level setting for publishing agents that use generative AI features
+3. Verify the setting is **Off** (disabled)
+4. **Pass criteria:** Generative AI agent publishing is disabled at tenant level
+5. **Evidence:** Screenshot showing tenant settings page with toggle state
 
 **SSPM-1.1-06: Unapproved Agent Blocking**
 
-1. Navigate to **M365 Admin Center** ([https://admin.microsoft.com](https://admin.microsoft.com)) > **Copilot** > **Agents & connectors**
-2. Review agent inventory for unapproved agents
-3. Verify unapproved agents are blocked or unavailable for deployment
-4. **Pass criteria:** Only approved agents show active status; unapproved agents show "Blocked" status
-5. **Evidence:** Screenshot showing Agent Inventory with agent status
+1. Navigate to **Teams Admin Center** > **Manage Apps**
+2. Search for any unapproved Copilot Studio agents
+3. Verify unapproved agents are blocked from Teams channels
+4. **Pass criteria:** Only approved agents are available in Teams; unapproved agents show "Blocked" status
+5. **Evidence:** Screenshot showing app management page with agent status
 
 ---
 

@@ -1,7 +1,7 @@
 # Portal Walkthrough: Control 1.1 - Restrict Agent Publishing by Authorization
 
 **Last Updated:** February 2026
-**Portal:** Power Platform Admin Center, Microsoft Entra Admin Center, Copilot Studio, Microsoft 365 Admin Center
+**Portal:** Power Platform Admin Center, Microsoft Entra Admin Center
 **Estimated Time:** 15-30 minutes
 
 ## Prerequisites
@@ -27,7 +27,7 @@ Use environment separation to enforce authorization as a technical control (not 
    - **Compliance approvers** cannot publish; they approve via workflow/tickets.
 3. Enforce "no direct publish to PROD" by ensuring unauthorized users do **not** have maker/admin rights in PROD.
 
-This release-gate model helps make "restrict publishing by authorization" auditable when role assignments, approvals, and publish events are retained as evidence.
+This release-gate model is what makes "restrict publishing by authorization" auditable.
 
 ### Step 1: Create Security Groups for Authorized Makers
 
@@ -87,9 +87,9 @@ Create additional security groups to support segregation of duties and release g
 1. In Power Platform Admin Center, navigate to **Manage** > **Environments**
 2. Select your environment > **...** (ellipsis) > **Enable Managed Environments** (if not already)
 3. Configure **Limit sharing**:
-   - For team collaboration: Keep security-group sharing available and configure sharing limits so makers can share only through approved security groups. Do **not** select **Exclude sharing with security groups** when security groups are your approved access mechanism.
+   - For team collaboration: **Exclude Sharing to Security Groups**
    - For enterprise managed: **Do not allow sharing** (strictest)
-4. This helps limit unauthorized distribution of agents. Organizations should review existing shares and documented exceptions separately.
+4. This prevents unauthorized distribution of agents
 
 ### Step 5: Implement Approval Workflow (Team/Enterprise)
 
@@ -126,7 +126,7 @@ For collaborative and enterprise-managed environments, implement a formal approv
 | **Security groups** | Optional | Required | Required + approval |
 | **Environment Maker role** | Default access | Restricted to group | Restricted + logged |
 | **Copilot Studio access** | All users | Authorized groups | Authorized + reviewed |
-| **Sharing restrictions** | Personal-use sharing only | Restricted to approved security groups | Restricted to named security groups only; broad sharing disabled |
+| **Sharing restrictions** | None | Exclude sharing to groups | No sharing allowed |
 | **Approval workflow** | None | Manager approval | Governance committee |
 | **Publishing audit** | Basic | Enhanced | Complete with retention |
 
@@ -157,10 +157,8 @@ For each Copilot Studio agent, configure authentication settings to prevent unau
 4. Configure authentication:
    - Change authentication from "No Authentication" to **"Authenticate with Microsoft"** (recommended for internal agents) or **"Authenticate Manually"** (for OAuth-based scenarios)
    - If using "Authenticate Manually," enable **"Require users to sign in"** to prevent anonymous interactions
-5. Set authentication enforcement timing:
-   - Enable **"Require users to sign in"** to enforce authentication at the start of every session
-   - Do **not** use "As Needed" — this allows unauthenticated session starts that create audit log gaps
-6. Select **Save**
+   - For "Authenticate with Microsoft," users are already authenticated through Teams and Microsoft 365
+5. Select **Save**
 
 **Repeat for every agent in Zone 2 and Zone 3 environments.**
 
@@ -171,28 +169,29 @@ For each Copilot Studio agent, configure authentication settings to prevent unau
     For continuous automated detection of agents with overly permissive sharing configurations, deploy the [Unrestricted Agent Sharing Detector (UASD)](../../advanced-implementations/unrestricted-agent-sharing-detector/index.md). UASD scans all agents for organization-wide sharing, public internet links, unapproved groups, excessive individual shares, and cross-tenant access — with automated remediation and exception management.
 
 1. In Copilot Studio, select the target agent
-2. On the top menu bar, select the three dots (**…**) > **Share**
+2. Select the three dots (**…**) > **Share** to review who can chat with or collaborate on the agent
 3. Verify the agent is **not** shared with:
    - "Anyone" (public access)
    - "Any (multi-tenant)" (cross-tenant access)
 4. Restrict sharing to:
    - **Copilot Readers** (for limited general access to low-risk agents)
    - **Specific Security Groups** (for restricted access based on role)
-5. Document exceptions for any agents intentionally shared broadly (requires risk acceptance)
+5. Enforce broader sharing restrictions through Managed Environment sharing rules in Power Platform Admin Center
+6. Document exceptions for any agents intentionally shared broadly (requires risk acceptance)
 
-### Step 8: Control AI-Featured Agent Publishing (Tenant Level)
+### Step 8: Control Generative AI Agent Publishing (Tenant Level)
 
 1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
 2. Navigate to **Manage** > **Tenant Settings**
-3. Locate **"Publish bots with AI features"**
+3. Locate the tenant-level setting for publishing agents that use generative AI features
 4. Set to **Disabled** until governance review confirms AI feature controls are in place
 5. Select **Save**
 
 ### Step 9: Block Unapproved Shared Agents (M365 Admin Center)
 
 1. Sign in to **M365 Admin Center** ([https://admin.microsoft.com](https://admin.microsoft.com))
-2. Navigate to **Copilot** > **Agents & connectors**
-3. Review all agents listed in the inventory
+2. Open the Copilot Control System / Agents experience (current UI may appear as **Agents** or **Agents & connectors**)
+3. Use **All agents** to review all agents in the tenant
 4. For any agent that has not been through the approval workflow, select **Block**
 5. Document blocking decisions and notify agent owners
 
@@ -210,8 +209,8 @@ After completing these steps, verify:
 - [ ] All agents have authentication enabled (not "No Authentication")
 - [ ] Agents using manual authentication have "Require users to sign in" enabled
 - [ ] No agents are shared with unrestricted access ("Anyone" or "Any multi-tenant")
-- [ ] "Publish bots with AI features" is disabled at tenant level, or an approved governance review exception is documented
-- [ ] Unapproved agents are blocked in M365 Admin Center Agent Inventory
+- [ ] Generative AI agent publishing is disabled at tenant level
+- [ ] Unapproved agents are blocked in M365 Admin Center
 
 ---
 

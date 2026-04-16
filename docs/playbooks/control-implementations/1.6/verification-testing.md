@@ -123,7 +123,7 @@
 ## Enhanced DSPM AI Observability Verification (Preview)
 
 !!! warning "Preview Feature — Tenant Availability Varies"
-    Enhanced DSPM AI Observability capabilities are rolling out gradually. Not all tenants have preview access. If your tenant does not have unified DSPM experience, these test cases will not be applicable until GA (June 2026).
+    Enhanced DSPM AI Observability capabilities are rolling out gradually. Not all tenants have preview access. If your tenant does not have unified DSPM experience, these test cases will not be applicable until GA (May 2026).
 
 ### Test Case: DSPM-01 - Verify Unified DSPM Experience Accessibility
 

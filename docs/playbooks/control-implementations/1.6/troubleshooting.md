@@ -115,7 +115,7 @@
 1. Verify tenant is in preview ring:
    - Check Message Center for MC1191257 (unified DSPM experience rollout notification)
    - If notification not received, tenant not yet in preview ring
-   - GA expected June 2026; unified experience will become available for all tenants at GA
+   - GA expected May 2026; unified experience will become available for all tenants at GA
 2. Complete DSPM for AI Get Started wizard:
    - Unified experience migration requires all four Get Started steps completed
    - Navigate to **Purview > DSPM for AI > Overview** and complete wizard
