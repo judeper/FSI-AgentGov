@@ -1,6 +1,6 @@
 # Troubleshooting: Control 3.11 - Centralized Agent Inventory Enforcement
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **Troubleshooting Level:** Control Implementation
 
 ---

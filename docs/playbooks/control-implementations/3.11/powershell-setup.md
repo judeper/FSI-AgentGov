@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 3.11 - Centralized Agent Inventory Enforcement
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **PowerShell Version:** 7.0 or higher recommended
 **Required Modules:**
 - Microsoft.PowerApps.Administration.PowerShell

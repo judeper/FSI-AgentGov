@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 3.11 - Centralized Agent Inventory Enforcement
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **Portal:** Power Platform Admin Center (PPAC), Microsoft 365 Admin Center, Copilot Studio
 **Estimated Time:** 60-75 minutes
 
