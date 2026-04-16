@@ -190,7 +190,7 @@ $instances | ForEach-Object {
 ## Escalation Path
 
 1. **Level 1:** SharePoint Admin - Report generation and policy configuration
-2. **Level 2:** Identity Governance Administrator - Access review workflows in Entra ID
+2. **Level 2:** Entra Identity Governance Admin - Access review workflows in Entra ID
 3. **Level 3:** Microsoft Support - Product issues or feature limitations
 4. **Level 4:** AI Governance Committee - Policy exceptions and review scope decisions
 
@@ -234,4 +234,4 @@ Write-Host "Sites without owners: $orphaned" -ForegroundColor $(if ($orphaned -g
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

@@ -169,4 +169,4 @@ Write-Host "Failed: $FailCount" -ForegroundColor $(if ($FailCount -gt 0) { "Red"
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
