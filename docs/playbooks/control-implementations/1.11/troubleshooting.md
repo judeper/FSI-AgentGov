@@ -126,9 +126,9 @@
 
 If issues persist:
 
-1. **First tier**: Identity Administrator - CA and MFA configuration
+1. **First tier**: Authentication Administrator - CA and MFA configuration
 2. **Second tier**: Entra Security Admin - authentication policies
-3. **Third tier**: Entra Administrator - platform-level issues
+3. **Third tier**: Entra Global Admin - platform-level issues
 4. **Fourth tier**: Microsoft Support - service issues
 
 ---
@@ -141,4 +141,4 @@ If issues persist:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
