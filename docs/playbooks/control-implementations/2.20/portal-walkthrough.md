@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.20 - Adversarial Testing and Red Team Framework
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Copilot Studio, Custom Testing Environment
 **Estimated Time:** 4-8 hours initial setup, ongoing testing cycles
 
@@ -127,7 +127,7 @@ For identified vulnerabilities:
 | **Red Team Testing** | Annual | Quarterly | **Monthly** |
 | **Test Categories** | Basic (injection, jailbreak) | Standard | **Comprehensive** |
 | **External Testing** | None | Consider | **Required annually** |
-| **Remediation SLA** | 30 days | 14 days | **7 days (critical)** |
+| **Remediation SLA** | 30 days | 14 days | **24 hours (critical) / 7 days (high)** |
 | **Evidence Retention** | 1 year | 3 years | **7 years** |
 | **Board Reporting** | None | Annual | **Quarterly** |
 

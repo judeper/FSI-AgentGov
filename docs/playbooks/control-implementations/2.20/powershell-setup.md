@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.20 - Adversarial Testing and Red Team Framework
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Custom test framework integration
 
 ## Prerequisites
