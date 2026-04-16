@@ -8,6 +8,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.3.4] — April 2026 (Autonomous Dual-Model Council Review)
+
+### Changed
+
+- **All 78 controls**: Added FINRA Regulatory Notice 25-07 (April 2025) to regulatory reference headers — the most significant 2025 AI-specific FINRA guidance was missing from every control
+- **All 128 playbooks**: Synchronized version footers from v1.2 to v1.3 across all four playbook types (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+- **Pillar 1 controls (deep review)**: Applied targeted fixes from dual-model council review (GPT-5.4 + Claude Opus 4.6) covering accuracy, currency, regulatory alignment, and Copilot Studio alignment
+
+### Fixed
+
+- **Control 1.4** (Advanced Connector Policies): Corrected two critical factual errors — per-environment ACP IS available (was claimed unavailable); MCP tool-level DLP NOT available in ACP (was claimed it was, only server-level blocking is supported)
+- **Control 1.7** (Audit Logging): Fixed broken SEC 17a-4 URL (HTTP 403) — replaced with 2022 amendments URL
+- **Control 1.7** (Audit Logging): Fixed FINRA 25-07 abbreviation from "RFI" to "RFC" (Request for Comment) and corrected scope characterization
+- **Control 1.9** (Data Retention): Fixed Copilot Studio location classification — moved from "Enterprise AI Apps" to correct "Microsoft Copilot experiences" location
+- **Control 1.12** (Insider Risk): Added Adaptive Protection (GA feature that was completely missing from the control)
+- **Control 1.21** (Adversarial Input Logging): Replaced retired FFIEC CAT (sunset August 2025) with NIST CSF 2.0 DE.CM/DE.AE
+- **Control 1.22** (Information Barriers): Fixed SEC Regulation SHO misattribution — SHO governs short-selling, not information barriers. Replaced with SEC Exchange Act §15(g) (the actual MNPI-barrier statute)
+- **Control 1.1** (Restrict Publishing): Fixed authentication timing language ("Always" vs "As Needed" not current Learn terminology), sharing path (Channels > Share Settings → … > Share), GenAI publishing label, and audit event name (Published bot → BotUpdateOperation-BotPublish)
+- **Control 1.2** (Agent Registry): Updated Agent 365 from Preview to GA (May 2026); fixed shadow agent definition, Researcher/Analyst governance exception wording
+- **Control 1.3** (SharePoint Governance): Distinguished M365 Copilot vs Copilot Studio governance surfaces; fixed RAC/RCD/IAG terminology conflation
+- **Control 1.5** (DLP): Updated DLP for Copilot Prompts status; fixed Block Labeled Files behavior description; removed stale MCP timeline claims
+- **Control 1.6** (DSPM for AI): Fixed unified DSPM GA timeline (June → May 2026); corrected AI Administrator role to view-only; added e-discovery and examination readiness guidance
+- **Control 1.8** (Runtime Protection): Fixed Defender integration from "GA February 2026" to "Preview — verify GA status"
+- **Control 1.15** (Encryption): Fixed SEC 17a-4 WORM/encryption conflation; added NYDFS 23 NYCRR 500.15
+
+### Added
+
+- **Regulatory coverage**: SEC Reg S-P 2024 amendments, NIST SP 800-53 control mappings, OCC 2023-17 (Interagency Third-Party Guidance), NIST AI RMF references, CFTC 1.31, Fed SR 11-7, NYDFS 23 NYCRR 500 citations added to relevant controls
+- **Control 1.1**: Added Copilot Studio data policies subsection, data residency verification subsection
+- **Control 1.4**: Added ACP-only mode guidance, virtual connector transition awareness, custom connector limitation callout
+- **Control 1.7**: Added CFTC 1.31 regulatory bullet for dual-registered firms
+- **Control 1.10**: Added Copilot interactions policy template reference, Policy Match Preservation setting (7 years for Zone 3)
+- **Control 1.11**: Added Windows Hello for Business to phishing-resistant MFA methods
+- **Control 1.19**: Added FINRA 8210 and FRCP 37(e) for litigation readiness
+- **Control 1.24**: Replaced retired FFIEC CAT with NIST AI RMF reference
+
+### Review Methodology
+
+Autonomous dual-model council review using GPT-5.4 (Security & Compliance Architect) and Claude Opus 4.6 (FSI Regulatory Specialist). Each model independently reviewed all 78 controls against current Microsoft Learn documentation and financial services regulatory requirements. Results: 184 council agreements, 0 disagreements, 0 researcher invocations needed, 5 broken URLs found.
+
+---
+
 ## [1.3.3] — April 2026 (Learn Monitor Response — URL Redirects & Content Updates)
 
 ### Fixed
