@@ -61,7 +61,7 @@ Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName |
 Write-Host "Managed Environment enabled. Configure ACP via portal." -ForegroundColor Yellow
 ```
 
-> **Note:** Advanced Connector Policies currently require portal configuration. PowerShell support is limited as of January 2026.
+> **Note:** Advanced Connector Policies currently require portal configuration. PowerShell support for ACP configuration is limited; use the portal for policy management.
 
 ---
 
@@ -349,4 +349,4 @@ catch {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

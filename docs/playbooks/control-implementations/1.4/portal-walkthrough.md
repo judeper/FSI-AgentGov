@@ -38,7 +38,7 @@ Before starting, confirm:
 1. In Power Platform Admin Center, select **Manage** > **Environment Groups**
 2. Select **New group**
 3. Add a **Name**: Example for FSI: `FSI-Production-Agents` or `Regulated-Banking-Environments`
-4. Add a **Description**: `Regulated production environments for financial services Copilot Studio agents - SOX and FINRA compliant`
+4. Add a **Description**: `Regulated production environments for financial services Copilot Studio agents — subject to SOX and FINRA requirements`
 5. Select **Add environments** and choose your managed environments
 6. Select **Create**
 
@@ -214,4 +214,4 @@ MCP (Model Context Protocol) provides a standardized way for AI agents to connec
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
