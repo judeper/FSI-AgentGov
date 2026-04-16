@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 1.2 - Agent Registry and Integrated Apps Management
 
-**Last Updated:** January 2026
+**Last Updated:** March 2026
 **Modules Required:** Microsoft.PowerApps.Administration.PowerShell, Microsoft.Graph
 
 ## Prerequisites

@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.2 - Agent Registry and Integrated Apps Management
 
-**Last Updated:** January 2026
+**Last Updated:** March 2026
 **Portal:** Microsoft 365 Admin Center, Power Platform Admin Center, SharePoint
 **Estimated Time:** 1-2 hours (initial setup)
 
@@ -63,7 +63,7 @@ Before building the registry, define the required metadata fields for FSI compli
 
 1. Navigate to **Settings** > **Org settings** > **Services** > **User consent to apps**
 2. For FSI environments, set to **Do not allow user consent**
-3. This ensures all agents must go through IT/Governance approval
+3. This helps ensure agents are routed through IT/Governance approval before deployment
 
 ### Step 2b: Configure Agent Settings in M365 Admin Center
 
@@ -139,7 +139,7 @@ Before building the registry, define the required metadata fields for FSI compli
 
 ### Step 5: Configure Agent Publishing Requirements
 
-**Portal Path:** Power Platform Admin Center > **Policies** > **Publishing**
+**Portal Path:** Power Platform Admin Center > **Environments** > [Select environment] > **Settings** > **Features**
 
 Ensure all new agents must be registered before publishing:
 
@@ -180,7 +180,7 @@ Create a scheduled flow to refresh the registry:
 | **Metadata required** | Basic | Full schema | Full + audit trail |
 | **Approval level** | Self-service | Team lead + IT | AI Governance Committee |
 | **Risk assessment** | Not required | Checklist | Full assessment |
-| **Retention** | 1 year | 3 years | 7 years (exceeds SEC 17a-4(a) 6-year minimum) |
+| **Retention** | 1 year | 3 years | 7 years (verify against SEC Rule 17a-4(b) record categories and your firm's retention schedule) |
 
 ---
 
