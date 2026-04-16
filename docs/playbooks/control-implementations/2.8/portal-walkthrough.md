@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- [ ] Entra Global Admin or Privileged Role Admin
+- [ ] Entra Global Admin or Entra Privileged Role Admin
 - [ ] Power Platform Admin role
 - [ ] Entra ID P2 license (for PIM and Access Reviews)
 - [ ] Role definitions documented per SOX SoD requirements
