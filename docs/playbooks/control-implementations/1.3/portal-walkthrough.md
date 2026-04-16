@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.3 - SharePoint Content Governance and Permissions
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** SharePoint Admin Center, Microsoft Purview, Entra Admin Center
 **Estimated Time:** 2-4 hours (initial configuration)
 
@@ -95,17 +95,17 @@ For each SharePoint site that agents will use as a knowledge source:
    - Apply sensitivity label: Appropriate FSI label
    - Site permissions: Only agent service accounts + content owners
 
-### Step 5: Configure Information Access Governance (IAG)
+### Step 5: Configure Restricted Access Control (RAC)
 
-**Portal Path:** SharePoint Admin Center > **Sites** > **Active sites** > **Restricted access control**
+**Portal Path:** SharePoint Admin Center > **Policies** > **Access control** (tenant enablement), then **Sites** > **Active sites** > [Select site] > **Settings** > **Restricted site access**
 
 For enterprise-managed agent knowledge sources:
 
-1. Select the site containing sensitive data
-2. Click **Policies** > **Restricted access control**
-3. Enable **Restrict access to this site**
-4. Add specific users or groups who can access
-5. This creates an additional layer beyond standard permissions
+1. Enable site-level restricted access at the tenant level if not already enabled
+2. Select the site containing sensitive data
+3. Open **Settings** > **Restricted site access**
+4. Enable restricted site access and assign approved Microsoft 365 groups or Entra security groups
+5. Use [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) for broader Restricted Content Discovery and Data Access Governance configuration
 
 ### Step 6: Configure Access Reviews for Agent Knowledge Sites
 
@@ -156,4 +156,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

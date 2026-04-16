@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 1.3 - SharePoint Content Governance and Permissions
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** Microsoft.Online.SharePoint.PowerShell, Microsoft.Graph
 
 ## Prerequisites
@@ -79,7 +79,7 @@ foreach ($SiteUrl in $AgentSites) {
 
     # Remove Everyone except external users if present
     try {
-        Remove-SPOUser -Site $SiteUrl -LoginName "c:0-.f|rolemanager|spo-grid-all-users/$($Site.Id)"
+        Remove-SPOUser -Site $SiteUrl -LoginName "c:0-.f|rolemanager|spo-grid-all-users"
         Write-Host "Removed 'Everyone except external users' from $SiteUrl" -ForegroundColor Yellow
     } catch {
         Write-Host "'Everyone except external' not found on $SiteUrl" -ForegroundColor Gray
@@ -254,4 +254,4 @@ Write-Host "`nControl 1.3 configuration complete!" -ForegroundColor Cyan
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

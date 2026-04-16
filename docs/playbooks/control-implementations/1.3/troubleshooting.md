@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.3 - SharePoint Content Governance and Permissions
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
@@ -32,7 +32,7 @@
 2. Check sensitivity label on content matches agent's allowed labels
 
 3. Confirm IAG/restricted content discoverability isn't blocking:
-   - SharePoint Admin Center > Sites > [site] > Policies > Restricted access control
+   - SharePoint Admin Center > Policies > Access control (tenant enablement), then Sites > Active sites > [site] > Settings > Restricted site access
 
 4. Review Conditional Access policies that might block service account
 
@@ -211,4 +211,4 @@ If issues persist after troubleshooting:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.3 - SharePoint Content Governance and Permissions
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Manual Verification Steps
 
@@ -107,9 +107,10 @@ $TenantSettings = Get-SPOTenant
 Write-Host "`nTenant Sharing Settings:" -ForegroundColor Cyan
 Write-Host "  Sharing Capability: $($TenantSettings.SharingCapability)"
 
-if ($TenantSettings.SharingCapability -eq "Disabled" -or
-    $TenantSettings.SharingCapability -eq "ExistingExternalUserSharingOnly") {
-    Write-Host "[PASS] Tenant sharing is appropriately restricted" -ForegroundColor Green
+if ($TenantSettings.SharingCapability -eq "Disabled") {
+    Write-Host "[PASS] Tenant sharing restricted to organization only" -ForegroundColor Green
+} elseif ($TenantSettings.SharingCapability -eq "ExistingExternalUserSharingOnly") {
+    Write-Host "[WARN] Tenant sharing allows existing external users - verify Zone 2 partner requirements justify this setting" -ForegroundColor Yellow
 } else {
     Write-Host "[WARN] Tenant sharing may be too permissive" -ForegroundColor Yellow
 }
@@ -185,4 +186,4 @@ foreach ($SiteUrl in $AgentSites) {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
