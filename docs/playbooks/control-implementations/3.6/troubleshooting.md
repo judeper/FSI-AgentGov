@@ -88,4 +88,4 @@ Get-AdminPowerApp -EnvironmentName "environment" | Where-Object { $_.Internal.pr
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
