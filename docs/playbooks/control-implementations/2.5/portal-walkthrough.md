@@ -84,7 +84,7 @@ Copilot Studio provides built-in evaluation capabilities:
 
 | Metric | Description | FSI Application |
 |--------|-------------|-----------------|
-| **Groundedness** | Response is based on provided knowledge sources | Ensures regulatory accuracy |
+| **Groundedness** | Response is based on provided knowledge sources | Supports regulatory accuracy |
 | **Relevance** | Response addresses the user's question | Customer satisfaction |
 | **Coherence** | Response is well-structured and logical | Professional communication |
 | **Fluency** | Response is grammatically correct | Brand standards |
@@ -216,7 +216,7 @@ Compliance Representative (enterprise-managed only)
 
 | Metric | Zone 1 | Zone 2 | Zone 3 |
 |--------|--------|--------|--------|
-| Response Time (p50) | <3s | <2s | <1s |
+| Response Time (p50) | <3s | <3s | <2s |
 | Response Time (p95) | <10s | <5s | <3s |
 | Concurrent Users | 10 | 100 | 1000 |
 | Availability | 95% | 99% | 99.9% |
@@ -244,4 +244,4 @@ Compliance Representative (enterprise-managed only)
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
