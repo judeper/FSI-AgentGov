@@ -97,10 +97,10 @@
 
 | Regulation | Minimum Retention | Applies To |
 |------------|-------------------|------------|
-| FINRA 4511 | 6 years | Books and records, communications |
-| SEC 17a-3/4 | 6-7 years | Trade records, communications |
-| SOX 802 | 7 years | Audit record retention |
-| GLBA 501(b) | Per company policy | Customer financial information |
+| FINRA Rule 4511 | 6 years | Books and records, communications |
+| SEC Rules 17a-3/17a-4 | 6-7 years | Trade records, communications |
+| SOX Section 802 | 7 years | Audit record retention |
+| GLBA Section 501(b) | Per company policy | Customer financial information |
 
 ---
 
@@ -125,4 +125,4 @@
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

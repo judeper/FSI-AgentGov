@@ -120,7 +120,7 @@
 If issues persist:
 
 1. **First tier**: Records Management - retention label and policy issues
-2. **Second tier**: Purview Administrator - distribution and configuration
+2. **Second tier**: Microsoft Purview Admin — distribution and configuration
 3. **Third tier**: Legal - hold and disposition decisions
 4. **Fourth tier**: Microsoft Support - platform-level issues
 
@@ -134,4 +134,4 @@ If issues persist:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*

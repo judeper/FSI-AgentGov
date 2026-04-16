@@ -148,7 +148,7 @@ $PolicyReport | Export-Csv "RetentionPolicies-$(Get-Date -Format 'yyyyMMdd').csv
 ## Check Disposition Reviews
 
 !!! note "Cmdlet Availability"
-    The `Get-ComplianceTagStorage` and `Get-DispositionItem` cmdlets may have limited public availability. If these cmdlets are not available in your environment, review pending dispositions through the Microsoft Purview compliance portal under **Records management** > **Disposition**.
+    The `Get-ComplianceTagStorage` and `Get-DispositionItem` cmdlets may have limited public availability. If these cmdlets are not available in your environment, review pending dispositions through the Microsoft Purview portal under **Records management** > **Disposition**.
 
 ```powershell
 $Dispositions = Get-ComplianceTagStorage | Get-DispositionItem -Status Pending
@@ -352,4 +352,4 @@ finally {
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
