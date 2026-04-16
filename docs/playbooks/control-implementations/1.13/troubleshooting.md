@@ -108,7 +108,7 @@
 
 ### SIT Status
 
-1. Navigate to Microsoft Purview compliance portal
+1. Navigate to Microsoft Purview portal
 2. Go to Data classification > Sensitive info types
 3. Verify SIT shows "Active" status
 4. Check "Last modified" date is current
@@ -152,4 +152,4 @@ If issues persist after troubleshooting:
 
 ---
 
-*Updated: January 2026 | Version: v1.2*
+*Updated: April 2026 | Version: v1.3*
