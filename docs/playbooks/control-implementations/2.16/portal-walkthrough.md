@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.16 - RAG Source Integrity Validation
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portals:** Copilot Studio, SharePoint Admin Center
 **Estimated Time:** 1-2 hours initial setup, ongoing monitoring
 

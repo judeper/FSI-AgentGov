@@ -1,6 +1,6 @@
 # Troubleshooting: Control 2.16 - RAG Source Integrity Validation
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
