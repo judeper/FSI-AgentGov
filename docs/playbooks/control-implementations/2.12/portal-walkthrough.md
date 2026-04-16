@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 2.12 - Supervision and Oversight (FINRA Rule 3110)
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Portal:** Copilot Studio, Power Automate
 **Estimated Time:** 4-6 hours
 

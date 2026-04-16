@@ -1,6 +1,6 @@
 # Verification & Testing: Control 2.12 - Supervision and Oversight
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 
 ## Manual Verification Steps
 

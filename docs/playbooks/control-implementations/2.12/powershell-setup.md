@@ -1,6 +1,6 @@
 # PowerShell Setup: Control 2.12 - Supervision and Oversight
 
-**Last Updated:** January 2026
+**Last Updated:** April 2026
 **Modules Required:** PnP.PowerShell, ImportExcel
 
 ## Prerequisites
