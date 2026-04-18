@@ -1,303 +1,142 @@
-# Control 1.6: Microsoft Purview DSPM for AI - Verification & Testing
+# Control 1.6 — Verification & Testing: DSPM for AI
 
-> This playbook provides verification and testing guidance for [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
-
----
-
-## Verification Steps
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to purview.microsoft.com > DSPM for AI | Dashboard displayed |
-| 2 | Check Get Started completion | All steps show completed |
-| 3 | Review Recommendations | Actions tracked with status |
-| 4 | Access Reports | Interaction data visible |
-| 5 | Check Policies | Required policies enabled |
-| 6 | Open Activity explorer | AI interactions logged |
-| 7 | Review Data risk assessments | Assessment capability available |
+**Control:** [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
+**Reference template:** `1.7/verification-testing.md`, `2.1/verification-testing.md`
+**Last UI Verified:** April 2026
 
 ---
 
-## Get Started Verification
+## Re-verification cadence (SR 11-7 alignment)
 
-### Step 1: Audit Activation
-
-- [ ] DSPM Get started shows Step 1 completed
-- [ ] Purview Audit page indicates logging is enabled
-- [ ] Recent audit events are present
-
-### Steps 2-4: Extended Visibility
-
-- [ ] Browser extension deployed (if applicable)
-- [ ] Devices onboarded (if applicable)
-- [ ] Extended insights enabled (if applicable)
+| Cadence | Activity | Owner |
+|---|---|---|
+| Daily (Zone 3) | Activity Explorer review for in-scope users; oversharing remediation aging |  AI Governance Lead delegate |
+| Weekly | Default Weekly Risk Assessment review (top 100 sites); deterministic `1.6-ACT-01` test | Compliance Admin |
+| Monthly | License entitlement reconciliation (`1.6-LIC-01`); one-click policy inventory (`1.6-POL-01`) | Compliance Admin |
+| Quarterly | Negative test suite (`1.6-NEG-01`…`1.6-NEG-05`); attestation pack | Compliance Admin + AI Governance Lead |
+| On-change | Re-run any test affected by license change, role change, policy change, sovereign-cloud change | Change requester |
+| On-incident | `1.6-INC-01` — full evidence preservation per troubleshooting playbook | Incident commander |
 
 ---
 
-## Reports Verification
+## Test catalog
 
-1. Navigate to **DSPM for AI > Reports**
-2. Verify data is populating:
-   - Total interactions trend chart shows data
-   - Sensitive interactions per AI app shows breakdown
-   - User interaction metrics are visible
+Each test specifies prerequisites, deterministic input/output, and audit-binder evidence.
 
----
+### `1.6-ACT-01` — Deterministic Copilot interaction is logged
 
-## Activity Explorer Verification
+**Prereq:** A named M365 Copilot–licensed user; tenant in scope of a `Capture interactions for Copilot experiences` template with content capture **on**.
 
-1. Navigate to **DSPM for AI > Activity explorer**
-2. Apply filters:
-   - Date range: Last 7 days
-   - AI app category: Copilot experiences & agents
-3. Verify:
-   - AI interaction events are logged
-   - User information is captured
-   - Sensitive info types are detected (if applicable)
-4. Test export function
+| Step | Action | Expected | Evidence |
+|---|---|---|---|
+| 1 | Record UTC timestamp | — | tester log |
+| 2 | User issues a known prompt referencing a labeled doc | — | tester log |
+| 3 | Wait 24 h (per Learn) | — | — |
+| 4 | Activity Explorer: filter `User=<UPN>` AND time window | Event count ≥ 1, app=Microsoft 365 Copilot | CSV export + SHA-256 |
+| 5 | `Search-UnifiedAuditLog -RecordType CopilotInteraction` over same window | Same event count and `UserId` | CSV export + SHA-256 |
 
----
+**Pass:** Both steps 4 and 5 return ≥ 1 with reconciled count. **Fail (silent-zero-row):** Either returns 0 — investigate license, audit ingestion (correct shell), scope, content capture.
 
-## Data Risk Assessment Verification
+### `1.6-LIC-01` — License entitlement coverage
 
-### Weekly Assessment Functionality
+**Pass:** 100% of in-scope monitored users carry M365 Copilot SKU per `Get-MgUserLicenseDetail`; PAYG billing active where non-MS AI in scope. **Fail:** Any unlicensed in-scope user — silent under-reporting risk.
 
-| Test | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Navigate to DSPM for AI dashboard | All four tabs (Overview, Identify, Protect, Monitor) load with data |
-| 2 | Check default assessment status | Weekly assessment shows recent run date and site count (top 100 sites) |
-| 3 | Review Protect tab for oversharing | Sites with broad permissions are flagged with remediation options |
-| 4 | Create custom assessment for specific site | Assessment queues and produces results within 4 days |
-| 5 | Verify assessment covers sensitivity label detection | Unlabeled content flagged in Identify tab |
+### `1.6-POL-01` — One-click policy inventory + content-capture state
 
-### Dashboard Tab Verification
+**Pass:** Each enabled template has recorded {name, mode, scope, exclusions, content-capture state, role used}. Templates with "Capture" in name have content capture **on**. **Fail:** Any "Capture …" template with content capture off — Activity Explorer rows render but content is empty.
 
-1. **Overview Tab:**
-   - [ ] Sites scanned count displayed
-   - [ ] Sensitive items found summary visible
-   - [ ] Risk score per site/workspace shown
+### `1.6-LBL-01` — Sensitivity-label propagation to Copilot response
 
-2. **Identify Tab:**
-   - [ ] Coverage percentage displayed (data scanned vs. not scanned)
-   - [ ] Unscanned volumes identified
-   - [ ] Unlabeled content flagged
+Label a source doc → invoke Copilot summarization → assert response carries label or restriction per Copilot label inheritance behavior. (Per Learn `microsoft-365-copilot-architecture-data-protection-auditing`.)
 
-3. **Protect Tab:**
-   - [ ] Sites with organization-wide sharing flagged
-   - [ ] Sites with external sharing flagged
-   - [ ] Remediation options available
+### `1.6-AP-01` — Adaptive Protection threshold fires (Commercial / GCC only)
 
-4. **Monitor Tab:**
-   - [ ] Sharing breakdown by access type displayed
-   - [ ] Specific people access shown
-   - [ ] External and organization-wide access tracked
-   - [ ] Group-based access visible
+Induce a user into the elevated risk tier (test tenant) → attempt sensitive prompt → assert configured DLP action (warn / audit / block) fires and Activity Explorer + IRM both reflect the event. **Skip on GCC High / DoD** with documented exception.
 
-### Assessment Schedule Verification
+### `1.6-WRA-01` — Weekly Risk Assessment cadence
 
-1. Navigate to **DSPM for AI > Data risk assessments**
-2. Verify default assessment runs successfully
-3. Review results for:
-   - Assessment run date (weekly schedule)
-   - Sites scanned (top 100 by usage)
-   - Overshared items count
-   - Severity levels
-   - Affected sites/users
-4. Confirm timing:
-   - Initial results appeared within 4 days
-   - Subsequent results refresh within 48 hours
+| Check | Expected | Source |
+|---|---|---|
+| Default Weekly Assessment runs each week | Yes | Data risk assessments page |
+| First-results delay tolerance | ≤ 4 days | Learn `dspm-for-ai-considerations` |
+| Refresh tolerance | ≥ 48 h post-completion | Learn |
+| Custom assessments scheduled for Zone 3 sites > top 100 | All in-scope sites covered | CAB-tracked register |
 
-### Evidence Collection
+### `1.6-NEG-01..05` — Negative tests
 
-**Export DSPM assessment summary as PDF** for compliance documentation. Include:
+| ID | Scenario | Expected |
+|---|---|---|
+| NEG-01 | Unauthorized role opens DSPM for AI | Access denied |
+| NEG-02 | One-click policy paused (`Mode=Disable`) → test interaction | Event logged but no enforcement; documented |
+| NEG-03 | Browser extension absent on managed Windows endpoint → ChatGPT visit | Third-party AI event **not** in Activity Explorer |
+| NEG-04 | Unlicensed Copilot user attempts interaction | Documented behavior (event still in audit vs. dropped) |
+| NEG-05 | Restricted-AU admin attempts to create one-click DSPM policy | Refused (AU not supported) |
 
-- Assessment date
-- Sites scanned count
-- Findings count by severity
-- Remediation status
-- Dashboard screenshots showing all four tabs
-- Assessment configuration showing weekly schedule
+### `1.6-WORM-01` — Evidence integrity & immutable storage
+
+**Pass:** Every CSV / JSON / PDF artifact has a paired `.sha256` sidecar; storage location is immutable (Purview retention label, SharePoint hold, or WORM blob) with retention aligned to Control 1.7. **Fail:** Any artifact without sidecar or stored on writable share.
+
+### `1.6-DSPMv-01` — Unified DSPM (preview) accessibility
+
+If tenant is opted into the preview, verify the **DSPM (preview)** node loads and `Posture / Objectives / AI observability / Discover > Activity explorer / Discover > Data risk assessments` are reachable. If not opted in, document and skip — do not assert preview-specific UI affordances.
 
 ---
 
-## Enhanced DSPM AI Observability Verification (Preview)
+## Evidence pack (audit-binder)
 
-!!! warning "Preview Feature — Tenant Availability Varies"
-    Enhanced DSPM AI Observability capabilities are rolling out gradually. Not all tenants have preview access. If your tenant does not have unified DSPM experience, these test cases will not be applicable until GA (May 2026).
+```
+Control-1.6_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}
+Control-1.6_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}.sha256
+```
 
-### Test Case: DSPM-01 - Verify Unified DSPM Experience Accessibility
+Required artifacts per quarter:
 
-**Objective:** Confirm tenant has access to unified DSPM experience (preview) or confirm classic DSPM for AI is available
-
-**Prerequisites:**
-- E5 or E5 Compliance license active
-- Purview Compliance Admin role assigned
-- DSPM for AI Get Started wizard completed
-
-**Test Steps:**
-
-1. Navigate to Microsoft Purview (https://purview.microsoft.com)
-2. In left navigation, select **Solutions**
-3. Look for **Data Security Posture Management** (unified) OR **DSPM for AI** (classic)
-4. If unified experience: Verify single dashboard with both AI and non-AI data security metrics
-5. If classic experience: Document tenant is not yet in preview ring; test cases DSPM-02/03 deferred until GA
-
-**Expected Outcome (Preview-Enabled Tenant):**
-- Unified DSPM experience accessible with integrated dashboard
-- Navigation shows "Data Security Posture Management" (not separate "DSPM for AI")
-- Dashboard displays agent risk observability section
-- Activity Explorer includes enhanced filtering options
-
-**Expected Outcome (Non-Preview Tenant):**
-- Classic DSPM for AI experience remains available
-- Navigation shows separate "DSPM for AI" section
-- Weekly risk assessments and Activity Explorer function as documented in existing test cases
-- Monitor Message Center for MC1191257 availability notification
-
-**Evidence to Collect:**
-- Screenshot: Purview navigation showing unified DSPM OR classic DSPM for AI
-- Screenshot: Dashboard showing unified experience OR classic dashboard
-- Note: Tenant preview ring status (enabled/not enabled)
+- `1.6-ACT-01` deterministic-test result (CSV) + tester log (TXT)
+- `1.6-LIC-01` license entitlement reconciliation (CSV)
+- `1.6-POL-01` one-click policy inventory (JSON)
+- `1.6-LBL-01` propagation test result (PDF + screenshots)
+- `1.6-AP-01` Adaptive Protection result (CSV + IRM event export) **or** documented sovereign exception
+- `1.6-WRA-01` weekly assessment summaries × 13 weeks (PDF + CSV)
+- `1.6-NEG-01..05` negative-test results (CSV + screenshots)
+- `1.6-WORM-01` immutable-storage attestation (signed)
+- Tenant cloud + role-by-step attestation
+- PowerShell transcripts from all runs
 
 ---
 
-### Test Case: DSPM-02 - Verify Agent Risk Observability Data
+## Attestation template
 
-**Objective:** Confirm agent risk observability dashboards are populating with per-agent risk scores
+```text
+Control 1.6 — Microsoft Purview DSPM for AI
+Quarter: Q_____ FY_____
+Tenant: __________________________  Cloud: ☐ Commercial ☐ GCC ☐ GCC High ☐ DoD  Zone: ☐ 1 ☐ 2 ☐ 3
 
-**Prerequisites:**
-- Unified DSPM experience accessible (tenant in preview ring)
-- At least one Copilot Studio or Agent Builder agent deployed and active
-- Agent has generated interactions (minimum 10 events in last 7 days)
-- DSPM for AI Get Started wizard completed
+I have executed the test catalog above for the period covered. The evidence pack referenced
+in this attestation supports — but does not by itself establish — the firm's compliance with:
 
-**Test Steps:**
+  • FINRA Rule 3110 / 25-07 supervisory-system requirements applicable to AI surfaces
+  • SEC 17a-4(f) / FINRA 4511 record-preservation expectations (paired with Audit Premium / Control 1.7)
+  • SEC Reg S-P §248.30(a)(4) detection support for events that may trigger customer notification
+  • GLBA 501(b) safeguards expectations for customer information processed by AI
+  • OCC 2011-12 / Fed SR 11-7 model risk management ongoing-monitoring expectations
+  • Interagency Guidance on Third-Party Relationships (OCC/FRB/FDIC) for ongoing monitoring of third-party AI
 
-1. Navigate to **Purview > Data Security Posture Management > AI Risk Dashboard** (or equivalent unified dashboard tab)
-2. Verify agent risk summary displays with agent names and risk scores
-3. Select a high-risk agent (if none present, select any agent with risk score data)
-4. Review contributing factors:
-   - Data sensitivity accessed
-   - Access pattern analysis
-   - Policy violations (if any)
-   - Oversharing assessment findings
-5. Export agent risk summary to CSV
-6. Verify export includes: AgentName, RiskScore, RiskFactors, LastAssessed timestamp
+This evidence does not constitute a legal determination. Reportability decisions remain with
+Compliance and Legal counsel.
 
-**Expected Outcome:**
-- Agent risk dashboard displays active agents with risk scores (High/Medium/Low)
-- Risk scores are based on actual agent activity (not placeholder data)
-- Contributing factors explain risk score rationale
-- Export generates valid CSV with all expected columns
-- Risk scores update at least weekly (check LastAssessed timestamp)
-
-**Expected Outcome (No Risk Data):**
-- If risk data not populating: Verify Application Insights integration configured (see troubleshooting DSPM-02)
-- If agents deployed <7 days ago: Risk scoring may require 7-14 days of activity baseline
-- Data latency: Risk scores update weekly; new agents may show "Insufficient Data" until baseline established
-
-**Evidence to Collect:**
-- Screenshot: Agent risk dashboard showing risk scores
-- Screenshot: Contributing factors for one high/medium risk agent
-- Export: Agent risk summary CSV file
-- Documentation: Risk score calculation methodology (from Purview portal help text)
+Reviewer: __________________________   Role: __________________________
+Signature: _________________________   Date (UTC): ____________________
+```
 
 ---
 
-### Test Case: DSPM-03 - Verify Activity Explorer Enhanced Filters
+## Cross-references
 
-**Objective:** Confirm Activity Explorer enhanced filters for AI-specific event data are functional
-
-**Prerequisites:**
-- Unified DSPM experience accessible (tenant in preview ring)
-- Activity Explorer has AI interaction events (minimum 50 events in last 30 days)
-- DSPM for AI Get Started wizard completed
-
-**Test Steps:**
-
-1. Navigate to **Purview > Data Security Posture Management > Activity explorer**
-2. Test multi-agent selection filter:
-   - Click "Agent" filter dropdown
-   - Select 2+ agents using shift-click or ctrl-click
-   - Verify results show events for all selected agents
-3. Test data classification filter:
-   - Click "Sensitivity Label" filter
-   - Select "Confidential" or "Highly Confidential"
-   - Verify results show only events with selected sensitivity labels
-4. Test advanced search:
-   - Enter search query: `Agent:"[AgentName]" AND SensitivityLabel:"Confidential"`
-   - Verify results match combined criteria
-5. Test enhanced export:
-   - Select 7-day date range
-   - Click **Export** > **Enhanced CSV**
-   - Open exported file and verify columns include: EventTimestamp, User, AgentName, ActivityType, DataSource, SensitivityLabel, PolicyActions
-6. Compare enhanced export to classic export:
-   - Note additional metadata fields (RiskScore, AccessPattern) present in enhanced export
-
-**Expected Outcome:**
-- Multi-agent filter works (simultaneous selection of multiple agents)
-- Data classification filter correctly narrows results to labeled events
-- Advanced search with operators (AND, OR) functions correctly
-- Enhanced CSV export includes additional metadata fields beyond classic export
-- Export completes within 60 seconds for 5000 events or fewer
-
-**Expected Outcome (Filter Not Available):**
-- If enhanced filters missing: Verify unified DSPM experience is active (not classic DSPM for AI)
-- If advanced search not functioning: Check preview feature flag in tenant; may require Microsoft support to enable
-
-**Evidence to Collect:**
-- Screenshot: Activity Explorer with multi-agent filter applied
-- Screenshot: Advanced search query with results
-- Export: Enhanced CSV file showing additional metadata columns
-- Documentation: Comparison of classic vs enhanced export column list
+- [Control 1.6 Portal Walkthrough](portal-walkthrough.md)
+- [Control 1.6 PowerShell Setup](powershell-setup.md)
+- [Control 1.6 Troubleshooting](troubleshooting.md) — for any FAIL or `1.6-INC-01`
+- [Control 1.7 Verification & Testing](../1.7/verification-testing.md) — pair for durable evidence
 
 ---
 
-## Evidence Artifacts to Retain
-
-### DSPM Setup Evidence
-
-- [ ] Screenshot: DSPM Get started with all steps completed
-- [ ] Screenshot: Purview Audit enabled
-- [ ] Export: Sample audit results
-
-### Reports Evidence
-
-- [ ] Screenshot: Reports page with filters visible
-- [ ] Screenshot: Total interactions trend
-- [ ] Screenshot: Sensitive interactions summary
-
-### Activity Explorer Evidence
-
-- [ ] Export: Activity explorer CSV
-- [ ] Screenshot: Filters showing scoping
-
-### Oversharing Assessment Evidence
-
-- [ ] Screenshot: Assessment list with status and completion time
-- [ ] Screenshot: Results summary showing overshared items count
-- [ ] Change evidence: Remediation tickets
-
-### Policy Evidence
-
-- [ ] Screenshot: DLP policies as displayed in DSPM Policies
-- [ ] Screenshot: Policy details showing scope and mode
-
----
-
-## Confirmation Checklist
-
-- [ ] DSPM for AI is accessible
-- [ ] All Get Started steps completed
-- [ ] Recommendations are tracked
-- [ ] Reports show AI interaction data
-- [ ] Policies are configured and enabled
-- [ ] Activity explorer logs AI interactions
-- [ ] Data risk assessments can run
-- [ ] Evidence artifacts collected and stored
-
-[Back to Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
-
----
-
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*

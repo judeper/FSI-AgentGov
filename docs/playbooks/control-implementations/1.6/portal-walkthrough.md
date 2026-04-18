@@ -1,363 +1,179 @@
-# Portal Walkthrough: Control 1.6 - Microsoft Purview DSPM for AI
+# Control 1.6 — Portal Walkthrough: Microsoft Purview DSPM for AI
 
-**Last Updated:** March 2026
-**Portal:** Microsoft Purview
-**Estimated Time:** 2-3 hours
-
-> This playbook provides portal configuration guidance for [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
-
----
-
-## Prerequisites
-
-Before starting, confirm:
-
-- E5 or E5 Compliance licenses active
-- Purview portal access verified
-- Unified audit logging enabled
-- Microsoft 365 Copilot deployed to users
-- Purview Compliance Admin role assigned
-- Agent inventory available (from Control 3.1)
+**Control:** [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
+**Audience:** M365 administrator (US financial services)
+**Last UI Verified:** April 2026
+**Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table below)
 
 ---
 
-## Accessing DSPM for AI
+## Sovereign cloud URLs and feature parity
 
-1. Open [Microsoft Purview](https://purview.microsoft.com)
-2. In the left navigation, locate **Solutions** (or expand the nav if collapsed)
-3. Select **DSPM for AI**
-4. Use the DSPM sub-pages: **Overview**, **Recommendations**, **Reports**, **Policies**, **Activity explorer**, **Data risk assessments**
+| Cloud | Portal URL | DSPM for AI (classic) | Unified DSPM (preview) | IRM-backed templates | Adaptive Protection |
+|---|---|---|---|---|---|
+| Commercial | `https://purview.microsoft.com` | GA | Preview (May 2026 GA expected, MC1191257) | GA | GA |
+| GCC | `https://purview.microsoft.com` | GA | Preview (commercial-first) | GA | GA |
+| GCC High | `https://purview.microsoft.us` | GA (May 2025) | Not GA as of April 2026 | Limited (verify per workload) | Not at parity |
+| DoD | `https://purview.microsoft.us` (DoD instance) | GA (May 2025) | Not GA as of April 2026 | Limited (verify per workload) | Not at parity |
 
----
-
-## Get Started Setup (4 Steps)
-
-The Overview page provides four required setup steps:
-
-| Step | Task | Description | Time |
-|------|------|-------------|------|
-| 1 | **Activate Microsoft Purview Audit** | Get insights into user interactions with Microsoft 365 Copilot | 7 min |
-| 2 | **Install Microsoft Purview browser extension** | Detect risky activity and get insights into other AI apps | 1 hour |
-| 3 | **Onboard devices to Microsoft Purview** | Prevent sensitive data from leaking to other AI apps | 1 hour |
-| 4 | **Extend your insights for data discovery** | Discover sensitive data in interactions with other AI apps | 10 min |
+> Verify your tenant's cloud before relying on preview features. Insider Risk Management is not at parity in US Government clouds — IRM-backed one-click templates may be unavailable.
 
 ---
 
-## Step 1: Activate Microsoft Purview Audit (Required)
+## Prerequisites & licensing matrix
 
-1. In **Purview > DSPM for AI > Overview**, open the **Get started** card
-2. Select **Activate Microsoft Purview Audit** and complete the guided workflow
-3. In **Purview > Audit**, confirm audit is enabled and recent events are present
+| Capability | Required entitlement / configuration |
+|---|---|
+| Visibility of M365 Copilot interactions | **Microsoft 365 Copilot** per-user license; Microsoft 365 E5 / E5 Compliance / Microsoft Purview Suite per monitored user |
+| Coverage of non-Microsoft AI apps (ChatGPT Enterprise, Gemini, Foundry, Other) | **Purview pay-as-you-go (PAYG) billing** linked to an Azure subscription |
+| Long-term `CopilotInteraction` retention (>180 days) | **Audit (Premium)** + retention policy — see Control 1.7 |
+| Endpoint AI signals | **Defender for Endpoint** *or* **standalone Purview device onboarding** |
+| Edge AI/DLP signal capture | **Microsoft Edge configuration policy** (NOT browser extension) |
+| Third-party AI (Chrome/Firefox, Windows-only) | **Microsoft Purview browser extension** |
+| Entra-registered AI apps / Foundry | **Microsoft Purview SDK** integration |
 
-**Verification artifacts:**
+## Roles required per Get Started step
 
-- Screenshot: DSPM Get started shows Step 1 completed
-- Screenshot: Purview Audit page indicates logging is enabled
-- Export: Small sample of audit results demonstrating recent activity
+| Get Started step | Role group(s) that can complete |
+|---|---|
+| Activate Audit | Microsoft Exchange Organization Management *or* Exchange Compliance Management *or* Records Management — **NOT** Purview Compliance Admin alone |
+| Install browser extension / configure Edge | Endpoint admin (Intune) + Compliance Admin |
+| Onboard devices | Defender for Endpoint admin + Compliance Admin |
+| Extend your insights | **Insider Risk Management** role group (for IRM-backed templates) + Compliance Admin |
+| Create one-click policies (DSPM Policies pane) | Per-template — see control doc Roles & Responsibilities table |
 
----
-
-## Steps 2-4: Extend Visibility (Recommended)
-
-Steps 2-4 expand coverage to other AI apps. Complete as appropriate for your scope:
-
-- **Step 2**: Deploy Purview browser extension via Intune/Endpoint Manager
-- **Step 3**: Onboard devices to Purview for endpoint protection
-- **Step 4**: Enable extended data discovery for third-party AI apps
-
----
-
-## Overview Dashboard Configuration
-
-### View Options
-
-| View | Coverage |
-|------|----------|
-| **All AI apps** | Microsoft 365 Copilot, Copilot Studio, third-party AI |
-| **Microsoft 365 Copilot** | M365 Copilot interactions only |
-
-### Dashboard Sections
-
-- **Recommendations**: Data protection actions, AI regulation guidance
-- **Reports**: Total interactions, sensitive interactions per AI app
-- **Metrics**: Interactions with sensitive data (last 30 days)
+> **Least privilege:** Avoid Global Admin where the workflow is achievable with Compliance Admin or a workload-specific role group. Tenant-restricted (administrative-unit-scoped) admins **cannot** create DSPM/DLP/IRM one-click policies as of April 2026.
 
 ---
 
-## Recommendations Configuration
+## Step-by-step walkthrough
 
-### Status Tracking
+### Step 1 — Open DSPM for AI (classic)
 
-| Status | Description |
-|--------|-------------|
-| **Not Started** | Actions pending implementation |
-| **Dismissed** | Actions marked as not applicable |
-| **Completed** | Actions successfully implemented |
+1. Sign in to your tenant cloud's Purview URL (see sovereign cloud table)
+2. **Solutions** > **DSPM for AI (classic)**
+3. Confirm the **Overview** page loads (this gates further role-related troubleshooting)
 
-### Key Recommendations for FSI
+### Step 2 — Complete Get Started · Activate Audit
 
-| Recommendation | Priority | FSI Impact |
-|----------------|----------|------------|
-| Protect sensitive data in Copilot responses | High | Customer data protection |
-| Detect risky interactions in AI apps | High | Insider threat detection |
-| Protect items with sensitivity labels | High | Classification enforcement |
-| Secure interactions from enterprise AI apps | Medium | Third-party AI governance |
+> Audit ingestion has been **on by default** in all new tenants since 2023. Detect first; only mutate if disabled. Verify state from **Exchange Online PowerShell** (`Get-AdminAuditLogConfig.UnifiedAuditLogIngestionEnabled`) — the value from Security & Compliance PowerShell (IPPS) is unreliable.
 
----
+1. Open Get Started > Step 1 (Activate Audit)
+2. If marked complete, capture screenshot for evidence and continue
+3. If incomplete, hand off to a holder of an Exchange role group (see table above)
+4. Cross-reference Control 1.7 portal walkthrough for the audit baseline
 
-## Reports Configuration
+### Step 3 — Get Started · Install browser support
 
-### Report Filters
+- **Edge:** push the **Edge configuration policy** via Intune (NOT the browser extension). Document policy ID + scope.
+- **Chrome / Firefox (Windows only):** push the **Microsoft Purview browser extension** via Intune
+- Capture per-device coverage report; sites or users without coverage will silently miss third-party AI events (silent-zero-row trap)
 
-| Filter | Options |
-|--------|---------|
-| **Copilot experiences & agents** | Microsoft 365 Copilot, Copilot Studio agents |
-| **Enterprise AI apps** | ChatGPT Enterprise, other corporate AI |
-| **Other AI apps** | Consumer AI applications |
+### Step 4 — Get Started · Onboard devices
 
-### FSI Evidence Collection
+- Confirm Defender for Endpoint or standalone onboarding state for in-scope devices
+- Export device inventory; reconcile to monitored-user list
 
-1. Go to **DSPM for AI > Reports**
-2. Select a timeframe (e.g., last 7/30 days)
-3. Capture views for evidence pack:
-   - Total interactions trend
-   - Sensitive interactions summary (by AI app and sensitive info type)
+### Step 5 — Get Started · Extend your insights
 
----
+- Requires **Insider Risk Management** role group
+- Enables IRM-backed signals (Adaptive Protection, Risky AI usage)
+- Not available at parity in GCC High / DoD — record the exception in your Zone-3 register
 
-## Policies Configuration
+### Step 6 — Inventory & enable one-click policy templates
 
-### Policy Types Available
+In **DSPM for AI > Policies**, the templates surfaced are *named workflows*, not generic solution categories. Pick by name from the list and confirm the underlying solution and role.
 
-| Solution | Purpose |
-|----------|---------|
-| **Data Loss Prevention** | Prevent sensitive data exposure |
-| **DSPM for AI** | AI-specific protections |
-| **Insider Risk Management** | Risky behavior detection |
-| **Communication Compliance** | Content monitoring |
+| Template (portal label) | Underlying solution | Role to create | Default scope |
+|---|---|---|---|
+| Detect risky AI usage in apps | Insider Risk Management | IRM role group | All users |
+| Detect risky interactions in AI apps | Insider Risk Management (`Risky AI usage`) | IRM role group | All users |
+| Detect sensitive info shared with AI via network | Endpoint DLP | DLP Compliance Admin | All managed devices |
+| Secure interactions for Microsoft Copilot experiences | Collection / DLP for Copilot location | DLP Compliance Admin | M365 Copilot users |
+| Capture interactions for Copilot experiences | Collection policy (content capture) | Compliance Admin | M365 Copilot users |
+| Capture interactions for enterprise AI apps | Collection policy (content capture) | Compliance Admin | PAYG-billed AI apps |
+| Discover and govern interactions with ChatGPT Enterprise AI | Collection + extended insights | Compliance Admin | ChatGPT Enterprise tenant |
+| Secure data in Azure AI apps and agents | DLP / Purview SDK | DLP Compliance Admin | Azure AI / Foundry apps |
 
-### Policy Management
+> **Content capture must be explicitly enabled** for any "Capture …" template — otherwise Activity Explorer rows appear but prompt/response content is not stored.
 
-1. Navigate to **DSPM for AI > Policies**
-2. View policies grouped by solution type
-3. Check status (On/Off) for each policy
-4. Review last modified date and owner
+For each enabled template, record: name, mode (Enable / TestWithNotifications / TestWithoutNotifications / Disable / PendingDeletion), scope, exclusions, content-capture state, role used to create.
 
----
+### Step 7 — Reports
 
-## Activity Explorer Configuration
+In **DSPM for AI > Reports**, capture timestamped exports for:
 
-### Available Filters
+- AI interactions over time (filter to in-scope user populations)
+- Sensitive info detected in prompts and responses
+- App / agent inventory
 
-| Filter | Purpose |
-|--------|---------|
-| **Timestamp** | Date range selection |
-| **Activity type** | AI Interaction, Sensitive info types |
-| **AI app category** | Copilot experiences & agents, Enterprise AI, Other |
-| **Agent name** | Specific agent identifier |
-| **User participant** | User who performed the interaction |
-| **Sensitive info type** | Types of sensitive data detected |
+> Allow up to **24 hours** for new policies to surface in reports; allow up to **3 days** for initial analytics.
 
-### Evidence Collection
+### Step 8 — Activity Explorer (deterministic interaction test)
 
-1. Go to **DSPM for AI > Activity explorer**
-2. Filter **AI app category** to **Copilot experiences & agents**
-3. Filter **Activity type** to **AI Interaction**
-4. Optionally filter by **Agent name** for enterprise agents
-5. Use **Export** to produce CSV for evidence repository
+> Do **not** treat "table renders" as PASS. Generate a known interaction and assert the row exists.
 
----
+1. Pick a named user with M365 Copilot license
+2. At a recorded UTC timestamp, have them issue a known prompt (e.g., reference a labeled document)
+3. Wait the documented window (24 h baseline)
+4. In Activity Explorer, filter by user + activity type + UTC window
+5. Assert event count ≥ 1 with matching user / app / activity
+6. To view prompt/response content, the reviewer must hold **Purview Data Security AI Content Viewer**
 
-## Data Risk Assessments
+### Step 9 — Data risk assessments
 
-### Three-Step Process
+1. Confirm the **Default Weekly Assessment** is running (top 100 SharePoint sites by usage)
+2. For Zone 3 sites outside the top 100, queue **Custom Site Assessments** in a CAB-tracked register
+3. Initial results display: allow up to 4 days; refresh after a run: allow at least 48 hours
+4. Walk the four tabs: Overview · Identify · Protect · Monitor
+5. Capture Protect-tab oversharing list with site, sharing scope, sensitivity-label coverage, and remediation owner
 
-| Step | Action | Description |
-|------|--------|-------------|
-| **1. Identify** | Review assessments | Weekly results from default or custom assessments |
-| **2. Protect** | Apply controls | Limit Copilot access, apply labels and retention |
-| **3. Monitor** | Ongoing review | SharePoint site and access reviews |
+### Step 10 — Apps and agents inventory
 
-### Weekly Assessment Configuration
-
-DSPM for AI automatically runs weekly risk assessments for the top 100 SharePoint sites based on usage. To configure and monitor these assessments:
-
-1. Navigate to **Microsoft Purview > DSPM for AI**
-2. Complete Get Started wizard (if not already done)
-3. Go to **Data risk assessments** in the left navigation
-4. View default weekly assessment status — confirm top 100 sites being scanned
-5. Navigate through dashboard tabs to review risk insights:
-   - **Overview** — Summary insights per site/workspace (sites scanned, sensitive items, risk score)
-   - **Identify** — Data scanned vs. not scanned for SITs (coverage percentage, unscanned volumes)
-   - **Protect** — Oversharing remediation options (org-wide sharing, external sharing)
-   - **Monitor** — Sharing breakdown by access type (specific people, external, organization-wide)
-
-**Timing Guidance:**
-
-- **Initial assessment results** appear after approximately 4 days
-- **Subsequent weekly results** refresh within 48 hours of assessment completion
-- **Custom assessments** for specific sites produce results within 4 days
-
-**FSI-Specific Portal Configuration:**
-
-For regulated environments, prioritize remediation of sites showing "Organization-wide" or "External" sharing classifications in the Monitor tab. Establish monitoring workflows aligned with zone-specific remediation SLAs:
-
-- **Zone 1:** 30-day remediation SLA — review monthly
-- **Zone 2:** 14-day remediation SLA — review weekly
-- **Zone 3:** 7-day remediation SLA — review daily
-
-### Running Oversharing Assessments
-
-1. Navigate to **DSPM for AI > Data risk assessments**
-2. Run the default assessment for defined scope
-3. Wait for completion (4 days for initial results, 48 hours for refresh)
-4. Review results and record:
-   - Assessment name
-   - Scope (sites/users/data sources)
-   - Run timestamp and completion timestamp
-   - Overshared items count and severity
-
-### Custom Assessments
-
-For high-priority sites not in the top 100, create custom assessments:
-
-1. Click **+ Create custom assessment**
-2. Define data sources and users to assess
-3. Wait for assessment completion (approximately 4 days)
-4. Review results for overshared items
-5. Take remediation actions based on zone-specific SLAs
+In **Apps and agents**, export the inventory and reconcile to your CMDB / agent register (Control 1.4 / Control 2.16). Untagged or unknown apps are an N3.4 default-exclusion symptom — investigate before signing off.
 
 ---
 
-## Enhanced DSPM AI Observability (Preview)
+## DSPM (preview) — unified experience callout
 
-!!! warning "Preview Feature — UI may change at GA"
-    The unified DSPM experience consolidating DSPM and DSPM for AI is in preview. GA rollout was expected May 2026 at time of writing (per MC1191257); check Message Center for the latest timeline. Portal navigation and feature availability may change before general availability.
-
-The unified DSPM experience provides a single interface for monitoring data security posture across all data types, including AI-specific interactions. This section covers configuring enhanced DSPM AI Observability capabilities that help FSI organizations meet comprehensive agent supervision requirements.
-
-### Accessing Unified DSPM Experience
-
-!!! info "Preview Ring Enrollment Required"
-    The unified DSPM experience is gradually rolling out to tenants. If your tenant is not yet in the preview ring, these features will not be visible. Monitor Message Center for MC1191257 availability notifications.
-
-1. Navigate to **Microsoft Purview** (https://purview.microsoft.com)
-2. In the left navigation, select **Solutions** > **Data Security Posture Management**
-   - For preview-enabled tenants: Single unified DSPM dashboard appears
-   - For classic tenants: Separate "DSPM for AI" navigation remains (legacy experience)
-3. Verify unified experience by checking for integrated AI and non-AI data security metrics on a single dashboard
-
-### Agent Risk Observability Dashboard
-
-The unified DSPM experience includes agent risk observability dashboards that provide per-agent risk scoring based on data sensitivity, access patterns, and policy violations:
-
-1. From **Purview > Data Security Posture Management**, select **AI Risk Dashboard** (or equivalent unified dashboard tab)
-2. Review agent risk scores:
-   - **High Risk (Red):** Agents with policy violations, excessive data access, or sensitive data exposure
-   - **Medium Risk (Yellow):** Agents with elevated data sensitivity interactions or access pattern anomalies
-   - **Low Risk (Green):** Agents with normal data access patterns and no policy violations
-3. Click on a high-risk agent to view contributing factors:
-   - Data sensitivity level accessed (Highly Confidential, Confidential, General)
-   - Access pattern analysis (sites/files accessed beyond normal baseline)
-   - Policy violation details (DLP policy blocks, sensitivity label mismatches)
-   - Oversharing assessment findings (broad permission sites accessed by agent)
-4. Export agent risk summary for compliance reporting: Click **Export** to generate CSV
-
-### Enhanced Activity Explorer
-
-The unified DSPM experience includes improved Activity Explorer with advanced filtering and search capabilities:
-
-1. Navigate to **Purview > Data Security Posture Management > Activity explorer**
-2. Use enhanced filters:
-   - **Multi-Agent Selection:** Filter by multiple agents simultaneously (shift-click agent names)
-   - **Data Classification Filter:** Filter events by sensitivity label or sensitive info type
-   - **Access Pattern Filter:** Show events where agent accessed data outside normal scope
-   - **Policy Violation Filter:** Show only events triggering DLP or IRM policy alerts
-3. Use advanced search:
-   - Enter keywords in search box to filter across all event fields (user, agent, site, file)
-   - Use operators: `AND`, `OR`, `NOT` for complex queries
-   - Example: `Agent:"Expense Approver" AND SensitivityLabel:"Highly Confidential"`
-4. Export filtered results:
-   - Select date range (up to 90 days for standard export, 6 years for compliance export)
-   - Click **Export** > **Enhanced CSV** (includes additional metadata fields vs. classic export)
-   - Verify export includes: Event timestamp, User, Agent, Activity type, Data source, Sensitivity label, Policy actions
-
-### Unified Dashboard Configuration
-
-The unified dashboard consolidates data security posture metrics across AI and non-AI data:
-
-1. Navigate to **Purview > Data Security Posture Management > Overview**
-2. Review integrated dashboard sections:
-   - **Overall Data Security Posture:** Combined risk score across all data types
-   - **AI-Specific Risks:** Agent risk scores, sensitive AI interactions, policy violations
-   - **Data Classification Coverage:** Labeled vs. unlabeled content across AI-accessible locations
-   - **Oversharing Summary:** Sites with broad permissions accessible by agents
-3. Configure dashboard widgets:
-   - Click **Customize dashboard** to add/remove widgets
-   - Recommended for Zone 3: Add "High-Risk Agent Summary" and "Daily AI Policy Violations" widgets
-4. Set up dashboard email notifications:
-   - Click **Configure alerts** > **Dashboard digest email**
-   - Schedule: Daily for Zone 3, Weekly for Zone 2, Monthly for Zone 1
-   - Recipients: Compliance Officer, AI Governance Lead, CISO (Zone 3 only)
-
-### Data Classification Insights
-
-Enhanced DSPM AI Observability provides real-time insights into how agents interact with classified data:
-
-1. Navigate to **Purview > Data Security Posture Management > Classification insights**
-2. Review agent classification metrics:
-   - **Labeled Data Access:** Percentage of agent interactions with sensitivity-labeled content
-   - **Unlabeled Data Exposure:** Volume of unlabeled content accessed by agents (potential classification gap)
-   - **Label Mismatch Events:** Instances where agent received higher sensitivity data than declared scope
-3. Configure classification alerts:
-   - Set threshold for unlabeled data access (e.g., alert if >10% of agent interactions involve unlabeled content)
-   - Enable "Label Mismatch" alert for Zone 3 agents (requires immediate investigation)
-4. Export classification report for compliance evidence
-
-### Zone-Specific Configuration Guidance
-
-**Zone 1 (Personal Productivity):**
-- Monthly unified dashboard review sufficient
-- No agent risk alerts required
-- Export quarterly classification insights for trend analysis
-
-**Zone 2 (Team Collaboration):**
-- Weekly unified dashboard review
-- Enable agent risk email digest (weekly)
-- Configure Activity Explorer saved searches for team agents
-- Export monthly classification insights and agent risk summaries
-
-**Zone 3 (Enterprise Managed):**
-- Daily unified dashboard review required
-- Enable real-time agent risk alerts (high-risk agents trigger immediate notification)
-- Configure Activity Explorer advanced filters for all Zone 3 agents
-- Daily export of enhanced Activity Explorer data for compliance repository
-- Weekly agent risk observability report to Compliance Officer and CISO
+The unified **DSPM (preview)** experience consolidating DSPM and DSPM for AI is rolling out per **MC1191257** with GA expected May 2026 (Commercial / GCC). Specific UI affordances change frequently; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn.
 
 ---
 
-## MIP Labels for Agents (Preview)
+## Evidence pack
 
-### Configuration Path
+Use a consistent file naming convention:
 
-1. Navigate to **Microsoft Purview > Information protection**
-2. Select **Auto-labeling > Create policy**
-3. Choose **AI interactions** as the scope
-4. Configure label conditions for agent responses
-5. Set actions (apply label, block response, notify compliance)
+```
+Control-1.6_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}
+Control-1.6_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}.sha256
+```
 
-### Zone-Specific Configuration
+| Artifact | Source | Format | Frequency |
+|---|---|---|---|
+| Get Started step status screenshots | DSPM for AI > Get Started | PNG | On change |
+| Roles-by-step record | Internal tracker | JSON | On change |
+| One-click policy inventory (template, mode, scope, exclusions, content capture, owner) | DSPM > Policies + Compliance portal | JSON + CSV | Weekly |
+| Activity Explorer deterministic test result (user, prompt, UTC, event count) | Activity Explorer + tester log | CSV + log | Weekly (Zone 3) / Monthly (Zone 2) |
+| Weekly Risk Assessment summary | Data risk assessments > export | PDF + CSV | Weekly |
+| Custom assessment register (Zone 3 sites > top 100) | Internal tracker | CSV | Quarterly review |
+| Adaptive Protection threshold + IRM policy snapshot | Insider Risk Management | JSON | On change |
+| Tenant cloud + license entitlement snapshot | Graph `Get-MgSubscribedSku` + per-user `Get-MgUserLicenseDetail` | JSON | Monthly |
 
-| Zone | MIP Configuration | Blocked Labels |
-|------|------------------|----------------|
-| **Zone 1** | No label enforcement | N/A |
-| **Zone 2** | Label inheritance; warn on Confidential | Highly Confidential |
-| **Zone 3** | Strict enforcement; block restricted | Highly Confidential, Restricted, MNPI |
+Store in immutable storage (Purview retention label, SharePoint hold, or WORM blob) aligned to Control 1.7 retention.
 
 ---
 
-[Back to Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+## Cross-references
+
+- [Control 1.6 PowerShell Setup](powershell-setup.md)
+- [Control 1.6 Verification & Testing](verification-testing.md)
+- [Control 1.6 Troubleshooting](troubleshooting.md)
+- [Control 1.7 Audit Logging](../1.7/portal-walkthrough.md) — durable evidence backbone for `CopilotInteraction`
+- [Control 1.5 DLP and Sensitivity Labels](../1.5/portal-walkthrough.md) — labels feeding DSPM
+- [Control 1.10 Communication Compliance](../1.10/portal-walkthrough.md) — overlap for unethical-behavior templates
+- [Control 1.12 Insider Risk Detection](../1.12/portal-walkthrough.md) — IRM dependency for Adaptive Protection
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current (commercial); GCC High / DoD verified per cloud-availability table*
