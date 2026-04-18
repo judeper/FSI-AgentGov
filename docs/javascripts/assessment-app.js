@@ -2,7 +2,7 @@
  * FSI-AgentGov Governance Readiness Assessment Tool
  *
  * Client-side SPA that walks users through a scoped assessment of the
- * 72-control governance framework and produces scorecards, gap analysis,
+ * 78-control governance framework and produces scorecards, gap analysis,
  * and remediation roadmaps.
  *
  * @version 1.0.0
@@ -602,7 +602,7 @@
 
     wrap.appendChild(h("h2", null, "Governance Readiness Assessment"));
     wrap.appendChild(h("p", null,
-      "Assess your organization's readiness across the 72-control FSI Agent Governance Framework. " +
+      "Assess your organization's readiness across the 78-control FSI Agent Governance Framework. " +
       "This tool helps identify gaps and generates a personalized remediation roadmap."
     ));
 

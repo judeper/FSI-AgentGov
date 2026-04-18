@@ -96,6 +96,9 @@ extra_css:
 extra_javascript:
   - javascripts/assessment-loader.js
 
+hooks:
+  - scripts/hooks/copy_assessment_data.py
+
 nav:
   - Home: index.md
 
@@ -211,6 +214,8 @@ nav:
 
   - Playbooks:
     - playbooks/index.md
+    - Authoring Baselines:
+      - PowerShell Baseline: playbooks/_shared/powershell-baseline.md
     - Control Implementations:
       - playbooks/control-implementations/index.md
       - Pillar 1 - Security:
