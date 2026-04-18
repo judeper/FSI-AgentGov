@@ -29,6 +29,53 @@
     { value: "na", label: "N/A", cls: "selected" },
   ];
 
+  /* ---- v1.4 Phase B constants (E1–E9) ---- */
+  var SOLUTIONS_BASE_URL = "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/";
+  var STARTER_PRIORITY_IDS = ["2.1", "1.4", "1.5", "1.7", "1.11"];
+  var ROLE_FILTER_KEY = "ag.roleFilter";
+  var SECTOR_KEY = "ag.selectedSector";
+  var ROLE_FILTER_OPTIONS = [
+    { value: "", labelKey: "filter.role.all", fallback: "All roles" },
+    { value: "Power Platform Admin" },
+    { value: "Purview Compliance Admin" },
+    { value: "Security Admin" },
+    { value: "SharePoint Admin" },
+    { value: "Entra Global Admin" },
+    { value: "Compliance Officer" },
+    { value: "Governance Lead" },
+    { value: "Other" },
+  ];
+  var SECTOR_OPTIONS = [
+    { value: "", labelKey: "scoping.sector.placeholder", fallback: "Select institution type…" },
+    { value: "bank", labelKey: "scoping.sector.bank", fallback: "Bank" },
+    { value: "broker-dealer", labelKey: "scoping.sector.brokerDealer", fallback: "Broker-dealer" },
+    { value: "investment-adviser", labelKey: "scoping.sector.investmentAdviser", fallback: "Investment adviser" },
+    { value: "insurance-carrier", labelKey: "scoping.sector.insuranceCarrier", fallback: "Insurance carrier" },
+    { value: "insurance-wholesale", labelKey: "scoping.sector.insuranceWholesale", fallback: "Insurance wholesale/broker" },
+    { value: "credit-union", labelKey: "scoping.sector.creditUnion", fallback: "Credit union" },
+    { value: "holding-company", labelKey: "scoping.sector.holdingCompany", fallback: "Holding company" },
+    { value: "other", labelKey: "scoping.sector.other", fallback: "Other" },
+  ];
+
+  /* ---- i18n ---- */
+  var I18N = {};
+  function t(key, fallback) {
+    if (I18N && Object.prototype.hasOwnProperty.call(I18N, key)) return I18N[key];
+    return fallback != null ? fallback : key;
+  }
+  function tFmt(key, fallback, vars) {
+    var s = t(key, fallback);
+    if (!vars) return s;
+    return s.replace(/\{(\w+)\}/g, function (_, k) {
+      return Object.prototype.hasOwnProperty.call(vars, k) ? String(vars[k]) : "{" + k + "}";
+    });
+  }
+  function isFacilitatorMode() {
+    try {
+      return /[?&]mode=facilitate(\b|&|$)/.test(window.location.search);
+    } catch (e) { return false; }
+  }
+
   /* ================================================================
      UTILITY HELPERS
      ================================================================ */
@@ -155,11 +202,22 @@
       var src = scripts[scripts.length - 1].src;
       base = src.substring(0, src.lastIndexOf("/") + 1);
     }
-    return fetch(base + "assessment-data.json")
-      .then(function (r) {
-        if (!r.ok) throw new Error("Failed to load assessment data: " + r.status);
+    // Resolve site root for /assessment/data/ assets.
+    // base is .../javascripts/  (or absolute origin for mkdocs use_directory_urls).
+    var siteRoot = base.replace(/javascripts\/?$/, "");
+    var dataBase = siteRoot + "assessment/data/";
+    var i18nBase = siteRoot + "assessment/i18n/";
+
+    var fetchJSON = function (url, label) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(label + " HTTP " + r.status);
         return r.json();
-      })
+      });
+    };
+
+    // Primary load: legacy assessment-data.json (still required for pillars,
+    // regulatoryMappings, roleAssignments, adoptionPhases, etc.).
+    var pData = fetchJSON(base + "assessment-data.json", "assessment-data.json")
       .then(function (d) { self.data = d; })
       .catch(function (err) {
         console.error(err);
@@ -168,12 +226,419 @@
           "<p>Could not load assessment data. Run <code>python scripts/extract_assessment_data.py</code> first.</p></div>";
         throw err;
       });
+
+    // v1.4 Phase B: extended controls manifest (single source of truth for E1–E9 metadata).
+    var pManifest = fetchJSON(dataBase + "controls.json", "controls.json")
+      .then(function (m) { self.manifest = Array.isArray(m) ? m : (m && m.controls) || []; })
+      .catch(function (err) {
+        console.warn("loadControlsManifest:", err);
+        self.manifest = [];
+      });
+
+    // v1.4 Phase B: solutions lock (chip metadata).
+    var pSolutionsLock = fetchJSON(dataBase + "solutions-lock.json", "solutions-lock.json")
+      .then(function (lock) {
+        self.solutionsLock = (lock && typeof lock === "object")
+          ? { schemaVersion: lock.schemaVersion || null, solutions: (lock.solutions && typeof lock.solutions === "object") ? lock.solutions : {} }
+          : { schemaVersion: null, solutions: {} };
+      })
+      .catch(function (err) {
+        console.warn("loadSolutionsLock:", err);
+        self.solutionsLock = { schemaVersion: null, solutions: {} };
+      });
+
+    // v1.4 Phase B: i18n strings (English fallbacks live next to t() call sites).
+    var pI18n = fetchJSON(i18nBase + "en.json", "i18n/en.json")
+      .then(function (strings) {
+        if (strings && typeof strings === "object") {
+          Object.keys(strings).forEach(function (k) {
+            if (k.charAt(0) !== "_" && typeof strings[k] === "string") I18N[k] = strings[k];
+          });
+        }
+      })
+      .catch(function (err) {
+        console.warn("loadI18n:", err);
+      });
+
+    return pData.then(function () {
+      // Wait for the optional resources but never let them block initialization.
+      return Promise.all([pManifest, pSolutionsLock, pI18n]).then(function () {
+        self.mergeManifestIntoControls();
+      });
+    });
   };
+
+  /**
+   * Merge v1.4 manifest fields (yesBar/partialBar/noBar/sectorYesBar/verifyIn/
+   * verifyPowerShell/evidenceExpected/controlDocUrl/portalPlaybookUrl/solutions/
+   * facilitatorNotes/zonesApplicable) onto the legacy control objects loaded
+   * from assessment-data.json. Existing fields are preserved when the manifest
+   * value is missing or a TODO placeholder.
+   */
+  AssessmentApp.prototype.mergeManifestIntoControls = function () {
+    if (!this.data || !Array.isArray(this.data.controls)) return;
+    if (!Array.isArray(this.manifest) || this.manifest.length === 0) return;
+    var byId = {};
+    this.manifest.forEach(function (m) { if (m && m.id) byId[m.id] = m; });
+    this.data.controls.forEach(function (c) {
+      var m = byId[c.id];
+      if (!m) return;
+      // Manifest is authoritative for these new fields.
+      c.yesBar = m.yesBar || "";
+      c.partialBar = m.partialBar || "";
+      c.noBar = m.noBar || "";
+      c.sectorYesBar = m.sectorYesBar || {};
+      c.verifyIn = Array.isArray(m.verifyIn) ? m.verifyIn : [];
+      c.verifyPowerShell = m.verifyPowerShell || "";
+      c.evidenceExpected = Array.isArray(m.evidenceExpected) ? m.evidenceExpected : [];
+      c.controlDocUrl = m.controlDocUrl || "";
+      c.portalPlaybookUrl = m.portalPlaybookUrl || "";
+      c.facilitatorNotes = m.facilitatorNotes || {};
+      c.zonesApplicable = Array.isArray(m.zonesApplicable) && m.zonesApplicable.length
+        ? m.zonesApplicable.slice() : (c.zones || [1, 2, 3]);
+      // Prefer manifest solutions IDs (v1.4 source of truth) when non-empty.
+      if (Array.isArray(m.solutions) && m.solutions.length) c.solutions = m.solutions.slice();
+      // Roles: keep legacy assignedRoles for backward compat; expose manifest roles too.
+      if (Array.isArray(m.roles) && m.roles.length) c.manifestRoles = m.roles.slice();
+    });
+  };
+
+  /* ================================================================
+     v1.4 PHASE B HELPERS — applicability, role filter, drawer, timer
+     ================================================================ */
+
+  /** True if `ctrl.zonesApplicable` does not intersect the active scoping zones. */
+  AssessmentApp.prototype.isControlExcluded = function (ctrl) {
+    if (!this.state) return false;
+    var override = this.state.overrides && this.state.overrides[ctrl.id];
+    if (override && override.applicable) return false;
+    var activeZones = (this.state.scoping && this.state.scoping.zones) || [];
+    if (!activeZones.length) return false;
+    var applicable = ctrl.zonesApplicable || ctrl.zones || [1, 2, 3];
+    for (var i = 0; i < applicable.length; i++) {
+      if (activeZones.indexOf(applicable[i]) >= 0) return false;
+    }
+    return true;
+  };
+
+  /**
+   * Auto-mark excluded controls as N/A. Idempotent — only flips controls that
+   * have no answer yet (so user-set answers are preserved).
+   */
+  AssessmentApp.prototype.applyZoneExclusions = function () {
+    if (!this.state || !this.data || !Array.isArray(this.data.controls)) return;
+    var self = this;
+    var changed = false;
+    this.data.controls.forEach(function (c) {
+      if (!self.isControlExcluded(c)) return;
+      var resp = self.state.responses[c.id];
+      if (!resp || !resp.answer) {
+        self.state.responses[c.id] = {
+          answer: "na",
+          notes: resp ? (resp.notes || "") : "",
+          evidenceRef: resp ? (resp.evidenceRef || "") : "",
+          autoNa: true,
+        };
+        changed = true;
+      }
+    });
+    if (changed) this._debouncedSave();
+  };
+
+  /** True if the supplied role filter matches the control's role list. */
+  AssessmentApp.prototype.controlMatchesRoleFilter = function (ctrl, roleFilter) {
+    if (!roleFilter) return true;
+    var roles = (ctrl.manifestRoles && ctrl.manifestRoles.length)
+      ? ctrl.manifestRoles
+      : (ctrl.roles || ctrl.assignedRoles || []);
+    if (!roles || !roles.length) return false;
+    var rfLower = roleFilter.toLowerCase();
+    for (var i = 0; i < roles.length; i++) {
+      var r = String(roles[i] || "").toLowerCase();
+      // Allow loose match (manifest roles may have parentheticals).
+      if (r === rfLower) return true;
+      if (r.indexOf(rfLower) === 0) return true;
+      if (r.indexOf(rfLower) >= 0) return true;
+    }
+    return false;
+  };
+
+  /**
+   * Render the per-row "How to verify" drawer body (E1). Lazy-called on first
+   * open to keep initial Phase 1 render under 500ms.
+   */
+  AssessmentApp.prototype.renderDrawerContent = function (ctrl) {
+    var self = this;
+    var sector = this.state.selectedSector || "";
+    var wrap = h("div", { className: "ag-drawer-inner" });
+
+    // Pass / partial / fail criteria bars
+    var hasBars = ctrl.yesBar || ctrl.partialBar || ctrl.noBar;
+    if (hasBars) {
+      var sec = h("div", { className: "ag-drawer-section" });
+      sec.appendChild(h("h4", null, t("drawer.title", "How to verify")));
+      var dl = h("dl", { className: "ag-drawer-bar" });
+      if (ctrl.yesBar) {
+        dl.appendChild(h("dt", { className: "bar-yes" }, t("drawer.yesBar", "Yes — pass criteria")));
+        dl.appendChild(h("dd", null, ctrl.yesBar));
+      }
+      if (ctrl.partialBar) {
+        dl.appendChild(h("dt", { className: "bar-partial" }, t("drawer.partialBar", "Partial — partial coverage criteria")));
+        dl.appendChild(h("dd", null, ctrl.partialBar));
+      }
+      if (ctrl.noBar) {
+        dl.appendChild(h("dt", { className: "bar-no" }, t("drawer.noBar", "No — gap criteria")));
+        dl.appendChild(h("dd", null, ctrl.noBar));
+      }
+      sec.appendChild(dl);
+      wrap.appendChild(sec);
+    }
+
+    // Sector-specific yesBar
+    var sectorYes = "";
+    if (sector && ctrl.sectorYesBar && typeof ctrl.sectorYesBar[sector] === "string") {
+      var s = ctrl.sectorYesBar[sector];
+      if (s && s.indexOf("TODO:") !== 0) sectorYes = s;
+    }
+    if (sectorYes) {
+      var secSec = h("div", { className: "ag-drawer-section" });
+      secSec.appendChild(h("h4", null, t("drawer.sectorYesBar", "Sector-specific pass criteria")));
+      secSec.appendChild(h("p", { style: "margin:0;font-size:0.85rem" }, sectorYes));
+      wrap.appendChild(secSec);
+    }
+
+    // Verify-in portal buttons
+    if (Array.isArray(ctrl.verifyIn) && ctrl.verifyIn.length) {
+      var portalSec = h("div", { className: "ag-drawer-section" });
+      portalSec.appendChild(h("h4", null, t("drawer.verifyIn", "Verify in:")));
+      var btns = h("div", { className: "ag-drawer-portal-btns" });
+      ctrl.verifyIn.forEach(function (entry) {
+        if (!entry) return;
+        var url = typeof entry === "string" ? entry : entry.url;
+        var label = typeof entry === "string" ? entry : (entry.label || entry.name || entry.url);
+        if (!url) return;
+        btns.appendChild(h("a", {
+          className: "ag-drawer-portal-btn",
+          href: url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+        }, label));
+      });
+      portalSec.appendChild(btns);
+      wrap.appendChild(portalSec);
+    }
+
+    // PowerShell snippet
+    if (ctrl.verifyPowerShell && String(ctrl.verifyPowerShell).trim() &&
+        String(ctrl.verifyPowerShell).indexOf("TODO:") !== 0) {
+      var psSec = h("div", { className: "ag-drawer-section" });
+      var psHeader = h("h4", null, t("drawer.powershell", "PowerShell verification"));
+      var copyBtn = h("button", {
+        className: "ag-drawer-copy-btn",
+        type: "button",
+        "aria-label": t("drawer.copySnippet", "Copy") + " PowerShell snippet",
+      }, t("drawer.copySnippet", "Copy"));
+      psHeader.appendChild(copyBtn);
+      psSec.appendChild(psHeader);
+      var pre = h("pre", { className: "ag-drawer-pre" }, ctrl.verifyPowerShell);
+      psSec.appendChild(pre);
+      copyBtn.addEventListener("click", function () {
+        var ok = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(ctrl.verifyPowerShell);
+            ok = true;
+          }
+        } catch (e) { /* fall through */ }
+        if (!ok) {
+          // Fallback: select the <pre> text.
+          var range = document.createRange();
+          range.selectNodeContents(pre);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          try { document.execCommand("copy"); } catch (e2) { /* */ }
+          sel.removeAllRanges();
+        }
+        copyBtn.textContent = t("drawer.copied", "Copied");
+        setTimeout(function () { copyBtn.textContent = t("drawer.copySnippet", "Copy"); }, 1500);
+      });
+      wrap.appendChild(psSec);
+    }
+
+    // Evidence checklist
+    if (Array.isArray(ctrl.evidenceExpected) && ctrl.evidenceExpected.length) {
+      var evSec = h("div", { className: "ag-drawer-section" });
+      evSec.appendChild(h("h4", null, t("drawer.evidence", "Evidence to capture")));
+      var ul = h("ul", { className: "ag-drawer-evidence" });
+      ctrl.evidenceExpected.forEach(function (item) {
+        if (!item) return;
+        ul.appendChild(h("li", null, String(item)));
+      });
+      evSec.appendChild(ul);
+      wrap.appendChild(evSec);
+    }
+
+    // Doc + playbook links
+    if (ctrl.controlDocUrl || ctrl.portalPlaybookUrl) {
+      var linkSec = h("div", { className: "ag-drawer-section" });
+      if (ctrl.controlDocUrl) {
+        linkSec.appendChild(h("a", {
+          className: "ag-drawer-link",
+          href: ctrl.controlDocUrl,
+          target: "_blank",
+          rel: "noopener",
+        }, t("drawer.viewControlDoc", "View full control doc") + " →"));
+      }
+      if (ctrl.portalPlaybookUrl) {
+        linkSec.appendChild(h("a", {
+          className: "ag-drawer-link",
+          href: ctrl.portalPlaybookUrl,
+          target: "_blank",
+          rel: "noopener",
+        }, t("drawer.portalPlaybook", "Portal playbook") + " →"));
+      }
+      wrap.appendChild(linkSec);
+    }
+
+    // Deployable solutions
+    if (Array.isArray(ctrl.solutions) && ctrl.solutions.length) {
+      var solSec = h("div", { className: "ag-drawer-section" });
+      solSec.appendChild(h("h4", null, t("drawer.solutions", "Deployable solutions")));
+      var lock = (this.solutionsLock && this.solutionsLock.solutions) || {};
+      ctrl.solutions.forEach(function (sid) {
+        if (!sid) return;
+        var entry = lock[sid];
+        if (entry && typeof entry === "object") {
+          var chip = h("a", {
+            className: "ag-solution-chip",
+            href: SOLUTIONS_BASE_URL + encodeURIComponent(sid) + "/",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            title: sid,
+          });
+          chip.appendChild(document.createTextNode(entry.name || sid));
+          if (entry.tier) {
+            chip.appendChild(h("span", {
+              className: "ag-tier-badge tier-" + entry.tier,
+            }, entry.tier));
+          }
+          if (entry.version) {
+            chip.appendChild(h("span", { className: "ag-version-pill" }, "v" + entry.version));
+          }
+          solSec.appendChild(chip);
+        } else {
+          solSec.appendChild(h("span", {
+            className: "ag-solution-chip-pending",
+            title: sid,
+          }, sid + " " + t("drawer.solutionPending", "(solution pending)")));
+        }
+      });
+      wrap.appendChild(solSec);
+    }
+
+    if (!wrap.firstChild) {
+      wrap.appendChild(h("p", { style: "font-size:0.82rem;color:var(--md-default-fg-color--light);margin:0" },
+        "No verification metadata available for this control yet."));
+    }
+
+    return wrap;
+  };
+
+  /** Bind keyboard handling (Esc + Tab focus trap) for an open drawer. */
+  AssessmentApp.prototype._bindDrawerKeyboard = function (drawer, toggleBtn) {
+    var keyHandler = function (e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        drawer.classList.remove("ag-drawer-open");
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.focus();
+        return;
+      }
+      if (e.key === "Tab") {
+        var focusables = drawer.querySelectorAll(
+          'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables.length) return;
+        var first = focusables[0];
+        var last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    drawer.addEventListener("keydown", keyHandler);
+  };
+
+  /** Format mm:ss for the facilitator session timer. */
+  function fmtTimer(secs) {
+    var m = Math.floor(secs / 60);
+    var s = secs % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  /** Build (and persist) the facilitator session timer. */
+  AssessmentApp.prototype.renderSessionTimer = function () {
+    var self = this;
+    if (!this._timer) this._timer = { secs: 0, running: false, intervalId: null };
+    var wrap = h("div", { className: "ag-session-timer", role: "timer", "aria-label": t("facilitator.timerLabel", "Session timer") });
+    wrap.appendChild(h("span", { style: "font-weight:600" }, t("facilitator.timerLabel", "Session timer") + ":"));
+    var display = h("span", { className: "ag-session-timer-display" }, fmtTimer(self._timer.secs));
+    wrap.appendChild(display);
+    var startBtn = h("button", { type: "button" },
+      self._timer.running ? t("facilitator.timerPause", "Pause") : (self._timer.secs > 0 ? t("facilitator.timerResume", "Resume") : t("facilitator.timerStart", "Start"))
+    );
+    var resetBtn = h("button", { type: "button" }, t("facilitator.timerReset", "Reset"));
+    wrap.appendChild(startBtn);
+    wrap.appendChild(resetBtn);
+
+    var tick = function () {
+      self._timer.secs++;
+      display.textContent = fmtTimer(self._timer.secs);
+    };
+    var stop = function () {
+      if (self._timer.intervalId) {
+        clearInterval(self._timer.intervalId);
+        self._timer.intervalId = null;
+      }
+      self._timer.running = false;
+    };
+    startBtn.addEventListener("click", function () {
+      if (self._timer.running) {
+        stop();
+        startBtn.textContent = t("facilitator.timerResume", "Resume");
+      } else {
+        self._timer.running = true;
+        self._timer.intervalId = setInterval(tick, 1000);
+        startBtn.textContent = t("facilitator.timerPause", "Pause");
+      }
+    });
+    resetBtn.addEventListener("click", function () {
+      stop();
+      self._timer.secs = 0;
+      display.textContent = fmtTimer(0);
+      startBtn.textContent = t("facilitator.timerStart", "Start");
+    });
+    // Cleanup on destroy
+    this._observers.push({ disconnect: stop });
+    return wrap;
+  };
+
 
   /* ================================================================
      STATE MANAGEMENT
      ================================================================ */
   AssessmentApp.prototype.newState = function () {
+    var savedRole = "";
+    var savedSector = "";
+    try {
+      savedRole = localStorage.getItem(ROLE_FILTER_KEY) || "";
+      savedSector = localStorage.getItem(SECTOR_KEY) || "";
+    } catch (e) { /* localStorage unavailable */ }
     return {
       assessmentId: uuid(),
       assessmentName: "",
@@ -189,7 +654,13 @@
         regulations: [],
         scope: "full",
       },
-      responses: {},      // controlId → { answer, notes }
+      // v1.4 Phase B additions
+      selectedSector: savedSector,
+      roleFilter: savedRole,
+      priorityMode: "full",      // "starter" | "full"
+      priorityExpanded: false,   // user clicked "Continue to full Phase 1"
+      overrides: {},             // controlId → { applicable: true, note: "..." }
+      responses: {},      // controlId → { answer, notes, evidenceRef }
       drilldown: {},      // controlId → { subQuestionId → answer }
       completedSteps: [],
     };
@@ -298,6 +769,12 @@
         responses: {},
         drilldown: {},
         completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : [],
+        // v1.4 Phase B
+        selectedSector: typeof parsed.selectedSector === "string" ? parsed.selectedSector : "",
+        roleFilter: typeof parsed.roleFilter === "string" ? parsed.roleFilter : "",
+        priorityMode: parsed.priorityMode === "starter" ? "starter" : "full",
+        priorityExpanded: !!parsed.priorityExpanded,
+        overrides: (parsed.overrides && typeof parsed.overrides === "object") ? parsed.overrides : {},
       };
       // Copy responses safely
       for (var k in parsed.responses) {
@@ -794,6 +1271,72 @@
 
     wrap.appendChild(form);
 
+    // ----- v1.4 Phase B additions: sector calibration (E5) + priority starter (E6) -----
+    var phaseBCard = h("div", { className: "ag-card", style: "margin-top:1rem" });
+    phaseBCard.appendChild(h("h3", { style: "margin-top:0;font-size:1rem" },
+      "v1.4 Assessment Calibration"));
+    phaseBCard.appendChild(h("p", {
+      className: "ag-privacy-banner",
+      style: "margin-bottom:0.75rem",
+    }, t("privacy.banner", "All data stays in your browser — nothing is uploaded.")));
+
+    // E5 — Sector select
+    var sectorWrap = h("div", { className: "ag-field ag-sector-select" });
+    var sectorId = "ag-sector-select";
+    sectorWrap.appendChild(h("label", { className: "ag-label", htmlFor: sectorId },
+      t("scoping.sector.label", "Institution type (sector calibration)")));
+    sectorWrap.appendChild(h("span", { className: "ag-hint", id: sectorId + "-hint" },
+      t("scoping.sector.hint",
+        "Used to surface sector-specific pass criteria in each control's verification drawer.")));
+    var sectorSel = h("select", {
+      className: "ag-select",
+      id: sectorId,
+      "aria-describedby": sectorId + "-hint",
+    });
+    SECTOR_OPTIONS.forEach(function (o) {
+      var label = o.labelKey ? t(o.labelKey, o.fallback || o.value) : o.value;
+      var opt = h("option", { value: o.value }, label);
+      if (o.value === (self.state.selectedSector || "")) opt.selected = true;
+      sectorSel.appendChild(opt);
+    });
+    sectorSel.addEventListener("change", function () {
+      self.state.selectedSector = sectorSel.value;
+      try { localStorage.setItem(SECTOR_KEY, sectorSel.value); } catch (e) { /* */ }
+      self._debouncedSave();
+    });
+    sectorWrap.appendChild(sectorSel);
+    phaseBCard.appendChild(sectorWrap);
+
+    // E6 — Priority starter set radio
+    var prioWrap = h("fieldset", { className: "ag-field ag-fieldset" });
+    prioWrap.appendChild(h("legend", { className: "ag-label" },
+      t("priorityRadio.label", "Phase 1 starting set")));
+    var prioGroup = h("div", { className: "ag-priority-radio" });
+    [
+      { value: "starter", label: t("priorityRadio.starter",
+          "Start with 5 Priority Foundation Controls (2.1, 1.4, 1.5, 1.7, 1.11)") },
+      { value: "full", label: t("priorityRadio.full", "Full 78-control Phase 1") },
+    ].forEach(function (opt) {
+      var lbl = h("label", null);
+      var radio = h("input", { type: "radio", name: "ag-priority-mode", value: opt.value });
+      if ((self.state.priorityMode || "full") === opt.value) radio.checked = true;
+      radio.addEventListener("change", function () {
+        if (radio.checked) {
+          self.state.priorityMode = opt.value;
+          // Switching modes resets the expanded flag.
+          self.state.priorityExpanded = false;
+          self._debouncedSave();
+        }
+      });
+      lbl.appendChild(radio);
+      lbl.appendChild(document.createTextNode(" " + opt.label));
+      prioGroup.appendChild(lbl);
+    });
+    prioWrap.appendChild(prioGroup);
+    phaseBCard.appendChild(prioWrap);
+
+    wrap.appendChild(phaseBCard);
+
     // Navigation
     var btns = h("div", { className: "ag-btn-group" });
     btns.appendChild(h("button", {
@@ -917,6 +1460,22 @@
     callout.appendChild(document.createTextNode(" = not applicable to your organization."));
     wrap.appendChild(callout);
 
+    // ----- v1.4 Phase B: privacy banner (reaffirmed every step) -----
+    wrap.appendChild(h("div", { className: "ag-privacy-banner" },
+      t("privacy.banner", "All data stays in your browser — nothing is uploaded.")));
+
+    // ----- E9 — Facilitator mode banner + session timer -----
+    var facilitator = isFacilitatorMode();
+    if (facilitator) {
+      wrap.appendChild(h("div", { className: "ag-facilitator-banner" },
+        t("facilitator.modeBanner",
+          "Facilitator mode active — guided prompts and timing badges are shown.")));
+      wrap.appendChild(this.renderSessionTimer());
+    }
+
+    // ----- E2 — Auto-mark excluded controls as N/A before computing progress -----
+    this.applyZoneExclusions();
+
     // Progress
     var answered = Object.keys(this.state.responses).length;
     var total = this.data.controls.length;
@@ -957,6 +1516,34 @@
     }, "\u2139 How Scoring Works"));
     wrap.appendChild(topBtns);
 
+    // ----- E4 — Role filter dropdown + count badge -----
+    var filterWrap = h("div", { className: "ag-role-filter" });
+    var filterId = "ag-role-filter-select";
+    filterWrap.appendChild(h("label", { htmlFor: filterId },
+      t("filter.role.label", "Filter by role") + ":"));
+    var filterSel = h("select", { id: filterId, "aria-label": t("filter.role.label", "Filter by role") });
+    var currentRoleFilter = self.state.roleFilter || "";
+    ROLE_FILTER_OPTIONS.forEach(function (o) {
+      var label = o.labelKey ? t(o.labelKey, o.fallback || o.value) : o.value;
+      var opt = h("option", { value: o.value }, label);
+      if (o.value === currentRoleFilter) opt.selected = true;
+      filterSel.appendChild(opt);
+    });
+    var countBadge = h("span", { className: "ag-role-filter-count", id: "ag-role-filter-count" }, "");
+    filterSel.addEventListener("change", function () {
+      self.state.roleFilter = filterSel.value;
+      try { localStorage.setItem(ROLE_FILTER_KEY, filterSel.value); } catch (e) { /* */ }
+      self._debouncedSave();
+      self.applyRoleFilter();
+    });
+    filterWrap.appendChild(filterSel);
+    filterWrap.appendChild(countBadge);
+    wrap.appendChild(filterWrap);
+
+    // ----- E6 — Determine starter-mode visible IDs -----
+    var starterMode = (self.state.priorityMode === "starter") && !self.state.priorityExpanded;
+    var starterContinueBtn = null;
+
     // Group by pillar
     var pillars = [
       { num: 1, name: "Pillar 1 — Security" },
@@ -965,53 +1552,93 @@
       { num: 4, name: "Pillar 4 — SharePoint" },
     ];
 
-    pillars.forEach(function (p) {
-      var controls = self.data.controls.filter(function (c) { return c.pillar === p.num; });
-      var answeredInPillar = controls.filter(function (c) { return self.state.responses[c.id]; }).length;
-      var allAnswered = answeredInPillar === controls.length;
-
-      var group = h("div", { className: "ag-pillar-group" });
-      var header = h("div", {
-        className: "ag-pillar-header" + (allAnswered ? " collapsed" : ""),
-        role: "button",
-        tabindex: "0",
-        "aria-expanded": allAnswered ? "false" : "true",
-        "aria-controls": "ag-pillar-" + p.num,
-      });
-      header.appendChild(h("span", { className: "ag-pillar-name" }, p.name));
-      header.appendChild(h("span", { className: "ag-pillar-count" },
-        answeredInPillar + "/" + controls.length));
-      group.appendChild(header);
-
-      var controlsContainer = h("div", {
-        className: "ag-pillar-controls" + (allAnswered ? " collapsed" : ""),
-        id: "ag-pillar-" + p.num,
-      });
-      controls.forEach(function (ctrl) {
-        controlsContainer.appendChild(self.renderControlCard(ctrl));
-      });
-      group.appendChild(controlsContainer);
-
-      // Toggle collapse
-      var toggle = function () {
-        var isCollapsed = controlsContainer.classList.contains("collapsed");
-        if (isCollapsed) {
-          controlsContainer.classList.remove("collapsed");
-          header.classList.remove("collapsed");
-          header.setAttribute("aria-expanded", "true");
-        } else {
-          controlsContainer.classList.add("collapsed");
-          header.classList.add("collapsed");
-          header.setAttribute("aria-expanded", "false");
+    if (starterMode) {
+      // Render the 5 priority controls in their pillar order, no pillar grouping.
+      var starterCard = h("div", { className: "ag-pillar-group" });
+      var starterHeader = h("div", { className: "ag-pillar-header ag-pillar-header-static" });
+      starterHeader.appendChild(h("span", { className: "ag-pillar-name" },
+        t("priorityRadio.starterHeading", "Priority foundation controls")));
+      starterHeader.appendChild(h("span", { className: "ag-pillar-count" },
+        STARTER_PRIORITY_IDS.length + " controls"));
+      starterCard.appendChild(starterHeader);
+      var starterBody = h("div", { className: "ag-pillar-controls" });
+      STARTER_PRIORITY_IDS.forEach(function (cid) {
+        var ctrl = null;
+        for (var i = 0; i < self.data.controls.length; i++) {
+          if (self.data.controls[i].id === cid) { ctrl = self.data.controls[i]; break; }
         }
-      };
-      header.addEventListener("click", toggle);
-      header.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+        if (!ctrl) return;
+        starterBody.appendChild(self.renderControlCard(ctrl, { facilitator: facilitator }));
       });
+      starterCard.appendChild(starterBody);
+      wrap.appendChild(starterCard);
 
-      wrap.appendChild(group);
-    });
+      // "Continue to full Phase 1" button — enabled once all 5 starters answered.
+      starterContinueBtn = h("button", {
+        className: "ag-btn ag-btn-primary ag-priority-continue",
+        type: "button",
+      }, t("priorityRadio.continue", "Continue to full Phase 1"));
+      var allStarterAnswered = STARTER_PRIORITY_IDS.every(function (cid) {
+        var r = self.state.responses[cid];
+        return r && r.answer;
+      });
+      starterContinueBtn.disabled = !allStarterAnswered;
+      starterContinueBtn.addEventListener("click", function () {
+        if (starterContinueBtn.disabled) return;
+        self.state.priorityExpanded = true;
+        self.saveToStorage();
+        self.render();
+      });
+      wrap.appendChild(starterContinueBtn);
+    } else {
+      pillars.forEach(function (p) {
+        var controls = self.data.controls.filter(function (c) { return c.pillar === p.num; });
+        var answeredInPillar = controls.filter(function (c) { return self.state.responses[c.id]; }).length;
+        var allAnswered = answeredInPillar === controls.length;
+
+        var group = h("div", { className: "ag-pillar-group" });
+        var header = h("div", {
+          className: "ag-pillar-header" + (allAnswered ? " collapsed" : ""),
+          role: "button",
+          tabindex: "0",
+          "aria-expanded": allAnswered ? "false" : "true",
+          "aria-controls": "ag-pillar-" + p.num,
+        });
+        header.appendChild(h("span", { className: "ag-pillar-name" }, p.name));
+        header.appendChild(h("span", { className: "ag-pillar-count" },
+          answeredInPillar + "/" + controls.length));
+        group.appendChild(header);
+
+        var controlsContainer = h("div", {
+          className: "ag-pillar-controls" + (allAnswered ? " collapsed" : ""),
+          id: "ag-pillar-" + p.num,
+        });
+        controls.forEach(function (ctrl) {
+          controlsContainer.appendChild(self.renderControlCard(ctrl, { facilitator: facilitator }));
+        });
+        group.appendChild(controlsContainer);
+
+        // Toggle collapse
+        var toggle = function () {
+          var isCollapsed = controlsContainer.classList.contains("collapsed");
+          if (isCollapsed) {
+            controlsContainer.classList.remove("collapsed");
+            header.classList.remove("collapsed");
+            header.setAttribute("aria-expanded", "true");
+          } else {
+            controlsContainer.classList.add("collapsed");
+            header.classList.add("collapsed");
+            header.setAttribute("aria-expanded", "false");
+          }
+        };
+        header.addEventListener("click", toggle);
+        header.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+        });
+
+        wrap.appendChild(group);
+      });
+    }
 
     // Navigation
     var btns = h("div", { className: "ag-btn-group" });
@@ -1050,17 +1677,60 @@
     wrap.appendChild(btns);
 
     parent.appendChild(wrap);
+
+    // Apply role filter visibility now that DOM is in the tree.
+    self.applyRoleFilter();
   };
 
-  AssessmentApp.prototype.renderControlCard = function (ctrl) {
+  /**
+   * Hide/show control cards based on the current role filter and refresh
+   * the count badge. Cards are not removed — purely a CSS display toggle so
+   * the user can flip filters without re-rendering 78 rows.
+   */
+  AssessmentApp.prototype.applyRoleFilter = function () {
+    if (!this.el) return;
+    var roleFilter = (this.state && this.state.roleFilter) || "";
+    var cards = this.el.querySelectorAll(".ag-control-card[data-control-id]");
+    var visible = 0;
+    var total = cards.length;
     var self = this;
+    cards.forEach(function (card) {
+      var cid = card.getAttribute("data-control-id");
+      var ctrl = null;
+      for (var i = 0; i < self.data.controls.length; i++) {
+        if (self.data.controls[i].id === cid) { ctrl = self.data.controls[i]; break; }
+      }
+      if (!ctrl) return;
+      var match = self.controlMatchesRoleFilter(ctrl, roleFilter);
+      card.style.display = match ? "" : "none";
+      if (match) visible++;
+    });
+    var badge = this.el.querySelector("#ag-role-filter-count");
+    if (badge) {
+      badge.textContent = tFmt("filter.role.count", "Showing {n} of {total}",
+        { n: visible, total: total });
+    }
+  };
+
+
+  AssessmentApp.prototype.renderControlCard = function (ctrl, options) {
+    var self = this;
+    options = options || {};
+    var facilitator = !!options.facilitator;
     var resp = this.state.responses[ctrl.id] || {};
+    var excluded = this.isControlExcluded(ctrl);
+    var override = (this.state.overrides && this.state.overrides[ctrl.id]) || null;
+
     var cls = "ag-control-card";
     if (resp.answer === "yes") cls += " answered";
     else if (resp.answer === "partial") cls += " partial";
     else if (resp.answer === "no") cls += " gap";
+    if (excluded) cls += " ag-row-excluded";
 
-    var card = h("div", { className: cls });
+    var card = h("div", {
+      className: cls,
+      "data-control-id": ctrl.id,
+    });
 
     // Header
     var header = h("div", { className: "ag-control-header" });
@@ -1068,6 +1738,15 @@
     var titleLine = h("div", { style: "display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap" });
     titleLine.appendChild(h("span", { className: "ag-control-id" }, ctrl.id));
     titleLine.appendChild(h("span", { className: "ag-control-title" }, ctrl.title));
+    // E9 — facilitator time-budget badge
+    if (facilitator && ctrl.facilitatorNotes && typeof ctrl.facilitatorNotes.timeBudgetMinutes === "number") {
+      titleLine.appendChild(h("span", { className: "ag-time-badge" },
+        tFmt("facilitator.timeBadge", "{n} min", { n: ctrl.facilitatorNotes.timeBudgetMinutes })));
+    }
+    if (override && override.applicable) {
+      titleLine.appendChild(h("span", { className: "ag-override-active-tag" },
+        t("exclusion.overrideActive", "Override active — control marked applicable")));
+    }
     left.appendChild(titleLine);
 
     // Badges
@@ -1076,7 +1755,7 @@
       var pCls = "ag-badge ag-badge-" + ctrl.adoptionPhase.priority.toLowerCase();
       badges.appendChild(h("span", { className: pCls }, "Phase " + ctrl.adoptionPhase.phase + " " + ctrl.adoptionPhase.priority));
     }
-    if (ctrl.solutions.length > 0) {
+    if (ctrl.solutions && ctrl.solutions.length > 0) {
       badges.appendChild(h("span", { className: "ag-badge ag-badge-solution" }, "Automation"));
     }
     left.appendChild(badges);
@@ -1089,51 +1768,172 @@
       card.appendChild(h("div", { className: "ag-control-objective" }, displayText));
     }
 
-    // Answer buttons
+    // E2 — Excluded banner + override flow
+    if (excluded) {
+      var exclBanner = h("div", { className: "ag-exclusion-banner" },
+        t("exclusion.banner",
+          "This control's applicable zones do not intersect your active scoping zones. It has been auto-marked N/A."));
+      card.appendChild(exclBanner);
+
+      var overrideBtn = h("button", {
+        className: "ag-override-btn",
+        type: "button",
+        "aria-expanded": "false",
+      }, t("exclusion.override", "Override — mark as applicable"));
+      var overrideForm = h("div", { style: "display:none;margin-top:0.4rem" });
+      var overrideTextarea = h("textarea", {
+        className: "ag-override-note",
+        placeholder: t("exclusion.overrideNotePlaceholder",
+          "Briefly note why this control should remain applicable…"),
+        "aria-label": "Override note for " + ctrl.id,
+        rows: "2",
+      });
+      var overrideSave = h("button", {
+        className: "ag-btn ag-btn-sm ag-btn-primary",
+        type: "button",
+        style: "margin-top:0.3rem",
+      }, t("exclusion.overrideSave", "Save override"));
+      overrideForm.appendChild(overrideTextarea);
+      overrideForm.appendChild(overrideSave);
+      overrideBtn.addEventListener("click", function () {
+        var open = overrideForm.style.display !== "none";
+        overrideForm.style.display = open ? "none" : "block";
+        overrideBtn.setAttribute("aria-expanded", open ? "false" : "true");
+        if (!open) overrideTextarea.focus();
+      });
+      overrideSave.addEventListener("click", function () {
+        var note = overrideTextarea.value.trim();
+        if (!note) { alert("Please enter a brief override note."); return; }
+        if (!self.state.overrides) self.state.overrides = {};
+        self.state.overrides[ctrl.id] = { applicable: true, note: note };
+        // Clear the auto-NA so the user can rate freely.
+        if (self.state.responses[ctrl.id] && self.state.responses[ctrl.id].autoNa) {
+          delete self.state.responses[ctrl.id];
+        }
+        self.saveToStorage();
+        self.render();
+      });
+      card.appendChild(overrideBtn);
+      card.appendChild(overrideForm);
+    } else if (override && override.applicable) {
+      // Allow removing override
+      var removeOverrideBtn = h("button", {
+        className: "ag-override-btn",
+        type: "button",
+      }, t("exclusion.overrideRemove", "Remove override"));
+      removeOverrideBtn.addEventListener("click", function () {
+        if (self.state.overrides) delete self.state.overrides[ctrl.id];
+        self.saveToStorage();
+        self.render();
+      });
+      card.appendChild(removeOverrideBtn);
+    }
+
+    // E9 — facilitator notes (ask + follow-up) above rating buttons
+    if (facilitator && ctrl.facilitatorNotes) {
+      var ask = ctrl.facilitatorNotes.ask;
+      var fu = ctrl.facilitatorNotes.followUp;
+      if (ask && String(ask).indexOf("TODO:") !== 0) {
+        card.appendChild(h("blockquote", { className: "ag-facilitator-ask" }, ask));
+      }
+      if (fu && String(fu).indexOf("TODO:") !== 0) {
+        card.appendChild(h("p", { className: "ag-facilitator-followup" },
+          t("facilitator.followUp", "Follow-up:") + " " + fu));
+      }
+    }
+
+    // Answer buttons (disabled when excluded without override)
     var answerGroup = h("div", { className: "ag-answer-group", role: "group", "aria-label": "Implementation status for " + ctrl.id });
     ANSWERS.forEach(function (a) {
       var bcls = "ag-answer-btn";
       var isPressed = resp.answer === a.value;
       if (isPressed) bcls += " " + a.cls;
-      var btn = h("button", {
+      var btnAttrs = {
         className: bcls,
         "aria-pressed": isPressed ? "true" : "false",
-        onClick: function () {
+        type: "button",
+      };
+      if (excluded) btnAttrs.disabled = "disabled";
+      var btn = h("button", btnAttrs, a.label);
+      if (!excluded) {
+        btn.addEventListener("click", function () {
           self.state.responses[ctrl.id] = self.state.responses[ctrl.id] || {};
           self.state.responses[ctrl.id].answer = a.value;
+          // Clear autoNa marker — user has now provided an explicit answer.
+          delete self.state.responses[ctrl.id].autoNa;
           self.saveToStorage();
-          // Update card styling
           card.className = "ag-control-card" +
             (a.value === "yes" ? " answered" : a.value === "partial" ? " partial" : a.value === "no" ? " gap" : "");
-          // Update button states
+          if (excluded) card.className += " ag-row-excluded";
+          card.setAttribute("data-control-id", ctrl.id);
           answerGroup.querySelectorAll(".ag-answer-btn").forEach(function (b) {
             b.className = "ag-answer-btn";
             b.setAttribute("aria-pressed", "false");
           });
           btn.className = "ag-answer-btn " + a.cls;
           btn.setAttribute("aria-pressed", "true");
-          // Update progress
           self.updateProgress();
-        }
-      }, a.label);
+          // Re-evaluate starter "Continue" button if in starter mode.
+          self._refreshStarterContinue();
+        });
+      }
       answerGroup.appendChild(btn);
     });
     card.appendChild(answerGroup);
 
-    // Notes toggle
-    var notesVisible = !!resp.notes;
-    var notesBtn = h("button", {
-      className: "ag-notes-toggle",
-      "aria-expanded": notesVisible ? "true" : "false",
-      "aria-controls": "ag-notes-" + ctrl.id,
-    }, resp.notes ? "Edit notes" : "Add notes");
+    // E1 — "How to verify" drawer toggle (lazy content)
+    var drawerId = "ag-drawer-" + ctrl.id.replace(/\./g, "-");
+    var drawerToggle = h("button", {
+      className: "ag-drawer-toggle",
+      type: "button",
+      "aria-expanded": "false",
+      "aria-controls": drawerId,
+    }, t("drawer.toggleOpen", "How to verify"));
+    var drawer = h("div", {
+      className: "ag-drawer",
+      id: drawerId,
+      role: "region",
+      "aria-label": "Verification details for " + ctrl.id,
+      tabindex: "-1",
+    });
+    var drawerLoaded = false;
+    drawerToggle.addEventListener("click", function () {
+      var isOpen = drawer.classList.contains("ag-drawer-open");
+      if (isOpen) {
+        drawer.classList.remove("ag-drawer-open");
+        drawerToggle.setAttribute("aria-expanded", "false");
+        drawerToggle.textContent = t("drawer.toggleOpen", "How to verify");
+        drawerToggle.focus();
+      } else {
+        if (!drawerLoaded) {
+          drawer.appendChild(self.renderDrawerContent(ctrl));
+          self._bindDrawerKeyboard(drawer, drawerToggle);
+          drawerLoaded = true;
+        }
+        drawer.classList.add("ag-drawer-open");
+        drawerToggle.setAttribute("aria-expanded", "true");
+        drawerToggle.textContent = t("drawer.toggleClose", "Hide verification details");
+        // Move focus into the drawer for keyboard users.
+        var focusables = drawer.querySelectorAll(
+          'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length) focusables[0].focus();
+        else drawer.focus();
+      }
+    });
+    card.appendChild(drawerToggle);
+    card.appendChild(drawer);
+
+    // E7 — Inline notes textarea + evidence reference input (always visible).
+    var notesLabel = h("label", { className: "ag-row-input-label", htmlFor: "ag-notes-" + ctrl.id },
+      t("row.notes", "Notes"));
     var notesArea = h("textarea", {
       className: "ag-textarea",
       id: "ag-notes-" + ctrl.id,
-      style: "display:" + (notesVisible ? "block" : "none") + ";margin-top:0.4rem",
-      placeholder: "Notes (optional)",
-      value: resp.notes || "",
+      style: "margin-top:0.2rem;display:block",
+      placeholder: t("row.notesPlaceholder", "Notes (optional)"),
       "aria-label": "Notes for control " + ctrl.id,
+      rows: "2",
     });
     notesArea.value = resp.notes || "";
     notesArea.addEventListener("input", function () {
@@ -1141,17 +1941,43 @@
       self.state.responses[ctrl.id].notes = notesArea.value;
       self._debouncedSave();
     });
-    notesBtn.addEventListener("click", function () {
-      var showing = notesArea.style.display !== "none";
-      notesArea.style.display = showing ? "none" : "block";
-      notesBtn.textContent = showing ? (notesArea.value ? "Edit notes" : "Add notes") : "Hide notes";
-      notesBtn.setAttribute("aria-expanded", showing ? "false" : "true");
-      if (!showing) notesArea.focus();
-    });
-    card.appendChild(notesBtn);
+    card.appendChild(notesLabel);
     card.appendChild(notesArea);
 
+    var evLabel = h("label", { className: "ag-row-input-label", htmlFor: "ag-evref-" + ctrl.id },
+      t("row.evidenceRef", "Evidence reference (file path or URL)"));
+    var evInput = h("input", {
+      className: "ag-evidence-ref",
+      id: "ag-evref-" + ctrl.id,
+      type: "text",
+      placeholder: t("row.evidenceRefPlaceholder", "e.g., \\\\fileshare\\evidence\\1.1\\screenshot.png"),
+      "aria-label": "Evidence reference for control " + ctrl.id,
+      value: resp.evidenceRef || "",
+    });
+    evInput.value = resp.evidenceRef || "";
+    evInput.addEventListener("input", function () {
+      self.state.responses[ctrl.id] = self.state.responses[ctrl.id] || {};
+      self.state.responses[ctrl.id].evidenceRef = evInput.value;
+      self._debouncedSave();
+    });
+    card.appendChild(evLabel);
+    card.appendChild(evInput);
+
     return card;
+  };
+
+  /** If in starter mode, recompute whether the "Continue to full Phase 1" button should be enabled. */
+  AssessmentApp.prototype._refreshStarterContinue = function () {
+    if (!this.state || this.state.priorityMode !== "starter" || this.state.priorityExpanded) return;
+    if (!this.el) return;
+    var btn = this.el.querySelector(".ag-priority-continue");
+    if (!btn) return;
+    var self = this;
+    var allAnswered = STARTER_PRIORITY_IDS.every(function (cid) {
+      var r = self.state.responses[cid];
+      return r && r.answer;
+    });
+    btn.disabled = !allAnswered;
   };
 
   AssessmentApp.prototype.updateProgress = function () {
