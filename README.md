@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework v1.3
+# FSI Agent Governance Framework v1.4
 
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
@@ -13,6 +13,21 @@
 
 > **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](docs/disclaimer.md) for full details.
 
+## What's New in v1.4
+
+Version 1.4.0 unifies the assessment platform and bridges to the companion FSI-AgentGov-Solutions repository:
+
+- **Unified manifest**: Single source of truth for all 78 controls across Python engine and browser-based assessment tool
+- **Solutions bridge**: Cross-repository integration with 35 automation solutions via committed lock file—enables E1 how-to-verify drawer solution chips and E7 agenda remediation blocks
+- **Sector calibration**: 8 institution-type-specific threshold adjustments (bank, broker-dealer, investment-adviser, insurance-carrier, insurance-wholesale, credit-union, holding-company, other)
+- **Facilitator enhancements**: Facilitator mode with inline hints/time budgets, inline evidence capture, collector evidence import, Next Session Agenda export
+- **Role-based workflow**: Role filter, per-role pre-session homework pages, remediation grouping by admin role
+- **Priority starter set**: One-click filter showing 5 foundation controls (2.1, 1.4, 1.5, 1.7, 1.11) for fast initial assessment
+- **Zone auto-exclusion**: Controls with optional/awareness-only zone requirements automatically excluded from zone scores
+- **How-to-verify drawer**: Per-control expandable panel with portal paths, PowerShell commands, expected evidence, and collector field mappings
+
+See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) for complete details.
+
 ## Why This Repository Exists
 
 Financial institutions can build and publish agents faster than they can consistently govern who may create them, what data and connectors they can access, how they move from experimentation to production, and what evidence must be retained for risk and compliance review. Microsoft product documentation explains how to create agents; FSI-AgentGov explains how to govern them in a regulated operating model.
@@ -24,7 +39,7 @@ This repository helps teams:
 - implement technical and procedural controls with step-by-step playbooks
 - support risk, compliance, and operational review with a common reference point
 
-**Version:** 1.3.0 (March 2026)
+**Version:** 1.4.0 (May 2026)
 **Primary Audience:** AI governance leads, Power Platform Admins, compliance teams, security architects, internal audit, and business sponsors in US financial services
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -450,10 +465,11 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
-> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.3.x](CHANGELOG-v1.3.md) | [v1.2.x](CHANGELOG-v1.2.md) | [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x](CHANGELOG-v1.0.md)
+> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.4.x](CHANGELOG-v1.4.md) | [v1.3.x](CHANGELOG-v1.3.md) | [v1.2.x](CHANGELOG-v1.2.md) | [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x](CHANGELOG-v1.0.md)
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| [1.4.0](CHANGELOG-v1.4.md) | May 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
 | [1.3.0](CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
 | [1.2.54](CHANGELOG-v1.2.md#1254--march-13-2026-csa-enablement--automation-indicators) | Mar 2026 | CSA Quick Reference, CSA Positioning Guide, automation indicators on all 71 controls, exportable diagrams | [@judeper](https://github.com/judeper) |
 | [1.2.53](CHANGELOG-v1.2.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
