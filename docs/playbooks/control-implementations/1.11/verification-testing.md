@@ -1,904 +1,1135 @@
 # Control 1.11 — Conditional Access and Phishing-Resistant MFA: Verification & Testing Playbook
 
-**Control:** 1.11 — Conditional Access and Phishing-Resistant MFA
+**Control:** 1.11 — Entra Conditional Access + Phishing-Resistant MFA for AI Agents
 **Pillar:** 1 — Security
-**Audience:** Entra Security Admin, Authentication Administrator, Entra Identity Governance Admin, Entra Agent ID Admin, AI Governance Lead, Compliance Officer, CISO delegate, Incident Response Lead, FSI Internal Audit
-**Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §5; 21Vianet treated as out-of-scope — see PRE-06)
-**Cross-links:** 1.5 (DLP & sensitivity labels), 1.7 (Tenant restrictions / cross-tenant access), 1.12 (Insider Risk / Identity Protection), 1.14 (Data minimization & policy-aware DLP), 1.19 (eDiscovery & evidence preservation), 1.21 (Adversarial sign-in correlation), 2.5 (PIM lifecycle & access reviews), 2.8 (Service principal consent & permissions), 2.22 (Inactivity timeout enforcement), 2.26 (Entra Agent ID identity governance), 3.8 (Copilot Hub & governance dashboard), 4.6 (SharePoint sensitive site protection), AI Incident Response Playbook
-
-> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** SEC Rule 17a-4(f) (audit-trail-alternative recordkeeping), FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA Regulatory Notice 25-07 (AI supervision), SOX Section 404 (internal control over financial reporting — applied to identity boundary integrity), GLBA Section 501(b) (Safeguards Rule — access controls), the FFIEC IT Examination Handbook (Information Security and Authentication booklets), NIST SP 800-63B (Authenticator Assurance Level 3 — phishing-resistant authenticators), NYDFS 23 NYCRR 500.12 (multi-factor authentication), OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model risk management — applied to AI agent identities as model-bearing principals), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and re-confirm tenant-specific behaviour against current Microsoft Learn documentation at the cycle's `lastVerifiedUtc` date.
-
----
-
-## What this playbook catches
-
-This playbook proves that an FSI Microsoft 365 tenant operates a **fail-closed, evidence-pinned, examiner-defensible** Conditional Access (CA) and phishing-resistant MFA posture for Microsoft 365 Copilot makers, Copilot Studio agent authors, Power Platform makers, AI administrators, and **Entra Agent ID** principals (the framework's first first-class non-human AI identity). Specifically, it verifies:
-
-1. **License & feature posture** — Entra ID P1/P2 covers in-scope users; **Workload Identities Premium** covers every service principal, managed identity, and Agent ID enrolled in a CA workload-identity policy; Microsoft Authenticator FedRAMP authorization is current in sovereign clouds; preview-state features (Agent ID, Token Protection on macOS, risk-based CA for workload identities) are reconciled to a per-cloud parity matrix rather than assumed-equivalent across clouds.
-2. **CA policy integrity** — production CA policies match a CA-as-code source of truth with zero unexplained drift; exclusions appear in an approved register and are reviewed within the cycle's grace window; Report-only staging policies have not been silently promoted; named locations reconcile to the corporate egress IP register.
-3. **Authentication Strength binding** — phishing-resistant Authentication Strengths (FIDO2 / Windows Hello for Business / device-bound passkeys / certificate-based authentication) are bound to every CA policy gating Zone 3 makers and high-privilege roles; SMS, voice, and OTP do not satisfy a Z3 grant; **synced (multi-device) passkeys are excluded from the AAL3 strength** because they break the device-binding assumption that makes a passkey phishing-resistant.
-4. **Device compliance and Token Protection** — Z3 maker access requires `compliantDevice` AND a `signinFrequency` boundary AND `signInTokenProtection`; non-compliant devices are blocked or challenged per policy intent; mobile maker access is gated by an App Protection (MAM) policy; Token Protection is rolled out via the Microsoft-recommended report-only / pilot / enforce ladder rather than enforced cold.
-5. **Continuous Access Evaluation (CAE)** — sign-in logs for Microsoft 365 Copilot and Copilot Studio resource calls show `Continuous access evaluation = True`; revocation latency for a disabled canary user is measured, recorded into the tenant baseline (PRE-07), and compared cycle-over-cycle rather than against an invented Microsoft SLA.
-6. **PIM eligibility for AI administrative roles** — every role listed in the parent control's PIM table (`Entra Agent ID Admin`, `AI Administrator`, `Entra Security Admin`, `Authentication Administrator`, `Entra Identity Governance Admin`) is **PIM-eligible only** with no permanent active assignments; activation requires MFA via a CA Authentication Context (NOT session-token reuse), justification, ticket reference, and time-bound activation that does not exceed the parent control's per-role ceiling.
-7. **Entra Agent ID lifecycle** — every in-scope agent is enrolled in Agent ID; each carries a non-null `sponsor` reviewed within the cycle window; the custom security attribute `AgentZone` is populated for every Z2/Z3 agent so scale-based CA policies can target them deterministically; the Microsoft Managed `Block high-risk agents` baseline is ON; a tenant-defined CA policy scoped to `AgentZone=3` is enforced.
-8. **Service principal coverage** — service principals enrolled in a CA workload-identity policy actually carry the **Workload Identities Premium** SKU consumption; service principals are **never** present in user-targeted CA security groups (the parent control's `!!! warning` anti-pattern); SP sign-ins fire a Sentinel detection rule whose last-fired timestamp is within the review window.
-9. **Break-glass posture** — at least two cloud-only (non-federated) emergency accounts exist; both are bound to **hardware FIDO2 keys held in a physical safe** with no SMS, voice, OTP, or Authenticator factors; both are excluded from every enabled CA policy AND **NOT** excluded from the phishing-resistant Authentication Strength requirement (the most commonly mis-implemented exception); a Sentinel analytic rule fires within the tenant baseline on any break-glass sign-in; the quarterly recoverability test record exists and is signed.
-10. **Negative / deny-by-default controls** — the What-If tool, given a synthetic high-risk user, produces a deterministic block; an SP without Workload Identities Premium cannot be silently bound to a workload-identity CA policy (or the binding is detected as fail-open and surfaced as a finding); the canary CA policy disable triggers a Sentinel alert within the tenant baseline; expired or disabled production policies do not fail open against the residual baseline grant.
-11. **Sovereign-cloud parity & incident readiness** — Commercial / GCC / GCC High / DoD parity for CA, Authentication Strengths, CAE, Token Protection, Agent ID, and Identity Protection (workload identities) is re-verified each cycle; gaps are recorded as compensating controls, not silent passes; an annual risky-sign-in tabletop and an account-compromise tabletop tied to FINRA 4530 and NYDFS 500.17(a) 72-hour notification timelines are exercised and signed.
-
-> **What this playbook does NOT claim.** It does **not** assert any single numeric Microsoft SLA for CA propagation, CAE token-revocation latency, PIM activation latency, or Identity Protection risk-evaluation latency — Microsoft Learn explicitly states these are eventually-consistent and that latency varies by client, app, signal type, and cloud; the operative threshold for any cycle is the per-tenant baseline measured in PRE-07. It does **not** claim that Entra Agent ID itself "blocks" prompt-injection, jailbreak, or content-class abuse — those belong to Controls 1.13, 1.21, and 4.6; Agent ID's role here is to give the agent an enforceable identity boundary so CA, Identity Protection, and PIM can act on it. It does **not** treat the Microsoft Managed `Block high-risk agents` policy as a substitute for tenant-authored agent scoping; the managed policy is a baseline floor, not the ceiling. It does **not** assert that a passing cycle eliminates account-compromise risk; the cycle proves the **control surface** is intact and evidenced, not that no control has ever been bypassed by a sufficiently determined adversary. It does **not** apply to Microsoft 365 operated by 21Vianet (China), which has materially different CA, Identity Protection, and Agent ID feature availability and requires a separate validator (out of scope here).
-
----
-## 1. Cadence Matrix (12 families × 3 zones)
-
-Each verification family has a defined cadence per zone. **Grace windows:** weekly = 10 days, monthly = 35 days, quarterly = 100 days, semi-annual = 200 days, annual = 400 days from the previous successful cycle's `cycleCompletedUtc`. A cycle that exceeds its grace window without an `acceptedRiskUntilUtc` exception (signed by AI Governance Lead AND Compliance Officer) is reported as a finding to FSI Internal Audit and the assessment engine (`assessment/engine/score.py`) downgrades the control's confidence from `high` to `medium`.
-
-| Family | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise / Regulated) | Owner (Run) | Reviewer (Sign-off) | Grace |
-|---|---|---|---|---|---|---|
-| **LIC** — License & feature posture | Quarterly | Monthly | Monthly | Entra Identity Admin | AI Governance Lead | 5 business days |
-| **CA** — Conditional Access policy integrity | Quarterly | Monthly | **Weekly** | Entra Security Admin | Compliance Officer | 2 business days |
-| **AUTHSTRENGTH** — Authentication Strength binding | Quarterly | Monthly | **Weekly** | Authentication Administrator | Entra Security Admin | 2 business days |
-| **DEVICE** — Device compliance + Token Protection | Quarterly | Monthly | Monthly | Endpoint Admin (Intune) | Entra Security Admin | 5 business days |
-| **CAE** — Continuous Access Evaluation | N/A | Quarterly | Monthly | Entra Security Admin | AI Governance Lead | 5 business days |
-| **PIM** — Just-in-time for AI admin roles | Quarterly | Monthly | Monthly | Entra Identity Governance Admin | Compliance Officer | 5 business days |
-| **AGENTID** — Entra Agent ID lifecycle | N/A (Z1 not in scope) | Monthly | **Weekly** | AI Governance Lead | Compliance Officer | 2 business days |
-| **SP** — Service Principal CA coverage | Quarterly | Monthly | Monthly | Entra Security Admin | Power Platform Admin | 5 business days |
-| **BREAKGLASS** — Emergency access | Quarterly | Quarterly | **Monthly** | Entra Global Admin | CISO delegate | 2 business days |
-| **NEG** — Deny-by-default / negative controls | Quarterly | Quarterly | Quarterly | Entra Security Admin | Compliance Officer | 5 business days |
-| **SOV** — Sovereign-cloud parity re-check | Annual | Semi-annual | Quarterly | Entra Identity Admin | Compliance Officer | 10 business days |
-| **IR** — Risky-sign-in / compromise tabletop | Annual | Semi-annual | **Quarterly** | Incident Response Lead | CISO delegate + Compliance Officer | 10 business days |
-
-> **Drift escalation rule.** If any test in the CA, AUTHSTRENGTH, AGENTID, BREAKGLASS, or NEG family fails twice in two consecutive cycles, the next cycle's cadence for that family **escalates one tier** (quarterly → monthly → weekly) and remains escalated until two consecutive clean cycles, after which it returns to the matrix default. Escalation events are recorded in `manifest.cadenceEscalations[]`.
-
-> **Hedged framing requirement.** Owner and reviewer columns use canonical role names from `docs/reference/role-catalog.md`. Frequencies are operational defaults; tenants may run more often. They may **not** run less often without a signed `acceptedRiskUntilUtc` exception.
+**Audience:** Microsoft 365 administrator preparing evidence; auditor / compliance officer assembling examination binders for FINRA, SEC, NYDFS DFS-500, FFIEC, and OCC reviews.
+**Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet (China) is treated as out-of-scope for this verification playbook because its Conditional Access (CA), Identity Protection, and Entra Agent ID feature surfaces materially diverge from Commercial parity and require an independent validator.
+**Last UI verified:** April 2026
+**Framework version:** v1.4
 
 ---
 
-## 2. Pre-flight Gates (Fail-Closed)
+!!! warning "Scope Limit — What These Tests Confirm and Do Not Confirm"
+    This verification playbook confirms the **access-control enforcement** layer of AI agent governance: that Conditional Access, phishing-resistant Authentication Strengths, Continuous Access Evaluation (CAE), Token Protection, and Privileged Identity Management (PIM) are configured, enforced, monitored, and evidenced for human makers, administrators, and (where supported) workload identities backing AI agents.
 
-PRE gates run **before** any test in §4. If any PRE gate returns FAIL, the validator (§7) exits with code **2**, no §4 test results are written to the evidence pack, and the cycle is halted and surfaced to the AI Governance Lead. Do not patch around a failed PRE gate by editing the validator.
+    These tests do **not** prove:
 
-### PRE-01 — Operator role separation and PIM activation
+    - **Supervisory quality of agent output** — that registered-principal review under FINRA Rule 3110 is being performed at the cadence and depth the firm's written supervisory procedures require. See [Control 2.12 — Supervision and Oversight under FINRA Rule 3110](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
+    - **Model risk management effectiveness** — that the agent's grounding, prompts, retrieval, fine-tuning, and ongoing monitoring satisfy OCC Bulletin 2011-12 and Federal Reserve SR 11-7 expectations for material AI/ML systems. See [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+    - **Books-and-records completeness** — that every conversational record, prompt, response, action, and decision was captured to immutable storage at the cadence FINRA Rule 4511 and SEC Rules 17a-3/17a-4 require, with WORM-equivalent retention. See [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 
-- **Objective.** Confirm the operator running the cycle did not hold `Entra Security Admin`, `Authentication Administrator`, `Entra Identity Governance Admin`, `Entra Agent ID Admin`, or `Entra Global Admin` as a permanent active assignment for the cycle, and that the three CA-relevant roles are held by **distinct identities** rather than concentrated in one super-admin.
-- **How to verify.** Query Microsoft Graph `roleManagement/directory/roleAssignmentScheduleInstances` filtered by `principalId` of the operator and the role definitions for the five roles; assert `assignmentType eq 'Activated'` AND `endDateTime` ≤ the parent control's per-role activation ceiling. Separately, enumerate **all** active and eligible holders of the three CA-relevant roles (`Entra Security Admin`, `Authentication Administrator`, `Entra Identity Governance Admin`); assert that no single principal holds all three (active OR eligible).
-- **Evidence.** `pre-01-pim-and-separation.json` containing the activation record IDs, role definition IDs, justification text, ticket references, and the 3-role intersection table.
-- **Pass.** Every privileged role exercised in this cycle is backed by a time-bound PIM activation with a ticket reference; zero permanent active assignments on the five privileged roles; the 3-role intersection on `Entra Security Admin` × `Authentication Administrator` × `Entra Identity Governance Admin` is empty.
-- **Audit assertion.** "No standing privileged identity-control access; all elevation is just-in-time and ticketed; CA-relevant administrative authority is split across at least three distinct principals (supports SOX 404 segregation of duties and FFIEC Authentication §III.A)."
+    All four control families — access control (1.11), supervisory review (2.12), model risk management (2.6), and books-and-records (1.7 / 1.9) — must operate **in combination** to support a defensible AI governance posture. A clean pass on this playbook is a necessary, but not sufficient, contribution to FINRA / SEC / NYDFS / FFIEC / OCC examination readiness.
 
-### PRE-02 — License & SKU floor (incl. Workload Identities Premium)
+!!! warning "Sovereign Cloud Availability"
+    Conditional Access, Authentication Strengths, CAE, and PIM are generally available in Commercial, GCC, GCC High, and DoD. The following capabilities have **uneven sovereign-cloud parity** as of the verification date and must be re-confirmed against current Microsoft Learn release notes for the operating cloud at the start of every quarterly verification cycle:
 
-- **Objective.** Confirm the tenant carries the SKUs required for the CA features, Authentication Strengths, Identity Protection, and **workload-identity CA** that the cycle exercises.
-- **How to verify.** Use Graph `subscribedSkus` and `assignedPlans`. Required:
-  1. **Entra ID P1** assigned to every in-scope user identity (Z2 floor) and **Entra ID P2** assigned to every Z3 maker, agent author, and PIM-eligible identity (P2 enables Identity Protection risk policies and PIM).
-  2. **Workload Identities Premium (WIDP)** present at tenant scope with `ConsumedUnits ≥ count(SP/MI/Agent ID enrolled in any workload-identity CA policy)`.
-  3. **Microsoft 365 E5** (or E3 + Defender for Identity standalone) for Identity Protection and Defender for Identity attestation.
-- **Evidence.** `pre-02-licensing.json` with SKU IDs, service plan IDs, and per-identity assignment counts; cross-join showing every workload-identity CA policy target carries WIDP consumption.
-- **Pass.** All three license families present AND every identity targeted by a workload-identity CA policy carries WIDP consumption; identities **not** carrying WIDP are absent from workload-identity CA policy targets (LIC-02 verifies this directly).
-- **Audit assertion.** "Tenant carries the entitlements that Microsoft documents as required for the CA, Identity Protection, and workload-identity features exercised in §4 of this cycle; no policy is silently inert because of a missing SKU."
+    - **Conditional Access for Workload Identities** (TC-4) — generally available in Commercial; sovereign-cloud parity tracked per release wave. Where unavailable, the compensating control is a quarterly manual reconciliation worksheet (see §SOV, Control 3.6 §10 pattern).
+    - **Token Protection (Preview)** (TC-6) — Windows-only preview surface; non-Windows endpoints have a **documented fallback**, not a silent bypass.
+    - **Entra Agent ID** (referenced in TC-1, TC-4, TC-11) — Public Preview; surface and noun names continue to stabilise across 2026 release waves.
+    - **Continuous Access Evaluation** (TC-5) — supported in Commercial, GCC, GCC High, DoD with per-app coverage that should be re-verified against the current Microsoft Learn CAE-supported-apps matrix each cycle.
 
-### PRE-03 — Break-glass attestation
-
-- **Objective.** Confirm break-glass posture meets the framework's irreducible minimum **before** any §4 test executes (because BG-01..03 themselves rely on the BG accounts existing and being recoverable).
-- **How to verify.** (a) Enumerate all members of the `Entra Global Admin` role; identify ≥ 2 cloud-only (non-federated, non-synced) emergency accounts whose UPN matches the tenant's documented BG naming convention; (b) for each, inspect `authentication/methods` and confirm the only registered method is a **hardware FIDO2 key** (vendor + AAGUID recorded against the firm's approved-key register); (c) for each, run the CA What-If tool against every enabled CA policy and record the outcome; (d) confirm a Sentinel analytic rule scoped to the BG account UPNs exists and is enabled with severity High; (e) confirm a quarterly recoverability test record exists for the prior quarter.
-- **Evidence.** `pre-03-breakglass.json` containing roster, method audit, per-policy What-If JSON, Sentinel rule export, and the prior quarter's signed recoverability test record.
-- **Pass.** Count ≥ 2 cloud-only AND hardware-FIDO2-only AND What-If returns "Not applied" for every enabled CA policy AND Sentinel rule enabled AND prior-quarter recoverability test signed.
-- **Audit assertion.** "Break-glass posture is verifiable independently of the CA control plane; recovery does not require the same control plane the cycle is testing."
-
-### PRE-04 — Microsoft Authenticator FedRAMP attestation (sovereign clouds)
-
-- **Objective.** In sovereign clouds, confirm Microsoft Authenticator carries the cloud-appropriate FedRAMP authorization and that non-FedRAMP authentication factors are blocked at the tenant Authentication Methods Policy.
-- **How to verify.** If `cloud ∈ {GCC, GCC-High, DoD}`: capture the Microsoft FedRAMP attestation reference for Microsoft Authenticator at `lastVerifiedUtc` (URL + retrieval timestamp + responsible-party text); inspect the tenant Authentication Methods Policy and confirm that any factor without a current FedRAMP authorization in the cloud is `state: disabled`; in Commercial cloud the gate returns `n/a` rather than PASS.
-- **Evidence.** `pre-04-fedramp.json` with cloud classification, attestation reference, retrieval timestamp, and Authentication Methods Policy export.
-- **Pass.** (Sovereign) Attestation current AND non-FedRAMP factors disabled. (Commercial) Marked `n/a` with cloud declared.
-- **Audit assertion.** "Authentication factors permitted in this sovereign cloud carry the FedRAMP authorization Microsoft asserts at `lastVerifiedUtc` (supports FedRAMP High continuous monitoring obligations and DoD CC SRG IL5 where applicable)."
-
-### PRE-05 — Canary CA policy + canary user
-
-- **Objective.** Confirm a dedicated canary CA policy in `enabledForReportingButNotEnforced` state, scoped to a synthetic canary user, exists and is monitored — so silent CA-control-plane disable events are detected within the tenant baseline rather than at the next quarterly review.
-- **How to verify.** Locate the canary CA policy by its documented `displayName` (e.g., `FSI-CANARY-DO-NOT-DISABLE`); confirm `state == 'enabledForReportingButNotEnforced'`, `users.includeUsers` is the synthetic canary UPN only, and `applications.includeApplications == 'All'`. Confirm a Sentinel analytic rule fires on `Update conditional access policy` events targeting this policy ID with severity High. Confirm the canary user UPN matches the regex `^fsi-canary-[a-z0-9]{4,}@…$` AND does NOT appear in HR's authoritative employee directory.
-- **Evidence.** `pre-05-canary.json` with the canary policy export, the Sentinel rule export, and the HR-directory cross-check result.
-- **Pass.** Canary policy present with correct state AND Sentinel rule enabled AND canary UPN is synthetic.
-- **Audit assertion.** "A canary CA policy and synthetic canary user provide near-real-time detection of unauthorized CA-control-plane changes; no real PII is exercised in the cycle."
-
-### PRE-06 — Cloud-environment guard and module-version pinning
-
-- **Objective.** Refuse to run if the operator targets an unsupported cloud (21Vianet) or if module versions cannot be pinned and hashed.
-- **How to verify.** (a) Query `Get-MgEnvironment` and the connection's authority URL; classify the cloud; HALT if the endpoint resolves to `partner.microsoftonline.cn` or if classification is ambiguous; (b) for each required module (`Microsoft.Graph` ≥ pinned minimum, `Microsoft.Graph.Identity.SignIns`, `Microsoft.Graph.Identity.Governance`, `Microsoft.Graph.Beta.Identity.SignIns` for Agent ID preview surfaces, `MSCommerce` for SKU enumeration), run `Get-Module -ListAvailable`, capture `Name`, `Version`, `Path`, and SHA-256 of the resolved `.psd1`.
-- **Evidence.** `pre-06-environment.json` with classified cloud, endpoint URI, tenant region, and module manifest with hashes.
-- **Pass.** Cloud is one of {Commercial, GCC, GCC High, DoD} AND matches the cloud declared in the cycle's `manifest.tenant.cloud` AND all required modules ≥ pinned minimum AND module signatures trusted (`Get-AuthenticodeSignature` Status = Valid for the primary `.psm1`).
-- **Audit assertion.** "Cycle executed against the declared sovereign cloud with version-pinned operator tooling; no cross-cloud contamination; cmdlet behaviour matches the playbook's documented expectations at this revision."
-
-### PRE-07 — Tenant baseline (CA propagation, CAE revocation, PIM activation, IDP risk lag)
-
-- **Objective.** Establish a per-tenant, per-cycle baseline for the four eventually-consistent latency properties this control depends on, **rather than** asserting a Microsoft SLA for any of them.
-- **How to verify.** Generate four synthetic measurements with a unique cycle marker (`fsi-cycle-{cycleId}`):
-  1. **CA propagation.** Modify a no-op attribute on the canary CA policy at T0; poll the Graph `policies/conditionalAccessPolicies/{id}` and Sentinel ingestion until the change appears in a fresh canary sign-in's `appliedConditionalAccessPolicies`. Record T0 → T_observed for the canary user.
-  2. **CAE revocation.** Disable the canary user at T0; from a CAE-aware client (Outlook desktop or Teams desktop) signed in as the canary, repeatedly request resource access; record T0 → T_denied.
-  3. **PIM activation.** From a PIM-eligible operator, request activation of `Entra Security Admin` at T0; record T0 → T_token_includes_role.
-  4. **Identity Protection risk evaluation.** Trigger a documented risky sign-in from a synthetic test identity (e.g., Tor exit-node sign-in attempt against a non-canary disabled test user); poll Identity Protection report for the corresponding risk detection until it appears.
-- **Evidence.** `pre-07-baseline.json` with the four measurement series and computed P50/P95 per series.
-- **Pass.** All four measurements complete within the cycle's measurement budget (default 4 hours each); P95 ≤ tenant's prior 4-cycle rolling P95 + 50% drift allowance.
-- **Audit assertion.** "Tenant CA propagation, CAE revocation, PIM activation, and Identity Protection risk-evaluation latencies are within rolling baseline; cycle's freshness threshold for CA, CAE, PIM, and risk-related tests is the measured P95, not an asserted Microsoft SLA."
-
-> **PRE-07 supersedes any numeric SLA stated elsewhere in this playbook.** Tests that reference a window must reference the baseline value from PRE-07, not an absolute number.
+    A `SKIPPED` evidence record with a pointer to the sovereign-cloud compensating-control worksheet is examiner-defensible; a silent omission is not.
 
 ---
 
-## 3. Documented Processing Windows (Microsoft Learn–cited only)
+## Document Conventions
 
-The table below captures **only** Microsoft-documented behaviours. Where Microsoft Learn does not publish a numeric SLA, the column reads "no documented numeric SLA — use tenant baseline from PRE-07". **Do not invent SLAs.**
+This playbook is the **verification-and-testing** artifact for [Control 1.11 — Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md). It is authored against framework version v1.4 and references Microsoft UI and API surfaces as last verified in April 2026.
 
-| Mechanism | Documented behaviour (Microsoft Learn, qualitative) | Operative threshold for this cycle |
+- **Hedged regulatory language.** This playbook **supports compliance with** GLBA §501(b) and the FTC Safeguards Rule 16 CFR §314.4(c)(5) (MFA mandate, in force June 2023), SEC Regulation S-P (May 2024 amendments), SEC Rules 17a-3 and 17a-4 (records and retention), FINRA Rule 3110 (supervision), FINRA Rule 4511 (books and records), FINRA Regulatory Notice 21-18 (cybersecurity), FINRA Regulatory Notice 25-07 (generative-AI supervision), SOX Sections 302 and 404 (internal control over financial reporting), NYDFS 23 NYCRR Part 500 §500.12 (universal MFA, fully effective Nov 1, 2025), the FFIEC IT Examination Handbook (Information Security and Authentication booklets), NIST SP 800-63B (Authenticator Assurance Level 3), OCC Bulletin 2011-12 and Federal Reserve SR 11-7 (model risk management — applied to AI agent identities as model-bearing principals), CFTC Regulation 1.31 (recordkeeping), and CISA Zero Trust Maturity Model v2.0 (Identity pillar). A clean execution **does not guarantee** legal compliance, **does not replace** registered-principal supervisory review under FINRA Rule 3110 where that rule applies, and **does not substitute** for the firm's written supervisory procedures or its books-and-records program. Implementation requires organization-specific risk assessment and qualified-counsel review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, tenant entitlements, and per-app CAE coverage at every cycle.
+- **Canonical role names.** This playbook uses the framework's canonical short-form role names: Entra Global Admin, Entra Security Admin, Authentication Policy Admin, Authentication Administrator, Entra Identity Governance Admin, Entra Agent ID Admin, AI Administrator, Power Platform Admin, Purview Compliance Admin, Exchange Online Admin, Sentinel Contributor, AI Governance Lead, Compliance Officer, CISO. No title substitution. (For example, "Global Administrator" is **not** a substitute for "Entra Global Admin"; "Compliance Administrator" is **not** a substitute for "Purview Compliance Admin"; "Power Apps Admin" is **not** a substitute for "Power Platform Admin".)
+- **Surface terminology.** Sign-in evidence comes from two distinct Microsoft Sentinel / Microsoft Graph tables that are routinely conflated:
+    - `SigninLogs` — interactive and non-interactive **human** sign-ins.
+    - `AADServicePrincipalSignInLogs` — **service principal and workload identity** sign-ins (including AI agent backing identities). Agent sign-ins **do NOT appear in `SigninLogs`** — a frequent examiner finding. Every test case that touches an agent identity uses `AADServicePrincipalSignInLogs`.
+    - `AuditLogs` — directory write operations (CA policy create/update/delete, role assignment changes, security-attribute changes).
+    - `PowerPlatformAdminActivity` — Power Platform Admin Center change-log entries used to corroborate the report-only-to-enforce flip in TC-12.
+- **Evidence retention.** Where evidence is **records-scope** under FINRA Rule 4511 or SEC Rule 17a-4, retention is **at least 7 years** with WORM-equivalent immutability via Microsoft Purview retention labels with deletion lock. Sentinel operational retention (typically 90 days hot, up to 2 years archived) is **not records-scope** and must not be relied upon as the system of record for audit-trail evidence.
+- **No prohibited language.** This playbook does not use "ensures compliance", "guarantees", "will prevent", or "eliminates risk". Outcomes are stated as "supports", "helps meet", "is required for", "is recommended to", and "aids in", with implementation caveats.
+- **PowerShell baseline.** PowerShell 7.4. Microsoft Graph PowerShell SDK ≥ 2.25.0 (`Microsoft.Graph.Identity.SignIns`, `Microsoft.Graph.Identity.DirectoryManagement`, `Microsoft.Graph.Identity.Governance`, `Microsoft.Graph.Beta.Identity.SignIns` for the workload-identity preview surfaces and Agent ID).
+- **KQL baseline.** Microsoft Sentinel workspace with the `AzureActiveDirectory` data connector enabled and **all of** SignInLogs, NonInteractiveUserSignInLogs, ServicePrincipalSignInLogs, ManagedIdentitySignInLogs, AuditLogs, and (where the Power Platform connector is licensed) PowerPlatformAdminActivity selected.
+
+---
+
+## §0 Pre-Test Prerequisites
+
+### 0.1 Operator role prerequisites
+
+Verification reads from identity, sign-in, audit, Power Platform, and Sentinel surfaces. Read/write separation is enforced: every test case in TC-1 through TC-12 is **read-only** as far as the verifier is concerned. Any remediation derived from a FAIL routes to the sister [Portal Walkthrough](./portal-walkthrough.md), [PowerShell Setup](./powershell-setup.md), or [Conditional Access Agent Templates](./conditional-access-agent-templates.md) under its own change ticket and its own write scopes.
+
+| Role (canonical) | Required for | PIM activation window |
 |---|---|---|
-| Conditional Access policy propagation | Typically takes effect on the next sign-in attempt; can be delayed under load and during global service events | No documented numeric SLA — use tenant baseline `pre-07-baseline.caPropagationP95` |
-| Continuous Access Evaluation token revocation | Described as near real-time for CAE-aware clients; Microsoft documents that propagation of an event such as user disable to an enforcing resource can take several minutes; IP-location enforcement is described as immediate | No documented numeric SLA — use tenant baseline `pre-07-baseline.caeRevocationP95` |
-| Authentication Strength evaluation | Evaluated at sign-in once the policy applies; existing tokens are not revoked retroactively unless `signinFrequency` or CAE forces a fresh sign-in | Authentication Strength applies only to **new** sign-ins; verify by triggering a fresh sign-in, not by reading an existing token |
-| PIM activation | Effective after MFA / approval / justification completes; the new role assignment must propagate into a fresh token before exercise | No documented numeric SLA — use tenant baseline `pre-07-baseline.pimActivationP95` |
-| Identity Protection risk evaluation | Combines real-time signals at sign-in with offline batch detections that surface later; some risk types (e.g., leaked credentials) only surface offline | No documented numeric SLA — use tenant baseline `pre-07-baseline.idpRiskP95`; offline risk types must be re-checked after a documented offline-batch window |
-| Token Protection rollout | Microsoft recommends pilot group → report-only analysis → enforcement; no documented numeric SLA for global rollout | Verify the rollout ladder is followed, not a calendar date |
-| Entra Agent ID (Preview) availability | Documented as Preview in Commercial cloud; sovereign-cloud availability is "Confirm at `lastVerifiedUtc`" | SOV-01 verifies availability per cloud each cycle; gaps are scoped, not ignored |
-| Microsoft Managed `Block high-risk agents` policy | Microsoft documents this as a baseline managed policy applicable to Agent ID where available | AID-04 verifies enabled state; the managed policy is a floor, not a ceiling |
-
-> **Citation discipline.** Every row above is testable against a Microsoft Learn page reachable at the cycle's `lastVerifiedUtc`. Any behaviour not on this table that affects cycle outcome must be added in the cycle's `manifest.deviations[]` with a Learn URL and a verification timestamp; an undocumented behaviour without a deviation entry is a finding.
-
----
-## 4. Test Catalog (32 tests across 12 namespaces)
-
-Test ID format: `1.11-{NAMESPACE}-NN`. Each test uses a 7-field structure: **Objective / Preconditions / Steps / Expected / Pass criteria / Audit assertion / Evidence**. The validator (§7) emits one record per test against the JSON Schema in §6.
-
-> Symbols: ⛔ = blocking failure (cycle FAIL); ⚠ = non-blocking finding (cycle PASS WITH NOTE if no other failure); ✅ = informational green path.
-
-### 4.1 Namespace `LIC` — License & feature posture (3 tests)
-
-#### 1.11-LIC-01 — Workload Identities Premium covers every workload-identity CA target ⛔
-
-- **Objective.** Prove every service principal, managed identity, and Agent ID enrolled in any workload-identity CA policy carries WIDP consumption — closing the silent fail-open path where a CA policy targets an identity the SKU does not cover.
-- **Preconditions.** PRE-02 PASS; the cycle's CA-as-code repo enumerates which CA policies are workload-identity policies (`conditions.clientApplications.servicePrincipals` populated).
-- **Steps.** (1) Enumerate workload-identity CA policies via `Get-MgIdentityConditionalAccessPolicy` filtered to those with `conditions.clientApplications.servicePrincipals.includeServicePrincipals` non-empty or referencing a service-principal group. (2) Resolve each target SP/MI/Agent ID's `appId`. (3) Cross-join against `MSCommerce` WIDP consumption records. (4) Compute the set difference: `targets \ widpConsumers`.
-- **Expected.** The set difference is empty.
-- **Pass.** `count(targets \ widpConsumers) == 0`.
-- **Audit assertion.** "Every non-human identity bound to a workload-identity CA policy carries the SKU Microsoft documents as required for that policy to evaluate; no policy is silently inert (supports SOX 404 control-design integrity)."
-- **Evidence.** `tests/lic-01-widp-coverage.json` containing the policy list, target list, consumer list, and the (empty) difference set.
-
-#### 1.11-LIC-02 — Entra ID P1/P2 covers in-scope users by zone ⛔
-
-- **Objective.** Confirm Z2 users carry P1 and Z3 users carry P2 (P2 enables Identity Protection sign-in / user risk policies and PIM).
-- **Preconditions.** PRE-02 PASS; HR's authoritative directory tags each user with `extensionAttribute1 ∈ {Z1,Z2,Z3}` per the parent control's zone tag convention.
-- **Steps.** Enumerate user SKU assignments; cross-join against zone tag; flag any Z2 user without P1 OR P2 service-plan and any Z3 user without P2 service-plan.
-- **Expected.** Zero Z2 users without P1/P2; zero Z3 users without P2.
-- **Pass.** Both counts == 0.
-- **Audit assertion.** "License floor matches zone classification; PIM and Identity Protection are licensable for the populations they target."
-- **Evidence.** `tests/lic-02-userlicense.json`.
-
-#### 1.11-LIC-03 — Microsoft Authenticator FedRAMP attestation current (sovereign only) ⚠
-
-- **Objective.** In sovereign clouds, the Microsoft FedRAMP attestation reference for Authenticator is current relative to the cycle's `lastVerifiedUtc`; in Commercial, the test is `n/a`.
-- **Preconditions.** PRE-04 PASS or `n/a`.
-- **Steps.** Re-fetch the FedRAMP attestation reference recorded in PRE-04; compute age in days vs. `lastVerifiedUtc`.
-- **Expected.** Attestation age ≤ 90 days OR re-confirmed by the responsible party in the cycle window.
-- **Pass.** Sovereign + age ≤ 90d, OR Commercial (`n/a`).
-- **Audit assertion.** "FedRAMP authorization for the authenticator app is current at cycle close (supports FedRAMP continuous-monitoring obligations)."
-- **Evidence.** `tests/lic-03-fedramp.json`.
-
-### 4.2 Namespace `CA` — Conditional Access policy integrity (4 tests)
-
-#### 1.11-CA-01 — Phishing-resistant Authentication Strength bound to every Z3-maker CA grant ⛔
-
-- **Objective.** Verify every CA policy gating a Zone 3 maker, Copilot Studio agent author, AI Administrator, or PIM-eligible role binds the **phishing-resistant MFA** Authentication Strength (or a tenant-defined Auth Strength that is a subset of phishing-resistant).
-- **Preconditions.** Z3 maker group resolvable via Graph; AuthStrength catalog enumerable.
-- **Steps.** For each enabled CA policy whose `users.includeUsers/Groups/Roles` intersects the Z3 maker set OR any role in `[AI Administrator, Entra Agent ID Admin, Authentication Administrator, Entra Security Admin, Entra Identity Governance Admin]`: read `grantControls.authenticationStrength.id`; resolve the strength definition; assert `allowedCombinations` ⊆ phishing-resistant combinations (FIDO2, WHfB, deviceBoundPasskey, x509CertificateMultiFactor).
-- **Expected.** Every such policy resolves to a phishing-resistant strength.
-- **Pass.** `count(z3PoliciesWithoutPhishResistant) == 0` AND `count(z3PoliciesWithSmsOrVoiceOrOtp) == 0`.
-- **Audit assertion.** "Phishing-resistant MFA per NIST SP 800-63B AAL3 is bound to every Z3 maker access path (supports FFIEC Authentication §III.B and NYDFS 500.12 phishing-resistant guidance)."
-- **Evidence.** `tests/ca-01-authstrength-binding.json`.
-
-#### 1.11-CA-02 — Drift vs. CA-as-code source of truth ⛔
-
-- **Objective.** Production CA matches the signed CA-as-code repo HEAD; no out-of-band edits.
-- **Preconditions.** CA-as-code repo with signed commits and the prior cycle's HEAD SHA recorded in `manifest.caAsCodeBaselineSha`.
-- **Steps.** Export every enabled CA policy via Graph; render to the canonical CA-as-code JSON shape; diff against the repo's exported set; flag adds, deletes, attribute changes.
-- **Expected.** Zero unexplained drift; any drift entry has a corresponding signed pull request merged into the repo within the cycle window.
-- **Pass.** `count(driftEntriesWithoutPR) == 0`.
-- **Audit assertion.** "CA control plane changes only via reviewed, signed change-control (supports SOX 404 ITGC change-management)."
-- **Evidence.** `tests/ca-02-drift.json`.
-
-#### 1.11-CA-03 — Exclusions appear in approved register and are within freshness window ⚠
-
-- **Objective.** Every user, group, role, application, and IP excluded from a CA policy appears in the firm's approved exclusion register with a stated business justification, owner, expiry, and last-review date inside the cycle's grace window.
-- **Preconditions.** Approved exclusion register exists at a known repo path.
-- **Steps.** Enumerate all `*.excludeUsers/Groups/Roles/Applications/Locations` across enabled policies; cross-join the register; flag exclusions absent from the register OR with `lastReviewUtc` older than (cycle start − cadence grace).
-- **Expected.** Every exclusion is registered and reviewed.
-- **Pass.** `count(unregisteredExclusions) == 0` AND `count(staleExclusions) == 0`.
-- **Audit assertion.** "Every CA exception is named, owned, justified, time-bound, and recently reviewed (supports FFIEC IS Booklet exception management)."
-- **Evidence.** `tests/ca-03-exclusions.json`.
-
-#### 1.11-CA-04 — Report-only ring not silently promoted; named-locations fresh ⚠
-
-- **Objective.** A report-only policy older than the documented pilot window has either been promoted with a signed approval or retired; named-locations IP ranges match the corporate-egress IP register.
-- **Preconditions.** Pilot ladder window documented (e.g., 30 days report-only).
-- **Steps.** (a) For each `state == 'enabledForReportingButNotEnforced'` policy: compare `modifiedDateTime` against pilot window; flag stale report-only policies absent a signed extension. (b) Enumerate `namedLocations`; diff IP ranges against the corporate-egress IP register; flag mismatches.
-- **Expected.** No stale report-only without extension; no IP-range drift.
-- **Pass.** Both counts == 0.
-- **Audit assertion.** "Pilot-state policies are time-bound and reviewed; named-locations reflect the firm's actual egress posture."
-- **Evidence.** `tests/ca-04-reportonly-namedlocations.json`.
-
-### 4.3 Namespace `AUTHSTRENGTH` — Authentication Strength catalog (3 tests)
-
-#### 1.11-AUTHSTRENGTH-01 — Synced (multi-device) passkeys excluded from AAL3 strength ⛔ (negative test)
-
-- **Objective.** The phishing-resistant Authentication Strength used for AAL3 grants does **not** permit synced passkeys (which break the device-binding assumption that makes a passkey AAL3-grade).
-- **Preconditions.** Tenant-defined or built-in Authentication Strength used for AAL3 grants is identifiable in the schema.
-- **Steps.** Resolve the AAL3 strength definition; enumerate `allowedCombinations`; assert that no combination resolves to a synced-passkey AAGUID; assert `deviceBoundPasskey` is the operative passkey combination if passkeys are permitted at all.
-- **Expected.** Synced-passkey AAGUIDs absent from AAL3 strength.
-- **Pass.** `count(syncedPasskeyAAGUIDsInAAL3) == 0`.
-- **Audit assertion.** "AAL3 grants permit only device-bound authenticators; synced/multi-device passkeys are not silently treated as phishing-resistant (supports NIST SP 800-63B AAL3 device-binding requirement)."
-- **Evidence.** `tests/authstrength-01-synced-passkey-excluded.json`.
-
-#### 1.11-AUTHSTRENGTH-02 — FIDO2-only enforcement on Z3 makers ⛔
-
-- **Objective.** Z3 makers can complete a sign-in **only** with FIDO2/WHfB/CBA — not with Authenticator number-match, OTP, SMS, or voice.
-- **Preconditions.** AUTHSTRENGTH-01 PASS; canary Z3 user available.
-- **Steps.** Triggered via the operator workstation: simulate a sign-in for the canary Z3 user using each non-FIDO2 method registered for the canary; capture sign-in log `authenticationDetails` and `appliedConditionalAccessPolicies`; assert non-FIDO2 attempts are denied with the AAL3 CA policy as the deny reason.
-- **Expected.** Non-FIDO2 methods denied; FIDO2 / WHfB / CBA succeed.
-- **Pass.** Zero non-FIDO2 success records for the canary Z3 user.
-- **Audit assertion.** "Z3 maker sign-ins cannot fall back to weaker factors; phishing-resistant MFA is operationally enforced, not merely policy-configured."
-- **Evidence.** `tests/authstrength-02-fido2-only.json`.
-
-#### 1.11-AUTHSTRENGTH-03 — Certificate-based authentication (CBA) chain validity for x509 grants ⚠
-
-- **Objective.** Where x509 CBA is permitted in the AAL3 strength, the trusted CA chain configured at the tenant matches the firm's PKI's current intermediate set; revoked or expired intermediates are not trusted.
-- **Preconditions.** Tenant CBA configuration exported.
-- **Steps.** Export the tenant CBA configuration; cross-check each trusted CA against the firm's current PKI roster; flag mismatches and expired/revoked entries.
-- **Expected.** Tenant CBA trust set ≡ firm PKI roster intersected with non-expired non-revoked intermediates.
-- **Pass.** `count(trustedCaMismatches) == 0`.
-- **Audit assertion.** "x509 trust at the identity edge matches firm PKI; no orphaned-trust path."
-- **Evidence.** `tests/authstrength-03-cba-chain.json`.
-
-### 4.4 Namespace `DEVICE` — Device compliance + Token Protection (3 tests)
-
-#### 1.11-DEVICE-01 — Z3 access requires compliantDevice + Token Protection + signinFrequency ⛔
-
-- **Objective.** Every CA policy gating Z3 maker resource access carries `grantControls.builtInControls` containing `compliantDevice` AND `sessionControls.signInFrequency` set AND `sessionControls.signInTokenProtection.isEnabled == true`.
-- **Preconditions.** CA-01 PASS.
-- **Steps.** Enumerate Z3 grant policies; for each, assert the three session/grant controls above are present and enabled.
-- **Expected.** All three present on every Z3 grant.
-- **Pass.** Zero Z3 policies missing any of the three.
-- **Audit assertion.** "Z3 access requires a managed device, a periodic re-authentication, and Token Protection — closing token-replay paths from non-compliant endpoints."
-- **Evidence.** `tests/device-01-compliantdevice-tokenprot-sif.json`.
-
-#### 1.11-DEVICE-02 — Hybrid-join / Entra-join enforcement on Z3 endpoints ⚠
-
-- **Objective.** Devices used by Z3 makers are Entra-joined or Hybrid-joined; workgroup or Azure-AD-registered-only endpoints cannot satisfy `compliantDevice`.
-- **Preconditions.** Intune device inventory accessible.
-- **Steps.** Cross-join Z3 user roster against Intune `managedDevices`; flag Z3 users whose primary device is `azureAdRegistered` only or absent.
-- **Expected.** Every Z3 user has at least one `azureAdJoined` or `hybridAzureAdJoined` compliant device.
-- **Pass.** Count of non-compliant Z3 users == 0.
-- **Audit assertion.** "Z3 makers operate on devices that fall under tenant-managed posture; BYOD that is merely registered is not silently treated as managed."
-- **Evidence.** `tests/device-02-join-state.json`.
-
-#### 1.11-DEVICE-03 — Mobile maker access gated by App Protection (MAM) policy ⚠
-
-- **Objective.** When Z2/Z3 makers use mobile clients, an Intune App Protection policy is enforced on the Microsoft 365 / Copilot mobile app.
-- **Preconditions.** Intune App Protection policies enumerable.
-- **Steps.** Enumerate App Protection policies; assert at least one policy is assigned to the maker group AND scoped to the Microsoft 365 Copilot mobile app bundle IDs.
-- **Expected.** Policy present and assigned.
-- **Pass.** Policy present and assigned.
-- **Audit assertion.** "Mobile maker access enforces a MAM boundary; corporate data on personal mobile is policy-bound."
-- **Evidence.** `tests/device-03-mam.json`.
-
-### 4.5 Namespace `CAE` — Continuous Access Evaluation (2 tests)
-
-#### 1.11-CAE-01 — Microsoft 365 Copilot and Copilot Studio sign-ins show CAE = True ⛔
-
-- **Objective.** Sign-in logs for Microsoft 365 Copilot resource calls (`Microsoft.AzureAdvancedThreatProtection`-adjacent app IDs and the documented Copilot resource app IDs) show `Continuous access evaluation = True` on the resource leg of the call chain.
-- **Preconditions.** Sign-in log retention covers the cycle window.
-- **Steps.** Query sign-in logs for the cycle window filtered to Copilot / Copilot Studio resource app IDs; aggregate by client app and CAE flag.
-- **Expected.** Every interactive Copilot resource sign-in chain shows CAE evaluation in scope.
-- **Pass.** Zero Copilot resource sign-in records show `Continuous access evaluation = False` for a CAE-aware client.
-- **Audit assertion.** "Copilot resource access participates in CAE; revocation events propagate via the CAE channel rather than waiting for token expiry."
-- **Evidence.** `tests/cae-01-copilot-cae-true.json`.
-
-#### 1.11-CAE-02 — CAE revocation latency within tenant baseline ⚠
-
-- **Objective.** PRE-07's CAE revocation P95 is within the rolling 4-cycle baseline.
-- **Preconditions.** PRE-07 PASS.
-- **Steps.** Read `pre-07-baseline.caeRevocationP95`; compare to the rolling 4-cycle P95 stored in `manifest.rollingBaselines.caeRevocationP95`; flag if current > rolling × 1.5.
-- **Expected.** Within 1.5× rolling P95.
-- **Pass.** Within threshold.
-- **Audit assertion.** "Tenant-measured CAE revocation latency is within rolling baseline; no Microsoft SLA is asserted (supports defensible operational metric reporting)."
-- **Evidence.** `tests/cae-02-revocation-baseline.json`.
-
-### 4.6 Namespace `PIM` — Just-in-time for AI admin roles (3 tests)
-
-#### 1.11-PIM-01 — MFA on activation via CA Authentication Context (NOT session-token reuse) ⛔
-
-- **Objective.** PIM activation for the five privileged roles requires fresh phishing-resistant MFA bound through a CA Authentication Context, not satisfaction by a previously-issued token in the operator's current session.
-- **Preconditions.** PIM role settings exportable; CA Authentication Context references resolvable.
-- **Steps.** For each role in `[Entra Agent ID Admin, AI Administrator, Authentication Administrator, Entra Security Admin, Entra Identity Governance Admin]`: read `roleManagementPolicy` activation rules; assert `Enablement_EndUser_Assignment` requires `MultiFactorAuthentication` AND a CA Authentication Context reference; assert the referenced Authentication Context is bound to a CA policy whose grant is the AAL3 phishing-resistant Authentication Strength; assert no rule sets `claimValue` mode that would accept a pre-existing MFA claim older than the CA policy's `signInFrequency` value.
-- **Expected.** All five roles require fresh MFA-via-CA-Auth-Context bound to AAL3.
-- **Pass.** Zero roles fail any sub-assertion.
-- **Audit assertion.** "PIM activation cannot be satisfied by token reuse; every elevation re-presents a phishing-resistant factor (supports SOX 404 and FFIEC Authentication §III)."
-- **Evidence.** `tests/pim-01-mfa-on-activation.json`.
-
-#### 1.11-PIM-02 — Eligibility-only (zero permanent active assignments on the five roles) ⛔
-
-- **Objective.** No principal holds any of the five privileged roles as a permanent `Active` assignment outside the break-glass exception.
-- **Preconditions.** Break-glass roster from PRE-03.
-- **Steps.** Enumerate `roleManagement/directory/roleAssignmentScheduleInstances` filtered to the five role definitions and `assignmentType eq 'Assigned'` (permanent); subtract the BG roster.
-- **Expected.** Empty set.
-- **Pass.** `count(permanentNonBgAssignments) == 0`.
-- **Audit assertion.** "Standing privilege on identity-control roles is limited to documented break-glass; all routine elevation is just-in-time."
-- **Evidence.** `tests/pim-02-eligibility-only.json`.
-
-#### 1.11-PIM-03 — Activation duration ≤ per-role ceiling, justification + ticket required ⚠
-
-- **Objective.** Activation duration ceilings, mandatory justification, and mandatory ticket reference per the parent control's PIM table.
-- **Preconditions.** Parent control PIM table version pinned in `manifest.parentControlVersion`.
-- **Steps.** Read `roleManagementPolicy` for each role; assert `Expiration_EndUser_Assignment.maximumDuration` ≤ ceiling; assert `Enablement_EndUser_Assignment.enabledRules` contains `Justification` AND `Ticketing`.
-- **Expected.** All sub-assertions pass.
-- **Pass.** Zero rule violations.
-- **Audit assertion.** "Activation duration, justification, and ticket reference are policy-enforced (supports change-management and audit-trail evidence)."
-- **Evidence.** `tests/pim-03-duration-justification-ticket.json`.
-
-### 4.7 Namespace `AGENTID` — Entra Agent ID lifecycle (4 tests)
-
-#### 1.11-AGENTID-01 — Every in-scope agent enrolled in Agent ID with `sponsor` populated ⛔
-
-- **Objective.** Every Z2/Z3 Copilot Studio agent in scope is enrolled as an Entra Agent ID with a non-null `sponsor` attribute referencing a current employee.
-- **Preconditions.** Z2/Z3 Copilot Studio agent inventory enumerable from Power Platform admin; Agent ID list enumerable via Graph beta (Preview).
-- **Steps.** Cross-join the agent inventory against the Agent ID roster; flag agents present in Power Platform inventory but missing from Agent ID OR present in Agent ID but with null/orphan `sponsor`.
-- **Expected.** Empty difference set; sponsor populated and resolvable to an active employee.
-- **Pass.** `count(unenrolledAgents) == 0` AND `count(orphanSponsorAgents) == 0`.
-- **Audit assertion.** "Every in-scope agent has an enforceable identity boundary and a named human sponsor (supports OCC 2011-12 / SR 11-7 model identity accountability and FINRA 3110 supervision applied to AI agents)."
-- **Evidence.** `tests/agentid-01-enrollment-sponsor.json`.
-
-#### 1.11-AGENTID-02 — Sponsor review within cycle window ⚠
-
-- **Objective.** Each enrolled agent's sponsor signed a review attestation within the cycle's grace window.
-- **Preconditions.** Sponsor-review record store accessible (Lifecycle Workflows or Access Reviews export).
-- **Steps.** Enumerate sponsor-review records by agent ID; flag agents whose most recent signed review is older than (cycle start − cadence grace).
-- **Expected.** Every agent has a fresh sponsor review.
-- **Pass.** `count(staleSponsorReviews) == 0`.
-- **Audit assertion.** "Agent sponsorship is actively maintained; orphan agents are surfaced for retirement (supports identity governance lifecycle)."
-- **Evidence.** `tests/agentid-02-sponsor-review.json`.
-
-#### 1.11-AGENTID-03 — Custom security attribute `AgentZone` populated for every Z2/Z3 agent ⛔
-
-- **Objective.** The custom security attribute `AgentZone ∈ {2,3}` is populated for every Z2/Z3 agent so scale-based CA policies can target them deterministically.
-- **Preconditions.** Custom security attribute set `Agent` with attribute `AgentZone` defined at tenant scope (one-time setup; deletion is irreversible per Microsoft Learn).
-- **Steps.** Enumerate Agent ID principals; read the `customSecurityAttributes.Agent.AgentZone` attribute; assert non-null AND value matches the agent's classified zone.
-- **Expected.** Every agent's attribute matches its classification.
-- **Pass.** `count(agentZoneMissingOrMismatched) == 0`.
-- **Audit assertion.** "Agent zone classification is encoded in a tamper-evident, deletion-irreversible custom security attribute consumable by CA filters; agent-targeted CA policies are deterministic, not name-pattern guesses."
-- **Evidence.** `tests/agentid-03-agentzone.json`.
-
-#### 1.11-AGENTID-04 — Microsoft Managed `Block high-risk agents` baseline enabled + tenant Z3-agent CA policy enforced ⛔
-
-- **Objective.** Both the Microsoft Managed baseline AND a tenant-authored CA policy targeting `AgentZone == 3` are enabled and enforcing.
-- **Preconditions.** AGENTID-03 PASS.
-- **Steps.** Locate the Microsoft Managed `Block high-risk agents` policy via Graph; assert `state == 'enabled'`. Locate the tenant policy targeting `customSecurityAttributes.Agent.AgentZone eq '3'` (filter syntax pinned in CA-as-code repo); assert `state == 'enabled'` AND grant is the phishing-resistant AAL3 strength.
-- **Expected.** Both policies enabled and enforcing.
-- **Pass.** Both states `enabled`; tenant policy grant matches AAL3 strength.
-- **Audit assertion.** "Microsoft baseline floor and tenant ceiling for agent CA both enforce; the floor is not used as a substitute for tenant scoping."
-- **Evidence.** `tests/agentid-04-managed-and-tenant-policies.json`.
-
-### 4.8 Namespace `SP` — Service principal CA coverage (3 tests)
-
-#### 1.11-SP-01 — Service principal CA policies exist and resolve to phishing-resistant or workload-identity equivalent grant ⛔
-
-- **Objective.** Workload-identity CA policies for SPs in scope (Power Platform, Logic Apps, custom connectors used by AI agents) exist and apply a grant of `block`, `requireRiskAssessment`, or an Authentication Context the SP must satisfy via certificate-based credential.
-- **Preconditions.** PRE-02 PASS; LIC-01 PASS.
-- **Steps.** Enumerate workload-identity CA policies; cross-join against the in-scope SP roster from `manifest.scope.servicePrincipals[]`; flag in-scope SPs without a workload-identity CA policy.
-- **Expected.** Every in-scope SP is bound to at least one workload-identity CA policy.
-- **Pass.** `count(unboundInScopeSps) == 0`.
-- **Audit assertion.** "Non-human identities operating against Microsoft 365 / Copilot resources are governed by CA at parity with human identities; no silent SP path bypasses the CA control plane."
-- **Evidence.** `tests/sp-01-sp-ca-coverage.json`.
-
-#### 1.11-SP-02 — Service principals NOT present in any user-targeted CA security group ⛔ (anti-pattern guard)
-
-- **Objective.** No SP is a member of any group that appears in `users.includeGroups` of a CA policy intended for human identities — the parent control's flagged anti-pattern.
-- **Preconditions.** Group membership enumerable.
-- **Steps.** Enumerate every group referenced in `users.includeGroups` across enabled CA policies; resolve full membership; flag any member with `objectType == 'ServicePrincipal'`.
-- **Expected.** Empty set.
-- **Pass.** `count(spsInUserCaGroups) == 0`.
-- **Audit assertion.** "Anti-pattern of mixing human and non-human identities in user-CA groups is verifiably absent (supports SOX ITGC and FFIEC IS Booklet)."
-- **Evidence.** `tests/sp-02-no-sps-in-user-ca-groups.json`.
-
-#### 1.11-SP-03 — Sentinel SP-sign-in detection rule fired or test-fired within review window ⚠
-
-- **Objective.** The Sentinel analytic rule scoped to anomalous SP sign-ins (e.g., new IP, new resource, dormant-SP wake-up) is enabled and has a recent fired-or-test-fired record.
-- **Preconditions.** Sentinel rule export accessible.
-- **Steps.** Locate the rule by its documented `displayName`; assert `enabled == true`; query rule incident history; assert at least one `incidentCreated` OR signed manual test-fire record exists in the cycle window.
-- **Expected.** Rule enabled and exercised within window.
-- **Pass.** Both conditions true.
-- **Audit assertion.** "Detective control over SP sign-in anomalies is operational, not merely configured."
-- **Evidence.** `tests/sp-03-sentinel-spdetection.json`.
-
-### 4.9 Namespace `BREAKGLASS` — Emergency access (3 tests)
-
-#### 1.11-BREAKGLASS-01 — Two cloud-only hardware-FIDO2 BG accounts, quarterly recoverability test signed ⛔
-
-- **Objective.** Re-prove the BG posture asserted in PRE-03 at test time (defence in depth — PRE-03 happens at cycle start, BG-01 happens during §4 to detect mid-cycle drift).
-- **Preconditions.** PRE-03 PASS.
-- **Steps.** Re-enumerate Global Admin role members; recompute the BG-cloud-only-hardware-FIDO2 set; assert ≥ 2; re-confirm the prior-quarter recoverability test record's signature is valid.
-- **Expected.** Set size ≥ 2; signature valid.
-- **Pass.** Both conditions true.
-- **Audit assertion.** "Emergency access remains posture-pure mid-cycle; recoverability is exercised quarterly and signed."
-- **Evidence.** `tests/breakglass-01-recoverability.json`.
-
-#### 1.11-BREAKGLASS-02 — BG accounts NOT excluded from phishing-resistant Authentication Strength ⛔ (most-mis-implemented exception)
-
-- **Objective.** BG accounts are excluded from CA policies that would lock them out (correct), but **not** excluded from the phishing-resistant Authentication Strength requirement that protects them from credential-only attack (correct framing — many tenants get this backwards).
-- **Preconditions.** BG roster from PRE-03.
-- **Steps.** For each enabled CA policy: confirm BG accounts appear in `users.excludeUsers` (PASS direction); separately, assert there is **no** policy whose grant **removes** the AAL3 phishing-resistant requirement specifically for BG accounts (FAIL direction).
-- **Expected.** BG excluded from lockout-risk policies; BG NOT excluded from phishing-resistant grant.
-- **Pass.** Both directional checks pass.
-- **Audit assertion.** "BG exclusion model excludes only what locks them out; it does not silently downgrade their authenticator strength (supports the parent control's `!!! warning` anti-pattern)."
-- **Evidence.** `tests/breakglass-02-not-excluded-from-phishresistant.json`.
-
-#### 1.11-BREAKGLASS-03 — Sentinel alert on BG sign-in fires within tenant baseline ⚠
-
-- **Objective.** The Sentinel analytic rule scoped to the BG account UPNs fires within `pre-07-baseline.sentinelIngestionP95` of a synthetic test sign-in.
-- **Preconditions.** PRE-03 PASS; PRE-07 PASS.
-- **Steps.** Trigger a no-impact test event (e.g., a benign Graph read that the rule's KQL captures) using a non-BG synthetic account that the rule treats as a BG match for test purposes (preferred over actually exercising a BG account); measure T0 → alert-created.
-- **Expected.** Latency within baseline.
-- **Pass.** Within `pre-07-baseline.sentinelIngestionP95 × 1.5`.
-- **Audit assertion.** "BG sign-in detection is exercised, not assumed (supports IR readiness and FINRA 4530 30-day reporting)."
-- **Evidence.** `tests/breakglass-03-sentinel-bg-alert-latency.json`.
-
-### 4.10 Namespace `NEG` — Deny-by-default / negative tests (3 tests)
-
-#### 1.11-NEG-01 — What-If with synthetic high-risk user → blocked ⛔
-
-- **Objective.** The CA What-If tool, given a synthetic high-risk Z3 user (sign-in risk = high, location = unknown, device = non-compliant, app = Microsoft 365 Copilot), returns a deterministic block from the AAL3 + risk policy stack.
-- **Preconditions.** What-If invokable via Graph.
-- **Steps.** Construct the What-If request with the documented synthetic profile; capture `appliedPolicies` and `notAppliedPolicies` with reason codes; assert at least one applied policy with `grantControls.builtInControls` containing `block` OR a non-satisfiable strength.
-- **Expected.** Synthetic high-risk Z3 sign-in resolves to block.
-- **Pass.** Block resolved; reason codes captured.
-- **Audit assertion.** "Deny-by-default is verifiable via deterministic What-If (supports control-design test evidence)."
-- **Evidence.** `tests/neg-01-whatif-block.json`.
-
-#### 1.11-NEG-02 — SP without WIDP cannot be silently bound to workload-identity CA policy ⛔
-
-- **Objective.** Attempting to add an SP that does **not** carry WIDP consumption to a workload-identity CA policy either fails the bind OR is detected as a fail-open and surfaces as a finding within the cycle window.
-- **Preconditions.** Sandbox SP without WIDP available; sandbox CA policy in test slot.
-- **Steps.** In a non-production tenant slot or via a `-WhatIf` Graph call against production: attempt the bind; capture the response; if the bind succeeds despite missing WIDP, assert that LIC-01 surfaces this as a difference and that a Sentinel rule fires on the policy modification.
-- **Expected.** Either the bind is rejected at policy save, or LIC-01 catches it AND Sentinel fires.
-- **Pass.** One of the two safe outcomes.
-- **Audit assertion.** "There is no silent fail-open path where a workload-identity CA policy targets an unlicensed SP; the failure mode is either rejection or detection."
-- **Evidence.** `tests/neg-02-sp-without-widp.json`.
-
-#### 1.11-NEG-03 — Canary CA policy disable fires Sentinel alert within baseline ⛔
-
-- **Objective.** Disabling the canary CA policy from PRE-05 fires a Sentinel alert within `pre-07-baseline.sentinelIngestionP95`.
-- **Preconditions.** PRE-05 PASS; PRE-07 PASS.
-- **Steps.** Toggle the canary policy `state` from `enabledForReportingButNotEnforced` to `disabled` at T0; measure T0 → alert-created; restore the canary policy state; record both timestamps.
-- **Expected.** Alert within baseline; canary state restored.
-- **Pass.** Both conditions true.
-- **Audit assertion.** "Canary detection over the CA control plane is operational; unauthorized CA disable is detected near-real-time relative to the tenant's measured ingestion baseline."
-- **Evidence.** `tests/neg-03-canary-disable-alert.json`.
-
-### 4.11 Namespace `SOV` — Sovereign-cloud parity (1 test)
-
-#### 1.11-SOV-01 — Per-cloud feature parity matrix re-verified at `lastVerifiedUtc` ⛔
-
-- **Objective.** Re-verify that the §5 sovereign-cloud parity matrix (CA features, Authentication Strengths, CAE, Token Protection, Agent ID, Identity Protection workload-identities) reflects current Microsoft Learn for the cycle's `lastVerifiedUtc`; gaps are recorded as compensating controls in `manifest.compensatingControls[]`.
-- **Preconditions.** Operator can reach Microsoft Learn for each declared cloud's documentation.
-- **Steps.** For each cloud `c ∈ {Commercial, GCC, GCC-High, DoD}`: open the relevant Learn page; record availability for each feature listed in §5; compare to the matrix in this playbook; record drift in `manifest.deviations[]`.
-- **Expected.** Either no drift OR drift recorded with compensating control.
-- **Pass.** Drift entries (if any) all have a non-null `compensatingControlId`.
-- **Audit assertion.** "Sovereign-cloud parity gaps are surfaced and compensated, not silently passed (supports defensible regulatory posture across clouds)."
-- **Evidence.** `tests/sov-01-parity-recheck.json`.
-
-### 4.12 Namespace `IR` — Incident response readiness (2 tests)
-
-#### 1.11-IR-01 — Risky-sign-in tabletop exercised within cycle window ⛔
-
-- **Objective.** A tabletop covering a high-risk sign-in on a Z3 maker (e.g., impossible-travel + atypical-token-claim + Copilot Studio agent author) was exercised; the runbook executed end-to-end and the after-action report is signed.
-- **Preconditions.** AI Incident Response Playbook current; IR roster current.
-- **Steps.** Reference the cycle-window tabletop record; assert all required steps executed (detection → triage → containment via CAE revoke → forensics via sign-in logs + Audit logs + Defender for Identity → eradication via credential reset + session revoke → recovery → lessons learned); assert sign-off by Incident Response Lead AND CISO delegate.
-- **Expected.** Tabletop record present, executed, signed.
-- **Pass.** All conditions true.
-- **Audit assertion.** "IR muscle memory for risky-sign-in scenarios on AI maker identities is exercised at least at cycle cadence (supports FINRA 4530 timely reporting and NYDFS 500.16 incident response)."
-- **Evidence.** `tests/ir-01-risky-signin-tabletop.json`.
-
-#### 1.11-IR-02 — Account-compromise tabletop tied to FINRA 4530 / NYDFS 72-hour notification timelines ⛔
-
-- **Objective.** A second tabletop covering full account compromise of a Z3 maker exercised the FINRA 4530 30-calendar-day external reporting decision tree AND the NYDFS 23 NYCRR 500.17(a) 72-hour superintendent notification decision tree.
-- **Preconditions.** Compliance Officer participated; legal counsel review available on request.
-- **Steps.** Reference the cycle-window tabletop record; assert decision-tree branches were exercised with timestamps; assert Compliance Officer sign-off captured.
-- **Expected.** Tabletop record present, executed, signed; both decision trees exercised.
-- **Pass.** All conditions true.
-- **Audit assertion.** "Regulatory notification decision trees for account compromise are pre-exercised; the firm does not first encounter the 72-hour clock during a real incident (supports NYDFS 500.17(a) and FINRA 4530)."
-- **Evidence.** `tests/ir-02-compromise-tabletop.json`.
-
----
-## 5. Sovereign-Cloud Parity Matrix
-
-The matrix below is **re-verified each cycle by SOV-01**. Symbols: ✅ GA, 🟡 Preview, ⚠ partial / cloud-specific limits, ❌ not available, ❓ confirm at `lastVerifiedUtc`. **Treat any cell as authoritative only at the cycle's `lastVerifiedUtc`** — Microsoft revises sovereign-cloud feature matrices on its own cadence.
-
-| Capability | Commercial | GCC | GCC High | DoD | Cycle action if a cell is ❌ or ❓ |
-|---|---|---|---|---|---|
-| Conditional Access (user policies) | ✅ | ✅ | ✅ | ✅ | n/a |
-| CA Workload-Identities (workload-identity policies) | ✅ | ✅ | ❓ | ❓ | If ❓: SOV-01 records gap; LIC-01 still runs; SP-01 marks affected SPs as scope-excluded with compensating control |
-| Authentication Strengths (built-in phishing-resistant) | ✅ | ✅ | ✅ | ✅ | n/a |
-| Tenant-defined Authentication Strengths | ✅ | ✅ | ❓ | ❓ | If ❓: AUTHSTRENGTH-* uses built-in phishing-resistant strength; record deviation |
-| Continuous Access Evaluation (CAE) | ✅ | ✅ | ⚠ | ⚠ | If ⚠: CAE-01 scoped to documented client/resource pairs only; CAE-02 still runs against measured baseline |
-| Token Protection (sign-in token binding) | ✅ Windows; 🟡 macOS | ✅ Windows; 🟡 macOS | ❓ | ❓ | If ❓: DEVICE-01 marks Token Protection sub-assertion as scope-excluded with compensating control (e.g., shorter `signInFrequency`) |
-| Identity Protection — user / sign-in risk | ✅ | ✅ | ⚠ | ⚠ | n/a |
-| Identity Protection — workload identities | 🟡 | ❓ | ❓ | ❓ | If 🟡 or ❓: AGENTID-04 / SP-* may not have Identity-Protection-driven CA available; record as compensating-control gap |
-| Privileged Identity Management (PIM) | ✅ | ✅ | ✅ | ✅ | n/a |
-| Entra Agent ID | 🟡 | ❓ | ❓ | ❓ | If ❓: AGENTID-* tests scope to enrollable agents only; un-enrollable agents tracked under the parent control's "agent identity blueprint" alternative |
-| Microsoft Authenticator (FedRAMP authorization) | n/a | ✅ | ✅ | ✅ | PRE-04 enforces |
-| Defender for Identity (sensors on AD DS for federated paths) | ✅ | ✅ | ✅ | ✅ | n/a |
-| Microsoft Sentinel (SIEM ingestion of sign-in logs + audit logs) | ✅ | ✅ | ✅ | ✅ | n/a |
-
-> **Compensating-control discipline.** Every ❓ or ❌ cell that affects a §4 test outcome MUST appear in `manifest.compensatingControls[]` with `gap`, `compensatingControl`, `owner`, `acceptedRiskUntilUtc`, and `signedBy`. A gap without a compensating control is a finding.
-
----
-
-## 6. JSON Schema, PowerShell Validator, Manifest Builder
-
-### 6.1 Evidence JSON Schema (excerpt)
-
-The full schema lives at `schemas/1.11/evidence.schema.json` in the repo. The validator (§6.2) refuses to emit an evidence pack that does not validate against this schema.
-
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://fsi-agentgov/schemas/1.11/evidence.schema.json",
-  "title": "FSI Agent Governance — Control 1.11 Evidence Pack",
-  "type": "object",
-  "required": ["envelope", "preflight", "tests", "manifest", "attestations"],
-  "properties": {
-    "envelope": {
-      "type": "object",
-      "required": ["controlId", "version", "cycleId", "cloud", "tenantId", "cycleStartedUtc", "cycleCompletedUtc", "lastVerifiedUtc", "previousCycleAttestationSha256"],
-      "properties": {
-        "controlId": { "const": "1.11" },
-        "version": { "const": "v1.4" },
-        "cycleId": { "type": "string", "pattern": "^[0-9]{4}-(Q[1-4]|M(0[1-9]|1[0-2])|W[0-5][0-9])$" },
-        "cloud": { "enum": ["Commercial", "GCC", "GCC-High", "DoD"] },
-        "tenantId": { "type": "string", "format": "uuid" },
-        "cycleStartedUtc": { "type": "string", "format": "date-time" },
-        "cycleCompletedUtc": { "type": "string", "format": "date-time" },
-        "lastVerifiedUtc": { "type": "string", "format": "date-time" },
-        "previousCycleAttestationSha256": {
-          "oneOf": [
-            { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-            { "type": "null", "description": "null only for genesis cycle" }
-          ]
-        }
-      }
-    },
-    "preflight": {
-      "type": "object",
-      "required": ["PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "PRE-07"],
-      "additionalProperties": false,
-      "patternProperties": {
-        "^PRE-0[1-7]$": {
-          "type": "object",
-          "required": ["status", "evidenceFile"],
-          "properties": {
-            "status": { "enum": ["PASS", "FAIL", "N/A"] },
-            "evidenceFile": { "type": "string" },
-            "notes": { "type": "string" }
-          }
-        }
-      }
-    },
-    "tests": {
-      "type": "array",
-      "minItems": 32,
-      "items": {
-        "type": "object",
-        "required": ["testId", "namespace", "status", "evidenceFile", "executedUtc"],
-        "properties": {
-          "testId": { "type": "string", "pattern": "^1\\.11-[A-Z]+-[0-9]{2}$" },
-          "namespace": { "enum": ["LIC", "CA", "AUTHSTRENGTH", "DEVICE", "CAE", "PIM", "AGENTID", "SP", "BREAKGLASS", "NEG", "SOV", "IR"] },
-          "status": { "enum": ["PASS", "FAIL", "PASS_WITH_NOTE", "N/A", "SKIPPED_BY_PREGATE"] },
-          "evidenceFile": { "type": "string" },
-          "executedUtc": { "type": "string", "format": "date-time" },
-          "auditAssertion": { "type": "string" }
-        }
-      }
-    },
-    "manifest": {
-      "type": "object",
-      "required": ["files", "manifestSha256", "validatorScriptSha256", "modules", "tenant", "cadenceEscalations", "deviations", "compensatingControls", "rollingBaselines"],
-      "properties": {
-        "files": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["path", "sha256", "sizeBytes"],
-            "properties": {
-              "path": { "type": "string" },
-              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-              "sizeBytes": { "type": "integer", "minimum": 0 }
-            }
-          }
-        },
-        "manifestSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-        "validatorScriptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-        "modules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name", "version", "psd1Sha256"],
-            "properties": {
-              "name": { "type": "string" },
-              "version": { "type": "string" },
-              "psd1Sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
-            }
-          }
-        },
-        "tenant": {
-          "type": "object",
-          "required": ["tenantId", "cloud", "region"],
-          "properties": {
-            "tenantId": { "type": "string", "format": "uuid" },
-            "cloud": { "enum": ["Commercial", "GCC", "GCC-High", "DoD"] },
-            "region": { "type": "string" }
-          }
-        },
-        "cadenceEscalations": { "type": "array" },
-        "deviations": { "type": "array" },
-        "compensatingControls": { "type": "array" },
-        "rollingBaselines": {
-          "type": "object",
-          "properties": {
-            "caPropagationP95": { "type": "string" },
-            "caeRevocationP95": { "type": "string" },
-            "pimActivationP95": { "type": "string" },
-            "idpRiskP95": { "type": "string" },
-            "sentinelIngestionP95": { "type": "string" }
-          }
-        }
-      }
-    },
-    "attestations": {
-      "type": "array",
-      "minItems": 3,
-      "items": {
-        "type": "object",
-        "required": ["signerRole", "signerUpn", "signedUtc", "manifestSha256AtSign", "priorCycleSha256", "signatureBase64"],
-        "properties": {
-          "signerRole": { "enum": ["AI Governance Lead", "Compliance Officer", "CISO delegate"] },
-          "signerUpn": { "type": "string", "format": "email" },
-          "signedUtc": { "type": "string", "format": "date-time" },
-          "manifestSha256AtSign": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-          "priorCycleSha256": {
-            "oneOf": [
-              { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-              { "type": "null" }
-            ]
-          },
-          "signatureBase64": { "type": "string" }
-        }
-      }
-    }
-  }
-}
-```
-
-### 6.2 PowerShell Validator (skeleton)
-
-The full script lives at `scripts/1.11/Invoke-Verification.ps1`. The skeleton below shows the **fail-closed contract**: PRE gate failure → exit 2; test failure → exit 1; clean cycle → exit 0; self-integrity failure (validator hash mismatch) → exit 2.
+| Entra Security Admin | Reads CA policy state, Authentication Strengths, named locations, sign-in logs | 4 hours, just-in-time |
+| Authentication Policy Admin | Reads and (in remediation) writes Authentication Method policy, FIDO2 enablement, registration campaigns | 4 hours, just-in-time |
+| Authentication Administrator | Reads per-user method registration; can reset methods only as part of an approved remediation | 4 hours, just-in-time |
+| Entra Identity Governance Admin | Reads PIM eligible / active assignments, access reviews, lifecycle workflows | 4 hours, just-in-time |
+| Entra Agent ID Admin | Reads Agent ID enrollment, sponsor assignments, agent custom security attributes | 4 hours, just-in-time |
+| AI Administrator | Reads Agent 365 Admin Center, Copilot Studio environment posture, agent inventory | 4 hours, just-in-time |
+| Power Platform Admin | Reads PPAC environment, maker, and DLP policy state; reads PPAC change-log for TC-12 | 4 hours, just-in-time |
+| Purview Compliance Admin | Reads retention-label binding on evidence locations, UAL coverage | 4 hours, just-in-time |
+| Sentinel Contributor / Reader | Runs KQL across `SigninLogs`, `AADServicePrincipalSignInLogs`, `AuditLogs`, `PowerPlatformAdminActivity`; reads CA Insights and Identity Protection workbooks | Standing read; contributor is JIT |
+| AI Governance Lead | Owns the verification cycle; counter-signs the quarterly attestation in §13 | Standing with quarterly recertification (Control 2.8) |
+| Compliance Officer | Counter-signs quarterly attestation; routes findings to Internal Audit | Standing |
+| CISO (or CISO delegate) | Approves break-glass posture (TC-8) and the report-only-to-enforce change (TC-12) | Standing |
+
+> **Least privilege.** No verifier holds **Entra Global Admin** persistently. Where Global Admin is required for a particular UI blade (rare in this control), activate through Entra PIM time-bound, never standing. Standing privileged-role overlap between Preparer / Validator / Compliance signatories on the §13 attestation is a cycle-stopping FAIL.
+
+### 0.2 Module baseline (PowerShell 7.4)
 
 ```powershell
 #Requires -Version 7.4
-#Requires -Modules @{ModuleName='Microsoft.Graph';ModuleVersion='2.20.0'}
-#Requires -Modules @{ModuleName='Microsoft.Graph.Identity.SignIns';ModuleVersion='2.20.0'}
-#Requires -Modules @{ModuleName='Microsoft.Graph.Identity.Governance';ModuleVersion='2.20.0'}
-#Requires -Modules @{ModuleName='MSCommerce';ModuleVersion='2.0'}
-[CmdletBinding()]
-param(
-  [Parameter(Mandatory)] [string] $TenantId,
-  [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCC-High','DoD')] [string] $Cloud,
-  [Parameter(Mandatory)] [string] $CycleId,
-  [Parameter(Mandatory)] [string] $EvidenceRoot,
-  [string] $PriorCycleAttestationSha256
-)
+#Requires -Modules @{ ModuleName='Microsoft.Graph.Authentication';                ModuleVersion='2.25.0' }
+#Requires -Modules @{ ModuleName='Microsoft.Graph.Identity.SignIns';              ModuleVersion='2.25.0' }
+#Requires -Modules @{ ModuleName='Microsoft.Graph.Identity.DirectoryManagement';  ModuleVersion='2.25.0' }
+#Requires -Modules @{ ModuleName='Microsoft.Graph.Identity.Governance';           ModuleVersion='2.25.0' }
+#Requires -Modules @{ ModuleName='Microsoft.Graph.Reports';                       ModuleVersion='2.25.0' }
+#Requires -Modules @{ ModuleName='Microsoft.Graph.Beta.Identity.SignIns';         ModuleVersion='2.25.0' }
+#Requires -Modules @{ ModuleName='Microsoft.PowerApps.Administration.PowerShell'; ModuleVersion='2.0.200' }
+#Requires -Modules @{ ModuleName='Az.SecurityInsights';                           ModuleVersion='3.1.0'  }
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-Set-StrictMode -Version 3
-
-# --- Self-integrity gate (fail-closed) ---
-$selfPath  = $PSCommandPath
-$expected  = Get-Content "$PSScriptRoot/Invoke-Verification.ps1.sha256" -Raw -ErrorAction Stop
-$actual    = (Get-FileHash -Path $selfPath -Algorithm SHA256).Hash.ToLower()
-if ($actual -ne $expected.Trim().ToLower()) {
-  Write-Error "Validator self-hash mismatch (expected=$expected actual=$actual). Refusing to run."
-  exit 2
-}
-
-# --- Helpers ---
-$global:PreResults  = @{}
-$global:TestResults = [System.Collections.Generic.List[object]]::new()
-
-function Invoke-Gate {
-  param([string]$Id, [scriptblock]$Block)
-  Write-Host "[PRE] $Id starting"
-  try {
-    $r = & $Block
-    if ($r.Status -notin 'PASS','N/A') { throw "Gate $Id returned $($r.Status)" }
-    $global:PreResults[$Id] = $r
-    Write-Host "[PRE] $Id $($r.Status)"
-  } catch {
-    $global:PreResults[$Id] = [pscustomobject]@{ Status='FAIL'; Notes=$_.Exception.Message; EvidenceFile="preflight/$Id-FAIL.json" }
-    Write-Error "[PRE] $Id FAIL: $_"
-    Write-EvidencePack
-    exit 2  # fail-closed — no §4 test results emitted
-  }
-}
-
-function Invoke-Test {
-  param([string]$Id, [string]$Namespace, [scriptblock]$Block)
-  Write-Host "[TEST] $Id starting"
-  try {
-    $r = & $Block
-    $global:TestResults.Add([pscustomobject]@{
-      testId         = $Id
-      namespace      = $Namespace
-      status         = $r.Status
-      evidenceFile   = $r.EvidenceFile
-      executedUtc    = (Get-Date).ToUniversalTime().ToString('o')
-      auditAssertion = $r.AuditAssertion
-    })
-  } catch {
-    $global:TestResults.Add([pscustomobject]@{
-      testId='1.11-' + $Namespace + '-' + ($Id -replace '.*-',''); namespace=$Namespace; status='FAIL';
-      evidenceFile="tests/$Id-EXCEPTION.json"; executedUtc=(Get-Date).ToUniversalTime().ToString('o');
-      auditAssertion="Exception: $($_.Exception.Message)"
-    })
-  }
-}
-
-# --- PRE gates (fail any → exit 2) ---
-Invoke-Gate 'PRE-01' { Test-OperatorPimAndSeparation }
-Invoke-Gate 'PRE-02' { Test-LicensingFloor }
-Invoke-Gate 'PRE-03' { Test-BreakGlassPosture }
-Invoke-Gate 'PRE-04' { Test-AuthenticatorFedRamp -Cloud $Cloud }
-Invoke-Gate 'PRE-05' { Test-CanaryPolicyAndUser }
-Invoke-Gate 'PRE-06' { Test-EnvironmentAndModules -Cloud $Cloud }
-Invoke-Gate 'PRE-07' { Measure-TenantBaselines }
-
-# --- §4 Tests ---
-Invoke-Test '1.11-LIC-01'          'LIC'          { Test-WidpCoverage }
-Invoke-Test '1.11-LIC-02'          'LIC'          { Test-UserLicenseByZone }
-Invoke-Test '1.11-LIC-03'          'LIC'          { Test-FedRampAttestationFreshness -Cloud $Cloud }
-Invoke-Test '1.11-CA-01'           'CA'           { Test-AuthStrengthBoundToZ3 }
-Invoke-Test '1.11-CA-02'           'CA'           { Test-CaAsCodeDrift }
-Invoke-Test '1.11-CA-03'           'CA'           { Test-ExclusionsRegistered }
-Invoke-Test '1.11-CA-04'           'CA'           { Test-ReportOnlyAndNamedLocations }
-Invoke-Test '1.11-AUTHSTRENGTH-01' 'AUTHSTRENGTH' { Test-SyncedPasskeyExcluded }
-Invoke-Test '1.11-AUTHSTRENGTH-02' 'AUTHSTRENGTH' { Test-Fido2OnlyOnZ3 }
-Invoke-Test '1.11-AUTHSTRENGTH-03' 'AUTHSTRENGTH' { Test-CbaChainValidity }
-Invoke-Test '1.11-DEVICE-01'       'DEVICE'       { Test-CompliantDeviceTokenProtSif }
-Invoke-Test '1.11-DEVICE-02'       'DEVICE'       { Test-JoinStateOnZ3 }
-Invoke-Test '1.11-DEVICE-03'       'DEVICE'       { Test-MamOnMobileMakers }
-Invoke-Test '1.11-CAE-01'          'CAE'          { Test-CaeTrueOnCopilot }
-Invoke-Test '1.11-CAE-02'          'CAE'          { Test-CaeRevocationBaseline }
-Invoke-Test '1.11-PIM-01'          'PIM'          { Test-MfaOnPimActivation }
-Invoke-Test '1.11-PIM-02'          'PIM'          { Test-EligibilityOnly }
-Invoke-Test '1.11-PIM-03'          'PIM'          { Test-DurationJustificationTicket }
-Invoke-Test '1.11-AGENTID-01'      'AGENTID'      { Test-AgentEnrollmentSponsor }
-Invoke-Test '1.11-AGENTID-02'      'AGENTID'      { Test-SponsorReviewFreshness }
-Invoke-Test '1.11-AGENTID-03'      'AGENTID'      { Test-AgentZoneAttribute }
-Invoke-Test '1.11-AGENTID-04'      'AGENTID'      { Test-ManagedAndTenantAgentPolicies }
-Invoke-Test '1.11-SP-01'           'SP'           { Test-SpCaCoverage }
-Invoke-Test '1.11-SP-02'           'SP'           { Test-NoSpsInUserCaGroups }
-Invoke-Test '1.11-SP-03'           'SP'           { Test-SentinelSpDetection }
-Invoke-Test '1.11-BREAKGLASS-01'   'BREAKGLASS'   { Test-BgRecoverability }
-Invoke-Test '1.11-BREAKGLASS-02'   'BREAKGLASS'   { Test-BgNotExcludedFromPhishResistant }
-Invoke-Test '1.11-BREAKGLASS-03'   'BREAKGLASS'   { Test-BgSentinelLatency }
-Invoke-Test '1.11-NEG-01'          'NEG'          { Test-WhatIfBlock }
-Invoke-Test '1.11-NEG-02'          'NEG'          { Test-SpWithoutWidp }
-Invoke-Test '1.11-NEG-03'          'NEG'          { Test-CanaryDisableAlertLatency }
-Invoke-Test '1.11-SOV-01'          'SOV'          { Test-SovereignParityRecheck -Cloud $Cloud }
-Invoke-Test '1.11-IR-01'           'IR'           { Test-RiskySigninTabletop }
-Invoke-Test '1.11-IR-02'           'IR'           { Test-CompromiseTabletop }
-
-# --- Build manifest, write evidence pack, return exit code ---
-$failed = $global:TestResults | Where-Object { $_.status -eq 'FAIL' }
-Write-EvidencePack
-if ($failed.Count -gt 0) { exit 1 }
-exit 0
+$ProgressPreference    = 'SilentlyContinue'
 ```
 
-### 6.3 Manifest Builder Contract
+Required Microsoft Graph delegated scopes for the verifier:
 
-`Write-EvidencePack` (above) MUST:
+```text
+Policy.Read.All
+Policy.Read.ConditionalAccess
+Directory.Read.All
+User.Read.All
+AuditLog.Read.All
+Reports.Read.All
+RoleManagement.Read.Directory
+PrivilegedAccess.Read.AzureAD
+UserAuthenticationMethod.Read.All
+AgentGovernance.Read.All           # Entra Agent ID preview surface
+```
 
-1. Compute SHA-256 over every file under `$EvidenceRoot/preflight` and `$EvidenceRoot/tests`.
-2. Build `manifest.json` with `files[]`, `tenant`, `modules` (from PRE-06), `cadenceEscalations[]` (from prior cycle), `deviations[]`, `compensatingControls[]`, `rollingBaselines` (computed from current + prior 3 cycles).
-3. Compute `manifestSha256` over the canonical JSON serialization of `manifest.json` **excluding** the `manifestSha256` and `validatorScriptSha256` properties themselves (the post-fill canonicalization rule).
-4. Set `validatorScriptSha256` to the validator's measured self-hash.
-5. Write `evidence.json` (envelope + preflight + tests + manifest + attestations).
-6. Validate `evidence.json` against `schemas/1.11/evidence.schema.json`; refuse to write a non-validating pack (raise and exit 2).
+### 0.3 Pre-flight gates
 
----
-
-## 7. Hash-Chain Attestation (3 signatures, prior-cycle chain)
-
-Each cycle's `evidence.json` requires **three** independent signatures:
-
-| # | Role | Signs what | Why |
+| Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
-| 1 | **AI Governance Lead** | `manifestSha256AtSign` | Owns AI agent governance posture across the framework |
-| 2 | **Compliance Officer** | `manifestSha256AtSign` | Owns regulatory mapping (FINRA, SEC, SOX, GLBA, NYDFS, FFIEC, OCC, Fed SR) |
-| 3 | **CISO delegate** | `manifestSha256AtSign` | Owns identity-control plane and incident-response posture |
+| Tenant identity capture | PRE-01 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name`, `cloud` for every evidence record | HALT |
+| Cloud detection | PRE-02 | Resolves Commercial / GCC / GCCH / DoD; routes preview-only TCs (TC-4 WID, TC-6 Token Protection, Agent ID surfaces) to compensating-control branch where appropriate | Continue with route |
+| License posture | PRE-03 | Confirms Entra ID P2 covers in-scope users; **Workload Identities Premium** covers every service principal and Agent ID in a workload-identity CA policy; Microsoft Authenticator FedRAMP authorization is current in sovereign clouds | HALT |
+| Evidence root writeable | PRE-04 | Confirms `$env:CA111_EVIDENCE_ROOT` exists, is writeable, and resolves to WORM-eligible storage with a Purview retention label of ≥7 years and deletion lock | HALT |
+| Clock skew gate | PRE-05 | Compares local UTC to Graph `Date` header; aborts on > 60 s drift (timestamp evidence under FINRA 4511 and SEC 17a-4 must be authoritative) | HALT |
+| Sentinel reachability | PRE-06 | Confirms Log Analytics workspace is reachable, the `AzureActiveDirectory` connector is enabled, and the four required tables have entries in the last 24 hours | HALT |
+| CAE baseline | PRE-07 | Records the per-tenant baseline CAE revocation latency for cycle-over-cycle comparison (no invented Microsoft SLA — see TC-5) | Continue |
 
-Each signer's record carries `priorCycleSha256` set to the prior cycle's `manifestSha256`. The **first** (genesis) cycle uses `null` and a documented genesis attestation note. A cycle whose `priorCycleSha256` cannot be matched to an extant prior cycle is treated as a **chain break** by the assessment engine and the control's confidence is set to `low` until an investigator-signed reconciliation note resolves the gap.
+### 0.4 Run identifier
 
-> **Integrity properties.** (a) Tamper-evidence — any post-sign edit to the evidence pack changes `manifestSha256AtSign` and invalidates all three signatures. (b) Non-repudiation — three roles, three signers, three independent reporting lines. (c) Append-only history — `priorCycleSha256` chain makes silent deletion of a prior cycle detectable.
+```powershell
+function New-Ca111RunId {
+    $ts   = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
+    $guid = ([guid]::NewGuid().ToString('N')).Substring(0,8)
+    "CA111-$ts-$guid"
+}
+
+$script:RunId        = New-Ca111RunId
+$script:RunTimestamp = (Get-Date).ToUniversalTime().ToString('o')
+$script:EvidenceRoot = Join-Path $env:CA111_EVIDENCE_ROOT $script:RunId
+New-Item -Path $script:EvidenceRoot -ItemType Directory -Force | Out-Null
+```
+
+Every artifact emitted by TC-1 through TC-12 is stored under `$script:EvidenceRoot` and the `runId` is embedded in each filename assembled into the §13 quarterly attestation pack.
+
+---
+## §1 Test Cases
+
+The 12 test cases below evidence the control's verification criteria. Each procedure follows a fixed structure: **Setup → Steps → Expected Result → Evidence Capture → Failure Remediation**. Test cases are independent — a FAIL in one does not preclude execution of the others — but the §13 quarterly attestation requires either a PASS or a signed compensating-control record for **every** test case before sign-off.
 
 ---
 
-## 8. Anti-Patterns (paired one-to-one with detecting tests)
+### TC-1 — Phishing-Resistant MFA Coverage for Privileged Roles
 
-| # | Anti-pattern | Detected by |
-|---|---|---|
-| AP-01 | Service principal placed in a user-targeted CA group | `1.11-SP-02` |
-| AP-02 | Synced (multi-device) passkey accepted as AAL3 | `1.11-AUTHSTRENGTH-01` |
-| AP-03 | Break-glass excluded from the phishing-resistant Authentication Strength | `1.11-BREAKGLASS-02` |
-| AP-04 | Break-glass with SMS / voice / OTP / Authenticator factor registered | `PRE-03` and `1.11-BREAKGLASS-01` |
-| AP-05 | Permanent active assignment on `Entra Security Admin` / `Authentication Administrator` / `Entra Identity Governance Admin` | `1.11-PIM-02` |
-| AP-06 | PIM activation accepts a session-token-reuse MFA claim instead of fresh CA-Auth-Context MFA | `1.11-PIM-01` |
-| AP-07 | Z3 maker CA grant lacks `compliantDevice` OR `signInTokenProtection` OR `signInFrequency` | `1.11-DEVICE-01` |
-| AP-08 | Z3 maker permitted to authenticate with non-FIDO2 / non-WHfB / non-CBA factor | `1.11-AUTHSTRENGTH-02` |
-| AP-09 | Out-of-band CA edit not reflected in CA-as-code repo | `1.11-CA-02` |
-| AP-10 | Stale CA exclusion (no review within grace window) or unregistered exclusion | `1.11-CA-03` |
-| AP-11 | Stale Report-only policy silently retained past the documented pilot window | `1.11-CA-04` |
-| AP-12 | Workload-identity CA policy targeting an SP without WIDP consumption (silent fail-open) | `1.11-LIC-01` and `1.11-NEG-02` |
-| AP-13 | SP-targeted CA policy without Workload Identities Premium for the cloud | `1.11-NEG-02` |
-| AP-14 | Agent enrolled in Power Platform but not in Entra Agent ID OR with null sponsor | `1.11-AGENTID-01` |
-| AP-15 | Custom security attribute `AgentZone` missing on a Z2/Z3 agent (CA filter cannot target deterministically) | `1.11-AGENTID-03` |
-| AP-16 | Microsoft Managed `Block high-risk agents` policy disabled OR tenant Z3-agent CA policy missing | `1.11-AGENTID-04` |
-| AP-17 | Real PII or production user used as the canary user | `PRE-05` |
-| AP-18 | Numeric CA / CAE / PIM / IDP latency SLA asserted without Microsoft Learn citation | Schema $id check + `pre-07` discipline; cycle reviewer rejects narrative claims that cite no Learn URL |
+**Verifies:** Every member of the privileged roles enumerated below holds at least one phishing-resistant authentication method registered (FIDO2 security key, Windows Hello for Business, **device-bound** passkey in Microsoft Authenticator, or X.509 certificate-based authentication via PIV / CAC). Synced (cross-device) passkeys do **not** satisfy AAL3 and do **not** count toward this test.
+
+**Privileged roles in scope:**
+
+- Entra Global Admin
+- Power Platform Admin
+- Authentication Policy Admin
+- Authentication Administrator
+- Purview Compliance Admin
+- AI Administrator
+- Entra Agent ID Admin
+- Entra Security Admin
+- Entra Identity Governance Admin
+
+**Regulatory tie:** NYDFS 23 NYCRR 500.12 (universal MFA, fully effective Nov 1, 2025); FFIEC Authentication and Access booklet (risk-based MFA for privileged users); GLBA / FTC Safeguards Rule 16 CFR §314.4(c)(5); NIST SP 800-63B AAL3 (phishing-resistant authenticators).
+
+#### Setup
+
+1. Verifier activates **Entra Identity Governance Admin** + **Authentication Administrator** through PIM for a 4-hour window with a written justification referencing the verification cycle's run-id.
+2. Confirm Microsoft Graph PowerShell SDK is at the pinned version baseline (§0.2) and `Connect-MgGraph -Scopes "RoleManagement.Read.Directory","UserAuthenticationMethod.Read.All","User.Read.All","Reports.Read.All"` succeeds.
+3. Confirm PRE-01 through PRE-04 PASSED for the run.
+
+#### Steps
+
+1. Enumerate the eligible-and-active membership of each in-scope role via `Get-MgRoleManagementDirectoryRoleAssignmentSchedule` and `Get-MgRoleManagementDirectoryRoleEligibilitySchedule`. Resolve to a deduplicated set of `userPrincipalName` values keyed by `userId`.
+2. For each user, pull the registration detail report:
+
+    ```powershell
+    $roleNames = @(
+        'Global Administrator','Power Platform Administrator','Authentication Policy Administrator',
+        'Authentication Administrator','Compliance Administrator','AI Administrator',
+        'Agent ID Administrator','Security Administrator','Identity Governance Administrator'
+    )
+
+    $privilegedUsers = foreach ($roleName in $roleNames) {
+        $role = Get-MgDirectoryRole -Filter "displayName eq '$roleName'" -ErrorAction SilentlyContinue
+        if (-not $role) { continue }
+        $eligible = Get-MgRoleManagementDirectoryRoleEligibilitySchedule -Filter "roleDefinitionId eq '$($role.RoleTemplateId)'"
+        $active   = Get-MgRoleManagementDirectoryRoleAssignmentSchedule  -Filter "roleDefinitionId eq '$($role.RoleTemplateId)'"
+        ($eligible + $active) | Select-Object @{n='RoleName';e={$roleName}}, PrincipalId
+    } | Sort-Object PrincipalId -Unique
+
+    $registration = Get-MgReportAuthenticationMethodUserRegistrationDetail -All
+
+    $report = foreach ($u in $privilegedUsers) {
+        $reg = $registration | Where-Object { $_.Id -eq $u.PrincipalId }
+        [pscustomobject]@{
+            roleName                 = $u.RoleName
+            userId                   = $u.PrincipalId
+            userPrincipalName        = $reg.UserPrincipalName
+            isMfaCapable             = $reg.IsMfaCapable
+            isPasswordlessCapable    = $reg.IsPasswordlessCapable
+            isSystemPreferredAuth    = $reg.IsSystemPreferredAuthenticationMethodEnabled
+            phishResistantRegistered = ($reg.MethodsRegistered -match 'fido2|windowsHelloForBusiness|x509Certificate|passKeyDeviceBound').Count -gt 0
+            methodsRegistered        = ($reg.MethodsRegistered -join ';')
+        }
+    }
+
+    $report | Export-Csv -Path (Join-Path $script:EvidenceRoot 'TC-1-userRegistrationDetails.csv') -NoTypeInformation
+    ```
+
+3. Cross-validate against the Entra portal: **Microsoft Entra admin center → Protection → Authentication methods → User registration details**. Filter the blade by each privileged role and visually confirm the `phishResistantRegistered` count matches the CSV.
+4. For any user whose `phishResistantRegistered` is `False`, capture the user's UPN, the role(s) they hold, and the registration detail row.
+
+#### Expected Result
+
+- For **every** user in **every** in-scope role, `phishResistantRegistered = True`.
+- The CSV row count equals the deduplicated count from Step 1.
+- The portal blade and the CSV agree on the count of non-compliant users (zero).
+
+#### Evidence Capture
+
+- `TC-1-userRegistrationDetails.csv` — full report; **digitally signed** by the verifier (X.509 code-signing certificate or Microsoft Purview sensitivity label with content marking + encryption).
+- `TC-1-portal-screenshot-userRegistrationDetails.png` — timestamp-watermarked screenshot of the Entra portal blade.
+- `TC-1-evidence.json` — canonical evidence record (status, observed_value, expected_value, regulator_mappings, operator UPN, run-id).
+- **Retention:** ≥ 7 years; records-scope under FINRA 4511 and SEC 17a-4 because the artifact evidences access controls on principals who have authority over books-and-records systems.
+
+#### Failure Remediation
+
+1. If a privileged user lacks a phishing-resistant method, **immediately** open a high-severity ticket assigned to the user, copying the user's manager and the Authentication Policy Admin.
+2. Route the user to the [Portal Walkthrough](./portal-walkthrough.md) §4 (Authentication Methods enrollment) and the firm's hardware-key issuance procedure. NYDFS 500.12 carries no grace period as of Nov 1, 2025; a non-compliant privileged user is a **finding** at examination, not a deferrable item.
+3. Document the gap in the §13 attestation as an exception with a remediation deadline; if the deadline slips, escalate to the CISO and reduce the user's privileged role assignment until phishing-resistant enrollment is confirmed.
+4. Re-run TC-1 within 5 business days of remediation and re-issue the signed CSV.
 
 ---
 
-## 9. Cross-Linked Controls (12)
+### TC-2 — Authentication Strengths Enforcement (Privileged User, Weak Method)
 
-| Linked control | Why it matters here |
+**Verifies:** A Conditional Access policy bound to a phishing-resistant Authentication Strength **blocks** an interactive sign-in attempt by a privileged user when the only registered second factor is a weak method (SMS or voice OTP) and prompts for a stronger method (or fails closed).
+
+**Regulatory tie:** NYDFS 500.12; SEC 17a-4(b)(4) (sign-in records as evidence of access-control enforcement); FINRA 4511 evidenced via Purview retention; FINRA Notice 21-18 (cybersecurity).
+
+#### Setup
+
+1. Provision a **canary** privileged-role test account `ca111-canary-tc2@<tenant>` assigned the **AI Administrator** role through PIM eligibility only. The canary holds **only** SMS as a second factor (no FIDO2, no WHfB, no device-bound passkey, no certificate). The canary is documented in the firm's test-account register and excluded from production access reviews.
+2. Confirm a Conditional Access policy `CA-Z3-Privileged-Roles-PhishResistant` is **Enabled** (not Report-only) targeting the privileged role set from TC-1, with grant control = **Require authentication strength = Phishing-resistant MFA**.
+3. Note the policy's `id`, `state`, `displayName`, and the bound Authentication Strength `id` for evidence cross-reference.
+
+#### Steps
+
+1. From a clean browser session (incognito, no SSO state), navigate to the Agent 365 Admin Center sign-in URL and the Copilot Studio maker portal.
+2. Sign in as the canary. Provide username + password.
+3. Observe the second-factor challenge.
+4. Attempt to complete the SMS challenge.
+5. Capture the resulting screen text and the user-visible error code (e.g., `AADSTS500011` family or the "Your sign-in was successful but doesn't meet the criteria to access this resource" interrupt).
+6. Within 10 minutes of the attempt, query Sentinel:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(30m)
+    | where UserPrincipalName == "ca111-canary-tc2@<tenant>"
+    | where AppDisplayName in~ ("Microsoft 365 Agents Toolkit","Power Virtual Agents","Microsoft Copilot Studio")
+    | extend caResult = tostring(ConditionalAccessPolicies)
+    | project TimeGenerated, AppDisplayName, ResultType, ResultDescription, AuthenticationDetails, AuthenticationRequirement,
+              AuthenticationStrengthDetails = tostring(AuthenticationContextClassReferences),
+              CA = caResult, Status, ClientAppUsed, IPAddress
+    | order by TimeGenerated desc
+    ```
+
+7. Confirm the row shows `ResultType != 0` (failure) **and** the matching CA policy entry with `result = "failure"` or `result = "notApplied"` with the reason indicating the Authentication Strength was not satisfied.
+
+#### Expected Result
+
+- The sign-in completes the password step, the MFA interrupt is presented, the SMS option is **not offered** (or, if offered, is rejected) because it does not satisfy the bound Authentication Strength.
+- The user is presented with the standard Microsoft "stronger authentication required" interrupt and a list of qualifying methods.
+- The Sentinel KQL returns at least one row for the attempt; the row's CA evaluation includes the `CA-Z3-Privileged-Roles-PhishResistant` policy with a non-success outcome and a reason that ties to Authentication Strength.
+
+#### Evidence Capture
+
+- `TC-2-signin-interrupt.png` — screenshot of the user-visible interrupt with timestamp watermark.
+- `TC-2-signinLogs.csv` — KQL export of the matched sign-in row(s).
+- `TC-2-ca-policy-snapshot.json` — `Get-MgIdentityConditionalAccessPolicy -ConditionalAccessPolicyId <id>` JSON snapshot of `CA-Z3-Privileged-Roles-PhishResistant` and the bound Authentication Strength definition.
+- `TC-2-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years (records-scope: the interrupt is the access-control evidence FINRA 4511 / SEC 17a-4 will examine).
+
+#### Failure Remediation
+
+1. **If the sign-in succeeded with SMS:** the policy is mis-bound or in Report-only. Pause Z3 maker enrollment for the affected role(s). Open a Sev-1 change ticket. Route to [Portal Walkthrough](./portal-walkthrough.md) §6 to re-bind the Authentication Strength and confirm `state = enabled`.
+2. **If no Sentinel row appeared:** the sign-in did not reach the CA evaluator (federation issue, alternate IdP, or ingestion lag). Confirm with PRE-06 that the connector is healthy; if healthy, escalate to the federation owner.
+3. **If the canary itself was already evicted by a separate baseline policy** (e.g., Microsoft-managed `Block legacy authentication` returned a misleading `notApplied`): re-run with a freshly provisioned canary and adjust the test scope to disambiguate which policy fired.
+4. Re-run TC-2 within 2 business days of remediation. Append the failed and remediated runs to the §13 attestation as a paired record (both are evidence — the FAIL evidences detection, the PASS evidences correction).
+
+---
+
+### TC-3 — Conditional Access Policy for Agent Makers (Non-Compliant Device Block)
+
+**Verifies:** A Conditional Access policy targeting Power Platform / Copilot Studio maker portals **blocks** access from a device that is not Intune-compliant, and presents the user with the Intune-compliance-required guidance message rather than failing silently or returning a generic error.
+
+**Regulatory tie:** FFIEC Authentication and Access (device posture as a layered control); SEC 17a-3/17a-4 (records evidencing access-control enforcement on the maker plane); NYDFS 500.12; CISA Zero Trust Maturity Model v2.0 (Identity + Device pillars).
+
+#### Setup
+
+1. Identify a Windows endpoint that is **enrolled in Microsoft Intune but flagged non-compliant** (for example, a known canary device with an intentionally failing compliance policy such as expired BitLocker recovery escrow, missing required app, or stale OS patch level). The non-compliance state must be visible in the Intune blade **before** the test begins.
+2. Provision a canary maker account `ca111-canary-tc3@<tenant>` assigned the Power Platform Maker role and licensed for Copilot Studio.
+3. Confirm a CA policy `CA-Z2-Z3-Makers-RequireCompliantDevice` is **Enabled**, targeting the `Microsoft Copilot Studio` and `Power Apps` cloud apps (or the `Office 365` super-app where applicable), with grant control = **Require device to be marked as compliant**.
+
+#### Steps
+
+1. From the non-compliant device, in a clean browser session, navigate to `https://copilotstudio.microsoft.com`.
+2. Sign in as the canary maker.
+3. Observe the post-sign-in interrupt.
+4. Capture the screen text, the user-visible reference code, and the Microsoft "You can't get there from here" / device-compliance interrupt.
+5. Within 10 minutes, run the Sentinel KQL:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(30m)
+    | where UserPrincipalName == "ca111-canary-tc3@<tenant>"
+    | where AppDisplayName in~ ("Microsoft Copilot Studio","Power Apps","Power Automate")
+    | mv-expand CA = todynamic(ConditionalAccessPolicies)
+    | where tostring(CA.displayName) == "CA-Z2-Z3-Makers-RequireCompliantDevice"
+    | project TimeGenerated, UserPrincipalName, AppDisplayName, ResultType, ResultDescription,
+              DeviceDetail, IsCompliant = tostring(DeviceDetail.isCompliant),
+              CAResult = tostring(CA.result), CAReason = tostring(CA.conditionsNotSatisfied)
+    | order by TimeGenerated desc
+    ```
+
+6. Confirm `IsCompliant == "false"`, `CAResult == "failure"`, and a non-empty `CAReason` referencing device compliance.
+
+#### Expected Result
+
+- The sign-in is blocked with the Intune-compliance-required interrupt; the user is directed to enroll or remediate via the Company Portal.
+- The Sentinel row records the CA policy evaluation with a failure outcome and a device-compliance reason.
+- No row evidences a `success` or `interrupted` outcome that would indicate the maker portal session was established.
+
+#### Evidence Capture
+
+- `TC-3-block-interrupt.png` — screenshot of the device-compliance interrupt.
+- `TC-3-intune-device-status.png` — Intune device blade showing the non-compliant state at the time of the test.
+- `TC-3-signinLogs.csv` — KQL export.
+- `TC-3-ca-policy-snapshot.json` — `CA-Z2-Z3-Makers-RequireCompliantDevice` policy JSON.
+- `TC-3-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years (records-scope under FINRA 4511 and SEC 17a-4).
+
+#### Failure Remediation
+
+1. **If access was granted from the non-compliant device:** the policy is mis-targeted (wrong cloud app), in Report-only, or excludes the device's group. Pause Z2/Z3 maker enrollment for affected populations and open a Sev-1 change ticket.
+2. **If the Sentinel row showed `notApplied` rather than `failure`:** confirm the canary user is in scope for the policy assignment and is not in any exclusion group. The exclusion register (Control 1.11 portal walkthrough §7) is the authoritative source — reconcile drift.
+3. **If the Intune compliance signal did not propagate** (compliance evaluation lag): record the lag duration and compare to the per-tenant baseline; if lag exceeds the baseline +2σ, open a separate ticket against the Endpoint Admin to investigate compliance evaluation health (this is a Control 1.11 dependency, not a Control 1.11 failure per se, but must be tracked).
+4. Re-run TC-3 within 5 business days of remediation.
+
+---
+
+### TC-4 — Conditional Access for Workload Identities (Agent / Service Principal)
+
+**Verifies:** A Conditional Access for Workload Identities (CA WID) policy targeting AI agent backing identities (service principals, managed identities, or Entra Agent ID principals) **enforces the configured restriction** when an agent attempts a Microsoft Graph call from outside the named-location set, either by blocking the call (if the policy intent is "block from untrusted") or by requiring certificate-based authentication (if the policy intent is "require strong workload-identity auth"). The matching evidence row appears in `AADServicePrincipalSignInLogs` — **not** in `SigninLogs`.
+
+> **Critical surface note.** Agent and service-principal sign-ins **do not appear in `SigninLogs`**. Verifiers and auditors who query `SigninLogs` for an agent UPN will find nothing and will incorrectly conclude there was no sign-in. The correct table is `AADServicePrincipalSignInLogs`. This is the most common examiner-finding pattern in early FSI agent-governance reviews.
+
+**Regulatory tie:** OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model-serving endpoint authentication as an MRM control); FINRA Regulatory Notice 21-18; FINRA Notice 25-07 (AI-specific supervision); NYDFS 500.12 applied to non-human identities where the firm's risk assessment determines applicability.
+
+> **Sovereign-cloud note.** Conditional Access for Workload Identities is GA in Commercial; sovereign-cloud parity (GCC, GCC High, DoD) tracked per release wave. Where unavailable, the compensating control is a quarterly manual reconciliation worksheet that proves equivalent restriction via tenant network egress controls + service-principal credential rotation evidence (see SOV namespace pattern in [Control 3.6 §10](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)).
+
+#### Setup
+
+1. Provision (or identify) a **canary agent** backing identity — a service principal `sp-ca111-canary-tc4` enrolled in the Workload Identities Premium SKU and bound to a CA WID policy `CA-WID-Agents-RestrictFromUntrustedLocations` whose intent is documented in the policy description (block, or require strong auth).
+2. Provision a test execution environment **outside** every named location in the policy's "Trusted locations" set (for example, an Azure Cloud Shell session in a region intentionally excluded from the corporate egress range, or a developer workstation on a dedicated test ISP segment).
+3. Ensure the canary SP holds the minimum Graph application permissions required for the test call (`User.Read.All`) and that the permission has admin consent.
+4. Confirm `CA-WID-Agents-RestrictFromUntrustedLocations` is `state = enabled` (not Report-only).
+
+#### Steps
+
+1. From the out-of-location environment, acquire a token for the canary SP via the client credentials flow (certificate or secret as configured) and call `https://graph.microsoft.com/v1.0/users?$top=1`.
+2. Capture the HTTP response — expected outcomes per policy intent:
+    - **Block intent:** HTTP 403 with `AADSTS53003` (blocked by Conditional Access) or equivalent.
+    - **Require certificate intent:** HTTP 401 with a challenge requiring certificate-based client credential, or HTTP 403 if the SP authenticated with a secret rather than the required certificate.
+3. Within 10 minutes, query Sentinel against the **service principal** sign-in table:
+
+    ```kql
+    AADServicePrincipalSignInLogs
+    | where TimeGenerated > ago(30m)
+    | where ServicePrincipalName == "sp-ca111-canary-tc4"
+    | mv-expand CA = todynamic(ConditionalAccessPolicies)
+    | where tostring(CA.displayName) == "CA-WID-Agents-RestrictFromUntrustedLocations"
+    | project TimeGenerated, ServicePrincipalId, ServicePrincipalName, AppId, ResourceDisplayName,
+              IPAddress, Location = tostring(LocationDetails),
+              ResultType, ResultDescription,
+              CAResult = tostring(CA.result), CAReason = tostring(CA.conditionsNotSatisfied),
+              CAPolicyId = tostring(CA.id)
+    | order by TimeGenerated desc
+    ```
+
+4. Confirm the matched row and capture the `CAPolicyId`.
+5. Cross-check that the **same** call from inside a trusted location succeeds (positive control, executed from the corporate network or Cloud Shell in an in-location region).
+
+#### Expected Result
+
+- The out-of-location call fails with the policy-intent-appropriate HTTP code.
+- `AADServicePrincipalSignInLogs` records the failed sign-in with the bound CA policy's `result = failure` (or `notApplied` only with a documented reason that does not indicate a silent bypass).
+- The same call from a trusted location succeeds, confirming the restriction is geographically scoped and not a credential failure.
+- A `SigninLogs` query for the same SP UPN returns **zero rows** — this is the expected behavior and must be documented in the evidence record so future verifiers do not mis-interpret the empty result.
+
+#### Evidence Capture
+
+- `TC-4-graph-call-out-of-location.json` — raw HTTP request/response (with secrets redacted) of the failed call.
+- `TC-4-graph-call-in-location.json` — raw HTTP request/response of the positive control success.
+- `TC-4-aadServicePrincipalSignInLogs.csv` — KQL export from `AADServicePrincipalSignInLogs`.
+- `TC-4-signinLogs-empty-confirmation.csv` — `SigninLogs` query for the SP returning zero rows, captured as the explicit "agent sign-ins do not appear here" evidence.
+- `TC-4-ca-wid-policy-snapshot.json` — full policy JSON including `clientApplications`, `locations`, and `grantControls`.
+- `TC-4-evidence.json` — canonical evidence record with `CAPolicyId` and the policy intent classification.
+- **Retention:** ≥ 7 years (records-scope: agent identity is the model-serving principal under SR 11-7).
+
+#### Failure Remediation
+
+1. **If the call succeeded from out-of-location:** the WID policy is mis-bound, in Report-only, or the SP is excluded. Pause new agent publishing under [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) and open a Sev-1 change ticket. Re-target the policy and confirm `state = enabled`.
+2. **If `AADServicePrincipalSignInLogs` returned no row:** confirm Workload Identities Premium SKU is **consumed** by the SP (entitlement without consumption is a silent fail-open — see Control 1.11 anti-pattern register). Confirm the connector for SP sign-ins is selected on the Sentinel `AzureActiveDirectory` connector blade.
+3. **If the in-location positive control failed:** the test is invalid; the failure may be a credential or permission issue rather than a CA enforcement issue. Re-establish positive control before re-running.
+4. **Sovereign-cloud unavailability:** if CA WID is not available in the operating cloud, mark the test `SKIPPED` with a pointer to the quarterly manual reconciliation worksheet. The skipped evidence record itself must be signed; a silent omission is examiner-non-defensible.
+
+---
+
+### TC-5 — Continuous Access Evaluation (CAE) Revocation Latency
+
+**Verifies:** Continuous Access Evaluation propagates a session-revocation event (user disable) to a subsequent Microsoft Graph call within the per-tenant baseline established in PRE-07 (typically ~minutes, not hours), forcing a re-authentication on the next call rather than allowing the cached token to remain valid for its full lifetime.
+
+**Regulatory tie:** FFIEC Authentication and Access booklet (continuous validation expectation); CISA Zero Trust Maturity Model v2.0 (continuous validation as Advanced/Optimal target); NYDFS 500.04 (CISO oversight of access-control effectiveness); FINRA Notice 21-18.
+
+> **Hedging note.** Microsoft Learn explicitly states that CAE propagation is eventually consistent and that latency varies by client, app, signal type, and cloud. This test does **not** assert any single Microsoft SLA. The operative threshold is the per-tenant baseline measured in PRE-07 and compared cycle over cycle.
+
+#### Setup
+
+1. Provision a canary user `ca111-canary-tc5@<tenant>` with a CAE-supported client (Microsoft Graph PowerShell, Outlook desktop, or a Microsoft Graph SDK call from a long-lived session).
+2. Confirm CAE is enabled at the tenant: `Get-MgIdentityConditionalAccessPolicy` and the tenant's CAE setting (continuous-access-evaluation in the CA blade) shows `Enabled` for the in-scope users.
+3. Confirm PRE-07 captured a current baseline (e.g., previous quarter median + p95 revocation latency).
+
+#### Steps
+
+1. As the canary, sign in to a CAE-supported client and establish a long-lived session (e.g., `Connect-MgGraph` and run a `Get-MgUser -Top 1` to confirm the session works).
+2. Record `T0` (UTC) — the moment of the disable action.
+3. As Authentication Administrator, disable the canary account: `Update-MgUser -UserId <id> -AccountEnabled:$false`.
+4. From the canary's still-running session, issue a Graph call every 30 seconds: `Get-MgUser -Top 1`.
+5. Record `T1` (UTC) — the moment the call first fails with a CAE-driven re-authentication challenge (`AADSTS50173` family or equivalent claim-challenge response).
+6. Compute `latency = T1 - T0`.
+7. Pull the audit row:
+
+    ```kql
+    AuditLogs
+    | where TimeGenerated > ago(1h)
+    | where OperationName == "Update user"
+    | where TargetResources has "ca111-canary-tc5"
+    | project TimeGenerated, InitiatedBy, TargetResources, AdditionalDetails
+
+    SigninLogs
+    | where TimeGenerated > ago(1h)
+    | where UserPrincipalName == "ca111-canary-tc5@<tenant>"
+    | project TimeGenerated, ResultType, ResultDescription, IsContinuousAccessEvaluation,
+              ConditionalAccessStatus, AuthenticationDetails
+    | order by TimeGenerated desc
+    ```
+
+8. Confirm `IsContinuousAccessEvaluation == true` on the failing row.
+
+#### Expected Result
+
+- The disabled canary's next Graph call after `T0` fails within the per-tenant baseline window (recorded in PRE-07) with a CAE-driven re-authentication challenge.
+- `latency` is recorded; a value within `baseline_median ± 2σ` is a PASS. A value beyond `baseline_p95 × 1.5` is a WARN that requires a documented investigation note in the §13 attestation. A value greater than 1 hour is a FAIL.
+- The audit row evidences the disable; the sign-in row evidences the CAE-driven challenge.
+
+#### Evidence Capture
+
+- `TC-5-disable-action.json` — the audit-log row for the user disable, with `T0` highlighted.
+- `TC-5-failed-graph-call.txt` — the Graph PowerShell error output with timestamp, evidencing the re-auth challenge at `T1`.
+- `TC-5-signinLogs-cae.csv` — KQL export including `IsContinuousAccessEvaluation == true`.
+- `TC-5-latency.json` — `{T0, T1, latency_seconds, baseline_median, baseline_p95, classification}`.
+- `TC-5-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years for the audit and sign-in evidence (records-scope); the latency JSON is operational evidence retained per the firm's operational retention policy (typically 2 years).
+
+#### Failure Remediation
+
+1. **If `IsContinuousAccessEvaluation` was false:** the session was not CAE-bound (the client may not be CAE-aware, or the resource may not be in the CAE-supported-apps matrix as of the verification date). Re-run with a confirmed CAE-supported client and resource pair.
+2. **If `latency` exceeded 1 hour:** the disable propagated through standard token expiry rather than CAE. Open a ticket against the Entra Security Admin to validate CAE configuration; confirm the user was not in a CAE-excluded group; verify Microsoft Learn for any current advisories on CAE health in the operating cloud.
+3. **If the canary's session never failed:** the test is invalid (likely a session-binding issue or the disable did not persist). Re-run after confirming the disable in the directory.
+4. Cycle-over-cycle, if median latency drifts upward materially, raise a SOV concern (sovereign clouds historically have lagged Commercial on CAE evolution) and surface to the AI Governance Lead for trend tracking.
+
+---
+
+### TC-6 — Token Protection (Preview) Pilot Behavior
+
+**Verifies:** Token Protection (also called token binding for sign-in sessions) is rolled out via Microsoft's recommended report-only / pilot / enforce ladder. On a supported pilot Windows endpoint with a supported browser, the access token is **bound to the device** and a stolen-token replay from another device fails. On a non-supported browser or non-Windows endpoint, the **documented fallback behavior** (typically a downgrade to standard MFA + sign-in frequency, or block, per policy intent) is observed and recorded — **not** a silent bypass.
+
+**Regulatory tie:** FFIEC Authentication and Access (token theft and replay as a layered-control concern); CISA Zero Trust Maturity Model v2.0; FINRA Notice 21-18; NYDFS 500.12.
+
+> **Preview-state hedge.** Token Protection is in Preview. Surface naming, supported app list, and supported browser list change between Microsoft release waves. Re-confirm the supported matrix on Microsoft Learn at the start of every cycle. The fallback behavior must be **explicitly documented in the policy description** so an examiner can distinguish "intended fallback" from "silent bypass".
+
+#### Setup
+
+1. Identify a pilot Windows 11 endpoint that meets the current Token Protection requirements (Hybrid Azure AD joined or Azure AD joined; supported OS build; supported browser as of the verification date).
+2. Identify a non-supported endpoint (macOS, Linux, or Windows with an unsupported browser).
+3. Confirm a CA policy `CA-Z3-TokenProtection-Pilot` is **Enabled** with **Session control = Require token protection for sign-in sessions** (preview), targeting the Z3 maker pilot population.
+4. Confirm the policy description documents the **intended fallback** for non-supported clients (e.g., "On unsupported clients, the policy does not apply; access is governed by `CA-Z3-Makers-RequireCompliantDevice` and `CA-Z3-Makers-SignInFrequency-4h` as the residual baseline").
+
+#### Steps
+
+1. **Supported path:** From the pilot Windows 11 endpoint with the supported browser, sign in as a Z3 pilot maker. Confirm the session establishes.
+2. Capture the bound-token claim by inspecting the token's `xms_cc` (client capabilities) or token-protection claim per the current Microsoft Learn schema (claim names should be re-verified each cycle).
+3. **Replay test:** Export the cookie / token to an instrumented test harness running on a different device. Attempt to use the token from the second device.
+4. Confirm the second device's request fails with a token-binding rejection (e.g., the resource server returns 401 with a claim challenge requiring re-auth on the original device).
+5. **Non-supported path:** From the non-supported endpoint, sign in as the same pilot maker.
+6. Confirm the documented fallback behavior is observed exactly: either (a) the policy is `notApplied` and access is gated by the residual policies named in the policy description, or (b) access is blocked with an explicit unsupported-client message — whichever the policy intent declares.
+7. Pull both sign-in rows:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(1h)
+    | where UserPrincipalName == "<pilot-maker-upn>"
+    | mv-expand CA = todynamic(ConditionalAccessPolicies)
+    | where tostring(CA.displayName) == "CA-Z3-TokenProtection-Pilot"
+    | project TimeGenerated, ClientAppUsed, DeviceDetail, UserAgent,
+              CAResult = tostring(CA.result),
+              SessionControls = tostring(CA.sessionControlsNotSatisfied),
+              TokenProtectionStatus = tostring(TokenProtectionStatusDetails)
+    | order by TimeGenerated desc
+    ```
+
+#### Expected Result
+
+- Supported path: token-bound session establishes; replay from a second device fails with a token-binding rejection.
+- Non-supported path: behavior matches the policy's documented fallback exactly.
+- Sentinel rows distinguish the two paths via `DeviceDetail`, `UserAgent`, and `CAResult` / `SessionControls`.
+
+#### Evidence Capture
+
+- `TC-6-supported-session-token-claim.json` — redacted token-claim view confirming the binding claim is present.
+- `TC-6-replay-rejection.txt` — the second device's failed-request output with timestamp.
+- `TC-6-unsupported-fallback.png` — screenshot of the unsupported-client behavior matching the documented fallback.
+- `TC-6-policy-description.md` — extract of the CA policy description documenting the intended fallback (this artifact is itself examiner-relevant: it proves the fallback was intentional, not silent).
+- `TC-6-signinLogs.csv` — both sign-in rows with full CA evaluation details.
+- `TC-6-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years for sign-in rows and policy description (records-scope evidence of access-control policy intent and operation).
+
+#### Failure Remediation
+
+1. **If the replay succeeded:** Token Protection is not actually binding the token, or the policy is in Report-only. Pause the pilot, open a Sev-1 ticket, and re-confirm preview-availability against current Microsoft Learn. Do **not** broaden the pilot until a successful re-test.
+2. **If the unsupported endpoint silently succeeded with no fallback evidence:** the policy description does not match enforced reality, or there is no residual baseline. Update the policy description and add the residual baseline policies; re-test.
+3. **If the supported endpoint also failed (no session established):** the pilot is too aggressive for the current Microsoft Learn supported-matrix. Roll back to Report-only, re-verify the matrix, and re-pilot.
+4. Track preview-state churn in the §13 attestation as a recurring SOV-class risk; quarterly re-verification is mandatory while the feature remains in Preview.
+
+---
+
+### TC-7 — Sign-in Frequency Enforcement (Zone 3)
+
+**Verifies:** A 4-hour Sign-in Frequency (SIF) Conditional Access session control is **active** for Zone 3 environment access (Copilot Studio Z3 environments, Power Platform Z3 environments, the Agent 365 Admin Center). A user who has been signed in for more than 4 hours is forced to re-authenticate on the next access attempt; the sign-in log records the re-auth.
+
+**Regulatory tie:** FFIEC Authentication and Access (session lifetime as a layered control on high-risk surfaces); SEC 17a-4 (session-boundary records as access-control evidence); NYDFS 500.12; FINRA Notice 21-18.
+
+#### Setup
+
+1. Identify a Z3 maker account `ca111-canary-tc7@<tenant>` permitted to access a Z3 Copilot Studio environment.
+2. Confirm a CA policy `CA-Z3-Makers-SignInFrequency-4h` is **Enabled** with **Session control = Sign-in frequency = 4 hours** targeting Z3 makers and the in-scope cloud apps.
+3. Establish a long-lived session: sign in at `T0` and confirm Z3 access is established.
+
+#### Steps
+
+1. Wait at least 4 hours and 5 minutes after `T0` (allow for clock skew and propagation). For acceleration in a test cycle, set SIF to a short value in a **non-production test policy** scoped to the canary only, and document the acceleration in the test record.
+2. From the same browser session, attempt to access the Z3 Copilot Studio environment.
+3. Confirm the user is interrupted with a re-authentication prompt.
+4. Complete the re-authentication.
+5. Pull the sign-in row:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(1h)
+    | where UserPrincipalName == "ca111-canary-tc7@<tenant>"
+    | mv-expand CA = todynamic(ConditionalAccessPolicies)
+    | where tostring(CA.displayName) == "CA-Z3-Makers-SignInFrequency-4h"
+    | project TimeGenerated, AppDisplayName, ResultType, ResultDescription,
+              CAResult = tostring(CA.result),
+              SessionControls = tostring(CA.enforcedSessionControls),
+              AuthenticationRequirement, AuthenticationDetails
+    | order by TimeGenerated desc
+    ```
+
+6. Confirm the row records the re-auth event and the SIF session control as enforced.
+
+#### Expected Result
+
+- The session is interrupted with a re-auth prompt at or shortly after the 4-hour boundary.
+- The sign-in row records `enforcedSessionControls` containing the SIF control.
+- The `AuthenticationRequirement` reflects the re-auth.
+
+#### Evidence Capture
+
+- `TC-7-reauth-interrupt.png` — screenshot of the re-auth prompt at the 4-hour boundary.
+- `TC-7-signinLogs.csv` — KQL export of the re-auth row.
+- `TC-7-ca-policy-snapshot.json` — `CA-Z3-Makers-SignInFrequency-4h` JSON.
+- `TC-7-evidence.json` — canonical evidence record with `T0`, `T_reauth`, and the elapsed interval.
+- **Retention:** ≥ 7 years (records-scope).
+
+#### Failure Remediation
+
+1. **If no re-auth was prompted:** SIF is not enforced; the policy may be in Report-only or excluded for the canary. Open a Sev-2 change ticket; re-target.
+2. **If re-auth was prompted but the sign-in row is missing:** ingestion lag — re-query after 30 minutes; if still missing, escalate to PRE-06 connector health.
+3. **If SIF is enforced at a different value than 4 hours:** policy drift; reconcile against the CA-as-code source of truth and remediate via [Portal Walkthrough](./portal-walkthrough.md) §8.
+
+---
+
+### TC-8 — Break-Glass Account Integrity
+
+**Verifies:** Exactly **two** break-glass (emergency access) accounts exist; both are excluded from **every** Conditional Access policy; both are bound to hardware FIDO2 keys held in physical storage with no SMS / voice / OTP / Authenticator factors; credential custody is dual-controlled; and a Microsoft Sentinel analytics rule alerts on any sign-in by either account, integrated with the [Control 3.9 Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) incident workflow.
+
+**Regulatory tie:** SOX 302/404 (break-glass test records are common SOX evidence); FFIEC Authentication and Access; NYDFS 500.04 (CISO oversight) and 500.12; FINRA 4511; OCC 2011-12 / SR 11-7 (controls around model-serving administrative access).
+
+#### Setup
+
+1. Confirm the firm's break-glass register lists exactly two accounts (e.g., `bg-01@<tenant>.onmicrosoft.com` and `bg-02@<tenant>.onmicrosoft.com`), both cloud-only (non-federated), neither dependent on on-premises identity infrastructure, neither dependent on the same hardware-key vendor (vendor diversity is recommended where feasible).
+2. Confirm physical custody: each account's hardware FIDO2 key is in a tamper-evident envelope in a physical safe; safe access is dual-controlled (two custodians, separate combinations or keys).
+3. Confirm a Sentinel analytics rule `BG-SignIn-Alert` is `Enabled` with severity High and an automated playbook routing to the on-call CISO delegate and the Compliance Officer.
+
+#### Steps
+
+1. **Exclusion enumeration.** Query every enabled CA policy and confirm both break-glass principal IDs appear in the exclusion list:
+
+    ```powershell
+    $bg = @('<bg-01-objectid>','<bg-02-objectid>')
+    $policies = Get-MgIdentityConditionalAccessPolicy -All | Where-Object { $_.State -eq 'enabled' }
+    $coverage = foreach ($p in $policies) {
+        $excludedUsers  = @($p.Conditions.Users.ExcludeUsers)
+        $excludedGroups = @($p.Conditions.Users.ExcludeGroups)
+        # Resolve excluded groups to membership for transitive coverage
+        $groupMembers = foreach ($g in $excludedGroups) {
+            Get-MgGroupMemberAsUser -GroupId $g -All | Select-Object -ExpandProperty Id
+        }
+        $excludedSet = @($excludedUsers + $groupMembers) | Sort-Object -Unique
+        [pscustomobject]@{
+            policyId       = $p.Id
+            policyName     = $p.DisplayName
+            bg01_excluded  = $bg[0] -in $excludedSet
+            bg02_excluded  = $bg[1] -in $excludedSet
+        }
+    }
+    $coverage | Export-Csv (Join-Path $script:EvidenceRoot 'TC-8-bg-exclusion-coverage.csv') -NoTypeInformation
+    $gaps = $coverage | Where-Object { -not $_.bg01_excluded -or -not $_.bg02_excluded }
+    if ($gaps) { throw "BREAK-GLASS EXCLUSION GAP: $($gaps | ConvertTo-Json -Depth 5)" }
+    ```
+
+2. **Method enumeration.** For each break-glass UPN, confirm registered methods are exclusively FIDO2:
+
+    ```powershell
+    foreach ($upn in @('bg-01@<tenant>.onmicrosoft.com','bg-02@<tenant>.onmicrosoft.com')) {
+        Get-MgUserAuthenticationMethod -UserId $upn |
+            Select-Object @{n='upn';e={$upn}}, AdditionalProperties
+    }
+    ```
+
+    Confirm only `#microsoft.graph.fido2AuthenticationMethod` entries appear; flag any `phoneAuthenticationMethod`, `softwareOathAuthenticationMethod`, or `microsoftAuthenticatorAuthenticationMethod` entries as a FAIL.
+
+3. **Physical custody attestation.** Two custodians physically witness the safe contents and sign a dated attestation (`TC-8-physical-custody-attestation.pdf`).
+
+4. **Sentinel rule confirmation.** Confirm `BG-SignIn-Alert` is enabled, has fired in test (a planned, signed test sign-in within the last 90 days), and is integrated into the Control 3.9 incident workflow:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(90d)
+    | where UserPrincipalName in~ ("bg-01@<tenant>.onmicrosoft.com","bg-02@<tenant>.onmicrosoft.com")
+    | project TimeGenerated, UserPrincipalName, AppDisplayName, ResultType, IPAddress, ClientAppUsed
+    | order by TimeGenerated desc
+    ```
+
+#### Expected Result
+
+- Exactly two break-glass accounts exist; both are excluded from **every** enabled CA policy (transitive group resolution included).
+- Each account has only FIDO2 methods registered; no SMS, voice, OTP, or Authenticator.
+- Physical custody is dual-controlled and attested in writing for the cycle.
+- The Sentinel alert rule is enabled and has fired on the planned test sign-in within the last 90 days.
+
+#### Evidence Capture
+
+- `TC-8-bg-exclusion-coverage.csv` — full per-policy coverage matrix.
+- `TC-8-bg-method-registration.csv` — method registration per break-glass UPN.
+- `TC-8-physical-custody-attestation.pdf` — signed by two custodians.
+- `TC-8-sentinel-rule-config.json` — `BG-SignIn-Alert` rule definition export.
+- `TC-8-sentinel-test-fire.csv` — KQL export evidencing the test fire and the 3.9 incident reference.
+- `TC-8-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years (records-scope; SOX-relevant).
+
+#### Failure Remediation
+
+1. **Coverage gap (one or more policies do not exclude one or both break-glass accounts):** treat as Sev-1; remediate within 24 hours via [Portal Walkthrough](./portal-walkthrough.md) §11. Re-run TC-8 to confirm closure.
+2. **Method drift (an SMS or Authenticator method appears on a break-glass account):** treat as Sev-1; immediately remove the offending method via Authentication Administrator and re-run.
+3. **Physical custody discrepancy:** treat as a SOX significant deficiency; route to the CISO and to Internal Audit; rotate the affected hardware key and re-attest.
+4. **Sentinel rule disabled or never fired:** route to [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for restoration; planned test fire required before the cycle's §13 sign-off.
+
+---
+
+### TC-9 — Legacy Authentication Blocked
+
+**Verifies:** A Conditional Access policy `CA-All-BlockLegacyAuth` is **Enabled**, targets all users (including, where applicable to the tenant's risk model, workload identities), and blocks legacy authentication protocols including ROPC (Resource Owner Password Credentials), basic auth, IMAP, POP, SMTP AUTH, and EWS basic.
+
+**Regulatory tie:** FFIEC Authentication and Access; CISA Zero Trust Maturity Model v2.0; NYDFS 500.12; FINRA Notice 21-18; SEC Reg S-P (May 2024 amendments — incident response on auth-protocol weaknesses).
+
+#### Setup
+
+1. Confirm `CA-All-BlockLegacyAuth` exists and `state = enabled` (not Report-only). Conditions: `clientAppTypes = exchangeActiveSync, other` (the canonical legacy-auth selectors). Grant: `block`.
+2. Confirm the exclusion register documents any per-app exclusions with named-business justifications, expiry dates, and compensating controls.
+3. Provision (or reuse) a canary account `ca111-canary-tc9@<tenant>` and a test client capable of issuing a basic-auth IMAP / SMTP request, or a ROPC token request.
+
+#### Steps
+
+1. From a test workstation, attempt a basic-auth IMAP request against `outlook.office365.com:993` using the canary credentials.
+2. Confirm the request fails with an authentication error.
+3. Attempt a ROPC token request:
+
+    ```text
+    POST https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token
+    Content-Type: application/x-www-form-urlencoded
+
+    client_id=<test-public-client-id>
+    &grant_type=password
+    &username=ca111-canary-tc9@<tenant>
+    &password=<password>
+    &scope=https://graph.microsoft.com/.default
+    ```
+
+4. Confirm the response includes a Conditional Access block (e.g., `AADSTS50158` for required additional auth, or `AADSTS53003` for the CA block — exact code depends on the resource and current Microsoft surface).
+5. Pull the Sentinel rows:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(1h)
+    | where UserPrincipalName == "ca111-canary-tc9@<tenant>"
+    | where ClientAppUsed in ("IMAP4","POP3","Authenticated SMTP","Other clients","Exchange ActiveSync","Exchange Web Services")
+        or AuthenticationProtocol == "ropc"
+    | mv-expand CA = todynamic(ConditionalAccessPolicies)
+    | where tostring(CA.displayName) == "CA-All-BlockLegacyAuth"
+    | project TimeGenerated, UserPrincipalName, ClientAppUsed, AuthenticationProtocol,
+              ResultType, ResultDescription, CAResult = tostring(CA.result)
+    | order by TimeGenerated desc
+    ```
+
+6. For workload-identity coverage (where the firm's risk model requires it), confirm an equivalent block via `AADServicePrincipalSignInLogs` against a test SP attempting an unsupported flow.
+
+#### Expected Result
+
+- Both the IMAP basic-auth attempt and the ROPC attempt fail with CA-driven block outcomes.
+- `SigninLogs` shows the blocked rows with `CA-All-BlockLegacyAuth` in the evaluated policies and `result = failure`.
+- Where workload-identity scope applies, `AADServicePrincipalSignInLogs` shows the equivalent block.
+
+#### Evidence Capture
+
+- `TC-9-imap-attempt.txt` — raw IMAP attempt and failure response.
+- `TC-9-ropc-attempt.json` — raw HTTP request/response (secrets redacted).
+- `TC-9-signinLogs.csv` — KQL export.
+- `TC-9-aadServicePrincipalSignInLogs.csv` — workload-identity equivalent (where scoped).
+- `TC-9-ca-policy-snapshot.json` — full `CA-All-BlockLegacyAuth` JSON.
+- `TC-9-exclusion-register.csv` — current legacy-auth exclusions with justifications and expiries.
+- `TC-9-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years (records-scope).
+
+#### Failure Remediation
+
+1. **If legacy auth succeeded:** Sev-1; the policy is mis-configured or the canary is in an exclusion group. Pause any DLP / supervisory control that depends on modern-auth-only assumptions. Remediate and re-test.
+2. **If exclusions exist without justifications or with expired justifications:** treat as a finding; require the exclusion owner to either close the exclusion (preferred) or refresh the justification with CISO approval (compensating-control path).
+3. **If workload-identity legacy-auth coverage is unscoped despite a documented risk:** raise as a control-design gap to AI Governance Lead; coordinate with [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for full audit-trail coverage.
+
+---
+
+### TC-10 — PIM Activation-Time Phishing-Resistant MFA
+
+**Verifies:** Activating a PIM-eligible privileged role (Entra Global Admin, AI Administrator, Authentication Policy Admin, Power Platform Admin, Purview Compliance Admin) requires **phishing-resistant MFA at the moment of activation**, satisfied by a CA Authentication Context bound to the PIM role activation flow — **not** session-token reuse from a prior weaker MFA event.
+
+**Regulatory tie:** SOX 302/404 (PIM activation logs are common SOX evidence); FFIEC Authentication and Access; NYDFS 500.12 and 500.04; FINRA 4511; OCC 2011-12 / SR 11-7 (administrative access to model-serving environments).
+
+#### Setup
+
+1. Confirm a CA policy `CA-AuthContext-PIM-Activation-PhishResistant` is **Enabled** binding **Authentication Context = c1** (or the firm's chosen context value) to the **Phishing-resistant MFA** Authentication Strength.
+2. Confirm each in-scope PIM-eligible role's activation settings reference the same Authentication Context value (Entra Identity Governance → PIM → Microsoft Entra roles → Settings → activation requires authentication context `c1`).
+3. Provision a canary user `ca111-canary-tc10@<tenant>` PIM-eligible for AI Administrator. The canary holds **both** SMS and a hardware FIDO2 key registered (the test depends on the canary having a weaker option to attempt).
+
+#### Steps
+
+1. Sign the canary in to Microsoft Entra admin center using a **non-phishing-resistant** method (SMS) to establish a session; confirm the session tokens are not phishing-resistant-class.
+2. Navigate to PIM and request activation of the AI Administrator role.
+3. Observe whether the activation prompts for a step-up to phishing-resistant MFA at the moment of activation.
+4. Complete the step-up using the FIDO2 key.
+5. Pull the audit + sign-in evidence:
+
+    ```kql
+    AuditLogs
+    | where TimeGenerated > ago(1h)
+    | where Category == "RoleManagement"
+    | where OperationName has "Add member to role" and TargetResources has "AI Administrator"
+    | where InitiatedBy.user.userPrincipalName == "ca111-canary-tc10@<tenant>"
+    | project TimeGenerated, OperationName, TargetResources, AdditionalDetails
+
+    SigninLogs
+    | where TimeGenerated > ago(1h)
+    | where UserPrincipalName == "ca111-canary-tc10@<tenant>"
+    | where AuthenticationContextClassReferences contains "c1"
+    | project TimeGenerated, AppDisplayName, AuthenticationDetails,
+              AuthenticationContextClassReferences,
+              ConditionalAccessStatus, ResultType
+    | order by TimeGenerated desc
+    ```
+
+6. Confirm the activation event is preceded by a sign-in row whose `AuthenticationDetails` shows a phishing-resistant method used in the immediate timeframe — not session-token reuse from the original SMS sign-in.
+
+#### Expected Result
+
+- The PIM activation triggers a step-up; the activation does **not** proceed on the SMS-only session.
+- The audit row evidences the activation; the sign-in row evidences the phishing-resistant step-up at activation time.
+
+#### Evidence Capture
+
+- `TC-10-pim-stepup-prompt.png` — screenshot of the step-up prompt at activation.
+- `TC-10-auditLogs.csv` — the role-activation audit row.
+- `TC-10-signinLogs.csv` — the step-up sign-in row with `AuthenticationContextClassReferences` containing `c1`.
+- `TC-10-ca-authcontext-policy.json` — `CA-AuthContext-PIM-Activation-PhishResistant` JSON.
+- `TC-10-pim-role-settings.json` — the role's PIM settings export confirming the bound auth context.
+- `TC-10-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years (records-scope; SOX-relevant; NYDFS-relevant).
+
+#### Failure Remediation
+
+1. **If the activation succeeded without a step-up:** the auth context is not bound, the CA policy is mis-configured, or PIM role settings do not reference the context. Sev-1; remediate via [Portal Walkthrough](./portal-walkthrough.md) §10.
+2. **If the step-up prompted but session-token reuse satisfied it:** examine the CA policy's grant control — Authentication Strength is the correct grant; "Require MFA" alone allows session-token reuse and does **not** satisfy this test.
+3. **If the activation failed entirely** (the canary could not activate even with FIDO2): the role settings or auth-context mapping are misconfigured against the policy; reconcile and re-test.
+
+---
+
+### TC-11 — Sentinel Conditional Access Insights Workbook
+
+**Verifies:** The Microsoft Sentinel **Conditional Access Insights and Reporting** workbook is configured, accessible to the CA Insights reviewer role, and shows data flowing from **both** `SigninLogs` and `AADServicePrincipalSignInLogs` in the last 24 hours; the workbook's findings cross-reference the [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) incident workflow for any flagged anomaly.
+
+**Regulatory tie:** SEC Reg S-P (May 2024 amendments — incident detection); FINRA Notice 21-18; FFIEC Information Security booklet; NYDFS 500.16 (incident response).
+
+#### Setup
+
+1. Confirm the Sentinel workspace has the **Conditional Access Insights and Reporting** workbook deployed (Sentinel → Workbooks → Templates → Conditional Access Insights → Save).
+2. Confirm the verifier holds **Sentinel Reader** plus **Log Analytics Reader** on the workspace.
+
+#### Steps
+
+1. Open the workbook. Set the time range to **Last 24 hours**.
+2. Confirm the workbook tiles populate from both tables:
+
+    ```kql
+    SigninLogs
+    | where TimeGenerated > ago(24h)
+    | summarize human_signins = count()
+
+    AADServicePrincipalSignInLogs
+    | where TimeGenerated > ago(24h)
+    | summarize agent_signins = count()
+    ```
+
+    Both counts must be > 0 in an active tenant. A `human_signins = 0` is itself a finding (likely connector outage). An `agent_signins = 0` in a tenant that has provisioned AI agents is a finding (likely SP sign-in connector not selected — see PRE-06).
+3. Cross-reference any high-severity finding (e.g., a CA policy with > 5% failure rate, a sudden spike in `notApplied` outcomes, or an unexpected service-principal sign-in pattern) to the Control 3.9 incident-workflow ticket queue. Each flagged anomaly must have either an open ticket or a signed false-positive disposition within the cycle's grace window.
+4. Capture screenshots of the workbook tiles for both tables and the anomaly cross-reference panel.
+
+#### Expected Result
+
+- The workbook displays non-zero counts for both `SigninLogs` and `AADServicePrincipalSignInLogs` in the last 24 hours.
+- Each workbook-flagged anomaly maps to a Control 3.9 incident-workflow item.
+- The verifier can demonstrate the path from workbook → KQL → Sentinel incident → ITSM ticket without manual interpretation gaps.
+
+#### Evidence Capture
+
+- `TC-11-workbook-overview.png` — workbook landing page with 24-hour tiles.
+- `TC-11-signinLogs-count.csv` — `human_signins` count.
+- `TC-11-aadServicePrincipalSignInLogs-count.csv` — `agent_signins` count.
+- `TC-11-anomaly-crossref.csv` — anomaly → Control 3.9 incident → ITSM ticket mapping.
+- `TC-11-evidence.json` — canonical evidence record.
+- **Retention:** ≥ 7 years for the cross-reference CSV (records-scope when it documents an actual incident); workbook screenshots retained per operational policy (typically 2 years).
+
+#### Failure Remediation
+
+1. **If `agent_signins = 0`:** the Service Principal Sign-In Logs option on the `AzureActiveDirectory` connector is not selected. Open a Sev-2 ticket against the Sentinel Contributor; re-test after a 4-hour ingestion window.
+2. **If the workbook is missing tiles or shows errors:** re-deploy from the current Microsoft template; verify the workspace permissions.
+3. **If anomalies lack 3.9 cross-reference:** route to the AI Governance Lead; the linkage is required for examiner-defensible incident-traceability.
+
+---
+
+### TC-12 — Report-Only → Enforce Change Record
+
+**Verifies:** Every CA policy that has been promoted from **Report-only** to **Enforce** in the cycle window has a corresponding change-management ticket, a Power Platform Admin Center (PPAC) change-log reference where the policy affects Power Platform / Copilot Studio surfaces, and approval signatures from **both** the Authentication Policy Admin and the CISO (or CISO delegate).
+
+**Regulatory tie:** SOX 302/404 (change-management evidence on access controls); FFIEC Information Security booklet (change management); NYDFS 500.04 (CISO oversight); FINRA 4511 / SEC 17a-4 (records of access-control changes).
+
+#### Setup
+
+1. Identify all CA policies whose `state` transitioned from `enabledForReportingButNotEnforced` to `enabled` in the cycle window:
+
+    ```kql
+    AuditLogs
+    | where TimeGenerated > ago(100d)   // adjust to the cycle window
+    | where Category == "Policy" and OperationName == "Update conditional access policy"
+    | extend modProps = tostring(TargetResources[0].modifiedProperties)
+    | where modProps has "state" and modProps has "enabledForReportingButNotEnforced" and modProps has "enabled"
+    | project TimeGenerated, InitiatedByUpn = tostring(InitiatedBy.user.userPrincipalName),
+              policyId = tostring(TargetResources[0].id),
+              policyName = tostring(TargetResources[0].displayName),
+              modProps
+    | order by TimeGenerated desc
+    ```
+
+2. For each transition, locate the change ticket, approval emails / digital signatures, and (where applicable) the PPAC change-log entry.
+
+#### Steps
+
+1. For every transition row, assemble:
+    - The change ticket number (ServiceNow / Jira / equivalent).
+    - The Authentication Policy Admin's approval signature (digital or hand-signed scan).
+    - The CISO (or CISO delegate) approval signature.
+    - The PPAC change-log reference where the policy affects `Power Apps`, `Power Automate`, `Microsoft Copilot Studio`, or the Agent 365 Admin Center:
+
+        ```kql
+        PowerPlatformAdminActivity
+        | where TimeGenerated > ago(100d)
+        | where OperationName has_any ("Conditional Access","CA Policy","SecurityPolicyUpdated")
+        | project TimeGenerated, OperationName, ActorUpn, EnvironmentName, TenantId, AdditionalProperties
+        | order by TimeGenerated desc
+        ```
+
+    - The pre-flip Report-only sign-in evidence (the impact-analysis artifact that justified flipping to Enforce).
+2. Build the per-transition evidence package as a single PDF or evidence subfolder.
+3. For transitions that lack a complete package, list them in the §13 attestation as findings with remediation deadlines.
+
+#### Expected Result
+
+- Every Report-only → Enforce transition in the cycle window has: change ticket + dual approval + (where applicable) PPAC change-log reference + pre-flip impact-analysis artifact.
+- No transition lacks a documented signoff.
+
+#### Evidence Capture
+
+- `TC-12-transitions.csv` — full list of transitions in the cycle window.
+- `TC-12-package-<policyId>.pdf` — one per transition; assembled change-management package.
+- `TC-12-ppac-changelog.csv` — KQL export from `PowerPlatformAdminActivity`.
+- `TC-12-evidence.json` — canonical evidence record listing per-transition completeness.
+- **Retention:** ≥ 7 years (records-scope; SOX-relevant; FINRA 4511 evidence of access-control change).
+
+#### Failure Remediation
+
+1. **If a transition lacks a change ticket:** treat as a SOX significant-deficiency candidate; route to Internal Audit and the CISO. The transition itself is not reversed (the policy is now Enforce and may be load-bearing), but the missing ticket must be reconstructed from contemporaneous evidence (email, PPAC log, audit log) and counter-signed.
+2. **If a transition lacks dual approval:** capture the missing signature retroactively only with explicit annotation that it was post-hoc; never backdate. Open a process gap and close via the firm's change-management remediation track.
+3. **If PPAC change-log evidence is missing for a Power Platform-affecting policy:** confirm the PowerPlatformAdminActivity connector is healthy in PRE-06; reconcile with PPAC blade exports.
+
+---
+
+## §2 Evidence Capture Summary Table
+
+The table below consolidates the per-test evidence artifacts, retention durations, and primary regulation ties. Every row in the table maps to artifacts assembled into the §13 quarterly attestation pack. Where retention is recorded as ≥ 7 years, the artifact is **records-scope** under FINRA Rule 4511 and SEC Rule 17a-4 and must be filed via Microsoft Purview retention labels with deletion lock; **Sentinel operational retention is not a substitute** because Sentinel hot/archive retention is not records-scope.
+
+| Test | Evidence Artifact(s) | Retention | Primary Regulation Tie |
+|------|----------------------|-----------|------------------------|
+| TC-1 | `TC-1-userRegistrationDetails.csv` (signed); `TC-1-portal-screenshot-userRegistrationDetails.png`; `TC-1-evidence.json` | ≥ 7 years (records-scope) | NYDFS 23 NYCRR 500.12; FFIEC Authentication and Access; NIST SP 800-63B AAL3; GLBA / FTC Safeguards 16 CFR §314.4(c)(5) |
+| TC-2 | `TC-2-signin-interrupt.png`; `TC-2-signinLogs.csv` (CA "Not Applied / Failure" sign-in row); `TC-2-ca-policy-snapshot.json`; `TC-2-evidence.json` | ≥ 7 years (records-scope) | SEC Rule 17a-4; FINRA Rule 4511 (via Purview retention); NYDFS 500.12 |
+| TC-3 | `TC-3-block-interrupt.png`; `TC-3-intune-device-status.png`; `TC-3-signinLogs.csv` (CA "Not Applied / Failure" sign-in row); `TC-3-ca-policy-snapshot.json`; `TC-3-evidence.json` | ≥ 7 years (records-scope) | SEC Rule 17a-4; FINRA Rule 4511 (via Purview retention); FFIEC Authentication and Access; CISA ZTMM v2.0 |
+| TC-4 | `TC-4-graph-call-out-of-location.json`; `TC-4-graph-call-in-location.json`; `TC-4-aadServicePrincipalSignInLogs.csv` (KQL result); `TC-4-signinLogs-empty-confirmation.csv`; `TC-4-ca-wid-policy-snapshot.json` (with `CAPolicyId`); `TC-4-evidence.json` | ≥ 7 years (records-scope) | OCC Bulletin 2011-12; Federal Reserve SR 11-7; FINRA Notice 21-18; FINRA Notice 25-07 |
+| TC-5 | `TC-5-disable-action.json` (audit row); `TC-5-failed-graph-call.txt`; `TC-5-signinLogs-cae.csv`; `TC-5-latency.json`; `TC-5-evidence.json` | ≥ 7 years for audit + sign-in evidence (records-scope); 2 years for latency JSON (operational) | FFIEC Authentication and Access; CISA ZTMM v2.0; NYDFS 500.04 |
+| TC-6 | `TC-6-supported-session-token-claim.json`; `TC-6-replay-rejection.txt`; `TC-6-unsupported-fallback.png`; `TC-6-policy-description.md` (intended fallback); `TC-6-signinLogs.csv`; `TC-6-evidence.json` | ≥ 7 years (records-scope) | FFIEC Authentication and Access; CISA ZTMM v2.0; FINRA Notice 21-18 |
+| TC-7 | `TC-7-reauth-interrupt.png`; `TC-7-signinLogs.csv` (re-auth row with `enforcedSessionControls`); `TC-7-ca-policy-snapshot.json`; `TC-7-evidence.json` | ≥ 7 years (records-scope) | FFIEC Authentication and Access; SEC Rule 17a-4; NYDFS 500.12 |
+| TC-8 | `TC-8-bg-exclusion-coverage.csv`; `TC-8-bg-method-registration.csv`; `TC-8-physical-custody-attestation.pdf` (dual-signed); `TC-8-sentinel-rule-config.json`; `TC-8-sentinel-test-fire.csv` (3.9 incident reference); `TC-8-evidence.json` | ≥ 7 years (records-scope; SOX-relevant) | SOX 302/404; FFIEC Authentication and Access; NYDFS 500.04 / 500.12; OCC 2011-12 / SR 11-7 |
+| TC-9 | `TC-9-imap-attempt.txt`; `TC-9-ropc-attempt.json`; `TC-9-signinLogs.csv`; `TC-9-aadServicePrincipalSignInLogs.csv` (where scoped); `TC-9-ca-policy-snapshot.json`; `TC-9-exclusion-register.csv`; `TC-9-evidence.json` | ≥ 7 years (records-scope) | FFIEC Authentication and Access; CISA ZTMM v2.0; SEC Reg S-P (May 2024); NYDFS 500.12 |
+| TC-10 | `TC-10-pim-stepup-prompt.png`; `TC-10-auditLogs.csv` (role activation); `TC-10-signinLogs.csv` (auth context `c1`); `TC-10-ca-authcontext-policy.json`; `TC-10-pim-role-settings.json`; `TC-10-evidence.json` | ≥ 7 years (records-scope; SOX-relevant) | SOX 302/404; FFIEC Authentication and Access; NYDFS 500.04 / 500.12; FINRA 4511; OCC 2011-12 / SR 11-7 |
+| TC-11 | `TC-11-workbook-overview.png`; `TC-11-signinLogs-count.csv`; `TC-11-aadServicePrincipalSignInLogs-count.csv`; `TC-11-anomaly-crossref.csv` (3.9 incident mapping); `TC-11-evidence.json` | ≥ 7 years for cross-reference CSV when an incident is recorded (records-scope); 2 years for workbook screenshots (operational) | SEC Reg S-P (May 2024); FINRA Notice 21-18; FFIEC Information Security; NYDFS 500.16 |
+| TC-12 | `TC-12-transitions.csv`; `TC-12-package-<policyId>.pdf` (per transition; change ticket + dual approval + PPAC change-log + pre-flip impact analysis); `TC-12-ppac-changelog.csv`; `TC-12-evidence.json` | ≥ 7 years (records-scope; SOX-relevant; FINRA 4511) | SOX 302/404; FFIEC Information Security (change management); NYDFS 500.04; FINRA 4511 / SEC 17a-4 |
+
+---
+
+## §3 Quarterly Attestation
+
+The quarterly attestation is the consolidated examiner-facing artifact. It compiles each test case's evidence record, captures the cycle's findings and exceptions, and is signed by the named approvers. Filing of the attestation pack is via the [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) workbook export to a Microsoft Purview retention-labelled location. **Sentinel operational retention is not records-scope** and must not be relied upon as the system of record.
+
+### 3.1 Attestation contents
+
+A complete attestation pack contains:
+
+1. **Cycle metadata** — `runId`, `cycleStartUtc`, `cycleEndUtc`, `cloud`, `tenantId`, `tenantDisplayName`, framework version, prior-cycle reference.
+2. **Test results matrix** — one row per TC-1 through TC-12: `status` (PASS / FAIL / WARN / SKIPPED-with-compensating-control), evidence-artifact references, observed values, expected values, and any deviations.
+3. **Findings register** — every FAIL or WARN with: severity, owner, remediation deadline, and (where the remediation deadline falls outside the cycle) the signed risk-acceptance with `acceptedRiskUntilUtc`.
+4. **Exception register** — all CA-policy exclusions in force at cycle close, each with named-business justification, expiry date, compensating control, and current owner.
+5. **Sovereign-cloud reconciliation** — for tenants in GCC, GCC High, or DoD, the per-feature parity statement and any compensating-control worksheets (TC-4 WID, TC-6 Token Protection, Agent ID surfaces).
+6. **Cross-control linkage** — explicit pointers to the corresponding cycles for [Control 2.12 — Supervision](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [Control 2.6 — MRM](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Control 1.7 — Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.9 — Retention and Deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [Control 1.1 — Restrict Agent Publishing](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [Control 2.14 — Training and Awareness](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md), [Control 2.25 — Agent 365 Admin Center](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [Control 3.6 — Orphaned Agent Detection](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md), and [Control 3.9 — Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
+7. **Approver signatures** — see §3.2.
+
+### 3.2 Signatories
+
+The quarterly attestation is signed by **all five** of the following roles. Signatures are digital (X.509 code-signing or qualified e-signature) and timestamped. Standing privileged-role overlap between Preparer / Validator / Compliance signatories is a cycle-stopping FAIL — the signatories must represent independent control points.
+
+| Signatory (canonical role) | Attestation responsibility |
 |---|---|
-| **1.5** Sensitivity labels & DLP | Z3 maker access + Token Protection complement label-bound access; CA enforces who, labels enforce what |
-| **1.7** Tenant restrictions / cross-tenant access | TR v2 governs which external tenants can be reached; CA governs the local identity that initiates the call |
-| **1.12** Identity Protection / Insider Risk Management | Risk-based CA grants in §4 depend on IRM/IDP risk signals being current and tenant-baselined |
-| **1.14** Data minimization & policy-aware DLP | Phishing-resistant MFA reduces account-compromise paths into data assets that DLP also guards |
-| **1.19** eDiscovery & evidence preservation | The hash-chain attestation pattern in §7 mirrors 1.19's evidentiary chain; cross-cycle integrity is inherited |
-| **1.21** Adversarial sign-in correlation & threat hunting | NEG-01 What-If and IR-01 / IR-02 tabletops feed 1.21's detection content |
-| **2.5** PIM lifecycle & access reviews | PIM-01..03 in §4 are the day-to-day enforcement of 2.5's lifecycle policy |
-| **2.8** Service principal consent & permissions | SP-01..03 in §4 enforce 2.8's consent posture at the CA layer |
-| **2.22** Inactivity timeout enforcement | `signInFrequency` in DEVICE-01 is the CA half of 2.22's session-lifetime control |
-| **2.26** Entra Agent ID identity governance | AGENTID-01..04 in §4 are the CA-side enforcement of 2.26's agent-lifecycle governance |
-| **3.8** Copilot Hub & governance dashboard | Cycle outcome (and `manifest.compensatingControls[]`) feed the dashboard's residual-risk view |
-| **AI Incident Response Playbook** | IR-01 / IR-02 tabletops execute against the playbook's runbooks; cycle records sign-off |
+| **Authentication Policy Admin** | Attests to TC-1 through TC-7, TC-9, TC-10 — the Authentication Method and CA Authentication Strength configuration is current, drift-checked, and consistent with the firm's authentication-policy standard. |
+| **Entra Global Admin** | Attests to TC-8 (break-glass integrity), TC-12 (Report-only → Enforce change records), and the overall directory-tier integrity of the cycle. (Activation through PIM, time-bound; no standing Global Admin.) |
+| **AI Administrator** | Attests to TC-1 (AI Administrator role coverage), TC-3 (maker portal protections), TC-4 (workload-identity / Agent ID coverage), TC-11 (workbook usability for AI-governance reviewers). |
+| **Compliance Officer** | Attests to the records-scope retention posture across the evidence pack, the cross-control linkage to 2.12 / 2.6 / 1.7 / 1.9, and the findings register's remediation tracking. |
+| **CISO (or CISO delegate)** | Attests to TC-8 break-glass posture, TC-12 dual-approval evidence, the sovereign-cloud reconciliation, and the overall risk acceptance for any open exceptions or accepted-risk items. |
+
+### 3.3 Retention and filing
+
+- **Records-scope artifacts** (those marked ≥ 7 years in §2) are filed to a Microsoft Purview retention-labelled location with `≥7-year retention` and `deletionLocked = true`. The retention label is bound under [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
+- **The attestation pack itself** is filed via the [Control 3.9 Sentinel workbook export → Purview-labelled SharePoint or Azure Blob WORM container](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). The export step records a SHA-256 digest of the pack; the digest is itself a records-scope artifact.
+- **Sentinel operational retention is not records-scope.** Sentinel hot retention (default 90 days) and archive retention (up to 2 years on standard pricing tiers) are **operational** and must not be relied upon as the system of record for FINRA 4511 / SEC 17a-4 evidence. The Purview-labelled filing location is the system of record.
+- **Where records-scope under FINRA 4511 / SEC 17a-4 applies** (which is the case for all TC-1 through TC-12 records-scope artifacts in this control), retention is **at least 7 years** from the date of cycle close. Some firms apply longer retention by policy (e.g., 10 years for SOX-significant artifacts); the longer of the firm's policy and the regulatory minimum applies.
+
+### 3.4 Attestation template (canonical JSON)
+
+```json
+{
+  "control_id": "1.11",
+  "framework_version": "v1.4",
+  "cycle": {
+    "run_id": "CA111-20260415-093012-a1b2c3d4",
+    "cycle_start_utc": "2026-01-15T00:00:00Z",
+    "cycle_end_utc":   "2026-04-15T00:00:00Z",
+    "cloud": "Commercial",
+    "tenant_id": "11111111-2222-3333-4444-555555555555",
+    "tenant_display_name": "Contoso Bank, N.A."
+  },
+  "test_results": [
+    { "test": "TC-1",  "status": "PASS",     "evidence_refs": ["TC-1-userRegistrationDetails.csv","TC-1-evidence.json"] },
+    { "test": "TC-2",  "status": "PASS",     "evidence_refs": ["TC-2-signinLogs.csv","TC-2-evidence.json"] },
+    { "test": "TC-3",  "status": "PASS",     "evidence_refs": ["TC-3-signinLogs.csv","TC-3-evidence.json"] },
+    { "test": "TC-4",  "status": "SKIPPED",  "evidence_refs": ["TC-4-sov-compensating-worksheet.pdf"], "skip_reason": "CA WID not GA in operating cloud; compensating worksheet attached." },
+    { "test": "TC-5",  "status": "PASS",     "evidence_refs": ["TC-5-latency.json","TC-5-evidence.json"] },
+    { "test": "TC-6",  "status": "PASS",     "evidence_refs": ["TC-6-evidence.json"] },
+    { "test": "TC-7",  "status": "PASS",     "evidence_refs": ["TC-7-evidence.json"] },
+    { "test": "TC-8",  "status": "PASS",     "evidence_refs": ["TC-8-physical-custody-attestation.pdf","TC-8-evidence.json"] },
+    { "test": "TC-9",  "status": "PASS",     "evidence_refs": ["TC-9-evidence.json"] },
+    { "test": "TC-10", "status": "PASS",     "evidence_refs": ["TC-10-evidence.json"] },
+    { "test": "TC-11", "status": "PASS",     "evidence_refs": ["TC-11-evidence.json"] },
+    { "test": "TC-12", "status": "WARN",     "evidence_refs": ["TC-12-transitions.csv"], "finding": "1 transition lacks PPAC change-log reference; remediation deadline 2026-04-30." }
+  ],
+  "findings": [
+    {
+      "finding_id": "F-2026Q1-001",
+      "severity": "Medium",
+      "test": "TC-12",
+      "owner": "authentication.policy.admin@contoso.com",
+      "remediation_deadline_utc": "2026-04-30T17:00:00Z",
+      "accepted_risk_until_utc": null
+    }
+  ],
+  "exceptions": [],
+  "sovereign_reconciliation": {
+    "ca_workload_identities": "GA in Commercial; SKIPPED with compensating worksheet in this run.",
+    "token_protection": "Pilot in progress on supported Windows 11 endpoints.",
+    "agent_id": "Public Preview; cycle-over-cycle re-confirmation required."
+  },
+  "cross_control_linkage": {
+    "control_2_12_supervision": "cycle 2026-Q1 PASS",
+    "control_2_6_mrm": "cycle 2026-Q1 PASS",
+    "control_1_7_audit_logging": "cycle 2026-Q1 PASS",
+    "control_1_9_retention": "cycle 2026-Q1 PASS",
+    "control_3_9_sentinel": "workbook export filed; SHA-256 recorded"
+  },
+  "signatories": [
+    { "role": "Authentication Policy Admin", "upn": "auth.policy.admin@contoso.com",  "signed_utc": "2026-04-15T18:12:00Z", "signature_method": "X.509" },
+    { "role": "Entra Global Admin",          "upn": "global.admin@contoso.com",      "signed_utc": "2026-04-15T18:14:00Z", "signature_method": "X.509", "pim_activation_ref": "pim-act-2026-04-15-0001" },
+    { "role": "AI Administrator",            "upn": "ai.administrator@contoso.com",  "signed_utc": "2026-04-15T18:16:00Z", "signature_method": "X.509" },
+    { "role": "Compliance Officer",          "upn": "compliance.officer@contoso.com","signed_utc": "2026-04-15T18:18:00Z", "signature_method": "X.509" },
+    { "role": "CISO",                         "upn": "ciso@contoso.com",              "signed_utc": "2026-04-15T18:20:00Z", "signature_method": "X.509" }
+  ],
+  "filing": {
+    "purview_label": "FSI-Records-7yr-DeletionLocked",
+    "filing_location_uri": "https://contoso.sharepoint.com/sites/governance/records/CA111-2026Q1/",
+    "pack_sha256": "f3a1...",
+    "filing_method": "Control 3.9 Sentinel workbook export → Purview-labelled SharePoint"
+  }
+}
+```
+
+### 3.5 Cycle-stopping conditions
+
+The following conditions stop a cycle from being signed off and require remediation before the attestation can be filed:
+
+1. **TC-1 fail** — any privileged-role member without a phishing-resistant method registered.
+2. **TC-8 fail** — any break-glass coverage gap, method drift, or physical custody discrepancy.
+3. **TC-12 fail with no compensating evidence** — a Report-only → Enforce transition with no recoverable change-management trail.
+4. **Standing privileged-role overlap** between Preparer / Validator / Compliance signatories.
+5. **Pre-flight FAIL** — any HALT on PRE-01 through PRE-06.
+
+A cycle that stops on any of the above is reported to FSI Internal Audit as a control deficiency and the assessment engine downgrades the control's confidence rating from `high` to `medium` until the next clean cycle is signed.
 
 ---
 
-## 10. Cycle-Close Checklist
+## §4 Cross-Control Dependencies
 
-- [ ] All 7 PRE gates returned PASS or N/A (no FAIL).
-- [ ] All 32 §4 tests have a status; none are `SKIPPED_BY_PREGATE` for a PRE gate that itself returned PASS.
-- [ ] `evidence.json` validates against `schemas/1.11/evidence.schema.json` (validator exited 0 or 1, never 2).
-- [ ] `manifest.json` `manifestSha256` recomputed and stable.
-- [ ] `validatorScriptSha256` matches the pinned `Invoke-Verification.ps1.sha256`.
-- [ ] All required modules (PRE-06) hash-pinned; signatures Valid.
-- [ ] Three signatures present; each signer's role is one of {AI Governance Lead, Compliance Officer, CISO delegate}; UPNs distinct.
-- [ ] `priorCycleSha256` matches the prior cycle's `manifestSha256` (or is `null` for genesis with documented note).
-- [ ] Every `compensatingControl` has `acceptedRiskUntilUtc` not in the past.
-- [ ] Cadence escalation events (if any) recorded in `manifest.cadenceEscalations[]`.
-- [ ] Drift entries reconciled (CA-as-code PRs merged, exclusion register updated, named-locations updated).
-- [ ] Tabletop after-action reports archived and signed.
-- [ ] Evidence pack uploaded to long-term retention store with SEC 17a-4(f) WORM policy applied (where applicable).
-- [ ] Assessment engine notified; `docs/assessment/state.json` updated; Copilot Hub dashboard refreshed.
-- [ ] If any §4 test returned FAIL, an issue is filed in the governance repo with the test ID, owner, due date, and (if appropriate) `acceptedRiskUntilUtc`.
+This control does not stand alone. The following cross-references connect Control 1.11 to its sibling controls. **Examination evidence is strongest when these controls' evidence packs are presented together, in cycle alignment**, because access-control enforcement (1.11) is one of four required layers — alongside supervisory review (2.12), model risk management (2.6), and books-and-records (1.7 / 1.9) — for a defensible AI-agent governance posture.
+
+- [**Control 1.1 — Restrict Agent Publishing by Authorization**](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) — the authorization model that this control's CA policies enforce identity context against. A 1.11 cycle that does not reference the 1.1 authorization register has an unbounded scope.
+- [**Control 1.7 — Comprehensive Audit Logging and Compliance**](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — the books-and-records completeness layer. 1.11 evidences access; 1.7 evidences the trail. Both are required.
+- [**Control 1.9 — Data Retention and Deletion Policies**](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — the Purview retention-labelling that makes 1.11's evidence records-scope under FINRA 4511 / SEC 17a-4.
+- [**Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7**](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — the MRM effectiveness layer. 1.11 enforces identity controls on model-serving endpoints; 2.6 validates the model itself.
+- [**Control 2.12 — Supervision and Oversight under FINRA Rule 3110**](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — the registered-principal supervisory review layer. 1.11 does not satisfy supervision; only 2.12 does.
+- [**Control 2.14 — Training and Awareness Program**](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) — operator competence on Authentication Strength, FIDO2 enrollment, and break-glass procedures. The 2.14 cycle's training-completion evidence is referenced by the 1.11 attestation for signatory eligibility.
+- [**Control 2.25 — Agent 365 Admin Center Governance Console**](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — the operator surface where many of the 1.11 enforcement signals are first surfaced; TC-2 and TC-3 explicitly target Agent 365 / Copilot Studio access paths.
+- [**Control 3.6 — Orphaned Agent Detection and Remediation**](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — the lifecycle layer that pairs with TC-4 (workload-identity coverage) and the sovereign-cloud compensating-control pattern.
+- [**Control 3.9 — Microsoft Sentinel Integration**](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) — the SIEM / incident-workflow layer that ingests 1.11's sign-in and audit signals; TC-8 and TC-11 cross-link explicitly.
+
+---
+
+## §5 Glossary (Verifier-Facing)
+
+- **AAL3** — Authenticator Assurance Level 3 (NIST SP 800-63B). Phishing-resistant, hardware-bound or device-bound credential. Synced (cross-device) passkeys do **not** meet AAL3.
+- **CA** — Conditional Access (Microsoft Entra).
+- **CA WID** — Conditional Access for Workload Identities. Targets service principals, managed identities, and (preview) Entra Agent ID principals.
+- **CAE** — Continuous Access Evaluation. Eventually-consistent revocation/claim propagation; per-tenant baseline measured in PRE-07.
+- **Authentication Strength** — A named, configurable combination of authentication methods that a CA grant control can require. The framework's Z3 phishing-resistant strength includes FIDO2, WHfB, device-bound passkey, and X.509 CBA — not SMS, voice, or OTP.
+- **Authentication Context** — A named claim (e.g., `c1`) bound to a CA policy and consumed by downstream resources (PIM activation, sensitive SharePoint sites) to require step-up MFA at the moment of access, not session-token reuse.
+- **Break-glass** — Cloud-only emergency-access account, hardware-FIDO2-only, excluded from every CA policy, dual-custody physical key storage, Sentinel-alerted on any sign-in.
+- **Records-scope** — Records subject to FINRA Rule 4511 / SEC Rule 17a-4 retention-and-immutability requirements. Filed via Purview retention labels with deletion lock. **Not** Sentinel operational retention.
+- **`SigninLogs`** — Sentinel/Graph table for **human** sign-ins.
+- **`AADServicePrincipalSignInLogs`** — Sentinel/Graph table for **service principal / workload identity** sign-ins. Agent sign-ins appear here, **not** in `SigninLogs`.
+- **`AuditLogs`** — directory write operations (CA, role, attribute changes).
+- **`PowerPlatformAdminActivity`** — PPAC change-log table; corroborates TC-12 transitions affecting Power Platform / Copilot Studio surfaces.
+- **PPAC** — Power Platform Admin Center.
+- **PIM** — Privileged Identity Management (Microsoft Entra). JIT activation of eligible role assignments.
+- **Report-only / Enforce** — CA policy `state` values. `enabledForReportingButNotEnforced` evaluates and logs but does not deny; `enabled` evaluates, logs, and denies. The Report-only → Enforce transition is the change-management gate evidenced by TC-12.
+- **SOV** — Sovereign-cloud namespace; compensating-control pattern when a feature is unavailable in GCC, GCC High, or DoD.
+- **Token Protection** — Preview CA session control that binds the access token to the device. Windows-only at the verification date; documented fallback for non-supported clients.
+
+---
+
+## §6 Change Log for This Playbook
+
+| Date | Version | Change | Author |
+|---|---|---|---|
+| 2026-04-18 | v1.4 | End-to-end rewrite to the 12-test-case structure; added explicit scope-limit and sovereign-cloud admonitions; corrected `SigninLogs` vs `AADServicePrincipalSignInLogs` table guidance throughout (TC-4); added quarterly attestation JSON template; aligned canonical role names; added cross-references to Controls 1.1, 1.7, 1.9, 2.6, 2.12, 2.14, 2.25, 3.6, 3.9. | Doc Writer Agent |
+| 2026-01-12 | v1.3 | Added CAE per-tenant baseline (PRE-07); removed invented Microsoft SLA assertions on CAE latency. | Doc Writer Agent |
+| 2025-10-04 | v1.2 | Added Token Protection (Preview) test case with documented fallback. | Doc Writer Agent |
+| 2025-07-15 | v1.1 | Added break-glass dual-custody attestation. | Doc Writer Agent |
+| 2025-04-08 | v1.0 | Initial publication. | Doc Writer Agent |
 
 ---
 
 *Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+
+
+
