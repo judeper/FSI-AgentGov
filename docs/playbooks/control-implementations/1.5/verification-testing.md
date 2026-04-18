@@ -1,520 +1,591 @@
-# Control 1.5 — Verification & Testing: DLP and Sensitivity Labels
+# Control 1.5 — Verification & Testing Playbook (DLP and Sensitivity Labels)
 
-> Verification procedures for [Control 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md). Run each test on the cadence in §1, capture evidence per §3, and complete the attestation in §4 each cycle.
->
-> **Scope of this playbook:** Microsoft Purview DLP enforcement on the **Microsoft 365 Copilot and Copilot Chat** location, sensitivity labels (file, email, container), service-side auto-labeling, Adaptive Protection, Endpoint DLP, and the **classification surface** of Power Platform data policies as it applies to Copilot Studio agents. Connector classification mechanics in depth (Business / Non-Business / Blocked taxonomy, HTTP endpoint filtering allow-list authoring) are verified under [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md). This playbook only re-verifies that the Power Platform data policy *exists, is in scope, and classifies the AI-related connectors as Control 1.5 expects*.
+| Field | Value |
+|---|---|
+| **Control** | 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels |
+| **Pillar** | Pillar 1 — Security |
+| **Audience** | Purview Compliance Admin · Purview DLP Admin · Power Platform Admin · Defender Admin · Sentinel Engineer · FINRA-registered Supervisor · Internal Audit · External Examiner |
+| **Sovereign-cloud scope** | Commercial · GCC · GCC High · DoD (parity gaps called out per surface) |
+| **Last UI verified** | April 2026 |
+| **Verifier output contract** | `[pscustomobject]` with `TestId`, `Status ∈ {Clean, Anomaly, Pending, NotApplicable, Error}`, `Evidence`, `Notes`, `TimestampUtc` |
 
 ---
 
-## 1. Re-Verification Cadence
+## Regulatory Hedging Notice
 
-DLP for the Copilot location, label propagation behavior, and Adaptive Protection signals are non-static — Microsoft ships connector and classifier additions, retention horizons drift with license changes, and rule shape can be silently broken by the **same-rule SIT+label restriction**. Each test runs on its own cadence rather than a single annual binder refresh.
+This playbook describes verification procedures that **support compliance with** FINRA Rules 3110 / 4511 / 17a-4, SEC Reg S-P (2024 amendments), SEC Reg S-ID, GLBA Safeguards Rule, SOX §404, OCC Bulletin 2013-29 / 2021-39, Federal Reserve SR 11-7, and CFTC Regulation 1.31. Running these tests **does not guarantee** regulatory compliance, **does not prevent** every data-loss scenario, and **does not eliminate** customer-information risk. Implementation requires legal review against the firm's WSPs, examiner expectations, and the specific sovereign-cloud tenancy in scope. Organizations should verify control efficacy through independent audit and validate sovereign-cloud parity gaps with Microsoft account teams before treating any test result as evidence of a fully-mitigated risk.
 
-| Test ID | Frequency | Owner role | Evidence retention | Regulatory driver |
+---
+
+## Why This Playbook Is Foundational
+
+Control 1.5 governs the perimeter that decides whether non-public information (NPI), Material Non-Public Information (MNPI), customer PII, and other regulated data can be ingested by, surfaced through, or exfiltrated by Microsoft 365 Copilot, Copilot Studio agents, declarative agents, and connected Power Platform / Defender for Cloud Apps surfaces. Failures here cascade into Reg S-P incident-notification clocks (Control 3.4), supervisory review obligations (Control 2.12), audit-record fidelity (Control 1.7), and Sentinel detection coverage (Control 3.9). A single missed surface — for example, an unmanaged Edge for Business AI session, a Power Platform HTTP connector, or a Power BI workspace without label inheritance — can become the examiner finding that defines the firm's next cycle.
+
+This playbook operationalizes the 13-surface DLP coverage matrix from the Control 1.5 specification, the Reg S-P 2024 dual-clock readiness drill, the override-telemetry chain, and the sovereign-cloud parity matrix. Each test produces machine-verifiable evidence consumable by the assessment manifest (`collectorField`) and the v1.4 evidence pack.
+
+---
+
+## Audience and How to Use This Playbook
+
+| Role | Primary use |
+|---|---|
+| Purview Compliance Admin | Owns POLICY, LABEL, COPILOT, AUDIT namespaces. Runs weekly + monthly tests. |
+| Purview DLP Admin | Owns SURFACE, SYNTH, OVERRIDE namespaces. Runs the 13-surface coverage drill monthly. |
+| Power Platform Admin | Co-owns SURFACE (connector classification, HTTP endpoint filtering). Runs PP-specific subtests monthly. |
+| Defender Admin | Co-owns SURFACE (Endpoint DLP, Defender for Cloud Apps file policy, unmanaged-AI). |
+| Sentinel Engineer | Owns OVERRIDE telemetry pipeline verification (audit → Sentinel → supervisor queue). |
+| FINRA-registered Supervisor | Consumes OVERRIDE evidence for 3110 supervisory queue review (cross-link Control 2.12). |
+| Internal Audit | Runs quarterly examiner-style sampling (Section 9) and signs the attestation chain (Section 1). |
+| External Examiner | Consumes the annual attestation pack (Section 10) and the 7-year evidence archive (Section 8). |
+
+**How to use:** start at Section 5 (pre-flight gates). If any PRE gate returns `Error` or `Anomaly`, halt and remediate before running namespace tests. Run namespace tests on the cadence in Section 4. Assemble the evidence pack (Section 8) at every quarter close. Sign the attestation chain (Section 1) at every quarter close and on every material DLP rule change.
+
+---
+
+## Cross-Links
+
+| Related control | Why it matters here |
+|---|---|
+| [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM surfaces Copilot interaction telemetry that complements DLP block events. |
+| [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | DLP RecordTypes (`ComplianceDLPSharePoint`, `ComplianceDLPExchange`, `DLPEndpoint`) flow through the unified audit pipeline. |
+| [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Comm Compliance policies consume DLP-tagged events for supervisory review queues. |
+| [Control 1.13 — Sensitive Information Types and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) | SITs and EDM classifiers are the primary detection primitives invoked by 1.5 rules. |
+| [Control 1.15 — Encryption (Data in Transit and at Rest)](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Sensitivity labels with encryption invoke Azure Information Protection / Rights Management. |
+| [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Override events with justifications must reach the supervisory queue for 3110 review. |
+| [Control 3.4 — Incident Reporting and Root-Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Reg S-P 2024 30-day affected-individual / 72-hour service-provider clocks fire from confirmed DLP incidents. |
+| [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Override telemetry, block events, and policy-change audit records hydrate Sentinel detections. |
+
+---
+
+## What This Playbook Catches
+
+- Missing or misconfigured DLP surfaces across the 13-surface matrix (SharePoint, OneDrive, Exchange, Teams, Endpoint, Copilot block-by-label, Copilot block-by-SIT-prompt, PP connector classification, PP HTTP filtering, Edge unmanaged-AI, Network DLP unmanaged-AI, Defender for Cloud Apps file policy, Power BI / Fabric).
+- DLP rule shape errors (e.g., illegal same-rule SIT+label combination on Copilot location).
+- Sensitivity label taxonomy drift, missing label publication, container-vs-file boundary errors, missing Copilot grounding labels.
+- Synthetic-leak failures per surface using fake CC numbers (Luhn-valid 4xxx test IINs), synthetic SSNs, and test account numbers.
+- Override events that never reach the supervisor queue (broken telemetry chain).
+- Audit pipeline gaps — RecordType counts diverging from policy hit counts.
+- Reg S-P 2024 dual-clock readiness gaps (incident playbook missing, RACI undefined, escalation untested).
+- Sovereign-cloud parity gaps where IRM or Adaptive Protection are silently assumed in GCC / GCC High / DoD.
+
+## What This Playbook Does NOT Claim
+
+- It does not certify the firm's WSPs are sufficient — that is a legal-and-compliance determination.
+- It does not validate that every regulated data element in the firm has a corresponding SIT or EDM classifier — that is the scope of Control 1.13.
+- It does not prove customer notifications were timely under Reg S-P — only that the technical signal and the documented playbook exist; the determination lives in Control 3.4.
+- It does not test third-party agents outside the M365 / Power Platform / Defender perimeter.
+- It does not evaluate label-inheritance correctness in third-party productivity surfaces (Box, Slack, Google Workspace) beyond what Defender for Cloud Apps covers.
+- A `Clean` result on any test means "no anomaly observed within the documented processing window" — not "no risk exists."
+
+---
+
+
+## Section 1 — Three-Signature Attestation Chain
+
+Every quarter close and every material DLP rule, label policy, or PP connector classification change requires three signatures captured against a SHA-256 hash chain over the evidence pack (Section 8).
+
+| Signer | Role | What they attest |
+|---|---|---|
+| **Sponsor** | Business unit head (e.g., Wealth Management COO) | The 13-surface coverage gaps documented in this cycle are accepted business risk OR have funded remediation tickets. |
+| **Owner** | Purview Compliance Admin | The technical controls described in the evidence pack are the controls actually in production at the timestamp of the manifest. |
+| **Compliance** | Chief Compliance Officer or designee | The override telemetry, supervisor-queue evidence, and Reg S-P drill outcomes meet the firm's WSPs. |
+
+### Hash Chain
+
+```
+manifest.sha256        = SHA256(evidence-pack/*)
+attestation.sponsor    = Sign(manifest.sha256, sponsor-key)
+attestation.owner      = Sign(manifest.sha256 || attestation.sponsor, owner-key)
+attestation.compliance = Sign(manifest.sha256 || attestation.sponsor || attestation.owner, compliance-key)
+```
+
+### Signature Methods by Zone
+
+| Zone | Acceptable signature method |
+|---|---|
+| **Zone 1 — Personal productivity** | DocuSign or Adobe Sign with audit trail; signer identity bound to Entra UPN. |
+| **Zone 2 — Team / departmental** | Hardware-backed Entra ID Verifiable Credential OR FIDO2 security key signing the manifest hash. |
+| **Zone 3 — Enterprise / regulated** | HSM-backed signing key (Azure Key Vault Premium, FIPS 140-2 Level 3 in commercial; FIPS 140-3 in GCC High / DoD); signer requires PIM-elevated role with break-glass logging. |
+
+Signatures are stored alongside the manifest in the WORM-treated evidence archive (Section 8).
+
+---
+
+## Section 2 — Sovereign Cloud Parity Matrix per Surface
+
+| Surface | Commercial | GCC | GCC High | DoD | Notes |
+|---|---|---|---|---|---|
+| SharePoint Online DLP | ✅ | ✅ | ✅ | ✅ | Full parity. |
+| OneDrive for Business DLP | ✅ | ✅ | ✅ | ✅ | Full parity. |
+| Exchange Online DLP | ✅ | ✅ | ✅ | ✅ | Full parity. |
+| Teams chat & channel DLP | ✅ | ✅ | ✅ | ✅ | Private-channel coverage requires same-tenant policy scope. |
+| Endpoint DLP (Devices) | ✅ | ✅ | ✅ | ✅ | macOS support: last 3 versions only. |
+| Copilot block-by-label (GA) | ✅ | ⚠️ | ⚠️ | ⚠️ | GA in commercial; verify GCC roadmap with account team — sovereign tenancies may lag. |
+| Copilot block-by-SIT-prompt (preview) | ⚠️ Preview | ❌ | ❌ | ❌ | Preview feature; sovereign clouds: not available — document compensating control in WSPs. |
+| PP connector classification (PPAC) | ✅ | ✅ | ✅ | ✅ | Full parity. API↔portal label mapping: `Confidential`→`Business`, `General`→`Non-Business`, `Blocked`→`Blocked`. |
+| PP HTTP endpoint filtering (preview) | ⚠️ Preview | ⚠️ Preview | ❌ | ❌ | Preview status; verify with account team. |
+| Edge for Business unmanaged AI (preview) | ⚠️ Preview | ❌ | ❌ | ❌ | ChatGPT / Gemini / DeepSeek targeting — preview only. |
+| Network DLP for unmanaged AI (preview) | ⚠️ Preview | ❌ | ❌ | ❌ | Preview only; sovereign clouds: not available. |
+| Defender for Cloud Apps file policy | ✅ | ✅ | ⚠️ | ⚠️ | GCC High / DoD: reduced connector catalog — confirm covered SaaS list. |
+| Power BI / Fabric workspace label inheritance | ✅ | ✅ | ⚠️ | ⚠️ | Fabric availability varies; confirm with account team. |
+| **IRM (Information Rights Management)** | ✅ | ❌ | ❌ | ❌ | **Not available in GCC / GCC High / DoD.** Document static role-based DLP rules as compensating control in WSPs. |
+| **Adaptive Protection** | ✅ | ❌ | ❌ | ❌ | **Not available in GCC / GCC High / DoD.** Document static-threshold DLP rules as compensating control in WSPs. |
+| Purview IP scanner (on-prem repositories) | ✅ | ✅ | ✅ | ✅ | Required for on-prem file shares feeding M365 Search / Copilot grounding. |
+
+**Compensating-control guidance:** for any ❌ in Zone 3 sovereign deployments, the firm's WSPs must explicitly name (a) the surface, (b) the unavailable Microsoft control, (c) the static-rule or process compensating control, (d) the residual risk, and (e) the Sponsor sign-off (Section 1).
+
+---
+
+
+## Section 3 — Prerequisites
+
+### Licensing
+
+| Surface | Required SKU |
+|---|---|
+| SharePoint / OneDrive / Exchange / Teams DLP | Microsoft 365 E3 (DLP for Exchange/SharePoint/OneDrive) + E5 / E5 Compliance for Teams DLP at scale and advanced classifiers. |
+| Endpoint DLP | Microsoft 365 E5 / E5 Compliance / Defender for Endpoint Plan 2. |
+| Copilot block-by-label | Microsoft 365 Copilot license + E5 Compliance (Sensitivity Labels publishing). |
+| Copilot block-by-SIT-prompt (preview) | Microsoft 365 Copilot + E5 Compliance + preview enrolment. |
+| Power Platform DLP | Power Platform per-user / per-app license; PPAC access. |
+| Defender for Cloud Apps file policy | Microsoft 365 E5 / Defender for Cloud Apps standalone. |
+| Adaptive Protection | E5 Compliance + Insider Risk Management (commercial only). |
+
+### Role Assignments (Canonical)
+
+| Role | Scope used in this playbook |
+|---|---|
+| Purview Compliance Admin | DLP policy and rule read/write; sensitivity label publishing; audit search. |
+| Purview DLP Admin | DLP policy and rule read/write only. |
+| Power Platform Admin | PPAC environment and tenant DLP policies; connector classification. |
+| Defender Admin | Endpoint DLP, Defender for Cloud Apps file policies. |
+| Sentinel Engineer | Workspace Reader + analytics rule editor for the Sentinel workspace consuming UAL. |
+| Entra Global Admin | Required only for break-glass and PIM activation; never used for routine verification. |
+
+### Microsoft Graph and PowerShell Module Permissions
+
+| Module / API | Permission | Used by |
+|---|---|---|
+| `ExchangeOnlineManagement` | `Connect-IPPSSession` (Security & Compliance PowerShell) — Compliance Admin role group | DLP cmdlets, label cmdlets, audit search |
+| `Microsoft.PowerApps.Administration.PowerShell` (PS 5.1) | `Add-PowerAppsAccount` — Power Platform Admin | `Get-DlpPolicy`, connector classification |
+| `Microsoft.Graph.Security` | `SecurityEvents.Read.All`, `InformationProtectionPolicy.Read.All` | Label policy export |
+| Exchange Online (`Connect-ExchangeOnline`) | View-Only Audit Logs role | UAL search for RecordType counts |
+| Defender for Cloud Apps API | Tenant-level file policy read | File policy export |
+
+### Wrong-Shell Trap (Critical)
+
+| Cmdlet family | Required session | Wrong-session symptom |
+|---|---|---|
+| `Get-DlpCompliancePolicy`, `Get-DlpComplianceRule`, `Get-Label`, `Get-LabelPolicy` | `Connect-IPPSSession` (Security & Compliance PowerShell) | Cmdlet not recognized OR silent zero rows from a Connect-ExchangeOnline session — false-pass risk. |
+| `Get-DlpPolicy` (Power Platform) | `Add-PowerAppsAccount` from Windows PowerShell 5.1 | Cmdlet not recognized in PS 7; silent zero in unauthenticated session. |
+| `Search-UnifiedAuditLog` | `Connect-ExchangeOnline` | Returns zero from S&C session. |
+| Defender for Cloud Apps file policies | Defender XDR portal or MDA REST API | No cmdlet equivalent — REST only. |
+
+All verifier scripts in this playbook invoke `Test-PreFlight` (defined in [`powershell-setup.md`](./powershell-setup.md)) which validates the active session matches the required cmdlet family and returns `Status = Error` on mismatch.
+
+---
+
+## Section 4 — Required Namespace × Zone Cadence Matrix
+
+| Namespace | Zone 1 | Zone 2 | Zone 3 | Notes |
 |---|---|---|---|---|
-| T-DLP-AI-Activation-01 | Weekly | Purview Compliance Admin | 7 years (broker-dealer) / 6 years (other FSI) | FINRA 4511, FINRA 3110, SEC Reg S-P §248.30 |
-| T-License-Entitlement-02 | Monthly | Entra Global Admin (read) + Purview Compliance Admin | 7 years | SEC Reg S-P, GLBA 501(b) |
-| T-Custom-Template-Inventory-03 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, SOX 404 |
-| T-DLP-AI-Custom-SIT-04 | Monthly (preview status) | Purview Compliance Admin | 7 years | FINRA 4511, GLBA 501(b) |
-| T-Label-Propagation-05 | Weekly | Purview Compliance Admin | 7 years | SEC Reg S-P, FINRA 4511 |
-| T-AutoLabel-Scope-06 | Quarterly | Purview Compliance Admin | 7 years | SOX 404, FINRA 3110 |
-| T-Container-Label-07 | Quarterly | Purview Compliance Admin | 7 years | GLBA 501(b), SEC Reg S-P |
-| T-Adaptive-Protection-Threshold-08 | Quarterly (Commercial / GCC only) | Purview Compliance Admin + IRM Analyst | 7 years | FINRA 3110, OCC 2011-12 / Fed SR 11-7 |
-| T-PPDLP-Connector-Class-09 | Monthly | Power Platform Admin | 7 years | FINRA 4511, SOX 404 |
-| T-Endpoint-DLP-10 | Quarterly | Defender Endpoint Admin + Purview Compliance Admin | 7 years | GLBA 501(b), SEC Reg S-P |
-| T-Audit-Pipeline-11 | Weekly | Purview Audit Admin | 7 years | FINRA 4511, SEC 17a-4(f) |
-| T-Negative-NotInScope-12 | Quarterly | Purview Compliance Admin | 7 years | FINRA 3110 (scope clarity) |
-| **On-change** | After any DLP rule change, label change, license SKU change, IRM tier change, or connector inventory delta — re-run any affected test within the propagation window plus 24h | Change requester | n/a | n/a |
-| **On-incident** | Preserve full evidence per [troubleshooting playbook](troubleshooting.md); freeze the policy, capture `Get-DlpCompliancePolicy` and `Get-DlpComplianceRule` JSON | Incident commander | per legal hold | n/a |
+| SURFACE | Quarterly | Monthly | Weekly | 13-surface coverage drill. |
+| POLICY | Monthly | Monthly | Weekly | Includes same-rule SIT+label restriction check. |
+| LABEL | Quarterly | Monthly | Monthly | Container-vs-file boundary, Copilot grounding labels. |
+| SYNTH | Quarterly | Monthly | Monthly | Synthetic-leak per surface; **never use real customer NPI**. |
+| COPILOT | Monthly | Monthly | Weekly | Block-by-label, block-by-SIT-prompt, Copilot Studio agent grounding. |
+| OVERRIDE | Weekly | Weekly | Daily | Telemetry sweep: audit → Sentinel → supervisor queue. |
+| AUDIT | Weekly | Weekly | Daily | RecordType integrity. |
+| INCIDENT | Annually | Semi-annually | Quarterly | Reg S-P 2024 dual-clock drill. |
+| SOV | Per-tenancy quarterly | Per-tenancy quarterly | Per-tenancy quarterly | Sovereign-cloud parity confirmation. |
+| **Per-change** | Within propagation window + 24h | Within propagation window + 24h | Within propagation window + 24h | Re-run affected namespace after any DLP rule, label, license, IRM tier, or connector inventory change. |
 
-> **All evidence files must carry a UTC timestamp.** Local-time evidence is rejected at audit.
+**Evidence retention:** 7 years on WORM-treated storage with SHA-256 sidecars (SEC Rule 17a-4 broker-dealer requirement). Ties to FINRA 3110 supervision evidence and SOX §404 IT control testing.
 
 ---
 
-## 2. Test Catalog
+## Section 5 — Pre-Flight Gates
 
-Each test is deterministic: a named test user, a known input, and an asserted output measured against a Microsoft-documented signal (cmdlet output, audit `RecordType`, label GUID). All tests assume a **non-production test boundary** (test tenant, test OU, or quarantined Zone 2 environment) and that the **≥ 4-hour propagation window** for the Microsoft 365 Copilot and Copilot Chat location has been observed since the last policy edit.
+All seven gates must return `Status ∈ {Clean, NotApplicable}` before any namespace test runs. Any `Anomaly`, `Pending`, or `Error` halts the cycle and routes to the escalation matrix (Section 11).
 
-> **Wrong-shell trap (applies to every PowerShell step below).** DLP cmdlets live in **Security & Compliance PowerShell** (`Connect-IPPSSession`), not Exchange Online (`Connect-ExchangeOnline`). Exchange Online silently returns `False` / empty for `Get-DlpCompliancePolicy` and related cmdlets. Always start a transcript and confirm `(Get-ConnectionInformation).ConnectionUri` matches an `*.compliance.protection.outlook.(com|us)` host before running any test.
-
-### T-DLP-AI-Activation-01 — Block-by-label deterministic activation in Test mode
-
-**Objective.** Confirm that a published Custom-template DLP policy with the Microsoft 365 Copilot and Copilot Chat location, in **Test with notifications** mode, deterministically activates against a labeled grounding file for a named test user and writes one or more rows to the unified audit log.
-
-**Preconditions.**
-- Named test user `dlp-test-01@<tenant>` is M365 Copilot–licensed.
-- Test SharePoint document `DLP-AI-Activation-Source.docx` carries the **Highly Confidential** sensitivity label (label GUID `<HCL-GUID>`).
-- DLP policy `1.5-Copilot-Block-By-Label-TEST` exists, scoped to the Microsoft 365 Copilot and Copilot Chat location, in `Test with notifications` mode, with one rule referencing the `<HCL-GUID>` label and a Block action.
-- Last edit to the policy was ≥ 4 hours ago (record the edit UTC timestamp in the tester log).
-
-**Steps.**
-1. Record `Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ'` as `T0`.
-2. From Security & Compliance PowerShell:
-   ```powershell
-   Connect-IPPSSession -UserPrincipalName auditor@<tenant>
-   Get-DlpCompliancePolicy -Identity '1.5-Copilot-Block-By-Label-TEST' | Format-List Name,Mode,Workload,Enabled
-   Get-DlpComplianceRule -Policy '1.5-Copilot-Block-By-Label-TEST' | Format-List Name,Workload,Disabled,AdvancedRule
-   ```
-3. As `dlp-test-01`, in Microsoft 365 Copilot Chat, issue the prompt:
-   `Summarize DLP-AI-Activation-Source.docx in three bullet points.`
-4. Wait 30 minutes (Copilot audit ingestion floor), then from Security & Compliance PowerShell:
-   ```powershell
-   Search-UnifiedAuditLog -StartDate $T0 -EndDate (Get-Date) `
-     -UserIds 'dlp-test-01@<tenant>' `
-     -RecordType 'ComplianceDLPSharePoint','ComplianceDLPExchange' `
-     -ResultSize 50 | Export-Csv -NoTypeInformation .\T-DLP-AI-Activation-01-evidence.csv
-   ```
-
-**Expected result.**
-- Step 2: `Workload` includes `Applications` (the API-name for the Copilot location); `Mode = TestWithNotifications`; rule's `AdvancedRule` JSON contains the `<HCL-GUID>` label reference.
-- Step 3: Copilot returns either a policy-tip warning or a refusal consistent with Test-mode notifications.
-- Step 4: CSV contains ≥ 1 row whose `AuditData` JSON includes `PolicyId` matching the test policy and a `SensitiveInfoTypeData`/`SensitivityLabelEventData` reference to `<HCL-GUID>`.
-
-**Pass criteria (binary).** All three of: (a) cmdlet shape matches; (b) prompt produced documented Copilot behavior; (c) ≥ 1 audit row attributable to `dlp-test-01` within the window.
-
-**Evidence collected.** PowerShell transcript (`.txt`), policy + rule JSON exports (`.json`), Copilot UI screenshot with UTC clock visible (`.png`), audit CSV (`.csv`), tester log (`.md`). One SHA-256 sidecar per file.
-
----
-
-### T-License-Entitlement-02 — Microsoft 365 E5 / E5 Compliance license verification for in-scope users
-
-**Objective.** Confirm every user in scope of the Copilot DLP policy carries Microsoft 365 E5, **or** Microsoft 365 E5 Compliance, **or** the equivalent standalone bundle that includes Purview DLP for Copilot.
-
-**Preconditions.** Microsoft Graph PowerShell SDK installed; `Directory.Read.All` and `User.Read.All` granted; the policy's user/group scope exported to `InScopeUsers.csv`.
-
-**Steps.**
-1. Record `T0` UTC.
-2. ```powershell
-   Connect-MgGraph -Scopes 'Directory.Read.All','User.Read.All'
-   $required = @('SPE_E5','M365_E5_COMPLIANCE','INFORMATION_PROTECTION_COMPLIANCE')  # accept any
-   $inScope  = Import-Csv .\InScopeUsers.csv
-   $gaps = foreach ($u in $inScope) {
-     $skus = (Get-MgUserLicenseDetail -UserId $u.UserPrincipalName).SkuPartNumber
-     if (-not ($skus | Where-Object { $required -contains $_ })) {
-       [pscustomobject]@{ Upn=$u.UserPrincipalName; Skus=($skus -join ';') }
-     }
-   }
-   $gaps | Export-Csv .\T-License-Entitlement-02-gaps.csv -NoTypeInformation
-   ```
-
-**Expected result.** `$gaps` is empty.
-
-**Pass criteria.** `$gaps.Count -eq 0`. Any non-zero count is a fail because under-licensed users do not generate enforceable Copilot DLP signals — silent under-coverage.
-
-**Evidence collected.** Gap CSV (even if empty, with header row), transcript, tester log. SHA-256 sidecars.
-
----
-
-### T-Custom-Template-Inventory-03 — Custom-template policies with Copilot location and rule shape
-
-**Objective.** Inventory every DLP policy that targets the Microsoft 365 Copilot and Copilot Chat location and confirm the **two-rule shape** (one rule for SIT-based blocking, one rule for label-based blocking) — a proxy for "policy was authored from the Custom template" because the Standard templates do not expose this location.
-
-**Preconditions.** Security & Compliance PowerShell session; Purview Compliance Admin role.
-
-**Steps.**
-1. Record `T0` UTC.
-2. ```powershell
-   $copilotPolicies = Get-DlpCompliancePolicy |
-     Where-Object { $_.Workload -match 'Applications' }
-   $report = foreach ($p in $copilotPolicies) {
-     $rules = Get-DlpComplianceRule -Policy $p.Name
-     [pscustomobject]@{
-       Policy        = $p.Name
-       Mode          = $p.Mode
-       Enabled       = $p.Enabled
-       RuleCount     = $rules.Count
-       SitRule       = ($rules | Where-Object { $_.AdvancedRule -match 'SensitiveType' }).Name
-       LabelRule     = ($rules | Where-Object { $_.AdvancedRule -match 'SensitivityLabel' }).Name
-       SameRuleViol  = [bool]($rules | Where-Object { $_.AdvancedRule -match 'SensitiveType' -and $_.AdvancedRule -match 'SensitivityLabel' })
-     }
-   }
-   $report | Export-Csv .\T-Custom-Template-Inventory-03.csv -NoTypeInformation
-   ```
-
-**Expected result.** Each policy returns `RuleCount ≥ 1`. For policies that exercise both SIT and label conditions, `SitRule` and `LabelRule` are **different** rule names and `SameRuleViol = False`.
-
-**Pass criteria.** No policy has `SameRuleViol = True`. Every policy intended for production has `Enabled = True` and `Mode` is either `TestWithNotifications` (during validation) or `Enable` (post-validation).
-
-**Evidence collected.** Inventory CSV, full `Get-DlpCompliancePolicy | ConvertTo-Json -Depth 10` and `Get-DlpComplianceRule | ConvertTo-Json -Depth 10` exports, transcript. SHA-256 sidecars.
-
----
-
-### T-DLP-AI-Custom-SIT-04 — SIT-based block in Copilot prompt (preview)
-
-**Objective.** Confirm that when a SIT (e.g., **U.S. Bank Account Number**) appears inside a user prompt to Microsoft 365 Copilot Chat, the SIT-based rule activates the configured action.
-
-> **Preview status.** SIT-on-prompt blocking for the Copilot location is documented by Microsoft Learn as **preview** as of this revision. Record the preview status in the tester log; do **not** treat this control as the sole Zone 3 safeguard for prompt-side data exfiltration. See the Copilot DLP capability matrix in Control 1.5 §Capability matrix.
-
-**Preconditions.** Test policy `1.5-Copilot-Block-By-SIT-TEST` exists with a single rule referencing the U.S. Bank Account Number SIT (or organization-equivalent). Policy is in Test mode and ≥ 4h post-edit.
-
-**Steps.**
-1. Record `T0` UTC.
-2. As `dlp-test-01`, paste a sanitized fake account number in the format the SIT recognizes into Copilot Chat with prompt: `Validate this account: <fake-acct>`.
-3. Wait 30 minutes; run `Search-UnifiedAuditLog` as in T-DLP-AI-Activation-01 with `RecordType ComplianceDLPSharePoint`, `ComplianceDLPExchange`.
-
-**Expected result.** Audit returns ≥ 1 row whose `AuditData` references the SIT name (`Sensitive Information Type`).
-
-**Pass criteria.** ≥ 1 row, OR — if zero — a documented note in the tester log linking to the current Microsoft Learn preview status if the capability is not yet rolled out to the test tenant. Document, do not assume failure.
-
-**Evidence collected.** Transcript, screenshot with UTC, audit CSV, preview-status note. SHA-256 sidecars.
-
----
-
-### T-Label-Propagation-05 — Apply label to SPO doc, query Copilot, verify block + audit
-
-**Objective.** Confirm end-to-end propagation: label applied to a SharePoint file → Copilot DLP rule activates on next prompt that grounds on that file → audit row written.
-
-**Preconditions.** `T-DLP-AI-Activation-01` policy in place. Test file `Label-Propagation-Source.docx` initially **unlabeled**.
-
-**Steps.**
-1. Record `T0` UTC.
-2. As `dlp-test-01`, prompt Copilot: `Summarize Label-Propagation-Source.docx.` Confirm normal (unblocked) response.
-3. Apply Highly Confidential label to the file (Microsoft 365 web UI or `Set-Label` API).
-4. Wait the propagation floor: ≥ 30 minutes for label, ≥ 4 hours since last DLP policy edit (already met in T0 baseline).
-5. Repeat the prompt from step 2.
-6. After 30 minutes, run the same `Search-UnifiedAuditLog` query.
-
-**Expected result.** Step 2: response returned normally. Step 5: response blocked or warned per the rule's action. Step 6: ≥ 1 audit row referencing `<HCL-GUID>`.
-
-**Pass criteria.** All three observations match.
-
-**Evidence collected.** Two transcripts (pre-label and post-label Copilot UI screenshots, both with UTC clock), audit CSV, label history export from `Get-Label`. SHA-256 sidecars.
-
----
-
-### T-AutoLabel-Scope-06 — Auto-labeling location restriction
-
-**Objective.** Confirm that the only locations selectable when authoring an auto-labeling policy are **SharePoint Online**, **OneDrive for Business**, and **Exchange Online**. There is no "AI interactions" location and the absence is itself the asserted evidence.
-
-**Preconditions.** Purview Compliance Admin in `purview.microsoft.com` (Commercial), `purview.microsoft.us` (GCC / GCC High), or `compliance.apps.mil` (DoD).
-
-**Steps.**
-1. Record `T0` UTC.
-2. Navigate **Information protection → Auto-labeling policies → Create auto-labeling policy**.
-3. Step through the wizard to **Choose locations**.
-4. Capture a screenshot showing the selectable locations.
-5. From Security & Compliance PowerShell:
-   ```powershell
-   Get-AutoSensitivityLabelPolicy | Select-Object Name,Workload | Format-Table
-   ```
-
-**Expected result.** Wizard exposes only SharePoint sites, OneDrive accounts, and Exchange Online. `Workload` values are constrained to `SharePoint`, `OneDrive`, and `Exchange`. **No** value of `Applications` (Copilot location) appears.
-
-**Pass criteria.** Both conditions met.
-
-**Evidence collected.** Wizard screenshot with UTC, cmdlet CSV. SHA-256 sidecars.
-
----
-
-### T-Container-Label-07 — Container label does not label files inside
-
-**Objective.** Confirm that a sensitivity label applied to a Microsoft 365 Group / Team / SharePoint site governs container-level settings only and does **not** label files inside.
-
-**Preconditions.** Test SharePoint site `DLP-Container-Test` has the **Confidential** container label. A test file `Inside-Container.docx` was uploaded **without** explicit labeling.
-
-**Steps.**
-1. Record `T0` UTC.
-2. Verify container label:
-   ```powershell
-   Get-SPOSite -Identity https://<tenant>.sharepoint.com/sites/DLP-Container-Test | Select-Object Url,SensitivityLabel
-   ```
-3. Inspect file label via Graph or via Microsoft 365 web UI **Sensitivity** indicator on the file card.
-4. As `dlp-test-01`, prompt Copilot to ground on `Inside-Container.docx`.
-
-**Expected result.** Step 2: site `SensitivityLabel` returns the Confidential GUID. Step 3: file `SensitivityLabel` is **null / unset**. Step 4: Copilot returns the file content (no label-based DLP block fires) — confirming inheritance does not occur.
-
-**Pass criteria.** All three conditions met.
-
-**Evidence collected.** Cmdlet output, file properties screenshot, Copilot transcript with UTC. SHA-256 sidecars.
-
----
-
-### T-Adaptive-Protection-Threshold-08 — Deterministic IRM tier change → DLP rule activation
-
-**Objective.** Confirm that an Adaptive Protection–enabled rule increases enforcement when a user is moved into the **Elevated** insider risk tier.
-
-> **Sovereign N/A.** Adaptive Protection is **not at parity in GCC High and DoD** as of this revision. In those clouds, **skip** this test and record a documented exception. GCC tenants: verify parity in your tenant before treating as in-scope.
-
-**Preconditions.** Insider Risk Management is enabled with a baseline window completed. A test policy contains a rule whose action escalates (e.g., from `Audit` to `Block`) when the user's tier is `Elevated`. Test user is `dlp-test-08@<tenant>`.
-
-**Steps.**
-1. Record `T0` UTC; capture `dlp-test-08`'s current IRM tier in Purview → Insider risk management → Users.
-2. Trigger a tier change either by simulated activity per IRM playbook or via documented IRM admin override.
-3. Wait the IRM-to-Adaptive-Protection propagation window documented by Microsoft Learn (record the wait).
-4. As `dlp-test-08`, issue the test prompt that previously produced an `Audit` outcome at `Low` tier.
-5. After 30 minutes, run `Search-UnifiedAuditLog` and capture the `AuditData` action.
-
-**Expected result.** Pre-change action = `Audit`; post-change action = `Block` (or whichever escalation the rule defines).
-
-**Pass criteria.** Post-change audit row carries the escalated action.
-
-**Evidence collected.** IRM tier screenshots (pre + post, UTC visible), Copilot transcripts (pre + post), audit CSV, IRM event export. SHA-256 sidecars. **GCC High / DoD:** signed exception note in lieu of evidence.
-
----
-
-### T-PPDLP-Connector-Class-09 — Power Platform data policy classification reflects expected groups
-
-**Objective.** Confirm that a Power Platform data policy in scope of Copilot Studio agents classifies the AI-related connector inventory into the expected **Business / Non-Business / Blocked** groups for the target zone, and that the **API-returned values** match the **portal-displayed labels** after API↔UI normalization.
-
-> **Scope boundary.** Connector classification *mechanics*, the full connector matrix, and HTTP endpoint filtering allow-list authoring are verified under [Control 1.4](../1.4/verification-testing.md). This test re-verifies only that, *for the AI-related connectors that Control 1.5 cares about*, classifications match the zone profile.
-
-**Preconditions.** Power Platform Admin role; tenant's data policy ID known; expected classification map for the target zone exported to `ExpectedZone3.csv` (columns: `ConnectorName`, `ExpectedGroup`).
-
-**Steps.**
-1. Record `T0` UTC.
-2. ```powershell
-   Add-PowerAppsAccount -Endpoint prod    # or usgov | usgovhigh | dod
-   $policy = Get-DlpPolicy -PolicyName <policyId>
-   $live = $policy.connectorGroups | ForEach-Object {
-     $group = $_.classification          # API: 'Confidential' | 'General' | 'Blocked'
-     $_.connectors | ForEach-Object {
-       [pscustomobject]@{
-         ConnectorName = $_.name
-         ApiGroup      = $group
-         UiGroup       = switch ($group) {
-           'Confidential' { 'Business' }
-           'General'      { 'Non-Business' }
-           'Blocked'      { 'Blocked' }
-           default        { $group }
-         }
-       }
-     }
-   }
-   $expected = Import-Csv .\ExpectedZone3.csv
-   $diff = Compare-Object $live $expected -Property ConnectorName,UiGroup -IncludeEqual:$false
-   $diff | Export-Csv .\T-PPDLP-Connector-Class-09-diff.csv -NoTypeInformation
-   ```
-
-**Expected result.** `$diff` is empty. (API `Confidential` ↔ portal **Business** is the documented normalization; treat any other unexpected value as a fail.)
-
-**Pass criteria.** `$diff.Count -eq 0` for the AI-related connector subset (AI Builder GPT/Document Processing, Copilot Studio Topics/Skills/Knowledge, HTTP with Microsoft Entra ID, HTTP Webhook, Direct Line, Microsoft Teams Channel, SharePoint Channel, Custom Website Channel — verify the live catalog rather than relying on a closed list).
-
-**Evidence collected.** Diff CSV (with header row even if empty), full policy JSON export, transcript. SHA-256 sidecars.
-
----
-
-### T-Endpoint-DLP-10 — Onboarded device blocks copy of Highly Confidential file to USB
-
-**Objective.** Confirm an Endpoint DLP rule blocks copy of a Highly Confidential–labeled file from a Defender-onboarded Windows device to removable USB.
-
-> Endpoint DLP capability and rule shapes vary; some sub-features may be in preview. Record the preview status in the tester log.
-
-**Preconditions.** Windows 11 test device onboarded to Microsoft Defender for Endpoint and visible in Endpoint DLP **Devices** inventory. Endpoint DLP policy includes a rule blocking copy-to-USB for the Highly Confidential label. Test file `Endpoint-USB-Source.docx` carries the Highly Confidential label.
-
-**Steps.**
-1. Record `T0` UTC.
-2. On the test device, sign in as `dlp-test-10@<tenant>`; insert a USB drive.
-3. Attempt to copy `Endpoint-USB-Source.docx` to the USB drive (File Explorer drag).
-4. Capture the policy-tip / block dialog (UTC visible in screenshot).
-5. After 30 minutes, run:
-   ```powershell
-   Search-UnifiedAuditLog -StartDate $T0 -EndDate (Get-Date) `
-     -UserIds 'dlp-test-10@<tenant>' -RecordType 'DLPEndpoint' -ResultSize 50 |
-     Export-Csv .\T-Endpoint-DLP-10.csv -NoTypeInformation
-   ```
-
-**Expected result.** Step 3: copy blocked. Step 5: ≥ 1 audit row with `RecordType = DLPEndpoint`.
-
-**Pass criteria.** Both observations met.
-
-**Evidence collected.** Block dialog screenshot, audit CSV, device onboarding state export, transcript. SHA-256 sidecars.
-
----
-
-### T-Audit-Pipeline-11 — Search-UnifiedAuditLog returns DLP events using correct RecordTypes
-
-**Objective.** Confirm the audit pipeline surfaces DLP events under the documented `RecordType` values and that nothing is silently dropped.
-
-**Preconditions.** Audit ingestion enabled (verify via Control 1.7 T1). Tests T-DLP-AI-Activation-01, T-Label-Propagation-05, and T-Endpoint-DLP-10 have run within the last 7 days.
-
-**Steps.**
-1. Record `T0` UTC.
-2. ```powershell
-   $start = (Get-Date).AddDays(-7)
-   $end   = Get-Date
-   foreach ($rt in 'ComplianceDLPSharePoint','ComplianceDLPExchange','DLPEndpoint') {
-     $rows = Search-UnifiedAuditLog -StartDate $start -EndDate $end -RecordType $rt -ResultSize 5000
-     "$rt : $($rows.Count) rows" | Tee-Object -FilePath .\T-Audit-Pipeline-11-counts.txt -Append
-     $rows | Export-Csv ".\T-Audit-Pipeline-11-$rt.csv" -NoTypeInformation
-   }
-   ```
-
-**Expected result.** Each in-scope `RecordType` returns ≥ 1 row corresponding to the recent test activity. (`DLPEndpoint` count may be 0 if no Endpoint DLP tests have run in window — document the absence.)
-
-**Pass criteria.** Every `RecordType` for which a test was executed in window returns ≥ 1 row attributable to the test user.
-
-**Evidence collected.** Three CSVs, count summary, transcript. SHA-256 sidecars.
-
----
-
-### T-Negative-NotInScope-12 — Confirm DLP does not fire outside documented scope
-
-**Objective.** Document the **negative space** of the Copilot DLP location so that admins do not chase phantom failures or assume coverage that Microsoft does not provide.
-
-**Preconditions.** Standard test policy from T-DLP-AI-Activation-01 in place.
-
-**Cases.**
-
-| Sub-case | Scenario | Expected outcome |
+| Gate | Check | Pass criterion |
 |---|---|---|
-| 12a | User uploads a Highly Confidential file *directly into a Copilot prompt* (rather than grounding via SharePoint reference) | Behavior follows documented Copilot upload handling; the SPO/EXO label-based DLP rule may **not** fire because the source is not SharePoint or Exchange. Document the observed behavior; do not assert as a control failure. |
-| 12b | Calendar invites carrying labeled attachments are referenced from Copilot | Calendar invites are not in scope of the EXO DLP location for Copilot rules; no rule fires. Documented as scope limit. |
-| 12c | Audit search for DLP events with `EndDate` before **2025-01-01** | Returns zero rows attributable to the Copilot location for periods predating GA of that location in the tenant. Documented as expected. |
-| 12d | An auto-labeling policy authored to target "AI interactions" | **Not creatable** — the location does not exist. Screenshot of wizard with no such option (cross-reference to T-AutoLabel-Scope-06). |
+| **PRE-01** | Correct PowerShell session for the cmdlet family in scope | `Test-PreFlight -CmdletFamily <name>` returns `Clean`. |
+| **PRE-02** | Tenant region and sovereign cloud match the playbook scope | `Get-OrganizationConfig` `.Identity` resolves to expected tenancy; cloud parameter matches expected (`AzureCloud`, `AzureUSGovernment`, `AzureUSGovernment2`, `AzureUSGovernment3`). |
+| **PRE-03** | Required licenses present and assigned | License inventory snapshot ≥ required SKU count for in-scope users. |
+| **PRE-04** | Operator role membership at minimum required scope (least privilege) | PIM-elevated only for the duration of the test window; activation event captured. |
+| **PRE-05** | Audit pipeline healthy (UAL ingestion lag < 30 minutes) | Last DLP RecordType timestamp within 30 minutes of NOW. |
+| **PRE-06** | Copilot DLP propagation window not active for any in-scope rule modified within the last 4 hours | If active, mark affected COPILOT tests `Pending` (not `Anomaly`). |
+| **PRE-07** | Evidence pack target storage is WORM-treated and writable | Test-write to evidence path; verify immutability flag. |
 
-**Pass criteria.** Each sub-case behaves as documented and is recorded in the tester log with a short explanation. Failure = an unexpected DLP activation, which would indicate scope drift and warrants investigation.
-
-**Evidence collected.** Tester log entries with screenshots and audit search outputs per sub-case. SHA-256 sidecars.
+PRE-gate verifier output is the first artifact in every evidence pack.
 
 ---
 
-## 2A. Copilot Studio agent — connector use (limited scope)
+## Section 6 — Documented Processing Windows
 
-The narrow Copilot-Studio-agent–specific assertions retained here cover *agent-time* connector behavior that is observable through Control 1.5's signal surface (Purview audit). Full connector-classification verification lives in [Control 1.4](../1.4/verification-testing.md).
-
-| Mini-test | Assertion | Signal |
+| Window | Duration | Effect on test results |
 |---|---|---|
-| 1.5-AGENT-A | A Copilot Studio agent attempting to use a `Blocked` connector at runtime fails fast | PPAC analytics show a connector-blocked event for the agent run; correlated Purview audit row attributable to the agent's service principal |
-| 1.5-AGENT-B | A Copilot Studio agent using an `HTTP with Microsoft Entra ID` connector pointed at a non-allowlisted endpoint fails | PPAC runtime error; agent run telemetry shows endpoint-filtering denial (preview status — record) |
+| Copilot DLP rule propagation | Up to 4 hours after any DLP rule edit affecting the Copilot location | COPILOT-namespace tests within window: `Status = Pending`. Do not escalate as `Anomaly` until window elapses + 30 minutes buffer. |
+| Sensitivity label policy publication | Up to 24 hours for client refresh on Office desktop apps | LABEL-namespace tests against newly-published labels: `Status = Pending` for first 24h. |
+| Endpoint DLP policy push | Up to 1 hour after policy save | Endpoint synthetic-leak tests within window: `Status = Pending`. |
+| PP DLP policy propagation | Up to 30 minutes for tenant policies; longer for environment-scoped | PP SURFACE tests within window: `Status = Pending`. |
+| UAL ingestion lag | Up to 30 minutes typical; up to 24 hours documented worst case | AUDIT RecordType counts within window: `Status = Pending`. |
+| Defender for Cloud Apps file scan | Up to 24 hours for new file ingestion | MDA file-policy SYNTH tests within window: `Status = Pending`. |
 
-These two mini-assertions are **observational** — they do not replace the connector-classification deterministic suite under Control 1.4.
-
----
-
-## 3. Sovereign Cloud Variant
-
-For each test above, substitute the cloud-specific endpoints and record the cloud in the tester log header. **Adaptive Protection (T-Adaptive-Protection-Threshold-08) is N/A in GCC High and DoD** as of this revision — capture a signed exception in lieu of evidence.
-
-| Step type | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| Purview portal | `purview.microsoft.com` | `purview.microsoft.com` (verify) | `purview.microsoft.us` | `compliance.apps.mil` |
-| Exchange Online PowerShell | `Connect-ExchangeOnline` | `Connect-ExchangeOnline -ExchangeEnvironmentName O365USGovGCCHigh` (GCC: default + tenant verification) | `Connect-ExchangeOnline -ExchangeEnvironmentName O365USGovGCCHigh` | `Connect-ExchangeOnline -ExchangeEnvironmentName O365USGovDoD` |
-| Security & Compliance PowerShell | `Connect-IPPSSession` | `Connect-IPPSSession` (default) | `Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.outlook.us/powershell-liveid -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common` | `Connect-IPPSSession -ConnectionUri https://l5.ps.compliance.protection.office365.us/powershell-liveid -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common` |
-| Power Platform (`Add-PowerAppsAccount`) | `-Endpoint prod` | `-Endpoint usgov` | `-Endpoint usgovhigh` | `-Endpoint dod` |
-| Microsoft Graph (`Connect-MgGraph`) | default | `-Environment USGov` | `-Environment USGov` (verify) | `-Environment USGovDoD` |
-| Adaptive Protection (T-08) | In scope | In scope (verify parity) | **N/A — record exception** | **N/A — record exception** |
-
-> See `docs/playbooks/_shared/powershell-baseline.md` for the canonical sovereign-cloud parameter reference.
+`Pending` results carry forward to the next scheduled run; if `Pending` persists across two consecutive runs, escalate as `Anomaly`.
 
 ---
 
-## 4. Evidence Pack
 
-Every cycle, produce and archive the artifacts below. **File naming convention:**
+## Section 7 — Test Catalog
 
-```
-<TestID>-<UTC-yyyyMMddTHHmmssZ>-<artifact>.<ext>
-e.g., T-DLP-AI-Activation-01-20260415T141207Z-audit.csv
-      T-DLP-AI-Activation-01-20260415T141207Z-audit.csv.sha256
-```
+Each test returns `[pscustomobject]@{ TestId; Status; Evidence; Notes; TimestampUtc }` where `Status ∈ {Clean, Anomaly, Pending, NotApplicable, Error}`. Evidence files are written via `Write-FsiEvidence` (see [`powershell-setup.md`](./powershell-setup.md)) and rolled up into the evidence pack (Section 8).
 
-**SHA-256 manifest example (`Control-1.5_Manifest_<UTC>.txt`):**
+> **⚠ Synthetic-data discipline:** SYNTH tests use **fake data only** — Luhn-valid 4xxx test IINs, synthetic SSNs from the IRS test-data ranges (e.g., `9xx-xx-xxxx`), and test account numbers prefixed `TEST-`. **Never use real customer NPI** in any verification test — doing so creates a real Reg S-P incident.
 
-```text
-# Control 1.5 — Evidence Manifest
-# Generated: 2026-04-15T14:30:00Z
-# Tenant:   <tenantId>     Cloud: Commercial     Zone: 3
-#
-3a7b...c91   T-DLP-AI-Activation-01-20260415T141207Z-audit.csv
-9f12...88a   T-DLP-AI-Activation-01-20260415T141207Z-policy.json
-4c0d...771   T-DLP-AI-Activation-01-20260415T141207Z-rule.json
-...
-```
+### Namespace: SURFACE — 13-surface coverage
 
-Generate with:
+#### T-SURFACE-01 — 13-surface enumeration
 
-```powershell
-Get-ChildItem .\evidence\1.5\<cycle>\ -File -Exclude *.sha256 |
-  Get-FileHash -Algorithm SHA256 |
-  ForEach-Object { "$($_.Hash.ToLower())   $((Split-Path $_.Path -Leaf))" } |
-  Set-Content ".\evidence\1.5\<cycle>\Control-1.5_Manifest_$(Get-Date -AsUTC -Format 'yyyyMMddTHHmmssZ').txt"
-```
+**Purpose.** Confirm the firm has at least one DLP enforcement rule (or documented compensating control) covering each of the 13 surfaces in the Control 1.5 specification.
 
-**Required artifacts per cycle.**
+**Procedure.**
 
-| # | Artifact | Source test |
+1. Run `Test-PreFlight -CmdletFamily Purview, PowerPlatform, Defender`.
+2. For each surface in the matrix below, query the appropriate API and record `Present | Missing | NotApplicable`.
+3. For any `Missing` in Zone 3, the surface must have a documented compensating control referenced in WSPs; otherwise `Status = Anomaly`.
+
+| # | Surface | Query |
 |---|---|---|
-| 1 | `policy.json` + `rule.json` exports | T-01, T-03 |
-| 2 | Activation audit CSV (`ComplianceDLPSharePoint`, `ComplianceDLPExchange`) | T-01, T-04, T-05 |
-| 3 | Copilot UI screenshot with UTC clock | T-01, T-04, T-05, T-07 |
-| 4 | License gap CSV (header row even if empty) | T-02 |
-| 5 | Custom-template inventory CSV | T-03 |
-| 6 | Auto-label policy wizard screenshot + `Get-AutoSensitivityLabelPolicy` CSV | T-06 |
-| 7 | Container vs file label evidence (cmdlet output + UI screenshot) | T-07 |
-| 8 | Adaptive Protection pre/post screenshots + audit CSV — **or** signed sovereign exception | T-08 |
-| 9 | Power Platform classification diff CSV + full policy JSON | T-09 |
-| 10 | Endpoint DLP block dialog screenshot + `DLPEndpoint` audit CSV | T-10 |
-| 11 | Per-`RecordType` audit pipeline CSVs + counts file | T-11 |
-| 12 | Negative-test tester log with sub-case evidence | T-12 |
-| 13 | PowerShell transcript per test | All |
-| 14 | Manifest `.txt` with SHA-256 of every artifact | All |
+| 1 | SharePoint Online | `Get-DlpComplianceRule \| Where { $_.SharePointLocation }` |
+| 2 | OneDrive for Business | `Get-DlpComplianceRule \| Where { $_.OneDriveLocation }` |
+| 3 | Exchange Online | `Get-DlpComplianceRule \| Where { $_.ExchangeLocation }` |
+| 4 | Teams chat & channel | `Get-DlpComplianceRule \| Where { $_.TeamsLocation }` |
+| 5 | Endpoint DLP (Devices) | `Get-DlpComplianceRule \| Where { $_.EndpointDlpLocation }` |
+| 6 | Copilot block-by-label (GA) | `Get-DlpComplianceRule \| Where { $_.CopilotLocation -and $_.ContentContainsSensitiveLabel }` |
+| 7 | Copilot block-by-SIT-prompt (preview) | `Get-DlpComplianceRule \| Where { $_.CopilotLocation -and $_.ContentContainsSensitiveInformation }` |
+| 8 | PP connector classification (PPAC) | `Get-DlpPolicy` (PP module) |
+| 9 | PP HTTP endpoint filtering (preview) | PPAC REST: `/providers/PowerPlatform.Governance/policies` |
+| 10 | Edge for Business unmanaged-AI (preview) | Defender XDR Cloud Apps → Conditional Access App Control policies |
+| 11 | Network DLP for unmanaged-AI (preview) | Defender XDR → Network Protection policies |
+| 12 | Defender for Cloud Apps file policy | MDA REST: `/api/v1/file_policies/` |
+| 13 | Power BI / Fabric workspace label inheritance | Fabric admin API: `admin/workspaces/scanResult` |
 
-**Retention guidance.**
+**Status mapping.**
+- All 13 `Present` (or `NotApplicable` per sovereign matrix with documented compensating control) → `Clean`.
+- Any `Missing` without a referenced compensating control → `Anomaly`.
+- Any preview surface in a sovereign cloud where preview is unavailable → `NotApplicable`.
 
-- **FINRA Rule 4511 / SEC 17a-4(b):** retain for ≥ 6 years.
-- **SEC 17a-4(f) (October 2022 amendments):** for broker-dealer evidence, retain via the audit-trail alternative (paired electronic record + serial-number index + digital signature) **or** WORM media. **Audit log evidence held inside Purview** is governed by Microsoft's audit retention configuration (Control 1.7) — supplemental evidence stored *outside* Purview (CSV/JSON/PNG/MD exports, transcripts, manifests) **must** be placed on WORM-treated storage per the firm's retention policy.
-- **GLBA 501(b) / SEC Reg S-P:** retain customer-information related DLP evidence aligned to the firm's privacy retention schedule.
-- **Default for this control:** 7 years on WORM-treated storage with paired SHA-256 sidecars and a signed attestation per §5.
+**Evidence.** `surface-coverage-<UTC>.json` listing all 13 surfaces with `Status`, `RuleCount`, `WspReference`.
+
+#### T-SURFACE-02 — On-prem repository IP scanner coverage
+
+Verify Purview Information Protection scanner is deployed against every on-prem file share that feeds M365 Search or Copilot grounding. `Status = Clean` only when scanner inventory matches WSP-listed in-scope shares.
 
 ---
 
-## 5. Attestation
+### Namespace: POLICY — DLP policy shape
 
-```text
-Control 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels
-Cycle:                Q____ FY____
-Tenant:               _______________________________________
-Cloud:                ☐ Commercial  ☐ GCC  ☐ GCC High  ☐ DoD
-Governance Zone:      ☐ Zone 1  ☐ Zone 2  ☐ Zone 3
-Verification window:  ____________________ UTC  →  ____________________ UTC
-Evidence manifest:    Control-1.5_Manifest_____________________.txt
-Manifest SHA-256:     ________________________________________________________________
+#### T-POLICY-01 — Same-rule SIT+label restriction
 
-I have executed the test catalog in §2 (and §2A where Copilot Studio agent
-connectors are in scope) for the period above. Sovereign-variant substitutions
-in §3 were applied where the tenant resides in GCC, GCC High, or DoD. The
-evidence listed in §4 is archived per the retention guidance and SHA-256
-sidecars match the manifest at archival time.
+**Purpose.** Confirm no DLP rule scoped to the Copilot location combines `Content contains sensitive information types` AND `Content contains sensitivity labels` in a single rule (Microsoft restriction — must be two rules in the same policy).
 
-This evidence supports — but does not by itself establish — the firm's
-compliance with:
+**Procedure.**
+1. `Connect-IPPSSession`.
+2. `$rules = Get-DlpComplianceRule | Where { $_.CopilotLocation }`.
+3. For each rule, parse `AdvancedRule` JSON and assert that `Condition.SubConditions` does NOT contain both `ContentContainsSensitiveInformation` and `ContentContainsSensitivityLabel`.
 
-  • FINRA Rule 4511 (record preservation for DLP enforcement and label state)
-  • FINRA Rule 3110 / 25-07 (supervisory system over AI-surfaces)
-  • SEC Reg S-P §248.30 (privacy and detection support for events that may
-    trigger customer notification)
-  • SEC 17a-4(f) (record-format / WORM expectations, paired with Control 1.7)
-  • GLBA 501(b) (safeguards for customer information processed by AI)
-  • SOX 404 (IT general controls over AI data flows)
-  • OCC 2011-12 / Federal Reserve SR 11-7 (model risk management ongoing
-    monitoring expectations as they apply to Copilot enforcement signals)
+**Status.** Any violating rule → `Anomaly`.
 
-This attestation does not constitute a legal determination. Reportability
-decisions remain with Compliance and Legal counsel.
+#### T-POLICY-02 — Custom-template inventory
 
-Control owner (printed name): _______________________________________
-Role:                         _______________________________________
-Signature:                    _______________________________________
-Date (UTC):                   _______________________________________
+Confirm Copilot block-by-label rules use the GA "Custom" template (not legacy templates that lack Copilot location support). Inventory all DLP policy templates and flag any policy targeting Copilot that uses a non-Custom template.
+
+#### T-POLICY-03 — License entitlement coverage
+
+For every DLP policy, confirm the user/group scope is fully covered by required SKUs (E5 / E5 Compliance / Defender plans). Users in scope without entitlement produce silent non-enforcement → `Anomaly`.
+
+---
+
+### Namespace: LABEL — Sensitivity label taxonomy
+
+#### T-LABEL-01 — Label publication and assignment
+
+Confirm the published label policy reaches all users in scope. `Get-LabelPolicy | Format-List Name, Labels, ScopedLabels, Settings, ModernGroupLocation`. Cross-check `ScopedLabels` against expected taxonomy.
+
+#### T-LABEL-02 — Container-vs-file boundary
+
+Confirm container labels (Teams, M365 Groups, SharePoint sites) and file labels are distinct and correctly scoped. A single label scoped to both can produce inheritance surprises that misclassify Copilot grounding context.
+
+#### T-LABEL-03 — Copilot grounding label presence
+
+Confirm at least one label in the published policy carries the `EncryptionRightsDefinitions` property required to block Copilot from grounding on encrypted content for users without `EXTRACT` rights. `Status = Anomaly` if no encryption-bearing label is published in Zone 3.
+
+#### T-LABEL-04 — API↔portal label normalization (Power Platform)
+
+Confirm `Get-DlpPolicy` returned labels match portal display: `Confidential`→`Business`, `General`→`Non-Business`, `Blocked`→`Blocked`. Use `ConvertTo-FsiUiLabel` from [`powershell-setup.md`](./powershell-setup.md). Mismatch → `Error` (telemetry correctness issue, not a policy issue).
+
+---
+
+
+### Namespace: SYNTH — Synthetic-leak tests per surface
+
+> **Reminder:** synthetic data only. Use Luhn-valid 4xxx test card numbers (e.g., `4111 1111 1111 1111`), synthetic SSNs (`9xx-xx-xxxx` test ranges), test account numbers prefixed `TEST-`. Do not pull from production data sources.
+
+#### T-SYNTH-01 — SharePoint upload synthetic CC
+
+Upload a `.docx` containing five Luhn-valid synthetic CC numbers to a SharePoint library in scope. Expected: DLP policy match within propagation window; UAL `RecordType = ComplianceDLPSharePoint` written. Verify policy-tip presented to test user.
+
+#### T-SYNTH-02 — Exchange outbound synthetic SSN
+
+Send a test email from a scoped mailbox to an external recipient with five synthetic SSNs in body. Expected: rule match, UAL `RecordType = ComplianceDLPExchange`, message blocked or quarantined per rule action.
+
+#### T-SYNTH-03 — Endpoint clipboard synthetic data
+
+On a managed endpoint in scope, copy synthetic CC content from a test file to clipboard and attempt paste to a non-allowed application. Expected: Endpoint DLP block; UAL `RecordType = DLPEndpoint`.
+
+#### T-SYNTH-04 — Teams chat synthetic data
+
+Post a Teams chat (in a non-private test channel) containing synthetic CC numbers. Expected: rule match; recipient sees policy-tip; UAL records the event.
+
+#### T-SYNTH-05 — Copilot prompt synthetic SIT (block-by-SIT-prompt, preview)
+
+In Copilot Chat, submit a prompt containing synthetic CC content. Expected (preview): block by SIT-prompt rule. `Status = NotApplicable` in sovereign clouds where preview is unavailable. `Status = Pending` within 4-hour propagation window.
+
+#### T-SYNTH-06 — Copilot grounding on labelled file (block-by-label, GA)
+
+Confirm a labelled file with `EncryptionRightsDefinitions` blocking `EXTRACT` does not appear in Copilot grounding citations for an unauthorized test user. Expected: file does not appear in citations; UAL records suppression.
+
+#### T-SYNTH-07 — Power Platform connector synthetic data flow
+
+Build a test flow that crosses the Business / Non-Business connector boundary with synthetic data. Expected: flow blocked at design-time per `Get-DlpPolicy` configuration.
+
+#### T-SYNTH-08 — Defender for Cloud Apps synthetic file
+
+Upload a synthetic-CC file to a non-MS SaaS surface covered by an MDA file policy. Expected: file policy match within 24h scan window.
+
+> **Important:** SYNTH tests do not exhaustively prove DLP catches all NPI variants. They prove that the configured rule path produces the expected enforcement and audit signal for a known-good positive sample.
+
+---
+
+### Namespace: COPILOT — Copilot-specific tests
+
+#### T-COPILOT-01 — Block-by-label (GA) end-to-end
+
+Authorized user requests Copilot summary of a folder containing a labelled-and-encrypted file they cannot `EXTRACT`. Expected: Copilot returns content from accessible files only; cites no encrypted content; UAL `RecordType = ComplianceDLPSharePoint` records the suppression.
+
+#### T-COPILOT-02 — Block-by-SIT-prompt (preview) end-to-end
+
+User submits a prompt containing synthetic CC data. Expected (preview, commercial only): prompt blocked with policy-tip; UAL records the prompt-block event. `NotApplicable` in sovereign clouds.
+
+#### T-COPILOT-03 — Copilot Studio agent grounding source DLP coverage
+
+For each published Copilot Studio agent, enumerate grounding sources (SharePoint sites, Dataverse tables, web sources). Confirm each source has DLP coverage from T-SURFACE-01 results. Any source on a `Missing` surface → `Anomaly`.
+
+#### T-COPILOT-04 — Calendar invite and direct-prompt-upload exclusions
+
+Document (do not test) the known unsupported scenarios per the Control 1.5 spec: Copilot DLP location does NOT scan calendar invites, and files uploaded directly into a prompt are NOT scanned. `Status = NotApplicable` with a Notes pointer to the WSP compensating control.
+
+---
+
+### Namespace: OVERRIDE — Override telemetry chain
+
+#### T-OVERRIDE-01 — End-to-end override chain
+
+**Purpose.** Confirm a user-initiated DLP override with required justification produces audit (Control 1.7) → Sentinel (Control 3.9) → supervisor queue (Control 2.12).
+
+**Procedure.**
+1. Configure a low-risk test rule with policy-tip override allowed and required justification.
+2. Test user triggers a synthetic match (T-SYNTH-01 variant) and overrides with justification text.
+3. Within 30 minutes (UAL ingestion lag), verify:
+   - UAL has the override event with `UserJustification` populated.
+   - Sentinel `OfficeActivity` table contains the event.
+   - The Comm Compliance / supervisor queue (per Control 2.12) shows a queued review item linking to the event.
+4. Capture screenshots / API responses as evidence.
+
+**Status.** Any broken link in the chain → `Anomaly`. `Pending` if within UAL ingestion lag.
+
+#### T-OVERRIDE-02 — Override telemetry sweep
+
+Daily query: `Search-UnifiedAuditLog -RecordType ComplianceDLPSharePoint,ComplianceDLPExchange,DLPEndpoint -Operations DLPRuleMatch -ResultSize 5000 | Where { $_.AuditData -match 'UserOverride' }`. Spot-check 5 randomly-sampled override events for justification text quality. Empty / boilerplate justifications → `Anomaly` and route to supervisor.
+
+---
+
+### Namespace: AUDIT — Audit pipeline integrity
+
+#### T-AUDIT-01 — RecordType counts
+
+Compare DLP rule-hit counts (from Purview Activity Explorer) against UAL RecordType counts for the same window. Divergence > 5% → `Anomaly` (audit pipeline gap → cross-link Control 1.7).
+
+| Surface | RecordType |
+|---|---|
+| SharePoint / OneDrive | `ComplianceDLPSharePoint` |
+| Exchange | `ComplianceDLPExchange` |
+| Endpoint | `DLPEndpoint` |
+| Teams | `ComplianceDLPSharePoint` (Teams chat files) / `ComplianceDLPExchange` (chat messages) |
+
+#### T-AUDIT-02 — UAL ingestion lag
+
+Sample most-recent DLP RecordType entry; compare to NOW. Lag > 30 minutes → `Pending`. Lag > 24 hours → `Anomaly`.
+
+---
+
+### Namespace: INCIDENT — Reg S-P 2024 dual-clock readiness
+
+#### T-INCIDENT-01 — Reg S-P dual-clock drill
+
+**Purpose.** Confirm the firm can determine and execute Reg S-P 2024 notification within 30 days (affected individuals) and 72 hours (covered service provider → covered institution) from a confirmed DLP incident.
+
+**Procedure.** Tabletop drill annually (Z1) / semi-annually (Z2) / quarterly (Z3):
+1. Stage a synthetic incident: T-SYNTH-02 escalated as a "real" event.
+2. Walk the Control 3.4 incident playbook end-to-end.
+3. Capture: time to detection, time to determination, time to notification draft, RACI execution, legal sign-off path.
+4. Confirm the playbook references both the 30-day and 72-hour clocks and the trigger conditions for each.
+
+**Status.** Drill completes within target windows → `Clean`. Any clock missed in drill → `Anomaly`. Playbook absent or not signed → `Anomaly`.
+
+> DLP telemetry feeds the **determination** but does not satisfy the **written program** requirement, which lives in Control 3.4.
+
+---
+
+### Namespace: SOV — Sovereign-cloud parity
+
+#### T-SOV-01 — IRM and Adaptive Protection N/A documentation
+
+In any GCC / GCC High / DoD tenancy, confirm:
+1. IRM is not enabled (it cannot be); WSPs reference the static role-based DLP rules acting as compensating control.
+2. Adaptive Protection is not enabled (it cannot be); WSPs reference static-threshold DLP rules as compensating control.
+3. Sponsor sign-off (Section 1) explicitly accepts the residual risk for the cycle.
+
+`Status = Clean` only when all three artifacts exist with current-cycle signatures.
+
+#### T-SOV-02 — Preview feature exclusion confirmation
+
+For each preview-only surface (Copilot block-by-SIT-prompt, PP HTTP filtering, Edge unmanaged-AI, Network DLP unmanaged-AI), confirm the surface is documented as `NotApplicable` in the active sovereign tenancy with a compensating-control reference.
+
+---
+
+
+## Section 8 — Reconciliation Evidence Pack
+
+At every quarter close, assemble the evidence pack:
+
+```
+evidence-pack/<YYYY-QN>/
+  manifest.sha256                    # SHA-256 of every file below
+  preflight/
+    pre-01..pre-07-<UTC>.json
+  surface/
+    surface-coverage-<UTC>.json      # T-SURFACE-01 output
+    onprem-scanner-<UTC>.json        # T-SURFACE-02
+  policy/
+    rule-shape-<UTC>.json            # T-POLICY-01..03
+  label/
+    label-policy-<UTC>.json          # T-LABEL-01..04
+  synth/
+    synth-<surface>-<UTC>.json       # T-SYNTH-01..08
+  copilot/
+    copilot-<UTC>.json               # T-COPILOT-01..04
+  override/
+    override-chain-<UTC>.json        # T-OVERRIDE-01
+    override-sweep-<UTC>.json        # T-OVERRIDE-02
+  audit/
+    recordtype-counts-<UTC>.json     # T-AUDIT-01
+    ual-lag-<UTC>.json               # T-AUDIT-02
+  incident/
+    regsp-drill-<UTC>.json           # T-INCIDENT-01
+  sov/
+    sovereign-parity-<UTC>.json      # T-SOV-01..02
+  rollup/
+    summary-<UTC>.json               # Get-FsiVerifierRollup output for collectorField
+  attestation/
+    attestation.sponsor.json
+    attestation.owner.json
+    attestation.compliance.json
 ```
 
----
-
-## 6. Anti-Patterns and Known Traps
-
-- **Standard-vs-Custom template trap.** The Microsoft 365 Copilot and Copilot Chat location is exposed **only** when authoring from the **Custom** template. Standard templates (Financial, Privacy, etc.) silently omit this location. T-Custom-Template-Inventory-03 is the early-warning signal.
-- **Same-rule SIT + label rejection.** A single rule cannot combine SIT conditions and sensitivity label conditions for the Copilot location. Author **two separate rules** in the same policy. T-Custom-Template-Inventory-03 flags `SameRuleViol = True`.
-- **"AI interactions" is not an auto-labeling location.** Service-side auto-labeling targets only SharePoint Online, OneDrive for Business, and Exchange Online. Anyone proposing an "AI interactions" auto-label scope is working from outdated or fabricated guidance — see T-AutoLabel-Scope-06.
-- **The 4-hour propagation window is real and must be observed.** Validation runs inside the window produce inconclusive (not failing) results. Record the policy edit timestamp in `T0` for every test and abort if `now − last_edit < 4h`.
-- **Restricted Administrative Unit limitation.** The Copilot DLP location does **not** support administrative units. An admin scoped to a Restricted AU cannot create or edit a policy that targets the Copilot location — use a tenant-scoped Purview Compliance Admin role for these tests, and document the role used in the tester log.
-- **Wrong shell — Exchange Online vs. Security & Compliance.** `Get-DlpCompliancePolicy`, `Get-DlpComplianceRule`, `Search-UnifiedAuditLog`, `Get-AutoSensitivityLabelPolicy`, and `Get-Label` live in Security & Compliance PowerShell (`Connect-IPPSSession`), not Exchange Online. The wrong shell returns silent zero / `False` results — a leading cause of false-pass attestations. Confirm `(Get-ConnectionInformation).ConnectionUri` before every test.
-- **Container label ≠ file label.** A container label on a Team / Group / SharePoint site does not propagate to files inside. Plan label-based DLP rules around the file/email label, not the container label. T-Container-Label-07 makes this explicit.
-- **Power Platform API ↔ portal label normalization.** API `Confidential` displays as **Business** in the portal, `General` displays as **Non-Business**, `Blocked` displays as **Blocked**. Compare apples to apples in T-PPDLP-Connector-Class-09.
-- **Adaptive Protection sovereign gap.** GCC High and DoD do not have Adaptive Protection at parity with Commercial as of this revision. Treat T-Adaptive-Protection-Threshold-08 as N/A in those clouds and retain a signed exception, not synthetic evidence.
+`manifest.sha256` is computed last; the three attestation signatures sign the chain per Section 1. The whole directory is sealed to WORM storage (Azure Blob Immutable Storage with legal hold OR Azure Blob Versioning with time-based retention) for **7 years** (SEC Rule 17a-4).
 
 ---
 
-[Back to Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md) | [Control 1.4 Verification](../1.4/verification-testing.md) | [Control 1.7 Verification](../1.7/verification-testing.md)
+## Section 9 — Quarterly Examiner-Style Audit
+
+Internal Audit performs a seeded sampling pass each quarter:
+
+1. Random sample 10 DLP rules across SharePoint, Exchange, Teams, Endpoint, Copilot.
+2. Walk each rule from portal definition → PowerShell export → UAL hit history → supervisor queue (where overrides exist).
+3. Sample 5 override events from the cycle; confirm justification adequacy and supervisor closure.
+4. Sample 3 preview-feature surfaces; confirm sovereign-cloud `NotApplicable` documentation.
+5. Re-execute T-INCIDENT-01 with a different synthetic scenario.
+6. Issue findings; route any `Anomaly` to the escalation matrix (Section 11).
+
+Sampling seed and methodology are recorded in the evidence pack so external examiners can reproduce.
+
+---
+
+## Section 10 — Annual External Attestation Pack
+
+Once per fiscal year, compile:
+
+- Four quarterly evidence packs.
+- The 13-surface coverage trend across all four quarters (gaps opened, gaps closed).
+- Override telemetry trend (volume, justification quality, supervisor closure SLA).
+- Reg S-P drill outcomes for the year.
+- Sovereign-cloud parity confirmations for each tenancy.
+- All attestation signatures and the SHA-256 chain across the four quarters.
+- WSP excerpts referencing the compensating controls invoked per surface.
+- Microsoft roadmap delta (preview → GA transitions affecting the firm during the year).
+
+Provide to external auditor / examiner under the firm's standard records-request handling.
+
+---
+
+## Section 11 — Failure Escalation Matrix
+
+| Severity | Trigger | Owner SLA | Routing |
+|---|---|---|---|
+| **Critical** | T-OVERRIDE-01 chain broken (overrides not reaching supervisor); T-INCIDENT-01 drill fails clock; any production NPI confirmed in a non-DLP-covered surface; PRE-05 audit pipeline outage > 4 hours. | 1 hour to acknowledge; 4 hours to remediate or compensating control. | CISO + CCO + CRO; open Sev-1 ticket; consider Reg S-P 72-hour clock. |
+| **High** | T-SURFACE-01 missing surface in Zone 3 without compensating control; T-POLICY-01 same-rule SIT+label violation; T-AUDIT-01 divergence > 5%. | 24 hours to remediate or open exception. | Purview Compliance Admin + Internal Audit; Sponsor notified. |
+| **Medium** | T-LABEL boundary anomaly; T-SYNTH single-surface failure; T-OVERRIDE-02 boilerplate justifications above threshold. | 5 business days. | Owner remediates; tracked in next quarterly attestation. |
+| **Low** | `Pending` results within documented processing windows; preview-feature drift in commercial. | Carry to next scheduled run; escalate to Medium if persists across two cycles. | Owner monitors. |
+
+---
+
+## Section 12 — Continuous Improvement
+
+- Track each `Anomaly` to a remediation ticket and a root cause (cross-link Control 3.4).
+- Review Microsoft roadmap monthly for preview → GA transitions; reclassify `NotApplicable` results once a feature reaches GA in the firm's tenancy.
+- Re-run the SURFACE namespace within the propagation window + 24 hours after every license, role, or sovereign-cloud change.
+- Feed override-telemetry trend into supervisor training (Control 2.12).
+- Update the synthetic-data corpus annually to track new SIT and EDM coverage.
+
+---
+
+## Section 13 — References
+
+- [Control 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
+- [Control 1.5 — Portal Walkthrough](./portal-walkthrough.md)
+- [Control 1.5 — PowerShell Setup](./powershell-setup.md)
+- [Control 1.5 — Troubleshooting](./troubleshooting.md)
+- [Shared PowerShell Baseline](../../_shared/powershell-baseline.md)
+- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
+- [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+- [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
+- [Control 1.13 — Sensitive Information Types and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
+- [Control 1.15 — Encryption (Data in Transit and at Rest)](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md)
+- [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
+- [Control 3.4 — Incident Reporting and Root-Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
+- [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
+- Microsoft Learn — [Data Loss Prevention reference](https://learn.microsoft.com/purview/dlp-learn-about-dlp)
+- Microsoft Learn — [DLP policy locations](https://learn.microsoft.com/purview/dlp-policy-reference)
+- Microsoft Learn — [DLP for Microsoft 365 Copilot](https://learn.microsoft.com/purview/dlp-microsoft365-copilot-learn-about)
+- Microsoft Learn — [Sensitivity labels](https://learn.microsoft.com/purview/sensitivity-labels)
+- Microsoft Learn — [Power Platform DLP policies](https://learn.microsoft.com/power-platform/admin/wp-data-loss-prevention)
+- Microsoft Learn — [Adaptive Protection](https://learn.microsoft.com/purview/insider-risk-management-adaptive-protection)
+- SEC — [Reg S-P 2024 amendments](https://www.sec.gov/files/rules/final/2024/34-100155.pdf)
+- FINRA — [Rule 3110 Supervision](https://www.finra.org/rules-guidance/rulebooks/finra-rules/3110)
+- SEC — [Rule 17a-4 Records to Be Preserved](https://www.ecfr.gov/current/title-17/chapter-II/part-240/section-240.17a-4)
 
 ---
 
